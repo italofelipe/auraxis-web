@@ -1009,10 +1009,294 @@ export default defineNuxtConfig({
 
 ---
 
+---
+
+## 14. Arquitetura feature-based
+
+> Regra central: **features não importam de outras features.**
+> Todo compartilhamento passa por `shared/`.
+
+```
+src/
+  shared/
+    components/        ← Button, Input, Card (sem lógica de negócio)
+    composables/       ← useDebounce, useMediaQuery (agnósticos de domínio)
+    theme/             ← TODOS os tokens de design (ver seção 15)
+    types/             ← tipos globais compartilhados
+    utils/             ← funções puras agnósticas
+    constants/         ← constantes globais
+
+  features/
+    auth/
+      components/      ← LoginForm (só usados por auth)
+      composables/     ← useAuth, useSession
+      pages/           ← login.vue, forgot-password.vue
+      services/        ← authService (chama a API)
+      types/           ← AuthUser, LoginPayload, SessionToken
+      tests/           ← unitários co-localizados
+      e2e/             ← specs Playwright desta feature
+    transactions/
+      ...
+
+  layouts/             ← layouts Nuxt (default, auth)
+  app.vue
+```
+
+**Regra de importação:**
+
+```typescript
+// ✅ Feature importa de shared
+import { Button } from "@/shared/components/Button";
+import { colors } from "@/shared/theme";
+
+// ✅ Feature importa de si mesma
+import { useAuth } from "../composables/useAuth";
+
+// ❌ NUNCA — feature importa de outra feature
+import { useTransactions } from "@/features/transactions/composables/useTransactions";
+// ↑ isso em features/auth/ é uma violação
+```
+
+---
+
+## 15. Design Tokens — Zero valores hardcoded
+
+Nenhum valor de estilo pode aparecer diretamente em um componente.
+Todo valor pertence ao sistema de tokens em `shared/theme/`.
+
+```
+shared/theme/
+  tokens/
+    primitives.ts    ← valores brutos (não usar em componentes)
+    semantic.ts      ← tokens semânticos (use estes)
+    typography.ts    ← escala tipográfica
+    spacing.ts       ← escala de espaçamento
+    radius.ts        ← border-radius
+    shadows.ts       ← elevações/sombras
+    motion.ts        ← durações e easings
+  index.ts           ← exporta tudo
+  index.css          ← CSS custom properties geradas dos tokens
+```
+
+```typescript
+// primitives.ts — valores brutos, nunca referenciar em componentes
+export const primitives = {
+  color: { indigo500: "#6366F1", red500: "#EF4444", gray100: "#F3F4F6" },
+  space: { 1: 4, 2: 8, 4: 16, 6: 24, 8: 32 },
+} as const;
+
+// semantic.ts — use estes nos componentes e no CSS
+export const colors = {
+  action: { primary: primitives.color.indigo500 },
+  surface: { background: primitives.color.gray100 },
+} as const;
+
+// typography.ts
+export const typography = {
+  size: { xs: 12, sm: 14, md: 16, lg: 18, xl: 20, "2xl": 24 },
+  weight: { regular: 400, medium: 500, semibold: 600, bold: 700 },
+} as const;
+
+// spacing.ts
+export const spacing = { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 } as const;
+```
+
+**Em componentes Vue — via CSS custom property, nunca valor literal:**
+
+```vue
+<!-- ❌ NUNCA — valor hardcoded -->
+<style scoped>
+.title {
+  font-size: 16px;
+  color: #6366f1;
+  margin-top: 8px;
+}
+</style>
+
+<!-- ✅ SEMPRE — token via CSS custom property -->
+<style scoped>
+.title {
+  font-size: var(--font-size-md); /* $font-md */
+  color: var(--color-primary); /* $color-primary */
+  margin-top: var(--spacing-sm); /* $space-sm */
+}
+</style>
+```
+
+Os tokens são expostos como CSS custom properties via `shared/theme/index.css`
+e importados globalmente pelo `nuxt.config.ts`.
+
+---
+
+## 16. Limite de arquivo e extração
+
+- **Máximo 250 linhas por arquivo `.vue`** (template + script + style somados).
+- Acima de 250 linhas → algo deve ser extraído imediatamente.
+
+```
+Sinais de que deve extrair:
+  → Arquivo > 250 linhas
+  → <script setup> com > 3 refs relacionadas → composable
+  → Bloco de template repetido → subcomponente
+  → <style scoped> com > 15 regras → tokens ou arquivo de estilo separado
+  → Computeds com lógica não trivial → composable ou util
+```
+
+```vue
+<!-- ❌ Componente com lógica de negócio inline -->
+<script setup lang="ts">
+const transactions = ref([]);
+const total = computed(() =>
+  transactions.value.reduce((sum, t) => sum + t.amount, 0),
+);
+// ... 80 linhas de fetch, filtro, sort, paginação...
+</script>
+
+<!-- ✅ Componente limpo: delega para composable -->
+<script setup lang="ts">
+import { useTransactions } from "../composables/useTransactions";
+
+const { transactions, total, isLoading, error } = useTransactions({
+  userId: props.userId,
+});
+</script>
+```
+
+---
+
+## 17. Zero `any` — TypeScript como Java
+
+`any` é proibido em qualquer forma. `strict: true` e `noImplicitAny: true` estão ativos.
+Trate TypeScript como Java: se não tem tipo, não compila.
+
+```typescript
+// ❌ NUNCA — nenhuma dessas formas
+const data: any = response;
+const result = (value as any).field;
+function handle(x: any): any {
+  return x;
+}
+const items: object[] = [];
+
+// ✅ Discriminated union para estados de request
+type RequestState<T> =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "success"; data: T }
+  | { status: "error"; error: Error };
+
+// ✅ unknown com narrowing explícito
+function parseApiError(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  if (typeof err === "string") return err;
+  return "Unexpected error";
+}
+
+// ✅ Generics com restrições
+function getById<T extends { id: string }>(
+  list: T[],
+  id: string,
+): T | undefined {
+  return list.find((item) => item.id === id);
+}
+
+// ✅ satisfies para validar sem perda de tipo literal
+const config = {
+  apiUrl: "https://api.auraxis.com",
+  timeout: 5000,
+} satisfies ApiConfig;
+```
+
+**Props — interface nomeada e exportada, nunca inline:**
+
+```typescript
+// ❌ NUNCA
+defineProps<{ label: string; onClick: () => void }>();
+
+// ✅ Interface nomeada + exportada
+export interface ButtonProps {
+  label: string;
+  variant?: "primary" | "secondary" | "ghost";
+  size?: "sm" | "md" | "lg";
+  disabled?: boolean;
+  onClick: () => void;
+}
+defineProps<ButtonProps>();
+```
+
+**Composables — tipo de retorno sempre explícito e exportado:**
+
+```typescript
+// ✅
+export interface UseTransactionsReturn {
+  transactions: Readonly<Ref<Transaction[]>>
+  isLoading: Readonly<Ref<boolean>>
+  error: Readonly<Ref<Error | null>>
+  refetch: () => Promise<void>
+}
+
+export function useTransactions(userId: string): UseTransactionsReturn { ... }
+```
+
+---
+
+## 18. PWA (Web como extensão do App)
+
+O foco primário é o app mobile. A web é a versão PWA que simula a experiência nativa.
+
+**Requisitos obrigatórios:**
+
+```typescript
+// nuxt.config.ts
+export default defineNuxtConfig({
+  modules: ["@vite-pwa/nuxt"],
+  pwa: {
+    manifest: {
+      name: "Auraxis",
+      short_name: "Auraxis",
+      display: "standalone",
+      background_color: "#ffffff",
+      theme_color: "#6366F1",
+      icons: [
+        { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+        { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+      ],
+    },
+    workbox: {
+      navigateFallback: "/",
+      globPatterns: ["**/*.{js,css,html,png,svg,ico}"],
+      runtimeCaching: [
+        {
+          urlPattern: /^https:\/\/api\.auraxis\.com\/.*/,
+          handler: "NetworkFirst",
+          options: {
+            cacheName: "api-cache",
+            expiration: { maxAgeSeconds: 60 },
+          },
+        },
+      ],
+    },
+  },
+});
+```
+
+**Gates CI para PWA (Lighthouse):**
+
+| Métrica        | Mínimo       |
+| :------------- | :----------- |
+| PWA score      | ≥ 90         |
+| Performance    | ≥ 85         |
+| Accessibility  | ≥ 90         |
+| Bundle inicial | ≤ 250KB gzip |
+| LCP            | ≤ 2.5s       |
+
+---
+
 ## Referências
 
 - Quality gates detalhados: `.context/quality_gates.md`
 - Steering (governança técnica local): `steering.md`
+- **Arquitetura frontend canônica: `auraxis-platform/.context/26_frontend_architecture.md`**
 - Manual unificado de qualidade e segurança: `auraxis-platform/.context/25_quality_security_playbook.md`
 - Governança global: `auraxis-platform/.context/07_steering_global.md`
 - Contrato de agente: `auraxis-platform/.context/08_agent_contract.md`
