@@ -1,0 +1,43 @@
+{
+  "name": "auraxis-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Auraxis Web — Nuxt 3 frontend",
+  "_note": "Este package.json é um scaffold. Rodar 'npx nuxi init .' ao inicializar o projeto (WEB1).",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "preview": "nuxt preview",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "typecheck": "nuxi typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "quality-check": "npm run lint && npm run typecheck && npm run test",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@commitlint/cli": "^20.4.2",
+    "@commitlint/config-conventional": "^20.4.2",
+    "@nuxt/test-utils": "^3.17.2",
+    "@vue/test-utils": "^2.4.6",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "nuxt": "^3.15.4",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.0",
+    "vue": "^3.5.13",
+    "vue-tsc": "^2.2.0"
+  },
+  "lint-staged": {
+    "**/*.{ts,tsx,vue}": [
+      "npx biome check --write --no-errors-on-unmatched"
+    ],
+    "**/*.{json,jsonc}": [
+      "npx biome format --write"
+    ]
+  }
+}

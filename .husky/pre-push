@@ -1,0 +1,7 @@
+echo "🔍 Running TypeScript check before push..."
+npx nuxi typecheck
+
+echo "🧪 Running tests with coverage..."
+npx vitest run --coverage
+
+echo "✅ Pre-push checks passed."
