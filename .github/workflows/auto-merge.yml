@@ -1,0 +1,49 @@
+# Auto-merge — auraxis-web
+# Habilita auto-merge automaticamente em PRs do Dependabot com label "auto-merge".
+# O merge só ocorre após todos os status checks de "ci-passed" passarem.
+#
+# Pré-requisito no GitHub:
+#   Settings → General → "Allow auto-merge" = habilitado
+#   Settings → Branches → master → branch protection:
+#     - "Require status checks": ci-passed
+#     - "Require branches to be up to date"
+
+name: Auto-merge Dependabot PRs
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    name: Enable auto-merge for Dependabot PRs
+    runs-on: ubuntu-latest
+    if: |
+      github.actor == 'dependabot[bot]' &&
+      contains(github.event.pull_request.labels.*.name, 'auto-merge')
+    steps:
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Só auto-merge para patch e minor (nunca major)
+      - name: Enable auto-merge (patch / minor only)
+        if: |
+          steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+          steps.metadata.outputs.update-type == 'version-update:semver-minor'
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Skip — major version update (requires manual review)
+        if: steps.metadata.outputs.update-type == 'version-update:semver-major'
+        run: |
+          echo "⚠️ Major version update detected. Skipping auto-merge."
+          echo "PR requires manual review: ${{ github.event.pull_request.html_url }}"

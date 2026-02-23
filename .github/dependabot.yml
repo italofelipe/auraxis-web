@@ -1,0 +1,81 @@
+# Dependabot — auraxis-web
+# Atualiza automaticamente dependências npm (pnpm) e GitHub Actions.
+# Auto-merge é habilitado via label "auto-merge" + branch protection rule:
+#   Settings → Branches → master → "Allow auto-merge" = on
+#   + "Require status checks to pass before merging" = ci-passed
+
+version: 2
+
+updates:
+  # ── npm / pnpm dependencies ────────────────────────────────────────────
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Sao_Paulo
+    open-pull-requests-limit: 10
+    groups:
+      # Agrupa todas as atualizações de patch em um único PR
+      patch-updates:
+        update-types:
+          - patch
+      # Agrupa devDependencies de minor em um único PR
+      dev-minor-updates:
+        dependency-type: development
+        update-types:
+          - minor
+      # Nuxt ecosystem — minor e patch juntos
+      nuxt-ecosystem:
+        patterns:
+          - nuxt
+          - "@nuxt/*"
+          - "@nuxtjs/*"
+          - "nuxt-*"
+        update-types:
+          - minor
+          - patch
+      # Vue ecosystem
+      vue-ecosystem:
+        patterns:
+          - vue
+          - "@vue/*"
+          - "vue-*"
+        update-types:
+          - minor
+          - patch
+      # Pinia
+      pinia:
+        patterns:
+          - pinia
+          - "@pinia/*"
+    labels:
+      - dependencies
+      - auto-merge
+    commit-message:
+      prefix: chore
+      prefix-development: chore
+      include: scope
+    ignore:
+      # Ignorar major versions — exigem revisão manual
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
+
+  # ── GitHub Actions ─────────────────────────────────────────────────────
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Sao_Paulo
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - github-actions
+      - auto-merge
+    commit-message:
+      prefix: chore
+      include: scope

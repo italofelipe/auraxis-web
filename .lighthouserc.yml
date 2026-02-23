@@ -1,0 +1,70 @@
+# Lighthouse CI — auraxis-web
+# Documentação: https://github.com/GoogleChrome/lighthouse-ci
+#
+# Setup:
+#   1. Instale o Lighthouse CI GitHub App: https://github.com/apps/lighthouse-ci
+#   2. Gere um token LHCI_GITHUB_APP_TOKEN e adicione nos secrets do repositório
+#      (opcional — sem o token, usa temporaryPublicStorage)
+#
+# Para rodar localmente:
+#   pnpm dlx @lhci/cli autorun
+
+ci:
+  collect:
+    # Usa o servidor Nuxt em modo preview após o build
+    startServerCommand: pnpm preview
+    startServerReadyPattern: 'Listening on'
+    startServerReadyTimeout: 30000
+    url:
+      - http://localhost:3000/
+      - http://localhost:3000/login    # Ajustar para páginas reais do projeto
+      - http://localhost:3000/dashboard
+    numberOfRuns: 3  # Média de 3 execuções para reduzir variabilidade
+
+  assert:
+    # Thresholds de qualidade — falha o CI se não atingir
+    preset: lighthouse:no-pwa  # Não exige PWA (pode ativar depois)
+    assertions:
+      # Performance
+      first-contentful-paint:
+        - warn
+        - maxNumericValue: 2000   # 2s — aviso
+      largest-contentful-paint:
+        - error
+        - maxNumericValue: 4000   # 4s — falha (Core Web Vital)
+      total-blocking-time:
+        - warn
+        - maxNumericValue: 600    # 600ms — aviso
+      cumulative-layout-shift:
+        - error
+        - maxNumericValue: 0.1    # 0.1 — falha (Core Web Vital)
+      speed-index:
+        - warn
+        - maxNumericValue: 3400
+
+      # Scores mínimos (0-1)
+      'categories:performance':
+        - warn
+        - minScore: 0.8           # ≥ 80 — aviso
+      'categories:accessibility':
+        - error
+        - minScore: 0.9           # ≥ 90 — falha (a11y é obrigatório)
+      'categories:best-practices':
+        - warn
+        - minScore: 0.85
+      'categories:seo':
+        - warn
+        - minScore: 0.9
+
+      # Segurança e boas práticas
+      uses-https:
+        - error
+        - minScore: 1
+      no-vulnerable-libraries:
+        - error
+        - minScore: 1
+
+  upload:
+    # Usa armazenamento público temporário (gratuito, 13 dias de retenção)
+    # Para persistência: configurar servidor LHCI próprio ou lhci.app pago
+    target: temporary-public-storage
