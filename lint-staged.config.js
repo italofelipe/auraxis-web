@@ -1,17 +1,18 @@
 /**
  * lint-staged — auraxis-web
  *
- * Biome faz lint + format em um único passo (substitui ESLint + Prettier).
+ * ESLint via @nuxt/eslint cuida de lint + regras Vue/TypeScript.
+ * Prettier cuida de formatação (JSON, Markdown).
  * TypeScript check e testes rodam no pre-push (precisam do contexto global).
  */
 module.exports = {
-  // Vue, TypeScript, TSX — Biome lint + format
+  // Vue, TypeScript — ESLint fix automático nos staged files
   '**/*.{ts,tsx,vue}': [
-    'npx biome check --write --no-errors-on-unmatched',
+    'eslint --fix',
   ],
 
-  // JSON, JSONC — Biome format
-  '**/*.{json,jsonc}': [
-    'npx biome format --write',
+  // JSON, Markdown — Prettier
+  '**/*.{json,jsonc,md}': [
+    'prettier --write',
   ],
 }

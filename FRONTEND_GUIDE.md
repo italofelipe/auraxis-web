@@ -1,6 +1,6 @@
-# Frontend Guide — auraxis-web (Nuxt 3)
+# Frontend Guide — auraxis-web (Nuxt 4)
 
-Stack: **Nuxt 3 · TypeScript strict · Biome · Vitest · Pinia**
+Stack: **Nuxt 4 · TypeScript strict · @nuxt/eslint · Prettier · Vitest · Pinia**
 
 Este documento é a referência técnica definitiva para desenvolvimento no `auraxis-web`.
 Tudo aqui é **obrigatório**, não sugestão.
@@ -49,8 +49,8 @@ auraxis-web/
   public/           # Estáticos públicos (favicon, etc.)
   server/           # API routes server-side (se necessário)
   nuxt.config.ts
-  biome.json
   tsconfig.json
+  vitest.config.ts
 ```
 
 ---
@@ -61,11 +61,11 @@ auraxis-web/
 
 ```typescript
 // ❌ PROIBIDO
-const data: any = response.data
+const data: any = response.data;
 function process(input: any) {}
 
 // ✅ CORRETO
-const data: Transaction[] = response.data
+const data: Transaction[] = response.data;
 function process(input: CreateTransactionDto) {}
 ```
 
@@ -74,12 +74,12 @@ function process(input: CreateTransactionDto) {}
 ```typescript
 // ❌ Retorno inferido em função pública
 export function getTotal(transactions: Transaction[]) {
-  return transactions.reduce((acc, t) => acc + t.amount, 0)
+  return transactions.reduce((acc, t) => acc + t.amount, 0);
 }
 
 // ✅ Retorno explícito
 export function getTotal(transactions: Transaction[]): number {
-  return transactions.reduce((acc, t) => acc + t.amount, 0)
+  return transactions.reduce((acc, t) => acc + t.amount, 0);
 }
 ```
 
@@ -87,12 +87,12 @@ export function getTotal(transactions: Transaction[]): number {
 
 ```typescript
 // ❌ Type assertion perigosa
-const user = response as User
+const user = response as User;
 
 // ✅ Validar e tipar na fronteira
 function parseUser(raw: unknown): User {
-  if (!isUser(raw)) throw new Error('Invalid user payload')
-  return raw
+  if (!isUser(raw)) throw new Error("Invalid user payload");
+  return raw;
 }
 ```
 
@@ -101,21 +101,21 @@ function parseUser(raw: unknown): User {
 ```typescript
 // types/api/transaction.ts
 export interface CreateTransactionRequest {
-  description: string
-  amount: number
-  category_id: string
-  date: string          // ISO 8601
-  type: 'income' | 'expense'
+  description: string;
+  amount: number;
+  category_id: string;
+  date: string; // ISO 8601
+  type: "income" | "expense";
 }
 
 export interface TransactionResponse {
-  id: string
-  description: string
-  amount: number
-  category: CategoryResponse
-  date: string
-  type: 'income' | 'expense'
-  created_at: string
+  id: string;
+  description: string;
+  amount: number;
+  category: CategoryResponse;
+  date: string;
+  type: "income" | "expense";
+  created_at: string;
 }
 ```
 
@@ -124,15 +124,15 @@ export interface TransactionResponse {
 ```typescript
 // types/domain/transaction.ts — representação interna (pode diferir da API)
 export interface Transaction {
-  id: string
-  description: string
-  amount: number        // em centavos internamente
-  category: Category
-  date: Date            // Date real, não string
-  type: TransactionType
+  id: string;
+  description: string;
+  amount: number; // em centavos internamente
+  category: Category;
+  date: Date; // Date real, não string
+  type: TransactionType;
 }
 
-export type TransactionType = 'income' | 'expense'
+export type TransactionType = "income" | "expense";
 ```
 
 ---
@@ -145,27 +145,29 @@ export type TransactionType = 'income' | 'expense'
 <!-- ❌ Options API não usar -->
 <script>
 export default {
-  data() { return {} }
-}
+  data() {
+    return {};
+  },
+};
 </script>
 
 <!-- ✅ Composition API com script setup -->
 <script setup lang="ts">
-import type { Transaction } from '@/types/domain/transaction'
+import type { Transaction } from "@/types/domain/transaction";
 
 interface Props {
-  transaction: Transaction
-  compact?: boolean
+  transaction: Transaction;
+  compact?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   compact: false,
-})
+});
 
 const emit = defineEmits<{
-  select: [transaction: Transaction]
-  delete: [id: string]
-}>()
+  select: [transaction: Transaction];
+  delete: [id: string];
+}>();
 </script>
 ```
 
@@ -174,9 +176,9 @@ const emit = defineEmits<{
 ```typescript
 // ✅ Interface explícita, nunca objeto inline
 interface Props {
-  amount: number
-  currency?: string
-  variant?: 'positive' | 'negative' | 'neutral'
+  amount: number;
+  currency?: string;
+  variant?: "positive" | "negative" | "neutral";
 }
 ```
 
@@ -188,20 +190,20 @@ Primitivos que não carregam lógica de negócio:
 <!-- components/base/BaseButton.vue -->
 <script setup lang="ts">
 interface Props {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger'
-  size?: 'sm' | 'md' | 'lg'
-  loading?: boolean
-  disabled?: boolean
+  variant?: "primary" | "secondary" | "ghost" | "danger";
+  size?: "sm" | "md" | "lg";
+  loading?: boolean;
+  disabled?: boolean;
 }
 
 withDefaults(defineProps<Props>(), {
-  variant: 'primary',
-  size: 'md',
+  variant: "primary",
+  size: "md",
   loading: false,
   disabled: false,
-})
+});
 
-defineEmits<{ click: [event: MouseEvent] }>()
+defineEmits<{ click: [event: MouseEvent] }>();
 </script>
 ```
 
@@ -211,24 +213,24 @@ defineEmits<{ click: [event: MouseEvent] }>()
 <!-- components/domain/TransactionItem.vue -->
 <!-- Conhece Transaction, mas não faz chamadas HTTP -->
 <script setup lang="ts">
-import type { Transaction } from '@/types/domain/transaction'
-import { formatCurrency, formatDate } from '@/utils/formatters'
+import type { Transaction } from "@/types/domain/transaction";
+import { formatCurrency, formatDate } from "@/utils/formatters";
 
-defineProps<{ transaction: Transaction }>()
-defineEmits<{ delete: [id: string] }>()
+defineProps<{ transaction: Transaction }>();
+defineEmits<{ delete: [id: string] }>();
 </script>
 ```
 
 ### Regras de componentes
 
-| Regra | Detalhe |
-|:------|:--------|
+| Regra                                | Detalhe                                                |
+| :----------------------------------- | :----------------------------------------------------- |
 | Um componente = uma responsabilidade | Componente que faz fetch + renderiza = separar em dois |
-| Sem chamadas HTTP em componentes | Usar composables ou stores |
-| Props são somente leitura | Nunca mutar props diretamente |
-| Emit para comunicação para cima | Nunca chamar método do pai via ref |
-| Nomes em PascalCase | `TransactionItem.vue`, não `transaction-item.vue` |
-| `key` em todo `v-for` | Sempre com id único, nunca index |
+| Sem chamadas HTTP em componentes     | Usar composables ou stores                             |
+| Props são somente leitura            | Nunca mutar props diretamente                          |
+| Emit para comunicação para cima      | Nunca chamar método do pai via ref                     |
+| Nomes em PascalCase                  | `TransactionItem.vue`, não `transaction-item.vue`      |
+| `key` em todo `v-for`                | Sempre com id único, nunca index                       |
 
 ```vue
 <!-- ❌ index como key -->
@@ -247,16 +249,16 @@ defineEmits<{ delete: [id: string] }>()
 ```typescript
 // composables/useTransactions.ts
 export function useTransactions() {
-  const store = useTransactionStore()
-  const { notify } = useNotifications()
+  const store = useTransactionStore();
+  const { notify } = useNotifications();
 
   async function createTransaction(dto: CreateTransactionDto): Promise<void> {
     try {
-      await store.create(dto)
-      notify({ type: 'success', message: 'Transação criada' })
+      await store.create(dto);
+      notify({ type: "success", message: "Transação criada" });
     } catch (error) {
-      notify({ type: 'error', message: 'Falha ao criar transação' })
-      throw error
+      notify({ type: "error", message: "Falha ao criar transação" });
+      throw error;
     }
   }
 
@@ -264,7 +266,7 @@ export function useTransactions() {
     transactions: computed(() => store.items),
     isLoading: computed(() => store.isLoading),
     createTransaction,
-  }
+  };
 }
 ```
 
@@ -272,10 +274,10 @@ export function useTransactions() {
 
 ```typescript
 // ❌ Retorna ref direto — mutável externamente
-return { items: store.items }
+return { items: store.items };
 
 // ✅ computed — somente leitura
-return { items: computed(() => store.items) }
+return { items: computed(() => store.items) };
 ```
 
 ### Prefixo `use` obrigatório
@@ -294,75 +296,86 @@ getTransactions.ts  ❌
 
 ```typescript
 // stores/transaction.ts
-import { defineStore } from 'pinia'
-import { transactionService } from '@/services/transaction.service'
-import type { Transaction } from '@/types/domain/transaction'
-import type { CreateTransactionDto } from '@/types/api/transaction'
+import { defineStore } from "pinia";
+import { transactionService } from "@/services/transaction.service";
+import type { Transaction } from "@/types/domain/transaction";
+import type { CreateTransactionDto } from "@/types/api/transaction";
 
-export const useTransactionStore = defineStore('transaction', () => {
+export const useTransactionStore = defineStore("transaction", () => {
   // State
-  const items = ref<Transaction[]>([])
-  const isLoading = ref(false)
-  const error = ref<string | null>(null)
+  const items = ref<Transaction[]>([]);
+  const isLoading = ref(false);
+  const error = ref<string | null>(null);
 
   // Getters
   const total = computed(() =>
-    items.value.reduce((acc, t) =>
-      t.type === 'income' ? acc + t.amount : acc - t.amount, 0
-    )
-  )
+    items.value.reduce(
+      (acc, t) => (t.type === "income" ? acc + t.amount : acc - t.amount),
+      0,
+    ),
+  );
 
   const byCategory = computed(() =>
     items.value.reduce<Record<string, Transaction[]>>((acc, t) => {
-      ;(acc[t.category.id] ??= []).push(t)
-      return acc
-    }, {})
-  )
+      (acc[t.category.id] ??= []).push(t);
+      return acc;
+    }, {}),
+  );
 
   // Actions
   async function fetchAll(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    isLoading.value = true;
+    error.value = null;
     try {
-      items.value = await transactionService.getAll()
+      items.value = await transactionService.getAll();
     } catch (err) {
-      error.value = 'Falha ao carregar transações'
-      throw err
+      error.value = "Falha ao carregar transações";
+      throw err;
     } finally {
-      isLoading.value = false
+      isLoading.value = false;
     }
   }
 
   async function create(dto: CreateTransactionDto): Promise<Transaction> {
-    const created = await transactionService.create(dto)
-    items.value.unshift(created)
-    return created
+    const created = await transactionService.create(dto);
+    items.value.unshift(created);
+    return created;
   }
 
   async function remove(id: string): Promise<void> {
-    await transactionService.delete(id)
-    items.value = items.value.filter(t => t.id !== id)
+    await transactionService.delete(id);
+    items.value = items.value.filter((t) => t.id !== id);
   }
 
   function $reset() {
-    items.value = []
-    isLoading.value = false
-    error.value = null
+    items.value = [];
+    isLoading.value = false;
+    error.value = null;
   }
 
-  return { items, isLoading, error, total, byCategory, fetchAll, create, remove, $reset }
-})
+  return {
+    items,
+    isLoading,
+    error,
+    total,
+    byCategory,
+    fetchAll,
+    create,
+    remove,
+    $reset,
+  };
+});
 ```
 
 ### Regras de stores
 
-| Regra | Detalhe |
-|:------|:--------|
-| Um store por domínio | `useTransactionStore`, `useGoalStore`, `useAuthStore` |
-| Nunca chamar store em outro store | Usar composables para orquestrar |
-| `$reset()` sempre presente | Para logout e cleanup |
-| Actions lançam erros — componentes tratam | Store não swallows exceptions |
-| Sem lógica de apresentação | Formatação fica em utils/composables |
+| Regra                                     | Detalhe                                               |
+| :---------------------------------------- | :---------------------------------------------------- |
+| Um store por domínio                      | `useTransactionStore`, `useGoalStore`, `useAuthStore` |
+| Nunca chamar store em outro store         | Usar composables para orquestrar                      |
+| `$reset()` sempre presente                | Para logout e cleanup                                 |
+| Actions lançam erros — componentes tratam | Store não swallows exceptions                         |
+| Sem lógica de apresentação                | Formatação fica em utils/composables                  |
 
 ---
 
@@ -372,11 +385,11 @@ export const useTransactionStore = defineStore('transaction', () => {
 
 ```typescript
 // services/transaction.service.ts
-import type { Transaction } from '@/types/domain/transaction'
+import type { Transaction } from "@/types/domain/transaction";
 import type {
   CreateTransactionRequest,
   TransactionResponse,
-} from '@/types/api/transaction'
+} from "@/types/api/transaction";
 
 function toTransaction(raw: TransactionResponse): Transaction {
   return {
@@ -386,43 +399,45 @@ function toTransaction(raw: TransactionResponse): Transaction {
     category: raw.category,
     date: new Date(raw.date),
     type: raw.type,
-  }
+  };
 }
 
 export const transactionService = {
   async getAll(): Promise<Transaction[]> {
-    const data = await $fetch<TransactionResponse[]>('/api/v1/transactions')
-    return data.map(toTransaction)
+    const data = await $fetch<TransactionResponse[]>("/api/v1/transactions");
+    return data.map(toTransaction);
   },
 
   async getById(id: string): Promise<Transaction> {
-    const data = await $fetch<TransactionResponse>(`/api/v1/transactions/${id}`)
-    return toTransaction(data)
+    const data = await $fetch<TransactionResponse>(
+      `/api/v1/transactions/${id}`,
+    );
+    return toTransaction(data);
   },
 
   async create(dto: CreateTransactionRequest): Promise<Transaction> {
-    const data = await $fetch<TransactionResponse>('/api/v1/transactions', {
-      method: 'POST',
+    const data = await $fetch<TransactionResponse>("/api/v1/transactions", {
+      method: "POST",
       body: dto,
-    })
-    return toTransaction(data)
+    });
+    return toTransaction(data);
   },
 
   async delete(id: string): Promise<void> {
-    await $fetch(`/api/v1/transactions/${id}`, { method: 'DELETE' })
+    await $fetch(`/api/v1/transactions/${id}`, { method: "DELETE" });
   },
-}
+};
 ```
 
 ### Regras de services
 
-| Regra | Detalhe |
-|:------|:--------|
+| Regra                                 | Detalhe                                         |
+| :------------------------------------ | :---------------------------------------------- |
 | Transformam dados da API para domínio | Função `toX(raw: XResponse): X` sempre presente |
-| Nunca retornam o tipo raw da API | Páginas/stores lidam com tipos de domínio |
-| Erros HTTP sobem sem wrap | Store e composable tratam |
-| `$fetch` nativo do Nuxt | Não instalar axios salvo necessidade comprovada |
-| Base URL via `nuxt.config.ts` | Nunca hardcoded |
+| Nunca retornam o tipo raw da API      | Páginas/stores lidam com tipos de domínio       |
+| Erros HTTP sobem sem wrap             | Store e composable tratam                       |
+| `$fetch` nativo do Nuxt               | Não instalar axios salvo necessidade comprovada |
+| Base URL via `nuxt.config.ts`         | Nunca hardcoded                                 |
 
 ### Configuração de base URL
 
@@ -430,12 +445,12 @@ export const transactionService = {
 // nuxt.config.ts
 export default defineNuxtConfig({
   runtimeConfig: {
-    apiBaseUrl: process.env.NUXT_API_BASE_URL,   // server-side
+    apiBaseUrl: process.env.NUXT_API_BASE_URL, // server-side
     public: {
-      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL,  // client-side
+      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL, // client-side
     },
   },
-})
+});
 ```
 
 ---
@@ -465,21 +480,21 @@ pages/
 ```typescript
 // middleware/auth.ts
 export default defineNuxtRouteMiddleware((to) => {
-  const auth = useAuthStore()
+  const auth = useAuthStore();
 
-  if (!auth.isAuthenticated && to.path !== '/auth/login') {
-    return navigateTo('/auth/login')
+  if (!auth.isAuthenticated && to.path !== "/auth/login") {
+    return navigateTo("/auth/login");
   }
-})
+});
 ```
 
 ```vue
 <!-- pages/dashboard/index.vue -->
 <script setup lang="ts">
 definePageMeta({
-  middleware: 'auth',
-  layout: 'dashboard',
-})
+  middleware: "auth",
+  layout: "dashboard",
+});
 </script>
 ```
 
@@ -488,10 +503,10 @@ definePageMeta({
 ```vue
 <!-- ✅ Página thin — orquestra, não processa -->
 <script setup lang="ts">
-definePageMeta({ middleware: 'auth', layout: 'dashboard' })
+definePageMeta({ middleware: "auth", layout: "dashboard" });
 
-const { transactions, isLoading, createTransaction } = useTransactions()
-await useAsyncData('transactions', () => useTransactionStore().fetchAll())
+const { transactions, isLoading, createTransaction } = useTransactions();
+await useAsyncData("transactions", () => useTransactionStore().fetchAll());
 </script>
 
 <template>
@@ -547,12 +562,12 @@ layouts/
 
 ### Regras de estilo
 
-| Regra | Detalhe |
-|:------|:--------|
-| Sem `style` global em componentes | Apenas `scoped` |
-| Sem valores mágicos | Usar variáveis CSS do design system |
-| Sem `!important` | Se precisar, o componente está mal estruturado |
-| Classes utilitárias apenas via sistema | Não misturar Tailwind ad-hoc com CSS modules |
+| Regra                                  | Detalhe                                        |
+| :------------------------------------- | :--------------------------------------------- |
+| Sem `style` global em componentes      | Apenas `scoped`                                |
+| Sem valores mágicos                    | Usar variáveis CSS do design system            |
+| Sem `!important`                       | Se precisar, o componente está mal estruturado |
+| Classes utilitárias apenas via sistema | Não misturar Tailwind ad-hoc com CSS modules   |
 
 ---
 
@@ -562,58 +577,60 @@ layouts/
 
 ```typescript
 // components/domain/__tests__/TransactionItem.spec.ts
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
-import TransactionItem from '../TransactionItem.vue'
-import { mockTransaction } from '@/tests/factories/transaction.factory'
+import { describe, it, expect } from "vitest";
+import { mount } from "@vue/test-utils";
+import TransactionItem from "../TransactionItem.vue";
+import { mockTransaction } from "@/tests/factories/transaction.factory";
 
-describe('TransactionItem', () => {
-  it('exibe descrição e valor formatado', () => {
-    const transaction = mockTransaction({ amount: 5000, type: 'expense' })
-    const wrapper = mount(TransactionItem, { props: { transaction } })
+describe("TransactionItem", () => {
+  it("exibe descrição e valor formatado", () => {
+    const transaction = mockTransaction({ amount: 5000, type: "expense" });
+    const wrapper = mount(TransactionItem, { props: { transaction } });
 
-    expect(wrapper.text()).toContain(transaction.description)
-    expect(wrapper.text()).toContain('R$ 50,00')
-  })
+    expect(wrapper.text()).toContain(transaction.description);
+    expect(wrapper.text()).toContain("R$ 50,00");
+  });
 
-  it('emite evento delete com id correto', async () => {
-    const transaction = mockTransaction()
-    const wrapper = mount(TransactionItem, { props: { transaction } })
+  it("emite evento delete com id correto", async () => {
+    const transaction = mockTransaction();
+    const wrapper = mount(TransactionItem, { props: { transaction } });
 
-    await wrapper.find('[data-testid="delete-btn"]').trigger('click')
-    expect(wrapper.emitted('delete')?.[0]).toEqual([transaction.id])
-  })
-})
+    await wrapper.find('[data-testid="delete-btn"]').trigger("click");
+    expect(wrapper.emitted("delete")?.[0]).toEqual([transaction.id]);
+  });
+});
 ```
 
 ### Factories para dados de teste
 
 ```typescript
 // tests/factories/transaction.factory.ts
-import type { Transaction } from '@/types/domain/transaction'
+import type { Transaction } from "@/types/domain/transaction";
 
-export function mockTransaction(overrides: Partial<Transaction> = {}): Transaction {
+export function mockTransaction(
+  overrides: Partial<Transaction> = {},
+): Transaction {
   return {
-    id: 'txn-001',
-    description: 'Supermercado',
+    id: "txn-001",
+    description: "Supermercado",
     amount: 15000,
-    category: { id: 'cat-001', name: 'Alimentação' },
-    date: new Date('2026-02-01'),
-    type: 'expense',
+    category: { id: "cat-001", name: "Alimentação" },
+    date: new Date("2026-02-01"),
+    type: "expense",
     ...overrides,
-  }
+  };
 }
 ```
 
 ### Regras de testes
 
-| Regra | Detalhe |
-|:------|:--------|
-| Testar comportamento, não implementação | `expect(wrapper.text()).toContain(...)` não `expect(wrapper.vm.internalState)` |
-| `data-testid` para elementos de interação | Não selecionar por classe CSS |
-| Factories para todos os tipos de domínio | Sem objetos literais inline nos testes |
-| Mocks de services, não de stores | Store pode ser testada com estado real |
-| Sem `setTimeout` em testes | Usar `await nextTick()` ou `flushPromises()` |
+| Regra                                     | Detalhe                                                                        |
+| :---------------------------------------- | :----------------------------------------------------------------------------- |
+| Testar comportamento, não implementação   | `expect(wrapper.text()).toContain(...)` não `expect(wrapper.vm.internalState)` |
+| `data-testid` para elementos de interação | Não selecionar por classe CSS                                                  |
+| Factories para todos os tipos de domínio  | Sem objetos literais inline nos testes                                         |
+| Mocks de services, não de stores          | Store pode ser testada com estado real                                         |
+| Sem `setTimeout` em testes                | Usar `await nextTick()` ou `flushPromises()`                                   |
 
 ---
 
@@ -625,14 +642,13 @@ export function mockTransaction(overrides: Partial<Transaction> = {}): Transacti
 <script setup lang="ts">
 // ❌ Fetch no cliente — sem SSR, sem cache
 onMounted(async () => {
-  transactions.value = await transactionService.getAll()
-})
+  transactions.value = await transactionService.getAll();
+});
 
 // ✅ SSR-aware com cache automático
-const { data: transactions } = await useAsyncData(
-  'transactions',
-  () => transactionService.getAll(),
-)
+const { data: transactions } = await useAsyncData("transactions", () =>
+  transactionService.getAll(),
+);
 </script>
 ```
 
@@ -641,8 +657,8 @@ const { data: transactions } = await useAsyncData(
 ```typescript
 // Componentes com gráficos, editores, tabelas grandes
 const HeavyChart = defineAsyncComponent(
-  () => import('@/components/domain/HeavyChart.vue')
-)
+  () => import("@/components/domain/HeavyChart.vue"),
+);
 ```
 
 ### `v-memo` para listas estáticas longas
@@ -658,13 +674,13 @@ const HeavyChart = defineAsyncComponent(
 
 ### Regras de performance
 
-| Regra | Detalhe |
-|:------|:--------|
-| Paginação em listas > 50 itens | Nunca carregar tudo de uma vez |
-| Imagens com `<NuxtImg>` | Lazy load e otimização automática |
-| Não computar em template | Mover para `computed` ou `useMemo` |
-| `shallowRef` para objetos grandes imutáveis | Evita reatividade profunda desnecessária |
-| Sem watchers em loop | `watch` com `immediate: false` e deep mínimo |
+| Regra                                       | Detalhe                                      |
+| :------------------------------------------ | :------------------------------------------- |
+| Paginação em listas > 50 itens              | Nunca carregar tudo de uma vez               |
+| Imagens com `<NuxtImg>`                     | Lazy load e otimização automática            |
+| Não computar em template                    | Mover para `computed` ou `useMemo`           |
+| `shallowRef` para objetos grandes imutáveis | Evita reatividade profunda desnecessária     |
+| Sem watchers em loop                        | `watch` com `immediate: false` e deep mínimo |
 
 ---
 
@@ -674,7 +690,7 @@ const HeavyChart = defineAsyncComponent(
 
 ```typescript
 // ❌ Token visível para JS — vulnerável a XSS
-localStorage.setItem('token', accessToken)
+localStorage.setItem("token", accessToken);
 
 // ✅ Cookie httpOnly — inacessível para JS
 // O servidor seta via Set-Cookie: token=...; HttpOnly; Secure; SameSite=Strict
@@ -699,13 +715,13 @@ NUXT_PUBLIC_API_BASE_URL=...→ safe para expor ao cliente
 
 ### Regras de segurança
 
-| Regra | Detalhe |
-|:------|:--------|
-| Nunca `v-html` com dado externo | Use `:textContent` ou `{{ }}` |
-| Nunca tokens em `localStorage` | httpOnly cookies |
-| Nunca secrets em `NUXT_PUBLIC_*` | Usar `NUXT_*` sem PUBLIC |
-| Nunca `.env` commitado | Verificar `.gitignore` antes de push |
-| CORS gerenciado pela API | Não replicar no front |
+| Regra                            | Detalhe                              |
+| :------------------------------- | :----------------------------------- |
+| Nunca `v-html` com dado externo  | Use `:textContent` ou `{{ }}`        |
+| Nunca tokens em `localStorage`   | httpOnly cookies                     |
+| Nunca secrets em `NUXT_PUBLIC_*` | Usar `NUXT_*` sem PUBLIC             |
+| Nunca `.env` commitado           | Verificar `.gitignore` antes de push |
+| CORS gerenciado pela API         | Não replicar no front                |
 
 ---
 
@@ -714,17 +730,17 @@ NUXT_PUBLIC_API_BASE_URL=...→ safe para expor ao cliente
 Execute antes de **todo commit**, nesta ordem:
 
 ```bash
-# 1. Lint + formatação
-npx biome check --write .
+# 1. Lint (@nuxt/eslint)
+pnpm lint
 
 # 2. Type-check
-npx nuxi typecheck
+pnpm typecheck
 
 # 3. Testes
-npx vitest run
+pnpm test
 
 # Combinado:
-npx biome check --write . && npx nuxi typecheck && npx vitest run
+pnpm quality-check
 ```
 
 **Falha em qualquer gate = não commitar.**
@@ -735,16 +751,16 @@ Para referência completa dos thresholds e CI: `.context/quality_gates.md`
 
 ## 14. Erros comuns e como evitar
 
-| Erro | Causa | Solução |
-|:-----|:------|:--------|
-| `Cannot read property of undefined` em SSR | Store vazia no server render | Inicializar com `null` ou usar `?` opcional + loading state |
-| Hydration mismatch | Dado diferente no server vs. cliente | Usar `useAsyncData` em vez de `onMounted` |
-| Store não persiste entre páginas | Store criada localmente no componente | Criar store no nível correto do Nuxt |
-| `ref` não reativo em template | `ref` usado sem `.value` no `<script>` | Lembrar: `.value` em `<script>`, automático em `<template>` |
-| Circular dependency de stores | Store A usa Store B que usa Store A | Extrair lógica compartilhada para composable |
-| Props mutadas diretamente | `props.item.value = x` | Emitir evento e deixar o pai atualizar |
-| `any` silencioso | `tsconfig` sem `strict` | Confirmar `"strict": true` no tsconfig |
-| Fetch duplicado | `useFetch` + `useAsyncData` para mesma chave | Usar chave consistente ou centralizar no store |
+| Erro                                       | Causa                                        | Solução                                                     |
+| :----------------------------------------- | :------------------------------------------- | :---------------------------------------------------------- |
+| `Cannot read property of undefined` em SSR | Store vazia no server render                 | Inicializar com `null` ou usar `?` opcional + loading state |
+| Hydration mismatch                         | Dado diferente no server vs. cliente         | Usar `useAsyncData` em vez de `onMounted`                   |
+| Store não persiste entre páginas           | Store criada localmente no componente        | Criar store no nível correto do Nuxt                        |
+| `ref` não reativo em template              | `ref` usado sem `.value` no `<script>`       | Lembrar: `.value` em `<script>`, automático em `<template>` |
+| Circular dependency de stores              | Store A usa Store B que usa Store A          | Extrair lógica compartilhada para composable                |
+| Props mutadas diretamente                  | `props.item.value = x`                       | Emitir evento e deixar o pai atualizar                      |
+| `any` silencioso                           | `tsconfig` sem `strict`                      | Confirmar `"strict": true` no tsconfig                      |
+| Fetch duplicado                            | `useFetch` + `useAsyncData` para mesma chave | Usar chave consistente ou centralizar no store              |
 
 ---
 

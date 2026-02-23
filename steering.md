@@ -3,8 +3,8 @@
 ## Princípios técnicos
 
 - **TypeScript strict** em todo o código (`strict: true` no tsconfig).
-- **Nuxt 3** como framework (SSR/SPA conforme necessidade).
-- **Biome** para lint e formatação (sem ESLint/Prettier separados).
+- **Nuxt 4** como framework (SSR/SPA conforme necessidade).
+- **@nuxt/eslint** para lint (integrado ao Nuxt) + **Prettier** para formatação.
 - **Sem lógica de negócio no frontend** — toda regra fica em auraxis-api.
 - **Contratos de API**: consumir apenas endpoints documentados e versionados em auraxis-api.
 - **Testes**: Vitest + Vue Test Utils.
@@ -23,32 +23,32 @@
 ## Quality Gates (obrigatórios antes de todo commit)
 
 ```bash
-# 1. Lint + formatação (Biome — lint e format em uma passagem)
-npx biome check --write .
+# 1. Lint (@nuxt/eslint)
+pnpm lint
 
 # 2. Type-check
-npx nuxi typecheck
+pnpm typecheck
 
 # 3. Testes unitários
-npx vitest run
+pnpm test
 
 # 4. Build de verificação (detecta erros de importação/SSR)
-npx nuxi build
+pnpm build
 
 # Comando combinado (rodar sempre antes de commitar):
-npx biome check --write . && npx nuxi typecheck && npx vitest run
+pnpm quality-check
 ```
 
 > **Falha em qualquer gate = não commitar.** Registrar o bloqueio em `tasks.md` se for dependência de outro time.
 
 ### Thresholds
 
-| Gate | Threshold | Observação |
-|:-----|:----------|:-----------|
-| Biome lint | 0 erros | Warnings são aceitos com consciência |
-| TypeScript | 0 erros | `strict: true` obrigatório |
-| Vitest | 100% dos testes passando | Coverage mínimo: não definido até suite estabelecida |
-| Build | Sucesso | Sem erros de SSR ou importação circular |
+| Gate                  | Threshold                | Observação                                           |
+| :-------------------- | :----------------------- | :--------------------------------------------------- |
+| ESLint (@nuxt/eslint) | 0 erros                  | Warnings aceitos com consciência                     |
+| TypeScript            | 0 erros                  | `strict: true` obrigatório                           |
+| Vitest                | 100% dos testes passando | Coverage mínimo: não definido até suite estabelecida |
+| Build                 | Sucesso                  | Sem erros de SSR ou importação circular              |
 
 ## Integrações externas
 

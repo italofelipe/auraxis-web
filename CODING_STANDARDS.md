@@ -1,6 +1,6 @@
 # Coding Standards — auraxis-web
 
-Stack: **Nuxt 3 · TypeScript strict · Biome · Vitest · Pinia**
+Stack: **Nuxt 4 · TypeScript strict · @nuxt/eslint · Prettier · Vitest · Pinia**
 
 Este documento define **o único jeito certo de escrever código neste projeto**.
 Não é um guia de boas práticas — é um contrato técnico vinculante.
@@ -10,14 +10,14 @@ Qualquer código que viole estas regras **não passa nos gates e não é mergead
 
 ## 1. Princípios fundamentais
 
-| Princípio | O que significa na prática |
-|:----------|:--------------------------|
-| **Explícito > implícito** | Tipos, retornos e intenções sempre declarados |
-| **Sem magia** | Nenhum comportamento que não esteja documentado e rastreável |
-| **Uma responsabilidade** | Função faz uma coisa. Componente renderiza uma coisa. Hook gerencia uma preocupação. |
-| **Falha cedo e ruidosamente** | Erros devem estourar imediatamente, não ser silenciados |
-| **Sem estado oculto** | Todo estado é explícito, derivado ou documentado |
-| **Código é comunicação** | Nomes e estrutura devem revelar intenção sem comentário |
+| Princípio                     | O que significa na prática                                                           |
+| :---------------------------- | :----------------------------------------------------------------------------------- |
+| **Explícito > implícito**     | Tipos, retornos e intenções sempre declarados                                        |
+| **Sem magia**                 | Nenhum comportamento que não esteja documentado e rastreável                         |
+| **Uma responsabilidade**      | Função faz uma coisa. Componente renderiza uma coisa. Hook gerencia uma preocupação. |
+| **Falha cedo e ruidosamente** | Erros devem estourar imediatamente, não ser silenciados                              |
+| **Sem estado oculto**         | Todo estado é explícito, derivado ou documentado                                     |
+| **Código é comunicação**      | Nomes e estrutura devem revelar intenção sem comentário                              |
 
 ---
 
@@ -26,6 +26,7 @@ Qualquer código que viole estas regras **não passa nos gates e não é mergead
 ### 2.1 `strict: true` — sem exceções
 
 O `tsconfig.json` mantém `"strict": true`. Isso ativa:
+
 - `noImplicitAny` — sem inferência de `any`
 - `strictNullChecks` — `null` e `undefined` são tipos distintos
 - `strictFunctionTypes` — checagem de parâmetros de funções
@@ -88,60 +89,65 @@ types/
 ```typescript
 // types/api/transaction.ts
 export interface TransactionResponse {
-  id: string
-  description: string
-  amount: number           // em centavos
-  category_id: string
-  date: string             // ISO 8601 — string crua da API
-  type: 'income' | 'expense'
-  created_at: string
+  id: string;
+  description: string;
+  amount: number; // em centavos
+  category_id: string;
+  date: string; // ISO 8601 — string crua da API
+  type: "income" | "expense";
+  created_at: string;
 }
 
 export interface CreateTransactionRequest {
-  description: string
-  amount: number
-  category_id: string
-  date: string             // ISO 8601
-  type: 'income' | 'expense'
+  description: string;
+  amount: number;
+  category_id: string;
+  date: string; // ISO 8601
+  type: "income" | "expense";
 }
 
 // types/domain/transaction.ts
 export interface Transaction {
-  id: string
-  description: string
-  amount: number           // em centavos
-  category: Category
-  date: Date               // Date real — nunca string dentro do app
-  type: TransactionType
-  createdAt: Date
+  id: string;
+  description: string;
+  amount: number; // em centavos
+  category: Category;
+  date: Date; // Date real — nunca string dentro do app
+  type: TransactionType;
+  createdAt: Date;
 }
 
-export type TransactionType = 'income' | 'expense'
+export type TransactionType = "income" | "expense";
 ```
 
 ### 2.5 Union types em vez de enums
 
 ```typescript
 // ❌ Enum — gera código JavaScript desnecessário
-enum TransactionType { Income = 'income', Expense = 'expense' }
+enum TransactionType {
+  Income = "income",
+  Expense = "expense",
+}
 
 // ✅ Union type — sem overhead, comparável diretamente
-type TransactionType = 'income' | 'expense'
+type TransactionType = "income" | "expense";
 
 // ✅ Const object quando precisa de iteração
-const TRANSACTION_TYPES = ['income', 'expense'] as const
-type TransactionType = typeof TRANSACTION_TYPES[number]
+const TRANSACTION_TYPES = ["income", "expense"] as const;
+type TransactionType = (typeof TRANSACTION_TYPES)[number];
 ```
 
 ### 2.6 Generics quando o tipo varia, não como atalho
 
 ```typescript
 // ❌ Generic desnecessário — o tipo é sempre o mesmo
-function getFirst<T>(arr: T[]): T { return arr[0] }
+function getFirst<T>(arr: T[]): T {
+  return arr[0];
+}
 
 // ✅ Generic justificado — tipo realmente varia
 async function fetchFromApi<TResponse>(path: string): Promise<TResponse> {
-  return $fetch<TResponse>(path)
+  return $fetch<TResponse>(path);
 }
 ```
 
@@ -154,44 +160,44 @@ async function fetchFromApi<TResponse>(path: string): Promise<TResponse> {
 ```vue
 <script setup lang="ts">
 // 1. imports de tipos (type-only)
-import type { Transaction } from '@/types/domain/transaction'
+import type { Transaction } from "@/types/domain/transaction";
 
 // 2. imports de composables e utils
-import { formatCurrency } from '@/utils/formatters'
-import { useTransactions } from '@/composables/useTransactions'
+import { formatCurrency } from "@/utils/formatters";
+import { useTransactions } from "@/composables/useTransactions";
 
 // 3. props
 interface Props {
-  transaction: Transaction
-  compact?: boolean
+  transaction: Transaction;
+  compact?: boolean;
 }
-const props = withDefaults(defineProps<Props>(), { compact: false })
+const props = withDefaults(defineProps<Props>(), { compact: false });
 
 // 4. emits
 const emit = defineEmits<{
-  select: [transaction: Transaction]
-  delete: [id: string]
-}>()
+  select: [transaction: Transaction];
+  delete: [id: string];
+}>();
 
 // 5. composables
-const { remove } = useTransactions()
+const { remove } = useTransactions();
 
 // 6. estado local
-const isDeleting = ref(false)
+const isDeleting = ref(false);
 
 // 7. computed
 const amountColor = computed(() =>
-  props.transaction.type === 'expense' ? 'text-danger' : 'text-success'
-)
+  props.transaction.type === "expense" ? "text-danger" : "text-success",
+);
 
 // 8. handlers
 async function handleDelete() {
-  isDeleting.value = true
+  isDeleting.value = true;
   try {
-    await remove(props.transaction.id)
-    emit('delete', props.transaction.id)
+    await remove(props.transaction.id);
+    emit("delete", props.transaction.id);
   } finally {
-    isDeleting.value = false
+    isDeleting.value = false;
   }
 }
 </script>
@@ -209,54 +215,46 @@ async function handleDelete() {
 
 ```typescript
 // ❌ Objeto inline
-defineProps({ transaction: Object, compact: Boolean })
+defineProps({ transaction: Object, compact: Boolean });
 
 // ❌ Interface sem withDefaults para opcionais
-const props = defineProps<{ transaction: Transaction; compact?: boolean }>()
+const props = defineProps<{ transaction: Transaction; compact?: boolean }>();
 // → props.compact pode ser undefined, causando erros
 
 // ✅ Interface + withDefaults
 interface Props {
-  transaction: Transaction
-  compact?: boolean
-  variant?: 'default' | 'minimal'
+  transaction: Transaction;
+  compact?: boolean;
+  variant?: "default" | "minimal";
 }
 const props = withDefaults(defineProps<Props>(), {
   compact: false,
-  variant: 'default',
-})
+  variant: "default",
+});
 ```
 
 ### 3.3 Emits — tipados com sintaxe de tupla
 
 ```typescript
 // ❌ Sem tipos
-defineEmits(['select', 'delete'])
+defineEmits(["select", "delete"]);
 
 // ✅ Tipado
 const emit = defineEmits<{
-  select: [transaction: Transaction]   // tupla dos argumentos
-  delete: [id: string]
-  update: [field: keyof Transaction, value: unknown]
-}>()
+  select: [transaction: Transaction]; // tupla dos argumentos
+  delete: [id: string];
+  update: [field: keyof Transaction, value: unknown];
+}>();
 ```
 
 ### 3.4 `v-for` — `key` com id, nunca index
 
 ```vue
 <!-- ❌ index como key — causa bugs em re-ordenação e animações -->
-<TransactionItem
-  v-for="(t, i) in transactions"
-  :key="i"
-  :transaction="t"
-/>
+<TransactionItem v-for="(t, i) in transactions" :key="i" :transaction="t" />
 
 <!-- ✅ id estável como key -->
-<TransactionItem
-  v-for="t in transactions"
-  :key="t.id"
-  :transaction="t"
-/>
+<TransactionItem v-for="t in transactions" :key="t.id" :transaction="t" />
 ```
 
 ### 3.5 Componentes nunca fazem fetch
@@ -264,16 +262,16 @@ const emit = defineEmits<{
 ```vue
 <!-- ❌ Fetch diretamente em componente -->
 <script setup lang="ts">
-const transactions = ref<Transaction[]>([])
+const transactions = ref<Transaction[]>([]);
 onMounted(async () => {
-  transactions.value = await $fetch('/api/transactions')
-})
+  transactions.value = await $fetch("/api/transactions");
+});
 </script>
 
 <!-- ✅ Composable gerencia o fetch -->
 <script setup lang="ts">
-const { transactions, isLoading } = useTransactions()
-await useAsyncData('transactions', () => useTransactionStore().fetchAll())
+const { transactions, isLoading } = useTransactions();
+await useAsyncData("transactions", () => useTransactionStore().fetchAll());
 </script>
 ```
 
@@ -282,7 +280,7 @@ await useAsyncData('transactions', () => useTransactionStore().fetchAll())
 ```vue
 <!-- ❌ Store exposta diretamente no template -->
 <script setup lang="ts">
-const store = useTransactionStore()
+const store = useTransactionStore();
 </script>
 <template>
   <div>{{ store.items.length }}</div>
@@ -290,7 +288,7 @@ const store = useTransactionStore()
 
 <!-- ✅ computed que expõe apenas o necessário -->
 <script setup lang="ts">
-const { transactions, total } = useTransactions()
+const { transactions, total } = useTransactions();
 </script>
 <template>
   <div>{{ transactions.length }}</div>
@@ -299,13 +297,13 @@ const { transactions, total } = useTransactions()
 
 ### 3.7 Nomes e convenções
 
-| Item | Convenção | Exemplo |
-|:-----|:----------|:--------|
-| Arquivo de componente | PascalCase + `.vue` | `TransactionItem.vue` |
-| Componentes base | Prefixo `Base` | `BaseButton.vue`, `BaseInput.vue` |
-| Componentes de domínio | Nome do domínio | `TransactionList.vue`, `GoalCard.vue` |
-| Componentes de layout | Prefixo `App` ou `Layout` | `AppHeader.vue`, `LayoutDashboard.vue` |
-| Props booleanas | Sem valor = true | `<Component disabled />` = `disabled: true` |
+| Item                   | Convenção                 | Exemplo                                     |
+| :--------------------- | :------------------------ | :------------------------------------------ |
+| Arquivo de componente  | PascalCase + `.vue`       | `TransactionItem.vue`                       |
+| Componentes base       | Prefixo `Base`            | `BaseButton.vue`, `BaseInput.vue`           |
+| Componentes de domínio | Nome do domínio           | `TransactionList.vue`, `GoalCard.vue`       |
+| Componentes de layout  | Prefixo `App` ou `Layout` | `AppHeader.vue`, `LayoutDashboard.vue`      |
+| Props booleanas        | Sem valor = true          | `<Component disabled />` = `disabled: true` |
 
 ---
 
@@ -315,27 +313,31 @@ const { transactions, total } = useTransactions()
 
 ```typescript
 // 1. Prefixo 'use' obrigatório
-export function useTransactions() {}          // ✅
-export function transactions() {}             // ❌
-export function getTransactions() {}          // ❌
+export function useTransactions() {} // ✅
+export function transactions() {} // ❌
+export function getTransactions() {} // ❌
 
 // 2. Retornar objeto nomeado, nunca array (exceto useState-like)
-return { items, isLoading, create, remove }   // ✅
-return [items, create]                        // ❌ (exceto padrão [state, setter])
+return { items, isLoading, create, remove }; // ✅
+return [items, create]; // ❌ (exceto padrão [state, setter])
 
 // 3. Estado readonly externamente — expor via computed
 return {
-  items: computed(() => store.items),         // ✅ readonly
-  items: store.items,                         // ❌ mutável externamente
-}
+  items: computed(() => store.items), // ✅ readonly
+  items: store.items, // ❌ mutável externamente
+};
 
 // 4. Erros sempre sobem — composable não swallows
 async function create(dto: CreateTransactionDto) {
   // ❌ Silencia o erro
-  try { await store.create(dto) } catch { /* nada */ }
+  try {
+    await store.create(dto);
+  } catch {
+    /* nada */
+  }
 
   // ✅ Deixa subir — componente/página decide o que mostrar
-  await store.create(dto)
+  await store.create(dto);
 }
 ```
 
@@ -344,18 +346,18 @@ async function create(dto: CreateTransactionDto) {
 ```typescript
 // composables/useTransactions.ts
 export function useTransactions() {
-  const store = useTransactionStore()
-  const { notify } = useNotifications()
+  const store = useTransactionStore();
+  const { notify } = useNotifications();
 
   // Ações com feedback
   async function create(dto: CreateTransactionDto): Promise<void> {
-    await store.create(dto)
-    notify({ type: 'success', message: 'Transação criada' })
+    await store.create(dto);
+    notify({ type: "success", message: "Transação criada" });
   }
 
   async function remove(id: string): Promise<void> {
-    await store.remove(id)
-    notify({ type: 'success', message: 'Transação removida' })
+    await store.remove(id);
+    notify({ type: "success", message: "Transação removida" });
   }
 
   return {
@@ -366,7 +368,7 @@ export function useTransactions() {
     create,
     remove,
     refresh: store.fetchAll,
-  }
+  };
 }
 ```
 
@@ -378,72 +380,75 @@ export function useTransactions() {
 
 ```typescript
 // stores/transaction.ts
-import { defineStore } from 'pinia'
-import { transactionService } from '@/services/transaction.service'
-import type { Transaction } from '@/types/domain/transaction'
-import type { CreateTransactionRequest } from '@/types/api/transaction'
+import { defineStore } from "pinia";
+import { transactionService } from "@/services/transaction.service";
+import type { Transaction } from "@/types/domain/transaction";
+import type { CreateTransactionRequest } from "@/types/api/transaction";
 
-export const useTransactionStore = defineStore('transaction', () => {
+export const useTransactionStore = defineStore("transaction", () => {
   // ── State ──────────────────────────────────────────────────────────
-  const items = ref<Transaction[]>([])
-  const isLoading = ref(false)
-  const error = ref<string | null>(null)
+  const items = ref<Transaction[]>([]);
+  const isLoading = ref(false);
+  const error = ref<string | null>(null);
 
   // ── Getters ────────────────────────────────────────────────────────
   const total = computed((): number =>
     items.value.reduce(
-      (acc, t) => (t.type === 'income' ? acc + t.amount : acc - t.amount),
+      (acc, t) => (t.type === "income" ? acc + t.amount : acc - t.amount),
       0,
     ),
-  )
+  );
 
   const income = computed((): number =>
     items.value
-      .filter(t => t.type === 'income')
+      .filter((t) => t.type === "income")
       .reduce((acc, t) => acc + t.amount, 0),
-  )
+  );
 
   const expense = computed((): number =>
     items.value
-      .filter(t => t.type === 'expense')
+      .filter((t) => t.type === "expense")
       .reduce((acc, t) => acc + t.amount, 0),
-  )
+  );
 
   // ── Actions ────────────────────────────────────────────────────────
   async function fetchAll(): Promise<void> {
-    isLoading.value = true
-    error.value = null
+    isLoading.value = true;
+    error.value = null;
     try {
-      items.value = await transactionService.getAll()
+      items.value = await transactionService.getAll();
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Erro desconhecido'
-      throw err
+      error.value = err instanceof Error ? err.message : "Erro desconhecido";
+      throw err;
     } finally {
-      isLoading.value = false
+      isLoading.value = false;
     }
   }
 
   async function create(dto: CreateTransactionRequest): Promise<Transaction> {
-    const created = await transactionService.create(dto)
-    items.value = [created, ...items.value]
-    return created
+    const created = await transactionService.create(dto);
+    items.value = [created, ...items.value];
+    return created;
   }
 
-  async function update(id: string, dto: Partial<CreateTransactionRequest>): Promise<void> {
-    const updated = await transactionService.update(id, dto)
-    items.value = items.value.map(t => (t.id === id ? updated : t))
+  async function update(
+    id: string,
+    dto: Partial<CreateTransactionRequest>,
+  ): Promise<void> {
+    const updated = await transactionService.update(id, dto);
+    items.value = items.value.map((t) => (t.id === id ? updated : t));
   }
 
   async function remove(id: string): Promise<void> {
-    await transactionService.delete(id)
-    items.value = items.value.filter(t => t.id !== id)
+    await transactionService.delete(id);
+    items.value = items.value.filter((t) => t.id !== id);
   }
 
   // ── Reset ──────────────────────────────────────────────────────────
   function $reset(): void {
-    items.value = []
-    isLoading.value = false
-    error.value = null
+    items.value = [];
+    isLoading.value = false;
+    error.value = null;
   }
 
   return {
@@ -461,20 +466,20 @@ export const useTransactionStore = defineStore('transaction', () => {
     update,
     remove,
     $reset,
-  }
-})
+  };
+});
 ```
 
 ### 5.2 Regras de store
 
-| Regra | Por quê |
-|:------|:--------|
-| Um store por domínio de negócio | Acoplamento zero entre domínios |
-| `$reset()` obrigatório | Logout precisa limpar tudo |
-| Actions lançam erros — não swallowam | Store não decide o que mostrar ao usuário |
-| Getters nunca chamam actions | Sem side effects em leitura |
-| Sem lógica de apresentação | Formatação fica em `utils/`, não em store |
-| Sem chamadas a outros stores | Usar composable para orquestrar entre stores |
+| Regra                                | Por quê                                      |
+| :----------------------------------- | :------------------------------------------- |
+| Um store por domínio de negócio      | Acoplamento zero entre domínios              |
+| `$reset()` obrigatório               | Logout precisa limpar tudo                   |
+| Actions lançam erros — não swallowam | Store não decide o que mostrar ao usuário    |
+| Getters nunca chamam actions         | Sem side effects em leitura                  |
+| Sem lógica de apresentação           | Formatação fica em `utils/`, não em store    |
+| Sem chamadas a outros stores         | Usar composable para orquestrar entre stores |
 
 ---
 
@@ -486,11 +491,11 @@ Cada service tem três responsabilidades: chamar a API, mapear tipos raw → dom
 
 ```typescript
 // services/transaction.service.ts
-import type { Transaction } from '@/types/domain/transaction'
+import type { Transaction } from "@/types/domain/transaction";
 import type {
   TransactionResponse,
   CreateTransactionRequest,
-} from '@/types/api/transaction'
+} from "@/types/api/transaction";
 
 // ── Mapper ─────────────────────────────────────────────────────────────
 // Toda transformação API → domínio passa aqui.
@@ -500,57 +505,65 @@ function toTransaction(raw: TransactionResponse): Transaction {
     id: raw.id,
     description: raw.description,
     amount: raw.amount,
-    category: { id: raw.category_id, name: '' },
+    category: { id: raw.category_id, name: "" },
     date: new Date(raw.date),
     type: raw.type,
     createdAt: new Date(raw.created_at),
-  }
+  };
 }
 
 // ── Service ────────────────────────────────────────────────────────────
 export const transactionService = {
   async getAll(): Promise<Transaction[]> {
-    const data = await $fetch<TransactionResponse[]>('/api/v1/transactions')
-    return data.map(toTransaction)
+    const data = await $fetch<TransactionResponse[]>("/api/v1/transactions");
+    return data.map(toTransaction);
   },
 
   async getById(id: string): Promise<Transaction> {
-    const data = await $fetch<TransactionResponse>(`/api/v1/transactions/${id}`)
-    return toTransaction(data)
+    const data = await $fetch<TransactionResponse>(
+      `/api/v1/transactions/${id}`,
+    );
+    return toTransaction(data);
   },
 
   async create(dto: CreateTransactionRequest): Promise<Transaction> {
-    const data = await $fetch<TransactionResponse>('/api/v1/transactions', {
-      method: 'POST',
+    const data = await $fetch<TransactionResponse>("/api/v1/transactions", {
+      method: "POST",
       body: dto,
-    })
-    return toTransaction(data)
+    });
+    return toTransaction(data);
   },
 
-  async update(id: string, dto: Partial<CreateTransactionRequest>): Promise<Transaction> {
-    const data = await $fetch<TransactionResponse>(`/api/v1/transactions/${id}`, {
-      method: 'PATCH',
-      body: dto,
-    })
-    return toTransaction(data)
+  async update(
+    id: string,
+    dto: Partial<CreateTransactionRequest>,
+  ): Promise<Transaction> {
+    const data = await $fetch<TransactionResponse>(
+      `/api/v1/transactions/${id}`,
+      {
+        method: "PATCH",
+        body: dto,
+      },
+    );
+    return toTransaction(data);
   },
 
   async delete(id: string): Promise<void> {
-    await $fetch(`/api/v1/transactions/${id}`, { method: 'DELETE' })
+    await $fetch(`/api/v1/transactions/${id}`, { method: "DELETE" });
   },
-}
+};
 ```
 
 ### 6.2 Regras de service
 
-| Regra | Detalhe |
-|:------|:--------|
-| Retornar apenas tipos de domínio | `TransactionResponse` nunca sai do service |
-| Mapper `toX()` sempre presente | Isola transformação de dados |
-| Sem tratamento de erro no service | Erros HTTP sobem para store/composable |
-| Sem lógica de apresentação | Sem `console.log`, sem toast |
-| Base URL via config Nuxt | `nuxt.config.ts` → `runtimeConfig` |
-| Sem estado global no service | Service é stateless |
+| Regra                             | Detalhe                                    |
+| :-------------------------------- | :----------------------------------------- |
+| Retornar apenas tipos de domínio  | `TransactionResponse` nunca sai do service |
+| Mapper `toX()` sempre presente    | Isola transformação de dados               |
+| Sem tratamento de erro no service | Erros HTTP sobem para store/composable     |
+| Sem lógica de apresentação        | Sem `console.log`, sem toast               |
+| Base URL via config Nuxt          | `nuxt.config.ts` → `runtimeConfig`         |
+| Sem estado global no service      | Service é stateless                        |
 
 ---
 
@@ -561,30 +574,27 @@ export const transactionService = {
 ```vue
 <!-- ❌ Página com lógica de negócio -->
 <script setup lang="ts">
-const transactions = ref<Transaction[]>([])
+const transactions = ref<Transaction[]>([]);
 const total = computed(() =>
-  transactions.value.reduce((acc, t) => acc + t.amount, 0)
-)
+  transactions.value.reduce((acc, t) => acc + t.amount, 0),
+);
 onMounted(async () => {
-  const data = await $fetch('/api/v1/transactions')
-  transactions.value = data.map(/* transform */)
-})
+  const data = await $fetch("/api/v1/transactions");
+  transactions.value = data.map(/* transform */);
+});
 </script>
 
 <!-- ✅ Página thin — delega para composable -->
 <script setup lang="ts">
-definePageMeta({ middleware: 'auth', layout: 'dashboard' })
+definePageMeta({ middleware: "auth", layout: "dashboard" });
 
-const { transactions, isLoading, total } = useTransactions()
-await useAsyncData('transactions', () => useTransactionStore().fetchAll())
+const { transactions, isLoading, total } = useTransactions();
+await useAsyncData("transactions", () => useTransactionStore().fetchAll());
 </script>
 
 <template>
   <DashboardLayout>
-    <TransactionList
-      :transactions="transactions"
-      :loading="isLoading"
-    />
+    <TransactionList :transactions="transactions" :loading="isLoading" />
     <BalanceSummary :total="total" />
   </DashboardLayout>
 </template>
@@ -594,9 +604,9 @@ await useAsyncData('transactions', () => useTransactionStore().fetchAll())
 
 ```typescript
 definePageMeta({
-  middleware: 'auth',         // obrigatório em rotas autenticadas
-  layout: 'dashboard',        // layout explícito — sem inferência
-})
+  middleware: "auth", // obrigatório em rotas autenticadas
+  layout: "dashboard", // layout explícito — sem inferência
+});
 ```
 
 ### 7.3 `useAsyncData` para fetch SSR — nunca `onMounted`
@@ -604,14 +614,17 @@ definePageMeta({
 ```typescript
 // ❌ Client-side only — sem SSR, re-fetch no hidrate
 onMounted(async () => {
-  await store.fetchAll()
-})
+  await store.fetchAll();
+});
 
 // ✅ SSR-aware — roda no servidor e no cliente, com deduplicação
-const { error } = await useAsyncData('transactions', () => store.fetchAll())
+const { error } = await useAsyncData("transactions", () => store.fetchAll());
 
 if (error.value) {
-  throw createError({ statusCode: 500, message: 'Falha ao carregar transações' })
+  throw createError({
+    statusCode: 500,
+    message: "Falha ao carregar transações",
+  });
 }
 ```
 
@@ -626,26 +639,30 @@ if (error.value) {
 
 export function formatCurrency(
   amount: number,
-  currency = 'BRL',
-  locale = 'pt-BR',
+  currency = "BRL",
+  locale = "pt-BR",
 ): string {
   return new Intl.NumberFormat(locale, {
-    style: 'currency',
+    style: "currency",
     currency,
     minimumFractionDigits: 2,
-  }).format(amount / 100)   // centavos → reais
+  }).format(amount / 100); // centavos → reais
 }
 
 export function formatDate(
   date: Date,
-  options: Intl.DateTimeFormatOptions = { day: '2-digit', month: 'short', year: 'numeric' },
-  locale = 'pt-BR',
+  options: Intl.DateTimeFormatOptions = {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  },
+  locale = "pt-BR",
 ): string {
-  return new Intl.DateTimeFormat(locale, options).format(date)
+  return new Intl.DateTimeFormat(locale, options).format(date);
 }
 
 export function formatPercent(value: number, decimals = 1): string {
-  return `${value.toFixed(decimals)}%`
+  return `${value.toFixed(decimals)}%`;
 }
 ```
 
@@ -654,13 +671,13 @@ export function formatPercent(value: number, decimals = 1): string {
 ```vue
 <!-- ❌ Formatação no template -->
 <template>
-  <span>{{ (transaction.amount / 100).toFixed(2).replace('.', ',') }}</span>
+  <span>{{ (transaction.amount / 100).toFixed(2).replace(".", ",") }}</span>
 </template>
 
 <!-- ✅ Formatar via util -->
 <script setup lang="ts">
-import { formatCurrency } from '@/utils/formatters'
-const displayAmount = computed(() => formatCurrency(props.transaction.amount))
+import { formatCurrency } from "@/utils/formatters";
+const displayAmount = computed(() => formatCurrency(props.transaction.amount));
 </script>
 <template>
   <span>{{ displayAmount }}</span>
@@ -684,8 +701,12 @@ const displayAmount = computed(() => formatCurrency(props.transaction.amount))
   gap: var(--spacing-sm);
 }
 
-.transaction-item__amount--positive { color: var(--color-success); }
-.transaction-item__amount--negative { color: var(--color-danger); }
+.transaction-item__amount--positive {
+  color: var(--color-success);
+}
+.transaction-item__amount--negative {
+  color: var(--color-danger);
+}
 </style>
 ```
 
@@ -693,23 +714,23 @@ const displayAmount = computed(() => formatCurrency(props.transaction.amount))
 /* assets/styles/variables.css */
 :root {
   /* Colors */
-  --color-primary:    #5C6BC0;
-  --color-primary-light: #8E99F3;
-  --color-success:    #43A047;
-  --color-danger:     #E53935;
-  --color-warning:    #FB8C00;
-  --color-surface:    #FFFFFF;
-  --color-background: #F5F5F5;
-  --color-text:       #212121;
+  --color-primary: #5c6bc0;
+  --color-primary-light: #8e99f3;
+  --color-success: #43a047;
+  --color-danger: #e53935;
+  --color-warning: #fb8c00;
+  --color-surface: #ffffff;
+  --color-background: #f5f5f5;
+  --color-text: #212121;
   --color-text-muted: #757575;
-  --color-border:     #E0E0E0;
+  --color-border: #e0e0e0;
 
   /* Spacing */
-  --spacing-xs:  4px;
-  --spacing-sm:  8px;
-  --spacing-md:  16px;
-  --spacing-lg:  24px;
-  --spacing-xl:  32px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
   --spacing-xxl: 48px;
 
   /* Radius */
@@ -718,19 +739,19 @@ const displayAmount = computed(() => formatCurrency(props.transaction.amount))
   --radius-lg: 16px;
 
   /* Shadow */
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 ```
 
 ### 9.2 Proibições de estilo
 
-| Proibição | Motivo |
-|:----------|:-------|
-| `!important` | Sempre existe solução melhor |
+| Proibição                      | Motivo                                         |
+| :----------------------------- | :--------------------------------------------- |
+| `!important`                   | Sempre existe solução melhor                   |
 | Valores numéricos sem variável | `padding: 16px` → `padding: var(--spacing-md)` |
-| `style` inline para layout | Apenas para valores dinâmicos calculados |
-| Classes CSS sem BEM ou módulo | Evitar colisões em componentes grandes |
+| `style` inline para layout     | Apenas para valores dinâmicos calculados       |
+| Classes CSS sem BEM ou módulo  | Evitar colisões em componentes grandes         |
 
 ---
 
@@ -738,13 +759,13 @@ const displayAmount = computed(() => formatCurrency(props.transaction.amount))
 
 ### 10.1 O que testar
 
-| Alvo | Ferramenta | O que verificar |
-|:-----|:-----------|:----------------|
-| Componentes Vue | Vitest + Vue Test Utils | Props, eventos, estados visuais |
-| Composables | Vitest | Retornos, reatividade, side effects |
-| Stores Pinia | Vitest | Actions, getters, estado após mutação |
-| Utils/formatters | Vitest | Input/output determinístico |
-| Services | Vitest + `vi.mock` | Mapeamento API → domínio |
+| Alvo             | Ferramenta              | O que verificar                       |
+| :--------------- | :---------------------- | :------------------------------------ |
+| Componentes Vue  | Vitest + Vue Test Utils | Props, eventos, estados visuais       |
+| Composables      | Vitest                  | Retornos, reatividade, side effects   |
+| Stores Pinia     | Vitest                  | Actions, getters, estado após mutação |
+| Utils/formatters | Vitest                  | Input/output determinístico           |
+| Services         | Vitest + `vi.mock`      | Mapeamento API → domínio              |
 
 ### 10.2 Estrutura de testes
 
@@ -754,100 +775,102 @@ const displayAmount = computed(() => formatCurrency(props.transaction.amount))
 // composables/__tests__/useTransactions.spec.ts
 // stores/__tests__/transaction.store.spec.ts
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mountSuspense } from '@vue/test-utils'
-import TransactionItem from '../TransactionItem.vue'
-import { mockTransaction } from '@/tests/factories/transaction.factory'
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { mountSuspense } from "@vue/test-utils";
+import TransactionItem from "../TransactionItem.vue";
+import { mockTransaction } from "@/tests/factories/transaction.factory";
 
-describe('TransactionItem', () => {
-  describe('renderização', () => {
-    it('exibe descrição e valor formatado corretamente', () => {
-      const transaction = mockTransaction({ amount: 5000, type: 'expense' })
-      const wrapper = mount(TransactionItem, { props: { transaction } })
+describe("TransactionItem", () => {
+  describe("renderização", () => {
+    it("exibe descrição e valor formatado corretamente", () => {
+      const transaction = mockTransaction({ amount: 5000, type: "expense" });
+      const wrapper = mount(TransactionItem, { props: { transaction } });
 
-      expect(wrapper.text()).toContain(transaction.description)
-      expect(wrapper.text()).toContain('R$ 50,00')
-    })
+      expect(wrapper.text()).toContain(transaction.description);
+      expect(wrapper.text()).toContain("R$ 50,00");
+    });
 
-    it('aplica cor vermelha para despesas', () => {
+    it("aplica cor vermelha para despesas", () => {
       const wrapper = mount(TransactionItem, {
-        props: { transaction: mockTransaction({ type: 'expense' }) },
-      })
-      expect(wrapper.find('.transaction-item__amount').classes()).toContain(
-        'transaction-item__amount--negative',
-      )
-    })
-  })
+        props: { transaction: mockTransaction({ type: "expense" }) },
+      });
+      expect(wrapper.find(".transaction-item__amount").classes()).toContain(
+        "transaction-item__amount--negative",
+      );
+    });
+  });
 
-  describe('interações', () => {
-    it('emite evento delete com id correto ao clicar', async () => {
-      const transaction = mockTransaction()
+  describe("interações", () => {
+    it("emite evento delete com id correto ao clicar", async () => {
+      const transaction = mockTransaction();
       const wrapper = mount(TransactionItem, {
         props: { transaction, onDelete: vi.fn() },
-      })
+      });
 
-      await wrapper.find('[data-testid="btn-delete"]').trigger('click')
+      await wrapper.find('[data-testid="btn-delete"]').trigger("click");
 
-      expect(wrapper.emitted('delete')).toHaveLength(1)
-      expect(wrapper.emitted('delete')![0]).toEqual([transaction.id])
-    })
+      expect(wrapper.emitted("delete")).toHaveLength(1);
+      expect(wrapper.emitted("delete")![0]).toEqual([transaction.id]);
+    });
 
-    it('não renderiza botão delete quando prop onDelete ausente', () => {
+    it("não renderiza botão delete quando prop onDelete ausente", () => {
       const wrapper = mount(TransactionItem, {
         props: { transaction: mockTransaction() },
-      })
-      expect(wrapper.find('[data-testid="btn-delete"]').exists()).toBe(false)
-    })
-  })
-})
+      });
+      expect(wrapper.find('[data-testid="btn-delete"]').exists()).toBe(false);
+    });
+  });
+});
 ```
 
 ### 10.3 Factories para dados de teste
 
 ```typescript
 // tests/factories/transaction.factory.ts
-import type { Transaction } from '@/types/domain/transaction'
+import type { Transaction } from "@/types/domain/transaction";
 
-let _seq = 0
+let _seq = 0;
 
-export function mockTransaction(overrides: Partial<Transaction> = {}): Transaction {
-  _seq++
+export function mockTransaction(
+  overrides: Partial<Transaction> = {},
+): Transaction {
+  _seq++;
   return {
-    id: `txn-${String(_seq).padStart(4, '0')}`,
-    description: 'Supermercado',
+    id: `txn-${String(_seq).padStart(4, "0")}`,
+    description: "Supermercado",
     amount: 15000,
-    category: { id: 'cat-001', name: 'Alimentação' },
-    date: new Date('2026-02-01T12:00:00Z'),
-    type: 'expense',
-    createdAt: new Date('2026-02-01T10:00:00Z'),
+    category: { id: "cat-001", name: "Alimentação" },
+    date: new Date("2026-02-01T12:00:00Z"),
+    type: "expense",
+    createdAt: new Date("2026-02-01T10:00:00Z"),
     ...overrides,
-  }
+  };
 }
 ```
 
 ### 10.4 Regras de testes
 
-| Regra | Detalhe |
-|:------|:--------|
-| `data-testid` em elementos interativos | Seletor estável — não usa classes CSS |
-| Factories para todos os tipos | Sem objeto literal inline nos testes |
-| Testar comportamento, não implementação | `wrapper.text()` não `wrapper.vm.internalRef` |
-| Mocks apenas de services e dependências externas | Store real nos testes de store |
-| Sem `setTimeout` | `await nextTick()` ou `flushPromises()` |
-| Coverage mínimo: 85% | Enforced via `--coverage --coverage-threshold` |
+| Regra                                            | Detalhe                                        |
+| :----------------------------------------------- | :--------------------------------------------- |
+| `data-testid` em elementos interativos           | Seletor estável — não usa classes CSS          |
+| Factories para todos os tipos                    | Sem objeto literal inline nos testes           |
+| Testar comportamento, não implementação          | `wrapper.text()` não `wrapper.vm.internalRef`  |
+| Mocks apenas de services e dependências externas | Store real nos testes de store                 |
+| Sem `setTimeout`                                 | `await nextTick()` ou `flushPromises()`        |
+| Coverage mínimo: 85%                             | Enforced via `--coverage --coverage-threshold` |
 
 ### 10.5 Configuração Vitest
 
 ```typescript
 // vitest.config.ts
-import { defineVitestConfig } from '@nuxt/test-utils/config'
+import { defineVitestConfig } from "@nuxt/test-utils/config";
 
 export default defineVitestConfig({
   test: {
-    environment: 'nuxt',
+    environment: "nuxt",
     coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html', 'lcov'],
+      provider: "v8",
+      reporter: ["text", "json", "html", "lcov"],
       thresholds: {
         lines: 85,
         functions: 85,
@@ -855,14 +878,14 @@ export default defineVitestConfig({
         statements: 85,
       },
       exclude: [
-        'nuxt.config.ts',
-        '**/*.d.ts',
-        'tests/factories/**',
-        'tests/helpers/**',
+        "nuxt.config.ts",
+        "**/*.d.ts",
+        "tests/factories/**",
+        "tests/helpers/**",
       ],
     },
   },
-})
+});
 ```
 
 ---
@@ -871,14 +894,14 @@ export default defineVitestConfig({
 
 ### 11.1 Regras não negociáveis
 
-| Regra | Implementação |
-|:------|:--------------|
+| Regra                            | Implementação                                                            |
+| :------------------------------- | :----------------------------------------------------------------------- |
 | Tokens JWT em `httpOnly` cookies | `Set-Cookie: token=...; HttpOnly; Secure; SameSite=Strict` pelo servidor |
-| Sem `v-html` com dado de usuário | Usar `{{ }}` ou `:textContent` |
-| Sem secrets em `NUXT_PUBLIC_*` | `NUXT_*` para server-side only |
-| Sem `.env` commitado | `.gitignore` com `.env*`, exceto `.env.example` |
-| Validação de input nos forms | `vee-validate` ou validação manual — nunca confiar apenas no backend |
-| CSP headers configurados | No `nuxt.config.ts` via `routeRules` ou middleware |
+| Sem `v-html` com dado de usuário | Usar `{{ }}` ou `:textContent`                                           |
+| Sem secrets em `NUXT_PUBLIC_*`   | `NUXT_*` para server-side only                                           |
+| Sem `.env` commitado             | `.gitignore` com `.env*`, exceto `.env.example`                          |
+| Validação de input nos forms     | `vee-validate` ou validação manual — nunca confiar apenas no backend     |
+| CSP headers configurados         | No `nuxt.config.ts` via `routeRules` ou middleware                       |
 
 ### 11.2 Headers de segurança obrigatórios
 
@@ -886,16 +909,16 @@ export default defineVitestConfig({
 // nuxt.config.ts
 export default defineNuxtConfig({
   routeRules: {
-    '/**': {
+    "/**": {
       headers: {
-        'X-Frame-Options': 'DENY',
-        'X-Content-Type-Options': 'nosniff',
-        'Referrer-Policy': 'strict-origin-when-cross-origin',
-        'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+        "X-Frame-Options": "DENY",
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
       },
     },
   },
-})
+});
 ```
 
 ---
@@ -904,36 +927,36 @@ export default defineNuxtConfig({
 
 ### 12.1 Regras obrigatórias
 
-| Regra | Implementação |
-|:------|:--------------|
-| `useAsyncData` para fetch | Nunca `onMounted` + fetch |
-| `v-memo` em listas estáticas longas | Evita re-render desnecessário |
-| Componentes pesados com `defineAsyncComponent` | Gráficos, editores, tabelas complexas |
-| Paginação em listas > 50 itens | `useLazyFetch` com cursor |
-| Imagens com `<NuxtImg>` | Lazy load, WebP automático, placeholder |
-| `shallowRef` para objetos grandes sem reatividade profunda | `const config = shallowRef(bigObject)` |
+| Regra                                                      | Implementação                           |
+| :--------------------------------------------------------- | :-------------------------------------- |
+| `useAsyncData` para fetch                                  | Nunca `onMounted` + fetch               |
+| `v-memo` em listas estáticas longas                        | Evita re-render desnecessário           |
+| Componentes pesados com `defineAsyncComponent`             | Gráficos, editores, tabelas complexas   |
+| Paginação em listas > 50 itens                             | `useLazyFetch` com cursor               |
+| Imagens com `<NuxtImg>`                                    | Lazy load, WebP automático, placeholder |
+| `shallowRef` para objetos grandes sem reatividade profunda | `const config = shallowRef(bigObject)`  |
 
 ---
 
 ## 13. Nomenclatura — referência rápida
 
-| Item | Convenção | Exemplo |
-|:-----|:----------|:--------|
-| Arquivo de componente | `PascalCase.vue` | `TransactionItem.vue` |
-| Arquivo de composable | `camelCase.ts` prefixado `use` | `useTransactions.ts` |
-| Arquivo de store | `camelCase.ts` | `transaction.ts` |
-| Arquivo de service | `camelCase.service.ts` | `transaction.service.ts` |
-| Arquivo de tipo API | `camelCase.ts` em `types/api/` | `transaction.ts` |
-| Arquivo de tipo domínio | `camelCase.ts` em `types/domain/` | `transaction.ts` |
-| Arquivo de util | `camelCase.ts` | `formatters.ts` |
-| Função exportada | `camelCase` | `formatCurrency` |
-| Interface | `PascalCase` | `Transaction`, `CreateTransactionRequest` |
-| Type alias | `PascalCase` | `TransactionType` |
-| Constante global | `UPPER_SNAKE_CASE` | `MAX_RETRY_COUNT` |
-| Prop booleana | Substantivo + adjetivo | `disabled`, `loading`, `compact` |
-| Handler | `handle` + ação | `handleDelete`, `handleSubmit` |
-| Getter computed | Substantivo ou `is/has/can` | `total`, `isLoading`, `hasError` |
-| `data-testid` | `kebab-case` descritivo | `btn-delete`, `input-amount` |
+| Item                    | Convenção                         | Exemplo                                   |
+| :---------------------- | :-------------------------------- | :---------------------------------------- |
+| Arquivo de componente   | `PascalCase.vue`                  | `TransactionItem.vue`                     |
+| Arquivo de composable   | `camelCase.ts` prefixado `use`    | `useTransactions.ts`                      |
+| Arquivo de store        | `camelCase.ts`                    | `transaction.ts`                          |
+| Arquivo de service      | `camelCase.service.ts`            | `transaction.service.ts`                  |
+| Arquivo de tipo API     | `camelCase.ts` em `types/api/`    | `transaction.ts`                          |
+| Arquivo de tipo domínio | `camelCase.ts` em `types/domain/` | `transaction.ts`                          |
+| Arquivo de util         | `camelCase.ts`                    | `formatters.ts`                           |
+| Função exportada        | `camelCase`                       | `formatCurrency`                          |
+| Interface               | `PascalCase`                      | `Transaction`, `CreateTransactionRequest` |
+| Type alias              | `PascalCase`                      | `TransactionType`                         |
+| Constante global        | `UPPER_SNAKE_CASE`                | `MAX_RETRY_COUNT`                         |
+| Prop booleana           | Substantivo + adjetivo            | `disabled`, `loading`, `compact`          |
+| Handler                 | `handle` + ação                   | `handleDelete`, `handleSubmit`            |
+| Getter computed         | Substantivo ou `is/has/can`       | `total`, `isLoading`, `hasError`          |
+| `data-testid`           | `kebab-case` descritivo           | `btn-delete`, `input-amount`              |
 
 ---
 

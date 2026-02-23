@@ -1,43 +1,65 @@
 {
   "name": "auraxis-web",
-  "version": "0.1.0",
+  "type": "module",
   "private": true,
-  "description": "Auraxis Web — Nuxt 3 frontend",
-  "_note": "Este package.json é um scaffold. Rodar 'npx nuxi init .' ao inicializar o projeto (WEB1).",
   "scripts": {
-    "dev": "nuxt dev",
     "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "lint": "biome check .",
-    "lint:fix": "biome check --write .",
-    "format": "biome format --write .",
-    "typecheck": "nuxi typecheck",
-    "test": "vitest run",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "nuxt typecheck",
+    "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
-    "quality-check": "npm run lint && npm run typecheck && npm run test",
+    "test:coverage": "vitest run --passWithNoTests --coverage",
+    "quality-check": "pnpm lint && pnpm typecheck && pnpm test",
     "prepare": "husky"
   },
+  "dependencies": {
+    "@bubblesortt/nuxt-es-toolkit": "1.0.10",
+    "@nuxt/a11y": "1.0.0-alpha.1",
+    "@nuxt/content": "3.11.2",
+    "@nuxt/hints": "1.0.0-alpha.7",
+    "@nuxt/image": "2.0.0",
+    "@nuxt/scripts": "0.13.2",
+    "@nuxt/ui": "4.4.0",
+    "@nuxtjs/device": "4.0.0",
+    "@nuxtjs/google-fonts": "3.2.0",
+    "@nuxtjs/i18n": "10.2.3",
+    "@nuxtjs/seo": "3.4.0",
+    "@pinia/colada-nuxt": "0.3.1",
+    "@pinia/nuxt": "0.11.3",
+    "better-sqlite3": "^12.6.2",
+    "dayjs-nuxt": "2.1.11",
+    "nuxt": "^4.3.1",
+    "vue": "^3.5.28",
+    "vue-router": "^4.6.4"
+  },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@commitlint/cli": "^20.4.2",
-    "@commitlint/config-conventional": "^20.4.2",
-    "@nuxt/test-utils": "^3.17.2",
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@nuxt/eslint": "1.15.1",
+    "@nuxt/test-utils": "4.0.0",
+    "@nuxtjs/storybook": "9.0.1",
+    "@testing-library/vue": "^8.1.0",
     "@vue/test-utils": "^2.4.6",
+    "happy-dom": "^20.7.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
-    "nuxt": "^3.15.4",
-    "typescript": "^5.7.3",
-    "vitest": "^3.0.0",
-    "vue": "^3.5.13",
-    "vue-tsc": "^2.2.0"
+    "prettier": "^3.8.1",
+    "typescript": "^5.8.3",
+    "vitest": "^4.0.18",
+    "vue-tsc": "^2.2.12"
   },
+  "packageManager": "pnpm@10.30.1",
   "lint-staged": {
     "**/*.{ts,tsx,vue}": [
-      "npx biome check --write --no-errors-on-unmatched"
+      "eslint --fix"
     ],
-    "**/*.{json,jsonc}": [
-      "npx biome format --write"
+    "**/*.{json,jsonc,md}": [
+      "prettier --write"
     ]
   }
 }
