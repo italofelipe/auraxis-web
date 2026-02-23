@@ -60,10 +60,12 @@ O CI roda automaticamente em todo push e PR para master.
 | `secret-scan-trufflehog` | Secrets com entropia    | 0 verificados        | ✅ sim             |
 | `audit`                  | CVEs em deps instaladas | 0 high/critical      | ✅ sim             |
 | `sonarcloud`             | Análise estática        | quality gate pass    | ✅ sim             |
-| `lighthouse`             | Perf / A11y / SEO / CWV | ver abaixo           | ✅ sim             |
-| `e2e`                    | Playwright              | 0 falhas             | ✅ sim             |
-| `commitlint`             | Conventional Commits    | válido               | ✅ sim (PR apenas) |
-| `dependency-review`      | CVEs em novas deps      | 0 high/critical      | ✅ sim (PR apenas) |
+
+> **Secret Sonar:** GitHub Secret = `SONAR_AURAXIS_WEB_TOKEN` · `.env` local = `SONAR_AURAXIS_WEB_TOKEN=<token>`
+> | `lighthouse` | Perf / A11y / SEO / CWV | ver abaixo | ✅ sim |
+> | `e2e` | Playwright | 0 falhas | ✅ sim |
+> | `commitlint` | Conventional Commits | válido | ✅ sim (PR apenas) |
+> | `dependency-review` | CVEs em novas deps | 0 high/critical | ✅ sim (PR apenas) |
 
 ### Lighthouse CI — thresholds detalhados
 
