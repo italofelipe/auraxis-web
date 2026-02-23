@@ -3,7 +3,7 @@
 # Executa em todo PR e push para master.
 #
 # Secrets necessários (Settings → Secrets and variables → Actions):
-#   SONAR_TOKEN            — SonarCloud (sonarcloud.io → My Account → Security)
+#   SONAR_AURAXIS_WEB_TOKEN — SonarCloud (sonarcloud.io → My Account → Security)
 #   LHCI_GITHUB_APP_TOKEN  — Lighthouse CI GitHub App (opcional — status checks no PR)
 
 name: CI
@@ -214,7 +214,7 @@ jobs:
       - run: pnpm audit --audit-level=high
 
   # ── 9. SonarCloud ──────────────────────────────────────────────────────
-  # Requer SONAR_TOKEN configurado nos secrets do repositório.
+  # Requer SONAR_AURAXIS_WEB_TOKEN configurado nos secrets do repositório.
   # sonar-project.properties deve existir na raiz.
   sonarcloud:
     name: SonarCloud Analysis
@@ -238,7 +238,7 @@ jobs:
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_AURAXIS_WEB_TOKEN }}
 
   # ── 10. Lighthouse CI ──────────────────────────────────────────────────
   # Mede performance, acessibilidade, SEO e boas práticas.

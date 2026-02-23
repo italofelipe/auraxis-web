@@ -1,6 +1,6 @@
 # tasks.md — auraxis-web
 
-Última atualização: 2026-02-22
+Última atualização: 2026-02-23
 
 ## Legenda
 
@@ -50,7 +50,6 @@
   - Critério: workflow roda `pnpm lint` + `pnpm typecheck` + `pnpm test` + `pnpm build` + secret-scan + dep-audit a cada PR. ci-passed gate obrigatório.
   - Commit: incluído em `cd807f3` (quality stack bootstrap)
   - Dependência: WEB1
-  - Commit: —
 
 - [ ] **WEB6** `chore` — Definir estratégia de deploy
   - Critério: ADR criado em `docs/adr/WEB6-deploy-strategy.md` com decisão entre Vercel, AWS ou VPS. Pipeline de deploy configurado.
