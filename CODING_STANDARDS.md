@@ -759,71 +759,117 @@ const displayAmount = computed(() => formatCurrency(props.transaction.amount));
 
 ### 10.1 O que testar
 
-| Alvo             | Ferramenta              | O que verificar                       |
-| :--------------- | :---------------------- | :------------------------------------ |
-| Componentes Vue  | Vitest + Vue Test Utils | Props, eventos, estados visuais       |
-| Composables      | Vitest                  | Retornos, reatividade, side effects   |
-| Stores Pinia     | Vitest                  | Actions, getters, estado após mutação |
-| Utils/formatters | Vitest                  | Input/output determinístico           |
-| Services         | Vitest + `vi.mock`      | Mapeamento API → domínio              |
+| Alvo                               | Ferramenta                | O que verificar                       | Obrigatório |
+| :--------------------------------- | :------------------------ | :------------------------------------ | :---------: |
+| Composables com lógica             | Vitest                    | Retornos, reatividade, side effects   |     ✅      |
+| Stores Pinia                       | Vitest                    | Actions, getters, estado após mutação |     ✅      |
+| Utilitários (`utils/`)             | Vitest                    | Input/output determinístico           |     ✅      |
+| Componentes com lógica condicional | Vitest + @nuxt/test-utils | Props, eventos, estados visuais       |     ✅      |
+| Serviços HTTP                      | Vitest + `vi.mock`        | Mapeamento API → domínio              |     ✅      |
+| Fluxos críticos (login, pagamento) | Playwright E2E            | Happy path + erro                     |     ✅      |
+| Páginas de apresentação estática   | Vitest                    | Render básico                         | ⚠️ Opcional |
+| Estilos visuais                    | —                         | Não testar com Vitest                 |     ❌      |
 
-### 10.2 Estrutura de testes
+### 10.2 Estrutura de arquivos
+
+```
+components/Button/
+  Button.vue
+  Button.spec.ts        ← co-localizado com o componente
+
+composables/
+  useBalance.ts
+  useBalance.spec.ts    ← co-localizado com o composable
+
+stores/
+  portfolio.ts
+  portfolio.spec.ts
+
+utils/
+  currency.ts
+  currency.spec.ts
+
+e2e/
+  auth.spec.ts          ← fluxo E2E completo (Playwright)
+  dashboard.spec.ts
+```
+
+### 10.3 Testes unitários — Vitest + @nuxt/test-utils
 
 ```typescript
-// Localização: junto ao arquivo testado
-// components/domain/__tests__/TransactionItem.spec.ts
-// composables/__tests__/useTransactions.spec.ts
-// stores/__tests__/transaction.store.spec.ts
+// Button.spec.ts
+import { describe, it, expect, vi } from "vitest";
+import { mountSuspended } from "@nuxt/test-utils/runtime";
+import Button from "./Button.vue";
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { mountSuspense } from "@vue/test-utils";
-import TransactionItem from "../TransactionItem.vue";
-import { mockTransaction } from "@/tests/factories/transaction.factory";
-
-describe("TransactionItem", () => {
-  describe("renderização", () => {
-    it("exibe descrição e valor formatado corretamente", () => {
-      const transaction = mockTransaction({ amount: 5000, type: "expense" });
-      const wrapper = mount(TransactionItem, { props: { transaction } });
-
-      expect(wrapper.text()).toContain(transaction.description);
-      expect(wrapper.text()).toContain("R$ 50,00");
+describe("Button", () => {
+  it("renders slot content", async () => {
+    const wrapper = await mountSuspended(Button, {
+      slots: { default: "Confirmar" },
     });
-
-    it("aplica cor vermelha para despesas", () => {
-      const wrapper = mount(TransactionItem, {
-        props: { transaction: mockTransaction({ type: "expense" }) },
-      });
-      expect(wrapper.find(".transaction-item__amount").classes()).toContain(
-        "transaction-item__amount--negative",
-      );
-    });
+    expect(wrapper.text()).toBe("Confirmar");
   });
 
-  describe("interações", () => {
-    it("emite evento delete com id correto ao clicar", async () => {
-      const transaction = mockTransaction();
-      const wrapper = mount(TransactionItem, {
-        props: { transaction, onDelete: vi.fn() },
-      });
-
-      await wrapper.find('[data-testid="btn-delete"]').trigger("click");
-
-      expect(wrapper.emitted("delete")).toHaveLength(1);
-      expect(wrapper.emitted("delete")![0]).toEqual([transaction.id]);
+  it("emits click event when not disabled", async () => {
+    const wrapper = await mountSuspended(Button, {
+      props: { disabled: false },
     });
+    await wrapper.trigger("click");
+    expect(wrapper.emitted("click")).toHaveLength(1);
+  });
 
-    it("não renderiza botão delete quando prop onDelete ausente", () => {
-      const wrapper = mount(TransactionItem, {
-        props: { transaction: mockTransaction() },
-      });
-      expect(wrapper.find('[data-testid="btn-delete"]').exists()).toBe(false);
-    });
+  it("does not emit click when disabled", async () => {
+    const wrapper = await mountSuspended(Button, { props: { disabled: true } });
+    await wrapper.trigger("click");
+    expect(wrapper.emitted("click")).toBeUndefined();
   });
 });
 ```
 
-### 10.3 Factories para dados de teste
+### 10.4 Testando composables
+
+```typescript
+// useBalance.spec.ts
+import { describe, it, expect, vi } from "vitest";
+import { useBalance } from "./useBalance";
+
+describe("useBalance", () => {
+  it("returns formatted balance", () => {
+    const { formattedBalance } = useBalance({ amount: 15000 });
+    expect(formattedBalance.value).toBe("R$ 150,00");
+  });
+});
+```
+
+### 10.5 Testes E2E — Playwright
+
+```typescript
+// e2e/auth.spec.ts
+import { test, expect } from "@playwright/test";
+
+test.describe("Autenticação", () => {
+  test("usuário faz login com credenciais válidas", async ({ page }) => {
+    await page.goto("/login");
+    await page.getByLabel("Email").fill("user@auraxis.com");
+    await page.getByLabel("Senha").fill("secret123");
+    await page.getByRole("button", { name: "Entrar" }).click();
+    await expect(page).toHaveURL("/dashboard");
+    await expect(
+      page.getByRole("heading", { name: "Dashboard" }),
+    ).toBeVisible();
+  });
+
+  test("exibe erro com credenciais inválidas", async ({ page }) => {
+    await page.goto("/login");
+    await page.getByLabel("Email").fill("wrong@example.com");
+    await page.getByLabel("Senha").fill("wrongpass");
+    await page.getByRole("button", { name: "Entrar" }).click();
+    await expect(page.getByRole("alert")).toBeVisible();
+  });
+});
+```
+
+### 10.6 Factories para dados de teste
 
 ```typescript
 // tests/factories/transaction.factory.ts
@@ -848,18 +894,19 @@ export function mockTransaction(
 }
 ```
 
-### 10.4 Regras de testes
+### 10.7 Regras de testes
 
-| Regra                                            | Detalhe                                        |
-| :----------------------------------------------- | :--------------------------------------------- |
-| `data-testid` em elementos interativos           | Seletor estável — não usa classes CSS          |
-| Factories para todos os tipos                    | Sem objeto literal inline nos testes           |
-| Testar comportamento, não implementação          | `wrapper.text()` não `wrapper.vm.internalRef`  |
-| Mocks apenas de services e dependências externas | Store real nos testes de store                 |
-| Sem `setTimeout`                                 | `await nextTick()` ou `flushPromises()`        |
-| Coverage mínimo: 85%                             | Enforced via `--coverage --coverage-threshold` |
+| Regra                                    | Detalhe                                           |
+| :--------------------------------------- | :------------------------------------------------ |
+| `data-testid` em elementos interativos   | Seletor estável — não usa classes CSS             |
+| Factories para todos os tipos            | Sem objeto literal inline nos testes              |
+| Testar comportamento, não implementação  | `wrapper.text()` não `wrapper.vm.internalRef`     |
+| Mocks apenas de services e deps externas | Store real nos testes de store                    |
+| Sem `setTimeout`                         | `await nextTick()` ou `flushPromises()`           |
+| Coverage mínimo: 85% lines/functions     | Enforced via `vitest.config.ts#coverageThreshold` |
+| E2E para fluxos críticos                 | Playwright cobre login, pagamento, navegação      |
 
-### 10.5 Configuração Vitest
+### 10.8 Configuração Vitest
 
 ```typescript
 // vitest.config.ts
@@ -868,6 +915,7 @@ import { defineVitestConfig } from "@nuxt/test-utils/config";
 export default defineVitestConfig({
   test: {
     environment: "nuxt",
+    passWithNoTests: true,
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html", "lcov"],
@@ -882,6 +930,7 @@ export default defineVitestConfig({
         "**/*.d.ts",
         "tests/factories/**",
         "tests/helpers/**",
+        "e2e/**",
       ],
     },
   },
@@ -963,6 +1012,8 @@ export default defineNuxtConfig({
 ## Referências
 
 - Quality gates detalhados: `.context/quality_gates.md`
-- Guia de features e arquitetura: `FRONTEND_GUIDE.md`
+- Steering (governança técnica local): `steering.md`
+- Manual unificado de qualidade e segurança: `auraxis-platform/.context/25_quality_security_playbook.md`
 - Governança global: `auraxis-platform/.context/07_steering_global.md`
+- Contrato de agente: `auraxis-platform/.context/08_agent_contract.md`
 - Definição de pronto: `auraxis-platform/.context/23_definition_of_done.md`
