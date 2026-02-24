@@ -4,6 +4,17 @@ export default defineNuxtConfig({
 
   devtools: { enabled: true },
 
+  app: {
+    head: {
+      link: [
+        { rel: "manifest", href: "/manifest.webmanifest" },
+      ],
+      meta: [
+        { name: "theme-color", content: "#ffbe4d" },
+      ],
+    },
+  },
+
   // ── Módulos ──────────────────────────────────────────────────────────
   modules: [
     "@nuxt/eslint",       // Lint integrado ao Nuxt (gera eslint.config via `nuxt lint`)
