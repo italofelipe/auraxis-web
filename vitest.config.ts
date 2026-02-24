@@ -7,8 +7,9 @@ import { defineVitestConfig } from '@nuxt/test-utils/config'
  */
 export default defineVitestConfig({
   test: {
-    // Ambiente de teste com suporte a componentes Nuxt
-    environment: 'nuxt',
+    // Baseline WEB10: evita bootstrap completo do Nuxt em testes unitários iniciais.
+    // Para testes com runtime Nuxt, usar `// @vitest-environment nuxt` por arquivo.
+    environment: 'happy-dom',
 
     // Inclui os helpers do @nuxt/test-utils automaticamente
     globals: true,
@@ -30,9 +31,6 @@ export default defineVitestConfig({
       '**/.output/**',
       '**/e2e/**',  // E2E é responsabilidade do Playwright
     ],
-
-    // Não falha se não encontrar arquivos de teste
-    passWithNoTests: true,
 
     coverage: {
       provider: 'v8',
@@ -60,7 +58,6 @@ export default defineVitestConfig({
         '**/*.config.{ts,js}',
         '**/node_modules/**',
         '**/.nuxt/**',
-        'app/app.vue',  // Entry point — não testável unitariamente
       ],
     },
   },
