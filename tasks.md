@@ -56,6 +56,11 @@
   - Dependência: WEB5, decisão humana sobre infra
   - Commit: —
 
+- [ ] **WEB9** `chore` — Dockerizar frontend Nuxt para desenvolvimento e CI
+  - Critério: `Dockerfile` + `.dockerignore` + comando de execução documentado; build de imagem passa em CI sem warnings críticos.
+  - Dependência: WEB5
+  - Commit: —
+
 ### P3 — Baixa / Futuro
 
 - [ ] **WEB7** `feat` — Tela de metas financeiras
@@ -83,3 +88,6 @@
 - [x] CI fix: Sonar pinado em SHA completo (`sonarqube-scan-action@v6`) e organização corrigida para `sensoriumit` | Data: 2026-02-24
 - [x] CI hardening: jobs Lighthouse e Playwright protegidos por flags de repositório (`ENABLE_LIGHTHOUSE_CI` e `ENABLE_WEB_E2E`) até estabilização de runtime SSR no scaffold atual | Data: 2026-02-24
 - [x] CI security fix: permissões de workflows movidas de nível global para nível de job (least privilege) para atender policy/Sonar | Data: 2026-02-24
+- [x] CI hardening: `dependency-review-action` ajustado para modo bloqueante (sem fallback permissivo) | Data: 2026-02-24
+- [x] CI hardening: Sonar padronizado para CI scanner sempre ativo (Automatic Analysis deve permanecer desabilitado no SonarCloud) | Data: 2026-02-24
+- [x] Hygiene fix: removido artefato local indevido (`.nuxtrc 2`) e `.gitignore` ajustado para ignorar variantes (`.nuxtrc*`) | Data: 2026-02-24

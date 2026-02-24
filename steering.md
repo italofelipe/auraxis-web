@@ -137,6 +137,8 @@ Workflows adicionais (não bloqueantes):
 - `dependency-review.yml` — bloqueia PRs com CVEs ≥ high em novas deps
 - `auto-merge.yml` — squash-merge automático de PRs Dependabot (patch/minor)
 
+> **SonarCloud:** operar exclusivamente em modo CI scanner (Automatic Analysis desabilitado no painel do projeto).
+
 ---
 
 ## Escrevendo testes
