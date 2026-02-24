@@ -31,6 +31,12 @@
   - Dependência: WEB1 ✅, auraxis-api com schema OpenAPI exportado
   - Commit: —
 
+- [ ] **WEB10** `chore` — Estabelecer baseline de testes para remover `--passWithNoTests`
+  - Critério: pelo menos 1 suíte real cobrindo fluxo crítico inicial e scripts `test/test:coverage` sem `--passWithNoTests`.
+  - Dependência: WEB1
+  - Commit: —
+  - Risco residual: manter `passWithNoTests` mascara regressões e reduz confiabilidade dos gates.
+
 ### P1 — Alta
 
 - [ ] **WEB3** `feat` — Layout base e sistema de autenticação
@@ -54,6 +60,11 @@
 - [ ] **WEB6** `chore` — Definir estratégia de deploy
   - Critério: ADR criado em `docs/adr/WEB6-deploy-strategy.md` com decisão entre Vercel, AWS ou VPS. Pipeline de deploy configurado.
   - Dependência: WEB5, decisão humana sobre infra
+  - Commit: —
+
+- [ ] **WEB9** `chore` — Dockerizar frontend Nuxt para desenvolvimento e CI
+  - Critério: `Dockerfile` + `.dockerignore` + comando de execução documentado; build de imagem passa em CI sem warnings críticos.
+  - Dependência: WEB5
   - Commit: —
 
 ### P3 — Baixa / Futuro
@@ -83,3 +94,8 @@
 - [x] CI fix: Sonar pinado em SHA completo (`sonarqube-scan-action@v6`) e organização corrigida para `sensoriumit` | Data: 2026-02-24
 - [x] CI hardening: jobs Lighthouse e Playwright protegidos por flags de repositório (`ENABLE_LIGHTHOUSE_CI` e `ENABLE_WEB_E2E`) até estabilização de runtime SSR no scaffold atual | Data: 2026-02-24
 - [x] CI security fix: permissões de workflows movidas de nível global para nível de job (least privilege) para atender policy/Sonar | Data: 2026-02-24
+- [x] CI hardening: `dependency-review-action` ajustado para modo bloqueante (sem fallback permissivo) | Data: 2026-02-24
+- [x] CI hardening: Sonar padronizado para CI scanner sempre ativo (Automatic Analysis deve permanecer desabilitado no SonarCloud) | Data: 2026-02-24
+- [x] Hygiene fix: removido artefato local indevido (`.nuxtrc 2`) e `.gitignore` ajustado para ignorar variantes (`.nuxtrc*`) | Data: 2026-02-24
+- [x] CI compat: `dependency-review-action` com fallback controlado para repo sem Dependency Graph suportado/habilitado | Data: 2026-02-24
+- [x] CI hardening: Sonar scanner estrito reativado após desativação do Automatic Analysis no SonarCloud | Data: 2026-02-24
