@@ -1,0 +1,22 @@
+services:
+  web-dev:
+    build:
+      context: .
+      target: dev
+    ports:
+      - "3000:3000"
+    environment:
+      NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE:-http://host.docker.internal:5000}
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: sh -c "pnpm install --frozen-lockfile && pnpm dev --host 0.0.0.0 --port 3000"
+
+  web-prod:
+    build:
+      context: .
+      target: runner
+    ports:
+      - "3001:3000"
+    environment:
+      NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE:-http://host.docker.internal:5000}

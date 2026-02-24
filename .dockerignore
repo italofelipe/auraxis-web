@@ -1,0 +1,11 @@
+.git
+.github
+.nuxt
+.output
+coverage
+playwright-report
+test-results
+node_modules
+.env
+.env.*
+.DS_Store
