@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from "@playwright/test";
 
 /**
  * Teste E2E de sanidade — auraxis-web
@@ -6,15 +6,15 @@ import { test, expect } from '@playwright/test'
  *
  * Remover / substituir por testes reais quando as páginas forem implementadas.
  */
-test.describe('Sanity check', () => {
-  test('homepage loads and has correct title', async ({ page }) => {
-    await page.goto('/')
+test.describe("Sanity check", () => {
+  test("homepage loads and has correct title", async ({ page }) => {
+    await page.goto("/");
     // Ajustar conforme o <title> real da aplicação
-    await expect(page).toHaveTitle(/Auraxis/)
-  })
+    await expect(page).toHaveTitle(/Auraxis/);
+  });
 
-  test('returns HTTP 200 on root', async ({ request }) => {
-    const response = await request.get('/')
-    expect(response.status()).toBe(200)
-  })
-})
+  test("returns HTTP 200 on root", async ({ request }) => {
+    const response = await request.get("/");
+    expect(response.status()).toBe(200);
+  });
+});

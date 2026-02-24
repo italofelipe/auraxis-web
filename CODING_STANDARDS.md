@@ -393,22 +393,15 @@ export const useTransactionStore = defineStore("transaction", () => {
 
   // ── Getters ────────────────────────────────────────────────────────
   const total = computed((): number =>
-    items.value.reduce(
-      (acc, t) => (t.type === "income" ? acc + t.amount : acc - t.amount),
-      0,
-    ),
+    items.value.reduce((acc, t) => (t.type === "income" ? acc + t.amount : acc - t.amount), 0),
   );
 
   const income = computed((): number =>
-    items.value
-      .filter((t) => t.type === "income")
-      .reduce((acc, t) => acc + t.amount, 0),
+    items.value.filter((t) => t.type === "income").reduce((acc, t) => acc + t.amount, 0),
   );
 
   const expense = computed((): number =>
-    items.value
-      .filter((t) => t.type === "expense")
-      .reduce((acc, t) => acc + t.amount, 0),
+    items.value.filter((t) => t.type === "expense").reduce((acc, t) => acc + t.amount, 0),
   );
 
   // ── Actions ────────────────────────────────────────────────────────
@@ -431,10 +424,7 @@ export const useTransactionStore = defineStore("transaction", () => {
     return created;
   }
 
-  async function update(
-    id: string,
-    dto: Partial<CreateTransactionRequest>,
-  ): Promise<void> {
+  async function update(id: string, dto: Partial<CreateTransactionRequest>): Promise<void> {
     const updated = await transactionService.update(id, dto);
     items.value = items.value.map((t) => (t.id === id ? updated : t));
   }
@@ -492,10 +482,7 @@ Cada service tem três responsabilidades: chamar a API, mapear tipos raw → dom
 ```typescript
 // services/transaction.service.ts
 import type { Transaction } from "@/types/domain/transaction";
-import type {
-  TransactionResponse,
-  CreateTransactionRequest,
-} from "@/types/api/transaction";
+import type { TransactionResponse, CreateTransactionRequest } from "@/types/api/transaction";
 
 // ── Mapper ─────────────────────────────────────────────────────────────
 // Toda transformação API → domínio passa aqui.
@@ -520,9 +507,7 @@ export const transactionService = {
   },
 
   async getById(id: string): Promise<Transaction> {
-    const data = await $fetch<TransactionResponse>(
-      `/api/v1/transactions/${id}`,
-    );
+    const data = await $fetch<TransactionResponse>(`/api/v1/transactions/${id}`);
     return toTransaction(data);
   },
 
@@ -534,17 +519,11 @@ export const transactionService = {
     return toTransaction(data);
   },
 
-  async update(
-    id: string,
-    dto: Partial<CreateTransactionRequest>,
-  ): Promise<Transaction> {
-    const data = await $fetch<TransactionResponse>(
-      `/api/v1/transactions/${id}`,
-      {
-        method: "PATCH",
-        body: dto,
-      },
-    );
+  async update(id: string, dto: Partial<CreateTransactionRequest>): Promise<Transaction> {
+    const data = await $fetch<TransactionResponse>(`/api/v1/transactions/${id}`, {
+      method: "PATCH",
+      body: dto,
+    });
     return toTransaction(data);
   },
 
@@ -575,9 +554,7 @@ export const transactionService = {
 <!-- ❌ Página com lógica de negócio -->
 <script setup lang="ts">
 const transactions = ref<Transaction[]>([]);
-const total = computed(() =>
-  transactions.value.reduce((acc, t) => acc + t.amount, 0),
-);
+const total = computed(() => transactions.value.reduce((acc, t) => acc + t.amount, 0));
 onMounted(async () => {
   const data = await $fetch("/api/v1/transactions");
   transactions.value = data.map(/* transform */);
@@ -637,11 +614,7 @@ if (error.value) {
 ```typescript
 // utils/formatters.ts
 
-export function formatCurrency(
-  amount: number,
-  currency = "BRL",
-  locale = "pt-BR",
-): string {
+export function formatCurrency(amount: number, currency = "BRL", locale = "pt-BR"): string {
   return new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
@@ -854,9 +827,7 @@ test.describe("Autenticação", () => {
     await page.getByLabel("Senha").fill("secret123");
     await page.getByRole("button", { name: "Entrar" }).click();
     await expect(page).toHaveURL("/dashboard");
-    await expect(
-      page.getByRole("heading", { name: "Dashboard" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
   });
 
   test("exibe erro com credenciais inválidas", async ({ page }) => {
@@ -877,9 +848,7 @@ import type { Transaction } from "@/types/domain/transaction";
 
 let _seq = 0;
 
-export function mockTransaction(
-  overrides: Partial<Transaction> = {},
-): Transaction {
+export function mockTransaction(overrides: Partial<Transaction> = {}): Transaction {
   _seq++;
   return {
     id: `txn-${String(_seq).padStart(4, "0")}`,
@@ -925,13 +894,7 @@ export default defineVitestConfig({
         branches: 80,
         statements: 85,
       },
-      exclude: [
-        "nuxt.config.ts",
-        "**/*.d.ts",
-        "tests/factories/**",
-        "tests/helpers/**",
-        "e2e/**",
-      ],
+      exclude: ["nuxt.config.ts", "**/*.d.ts", "tests/factories/**", "tests/helpers/**", "e2e/**"],
     },
   },
 });
@@ -1146,9 +1109,7 @@ Sinais de que deve extrair:
 <!-- ❌ Componente com lógica de negócio inline -->
 <script setup lang="ts">
 const transactions = ref([]);
-const total = computed(() =>
-  transactions.value.reduce((sum, t) => sum + t.amount, 0),
-);
+const total = computed(() => transactions.value.reduce((sum, t) => sum + t.amount, 0));
 // ... 80 linhas de fetch, filtro, sort, paginação...
 </script>
 
@@ -1193,10 +1154,7 @@ function parseApiError(err: unknown): string {
 }
 
 // ✅ Generics com restrições
-function getById<T extends { id: string }>(
-  list: T[],
-  id: string,
-): T | undefined {
+function getById<T extends { id: string }>(list: T[], id: string): T | undefined {
   return list.find((item) => item.id === id);
 }
 
@@ -1289,6 +1247,41 @@ export default defineNuxtConfig({
 | Accessibility  | ≥ 90         |
 | Bundle inicial | ≤ 250KB gzip |
 | LCP            | ≤ 2.5s       |
+
+---
+
+## 19. Perfil ESLint estrito (mix OO + funcional)
+
+Este repositório adota lint **rigoroso** para reduzir variação entre devs/agentes e forçar consistência de arquitetura.
+
+Regras obrigatórias de estilo:
+
+- `semi: always`
+- `quotes: double`
+- `eqeqeq: always`
+- `curly: all`
+- `no-console` (exceto `warn` e `error`)
+
+Regras obrigatórias de disciplina:
+
+- `complexity <= 12`
+- `max-params <= 3`
+- `max-lines-per-function <= 80` (ignorando comentários e linhas em branco)
+- `max-depth <= 3`
+- `max-statements <= 18`
+- `consistent-return`
+
+Regras obrigatórias de TypeScript:
+
+- `@typescript-eslint/no-explicit-any`
+- `@typescript-eslint/no-unused-vars` (prefixo `_` permitido para parâmetros ignorados)
+- `@typescript-eslint/consistent-type-imports`
+
+Diretriz arquitetural:
+
+- Camadas de domínio/aplicação (`services`, `repositories`, `use-cases`) devem seguir organização orientada a objeto e contratos explícitos.
+- Camadas de UI (`components`, `composables`, `pages`) podem usar estilo funcional, mantendo limites de complexidade.
+- Testes (`*.test.*`, `*.spec.*`) têm limites mais permissivos para cenário/setup.
 
 ---
 

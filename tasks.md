@@ -31,11 +31,11 @@
   - Dependência: WEB1 ✅, auraxis-api com schema OpenAPI exportado
   - Commit: —
 
-- [ ] **WEB10** `chore` — Estabelecer baseline de testes para remover `--passWithNoTests`
+- [x] **WEB10** `chore` — Estabelecer baseline de testes para remover `--passWithNoTests`
   - Critério: pelo menos 1 suíte real cobrindo fluxo crítico inicial e scripts `test/test:coverage` sem `--passWithNoTests`.
   - Dependência: WEB1
-  - Commit: —
-  - Risco residual: manter `passWithNoTests` mascara regressões e reduz confiabilidade dos gates.
+  - Commit: a definir (branch `chore/web10-test-baseline`)
+  - Risco residual: baseline cobre apenas shell inicial (`app.vue`); expandir cobertura funcional em `WEB8` e nas próximas features.
 
 ### P1 — Alta
 
@@ -99,3 +99,5 @@
 - [x] Hygiene fix: removido artefato local indevido (`.nuxtrc 2`) e `.gitignore` ajustado para ignorar variantes (`.nuxtrc*`) | Data: 2026-02-24
 - [x] CI compat: `dependency-review-action` com fallback controlado para repo sem Dependency Graph suportado/habilitado | Data: 2026-02-24
 - [x] CI hardening: Sonar scanner estrito reativado após desativação do Automatic Analysis no SonarCloud | Data: 2026-02-24
+- [x] WEB10 concluído: baseline de testes reais criado, `--passWithNoTests` removido e coverage validado no gate local | Data: 2026-02-24
+- [x] Lint hardening: perfil ESLint estrito aplicado (estilo + complexidade + disciplina TypeScript), com padrão de formatação (`.prettierrc.json`) e `--max-warnings 0` no lint/lint-staged | Data: 2026-02-24
