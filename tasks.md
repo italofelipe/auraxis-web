@@ -65,7 +65,7 @@
 ### P2 — Normal
 
 - [x] **WEB5** `chore` — Configurar CI (GitHub Actions)
-  - Critério: workflow roda `pnpm lint` + `pnpm typecheck` + `pnpm test` + `pnpm build` + secret-scan + dep-audit a cada PR. ci-passed gate obrigatório.
+  - Critério: workflow roda `pnpm lint` + `pnpm typecheck` + `pnpm test` + `pnpm build` + secret-scan + dep-audit a cada PR. checks reais obrigatórios configurados na branch protection.
   - Commit: incluído em `cd807f3` (quality stack bootstrap)
   - Dependência: WEB1
 
@@ -115,7 +115,7 @@
 - [x] Lint hardening: perfil ESLint estrito aplicado (estilo + complexidade + disciplina TypeScript), com padrão de formatação (`.prettierrc.json`) e `--max-warnings 0` no lint/lint-staged | Data: 2026-02-24
 - [x] WEB2 concluído: composable `useApi` + runtime config `NUXT_PUBLIC_API_BASE` + teste unitário de healthcheck (`/health`) | Data: 2026-02-24
 - [x] WEB9 concluído: `Dockerfile` multi-stage + `.dockerignore` + `docker-compose.yml` + runbook em `docs/runbooks/WEB9-docker.md` | Data: 2026-02-24
-- [x] CI hardening: job `Docker Build (Nuxt)` adicionado como gate obrigatório no `CI Passed` | Data: 2026-02-24
+- [x] CI hardening: job `Docker Build (Nuxt)` adicionado à lista de checks obrigatórios da branch protection | Data: 2026-02-24
 - [x] SDD hardening: templates locais (`feature_card`/`delivery_report`) + `product.md` + diretórios `handoffs/reports` adicionados para execução autônoma | Data: 2026-02-24
 - [x] Dependency review hardening: fallback permissivo removido (`continue-on-error`) para enforcement real no PR gate | Data: 2026-02-24
 - [x] Security fix: normalização de base URL refatorada para algoritmo linear (`removeTrailingSlashes`) sem regex suscetível a backtracking/ReDoS | Data: 2026-02-24
@@ -127,3 +127,4 @@
 - [x] Sonar CI fix: cobertura Vitest padronizada com `lcovonly` + validação explícita de `coverage/lcov.info` no job Sonar para evitar regressão de 0% por ausência de report | Data: 2026-02-24
 - [x] Sonar report fix: `test:coverage` força reporters via CLI (incluindo `lcovonly`) para garantir geração determinística de `coverage/lcov.info` no CI | Data: 2026-02-24
 - [x] Governança UI atualizada: paleta, tipografia, grid 8px, proibição de Tailwind e baseline de Chakra UI + TanStack Query registradas em `steering.md` e `CODING_STANDARDS.md` | Data: 2026-02-24
+- [x] CI simplification: removido gate sintético `ci-passed`; branch protection passa a exigir checks reais do pipeline | Data: 2026-02-24

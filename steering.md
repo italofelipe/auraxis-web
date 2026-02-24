@@ -145,7 +145,6 @@ push / PR → master
 ├── sonarcloud        (análise estática + coverage)
 └── commitlint        (apenas em PR — Conventional Commits)
 
-└── ci-passed         (status gate — bloqueia merge se qualquer job falhar)
 ```
 
 Workflows adicionais (não bloqueantes):
