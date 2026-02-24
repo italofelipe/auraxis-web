@@ -13,7 +13,7 @@
     "typecheck": "nuxt typecheck",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
+    "test:coverage": "vitest run --coverage --coverage.reporter=text --coverage.reporter=json --coverage.reporter=json-summary --coverage.reporter=html --coverage.reporter=lcovonly",
     "quality-check": "pnpm lint && pnpm typecheck && pnpm test:coverage",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",

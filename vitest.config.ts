@@ -43,7 +43,7 @@ export default defineVitestConfig({
         statements: 85,
       },
       provider: "v8",
-      reporter: ["text", "json", "json-summary", "lcov", "html"],
+      reporter: ["text", "json", "json-summary", "lcovonly", "html"],
       reportsDirectory: "./coverage",
 
       include: [

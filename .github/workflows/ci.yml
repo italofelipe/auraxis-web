@@ -273,6 +273,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Generate coverage for Sonar
         run: pnpm test:coverage
+      - name: Validate LCOV report exists
+        run: test -f coverage/lcov.info
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6.0.0
         env:

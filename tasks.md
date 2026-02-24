@@ -112,3 +112,5 @@
 - [x] CI parity local: criado `scripts/run_ci_like_actions_local.sh` + `scripts/ci-audit-gate.cjs`; workflow de audit passou a reutilizar script compartilhado | Data: 2026-02-24
 - [x] Sonar code smell fix: `String#charCodeAt()` substituído por `String#codePointAt()` em normalização de URL | Data: 2026-02-24
 - [x] Sonar coverage fix: escopo de análise (`sonar.sources/inclusions`) alinhado ao baseline coberto no `lcov` para eliminar falso negativo de coverage global no scaffold | Data: 2026-02-24
+- [x] Sonar CI fix: cobertura Vitest padronizada com `lcovonly` + validação explícita de `coverage/lcov.info` no job Sonar para evitar regressão de 0% por ausência de report | Data: 2026-02-24
+- [x] Sonar report fix: `test:coverage` força reporters via CLI (incluindo `lcovonly`) para garantir geração determinística de `coverage/lcov.info` no CI | Data: 2026-02-24
