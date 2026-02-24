@@ -128,3 +128,4 @@
 - [x] Sonar report fix: `test:coverage` força reporters via CLI (incluindo `lcovonly`) para garantir geração determinística de `coverage/lcov.info` no CI | Data: 2026-02-24
 - [x] Governança UI atualizada: paleta, tipografia, grid 8px, proibição de Tailwind e baseline de Chakra UI + TanStack Query registradas em `steering.md` e `CODING_STANDARDS.md` | Data: 2026-02-24
 - [x] CI simplification: removido gate sintético `ci-passed`; branch protection passa a exigir checks reais do pipeline | Data: 2026-02-24
+- [x] CI resilience: Dockerfile endurecido com retry/backoff para `corepack prepare pnpm@10.30.1` e `pnpm install` (mitigação de falhas transitórias `HTTP 503`) | Data: 2026-02-24

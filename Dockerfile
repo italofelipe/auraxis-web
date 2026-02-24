@@ -3,14 +3,34 @@ FROM node:22-bookworm-slim AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 
-RUN corepack enable
+RUN set -eux; \
+    npm config set fetch-retries 5; \
+    npm config set fetch-retry-factor 2; \
+    npm config set fetch-retry-mintimeout 10000; \
+    npm config set fetch-retry-maxtimeout 120000; \
+    for attempt in 1 2 3; do \
+      npm install -g pnpm@10.30.1 && break; \
+      echo "pnpm global install failed (attempt ${attempt})"; \
+      if [ "${attempt}" -eq 3 ]; then exit 1; fi; \
+      sleep $((attempt * 10)); \
+    done
 
 WORKDIR /app
 
 FROM base AS deps
 
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+RUN set -eux; \
+    pnpm config set fetch-retries 5; \
+    pnpm config set fetch-retry-factor 2; \
+    pnpm config set fetch-retry-mintimeout 10000; \
+    pnpm config set fetch-retry-maxtimeout 120000; \
+    for attempt in 1 2 3; do \
+      pnpm install --frozen-lockfile && break; \
+      echo "pnpm install failed (attempt ${attempt})"; \
+      if [ "${attempt}" -eq 3 ]; then exit 1; fi; \
+      sleep $((attempt * 10)); \
+    done
 
 FROM deps AS build
 
