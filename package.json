@@ -50,10 +50,12 @@
     "@testing-library/vue": "^8.1.0",
     "@vitest/coverage-v8": "^4.0.18",
     "@vue/test-utils": "^2.4.6",
+    "eslint": "^9.39.3",
     "happy-dom": "^20.7.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "prettier": "^3.8.1",
+    "storybook": "9.1.17",
     "typescript": "^5.8.3",
     "vitest": "^4.0.18",
     "vue-tsc": "^2.2.12"

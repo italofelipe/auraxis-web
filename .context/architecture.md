@@ -2,15 +2,15 @@
 
 ## Stack
 
-| Camada | Tecnologia | Versão alvo |
-|:-------|:-----------|:------------|
-| Framework | Nuxt 3 | latest stable |
-| Linguagem | TypeScript | strict mode |
-| Lint/Format | Biome | latest |
-| Testes | Vitest + Vue Test Utils | latest |
-| Estado | Pinia | latest |
-| HTTP client | $fetch (Nuxt built-in) ou ofetch | built-in |
-| Deploy | A definir (Vercel / AWS / VPS) | — |
+| Camada      | Tecnologia                       | Versão alvo |
+| :---------- | :------------------------------- | :---------- |
+| Framework   | Nuxt 4                           | 4.3.1       |
+| Linguagem   | TypeScript                       | strict mode |
+| Lint/Format | @nuxt/eslint + Prettier          | latest      |
+| Testes      | Vitest + Vue Test Utils          | latest      |
+| Estado      | Pinia                            | latest      |
+| HTTP client | $fetch (Nuxt built-in) ou ofetch | built-in    |
+| Deploy      | A definir (Vercel / AWS / VPS)   | —           |
 
 ## Estrutura de diretórios
 
@@ -26,9 +26,9 @@ auraxis-web/
   services/      # Clientes HTTP por domínio (ex: auth.service.ts)
   types/         # Tipos e interfaces TypeScript
   stores/        # Pinia stores (um por domínio)
-  nuxt.config.ts # Configuração principal
-  biome.json     # Configuração do Biome
-  tsconfig.json  # TypeScript config (strict: true obrigatório)
+  nuxt.config.ts   # Configuração principal
+  eslint.config.mjs # Configuração do ESLint (@nuxt/eslint)
+  tsconfig.json    # TypeScript config (strict: true obrigatório)
 ```
 
 ## Fluxo de dados
@@ -42,13 +42,13 @@ UI (pages/ + components/)
 
 ## Decisões de arquitetura
 
-| Decisão | Escolha | Motivo |
-|:--------|:--------|:-------|
-| Lint/Format | Biome (único) | Sem Prettier + ESLint separados — menos config, mais rápido |
-| Estado global | Pinia | Vue 3 nativo, TypeScript first |
-| HTTP | $fetch / ofetch | Built-in Nuxt, SSR-aware |
-| Auth tokens | httpOnly cookies | Não expõe em JS client-side |
-| Tipagem | strict: true | Sem `any`, inferência máxima |
+| Decisão       | Escolha                 | Motivo                                    |
+| :------------ | :---------------------- | :---------------------------------------- |
+| Lint/Format   | @nuxt/eslint + Prettier | Alinhado ao ecossistema Nuxt 4 e CI atual |
+| Estado global | Pinia                   | Vue 3 nativo, TypeScript first            |
+| HTTP          | $fetch / ofetch         | Built-in Nuxt, SSR-aware                  |
+| Auth tokens   | httpOnly cookies        | Não expõe em JS client-side               |
+| Tipagem       | strict: true            | Sem `any`, inferência máxima              |
 
 ## Contratos com auraxis-api
 

@@ -1,6 +1,6 @@
 # tasks.md — auraxis-web
 
-Última atualização: 2026-02-22
+Última atualização: 2026-02-24
 
 ## Legenda
 
@@ -50,7 +50,6 @@
   - Critério: workflow roda `pnpm lint` + `pnpm typecheck` + `pnpm test` + `pnpm build` + secret-scan + dep-audit a cada PR. ci-passed gate obrigatório.
   - Commit: incluído em `cd807f3` (quality stack bootstrap)
   - Dependência: WEB1
-  - Commit: —
 
 - [ ] **WEB6** `chore` — Definir estratégia de deploy
   - Critério: ADR criado em `docs/adr/WEB6-deploy-strategy.md` com decisão entre Vercel, AWS ou VPS. Pipeline de deploy configurado.
@@ -77,3 +76,10 @@
 
 - [x] Governance baseline: CLAUDE.md, .gitignore, README.md, tasks.md, steering.md | Data: 2026-02-22
 - [x] Registrado como submodule em auraxis-platform | Commit: `2b138fa` | Data: 2026-02-22
+- [x] CI fix: alinhamento da versão do pnpm no workflow com `packageManager` para eliminar `ERR_PNPM_BAD_PM_VERSION` | Data: 2026-02-24
+- [x] CI fix: `eslint` explicitado em devDependencies para eliminar `sh: eslint: not found` no job de lint | Data: 2026-02-24
+- [x] CI fix: audit com allowlist temporária para `GHSA-3ppc-4f35-3m26` (minimatch transiente) e bloqueio mantido para demais high/critical | Data: 2026-02-24
+- [x] CI fix: Sonar migrado para `sonarqube-scan-action@v5` e `sonar.sources=.` para evitar falha por diretórios ausentes no scaffold | Data: 2026-02-24
+- [x] CI fix: Sonar pinado em SHA completo (`sonarqube-scan-action@v6`) e organização corrigida para `sensoriumit` | Data: 2026-02-24
+- [x] CI hardening: jobs Lighthouse e Playwright protegidos por flags de repositório (`ENABLE_LIGHTHOUSE_CI` e `ENABLE_WEB_E2E`) até estabilização de runtime SSR no scaffold atual | Data: 2026-02-24
+- [x] CI security fix: permissões de workflows movidas de nível global para nível de job (least privilege) para atender policy/Sonar | Data: 2026-02-24

@@ -65,6 +65,8 @@ O CI roda automaticamente em todo push e PR para master.
 | `commitlint`             | Conventional Commits    | válido               | ✅ sim (PR apenas) |
 | `dependency-review`      | CVEs em novas deps      | 0 high/critical      | ✅ sim (PR apenas) |
 
+> **Secret Sonar:** GitHub Secret = `SONAR_AURAXIS_WEB_TOKEN` · `.env` local = `SONAR_AURAXIS_WEB_TOKEN=<token>`
+
 ### Lighthouse CI — thresholds detalhados
 
 | Métrica                        | Threshold  | Tipo                         |

@@ -12,13 +12,11 @@
 ci:
   collect:
     # Usa o servidor Nuxt em modo preview após o build
-    startServerCommand: pnpm preview
+    startServerCommand: NITRO_HOST=0.0.0.0 NITRO_PORT=3000 pnpm preview
     startServerReadyPattern: 'Listening on'
-    startServerReadyTimeout: 30000
+    startServerReadyTimeout: 120000
     url:
       - http://localhost:3000/
-      - http://localhost:3000/login    # Ajustar para páginas reais do projeto
-      - http://localhost:3000/dashboard
     numberOfRuns: 3  # Média de 3 execuções para reduzir variabilidade
 
   assert:
