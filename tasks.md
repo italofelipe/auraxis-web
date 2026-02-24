@@ -31,6 +31,12 @@
   - Dependência: WEB1 ✅, auraxis-api com schema OpenAPI exportado
   - Commit: —
 
+- [ ] **WEB10** `chore` — Estabelecer baseline de testes para remover `--passWithNoTests`
+  - Critério: pelo menos 1 suíte real cobrindo fluxo crítico inicial e scripts `test/test:coverage` sem `--passWithNoTests`.
+  - Dependência: WEB1
+  - Commit: —
+  - Risco residual: manter `passWithNoTests` mascara regressões e reduz confiabilidade dos gates.
+
 ### P1 — Alta
 
 - [ ] **WEB3** `feat` — Layout base e sistema de autenticação
