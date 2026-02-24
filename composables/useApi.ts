@@ -4,15 +4,16 @@ export interface HealthResponse {
 }
 
 type ApiFetcher = <T>(request: string, options?: { method?: string }) => Promise<T>;
+type RuntimeConfigReader = () => { public?: { apiBase?: string | null } };
 
-const normalizeBaseUrl = (rawUrl: string): string => rawUrl.replace(/\/+$/, "");
+const removeTrailingSlashes = (rawUrl: string): string => {
+  let end = rawUrl.length;
 
-const normalizePath = (path: string): string => {
-  if (path.startsWith("/")) {
-    return path;
+  while (end > 0 && rawUrl.charCodeAt(end - 1) === 47) {
+    end -= 1;
   }
 
-  return `/${path}`;
+  return rawUrl.slice(0, end);
 };
 
 export interface WebApiClient {
@@ -21,20 +22,23 @@ export interface WebApiClient {
 }
 
 export const createApiClient = (fetcher: ApiFetcher, baseUrl: string): WebApiClient => {
-  const normalizedBaseUrl = normalizeBaseUrl(baseUrl);
+  const normalizedBaseUrl = removeTrailingSlashes(baseUrl);
 
   return {
     getBaseUrl: (): string => normalizedBaseUrl,
     checkHealth: async (): Promise<HealthResponse> => {
-      const requestUrl = `${normalizedBaseUrl}${normalizePath("/health")}`;
+      const requestUrl = `${normalizedBaseUrl}/health`;
       return fetcher<HealthResponse>(requestUrl, { method: "GET" });
     },
   };
 };
 
-export const useApi = (): WebApiClient => {
-  const runtimeConfig = useRuntimeConfig();
-  const baseUrl = String(runtimeConfig.public.apiBase ?? "http://localhost:5000");
+export const useApi = (
+  readRuntimeConfig: RuntimeConfigReader = useRuntimeConfig,
+  fetcher: ApiFetcher = $fetch as ApiFetcher,
+): WebApiClient => {
+  const runtimeConfig = readRuntimeConfig();
+  const baseUrl = String(runtimeConfig.public?.apiBase ?? "http://localhost:5000");
 
-  return createApiClient($fetch, baseUrl);
+  return createApiClient(fetcher, baseUrl);
 };

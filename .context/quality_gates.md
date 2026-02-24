@@ -38,7 +38,7 @@ pnpm quality-check
 | Vitest — lines           | ≥ 85%     | `vitest.config.ts#coverage.thresholds`        |
 | Vitest — functions       | ≥ 85%     | `vitest.config.ts#coverage.thresholds`        |
 | Vitest — statements      | ≥ 85%     | `vitest.config.ts#coverage.thresholds`        |
-| Vitest — branches        | ≥ 80%     | `vitest.config.ts#coverage.thresholds`        |
+| Vitest — branches        | ≥ 85%     | `vitest.config.ts#coverage.thresholds`        |
 | Build Nuxt               | Sucesso   | `nuxt.config.ts`                              |
 
 ---

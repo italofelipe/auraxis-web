@@ -891,7 +891,7 @@ export default defineVitestConfig({
       thresholds: {
         lines: 85,
         functions: 85,
-        branches: 80,
+        branches: 85,
         statements: 85,
       },
       exclude: ["nuxt.config.ts", "**/*.d.ts", "tests/factories/**", "tests/helpers/**", "e2e/**"],

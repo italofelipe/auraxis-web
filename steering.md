@@ -90,7 +90,7 @@ pnpm quality-check
 | TypeScript strict          | 0 erros   | `any` implícito, tipos incompatíveis      |
 | Vitest — testes passando   | 100%      | Qualquer teste quebrando                  |
 | Vitest — coverage lines    | ≥ 85%     | Cobertura abaixo do threshold             |
-| Vitest — coverage branches | ≥ 80%     | Cobertura de branches abaixo              |
+| Vitest — coverage branches | ≥ 85%     | Cobertura de branches abaixo              |
 | Build Nuxt                 | Sucesso   | Import circular, erro SSR, módulo ausente |
 
 ### Thresholds de CI (automáticos — GitHub Actions)
@@ -211,9 +211,7 @@ test.describe("Autenticação", () => {
     await page.getByLabel("Senha").fill("secret123");
     await page.getByRole("button", { name: "Entrar" }).click();
     await expect(page).toHaveURL("/dashboard");
-    await expect(
-      page.getByRole("heading", { name: "Dashboard" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
   });
 
   test("exibe erro com credenciais inválidas", async ({ page }) => {
@@ -258,7 +256,7 @@ test.describe("Autenticação", () => {
 ```
 [ ] pnpm quality-check passou (lint + typecheck + test:coverage)
 [ ] Testes escritos para toda lógica nova (composables, stores, utils, componentes)
-[ ] Coverage não regrediu abaixo de 85% (lines) / 80% (branches)
+[ ] Coverage não regrediu abaixo de 85% (lines/functions/statements/branches)
 [ ] Nenhum `any` implícito ou `@ts-ignore` sem comentário explicativo
 [ ] Nenhum secret hardcoded (Gitleaks + TruffleHog verificam automaticamente)
 [ ] Mensagem de commit em Conventional Commits (commitlint valida)

@@ -106,3 +106,5 @@
 - [x] CI hardening: job `Docker Build (Nuxt)` adicionado como gate obrigatório no `CI Passed` | Data: 2026-02-24
 - [x] SDD hardening: templates locais (`feature_card`/`delivery_report`) + `product.md` + diretórios `handoffs/reports` adicionados para execução autônoma | Data: 2026-02-24
 - [x] Dependency review hardening: fallback permissivo removido (`continue-on-error`) para enforcement real no PR gate | Data: 2026-02-24
+- [x] Security fix: normalização de base URL refatorada para algoritmo linear (`removeTrailingSlashes`) sem regex suscetível a backtracking/ReDoS | Data: 2026-02-24
+- [x] Quality gate: coverage mínimo padronizado em 85% (lines/functions/statements/branches) com validação local em `pnpm test:coverage` | Data: 2026-02-24

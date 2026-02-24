@@ -33,17 +33,18 @@ export default defineVitestConfig({
     ],
 
     coverage: {
-      provider: "v8",
-      reporter: ["text", "json", "lcov", "html"],
-      reportsDirectory: "./coverage",
-
-      // Thresholds mínimos de cobertura — falha o CI se não atingir
+      enabled: true,
+      // Falha explicitamente quando qualquer threshold não é atingido.
+      // Sem este flag o relatório pode ser gerado sem bloquear a execução.
       thresholds: {
         lines: 85,
         functions: 85,
-        branches: 80,
+        branches: 85,
         statements: 85,
       },
+      provider: "v8",
+      reporter: ["text", "json", "json-summary", "lcov", "html"],
+      reportsDirectory: "./coverage",
 
       include: [
         "app/**/*.{ts,vue}",
