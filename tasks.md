@@ -82,3 +82,4 @@
 - [x] CI fix: Sonar migrado para `sonarqube-scan-action@v5` e `sonar.sources=.` para evitar falha por diretórios ausentes no scaffold | Data: 2026-02-24
 - [x] CI fix: Sonar pinado em SHA completo (`sonarqube-scan-action@v6`) e organização corrigida para `sensoriumit` | Data: 2026-02-24
 - [x] CI hardening: jobs Lighthouse e Playwright protegidos por flags de repositório (`ENABLE_LIGHTHOUSE_CI` e `ENABLE_WEB_E2E`) até estabilização de runtime SSR no scaffold atual | Data: 2026-02-24
+- [x] CI security fix: permissões de workflows movidas de nível global para nível de job (least privilege) para atender policy/Sonar | Data: 2026-02-24
