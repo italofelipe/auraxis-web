@@ -77,3 +77,6 @@
 - [x] Governance baseline: CLAUDE.md, .gitignore, README.md, tasks.md, steering.md | Data: 2026-02-22
 - [x] Registrado como submodule em auraxis-platform | Commit: `2b138fa` | Data: 2026-02-22
 - [x] CI fix: alinhamento da versão do pnpm no workflow com `packageManager` para eliminar `ERR_PNPM_BAD_PM_VERSION` | Data: 2026-02-24
+- [x] CI fix: `eslint` explicitado em devDependencies para eliminar `sh: eslint: not found` no job de lint | Data: 2026-02-24
+- [x] CI fix: audit com allowlist temporária para `GHSA-3ppc-4f35-3m26` (minimatch transiente) e bloqueio mantido para demais high/critical | Data: 2026-02-24
+- [x] CI fix: Sonar migrado para `sonarqube-scan-action@v5` e `sonar.sources=.` para evitar falha por diretórios ausentes no scaffold | Data: 2026-02-24
