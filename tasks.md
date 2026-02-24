@@ -50,6 +50,18 @@
   - Dependência: WEB3
   - Commit: —
 
+- [ ] **WEB11** `chore` — Padronizar UI kit web em Chakra UI customizado (sem Tailwind)
+  - Critério: tema central com paleta oficial, tipografia `Playfair Display` + `Raleway`, grid de 8px e componentes-base migrados para camada Chakra custom.
+  - Dependência: WEB1
+  - Commit: —
+  - Risco residual: migração parcial pode manter estilos legados até conclusão por feature.
+
+- [ ] **WEB12** `chore` — Adotar TanStack Query para server-state
+  - Critério: provider global configurado, política de cache/retry/invalidation definida e primeiro fluxo HTTP crítico usando `@tanstack/vue-query`.
+  - Dependência: WEB2
+  - Commit: —
+  - Risco residual: durante transição, coexistência com lógica legada de fetch/composables.
+
 ### P2 — Normal
 
 - [x] **WEB5** `chore` — Configurar CI (GitHub Actions)
@@ -114,3 +126,4 @@
 - [x] Sonar coverage fix: escopo de análise (`sonar.sources/inclusions`) alinhado ao baseline coberto no `lcov` para eliminar falso negativo de coverage global no scaffold | Data: 2026-02-24
 - [x] Sonar CI fix: cobertura Vitest padronizada com `lcovonly` + validação explícita de `coverage/lcov.info` no job Sonar para evitar regressão de 0% por ausência de report | Data: 2026-02-24
 - [x] Sonar report fix: `test:coverage` força reporters via CLI (incluindo `lcovonly`) para garantir geração determinística de `coverage/lcov.info` no CI | Data: 2026-02-24
+- [x] Governança UI atualizada: paleta, tipografia, grid 8px, proibição de Tailwind e baseline de Chakra UI + TanStack Query registradas em `steering.md` e `CODING_STANDARDS.md` | Data: 2026-02-24

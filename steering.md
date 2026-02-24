@@ -2,7 +2,7 @@
 
 > Documento canônico de governança técnica para o projeto web do Auraxis.
 > Vinculante para todos os agentes e desenvolvedores.
-> Atualizado: 2026-02-23
+> Atualizado: 2026-02-24
 
 ---
 
@@ -17,11 +17,24 @@
 | Formatação             | Prettier                  | ^3.8                   |
 | Testes unitários       | Vitest + @nuxt/test-utils | ^4.0                   |
 | Testes E2E             | Playwright                | ^1.58                  |
+| UI base                | Chakra UI (customizado)   | ^3.x                   |
+| Estado de servidor     | TanStack Query (Vue)      | ^5.x                   |
 | Estado global          | Pinia                     | via @pinia/nuxt        |
 | Análise estática       | SonarCloud                | —                      |
 | Secret scan            | Gitleaks + TruffleHog     | —                      |
 | Performance            | Lighthouse CI             | —                      |
 | Dep update             | Dependabot                | auto-merge patch/minor |
+
+---
+
+## Diretriz de UI e Design System
+
+- Paleta oficial: `#262121`, `#ffbe4d`, `#413939`, `#0b0909`, `#ffd180`, `#ffab1a`.
+- Tipografia oficial: `Playfair Display` (headings) + `Raleway` (body).
+- Grid base: `8px` (spacing estrutural sempre em múltiplos de 8).
+- Componentes web devem derivar de base **Chakra UI customizada** (tokens Auraxis).
+- **Tailwind não é permitido** neste repositório.
+- Estado remoto (`server-state`) deve ser resolvido com `@tanstack/vue-query`.
 
 ---
 
@@ -35,6 +48,8 @@
 - **Performance como gate** — LCP ≤ 4s, CLS ≤ 0.1 (Core Web Vitals obrigatórios).
 - **Segurança por padrão** — secret scan automático, CVEs bloqueados em PRs.
 - **Testes não são opcionais** — toda lógica nova tem teste antes de merge.
+- **UI consistente por contrato** — Chakra UI customizado + tokens oficiais são obrigatórios.
+- **Server-state com TanStack Query** — Pinia fica para estado de cliente e orquestração local.
 
 ---
 
@@ -46,7 +61,8 @@
 | `pages/`        | Rotas (Nuxt file-based routing)                                 |
 | `components/`   | Componentes reutilizáveis                                       |
 | `composables/`  | Lógica de estado local e side-effects                           |
-| `stores/`       | Estado global via Pinia (um store por domínio)                  |
+| `stores/`       | Estado global de cliente via Pinia (um store por domínio)       |
+| `theme/`        | Tokens de design (paleta, tipografia, spacing, radius, shadow)  |
 | `layouts/`      | Layouts de página                                               |
 | `types/api/`    | Tipos do contrato com auraxis-api (snake_case, strings de data) |
 | `types/domain/` | Tipos de domínio frontend (camelCase, objetos estruturados)     |
