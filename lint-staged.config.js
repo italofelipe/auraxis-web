@@ -7,12 +7,12 @@
  */
 module.exports = {
   // Vue, TypeScript — ESLint fix automático nos staged files
-  '**/*.{ts,tsx,vue}': [
-    'eslint --fix',
+  "**/*.{ts,tsx,vue}": [
+    "eslint --fix --max-warnings 0 --no-warn-ignored",
   ],
 
   // JSON, Markdown — Prettier
-  '**/*.{json,jsonc,md}': [
-    'prettier --write',
+  "**/*.{json,jsonc,md}": [
+    "prettier --write",
   ],
-}
+};

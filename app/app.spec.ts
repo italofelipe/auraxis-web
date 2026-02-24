@@ -1,10 +1,10 @@
-import { shallowMount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { shallowMount } from "@vue/test-utils";
+import { describe, expect, it } from "vitest";
 
-import App from './app.vue'
+import App from "./app.vue";
 
-describe('App bootstrap', () => {
-  it('renderiza o shell base da aplicação', () => {
+describe("App bootstrap", () => {
+  it("renderiza o shell base da aplicação", () => {
     const wrapper = shallowMount(App, {
       global: {
         stubs: {
@@ -12,9 +12,9 @@ describe('App bootstrap', () => {
           NuxtWelcome: true,
         },
       },
-    })
+    });
 
-    expect(wrapper.html()).toContain('nuxt-route-announcer-stub')
-    expect(wrapper.html()).toContain('nuxt-welcome-stub')
-  })
-})
+    expect(wrapper.html()).toContain("nuxt-route-announcer-stub");
+    expect(wrapper.html()).toContain("nuxt-welcome-stub");
+  });
+});

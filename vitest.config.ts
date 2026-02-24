@@ -1,4 +1,4 @@
-import { defineVitestConfig } from '@nuxt/test-utils/config'
+import { defineVitestConfig } from "@nuxt/test-utils/config";
 
 /**
  * Vitest configuration — auraxis-web
@@ -9,33 +9,33 @@ export default defineVitestConfig({
   test: {
     // Baseline WEB10: evita bootstrap completo do Nuxt em testes unitários iniciais.
     // Para testes com runtime Nuxt, usar `// @vitest-environment nuxt` por arquivo.
-    environment: 'happy-dom',
+    environment: "happy-dom",
 
     // Inclui os helpers do @nuxt/test-utils automaticamente
     globals: true,
 
     // Padrões de arquivos de teste
     include: [
-      'app/**/*.{spec,test}.{ts,tsx}',
-      'components/**/*.{spec,test}.{ts,tsx}',
-      'composables/**/*.{spec,test}.{ts,tsx}',
-      'stores/**/*.{spec,test}.{ts,tsx}',
-      'utils/**/*.{spec,test}.{ts,tsx}',
-      'server/**/*.{spec,test}.{ts,tsx}',
-      '__tests__/**/*.{spec,test}.{ts,tsx}',
+      "app/**/*.{spec,test}.{ts,tsx}",
+      "components/**/*.{spec,test}.{ts,tsx}",
+      "composables/**/*.{spec,test}.{ts,tsx}",
+      "stores/**/*.{spec,test}.{ts,tsx}",
+      "utils/**/*.{spec,test}.{ts,tsx}",
+      "server/**/*.{spec,test}.{ts,tsx}",
+      "__tests__/**/*.{spec,test}.{ts,tsx}",
     ],
 
     exclude: [
-      '**/node_modules/**',
-      '**/.nuxt/**',
-      '**/.output/**',
-      '**/e2e/**',  // E2E é responsabilidade do Playwright
+      "**/node_modules/**",
+      "**/.nuxt/**",
+      "**/.output/**",
+      "**/e2e/**",  // E2E é responsabilidade do Playwright
     ],
 
     coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'lcov', 'html'],
-      reportsDirectory: './coverage',
+      provider: "v8",
+      reporter: ["text", "json", "lcov", "html"],
+      reportsDirectory: "./coverage",
 
       // Thresholds mínimos de cobertura — falha o CI se não atingir
       thresholds: {
@@ -46,19 +46,19 @@ export default defineVitestConfig({
       },
 
       include: [
-        'app/**/*.{ts,vue}',
-        'composables/**/*.ts',
-        'stores/**/*.ts',
-        'utils/**/*.ts',
-        'server/**/*.ts',
+        "app/**/*.{ts,vue}",
+        "composables/**/*.ts",
+        "stores/**/*.ts",
+        "utils/**/*.ts",
+        "server/**/*.ts",
       ],
 
       exclude: [
-        '**/*.d.ts',
-        '**/*.config.{ts,js}',
-        '**/node_modules/**',
-        '**/.nuxt/**',
+        "**/*.d.ts",
+        "**/*.config.{ts,js}",
+        "**/node_modules/**",
+        "**/.nuxt/**",
       ],
     },
   },
-})
+});
