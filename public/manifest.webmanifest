@@ -1,0 +1,19 @@
+{
+  "name": "Auraxis Web",
+  "short_name": "Auraxis",
+  "description": "Auraxis - plataforma de gestão financeira pessoal.",
+  "lang": "pt-BR",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0b0909",
+  "theme_color": "#ffbe4d",
+  "categories": ["finance", "productivity"],
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}

@@ -74,6 +74,30 @@
   - Dependência: WEB5, decisão humana sobre infra
   - Commit: —
 
+- [~] **WEB13** `chore` — Deploy mínimo do frontend web (baseline público)
+  - Critério: ambiente estável publicado com smoke-check (`/` e `/health` via BFF/SSR), URL documentada e rollback básico.
+  - Dependência: WEB6
+  - Commit: —
+  - Risco residual: baseline inicial pode operar com feature set reduzido e sem otimizações finais de performance.
+
+- [~] **WEB14** `chore` — Preparar distribuição da PWA em Play Store/App Store
+  - Critério: estratégia de empacotamento definida e funcional (`TWA` para Android e wrapper iOS compatível), com artefatos assinados em ambiente de release.
+  - Dependência: WEB13
+  - Commit: —
+  - Risco residual: publicação em App Store para PWA depende de regras de review e wrapper nativo mínimo.
+
+- [~] **WEB15** `chore` — Configurar versionamento automático (semver + changelog)
+  - Critério: release automatizada por Conventional Commits (tag + changelog + bump) sem edição manual de versão.
+  - Dependência: WEB5
+  - Commit: —
+  - Risco residual: estratégia de branches/release precisa ficar alinhada com app/api para evitar drift de versões.
+
+- [~] **WEB16** `chore` — Integrar feature toggle OSS no frontend web
+  - Critério: SDK integrado com provedores por ambiente, fallback seguro e primeiro flag controlando feature real em produção.
+  - Dependência: WEB2
+  - Commit: —
+  - Risco residual: sem governança de lifecycle dos flags, há risco de acúmulo de toggles obsoletos.
+
 - [x] **WEB9** `chore` — Dockerizar frontend Nuxt para desenvolvimento e CI
   - Critério: `Dockerfile` + `.dockerignore` + comando de execução documentado; build de imagem passa em CI sem warnings críticos.
   - Dependência: WEB5
@@ -88,6 +112,12 @@
 - [ ] **WEB8** `test` — Testes de componentes com Vitest + Vue Test Utils
   - Critério: componentes críticos com cobertura básica de render e interação.
   - Dependência: WEB3
+
+- [ ] **WEB17** `feat` — Aba Ferramentas: calculadora "Pedir aumento"
+  - Critério: usuário informa salário inicial/data-base, impostos/abatimentos e aumento real desejado; sistema calcula recomposição inflacionária + aumento real alvo.
+  - Dependência: WEB4, endpoint de cálculo no backend
+  - Commit: —
+  - Prioridade de produto: baixa
 
 ### Bloqueados
 
@@ -129,3 +159,7 @@
 - [x] Governança UI atualizada: paleta, tipografia, grid 8px, proibição de Tailwind e baseline de Chakra UI + TanStack Query registradas em `steering.md` e `CODING_STANDARDS.md` | Data: 2026-02-24
 - [x] CI simplification: removido gate sintético `ci-passed`; branch protection passa a exigir checks reais do pipeline | Data: 2026-02-24
 - [x] CI resilience: Dockerfile endurecido com retry/backoff para `corepack prepare pnpm@10.30.1` e `pnpm install` (mitigação de falhas transitórias `HTTP 503`) | Data: 2026-02-24
+- [x] PLT3 foundation (web): `release-please` configurado com PR/tag/changelog automáticos (`.release-please-*` + workflow) | Data: 2026-02-24
+- [x] PLT5 foundation (web): deploy mínimo contínuo via GitHub Pages (`deploy-minimum.yml`) com geração estática e artifact de publicação | Data: 2026-02-24
+- [x] PLT2 foundation (web): baseline PWA documentada com `manifest.webmanifest` e runbook inicial para empacotamento em stores | Data: 2026-02-24
+- [x] PLT2 foundation (web): workflow manual de geração de artefatos para empacotamento em stores (`pwa-store-artifacts.yml`) | Data: 2026-02-24

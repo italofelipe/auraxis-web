@@ -1,0 +1,61 @@
+# PLT2-PLT5 - Foundation (Web)
+
+## Objetivo
+
+Preparar o frontend web para:
+
+- deploy mínimo contínuo;
+- versionamento automático;
+- baseline PWA para distribuição;
+- integração futura com feature flags OSS.
+
+## Entregas deste bloco
+
+1. `release-please` configurado:
+   - `.github/workflows/release-please.yml`
+   - `.release-please-config.json`
+   - `.release-please-manifest.json`
+2. Deploy mínimo via GitHub Pages:
+   - `.github/workflows/deploy-minimum.yml`
+3. Baseline PWA:
+   - `public/manifest.webmanifest`
+4. Artefatos manuais para empacotamento em stores:
+   - `.github/workflows/pwa-store-artifacts.yml`
+
+## Como operar
+
+### Release automático
+
+- Cada merge em `main/master` executa `Release Please`.
+- A action abre/atualiza PR de release.
+- Ao mergear o PR de release, tag + release são publicados automaticamente.
+
+### Deploy mínimo (baseline)
+
+- Trigger:
+  - push em `main/master`;
+  - `workflow_dispatch`.
+- Pipeline:
+  - `pnpm generate`;
+  - upload de `.output/public` como artifact;
+  - deploy no ambiente `github-pages`.
+
+### Artefatos de store (manual)
+
+- Trigger:
+  - `workflow_dispatch` no workflow `PWA Store Artifacts (Manual)`.
+- Pipeline:
+  - gera saída estática (`pnpm generate`);
+  - empacota `pwa-static-output.tar.gz`;
+  - publica artifact `pwa-store-artifacts` para uso em TWA/wrapper nativo.
+
+## Pendências para PLT2 (stores)
+
+- Android (Play Store): empacotar a PWA em shell Android (TWA/alternativa).
+- iOS (App Store): wrapper iOS com política de review adequada.
+- O passo de publicação em store depende de credenciais e cadastro de apps (manual).
+
+## Pendências para PLT4 (feature toggle OSS)
+
+- Conectar cliente web ao provider escolhido (Unleash/OpenFeature) com cache e fallback.
+- Definir convenção de nomes de flags e lifecycle (owner, expiração e remoção).
