@@ -21,6 +21,9 @@ pnpm test:coverage
 
 # Atalho — tudo de uma vez (obrigatório antes de commitar):
 pnpm quality-check
+
+# Paridade CI local (ambiente dockerizado Node 22 + pnpm 10.30.1):
+pnpm ci:local
 ```
 
 > Se qualquer gate falhar: **não commitar**. Corrigir o problema primeiro.

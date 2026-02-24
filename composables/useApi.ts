@@ -9,7 +9,7 @@ type RuntimeConfigReader = () => { public?: { apiBase?: string | null } };
 const removeTrailingSlashes = (rawUrl: string): string => {
   let end = rawUrl.length;
 
-  while (end > 0 && rawUrl.charCodeAt(end - 1) === 47) {
+  while (end > 0 && rawUrl.codePointAt(end - 1) === 47) {
     end -= 1;
   }
 
