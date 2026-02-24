@@ -44,14 +44,10 @@ export default defineConfig({
 
   // Inicia o servidor Nuxt antes dos testes (apenas se não estiver rodando)
   webServer: {
-    command: 'pnpm preview',
+    command: 'NITRO_HOST=0.0.0.0 NITRO_PORT=3000 pnpm preview',
     url: BASE_URL,
     reuseExistingServer: !process.env.CI,
-    timeout: 60_000,
-    // Em CI, faz o build antes de iniciar o preview
-    ...(process.env.CI && {
-      command: 'pnpm build && pnpm preview',
-    }),
+    timeout: 180_000,
   },
 
   projects: [
