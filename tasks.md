@@ -109,5 +109,6 @@
 - [x] Security fix: normalização de base URL refatorada para algoritmo linear (`removeTrailingSlashes`) sem regex suscetível a backtracking/ReDoS | Data: 2026-02-24
 - [x] Quality gate: coverage mínimo padronizado em 85% (lines/functions/statements/branches) com validação local em `pnpm test:coverage` | Data: 2026-02-24
 - [x] CI compat fix: dependency-review com detecção automática de `Dependency Graph` e fallback controlado quando repositório não suportar o check nativo | Data: 2026-02-24
-- [x] CI parity local: criado `scripts/run_ci_like_actions_local.sh` + `scripts/ci-audit-gate.js`; workflow de audit passou a reutilizar script compartilhado | Data: 2026-02-24
+- [x] CI parity local: criado `scripts/run_ci_like_actions_local.sh` + `scripts/ci-audit-gate.cjs`; workflow de audit passou a reutilizar script compartilhado | Data: 2026-02-24
 - [x] Sonar code smell fix: `String#charCodeAt()` substituído por `String#codePointAt()` em normalização de URL | Data: 2026-02-24
+- [x] Sonar coverage fix: escopo de análise (`sonar.sources/inclusions`) alinhado ao baseline coberto no `lcov` para eliminar falso negativo de coverage global no scaffold | Data: 2026-02-24
