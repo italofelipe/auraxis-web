@@ -1,6 +1,6 @@
 # tasks.md — auraxis-web
 
-Última atualização: 2026-02-23
+Última atualização: 2026-02-24
 
 ## Legenda
 
@@ -76,3 +76,4 @@
 
 - [x] Governance baseline: CLAUDE.md, .gitignore, README.md, tasks.md, steering.md | Data: 2026-02-22
 - [x] Registrado como submodule em auraxis-platform | Commit: `2b138fa` | Data: 2026-02-22
+- [x] CI fix: alinhamento da versão do pnpm no workflow com `packageManager` para eliminar `ERR_PNPM_BAD_PM_VERSION` | Data: 2026-02-24
