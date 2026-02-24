@@ -26,10 +26,10 @@
   - Commit: `cd807f3` — feat(web): initialize Nuxt 4 project with pnpm and full quality stack
   - Nota: Biome substituído por @nuxt/eslint (linter oficial Nuxt). Nuxt 4.3.1 com pnpm@10.30.1.
 
-- [ ] **WEB2** `chore` — Configurar cliente HTTP para auraxis-api
+- [x] **WEB2** `chore` — Configurar cliente HTTP para auraxis-api
   - Critério: composable `useApi()` exporta client com base URL via `NUXT_PUBLIC_API_BASE`. Requisição de teste para `/health` retorna 200. Tipagem gerada a partir do OpenAPI schema de auraxis-api.
   - Dependência: WEB1 ✅, auraxis-api com schema OpenAPI exportado
-  - Commit: —
+  - Commit: a definir (branch `chore/web10-test-baseline`)
 
 - [x] **WEB10** `chore` — Estabelecer baseline de testes para remover `--passWithNoTests`
   - Critério: pelo menos 1 suíte real cobrindo fluxo crítico inicial e scripts `test/test:coverage` sem `--passWithNoTests`.
@@ -62,10 +62,10 @@
   - Dependência: WEB5, decisão humana sobre infra
   - Commit: —
 
-- [ ] **WEB9** `chore` — Dockerizar frontend Nuxt para desenvolvimento e CI
+- [x] **WEB9** `chore` — Dockerizar frontend Nuxt para desenvolvimento e CI
   - Critério: `Dockerfile` + `.dockerignore` + comando de execução documentado; build de imagem passa em CI sem warnings críticos.
   - Dependência: WEB5
-  - Commit: —
+  - Commit: a definir (branch `chore/web10-test-baseline`)
 
 ### P3 — Baixa / Futuro
 
@@ -101,3 +101,16 @@
 - [x] CI hardening: Sonar scanner estrito reativado após desativação do Automatic Analysis no SonarCloud | Data: 2026-02-24
 - [x] WEB10 concluído: baseline de testes reais criado, `--passWithNoTests` removido e coverage validado no gate local | Data: 2026-02-24
 - [x] Lint hardening: perfil ESLint estrito aplicado (estilo + complexidade + disciplina TypeScript), com padrão de formatação (`.prettierrc.json`) e `--max-warnings 0` no lint/lint-staged | Data: 2026-02-24
+- [x] WEB2 concluído: composable `useApi` + runtime config `NUXT_PUBLIC_API_BASE` + teste unitário de healthcheck (`/health`) | Data: 2026-02-24
+- [x] WEB9 concluído: `Dockerfile` multi-stage + `.dockerignore` + `docker-compose.yml` + runbook em `docs/runbooks/WEB9-docker.md` | Data: 2026-02-24
+- [x] CI hardening: job `Docker Build (Nuxt)` adicionado como gate obrigatório no `CI Passed` | Data: 2026-02-24
+- [x] SDD hardening: templates locais (`feature_card`/`delivery_report`) + `product.md` + diretórios `handoffs/reports` adicionados para execução autônoma | Data: 2026-02-24
+- [x] Dependency review hardening: fallback permissivo removido (`continue-on-error`) para enforcement real no PR gate | Data: 2026-02-24
+- [x] Security fix: normalização de base URL refatorada para algoritmo linear (`removeTrailingSlashes`) sem regex suscetível a backtracking/ReDoS | Data: 2026-02-24
+- [x] Quality gate: coverage mínimo padronizado em 85% (lines/functions/statements/branches) com validação local em `pnpm test:coverage` | Data: 2026-02-24
+- [x] CI compat fix: dependency-review com detecção automática de `Dependency Graph` e fallback controlado quando repositório não suportar o check nativo | Data: 2026-02-24
+- [x] CI parity local: criado `scripts/run_ci_like_actions_local.sh` + `scripts/ci-audit-gate.cjs`; workflow de audit passou a reutilizar script compartilhado | Data: 2026-02-24
+- [x] Sonar code smell fix: `String#charCodeAt()` substituído por `String#codePointAt()` em normalização de URL | Data: 2026-02-24
+- [x] Sonar coverage fix: escopo de análise (`sonar.sources/inclusions`) alinhado ao baseline coberto no `lcov` para eliminar falso negativo de coverage global no scaffold | Data: 2026-02-24
+- [x] Sonar CI fix: cobertura Vitest padronizada com `lcovonly` + validação explícita de `coverage/lcov.info` no job Sonar para evitar regressão de 0% por ausência de report | Data: 2026-02-24
+- [x] Sonar report fix: `test:coverage` força reporters via CLI (incluindo `lcovonly`) para garantir geração determinística de `coverage/lcov.info` no CI | Data: 2026-02-24

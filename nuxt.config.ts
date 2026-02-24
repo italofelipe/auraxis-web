@@ -30,6 +30,12 @@ export default defineNuxtConfig({
     typeCheck: false, // typecheck roda via `pnpm typecheck` — não bloquear dev server
   },
 
+  runtimeConfig: {
+    public: {
+      apiBase: process.env.NUXT_PUBLIC_API_BASE ?? "http://localhost:5000",
+    },
+  },
+
   // ── ESLint (via @nuxt/eslint) ─────────────────────────────────────────
   eslint: {
     config: {

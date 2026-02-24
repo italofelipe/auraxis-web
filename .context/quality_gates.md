@@ -21,6 +21,9 @@ pnpm test:coverage
 
 # Atalho — tudo de uma vez (obrigatório antes de commitar):
 pnpm quality-check
+
+# Paridade CI local (ambiente dockerizado Node 22 + pnpm 10.30.1):
+pnpm ci:local
 ```
 
 > Se qualquer gate falhar: **não commitar**. Corrigir o problema primeiro.
@@ -38,7 +41,7 @@ pnpm quality-check
 | Vitest — lines           | ≥ 85%     | `vitest.config.ts#coverage.thresholds`        |
 | Vitest — functions       | ≥ 85%     | `vitest.config.ts#coverage.thresholds`        |
 | Vitest — statements      | ≥ 85%     | `vitest.config.ts#coverage.thresholds`        |
-| Vitest — branches        | ≥ 80%     | `vitest.config.ts#coverage.thresholds`        |
+| Vitest — branches        | ≥ 85%     | `vitest.config.ts#coverage.thresholds`        |
 | Build Nuxt               | Sucesso   | `nuxt.config.ts`                              |
 
 ---
