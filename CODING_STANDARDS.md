@@ -1,6 +1,6 @@
 # Coding Standards — auraxis-web
 
-Stack: **Nuxt 4 · TypeScript strict · @nuxt/eslint · Prettier · Vitest · Pinia**
+Stack: **Nuxt 4 · TypeScript strict · Chakra UI (custom) · TanStack Query · @nuxt/eslint · Prettier · Vitest · Pinia**
 
 Este documento define **o único jeito certo de escrever código neste projeto**.
 Não é um guia de boas práticas — é um contrato técnico vinculante.
@@ -18,6 +18,17 @@ Qualquer código que viole estas regras **não passa nos gates e não é mergead
 | **Falha cedo e ruidosamente** | Erros devem estourar imediatamente, não ser silenciados                              |
 | **Sem estado oculto**         | Todo estado é explícito, derivado ou documentado                                     |
 | **Código é comunicação**      | Nomes e estrutura devem revelar intenção sem comentário                              |
+
+---
+
+## 1.1 Design System e UI Stack (obrigatório)
+
+- Paleta oficial: `#262121`, `#ffbe4d`, `#413939`, `#0b0909`, `#ffd180`, `#ffab1a`.
+- Tipografia oficial: `Playfair Display` (headings) + `Raleway` (body).
+- Grid base: `8px` (spacing de layout sempre em múltiplos de 8).
+- Componentes base devem derivar de Chakra UI customizado para o tema Auraxis.
+- TailwindCSS é proibido neste projeto (`class` utilitária Tailwind, `@apply`, `tailwind.config.*` para UI de runtime).
+- Estado remoto da API deve usar `@tanstack/vue-query`; Pinia é reservado para estado de cliente e coordenação local.
 
 ---
 
@@ -687,23 +698,21 @@ const displayAmount = computed(() => formatCurrency(props.transaction.amount));
 /* assets/styles/variables.css */
 :root {
   /* Colors */
-  --color-primary: #5c6bc0;
-  --color-primary-light: #8e99f3;
-  --color-success: #43a047;
-  --color-danger: #e53935;
-  --color-warning: #fb8c00;
-  --color-surface: #ffffff;
-  --color-background: #f5f5f5;
-  --color-text: #212121;
-  --color-text-muted: #757575;
-  --color-border: #e0e0e0;
+  --color-primary: #ffab1a;
+  --color-primary-hover: #ffbe4d;
+  --color-highlight: #ffd180;
+  --color-surface: #262121;
+  --color-background: #0b0909;
+  --color-text: #ffd180;
+  --color-text-muted: #ffbe4d;
+  --color-border: #413939;
 
   /* Spacing */
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
+  --spacing-xs: 8px;
+  --spacing-sm: 16px;
+  --spacing-md: 24px;
+  --spacing-lg: 32px;
+  --spacing-xl: 40px;
   --spacing-xxl: 48px;
 
   /* Radius */
@@ -1044,14 +1053,23 @@ shared/theme/
 ```typescript
 // primitives.ts — valores brutos, nunca referenciar em componentes
 export const primitives = {
-  color: { indigo500: "#6366F1", red500: "#EF4444", gray100: "#F3F4F6" },
-  space: { 1: 4, 2: 8, 4: 16, 6: 24, 8: 32 },
+  color: {
+    brandSurface: "#262121",
+    brandPrimary: "#ffab1a",
+    brandHover: "#ffbe4d",
+    brandHighlight: "#ffd180",
+    brandMuted: "#413939",
+    brandDeep: "#0b0909",
+  },
+  space: { 1: 8, 2: 16, 3: 24, 4: 32, 5: 40, 6: 48 },
 } as const;
 
 // semantic.ts — use estes nos componentes e no CSS
 export const colors = {
-  action: { primary: primitives.color.indigo500 },
-  surface: { background: primitives.color.gray100 },
+  action: { primary: primitives.color.brandPrimary, hover: primitives.color.brandHover },
+  surface: { background: primitives.color.brandDeep, raised: primitives.color.brandSurface },
+  text: { primary: primitives.color.brandHighlight, muted: primitives.color.brandHover },
+  border: { default: primitives.color.brandMuted },
 } as const;
 
 // typography.ts
@@ -1061,7 +1079,7 @@ export const typography = {
 } as const;
 
 // spacing.ts
-export const spacing = { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 } as const;
+export const spacing = { xs: 8, sm: 16, md: 24, lg: 32, xl: 40, xxl: 48 } as const;
 ```
 
 **Em componentes Vue — via CSS custom property, nunca valor literal:**
@@ -1071,7 +1089,7 @@ export const spacing = { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 } as const;
 <style scoped>
 .title {
   font-size: 16px;
-  color: #6366f1;
+  color: #ffab1a;
   margin-top: 8px;
 }
 </style>
@@ -1213,8 +1231,8 @@ export default defineNuxtConfig({
       name: "Auraxis",
       short_name: "Auraxis",
       display: "standalone",
-      background_color: "#ffffff",
-      theme_color: "#6366F1",
+      background_color: "#0b0909",
+      theme_color: "#ffab1a",
       icons: [
         { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
         { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
