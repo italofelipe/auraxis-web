@@ -11,6 +11,7 @@ Aplicacao web para gestao financeira com foco em visao consolidada, metas e oper
 - Metas financeiras
 - Consumo da API Auraxis via composable HTTP padronizado
 - Hospedagem web em AWS desde o dia 0 (sem Vercel/GitHub Pages)
+- Dominio oficial web: `auraxis.com`
 
 ## Arquitetura de superficie (MVP)
 
