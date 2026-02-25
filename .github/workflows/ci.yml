@@ -55,7 +55,21 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
 
-  # ── 3. Testes com coverage (Vitest) ────────────────────────────────────
+  # ── 3. Hygiene de Feature Flags ────────────────────────────────────────
+  feature-flag-hygiene:
+    name: Feature Flags Hygiene
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Validate feature flags metadata
+        run: node scripts/check-feature-flags.cjs
+
+  # ── 4. Testes com coverage (Vitest) ────────────────────────────────────
   test:
     name: Tests + Coverage (Vitest)
     runs-on: ubuntu-latest
@@ -81,11 +95,11 @@ jobs:
           path: coverage/
           retention-days: 14
 
-  # ── 4. Build check ─────────────────────────────────────────────────────
+  # ── 5. Build check ─────────────────────────────────────────────────────
   build:
     name: Build (Nuxt)
     runs-on: ubuntu-latest
-    needs: [lint, typecheck, test]
+    needs: [lint, typecheck, feature-flag-hygiene, test]
     permissions:
       contents: read
     steps:
@@ -109,7 +123,7 @@ jobs:
           path: .output/
           retention-days: 1
 
-  # ── 4.1 Docker Build Check ─────────────────────────────────────────────
+  # ── 5.1 Docker Build Check ─────────────────────────────────────────────
   docker-build:
     name: Docker Build (Nuxt)
     runs-on: ubuntu-latest

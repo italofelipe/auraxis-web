@@ -60,6 +60,9 @@ run_core_pipeline() {
   echo "[ci-like-local] step=test:coverage"
   pnpm test:coverage
 
+  echo "[ci-like-local] step=flags:hygiene"
+  pnpm flags:check
+
   echo "[ci-like-local] step=build"
   pnpm build
 

@@ -1,6 +1,6 @@
 # tasks.md — auraxis-web
 
-Última atualização: 2026-02-24
+Última atualização: 2026-02-25
 
 ## Legenda
 
@@ -98,6 +98,12 @@
   - Commit: —
   - Risco residual: sem governança de lifecycle dos flags, há risco de acúmulo de toggles obsoletos.
 
+- [x] **WEB18** `chore` — Automatizar hygiene de feature flags no CI
+  - Critério: catálogo versionado de flags com metadados obrigatórios e validação bloqueante no CI/local parity para owner, removeBy e expiração.
+  - Dependência: WEB16
+  - Commit: —
+  - Risco residual: ainda depende de disciplina para remover código morto após cleanup de flag.
+
 - [x] **WEB9** `chore` — Dockerizar frontend Nuxt para desenvolvimento e CI
   - Critério: `Dockerfile` + `.dockerignore` + comando de execução documentado; build de imagem passa em CI sem warnings críticos.
   - Dependência: WEB5
@@ -163,3 +169,4 @@
 - [x] PLT5 foundation (web): deploy mínimo contínuo via GitHub Pages (`deploy-minimum.yml`) com geração estática e artifact de publicação | Data: 2026-02-24
 - [x] PLT2 foundation (web): baseline PWA documentada com `manifest.webmanifest` e runbook inicial para empacotamento em stores | Data: 2026-02-24
 - [x] PLT2 foundation (web): workflow manual de geração de artefatos para empacotamento em stores (`pwa-store-artifacts.yml`) | Data: 2026-02-24
+- [x] PLT4.1 (web): catálogo de flags em `config/feature-flags.json` + gate `Feature Flags Hygiene` no CI + validação local em `scripts/run_ci_like_actions_local.sh` | Data: 2026-02-25
