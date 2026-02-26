@@ -6,7 +6,7 @@ export interface HealthResponse {
 type ApiFetcher = <T>(request: string, options?: { method?: string }) => Promise<T>;
 type RuntimeConfigReader = () => { public?: { apiBase?: string | null } };
 
-const removeTrailingSlashes = (rawUrl: string): string => {
+export const removeTrailingSlashes = (rawUrl: string): string => {
   let end = rawUrl.length;
 
   while (end > 0 && rawUrl.codePointAt(end - 1) === 47) {
@@ -21,14 +21,18 @@ export interface WebApiClient {
   checkHealth(): Promise<HealthResponse>;
 }
 
-export const createApiClient = (fetcher: ApiFetcher, baseUrl: string): WebApiClient => {
+export const createApiClient = (
+  fetcher: ApiFetcher,
+  baseUrl: string,
+): WebApiClient => {
   const normalizedBaseUrl = removeTrailingSlashes(baseUrl);
 
   return {
     getBaseUrl: (): string => normalizedBaseUrl,
     checkHealth: async (): Promise<HealthResponse> => {
-      const requestUrl = `${normalizedBaseUrl}/health`;
-      return fetcher<HealthResponse>(requestUrl, { method: "GET" });
+      return fetcher<HealthResponse>(`${normalizedBaseUrl}/health`, {
+        method: "GET",
+      });
     },
   };
 };

@@ -3,9 +3,12 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
 
   devtools: { enabled: true },
+  ssr: true,
 
   app: {
     head: {
+      title: "Auraxis",
+      titleTemplate: "%s | Auraxis",
       link: [
         { rel: "manifest", href: "/manifest.webmanifest" },
       ],
@@ -14,6 +17,7 @@ export default defineNuxtConfig({
       ],
     },
   },
+  css: ["~/app/assets/css/main.css"],
 
   // ── Módulos ──────────────────────────────────────────────────────────
   modules: [
@@ -28,7 +32,6 @@ export default defineNuxtConfig({
     "@nuxtjs/i18n",       // Internacionalização
     "@nuxtjs/seo",        // Meta tags, sitemap, robots automáticos
     "@nuxtjs/device",     // Detecção de device (mobile/desktop/tablet)
-    "@nuxt/ui",           // Componentes UI (baseado em Tailwind + Reka UI)
     "@nuxtjs/google-fonts",
     "dayjs-nuxt",
     // '@nuxtjs/apollo',  // ⚠️ Incompatível com Nuxt 4 — aguarda versão estável
@@ -46,6 +49,16 @@ export default defineNuxtConfig({
       apiBase: process.env.NUXT_PUBLIC_API_BASE ?? "http://localhost:5000",
     },
   },
+  googleFonts: {
+    families: {
+      "Playfair Display": [400, 500, 600, 700],
+      Raleway: [400, 500, 600, 700],
+    },
+    display: "swap",
+    preload: true,
+    preconnect: true,
+    prefetch: true,
+  },
 
   // ── ESLint (via @nuxt/eslint) ─────────────────────────────────────────
   eslint: {
@@ -58,5 +71,8 @@ export default defineNuxtConfig({
   i18n: {
     locales: ["pt-BR", "en"],
     defaultLocale: "pt-BR",
+  },
+  ogImage: {
+    enabled: false,
   },
 });
