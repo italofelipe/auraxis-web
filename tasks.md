@@ -50,11 +50,17 @@
   - Dependência: WEB3
   - Commit: —
 
-- [~] **WEB11** `chore` — Padronizar UI kit web em Chakra UI customizado (sem Tailwind)
+- [ ] **WEB11** `chore` — Padronizar UI kit web em Chakra UI customizado (sem Tailwind)
   - Critério: tema central com paleta oficial, tipografia `Playfair Display` + `Raleway`, grid de 8px e componentes-base migrados para camada Chakra custom.
-  - Dependência: WEB1
+  - Dependência: WEB21
   - Commit: —
   - Risco residual: migração parcial pode manter estilos legados até conclusão por feature.
+
+- [ ] **WEB21** `chore` — Definir e implantar library de componentes no nível Chakra para Vue/Nuxt
+  - Critério: validar compatibilidade de Chakra UI com Vue; se inviável, selecionar alternativa madura/equivalente (ex.: Vuetify/Naive UI/PrimeVue), padronizar wrappers internos e configurar tema via tokens oficiais.
+  - Dependência: WEB1
+  - Commit: —
+  - Risco residual: escolha inadequada de biblioteca pode elevar custo de manutenção e retrabalho de UI.
 
 - [~] **WEB12** `chore` — Adotar TanStack Query para server-state
   - Critério: provider global configurado, política de cache/retry/invalidation definida e primeiro fluxo HTTP crítico usando `@tanstack/vue-query`.
