@@ -27,6 +27,9 @@ Qualquer código que viole estas regras **não passa nos gates e não é mergead
 - Tipografia oficial: `Playfair Display` (headings) + `Raleway` (body).
 - Grid base: `8px` (spacing de layout sempre em múltiplos de 8).
 - Componentes base devem derivar de Chakra UI customizado para o tema Auraxis.
+- Se Chakra UI não for viável em Vue/Nuxt, adotar biblioteca equivalente de mercado e encapsular em wrappers internos.
+- Componentes de produto devem usar primariamente componentes da library oficial; criar componente do zero só quando houver lacuna real e com wrapper padronizado.
+- É proibido usar valores literais de cor, spacing, radius, shadow, font-size e line-height em páginas/componentes. Sempre usar tokens.
 - TailwindCSS é proibido neste projeto (`class` utilitária Tailwind, `@apply`, `tailwind.config.*` para UI de runtime).
 - Estado remoto da API deve usar `@tanstack/vue-query`; Pinia é reservado para estado de cliente e coordenação local.
 

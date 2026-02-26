@@ -33,6 +33,9 @@
 - Tipografia oficial: `Playfair Display` (headings) + `Raleway` (body).
 - Grid base: `8px` (spacing estrutural sempre em múltiplos de 8).
 - Componentes web devem derivar de base **Chakra UI customizada** (tokens Auraxis).
+- Em ausência de Chakra UI estável para Vue/Nuxt, usar biblioteca equivalente de mercado (Vuetify/Naive UI/PrimeVue) com wrappers internos.
+- Componentes novos devem partir da UI library oficial do projeto; customizações devem ser feitas por extensão/composição, não por reimplementação ad-hoc.
+- É proibido usar valores literais de cor, spacing, radius, shadow, font-size e line-height em componentes/páginas. Usar tokens semânticos.
 - **Tailwind não é permitido** neste repositório.
 - Estado remoto (`server-state`) deve ser resolvido com `@tanstack/vue-query`.
 
@@ -49,6 +52,7 @@
 - **Segurança por padrão** — secret scan automático, CVEs bloqueados em PRs.
 - **Testes não são opcionais** — toda lógica nova tem teste antes de merge.
 - **UI consistente por contrato** — Chakra UI customizado + tokens oficiais são obrigatórios.
+- **Token-first styling** — qualquer estilo visual deve usar tokens do tema; valores soltos no código são não conformidade.
 - **Server-state com TanStack Query** — Pinia fica para estado de cliente e orquestração local.
 
 ---

@@ -1,6 +1,6 @@
 # tasks.md — auraxis-web
 
-Última atualização: 2026-02-25
+Última atualização: 2026-02-26
 
 ## Legenda
 
@@ -39,24 +39,30 @@
 
 ### P1 — Alta
 
-- [ ] **WEB3** `feat` — Layout base e sistema de autenticação
+- [~] **WEB3** `feat` — Layout base e sistema de autenticação
   - Critério: layout `default.vue` com header e nav. Middleware de autenticação redireciona para `/login` se sem token. Tela de login consome `POST /auth/login`. Token armazenado em cookie HttpOnly via servidor Nuxt.
   - Dependência: WEB2
   - Commit: —
   - Risco residual: SSR com cookies HttpOnly requer configuração de proxy server-side.
 
-- [ ] **WEB4** `feat` — Dashboard principal (saldo e transações)
+- [~] **WEB4** `feat` — Dashboard principal (saldo e transações)
   - Critério: página `/dashboard` exibe saldo atual e últimas 20 transações. SSR: dados pré-carregados no servidor com `useAsyncData`. Loading skeleton implementado.
   - Dependência: WEB3
   - Commit: —
 
 - [ ] **WEB11** `chore` — Padronizar UI kit web em Chakra UI customizado (sem Tailwind)
   - Critério: tema central com paleta oficial, tipografia `Playfair Display` + `Raleway`, grid de 8px e componentes-base migrados para camada Chakra custom.
-  - Dependência: WEB1
+  - Dependência: WEB21
   - Commit: —
   - Risco residual: migração parcial pode manter estilos legados até conclusão por feature.
 
-- [ ] **WEB12** `chore` — Adotar TanStack Query para server-state
+- [ ] **WEB21** `chore` — Definir e implantar library de componentes no nível Chakra para Vue/Nuxt
+  - Critério: validar compatibilidade de Chakra UI com Vue; se inviável, selecionar alternativa madura/equivalente (ex.: Vuetify/Naive UI/PrimeVue), padronizar wrappers internos e configurar tema via tokens oficiais.
+  - Dependência: WEB1
+  - Commit: —
+  - Risco residual: escolha inadequada de biblioteca pode elevar custo de manutenção e retrabalho de UI.
+
+- [~] **WEB12** `chore` — Adotar TanStack Query para server-state
   - Critério: provider global configurado, política de cache/retry/invalidation definida e primeiro fluxo HTTP crítico usando `@tanstack/vue-query`.
   - Dependência: WEB2
   - Commit: —
@@ -103,6 +109,18 @@
   - Dependência: WEB16
   - Commit: —
   - Risco residual: ainda depende de disciplina para remover código morto após cleanup de flag.
+
+- [x] **WEB19** `chore` — Scaffold administrativo pré-feature (providers, estado, contratos, hooks e utilitários)
+  - Critério: stack com `@tanstack/vue-query`, `axios`, `pinia`, contratos tipados e camada de integração pronta para conectar API real.
+  - Dependência: WEB1, WEB2
+  - Commit: a definir (branch `feat/foundation-ui-data-scaffold`)
+  - Risco residual: ajustes de contrato ainda podem ocorrer conforme evolução da API.
+
+- [x] **WEB20** `feat` — Páginas placeholder do ciclo inicial (dashboard, carteira, login, forgot-password e ferramentas)
+  - Critério: rotas funcionais com placeholders, formulários validados com `vee-validate` + `zod`, tema/tokens globais e skeleton loading.
+  - Dependência: WEB19
+  - Commit: a definir (branch `feat/foundation-ui-data-scaffold`)
+  - Risco residual: pendente aplicação do design final e refinamento de UX responsiva.
 
 - [x] **WEB9** `chore` — Dockerizar frontend Nuxt para desenvolvimento e CI
   - Critério: `Dockerfile` + `.dockerignore` + comando de execução documentado; build de imagem passa em CI sem warnings críticos.
@@ -170,3 +188,5 @@
 - [x] PLT2 foundation (web): baseline PWA documentada com `manifest.webmanifest` e runbook inicial para empacotamento em stores | Data: 2026-02-24
 - [x] PLT2 foundation (web): workflow manual de geração de artefatos para empacotamento em stores (`pwa-store-artifacts.yml`) | Data: 2026-02-24
 - [x] PLT4.1 (web): catálogo de flags em `config/feature-flags.json` + gate `Feature Flags Hygiene` no CI + validação local em `scripts/run_ci_like_actions_local.sh` | Data: 2026-02-25
+- [x] WEB19 concluído: fundação administrativa web preparada (`@tanstack/vue-query` + `axios` + `pinia` + contratos tipados + composables de integração) | Data: 2026-02-26
+- [x] WEB20 concluído: páginas placeholder de login/forgot-password/dashboard/carteira/ferramentas com validação de formulário e tema global sem Tailwind | Data: 2026-02-26

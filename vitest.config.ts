@@ -18,9 +18,10 @@ export default defineVitestConfig({
     include: [
       "app/**/*.{spec,test}.{ts,tsx}",
       "components/**/*.{spec,test}.{ts,tsx}",
-      "composables/**/*.{spec,test}.{ts,tsx}",
-      "stores/**/*.{spec,test}.{ts,tsx}",
-      "utils/**/*.{spec,test}.{ts,tsx}",
+      "app/composables/**/*.{spec,test}.{ts,tsx}",
+      "app/stores/**/*.{spec,test}.{ts,tsx}",
+      "app/schemas/**/*.{spec,test}.{ts,tsx}",
+      "app/utils/**/*.{spec,test}.{ts,tsx}",
       "server/**/*.{spec,test}.{ts,tsx}",
       "__tests__/**/*.{spec,test}.{ts,tsx}",
     ],
@@ -47,11 +48,13 @@ export default defineVitestConfig({
       reportsDirectory: "./coverage",
 
       include: [
-        "app/**/*.{ts,vue}",
-        "composables/**/*.ts",
-        "stores/**/*.ts",
-        "utils/**/*.ts",
-        "server/**/*.ts",
+        "app/app.vue",
+        "app/layouts/**/*.vue",
+        "app/components/**/*.vue",
+        "app/composables/**/*.ts",
+        "app/stores/**/*.ts",
+        "app/schemas/**/*.ts",
+        "app/utils/**/*.ts",
       ],
 
       exclude: [
