@@ -49,6 +49,6 @@ const toolsCatalogQuery = useToolsCatalogQuery();
   display: inline-block;
   margin-top: var(--space-1);
   color: var(--color-neutral-700);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 </style>

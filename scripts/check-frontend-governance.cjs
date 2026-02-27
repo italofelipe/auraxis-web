@@ -14,6 +14,33 @@ const DISALLOWED_SOURCE_EXTENSIONS = new Set([".js", ".jsx", ".cjs", ".mjs"]);
 const DISALLOWED_SOURCE_PATTERNS = [
   /^app\/(components|composables|layouts|middleware|pages|plugins|schemas|services|stores|types|utils)\/.*\.(js|jsx|cjs|mjs)$/,
 ];
+const STYLE_SCAN_EXTENSIONS = new Set([".vue", ".css", ".scss", ".sass"]);
+const STYLE_TOKEN_EXCLUDE_PATTERNS = [
+  /^app\/assets\/css\/main\.css$/,
+  /^app\/theme\/.+/,
+];
+const DISALLOWED_STYLE_LITERALS = [
+  {
+    rule: "numeric font-weight outside tokens",
+    pattern: /font-weight\s*:\s*(?!var\()[0-9]+/i,
+  },
+  {
+    rule: "literal font-size outside tokens",
+    pattern: /font-size\s*:\s*(?!var\()[0-9.]+(px|rem|em)/i,
+  },
+  {
+    rule: "literal line-height outside tokens",
+    pattern: /line-height\s*:\s*(?!var\()[0-9.]+(px|rem|em)/i,
+  },
+  {
+    rule: "literal border-radius outside tokens",
+    pattern: /border-radius\s*:\s*(?!var\()[0-9.]+(px|rem|em)/i,
+  },
+  {
+    rule: "literal border color outside tokens",
+    pattern: /border\s*:\s*[0-9.]+(px|rem|em)\s+solid\s+#/i,
+  },
+];
 
 function walkDirectoryRecursively(rootDirectory) {
   const visitedFiles = [];
@@ -86,12 +113,47 @@ function checkDisallowedSourceExtensions(errors, rootDirectory) {
   }
 }
 
+function checkDisallowedStyleLiterals(errors, rootDirectory) {
+  const files = walkDirectoryRecursively(path.resolve(rootDirectory, "app"));
+
+  for (const absoluteFilePath of files) {
+    const relativePath = toUnixRelativePath(absoluteFilePath, rootDirectory);
+    const extension = path.extname(relativePath);
+
+    if (!STYLE_SCAN_EXTENSIONS.has(extension)) {
+      continue;
+    }
+
+    const isExcluded = STYLE_TOKEN_EXCLUDE_PATTERNS.some((pattern) => {
+      return pattern.test(relativePath);
+    });
+
+    if (isExcluded) {
+      continue;
+    }
+
+    const fileContent = fs.readFileSync(absoluteFilePath, "utf8");
+    const fileLines = fileContent.split("\n");
+
+    fileLines.forEach((lineContent, lineIndex) => {
+      for (const styleRule of DISALLOWED_STYLE_LITERALS) {
+        if (styleRule.pattern.test(lineContent)) {
+          errors.push(
+            `${styleRule.rule}: ${relativePath}:${lineIndex + 1}`,
+          );
+        }
+      }
+    });
+  }
+}
+
 function main() {
   const rootDirectory = process.cwd();
   const errors = [];
 
   assertRequiredSharedDirectoriesExist(errors, rootDirectory);
   checkDisallowedSourceExtensions(errors, rootDirectory);
+  checkDisallowedStyleLiterals(errors, rootDirectory);
 
   if (errors.length > 0) {
     process.stderr.write("[frontend-governance] FAILED\n");

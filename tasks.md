@@ -90,12 +90,13 @@ Toda task de UI/layout no `auraxis-web` deve seguir, sem exceção:
   - Risco residual: durante transição, coexistência com lógica legada de fetch/composables.
 
 - [~] **WEB22** `chore` — Endurecer governança de código frontend (TS-only, JSDoc, retorno explícito, Chakra-first)
-  - Critério: ESLint e gates locais/CI bloqueiam `.js/.jsx` em código de produto, funções sem retorno explícito, funções sem JSDoc e uso de tags HTML cruas de formulário/controle/texto estrutural em componentes de produto.
+  - Critério: ESLint e gates locais/CI bloqueiam `.js/.jsx` em código de produto, funções sem retorno explícito, funções sem JSDoc, uso de tags HTML cruas de formulário/controle/texto estrutural em componentes de produto e valores visuais arbitrários fora de tokens.
   - Subetapas:
     1. [x] atualizar `eslint.config.mjs` com regras estritas e plugin de JSDoc;
     2. [x] adicionar script de policy check para bloquear extensão/problemas arquiteturais fora do alcance nativo do lint;
     3. [x] integrar policy check em `quality-check`, `lint-staged`, husky, CI e CI local parity;
     4. [x] corrigir violações existentes por lotes pequenos e rastreáveis (baseline atual web).
+    5. [x] reforçar padrão token-first (incluindo `font-weight`) e modularizar composables críticos (`useX/index.ts` + `useX/types.ts` + separação por responsabilidade).
   - Dependência: WEB1
   - Commit: —
   - Risco residual: ainda há passivo legado de UI (componentes/telas fora do padrão de library/tokens) a ser migrado no ciclo WEB21/WEB23.

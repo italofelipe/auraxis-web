@@ -30,9 +30,11 @@ Qualquer código que viole estas regras **não passa nos gates e não é mergead
 - Se Chakra UI não for viável em Vue/Nuxt, adotar biblioteca equivalente de mercado e encapsular em wrappers internos.
 - Componentes de produto devem usar primariamente componentes da library oficial; criar componente do zero só quando houver lacuna real e com wrapper padronizado.
 - Em componentes/telas de produto, evitar elementos HTML crus (`<input>`, `<label>`, `<button>`, `<textarea>`, `<select>`, `<p>`); preferir componentes Chakra UI e wrappers internos.
-- É proibido usar valores literais de cor, spacing, radius, shadow, font-size e line-height em páginas/componentes. Sempre usar tokens.
+- É proibido usar valores literais de cor, spacing, radius, shadow, font-size, line-height e font-weight em páginas/componentes. Sempre usar tokens.
+- É proibido declarar bordas/larguras sem tokens semânticos (ex.: `1px solid #ccc`, `4px`, `0.5rem`) fora dos arquivos de tema.
 - TailwindCSS é proibido neste projeto (`class` utilitária Tailwind, `@apply`, `tailwind.config.*` para UI de runtime).
 - Estado remoto da API deve usar `@tanstack/vue-query`; Pinia é reservado para estado de cliente e coordenação local.
+- Composables com regra de negócio devem ser modulares em diretório dedicado (`useX/index.ts`, `useX/types.ts` e arquivos por responsabilidade como `api.ts`, `mutations.ts`, `forms.ts`).
 
 ## 1.2 Enforcement automático (obrigatório)
 
@@ -109,7 +111,22 @@ const double = (n: number): number => n * 2
 - Toda função (pública ou privada) deve ter bloco JSDoc imediatamente acima da declaração.
 - Inclui funções utilitárias, composables, handlers e helpers internos.
 
-### 2.6 Tipos de API vs. tipos de domínio — sempre separados
+### 2.6 Modularidade obrigatória para composables e serviços
+
+```text
+app/composables/useAuth/
+  index.ts        ← barrel de exportação pública
+  types.ts        ← contratos e aliases de tipo
+  api.ts          ← integração HTTP / adapters
+  mutations.ts    ← mutations e orquestração de estado remoto
+  forms.ts        ← regras de formulário/validação
+```
+
+- Arquivos monolíticos (`useX.ts`) com múltiplas responsabilidades são proibidos quando o composable envolve regra de negócio.
+- Tipos de domínio/comunicação devem ficar fora do arquivo de implementação principal.
+- `index.ts` funciona apenas como superfície pública; lógica e tipos ficam em arquivos dedicados.
+
+### 2.7 Tipos de API vs. tipos de domínio — sempre separados
 
 ```
 types/
@@ -157,7 +174,7 @@ export interface Transaction {
 export type TransactionType = "income" | "expense";
 ```
 
-### 2.7 Union types em vez de enums
+### 2.8 Union types em vez de enums
 
 ```typescript
 // ❌ Enum — gera código JavaScript desnecessário
@@ -174,7 +191,7 @@ const TRANSACTION_TYPES = ["income", "expense"] as const;
 type TransactionType = (typeof TRANSACTION_TYPES)[number];
 ```
 
-### 2.8 Generics quando o tipo varia, não como atalho
+### 2.9 Generics quando o tipo varia, não como atalho
 
 ```typescript
 // ❌ Generic desnecessário — o tipo é sempre o mesmo

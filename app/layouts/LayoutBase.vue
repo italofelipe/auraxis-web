@@ -38,16 +38,17 @@
 
 .layout-brand {
   font-family: var(--font-heading);
-  font-size: 1.75rem;
-  font-weight: 700;
+  font-size: var(--font-size-heading-lg);
+  line-height: var(--line-height-heading-lg);
+  font-weight: var(--font-weight-bold);
   color: var(--color-neutral-900);
 }
 
 .layout-nav {
   display: flex;
   gap: var(--space-4);
-  font-weight: 600;
-  color: var(--color-neutral-800);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-neutral-700);
 }
 
 .nav-link {
@@ -62,13 +63,13 @@
 .nav-link:focus {
   outline: none;
   color: var(--color-brand-600);
-  background-color: var(--color-brand-100);
+  background-color: var(--color-brand-400);
 }
 
 .nav-link.active {
-  color: var(--color-brand-700);
-  font-weight: 700;
-  background-color: var(--color-brand-200);
+  color: var(--color-brand-600);
+  font-weight: var(--font-weight-bold);
+  background-color: var(--color-brand-500);
 }
 
 .layout-main {
@@ -89,7 +90,8 @@
     justify-content: center;
     gap: var(--space-3);
     margin-top: var(--space-2);
-    font-size: 0.9rem;
+    font-size: var(--font-size-body-sm);
+    line-height: var(--line-height-body-sm);
   }
 }
 </style>

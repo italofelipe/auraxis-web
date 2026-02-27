@@ -33,14 +33,15 @@
 
 .layout-brand {
   font-family: var(--font-heading);
-  font-size: 1.5rem;
+  font-size: var(--font-size-heading-md);
+  line-height: var(--line-height-heading-md);
   color: var(--color-neutral-950);
 }
 
 .layout-nav {
   display: flex;
   gap: var(--space-2);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-neutral-700);
 }
 

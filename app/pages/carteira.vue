@@ -30,7 +30,7 @@ const walletSummaryQuery = useWalletSummaryQuery();
   margin: 0 0 var(--space-2);
   font-size: var(--font-size-heading-md);
   line-height: var(--line-height-heading-md);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .wallet-list {

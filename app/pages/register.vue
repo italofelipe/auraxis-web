@@ -69,7 +69,7 @@ const submit = handleSubmit(async (values: RegisterSchema) => {
   display: grid;
   gap: var(--space-1);
   color: var(--color-neutral-700);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .auth-form input {
@@ -85,7 +85,7 @@ const submit = handleSubmit(async (values: RegisterSchema) => {
   border-radius: var(--radius-sm);
   background: var(--color-brand-500);
   color: var(--color-neutral-950);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .form-error {

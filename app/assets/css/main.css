@@ -1,6 +1,9 @@
 :root {
   --font-heading: "Playfair Display", "Times New Roman", serif;
   --font-body: "Raleway", "Segoe UI", sans-serif;
+  --font-weight-regular: 400;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
 
   --color-neutral-950: #0b0909;
   --color-neutral-900: #262121;
@@ -22,7 +25,11 @@
   --radius-lg: 16px;
 
   --font-size-heading-md: 24px;
+  --font-size-heading-lg: 28px;
+  --font-size-body-sm: 14px;
   --line-height-heading-md: 32px;
+  --line-height-heading-lg: 36px;
+  --line-height-body-sm: 20px;
 
   --shadow-card: 0 10px 24px rgba(11, 9, 9, 0.08);
 }
