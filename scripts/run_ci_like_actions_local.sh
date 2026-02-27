@@ -66,6 +66,9 @@ run_core_pipeline() {
   echo "[ci-like-local] step=frontend:governance"
   pnpm policy:check
 
+  echo "[ci-like-local] step=contracts:smoke"
+  pnpm contracts:check
+
   echo "[ci-like-local] step=build"
   pnpm build
 

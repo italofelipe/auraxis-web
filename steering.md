@@ -20,6 +20,10 @@ Para integração com backend recém-entregue:
 - ler `Feature Contract Pack` em
   `/Users/italochagas/Desktop/projetos/auraxis-platform/.context/feature_contracts/<TASK_ID>.md`
   antes de implementar consumo de endpoint.
+- manter baseline de contrato em `contracts/feature-contract-baseline.json` e validar
+  via `pnpm contracts:check` (bloqueante em CI).
+- manter tipos OpenAPI gerados em `app/shared/types/generated/openapi.ts` via
+  `pnpm contracts:sync`.
 
 ---
 
