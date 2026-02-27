@@ -71,7 +71,7 @@ Toda task de UI/layout no `auraxis-web` deve seguir, sem exceção:
   - Dependência: WEB3
   - Commit: —
 
-- [ ] **WEB11** `chore` — Padronizar UI kit web em Chakra UI customizado (sem Tailwind)
+- [~] **WEB11** `chore` — Padronizar UI kit web em Chakra UI customizado (sem Tailwind)
   - Critério: tema central com paleta oficial, tipografia `Playfair Display` + `Raleway`, grid de 8px e componentes-base migrados para camada Chakra custom.
   - Dependência: WEB21
   - Commit: —
