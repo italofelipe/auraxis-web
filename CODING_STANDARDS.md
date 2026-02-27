@@ -6,6 +6,11 @@ Este documento define **o único jeito certo de escrever código neste projeto**
 Não é um guia de boas práticas — é um contrato técnico vinculante.
 Qualquer código que viole estas regras **não passa nos gates e não é mergeado**.
 
+Referências mandatórias:
+
+- `/Users/italochagas/Desktop/projetos/auraxis-platform/.context/32_frontend_unified_guideline.md`
+- `/Users/italochagas/Desktop/projetos/auraxis-platform/.context/feature_contracts/README.md`
+
 ---
 
 ## 1. Princípios fundamentais
