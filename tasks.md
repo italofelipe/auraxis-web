@@ -15,6 +15,26 @@
 
 ---
 
+## Diretriz global de layout (obrigatória para agentes)
+
+Toda task de UI/layout no `auraxis-web` deve seguir, sem exceção:
+
+1. Fonte visual canônica:
+   - `/Users/italochagas/Desktop/projetos/auraxis-platform/designs/1920w default.png`
+   - `/Users/italochagas/Desktop/projetos/auraxis-platform/designs/Background.svg`
+2. Spec operacional obrigatório:
+   - `/Users/italochagas/Desktop/projetos/auraxis-platform/.context/30_design_reference.md`
+3. Regras de aceite visual:
+   - reproduzir hierarquia/composição do layout de referência (não inventar novo layout);
+   - usar tokens de tema para 100% dos valores visuais (zero cor/spacing/radius hardcoded);
+   - aplicar tipografia oficial (`Playfair Display` + `Raleway`) e grid de `8px`;
+   - usar componentes da biblioteca-base com extensão por tema.
+4. Evidência obrigatória por task de UI:
+   - screenshot local comparativa com a referência;
+   - registro explícito de fidelidade visual e gaps no handoff/report da task.
+
+---
+
 ## Ciclo A — Bootstrap do projeto Nuxt
 
 > **Status do ciclo:** WEB1 concluído (2026-02-23). Próximas tasks desbloqueadas.
@@ -47,6 +67,7 @@
 
 - [~] **WEB4** `feat` — Dashboard principal (saldo e transações)
   - Critério: página `/dashboard` exibe saldo atual e últimas 20 transações. SSR: dados pré-carregados no servidor com `useAsyncData`. Loading skeleton implementado.
+  - Critério visual obrigatório: aderência ao blueprint de dashboard em `designs/1920w default.png` conforme `.context/30_design_reference.md`.
   - Dependência: WEB3
   - Commit: —
 
@@ -118,6 +139,7 @@
 
 - [x] **WEB20** `feat` — Páginas placeholder do ciclo inicial (dashboard, carteira, login, forgot-password e ferramentas)
   - Critério: rotas funcionais com placeholders, formulários validados com `vee-validate` + `zod`, tema/tokens globais e skeleton loading.
+  - Critério visual obrigatório: placeholders já devem respeitar estrutura/hierarquia dos assets canônicos em `designs/`.
   - Dependência: WEB19
   - Commit: a definir (branch `feat/foundation-ui-data-scaffold`)
   - Risco residual: pendente aplicação do design final e refinamento de UX responsiva.
