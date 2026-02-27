@@ -7,8 +7,10 @@ import type {
   ForgotPasswordResponse,
   LoginRequest,
   LoginResponse,
+  RegisterRequest,
+  RegisterResponse,
 } from "~/types/contracts";
-import { forgotPasswordSchema, loginSchema } from "~/schemas/auth";
+import { forgotPasswordSchema, loginSchema, registerSchema } from "~/schemas/auth";
 import { useSessionStore } from "~/stores/session";
 import { useHttp } from "~/composables/useHttp";
 
@@ -23,6 +25,10 @@ export const createAuthApi = (http: HttpAdapter) => {
   return {
     login: async (payload: LoginRequest): Promise<LoginResponse> => {
       const response = await http.post<LoginResponse>("/auth/login", payload);
+      return response.data;
+    },
+    register: async (payload: RegisterRequest): Promise<RegisterResponse> => {
+      const response = await http.post<RegisterResponse>("/auth/register", payload);
       return response.data;
     },
     forgotPassword: async (
@@ -47,6 +53,17 @@ export const useLoginForm = () => {
   });
 };
 
+export const useRegisterForm = () => {
+  return useForm({
+    validationSchema: toTypedSchema(registerSchema),
+    initialValues: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
+};
+
 export const useForgotPasswordForm = () => {
   return useForm({
     validationSchema: toTypedSchema(forgotPasswordSchema),
@@ -62,6 +79,18 @@ export const useLoginMutation = () => {
 
   return useMutation({
     mutationFn: authApi.login,
+    onSuccess: (response) => {
+      sessionStore.signIn(response.accessToken, response.user.email);
+    },
+  });
+};
+
+export const useRegisterMutation = () => {
+  const authApi = createAuthApi(useHttp());
+  const sessionStore = useSessionStore();
+
+  return useMutation({
+    mutationFn: authApi.register,
     onSuccess: (response) => {
       sessionStore.signIn(response.accessToken, response.user.email);
     },
