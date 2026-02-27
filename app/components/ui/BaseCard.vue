@@ -1,14 +1,18 @@
 <template>
-  <section class="base-card">
+  <ChakraBox border-radius="md" bg="white" border-width="1px" border-color="gray.200" box-shadow="md" p={4}>
     <header v-if="title" class="base-card__header">
-      <h2>{{ title }}</h2>
-      <slot name="header-extra" />
+      <ChakraHeading size="md" display="flex" align-items="center" justify-content="space-between">
+        {{ title }}
+        <slot name="header-extra" />
+      </ChakraHeading>
     </header>
     <slot />
-  </section>
+  </ChakraBox>
 </template>
 
 <script setup lang="ts">
+import { ChakraBox, ChakraHeading } from "@chakra-ui/vue-next";
+
 interface Props {
   title?: string;
 }
@@ -17,22 +21,7 @@ defineProps<Props>();
 </script>
 
 <style scoped>
-.base-card {
-  border-radius: var(--radius-md);
-  background: #ffffff;
-  border: 1px solid rgba(38, 33, 33, 0.08);
-  box-shadow: var(--shadow-card);
-  padding: var(--space-2);
-}
-
 .base-card__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   margin-bottom: var(--space-2);
-}
-
-.base-card__header h2 {
-  font-size: 1.25rem;
 }
 </style>

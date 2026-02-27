@@ -1,6 +1,6 @@
 # tasks.md — auraxis-web
 
-Última atualização: 2026-02-26
+Última atualização: 2026-02-27
 
 ## Legenda
 
