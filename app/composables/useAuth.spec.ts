@@ -45,4 +45,30 @@ describe("createAuthApi", () => {
     });
     expect(response.accepted).toBe(true);
   });
+
+  it("executa register no endpoint dedicado", async () => {
+    const post = vi.fn().mockResolvedValue({
+      data: {
+        accessToken: "token-register",
+        user: {
+          email: "new@auraxis.com",
+          displayName: "New User",
+        },
+      },
+    });
+
+    const authApi = createAuthApi({ post });
+    const response = await authApi.register({
+      email: "new@auraxis.com",
+      password: "12345678",
+      confirmPassword: "12345678",
+    });
+
+    expect(post).toHaveBeenCalledWith("/auth/register", {
+      email: "new@auraxis.com",
+      password: "12345678",
+      confirmPassword: "12345678",
+    });
+    expect(response.user.email).toBe("new@auraxis.com");
+  });
 });
