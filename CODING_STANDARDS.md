@@ -6,6 +6,17 @@ Este documento define **o único jeito certo de escrever código neste projeto**
 Não é um guia de boas práticas — é um contrato técnico vinculante.
 Qualquer código que viole estas regras **não passa nos gates e não é mergeado**.
 
+Referências mandatórias:
+
+- `/Users/italochagas/Desktop/projetos/auraxis-platform/.context/32_frontend_unified_guideline.md`
+- `/Users/italochagas/Desktop/projetos/auraxis-platform/.context/feature_contracts/README.md`
+- `/Users/italochagas/Desktop/projetos/auraxis-platform/.context/openapi/README.md`
+
+Contrato tipado obrigatório (OpenAPI + packs):
+
+- `pnpm contracts:sync` para atualizar snapshot OpenAPI, tipos gerados e baseline de packs.
+- `pnpm contracts:check` para validar drift de contrato no gate local/CI.
+
 ---
 
 ## 1. Princípios fundamentais

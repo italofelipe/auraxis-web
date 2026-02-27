@@ -96,11 +96,30 @@ jobs:
           path: coverage/
           retention-days: 14
 
+  # ── 4.1 Contract Smoke (OpenAPI + Feature Contract Packs) ──────────────
+  contract-smoke:
+    name: Contract Smoke (OpenAPI + Packs)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Validate generated OpenAPI types and contract pack baseline
+        run: pnpm contracts:check
+
   # ── 5. Build check ─────────────────────────────────────────────────────
   build:
     name: Build (Nuxt)
     runs-on: ubuntu-latest
-    needs: [lint, typecheck, feature-flag-hygiene, test]
+    needs: [lint, typecheck, feature-flag-hygiene, test, contract-smoke]
     permissions:
       contents: read
     steps:
