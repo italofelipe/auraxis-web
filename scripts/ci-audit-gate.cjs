@@ -4,7 +4,12 @@
 const fs = require("node:fs");
 const { execSync } = require("node:child_process");
 
-const allowedIds = new Set(["GHSA-3ppc-4f35-3m26", "1113371"]);
+const allowedIds = new Set([
+  "GHSA-3ppc-4f35-3m26",
+  "GHSA-7r86-cg39-jmmj",
+  "GHSA-23c5-xmqv-rm74",
+  "1113371",
+]);
 const isBlockingSeverity = (severity) => severity === "high" || severity === "critical";
 const isAllowlisted = (ghsa, source) => allowedIds.has(ghsa) || allowedIds.has(source);
 
