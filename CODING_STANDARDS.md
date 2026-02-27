@@ -29,9 +29,24 @@ Qualquer código que viole estas regras **não passa nos gates e não é mergead
 - Componentes base devem derivar de Chakra UI customizado para o tema Auraxis.
 - Se Chakra UI não for viável em Vue/Nuxt, adotar biblioteca equivalente de mercado e encapsular em wrappers internos.
 - Componentes de produto devem usar primariamente componentes da library oficial; criar componente do zero só quando houver lacuna real e com wrapper padronizado.
-- É proibido usar valores literais de cor, spacing, radius, shadow, font-size e line-height em páginas/componentes. Sempre usar tokens.
+- Em componentes/telas de produto, evitar elementos HTML crus (`<input>`, `<label>`, `<button>`, `<textarea>`, `<select>`, `<p>`); preferir componentes Chakra UI e wrappers internos.
+- É proibido usar valores literais de cor, spacing, radius, shadow, font-size, line-height e font-weight em páginas/componentes. Sempre usar tokens.
+- É proibido declarar bordas/larguras sem tokens semânticos (ex.: `1px solid #ccc`, `4px`, `0.5rem`) fora dos arquivos de tema.
 - TailwindCSS é proibido neste projeto (`class` utilitária Tailwind, `@apply`, `tailwind.config.*` para UI de runtime).
 - Estado remoto da API deve usar `@tanstack/vue-query`; Pinia é reservado para estado de cliente e coordenação local.
+- Composables com regra de negócio devem ser modulares em diretório dedicado (`useX/index.ts`, `useX/types.ts` e arquivos por responsabilidade como `api.ts`, `mutations.ts`, `forms.ts`).
+
+## 1.2 Enforcement automático (obrigatório)
+
+Todas as regras acima são bloqueantes em tooling, não apenas guideline:
+
+- `pnpm lint` com `--max-warnings 0`.
+- `pnpm policy:check` para bloquear:
+  - arquivos `.js/.jsx/.cjs/.mjs` em código de produto;
+  - ausência da estrutura `app/shared/{components,types,validators,utils}`.
+- `pnpm quality-check` como gate único obrigatório antes de commit (`lint + typecheck + test:coverage + policy:check`).
+
+Falha em qualquer gate = **não commitar**.
 
 ---
 
@@ -82,11 +97,36 @@ export function calculateBalance(items: Transaction[]): number {
   return items.reduce(...)
 }
 
-// ✅ Exceção aceita: arrow functions de uma linha, retorno óbvio
-const double = (n: number) => n * 2
+// ✅ Função curta também com retorno explícito
+const double = (n: number): number => n * 2
 ```
 
-### 2.4 Tipos de API vs. tipos de domínio — sempre separados
+### 2.4 TypeScript-only no código de produto
+
+- Arquivos de implementação de frontend devem usar somente `.ts`/`.tsx`/`.vue`.
+- Não criar arquivos `.js`/`.jsx` para código de feature/componente/hook/service/util.
+
+### 2.5 JSDoc obrigatório em funções
+
+- Toda função (pública ou privada) deve ter bloco JSDoc imediatamente acima da declaração.
+- Inclui funções utilitárias, composables, handlers e helpers internos.
+
+### 2.6 Modularidade obrigatória para composables e serviços
+
+```text
+app/composables/useAuth/
+  index.ts        ← barrel de exportação pública
+  types.ts        ← contratos e aliases de tipo
+  api.ts          ← integração HTTP / adapters
+  mutations.ts    ← mutations e orquestração de estado remoto
+  forms.ts        ← regras de formulário/validação
+```
+
+- Arquivos monolíticos (`useX.ts`) com múltiplas responsabilidades são proibidos quando o composable envolve regra de negócio.
+- Tipos de domínio/comunicação devem ficar fora do arquivo de implementação principal.
+- `index.ts` funciona apenas como superfície pública; lógica e tipos ficam em arquivos dedicados.
+
+### 2.7 Tipos de API vs. tipos de domínio — sempre separados
 
 ```
 types/
@@ -134,7 +174,7 @@ export interface Transaction {
 export type TransactionType = "income" | "expense";
 ```
 
-### 2.5 Union types em vez de enums
+### 2.8 Union types em vez de enums
 
 ```typescript
 // ❌ Enum — gera código JavaScript desnecessário
@@ -151,7 +191,7 @@ const TRANSACTION_TYPES = ["income", "expense"] as const;
 type TransactionType = (typeof TRANSACTION_TYPES)[number];
 ```
 
-### 2.6 Generics quando o tipo varia, não como atalho
+### 2.9 Generics quando o tipo varia, não como atalho
 
 ```typescript
 // ❌ Generic desnecessário — o tipo é sempre o mesmo
@@ -989,15 +1029,16 @@ export default defineNuxtConfig({
 ## 14. Arquitetura feature-based
 
 > Regra central: **features não importam de outras features.**
-> Todo compartilhamento passa por `shared/`.
+> Todo compartilhamento passa por `app/shared/`.
 
 ```
-src/
+app/
   shared/
     components/        ← Button, Input, Card (sem lógica de negócio)
     composables/       ← useDebounce, useMediaQuery (agnósticos de domínio)
     theme/             ← TODOS os tokens de design (ver seção 15)
     types/             ← tipos globais compartilhados
+    validators/        ← schemas/validações compartilhadas
     utils/             ← funções puras agnósticas
     constants/         ← constantes globais
 
@@ -1014,7 +1055,7 @@ src/
       ...
 
   layouts/             ← layouts Nuxt (default, auth)
-  app.vue
+app.vue
 ```
 
 **Regra de importação:**
@@ -1039,10 +1080,13 @@ import { useTransactions } from "@/features/transactions/composables/useTransact
 Nenhum valor de estilo pode aparecer diretamente em um componente.
 Todo valor pertence ao sistema de tokens em `shared/theme/`.
 
+`index.ts` deve ser apenas barrel de exportação. Definições de token devem ficar em arquivos dedicados por domínio (`colors`, `typography`, `spacing`, `radii`, `shadows`, `motion`).
+
 ```
 shared/theme/
   tokens/
     primitives.ts    ← valores brutos (não usar em componentes)
+    colors.ts        ← paleta oficial (somente cores aprovadas)
     semantic.ts      ← tokens semânticos (use estes)
     typography.ts    ← escala tipográfica
     spacing.ts       ← escala de espaçamento
@@ -1066,6 +1110,16 @@ export const primitives = {
   },
   space: { 1: 8, 2: 16, 3: 24, 4: 32, 5: 40, 6: 48 },
 } as const;
+
+// colors.ts — proibido adicionar brand fora da paleta oficial
+export const brandPalette = [
+  "#262121",
+  "#ffbe4d",
+  "#413939",
+  "#0b0909",
+  "#ffd180",
+  "#ffab1a",
+] as const;
 
 // semantic.ts — use estes nos componentes e no CSS
 export const colors = {

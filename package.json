@@ -15,7 +15,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage --coverage.reporter=text --coverage.reporter=json --coverage.reporter=json-summary --coverage.reporter=html --coverage.reporter=lcovonly",
     "flags:check": "node scripts/check-feature-flags.cjs",
-    "quality-check": "pnpm lint && pnpm typecheck && pnpm test:coverage",
+    "policy:check": "node scripts/check-frontend-governance.cjs",
+    "quality-check": "pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm policy:check",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
@@ -58,6 +59,7 @@
     "@vitest/coverage-v8": "^4.0.18",
     "@vue/test-utils": "^2.4.6",
     "eslint": "^9.39.3",
+    "eslint-plugin-jsdoc": "^54.5.0",
     "happy-dom": "^20.7.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
@@ -80,7 +82,8 @@
   },
   "lint-staged": {
     "**/*.{ts,tsx,vue}": [
-      "eslint --fix --max-warnings 0 --no-warn-ignored"
+      "eslint --fix --max-warnings 0 --no-warn-ignored",
+      "node scripts/check-frontend-governance.cjs"
     ],
     "**/*.{json,jsonc,md}": [
       "prettier --write"

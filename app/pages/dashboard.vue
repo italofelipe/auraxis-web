@@ -64,8 +64,9 @@ const monthOptions = computed(() => {
 }
 
 .value-text {
-  font-size: 1.8rem;
-  font-weight: 700;
+  font-size: var(--font-size-heading-md);
+  line-height: var(--line-height-heading-md);
+  font-weight: var(--font-weight-bold);
   margin: 0;
 }
 
@@ -74,11 +75,11 @@ const monthOptions = computed(() => {
   gap: var(--space-1);
   margin-bottom: var(--space-2);
   color: var(--color-neutral-700);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .month-label select {
-  border: 1px solid rgba(38, 33, 33, 0.2);
+  border: 1px solid var(--color-outline-soft);
   border-radius: var(--radius-sm);
   min-height: 40px;
   padding-inline: var(--space-1);

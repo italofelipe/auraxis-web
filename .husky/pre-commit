@@ -1,1 +1,2 @@
+pnpm policy:check
 npx lint-staged

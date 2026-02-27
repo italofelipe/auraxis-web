@@ -2,7 +2,7 @@
 
 > Documento canônico de governança técnica para o projeto web do Auraxis.
 > Vinculante para todos os agentes e desenvolvedores.
-> Atualizado: 2026-02-24
+> Atualizado: 2026-02-27
 
 ---
 
@@ -32,10 +32,19 @@
 - Paleta oficial: `#262121`, `#ffbe4d`, `#413939`, `#0b0909`, `#ffd180`, `#ffab1a`.
 - Tipografia oficial: `Playfair Display` (headings) + `Raleway` (body).
 - Grid base: `8px` (spacing estrutural sempre em múltiplos de 8).
+- Tema obrigatório e modular: `app/theme/tokens/colors.ts`, `typography.ts`, `spacing.ts`, `radii.ts`, `shadows.ts`, `motion.ts`.
+- `app/theme/index.ts` deve ser apenas barrel de exportação. Proibido concentrar definição de tokens nesse arquivo.
 - Componentes web devem derivar de base **Chakra UI customizada** (tokens Auraxis).
 - Em ausência de Chakra UI estável para Vue/Nuxt, usar biblioteca equivalente de mercado (Vuetify/Naive UI/PrimeVue) com wrappers internos.
 - Componentes novos devem partir da UI library oficial do projeto; customizações devem ser feitas por extensão/composição, não por reimplementação ad-hoc.
-- É proibido usar valores literais de cor, spacing, radius, shadow, font-size e line-height em componentes/páginas. Usar tokens semânticos.
+- Em telas/componentes de produto, evitar tags HTML cruas de formulário/controle/texto estrutural (`<input>`, `<label>`, `<button>`, `<textarea>`, `<select>`, `<p>`). Usar componentes Chakra UI (ou wrappers internos).
+- É proibido usar valores literais de cor, spacing, radius, shadow, font-size, line-height e font-weight em componentes/páginas. Usar tokens semânticos.
+- É proibido declarar bordas/larguras sem tokens semânticos (ex.: `1px solid #ccc`, `4px`, `0.5rem`) fora de arquivos de tema.
+- É proibido introduzir escala de cores de brand fora da paleta oficial. Não criar gradientes/hues ad-hoc fora dos tokens aprovados.
+- Código de produto deve ser TypeScript-only (`.ts`/`.tsx` em código de app). `.js`/`.jsx` não são permitidos para implementação de features.
+- Toda função deve declarar tipo explícito de retorno e possuir JSDoc.
+- Composables com regra de negócio devem ser estruturados em diretório dedicado (`useX/index.ts`, `useX/types.ts` e arquivos por responsabilidade como `api.ts`, `forms.ts`, `mutations.ts`).
+- Código reutilizado em múltiplos fluxos deve ficar em `app/shared` (`components`, `types`, `validators`, `utils`).
 - **Tailwind não é permitido** neste repositório.
 - Estado remoto (`server-state`) deve ser resolvido com `@tanstack/vue-query`.
 
@@ -95,6 +104,9 @@ pnpm typecheck
 # 3. Testes unitários com coverage
 pnpm test:coverage
 
+# 4. Governança frontend (TS-only + shared-first)
+pnpm policy:check
+
 # Comando combinado (obrigatório antes de commitar):
 pnpm quality-check
 ```
@@ -104,14 +116,15 @@ pnpm quality-check
 
 ### Thresholds locais (pre-commit)
 
-| Gate                       | Threshold | Falha quando                              |
-| :------------------------- | :-------- | :---------------------------------------- |
-| ESLint (@nuxt/eslint)      | 0 erros   | Qualquer violação de lint                 |
-| TypeScript strict          | 0 erros   | `any` implícito, tipos incompatíveis      |
-| Vitest — testes passando   | 100%      | Qualquer teste quebrando                  |
-| Vitest — coverage lines    | ≥ 85%     | Cobertura abaixo do threshold             |
-| Vitest — coverage branches | ≥ 85%     | Cobertura de branches abaixo              |
-| Build Nuxt                 | Sucesso   | Import circular, erro SSR, módulo ausente |
+| Gate                       | Threshold | Falha quando                                                          |
+| :------------------------- | :-------- | :-------------------------------------------------------------------- |
+| ESLint (@nuxt/eslint)      | 0 erros   | Qualquer violação de lint                                             |
+| Frontend governance        | 0 erros   | Arquivo `.js/.jsx` em código de produto ou ausência de `app/shared/*` |
+| TypeScript strict          | 0 erros   | `any` implícito, tipos incompatíveis                                  |
+| Vitest — testes passando   | 100%      | Qualquer teste quebrando                                              |
+| Vitest — coverage lines    | ≥ 85%     | Cobertura abaixo do threshold                                         |
+| Vitest — coverage branches | ≥ 85%     | Cobertura de branches abaixo                                          |
+| Build Nuxt                 | Sucesso   | Import circular, erro SSR, módulo ausente                             |
 
 ### Thresholds de CI (automáticos — GitHub Actions)
 

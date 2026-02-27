@@ -44,11 +44,11 @@ const submit = handleSubmit(async (values: ForgotPasswordSchema) => {
   display: grid;
   gap: var(--space-1);
   color: var(--color-neutral-700);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .auth-form input {
-  border: 1px solid rgba(38, 33, 33, 0.2);
+  border: 1px solid var(--color-outline-soft);
   border-radius: var(--radius-sm);
   padding: var(--space-1);
   min-height: 44px;
@@ -60,12 +60,12 @@ const submit = handleSubmit(async (values: ForgotPasswordSchema) => {
   border-radius: var(--radius-sm);
   background: var(--color-brand-500);
   color: var(--color-neutral-950);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 .form-error {
   min-height: 20px;
-  color: #bc2e2e;
+  color: var(--color-neutral-950);
   margin: 0;
 }
 </style>

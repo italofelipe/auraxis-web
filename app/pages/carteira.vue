@@ -28,8 +28,9 @@ const walletSummaryQuery = useWalletSummaryQuery();
 <style scoped>
 .wallet-total {
   margin: 0 0 var(--space-2);
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-size: var(--font-size-heading-md);
+  line-height: var(--line-height-heading-md);
+  font-weight: var(--font-weight-bold);
 }
 
 .wallet-list {
@@ -45,6 +46,6 @@ const walletSummaryQuery = useWalletSummaryQuery();
   grid-template-columns: 1fr auto auto;
   gap: var(--space-2);
   padding: var(--space-1) 0;
-  border-bottom: 1px solid rgba(38, 33, 33, 0.08);
+  border-bottom: 1px solid var(--color-outline-subtle);
 }
 </style>

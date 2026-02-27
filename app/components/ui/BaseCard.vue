@@ -1,7 +1,7 @@
 <template>
   <section class="base-card">
     <header v-if="title" class="base-card__header">
-      <h2>{{ title }}</h2>
+      <h2 class="base-card__title">{{ title }}</h2>
       <slot name="header-extra" />
     </header>
     <slot />
@@ -19,8 +19,8 @@ defineProps<Props>();
 <style scoped>
 .base-card {
   border-radius: var(--radius-md);
-  background: #ffffff;
-  border: 1px solid rgba(38, 33, 33, 0.08);
+  background: var(--color-surface-50);
+  border: 1px solid var(--color-outline-soft);
   box-shadow: var(--shadow-card);
   padding: var(--space-2);
 }
@@ -32,7 +32,10 @@ defineProps<Props>();
   margin-bottom: var(--space-2);
 }
 
-.base-card__header h2 {
-  font-size: 1.25rem;
+.base-card__title {
+  color: var(--color-neutral-900);
+  font-family: var(--font-heading);
+  font-size: var(--font-size-heading-md);
+  line-height: var(--line-height-heading-md);
 }
 </style>

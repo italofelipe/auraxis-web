@@ -1,5 +1,6 @@
 // @ts-check
 import withNuxt from "./.nuxt/eslint.config.mjs";
+import jsdoc from "eslint-plugin-jsdoc";
 
 export default withNuxt(
   {
@@ -46,8 +47,25 @@ export default withNuxt(
   },
   {
     files: ["**/*.{ts,tsx,vue}"],
+    plugins: {
+      jsdoc,
+    },
+    settings: {
+      jsdoc: {
+        mode: "typescript",
+      },
+    },
     rules: {
       "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/explicit-function-return-type": [
+        "error",
+        {
+          allowExpressions: false,
+          allowTypedFunctionExpressions: true,
+          allowHigherOrderFunctions: false,
+        },
+      ],
+      "@typescript-eslint/explicit-module-boundary-types": "error",
       "@typescript-eslint/no-unused-vars": [
         "error",
         {
@@ -60,6 +78,23 @@ export default withNuxt(
         "error",
         { prefer: "type-imports", fixStyle: "inline-type-imports" },
       ],
+      "jsdoc/require-jsdoc": [
+        "error",
+        {
+          contexts: [
+            "FunctionDeclaration",
+            "VariableDeclaration > VariableDeclarator > ArrowFunctionExpression",
+            "VariableDeclaration > VariableDeclarator > FunctionExpression",
+            "MethodDefinition",
+          ],
+        },
+      ],
+      "jsdoc/require-param": "error",
+      "jsdoc/require-returns": "error",
+      "jsdoc/check-tag-names": "error",
+      "jsdoc/require-param-type": "off",
+      "jsdoc/require-returns-type": "off",
+      "jsdoc/no-undefined-types": "off",
     },
   },
   {

@@ -1,29 +1,30 @@
 <script setup lang="ts">
 import {
-  useLoginForm,
-  useLoginMutation,
+  useRegisterForm,
+  useRegisterMutation,
 } from "~/composables/useAuth";
-import type { LoginSchema } from "~/schemas/auth";
+import type { RegisterSchema } from "~/schemas/auth";
 
 definePageMeta({ middleware: ["guest-only"] });
 
-const loginMutation = useLoginMutation();
-const { defineField, errors, handleSubmit, isSubmitting } = useLoginForm();
+const registerMutation = useRegisterMutation();
+const { defineField, errors, handleSubmit, isSubmitting } = useRegisterForm();
 const [email, emailProps] = defineField("email");
 const [password, passwordProps] = defineField("password");
+const [confirmPassword, confirmPasswordProps] = defineField("confirmPassword");
 
-const submit = handleSubmit(async (values: LoginSchema) => {
-  await loginMutation.mutateAsync(values);
+const submit = handleSubmit(async (values: RegisterSchema) => {
+  await registerMutation.mutateAsync(values);
   await navigateTo("/dashboard");
 });
 </script>
 
 <template>
-  <BaseCard title="Entrar">
+  <BaseCard title="Registrar">
     <form class="auth-form" @submit.prevent="submit">
       <label>
         E-mail
-        <input v-model="email" type="email" autocomplete="email" v-bind="emailProps">
+        <input v-model="email" type="email" autocomplete="email" v-bind="emailProps" >
       </label>
       <p class="form-error">{{ errors.email }}</p>
 
@@ -32,17 +33,28 @@ const submit = handleSubmit(async (values: LoginSchema) => {
         <input
           v-model="password"
           type="password"
-          autocomplete="current-password"
+          autocomplete="new-password"
           v-bind="passwordProps"
         >
       </label>
       <p class="form-error">{{ errors.password }}</p>
 
-      <button type="submit" :disabled="isSubmitting || loginMutation.isPending.value">
-        Entrar
+      <label>
+        Confirmar senha
+        <input
+          v-model="confirmPassword"
+          type="password"
+          autocomplete="new-password"
+          v-bind="confirmPasswordProps"
+        >
+      </label>
+      <p class="form-error">{{ errors.confirmPassword }}</p>
+
+      <button type="submit" :disabled="isSubmitting || registerMutation.isPending.value">
+        Registrar
       </button>
 
-      <NuxtLink to="/forgot-password">Esqueceu sua senha?</NuxtLink>
+      <NuxtLink to="/login">Já tem uma conta?</NuxtLink>
     </form>
   </BaseCard>
 </template>
