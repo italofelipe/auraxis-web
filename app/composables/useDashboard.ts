@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/vue-query";
+import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
 import type { DashboardOverview, MonthlyBalance } from "~/types/contracts";
 import { useHttp } from "~/composables/useHttp";
@@ -23,7 +23,16 @@ interface HttpAdapter {
   get<TResponse>(url: string): Promise<{ data: TResponse }>;
 }
 
-export const createDashboardApi = (http: HttpAdapter) => {
+interface DashboardApi {
+  getOverview(): Promise<DashboardOverview>;
+}
+
+/**
+ * Cria adapter da API de dashboard.
+ * @param http Cliente HTTP com método GET.
+ * @returns API de dashboard.
+ */
+export const createDashboardApi = (http: HttpAdapter): DashboardApi => {
   return {
     getOverview: async (): Promise<DashboardOverview> => {
       const response = await http.get<DashboardOverview>("/dashboard/overview");
@@ -32,6 +41,12 @@ export const createDashboardApi = (http: HttpAdapter) => {
   };
 };
 
+/**
+ * Recupera o snapshot mensal selecionado ou fallback seguro.
+ * @param overview Visão geral do dashboard.
+ * @param month Mês alvo no formato YYYY-MM.
+ * @returns Snapshot de saldo mensal.
+ */
 const getMonthSnapshot = (
   overview: DashboardOverview,
   month: string,
@@ -45,7 +60,14 @@ const getMonthSnapshot = (
   return overview.monthly[0] ?? emptySnapshot;
 };
 
-export const useDashboardOverviewQuery = () => {
+/**
+ * Query de visão geral do dashboard.
+ * @returns Query com visão geral de saldo.
+ */
+export const useDashboardOverviewQuery = (): UseQueryReturnType<
+  DashboardOverview,
+  Error
+> => {
   const dashboardApi = createDashboardApi(useHttp());
 
   return useQuery({
@@ -60,7 +82,14 @@ export const useDashboardOverviewQuery = () => {
   });
 };
 
-export const useDashboardMonthQuery = (month: () => string) => {
+/**
+ * Query derivada para snapshot de um mês específico.
+ * @param month Getter reativo do mês selecionado.
+ * @returns Query com snapshot mensal.
+ */
+export const useDashboardMonthQuery = (
+  month: () => string,
+): UseQueryReturnType<MonthlyBalance, Error> => {
   const overviewQuery = useDashboardOverviewQuery();
 
   return useQuery({

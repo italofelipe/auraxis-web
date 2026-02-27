@@ -3,6 +3,8 @@ export type {
   ForgotPasswordResponse,
   LoginRequest,
   LoginResponse,
+  RegisterRequest,
+  RegisterResponse,
 } from "./auth";
 export type { DashboardOverview, MonthlyBalance } from "./dashboard";
 export type { WalletAsset, WalletSummary } from "./wallet";

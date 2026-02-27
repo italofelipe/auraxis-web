@@ -89,6 +89,24 @@ Toda task de UI/layout no `auraxis-web` deve seguir, sem exceção:
   - Commit: —
   - Risco residual: durante transição, coexistência com lógica legada de fetch/composables.
 
+- [~] **WEB22** `chore` — Endurecer governança de código frontend (TS-only, JSDoc, retorno explícito, Chakra-first)
+  - Critério: ESLint e gates locais/CI bloqueiam `.js/.jsx` em código de produto, funções sem retorno explícito, funções sem JSDoc e uso de tags HTML cruas de formulário/controle/texto estrutural em componentes de produto.
+  - Subetapas:
+    1. [x] atualizar `eslint.config.mjs` com regras estritas e plugin de JSDoc;
+    2. [x] adicionar script de policy check para bloquear extensão/problemas arquiteturais fora do alcance nativo do lint;
+    3. [x] integrar policy check em `quality-check`, `lint-staged`, husky, CI e CI local parity;
+    4. [x] corrigir violações existentes por lotes pequenos e rastreáveis (baseline atual web).
+  - Dependência: WEB1
+  - Commit: —
+  - Risco residual: ainda há passivo legado de UI (componentes/telas fora do padrão de library/tokens) a ser migrado no ciclo WEB21/WEB23.
+  - Validação (2026-02-27): `pnpm quality-check` e `scripts/run_ci_like_actions_local.sh --local` verdes após remediação de lint/typecheck.
+
+- [ ] **WEB23** `chore` — Consolidar arquitetura `app/shared` para código reutilizável
+  - Critério: código compartilhado consolidado em `app/shared/components`, `app/shared/types`, `app/shared/validators`, `app/shared/utils`; imports e aliases atualizados.
+  - Dependência: WEB22
+  - Commit: —
+  - Risco residual: migração parcial pode deixar pontos duplicados temporariamente.
+
 ### P2 — Normal
 
 - [x] **WEB5** `chore` — Configurar CI (GitHub Actions)
@@ -164,6 +182,21 @@ Toda task de UI/layout no `auraxis-web` deve seguir, sem exceção:
   - Dependência: WEB4, endpoint de cálculo no backend
   - Commit: —
   - Prioridade de produto: baixa
+
+- [ ] **WEB24** `discovery` — Refinar autenticação via cookies HttpOnly no frontend web
+  - Critério: fluxo alvo documentado (SSR/BFF, proteção CSRF, storage strategy, impacto em middlewares e rotas protegidas) sem implementação neste bloco.
+  - Dependência: alinhamento com API
+  - Commit: —
+
+- [ ] **WEB25** `discovery` — Refinar estratégia de refresh token
+  - Critério: contrato de renovação de sessão documentado (janela de expiração, rotação, fallback de erro, retries e UX de sessão expirada) sem implementação neste bloco.
+  - Dependência: alinhamento com API
+  - Commit: —
+
+- [ ] **WEB26** `discovery` — Refinar logoff global (todos os dispositivos)
+  - Critério: fluxo de invalidação global documentado (revogação de sessão, feedback de UX, impacto em dispositivos ativos) sem implementação neste bloco.
+  - Dependência: alinhamento com API
+  - Commit: —
 
 ### Bloqueados
 

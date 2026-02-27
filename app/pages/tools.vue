@@ -32,7 +32,7 @@ const toolsCatalogQuery = useToolsCatalogQuery();
 .tools-list li {
   padding: var(--space-2);
   border-radius: var(--radius-sm);
-  background: rgba(255, 190, 77, 0.12);
+  background: var(--color-brand-400);
 }
 
 .tools-list h3,

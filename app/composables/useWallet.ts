@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/vue-query";
+import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
 import type { WalletSummary } from "~/types/contracts";
 import { useHttp } from "~/composables/useHttp";
@@ -16,7 +16,16 @@ interface HttpAdapter {
   get<TResponse>(url: string): Promise<{ data: TResponse }>;
 }
 
-export const createWalletApi = (http: HttpAdapter) => {
+interface WalletApi {
+  getSummary(): Promise<WalletSummary>;
+}
+
+/**
+ * Cria adapter da API de carteira.
+ * @param http Cliente HTTP com método GET.
+ * @returns API de carteira.
+ */
+export const createWalletApi = (http: HttpAdapter): WalletApi => {
   return {
     getSummary: async (): Promise<WalletSummary> => {
       const response = await http.get<WalletSummary>("/wallet/summary");
@@ -25,7 +34,11 @@ export const createWalletApi = (http: HttpAdapter) => {
   };
 };
 
-export const useWalletSummaryQuery = () => {
+/**
+ * Query de resumo da carteira.
+ * @returns Query com resumo e fallback de placeholder.
+ */
+export const useWalletSummaryQuery = (): UseQueryReturnType<WalletSummary, Error> => {
   const walletApi = createWalletApi(useHttp());
 
   return useQuery({
