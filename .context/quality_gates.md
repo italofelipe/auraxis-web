@@ -10,6 +10,9 @@
 Execute nesta ordem:
 
 ```bash
+# 0. Paridade de runtime (obrigatorio para evitar drift local/CI)
+nvm use 22
+
 # 1. Lint (@nuxt/eslint)
 pnpm lint
 
@@ -25,6 +28,15 @@ pnpm quality-check
 # Paridade CI local (ambiente dockerizado Node 22 + pnpm 10.30.1):
 pnpm ci:local
 ```
+
+Audit gate local sem sujar o workspace:
+
+```bash
+node scripts/ci-audit-gate.cjs
+```
+
+- O relatório bruto do audit agora é gravado em arquivo temporário do sistema.
+- Para persistir um arquivo para debug manual, use `AURAXIS_AUDIT_OUTPUT_PATH=/caminho/audit.json`.
 
 > Se qualquer gate falhar: **não commitar**. Corrigir o problema primeiro.
 > Se for bloqueio de dependência externa, registrar em `tasks.md`.
