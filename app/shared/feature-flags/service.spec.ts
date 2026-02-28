@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
+  fetchUnleashSnapshot,
   getLocalFlag,
   getProviderMode,
   isFeatureEnabled,
@@ -86,5 +87,32 @@ describe("feature flag service", () => {
       "web.tools.salary-raise-calculator",
     );
     expect(providerDecision).toBeUndefined();
+  });
+
+  it("aceita provider canônico AURAXIS_FLAG_PROVIDER como fallback", () => {
+    vi.stubEnv("AURAXIS_FLAG_PROVIDER", "unleash");
+    expect(getProviderMode()).toBe("unleash");
+  });
+
+  it("aceita URL canônica AURAXIS_UNLEASH_URL para snapshot remoto", async () => {
+    vi.stubEnv("AURAXIS_FLAG_PROVIDER", "unleash");
+    vi.stubEnv("AURAXIS_UNLEASH_URL", "https://flags.local");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          features: [
+            {
+              name: "web.tools.salary-raise-calculator",
+              enabled: true,
+            },
+          ],
+        }),
+      }),
+    );
+
+    const snapshot = await fetchUnleashSnapshot();
+    expect(snapshot["web.tools.salary-raise-calculator"]).toBe(true);
   });
 });

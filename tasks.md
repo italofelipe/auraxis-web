@@ -141,8 +141,8 @@ Toda task de UI/layout no `auraxis-web` deve seguir, sem exceção:
 - [~] **WEB16** `chore` — Integrar feature toggle OSS no frontend web
   - Critério: runtime de flags integrado com fallback seguro e provider remoto por ambiente (`unleash`), com primeiro flag (`web.tools.salary-raise-calculator`) controlando feature real do catálogo de ferramentas.
   - Dependência: WEB2
-  - Commit: `chore/plt4-runtime-flags-integration`, `chore/plt4-oss-provider-integration`
-  - Risco residual: falta formalizar limpeza contínua de código morto pós-expiração da flag e dashboards operacionais por ambiente.
+  - Commit: `chore/plt4-runtime-flags-integration`, `chore/plt4-oss-provider-integration`, `chore/web-plt4-3-provider-runtime-bootstrap`
+  - Risco residual: pendente apenas rotina contínua de limpeza de código morto pós-expiração da flag.
 
 - [x] **WEB18** `chore` — Automatizar hygiene de feature flags no CI
   - Critério: catálogo versionado de flags com metadados obrigatórios e validação bloqueante no CI/local parity para owner, removeBy e expiração.
@@ -244,6 +244,7 @@ Toda task de UI/layout no `auraxis-web` deve seguir, sem exceção:
 - [x] PLT2 foundation (web): baseline PWA documentada com `manifest.webmanifest` e runbook inicial para empacotamento em stores | Data: 2026-02-24
 - [x] PLT2 foundation (web): workflow manual de geração de artefatos para empacotamento em stores (`pwa-store-artifacts.yml`) | Data: 2026-02-24
 - [x] PLT4.1 (web): catálogo de flags em `config/feature-flags.json` + gate `Feature Flags Hygiene` no CI + validação local em `scripts/run_ci_like_actions_local.sh` | Data: 2026-02-25
+- [x] PLT4.3 (web): runtime de flags passou a aceitar namespace canônico `AURAXIS_*` como fallback de `NUXT_PUBLIC_*` + runbook atualizado para bootstrap central por ambiente | Data: 2026-02-28
 - [x] WEB19 concluído: fundação administrativa web preparada (`@tanstack/vue-query` + `axios` + `pinia` + contratos tipados + composables de integração) | Data: 2026-02-26
 - [x] WEB20 concluído: páginas placeholder de login/forgot-password/dashboard/carteira/ferramentas com validação de formulário e tema global sem Tailwind | Data: 2026-02-26
 - [x] Governança cross-platform sincronizada: referências obrigatórias ao guideline unificado (`.context/32_frontend_unified_guideline.md`) e ao fluxo de `Feature Contract Pack` adicionadas em `steering.md` e `CODING_STANDARDS.md` | Data: 2026-02-27
