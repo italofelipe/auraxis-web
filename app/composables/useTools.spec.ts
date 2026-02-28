@@ -2,10 +2,11 @@ import type { ToolsCatalog } from "~/types/contracts";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createToolsApi, useToolsCatalogQuery } from "./useTools";
+import { applyToolsFlags, createToolsApi, useToolsCatalogQuery } from "./useTools";
 
 const useQueryMock = vi.hoisted(() => vi.fn());
 const useHttpMock = vi.hoisted(() => vi.fn());
+const isFeatureEnabledMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@tanstack/vue-query", () => ({
   useQuery: useQueryMock,
@@ -15,9 +16,14 @@ vi.mock("~/composables/useHttp", () => ({
   useHttp: useHttpMock,
 }));
 
+vi.mock("~/shared/feature-flags", () => ({
+  isFeatureEnabled: isFeatureEnabledMock,
+}));
+
 describe("useTools composable", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    isFeatureEnabledMock.mockReturnValue(false);
   });
 
   it("carrega catalogo de ferramentas", async () => {
@@ -79,5 +85,25 @@ describe("useTools composable", () => {
 
     expect(result.tools.length).toBeGreaterThan(0);
     expect(result.tools[0]?.id).toBe("raise-calculator");
+    expect(result.tools[0]?.enabled).toBe(false);
+  });
+
+  it("aplica override da flag para calculadora de aumento", () => {
+    isFeatureEnabledMock.mockReturnValue(true);
+    const catalog: ToolsCatalog = {
+      tools: [
+        {
+          id: "raise-calculator",
+          name: "Pedir aumento",
+          description: "Descricao",
+          enabled: false,
+        },
+      ],
+    };
+
+    const result = applyToolsFlags(catalog);
+
+    expect(result.tools[0]?.enabled).toBe(true);
+    expect(isFeatureEnabledMock).toHaveBeenCalledWith("web.tools.salary-raise-calculator");
   });
 });
