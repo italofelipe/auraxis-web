@@ -11,7 +11,7 @@ Execute nesta ordem:
 
 ```bash
 # 0. Paridade de runtime (obrigatorio para evitar drift local/CI)
-nvm use 22
+nvm use 25
 
 # 1. Lint (@nuxt/eslint)
 pnpm lint
@@ -25,7 +25,7 @@ pnpm test:coverage
 # Atalho — tudo de uma vez (obrigatório antes de commitar):
 pnpm quality-check
 
-# Paridade CI local (ambiente dockerizado Node 22 + pnpm 10.30.1):
+# Paridade CI local (ambiente dockerizado Node 25 + pnpm 10.30.1):
 pnpm ci:local
 ```
 
