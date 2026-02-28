@@ -55,10 +55,23 @@ Preparar o frontend web para:
 - iOS (App Store): wrapper iOS com política de review adequada.
 - O passo de publicação em store depende de credenciais e cadastro de apps (manual).
 
-## Pendências para PLT4 (feature toggle OSS)
+## PLT4.2 (runtime OSS) — entregue
 
-- Conectar cliente web ao provider escolhido (Unleash/OpenFeature) com cache e fallback.
-- Definir convenção de nomes de flags e lifecycle (owner, expiração e remoção).
+- Runtime de flags com provider `unleash` + fallback local:
+  - `app/shared/feature-flags/service.ts`
+- Integração real no catálogo de ferramentas:
+  - `app/composables/useTools.ts`
+- Cache curto para snapshot remoto com fallback resiliente.
+
+Variáveis de ambiente suportadas (Web):
+
+- `NUXT_PUBLIC_FLAG_PROVIDER` (`local` | `unleash`, default `local`)
+- `NUXT_PUBLIC_UNLEASH_PROXY_URL` (endpoint base do provider)
+- `NUXT_PUBLIC_UNLEASH_CLIENT_KEY` (token de cliente, opcional)
+- `NUXT_PUBLIC_UNLEASH_APP_NAME` (default `auraxis-web`)
+- `NUXT_PUBLIC_UNLEASH_INSTANCE_ID` (default `auraxis-web`)
+- `NUXT_PUBLIC_UNLEASH_ENVIRONMENT` (default `development`)
+- `NUXT_PUBLIC_UNLEASH_CACHE_TTL_MS` (default `30000`)
 
 ## PLT4.1 (higiene de flags) — entregue
 
