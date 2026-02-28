@@ -11,6 +11,8 @@
 | `[!]`   | Blocked     |
 | `[x]`   | Done        |
 
+Regra operacional: manter somente 1 task em `In Progress` por vez para evitar drift do orquestrador.
+
 **Prioridade:** P0 = bloqueante / P1 = alta / P2 = normal / P3 = baixa
 
 ---
@@ -65,13 +67,13 @@ Toda task de UI/layout no `auraxis-web` deve seguir, sem exceção:
   - Commit: —
   - Risco residual: SSR com cookies HttpOnly requer configuração de proxy server-side.
 
-- [~] **WEB4** `feat` — Dashboard principal (saldo e transações)
+- [ ] **WEB4** `feat` — Dashboard principal (saldo e transações)
   - Critério: página `/dashboard` exibe saldo atual e últimas 20 transações. SSR: dados pré-carregados no servidor com `useAsyncData`. Loading skeleton implementado.
   - Critério visual obrigatório: aderência ao blueprint de dashboard em `designs/1920w default.png` conforme `.context/30_design_reference.md`.
   - Dependência: WEB3
   - Commit: —
 
-- [~] **WEB11** `chore` — Padronizar UI kit web em Chakra UI customizado (sem Tailwind)
+- [ ] **WEB11** `chore` — Padronizar UI kit web em Chakra UI customizado (sem Tailwind)
   - Critério: tema central com paleta oficial, tipografia `Playfair Display` + `Raleway`, grid de 8px e componentes-base migrados para camada Chakra custom.
   - Dependência: WEB21
   - Commit: —
@@ -83,13 +85,13 @@ Toda task de UI/layout no `auraxis-web` deve seguir, sem exceção:
   - Commit: —
   - Risco residual: escolha inadequada de biblioteca pode elevar custo de manutenção e retrabalho de UI.
 
-- [~] **WEB12** `chore` — Adotar TanStack Query para server-state
+- [x] **WEB12** `chore` — Adotar TanStack Query para server-state
   - Critério: provider global configurado, política de cache/retry/invalidation definida e primeiro fluxo HTTP crítico usando `@tanstack/vue-query`.
   - Dependência: WEB2
   - Commit: —
   - Risco residual: durante transição, coexistência com lógica legada de fetch/composables.
 
-- [~] **WEB22** `chore` — Endurecer governança de código frontend (TS-only, JSDoc, retorno explícito, Chakra-first)
+- [x] **WEB22** `chore` — Endurecer governança de código frontend (TS-only, JSDoc, retorno explícito, Chakra-first)
   - Critério: ESLint e gates locais/CI bloqueiam `.js/.jsx` em código de produto, funções sem retorno explícito, funções sem JSDoc, uso de tags HTML cruas de formulário/controle/texto estrutural em componentes de produto e valores visuais arbitrários fora de tokens.
   - Subetapas:
     1. [x] atualizar `eslint.config.mjs` com regras estritas e plugin de JSDoc;
@@ -120,25 +122,25 @@ Toda task de UI/layout no `auraxis-web` deve seguir, sem exceção:
   - Dependência: WEB5, decisão humana sobre infra
   - Commit: —
 
-- [~] **WEB13** `chore` — Deploy mínimo do frontend web (baseline público)
+- [ ] **WEB13** `chore` — Deploy mínimo do frontend web (baseline público)
   - Critério: ambiente estável publicado com smoke-check (`/` e `/health` via BFF/SSR), URL documentada e rollback básico.
   - Dependência: WEB6
   - Commit: —
   - Risco residual: baseline inicial pode operar com feature set reduzido e sem otimizações finais de performance.
 
-- [~] **WEB14** `chore` — Preparar distribuição da PWA em Play Store/App Store
+- [ ] **WEB14** `chore` — Preparar distribuição da PWA em Play Store/App Store
   - Critério: estratégia de empacotamento definida e funcional (`TWA` para Android e wrapper iOS compatível), com artefatos assinados em ambiente de release.
   - Dependência: WEB13
   - Commit: —
   - Risco residual: publicação em App Store para PWA depende de regras de review e wrapper nativo mínimo.
 
-- [~] **WEB15** `chore` — Configurar versionamento automático (semver + changelog)
+- [x] **WEB15** `chore` — Configurar versionamento automático (semver + changelog)
   - Critério: release automatizada por Conventional Commits (tag + changelog + bump) sem edição manual de versão.
   - Dependência: WEB5
   - Commit: —
   - Risco residual: estratégia de branches/release precisa ficar alinhada com app/api para evitar drift de versões.
 
-- [~] **WEB16** `chore` — Integrar feature toggle OSS no frontend web
+- [x] **WEB16** `chore` — Integrar feature toggle OSS no frontend web
   - Critério: runtime de flags integrado com fallback seguro e provider remoto por ambiente (`unleash`), com primeiro flag (`web.tools.salary-raise-calculator`) controlando feature real do catálogo de ferramentas.
   - Dependência: WEB2
   - Commit: `chore/plt4-runtime-flags-integration`, `chore/plt4-oss-provider-integration`, `chore/web-plt4-3-provider-runtime-bootstrap`
