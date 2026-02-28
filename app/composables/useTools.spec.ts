@@ -7,6 +7,7 @@ import { applyToolsFlags, createToolsApi, useToolsCatalogQuery } from "./useTool
 const useQueryMock = vi.hoisted(() => vi.fn());
 const useHttpMock = vi.hoisted(() => vi.fn());
 const isFeatureEnabledMock = vi.hoisted(() => vi.fn());
+const resolveProviderDecisionMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@tanstack/vue-query", () => ({
   useQuery: useQueryMock,
@@ -18,12 +19,14 @@ vi.mock("~/composables/useHttp", () => ({
 
 vi.mock("~/shared/feature-flags", () => ({
   isFeatureEnabled: isFeatureEnabledMock,
+  resolveProviderDecision: resolveProviderDecisionMock,
 }));
 
 describe("useTools composable", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     isFeatureEnabledMock.mockReturnValue(false);
+    resolveProviderDecisionMock.mockResolvedValue(undefined);
   });
 
   it("carrega catalogo de ferramentas", async () => {
@@ -88,8 +91,9 @@ describe("useTools composable", () => {
     expect(result.tools[0]?.enabled).toBe(false);
   });
 
-  it("aplica override da flag para calculadora de aumento", () => {
+  it("aplica override da flag para calculadora de aumento", async () => {
     isFeatureEnabledMock.mockReturnValue(true);
+    resolveProviderDecisionMock.mockResolvedValue(true);
     const catalog: ToolsCatalog = {
       tools: [
         {
@@ -101,9 +105,10 @@ describe("useTools composable", () => {
       ],
     };
 
-    const result = applyToolsFlags(catalog);
+    const result = await applyToolsFlags(catalog);
 
     expect(result.tools[0]?.enabled).toBe(true);
-    expect(isFeatureEnabledMock).toHaveBeenCalledWith("web.tools.salary-raise-calculator");
+    expect(resolveProviderDecisionMock).toHaveBeenCalledWith("web.tools.salary-raise-calculator");
+    expect(isFeatureEnabledMock).toHaveBeenCalledWith("web.tools.salary-raise-calculator", true);
   });
 });

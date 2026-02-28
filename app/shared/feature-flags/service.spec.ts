@@ -1,8 +1,22 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { getLocalFlag, isFeatureEnabled, resolveEnvOverride, toEnvSuffix } from "./service";
+import {
+  getLocalFlag,
+  getProviderMode,
+  isFeatureEnabled,
+  resetProviderCache,
+  resolveEnvOverride,
+  resolveProviderDecision,
+  toEnvSuffix,
+} from "./service";
 
 describe("feature flag service", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+    resetProviderCache();
+  });
+
   it("normaliza sufixo de env var a partir da chave da flag", () => {
     expect(toEnvSuffix("web.tools.salary-raise-calculator")).toBe("WEB_TOOLS_SALARY_RAISE_CALCULATOR");
   });
@@ -33,5 +47,44 @@ describe("feature flag service", () => {
   it("respeita decisão explícita do provider externo", () => {
     expect(isFeatureEnabled("web.tools.salary-raise-calculator", true)).toBe(true);
     expect(isFeatureEnabled("web.tools.salary-raise-calculator", false)).toBe(false);
+  });
+
+  it("retorna modo local quando provider não está configurado", () => {
+    expect(getProviderMode()).toBe("local");
+  });
+
+  it("resolve decisão remota quando provider unleash está ativo", async () => {
+    vi.stubEnv("NUXT_PUBLIC_FLAG_PROVIDER", "unleash");
+    vi.stubEnv("NUXT_PUBLIC_UNLEASH_PROXY_URL", "https://flags.local");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          features: [
+            {
+              name: "web.tools.salary-raise-calculator",
+              enabled: true,
+            },
+          ],
+        }),
+      }),
+    );
+
+    const providerDecision = await resolveProviderDecision(
+      "web.tools.salary-raise-calculator",
+    );
+    expect(providerDecision).toBe(true);
+  });
+
+  it("retorna undefined quando provider remoto falha", async () => {
+    vi.stubEnv("NUXT_PUBLIC_FLAG_PROVIDER", "unleash");
+    vi.stubEnv("NUXT_PUBLIC_UNLEASH_PROXY_URL", "https://flags.local");
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network error")));
+
+    const providerDecision = await resolveProviderDecision(
+      "web.tools.salary-raise-calculator",
+    );
+    expect(providerDecision).toBeUndefined();
   });
 });
