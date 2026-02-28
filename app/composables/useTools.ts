@@ -2,6 +2,7 @@ import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
 import type { ToolsCatalog } from "~/types/contracts";
 import { useHttp } from "~/composables/useHttp";
+import { isFeatureEnabled } from "~/shared/feature-flags";
 
 const toolsPlaceholder: ToolsCatalog = {
   tools: [
@@ -29,6 +30,29 @@ interface ToolsApi {
 }
 
 /**
+ * Aplica overrides de feature flags no catálogo de ferramentas.
+ * @param catalog Catálogo base vindo do backend ou placeholder.
+ * @returns Catálogo com campo `enabled` normalizado por flags locais.
+ */
+export const applyToolsFlags = (catalog: ToolsCatalog): ToolsCatalog => {
+  const toolsWithFlags = catalog.tools.map((tool): ToolsCatalog["tools"][number] => {
+    if (tool.id !== "raise-calculator") {
+      return tool;
+    }
+
+    const isRaiseCalculatorEnabled = isFeatureEnabled("web.tools.salary-raise-calculator");
+    return {
+      ...tool,
+      enabled: isRaiseCalculatorEnabled,
+    };
+  });
+
+  return {
+    tools: toolsWithFlags,
+  };
+};
+
+/**
  * Cria adapter da API de ferramentas.
  * @param http Cliente HTTP com método GET.
  * @returns API de catálogo de ferramentas.
@@ -53,9 +77,10 @@ export const useToolsCatalogQuery = (): UseQueryReturnType<ToolsCatalog, Error> 
     queryKey: ["tools", "catalog"],
     queryFn: async (): Promise<ToolsCatalog> => {
       try {
-        return await toolsApi.getCatalog();
+        const remoteCatalog = await toolsApi.getCatalog();
+        return applyToolsFlags(remoteCatalog);
       } catch {
-        return toolsPlaceholder;
+        return applyToolsFlags(toolsPlaceholder);
       }
     },
   });

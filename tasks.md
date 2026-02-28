@@ -139,10 +139,10 @@ Toda task de UI/layout no `auraxis-web` deve seguir, sem exceção:
   - Risco residual: estratégia de branches/release precisa ficar alinhada com app/api para evitar drift de versões.
 
 - [~] **WEB16** `chore` — Integrar feature toggle OSS no frontend web
-  - Critério: SDK integrado com provedores por ambiente, fallback seguro e primeiro flag controlando feature real em produção.
+  - Critério: runtime de flags integrado com fallback seguro e primeiro flag (`web.tools.salary-raise-calculator`) controlando feature real do catálogo de ferramentas; pendente conexão com provider OSS (Unleash/OpenFeature) por ambiente.
   - Dependência: WEB2
-  - Commit: —
-  - Risco residual: sem governança de lifecycle dos flags, há risco de acúmulo de toggles obsoletos.
+  - Commit: `chore/plt4-runtime-flags-integration`
+  - Risco residual: falta integrar provider remoto para controle centralizado em produção e rotina de remoção de código morto por flag.
 
 - [x] **WEB18** `chore` — Automatizar hygiene de feature flags no CI
   - Critério: catálogo versionado de flags com metadados obrigatórios e validação bloqueante no CI/local parity para owner, removeBy e expiração.

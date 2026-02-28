@@ -52,6 +52,7 @@ export default defineVitestConfig({
         "app/layouts/**/*.vue",
         "app/components/**/*.vue",
         "app/composables/**/*.ts",
+        "app/shared/**/*.ts",
         "app/stores/**/*.ts",
         "app/schemas/**/*.ts",
         "app/utils/**/*.ts",
