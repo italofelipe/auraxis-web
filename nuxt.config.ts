@@ -75,4 +75,20 @@ export default defineNuxtConfig({
   ogImage: {
     enabled: false,
   },
+
+  // ── Naive UI — SSR transpile + Vite optimisation ─────────────────────
+  // Required to avoid "Cannot use import statement in a module" errors in SSR
+  // and to pre-bundle Naive UI's heavy dependency tree during dev startup.
+  build: {
+    transpile:
+      process.env.NODE_ENV === "production"
+        ? ["naive-ui", "vueuc", "@css-render/vue3-ssr", "csstype"]
+        : [],
+  },
+
+  vite: {
+    optimizeDeps: {
+      include: ["naive-ui", "vueuc"],
+    },
+  },
 });
