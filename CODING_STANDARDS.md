@@ -1,6 +1,6 @@
 # Coding Standards — auraxis-web
 
-Stack: **Nuxt 4 · TypeScript strict · Chakra UI (custom) · TanStack Query · @nuxt/eslint · Prettier · Vitest · Pinia**
+Stack: **Nuxt 4 · TypeScript strict · Naive UI @latest · TanStack Query · @nuxt/eslint · Prettier · Vitest · Pinia**
 
 Este documento define **o único jeito certo de escrever código neste projeto**.
 Não é um guia de boas práticas — é um contrato técnico vinculante.
@@ -37,10 +37,9 @@ Contrato tipado obrigatório (OpenAPI + packs):
 - Paleta oficial: `#262121`, `#ffbe4d`, `#413939`, `#0b0909`, `#ffd180`, `#ffab1a`.
 - Tipografia oficial: `Playfair Display` (headings) + `Raleway` (body).
 - Grid base: `8px` (spacing de layout sempre em múltiplos de 8).
-- Componentes base devem derivar de Chakra UI customizado para o tema Auraxis.
-- Se Chakra UI não for viável em Vue/Nuxt, adotar biblioteca equivalente de mercado e encapsular em wrappers internos.
+- Componentes base devem derivar de Naive UI (wrappers internos com tema Auraxis).
 - Componentes de produto devem usar primariamente componentes da library oficial; criar componente do zero só quando houver lacuna real e com wrapper padronizado.
-- Em componentes/telas de produto, evitar elementos HTML crus (`<input>`, `<label>`, `<button>`, `<textarea>`, `<select>`, `<p>`); preferir componentes Chakra UI e wrappers internos.
+- Em componentes/telas de produto, evitar elementos HTML crus (`<input>`, `<label>`, `<button>`, `<textarea>`, `<select>`, `<p>`); preferir componentes Naive UI (NInput, NButton, NForm, etc.) e wrappers internos Auraxis.
 - É proibido usar valores literais de cor, spacing, radius, shadow, font-size, line-height e font-weight em páginas/componentes. Sempre usar tokens.
 - É proibido declarar bordas/larguras sem tokens semânticos (ex.: `1px solid #ccc`, `4px`, `0.5rem`) fora dos arquivos de tema.
 - TailwindCSS é proibido neste projeto (`class` utilitária Tailwind, `@apply`, `tailwind.config.*` para UI de runtime).
