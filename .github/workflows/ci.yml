@@ -17,6 +17,7 @@ on:
 env:
   NODE_VERSION: '25'
   PNPM_VERSION: '10.30.1'
+  SONAR_AURAXIS_WEB_TOKEN_VALUE: ${{ secrets.SONAR_AURAXIS_WEB_TOKEN }}
 
 jobs:
   # ── 1. Lint (@nuxt/eslint) ─────────────────────────────────────────────
@@ -291,6 +292,7 @@ jobs:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest
     needs: [test]
+    if: ${{ env.SONAR_AURAXIS_WEB_TOKEN_VALUE != '' }}
     permissions:
       contents: read
     steps:
