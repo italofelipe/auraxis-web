@@ -294,22 +294,41 @@ jobs:
     permissions:
       contents: read
     steps:
+      - name: Check Sonar capability
+        id: capability
+        env:
+          SONAR_TOKEN_VALUE: ${{ secrets.SONAR_AURAXIS_WEB_TOKEN }}
+        run: |
+          if [ -n "${SONAR_TOKEN_VALUE:-}" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::SonarCloud skipped: token not available for this run."
+          fi
+
       - uses: actions/checkout@v4
+        if: steps.capability.outputs.enabled == 'true'
         with:
           fetch-depth: 0
       - uses: pnpm/action-setup@v4
+        if: steps.capability.outputs.enabled == 'true'
         with:
           version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v4
+        if: steps.capability.outputs.enabled == 'true'
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - if: steps.capability.outputs.enabled == 'true'
+        run: pnpm install --frozen-lockfile
       - name: Generate coverage for Sonar
+        if: steps.capability.outputs.enabled == 'true'
         run: pnpm test:coverage
       - name: Validate LCOV report exists
+        if: steps.capability.outputs.enabled == 'true'
         run: test -f coverage/lcov.info
       - name: SonarCloud Scan
+        if: steps.capability.outputs.enabled == 'true'
         uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
