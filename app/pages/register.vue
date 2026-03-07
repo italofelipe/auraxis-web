@@ -20,7 +20,7 @@ const submit = handleSubmit(async (values: RegisterSchema) => {
 </script>
 
 <template>
-  <BaseCard title="Registrar">
+  <UiBaseCard title="Registrar">
     <form class="auth-form" @submit.prevent="submit">
       <label>
         E-mail
@@ -56,7 +56,7 @@ const submit = handleSubmit(async (values: RegisterSchema) => {
 
       <NuxtLink to="/login">Já tem uma conta?</NuxtLink>
     </form>
-  </BaseCard>
+  </UiBaseCard>
 </template>
 
 <style scoped>

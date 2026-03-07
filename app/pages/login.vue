@@ -19,7 +19,7 @@ const submit = handleSubmit(async (values: LoginSchema) => {
 </script>
 
 <template>
-  <BaseCard title="Entrar">
+  <UiBaseCard title="Entrar">
     <form class="auth-form" @submit.prevent="submit">
       <label>
         E-mail
@@ -44,7 +44,7 @@ const submit = handleSubmit(async (values: LoginSchema) => {
 
       <NuxtLink to="/forgot-password">Esqueceu sua senha?</NuxtLink>
     </form>
-  </BaseCard>
+  </UiBaseCard>
 </template>
 
 <style scoped>

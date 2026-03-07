@@ -125,6 +125,22 @@ jobs:
           AWS_WEB_DEPLOY_BUCKET: ${{ secrets.AWS_WEB_DEPLOY_BUCKET }}
         run: aws s3 sync dist "s3://${AWS_WEB_DEPLOY_BUCKET}" --delete
 
+      - name: Publish extensionless route aliases
+        env:
+          AWS_WEB_DEPLOY_BUCKET: ${{ secrets.AWS_WEB_DEPLOY_BUCKET }}
+        run: |
+          while IFS= read -r index_file; do
+            route_path="${index_file#dist/}"
+            route_path="${route_path%/index.html}"
+
+            if [ -z "${route_path}" ] || [[ "${route_path}" == *.* ]]; then
+              continue
+            fi
+
+            aws s3 cp "${index_file}" "s3://${AWS_WEB_DEPLOY_BUCKET}/${route_path}" \
+              --content-type "text/html; charset=utf-8"
+          done < <(find dist -type f -path '*/index.html')
+
       - name: Invalidate CloudFront
         if: ${{ inputs.invalidate_cache }}
         env:
