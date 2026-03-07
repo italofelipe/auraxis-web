@@ -113,7 +113,7 @@ jobs:
           path: dist
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6d54b3c2c3a9b7f2c5e6db3f0 # v4
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_WEB_DEPLOY_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
