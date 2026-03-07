@@ -7,7 +7,7 @@ const toolsCatalogQuery = useToolsCatalogQuery();
 </script>
 
 <template>
-  <BaseCard title="Ferramentas">
+  <UiBaseCard title="Ferramentas">
     <BaseSkeleton v-if="toolsCatalogQuery.isLoading.value" />
 
     <ul v-else class="tools-list">
@@ -17,7 +17,7 @@ const toolsCatalogQuery = useToolsCatalogQuery();
         <small>{{ tool.enabled ? "Ativo" : "Em planejamento" }}</small>
       </li>
     </ul>
-  </BaseCard>
+  </UiBaseCard>
 </template>
 
 <style scoped>

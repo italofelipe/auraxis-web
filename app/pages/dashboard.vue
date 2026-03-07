@@ -28,12 +28,12 @@ const monthOptions = computed(() => {
 
 <template>
   <div class="dashboard-grid">
-    <BaseCard title="Saldo geral">
+    <UiBaseCard title="Saldo geral">
       <BaseSkeleton v-if="overviewQuery.isLoading.value" />
       <p v-else class="value-text">{{ formatCurrency(overviewQuery.data.value?.currentBalance ?? 0) }}</p>
-    </BaseCard>
+    </UiBaseCard>
 
-    <BaseCard title="Resumo por mes">
+    <UiBaseCard title="Resumo por mes">
       <label class="month-label">
         Selecionar mes
         <select v-model="selectedMonth">
@@ -52,7 +52,7 @@ const monthOptions = computed(() => {
         <p>Despesas: {{ formatCurrency(monthQuery.data.value?.expenses ?? 0) }}</p>
         <p>Saldo: {{ formatCurrency(monthQuery.data.value?.balance ?? 0) }}</p>
       </div>
-    </BaseCard>
+    </UiBaseCard>
   </div>
 </template>
 

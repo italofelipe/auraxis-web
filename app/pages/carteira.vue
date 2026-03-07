@@ -8,7 +8,7 @@ const walletSummaryQuery = useWalletSummaryQuery();
 </script>
 
 <template>
-  <BaseCard title="Carteira">
+  <UiBaseCard title="Carteira">
     <BaseSkeleton v-if="walletSummaryQuery.isLoading.value" />
 
     <template v-else>
@@ -22,7 +22,7 @@ const walletSummaryQuery = useWalletSummaryQuery();
         </li>
       </ul>
     </template>
-  </BaseCard>
+  </UiBaseCard>
 </template>
 
 <style scoped>
