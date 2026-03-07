@@ -6,6 +6,7 @@ export default defineNuxtConfig({
   ssr: true,
 
   app: {
+    baseURL: process.env.NUXT_APP_BASE_URL ?? "/",
     head: {
       title: "Auraxis",
       titleTemplate: "%s | Auraxis",
@@ -18,6 +19,10 @@ export default defineNuxtConfig({
     },
   },
   css: ["~/assets/css/main.css"],
+
+  site: {
+    url: process.env.NUXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  },
 
   // ── Módulos ──────────────────────────────────────────────────────────
   modules: [
@@ -71,6 +76,7 @@ export default defineNuxtConfig({
   i18n: {
     locales: ["pt-BR", "en"],
     defaultLocale: "pt-BR",
+    baseUrl: process.env.NUXT_PUBLIC_SITE_URL ?? undefined,
   },
   ogImage: {
     enabled: false,

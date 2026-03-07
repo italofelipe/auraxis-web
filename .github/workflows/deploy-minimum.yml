@@ -43,6 +43,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Generate static output
+        env:
+          NUXT_APP_BASE_URL: /auraxis-web/
+          NUXT_PUBLIC_SITE_URL: https://italofelipe.github.io
         run: pnpm generate
 
       - name: Validate output folder
