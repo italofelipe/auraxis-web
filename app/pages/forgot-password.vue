@@ -17,7 +17,7 @@ const submit = handleSubmit(async (values: ForgotPasswordSchema) => {
 </script>
 
 <template>
-  <BaseCard title="Recuperar senha">
+  <UiBaseCard title="Recuperar senha">
     <form class="auth-form" @submit.prevent="submit">
       <label>
         E-mail
@@ -31,7 +31,7 @@ const submit = handleSubmit(async (values: ForgotPasswordSchema) => {
 
       <NuxtLink to="/login">Voltar para login</NuxtLink>
     </form>
-  </BaseCard>
+  </UiBaseCard>
 </template>
 
 <style scoped>
