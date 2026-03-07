@@ -38,7 +38,7 @@ Para integração com backend recém-entregue:
 | Formatação             | Prettier                  | ^3.8                   |
 | Testes unitários       | Vitest + @nuxt/test-utils | ^4.0                   |
 | Testes E2E             | Playwright                | ^1.58                  |
-| UI base                | Chakra UI (customizado)   | ^3.x                   |
+| UI base                | Naive UI                  | @latest                |
 | Estado de servidor     | TanStack Query (Vue)      | ^5.x                   |
 | Estado global          | Pinia                     | via @pinia/nuxt        |
 | Análise estática       | SonarCloud                | —                      |
@@ -55,10 +55,9 @@ Para integração com backend recém-entregue:
 - Grid base: `8px` (spacing estrutural sempre em múltiplos de 8).
 - Tema obrigatório e modular: `app/theme/tokens/colors.ts`, `typography.ts`, `spacing.ts`, `radii.ts`, `shadows.ts`, `motion.ts`.
 - `app/theme/index.ts` deve ser apenas barrel de exportação. Proibido concentrar definição de tokens nesse arquivo.
-- Componentes web devem derivar de base **Chakra UI customizada** (tokens Auraxis).
-- Em ausência de Chakra UI estável para Vue/Nuxt, usar biblioteca equivalente de mercado (Vuetify/Naive UI/PrimeVue) com wrappers internos.
+- Componentes web devem derivar de base **Naive UI** (via `NConfigProvider` com tokens Auraxis).
 - Componentes novos devem partir da UI library oficial do projeto; customizações devem ser feitas por extensão/composição, não por reimplementação ad-hoc.
-- Em telas/componentes de produto, evitar tags HTML cruas de formulário/controle/texto estrutural (`<input>`, `<label>`, `<button>`, `<textarea>`, `<select>`, `<p>`). Usar componentes Chakra UI (ou wrappers internos).
+- Em telas/componentes de produto, evitar tags HTML cruas de formulário/controle/texto estrutural (`<input>`, `<label>`, `<button>`, `<textarea>`, `<select>`, `<p>`). Usar componentes Naive UI (NInput, NButton, NForm, NSelect, etc.) ou wrappers internos.
 - É proibido usar valores literais de cor, spacing, radius, shadow, font-size, line-height e font-weight em componentes/páginas. Usar tokens semânticos.
 - É proibido declarar bordas/larguras sem tokens semânticos (ex.: `1px solid #ccc`, `4px`, `0.5rem`) fora de arquivos de tema.
 - É proibido introduzir escala de cores de brand fora da paleta oficial. Não criar gradientes/hues ad-hoc fora dos tokens aprovados.
@@ -81,7 +80,7 @@ Para integração com backend recém-entregue:
 - **Performance como gate** — LCP ≤ 4s, CLS ≤ 0.1 (Core Web Vitals obrigatórios).
 - **Segurança por padrão** — secret scan automático, CVEs bloqueados em PRs.
 - **Testes não são opcionais** — toda lógica nova tem teste antes de merge.
-- **UI consistente por contrato** — Chakra UI customizado + tokens oficiais são obrigatórios.
+- **UI consistente por contrato** — Naive UI + tokens oficiais (via NConfigProvider) são obrigatórios.
 - **Token-first styling** — qualquer estilo visual deve usar tokens do tema; valores soltos no código são não conformidade.
 - **Server-state com TanStack Query** — Pinia fica para estado de cliente e orquestração local.
 

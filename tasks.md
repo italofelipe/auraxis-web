@@ -73,17 +73,17 @@ Toda task de UI/layout no `auraxis-web` deve seguir, sem exceção:
   - Dependência: WEB3
   - Commit: —
 
-- [ ] **WEB11** `chore` — Padronizar UI kit web em Chakra UI customizado (sem Tailwind)
-  - Critério: tema central com paleta oficial, tipografia `Playfair Display` + `Raleway`, grid de 8px e componentes-base migrados para camada Chakra custom.
+- [x] **WEB11** `chore` — Padronizar UI kit web em Naive UI (sem Tailwind)
+  - Critério: tema central com paleta oficial, tipografia `Playfair Display` + `Raleway`, grid de 8px e componentes-base migrados para Naive UI via `NConfigProvider`.
   - Dependência: WEB21
   - Commit: —
-  - Risco residual: migração parcial pode manter estilos legados até conclusão por feature.
+  - Resolução: concluído via WEB27 (DEC-064 — Naive UI selecionado como library oficial).
 
-- [ ] **WEB21** `chore` — Definir e implantar library de componentes no nível Chakra para Vue/Nuxt
-  - Critério: validar compatibilidade de Chakra UI com Vue; se inviável, selecionar alternativa madura/equivalente (ex.: Vuetify/Naive UI/PrimeVue), padronizar wrappers internos e configurar tema via tokens oficiais.
+- [x] **WEB21** `chore` — Definir e implantar library de componentes para Vue/Nuxt
+  - Critério: Naive UI selecionado como library oficial; wrappers internos padronizados; tema configurado via `NConfigProvider` com tokens oficiais.
   - Dependência: WEB1
   - Commit: —
-  - Risco residual: escolha inadequada de biblioteca pode elevar custo de manutenção e retrabalho de UI.
+  - Resolução: concluído via WEB27 (DEC-064).
 
 - [x] **WEB12** `chore` — Adotar TanStack Query para server-state
   - Critério: provider global configurado, política de cache/retry/invalidation definida e primeiro fluxo HTTP crítico usando `@tanstack/vue-query`.
@@ -91,7 +91,7 @@ Toda task de UI/layout no `auraxis-web` deve seguir, sem exceção:
   - Commit: —
   - Risco residual: durante transição, coexistência com lógica legada de fetch/composables.
 
-- [x] **WEB22** `chore` — Endurecer governança de código frontend (TS-only, JSDoc, retorno explícito, Chakra-first)
+- [x] **WEB22** `chore` — Endurecer governança de código frontend (TS-only, JSDoc, retorno explícito, Naive UI-first)
   - Critério: ESLint e gates locais/CI bloqueiam `.js/.jsx` em código de produto, funções sem retorno explícito, funções sem JSDoc, uso de tags HTML cruas de formulário/controle/texto estrutural em componentes de produto e valores visuais arbitrários fora de tokens.
   - Subetapas:
     1. [x] atualizar `eslint.config.mjs` com regras estritas e plugin de JSDoc;
