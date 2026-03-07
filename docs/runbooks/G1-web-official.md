@@ -37,10 +37,19 @@ Publicar no repositório `auraxis-web`:
 1. `NUXT_PUBLIC_SENTRY_DSN`
 2. `SENTRY_AUTH_TOKEN`
 
+`NUXT_PUBLIC_SENTRY_DSN` cobre a observabilidade mínima do canal oficial.
+`SENTRY_AUTH_TOKEN` só é necessário quando quisermos evoluir para upload de sourcemaps.
+
 ## Repository variables recomendadas
 
 1. `WEB_OFFICIAL_HOSTNAME`
    - default esperado: `app.auraxis.com.br`
+
+## Decisão de domínio
+
+1. `app.auraxis.com.br` é o hostname oficial da aplicação web.
+2. `auraxis.com.br` fica reservado para site institucional / landing pública.
+3. O workflow oficial de deploy do app não deve assumir publish no apex.
 
 ## Infra AWS mínima esperada
 

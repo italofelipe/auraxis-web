@@ -21,7 +21,7 @@ export default defineNuxtConfig({
   css: ["~/assets/css/main.css"],
 
   site: {
-    url: process.env.NUXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+    url: process.env.NUXT_PUBLIC_SITE_URL ?? "https://app.auraxis.com.br",
   },
 
   // ── Módulos ──────────────────────────────────────────────────────────
@@ -52,6 +52,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE ?? "http://localhost:5000",
+      sentryDsn: process.env.NUXT_PUBLIC_SENTRY_DSN ?? "",
+      appEnv: process.env.NUXT_PUBLIC_APP_ENV ?? process.env.NODE_ENV ?? "development",
     },
   },
   googleFonts: {

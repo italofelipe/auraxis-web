@@ -86,6 +86,8 @@ jobs:
           NODE_ENV: production
           NUXT_PUBLIC_API_BASE: ${{ inputs.api_base_url }}
           NUXT_PUBLIC_SENTRY_DSN: ${{ secrets.NUXT_PUBLIC_SENTRY_DSN }}
+          NUXT_PUBLIC_APP_ENV: ${{ inputs.environment }}
+          NUXT_PUBLIC_SITE_URL: https://${{ env.WEB_OFFICIAL_HOSTNAME }}
         run: pnpm generate
 
       - name: Validate output folder
