@@ -17,6 +17,9 @@ Preparar o frontend web para:
    - `.release-please-manifest.json`
 2. Deploy mínimo via GitHub Pages:
    - `.github/workflows/deploy-minimum.yml`
+3. Deploy oficial AWS/CloudFront:
+   - `.github/workflows/deploy.yml`
+   - `docs/runbooks/G1-web-official.md`
 3. Baseline PWA:
    - `public/manifest.webmanifest`
 4. Artefatos manuais para empacotamento em stores:
@@ -38,7 +41,14 @@ Preparar o frontend web para:
 - Pipeline:
   - `pnpm generate`;
   - upload de `.output/public` como artifact;
-  - deploy no ambiente `github-pages`.
+- deploy no ambiente `github-pages`.
+
+### Deploy oficial (G1)
+
+- workflow manual: `.github/workflows/deploy.yml`
+- bucket S3 + distribuição CloudFront
+- domínio esperado: `app.auraxis.com.br`
+- invalidation explícita e smoke opcional
 
 ### Artefatos de store (manual)
 
