@@ -46,7 +46,7 @@
     "better-sqlite3": "^12.6.2",
     "css-render": "^0.15.14",
     "dayjs-nuxt": "2.1.11",
-    "naive-ui": "^2.43.2",
+    "naive-ui": "^2.44.1",
     "nuxt": "^4.3.1",
     "pinia": "^3.0.4",
     "vee-validate": "^4.15.1",

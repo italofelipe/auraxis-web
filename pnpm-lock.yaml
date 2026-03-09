@@ -74,8 +74,8 @@ importers:
         specifier: 2.1.11
         version: 2.1.11(magicast@0.5.2)
       naive-ui:
-        specifier: ^2.43.2
-        version: 2.43.2(vue@3.5.30(typescript@5.9.3))
+        specifier: ^2.44.1
+        version: 2.44.1(vue@3.5.30(typescript@5.9.3))
       nuxt:
         specifier: ^4.3.1
         version: 4.3.1(@parcel/watcher@2.5.6)(@types/node@25.3.0)(@vue/compiler-sfc@3.5.30)(better-sqlite3@12.6.2)(cac@6.7.14)(db0@0.3.4(better-sqlite3@12.6.2))(eslint@9.39.4(jiti@2.6.1))(ioredis@5.9.3)(lightningcss@1.31.1)(magicast@0.5.2)(optionator@0.9.4)(rollup@4.59.0)(terser@5.46.0)(typescript@5.9.3)(vite@7.3.1(@types/node@25.3.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.0)(yaml@2.8.2))(vue-tsc@2.2.12(typescript@5.9.3))(yaml@2.8.2)
@@ -2752,9 +2752,6 @@ packages:
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
-
-  '@types/katex@0.16.8':
-    resolution: {integrity: sha512-trgaNyfU+Xh2Tc+ABIb44a5AYUpicB3uwirOioeOkNPPbmgRNtcWyDeeFRzjPZENO9Vq8gvVqfhaaXWLlevVwg==}
 
   '@types/lodash-es@4.17.12':
     resolution: {integrity: sha512-0NgftHUcV4v34VhXm8QBSftKVXtbkBG3ViCjs6+eJ5a6y6Mi/jiFGPc1sC7QK+9BFhWrURE3EOggmWaSxL9OzQ==}
@@ -5763,8 +5760,9 @@ packages:
   muggle-string@0.4.1:
     resolution: {integrity: sha512-VNTrAak/KhO2i8dqqnqnAHOa3cYBwXEZe9h+D5h/1ZqFSTEFHdM65lR7RoIqq3tBBYavsOXV84NoHXZ0AkPyqQ==}
 
-  naive-ui@2.43.2:
-    resolution: {integrity: sha512-YlLMnGrwGTOc+zMj90sG3ubaH5/7czsgLgGcjTLA981IUaz8r6t4WIujNt8r9PNr+dqv6XNEr0vxkARgPPjfBQ==}
+  naive-ui@2.44.1:
+    resolution: {integrity: sha512-reo8Esw0p58liZwbUutC7meW24Xbn3EwNv91zReWKm2W4JPu+zfgJRn/F7aO0BFmvN+h2brA2M5lRvYqLq4kuA==}
+    engines: {node: '>=20'}
     peerDependencies:
       vue: ^3.0.0
 
@@ -10653,8 +10651,6 @@ snapshots:
 
   '@types/json-schema@7.0.15': {}
 
-  '@types/katex@0.16.8': {}
-
   '@types/lodash-es@4.17.12':
     dependencies:
       '@types/lodash': 4.17.24
@@ -14172,11 +14168,10 @@ snapshots:
 
   muggle-string@0.4.1: {}
 
-  naive-ui@2.43.2(vue@3.5.30(typescript@5.9.3)):
+  naive-ui@2.44.1(vue@3.5.30(typescript@5.9.3)):
     dependencies:
       '@css-render/plugin-bem': 0.15.14(css-render@0.15.14)
       '@css-render/vue3-ssr': 0.15.14(vue@3.5.30(typescript@5.9.3))
-      '@types/katex': 0.16.8
       '@types/lodash': 4.17.24
       '@types/lodash-es': 4.17.12
       async-validator: 4.2.5
