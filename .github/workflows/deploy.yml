@@ -109,7 +109,7 @@ jobs:
       url: https://${{ env.WEB_OFFICIAL_HOSTNAME }}
     steps:
       - name: Download static artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: web-official-static-${{ inputs.environment }}
           path: dist
