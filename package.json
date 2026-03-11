@@ -84,7 +84,8 @@
     "overrides": {
       "@rollup/plugin-terser@0.4.4>serialize-javascript": "7.0.3",
       "svgo": "4.0.1",
-      "tar": "7.5.10"
+      "tar": "7.5.11",
+      "simple-git": ">=3.32.3"
     },
     "onlyBuiltDependencies": [
       "@parcel/watcher",
