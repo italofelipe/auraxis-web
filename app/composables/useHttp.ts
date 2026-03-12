@@ -78,5 +78,5 @@ export const useHttp = (): AxiosInstance => {
   const sessionStore = useSessionStore();
   const apiBase = String(runtimeConfig.public.apiBase ?? DEFAULT_API_BASE);
 
-  return createHttpClient(apiBase, () => sessionStore.accessToken);
+  return createHttpClient(apiBase, () => sessionStore.getAccessToken());
 };
