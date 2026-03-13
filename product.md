@@ -2,47 +2,30 @@
 
 ## Objetivo
 
-Aplicacao web para gestao financeira com foco em visao consolidada, metas e operacao segura em ambiente SSR.
+Aplicação web do Auraxis para gestão financeira pessoal com foco em clareza, confiança e visão consolidada do mês.
 
-## Escopo atual (MVP)
+## Escopo atual
 
-- Autenticacao web
-- Dashboard com saldo e transacoes
-- Metas financeiras
-- Consumo da API Auraxis via composable HTTP padronizado
-- Hospedagem web em AWS desde o dia 0 (sem Vercel/GitHub Pages)
-- Dominio oficial web: `auraxis.com`
+- autenticação web
+- dashboard financeira
+- transações
+- metas
+- carteira/patrimônio
+- ferramentas públicas como topo de funil (em evolução)
 
-## Arquitetura de superficie (MVP)
+## Superfícies
 
-- Paginas publicas:
-  - institucional (SEO obrigatorio)
-  - area publica de ferramentas (teaser/uso inicial)
-  - landing de newsletter (escopo em discovery)
-- Paginas privadas (login obrigatorio):
-  - dashboard e fluxos financeiros
-  - area logada de ferramentas com simulacoes persistiveis
+- `app.auraxis.com.br` = aplicação autenticada
+- `auraxis.com.br` = institucional
+
+## Estratégia de produto
+
+- ferramentas podem ser públicas
+- usuário logado pode salvar contexto e resultados
+- premium integra ferramentas ao dashboard e aos dados reais do usuário
 
 ## Fora de escopo imediato
 
 - Open Finance nativo
-- Personalizacao visual avancada
-- Automacao de investimentos em tempo real
-- Publicacao iOS/App Store no ciclo atual
-
-## Itens em discovery para refinamento (pos ciclo atual)
-
-- J6: paginas publicas/privadas + SEO institucional
-- J7: ferramentas hibridas (publico/logado) com simulacao persistivel
-- J8: newsletter e growth loop
-
-## Principios de UX
-
-- Informacao financeira legivel e objetiva
-- Estados de erro/loading previsiveis
-- Performance e acessibilidade como default
-
-## Dependencias externas
-
-- `auraxis-api` para contratos REST
-- Variaveis publicas apenas via `NUXT_PUBLIC_*`
+- ERP/contabilidade completa
+- cartão de crédito dentro do pacote atual da dashboard
