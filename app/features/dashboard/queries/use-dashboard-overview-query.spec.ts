@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { useDashboardOverviewQuery } from "~/composables/useDashboard";
+import { useDashboardOverviewQuery } from "~/features/dashboard/queries/use-dashboard-overview-query";
 
 const useQueryMock = vi.hoisted(() => vi.fn());
 
@@ -8,8 +8,8 @@ vi.mock("@tanstack/vue-query", () => ({
   useQuery: useQueryMock,
 }));
 
-describe("useDashboard composable facade", () => {
-  it("reexports the canonical dashboard overview query", () => {
+describe("useDashboardOverviewQuery", () => {
+  it("builds a stable query around canonical filters", async () => {
     const client = {
       getOverview: vi.fn().mockResolvedValue({ ok: true }),
     };
@@ -17,7 +17,7 @@ describe("useDashboard composable facade", () => {
     useQueryMock.mockImplementation((options: Record<string, unknown>) => options);
 
     const query = useDashboardOverviewQuery(
-      { period: "6m" },
+      { period: "3m" },
       client as never,
     ) as unknown as {
       queryKey: { value: unknown };
@@ -27,7 +27,11 @@ describe("useDashboard composable facade", () => {
     expect(query.queryKey.value).toEqual([
       "dashboard",
       "overview",
-      { period: "6m" },
+      { period: "3m" },
     ]);
+
+    await query.queryFn();
+
+    expect(client.getOverview).toHaveBeenCalledWith({ period: "3m" });
   });
 });
