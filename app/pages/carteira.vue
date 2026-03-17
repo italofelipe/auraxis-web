@@ -1,51 +1,76 @@
 <script setup lang="ts">
+import { NSkeleton, NSpace } from "naive-ui";
+
 import { useWalletSummaryQuery } from "~/composables/useWallet";
-import { formatCurrency } from "~/utils/currency";
+import WalletSummaryCard from "~/features/wallet/components/WalletSummaryCard.vue";
+import PositionsList from "~/features/wallet/components/PositionsList.vue";
 
 definePageMeta({ middleware: ["authenticated"] });
 
-const walletSummaryQuery = useWalletSummaryQuery();
+const walletQuery = useWalletSummaryQuery();
+
+const isEmpty = computed(() => {
+  const data = walletQuery.data.value;
+  return data !== undefined && data.positions.length === 0 && data.totalPatrimony === 0;
+});
 </script>
 
 <template>
-  <UiBaseCard title="Carteira">
-    <BaseSkeleton v-if="walletSummaryQuery.isLoading.value" />
+  <div class="carteira-page">
+    <header class="carteira-page__header">
+      <h1>Carteira</h1>
+      <p class="carteira-page__subtitle">
+        Acompanhe seu patrimônio, posições e evolução ao longo do tempo.
+      </p>
+    </header>
 
-    <template v-else>
-      <p class="wallet-total">Total: {{ formatCurrency(walletSummaryQuery.data.value?.total ?? 0) }}</p>
+    <!-- Loading state -->
+    <NSpace v-if="walletQuery.isLoading.value" vertical :size="16">
+      <NSkeleton height="140px" :sharp="false" />
+      <NSkeleton height="260px" :sharp="false" />
+    </NSpace>
 
-      <ul class="wallet-list">
-        <li v-for="asset in walletSummaryQuery.data.value?.assets ?? []" :key="asset.id">
-          <span>{{ asset.name }}</span>
-          <span>{{ formatCurrency(asset.amount) }}</span>
-          <span>{{ asset.allocation }}%</span>
-        </li>
-      </ul>
-    </template>
-  </UiBaseCard>
+    <!-- Error state -->
+    <UiBaseCard v-else-if="walletQuery.isError.value" title="Erro ao carregar carteira">
+      <p class="carteira-page__support-copy">
+        Não foi possível carregar sua carteira. Tente novamente.
+      </p>
+    </UiBaseCard>
+
+    <!-- Empty state -->
+    <UiBaseCard v-else-if="isEmpty" title="Carteira vazia">
+      <p class="carteira-page__support-copy">
+        Você ainda não tem ativos cadastrados. Adicione seu primeiro ativo para
+        começar a acompanhar seu patrimônio.
+      </p>
+    </UiBaseCard>
+
+    <!-- Loaded state -->
+    <NSpace v-else-if="walletQuery.data.value" vertical :size="16">
+      <WalletSummaryCard :summary="walletQuery.data.value" />
+      <PositionsList :positions="walletQuery.data.value.positions" />
+    </NSpace>
+  </div>
 </template>
 
 <style scoped>
-.wallet-total {
-  margin: 0 0 var(--space-2);
-  font-size: var(--font-size-heading-md);
-  line-height: var(--line-height-heading-md);
-  font-weight: var(--font-weight-bold);
+.carteira-page {
+  display: grid;
+  gap: var(--space-4, 16px);
+  padding: var(--space-4, 16px);
 }
 
-.wallet-list {
+.carteira-page__header {
+  margin-bottom: var(--space-2, 8px);
+}
+
+.carteira-page__subtitle {
+  margin: var(--space-1, 4px) 0 0;
+  color: var(--color-text-subtle, #888);
+}
+
+.carteira-page__support-copy {
   margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: var(--space-1);
-}
-
-.wallet-list li {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  gap: var(--space-2);
-  padding: var(--space-1) 0;
-  border-bottom: 1px solid var(--color-outline-subtle);
+  color: var(--color-text-subtle, #888);
 }
 </style>
