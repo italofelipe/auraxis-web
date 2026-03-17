@@ -30,27 +30,59 @@ conforme `/Users/italochagas/Desktop/projetos/auraxis-platform/.context/26_front
 ```text
 app/
   core/
-    http/
-    session/
-    errors/
-    config/
+    http/           ← cliente HTTP centralizado (Axios + interceptor)
+    session/        ← facade de sessão (re-exporta useSessionStore)
+    errors/         ← ApiError e helpers de diagnóstico
+    config/         ← wrappers tipados de useRuntimeConfig()
+    observability/  ← Sentry thin-wrappers (captureException, addBreadcrumb)
   features/
-    auth/
-    dashboard/
-    transactions/
-    goals/
-    wallet/
-    tools/
+    auth/           ← login, registro, recuperação (contracts, api, model, queries, components)
+    dashboard/      ← visão financeira com períodos
+    transactions/   ← lançamentos, importação, reconciliação
+    goals/          ← metas financeiras
+    wallet/         ← patrimônio e evolução
+    tools/          ← ferramentas públicas e autenticadas
   shared/
-    components/
-    types/
-    validators/
-    utils/
-  composables/
-  components/
+    components/     ← componentes reutilizáveis entre features
+    types/          ← tipos compartilhados (incluindo gerados por openapi)
+    validators/     ← validadores puros
+    utils/          ← utilitários puros
+    feature-flags/  ← resolução de flags por provider
+  composables/      ← facades finas (entrypoint de query/mutation por domínio)
+  components/       ← componentes globais de UI
   theme/
   types/
 ```
+
+## Classes vs funções puras
+
+Use **classes** para:
+
+- API clients (ex: `DashboardOverviewClient`)
+- Mappers/adapters (ex: `DashboardOverviewMapper`)
+- Policies e resolvers com estado ou injeção de dependência
+- Serviços de orquestração não visuais
+
+Use **funções puras / composables** para:
+
+- Composables de UI (`useWalletSummaryQuery`, `useDashboardPeriod`)
+- Utilitários (`formatCurrency`, `getMonthLabel`)
+- Validadores puros
+- Componentes Vue (sempre SFC)
+
+> Regra de ouro: **se você precisa de `new`, use classe; se é só entrada → saída, use função.**
+
+## Plano de migração incremental
+
+A migração é **incremental e sem big-bang**:
+
+1. **Novas features nascem** dentro de `app/features/<domain>/`.
+2. **Features existentes migram** quando forem tocadas por uma task real — não por refactor isolado.
+3. Ordem preferida de migração: `wallet` → `tools` → `auth` → `transactions` → `goals`.
+4. `app/composables/*` permanece como facade/entrypoint até que a feature correspondente
+   esteja completa em `app/features/*`. Após migração, o composable vira re-export fino ou é removido.
+5. `app/utils/*` e `app/types/*` migram para `app/shared/*` gradualmente conforme são tocados.
+6. Nunca quebrar testes existentes como consequência de refactor estrutural.
 
 > **Falha em qualquer gate = não commitar.**
 > Se o bloqueio é dependência de outro time, registrar no GitHub Projects/issue do
