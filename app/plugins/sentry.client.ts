@@ -18,5 +18,6 @@ export default defineNuxtPlugin((nuxtApp) => {
     environment: String(runtimeConfig.public.appEnv ?? "production"),
     enabled: true,
     tracesSampleRate: 0.1,
+    sendDefaultPii: false,
   });
 });

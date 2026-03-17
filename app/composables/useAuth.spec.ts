@@ -30,7 +30,6 @@ describe("createAuthApi", () => {
   it("executa forgot password com endpoint dedicado", async () => {
     const post = vi.fn().mockResolvedValue({
       data: {
-        accepted: true,
         message: "Email sent",
       },
     });
@@ -40,10 +39,11 @@ describe("createAuthApi", () => {
       email: "user@auraxis.com",
     });
 
-    expect(post).toHaveBeenCalledWith("/auth/forgot-password", {
+    expect(post).toHaveBeenCalledWith("/auth/password/forgot", {
       email: "user@auraxis.com",
     });
     expect(response.accepted).toBe(true);
+    expect(response.message).toBe("Email sent");
   });
 
   it("executa register no endpoint dedicado", async () => {
