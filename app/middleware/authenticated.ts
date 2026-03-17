@@ -1,3 +1,4 @@
+import { defineNuxtRouteMiddleware, navigateTo } from "#app";
 import { useSessionStore } from "~/stores/session";
 
 export default defineNuxtRouteMiddleware(() => {

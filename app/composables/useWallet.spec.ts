@@ -15,6 +15,12 @@ vi.mock("~/composables/useHttp", () => ({
   useHttp: useHttpMock,
 }));
 
+vi.mock("#app", () => ({
+  useRuntimeConfig: (): { public: Record<string, unknown> } => ({
+    public: { mockData: "false" },
+  }),
+}));
+
 describe("useWallet composable", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -58,7 +64,7 @@ describe("useWallet composable", () => {
     expect(result).toEqual(remoteSummary);
   });
 
-  it("retorna placeholder quando backend falha", async () => {
+  it("propaga erro quando backend falha", async () => {
     useHttpMock.mockReturnValue({
       get: vi.fn().mockRejectedValue(new Error("timeout")),
     });
@@ -67,9 +73,7 @@ describe("useWallet composable", () => {
     const query = useWalletSummaryQuery() as unknown as {
       queryFn: () => Promise<WalletSummary>;
     };
-    const result = await query.queryFn();
 
-    expect(result.total).toBeGreaterThan(0);
-    expect(result.assets.length).toBeGreaterThan(0);
+    await expect(query.queryFn()).rejects.toThrow("timeout");
   });
 });

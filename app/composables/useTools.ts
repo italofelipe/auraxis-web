@@ -1,10 +1,16 @@
+import { useRuntimeConfig } from "#app";
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
 import type { ToolsCatalog } from "~/types/contracts";
 import { useHttp } from "~/composables/useHttp";
 import { isFeatureEnabled, resolveProviderDecision } from "~/shared/feature-flags";
 
-const toolsPlaceholder: ToolsCatalog = {
+/**
+ * Mock data for local development / controlled test environments.
+ * Only active when NUXT_PUBLIC_MOCK_DATA=true — never in the nominal
+ * production path (WEB-CONTRACT-01).
+ */
+const toolsMock: ToolsCatalog = {
   tools: [
     {
       id: "raise-calculator",
@@ -19,6 +25,16 @@ const toolsPlaceholder: ToolsCatalog = {
       enabled: false,
     },
   ],
+};
+
+/**
+ * Returns true when explicit mock mode is enabled via env var.
+ * Must never be true in production.
+ * @returns True when NUXT_PUBLIC_MOCK_DATA=true.
+ */
+const isMockDataEnabled = (): boolean => {
+  const config = useRuntimeConfig();
+  return (config.public as Record<string, unknown>).mockData === "true";
 };
 
 interface HttpAdapter {
@@ -71,7 +87,12 @@ export const createToolsApi = (http: HttpAdapter): ToolsApi => {
 
 /**
  * Query de catálogo de ferramentas.
- * @returns Query com catálogo e fallback de placeholder.
+ *
+ * Falhas de contrato são propagadas como estado de erro do Vue Query para
+ * que a UI possa exibir feedback rastreável.  Mock data só é usado quando
+ * NUXT_PUBLIC_MOCK_DATA=true (dev/teste explícito) — jamais no fluxo nominal.
+ *
+ * @returns Query com estado de loading, error e data tipados.
  */
 export const useToolsCatalogQuery = (): UseQueryReturnType<ToolsCatalog, Error> => {
   const toolsApi = createToolsApi(useHttp());
@@ -79,12 +100,11 @@ export const useToolsCatalogQuery = (): UseQueryReturnType<ToolsCatalog, Error> 
   return useQuery({
     queryKey: ["tools", "catalog"],
     queryFn: async (): Promise<ToolsCatalog> => {
-      try {
-        const remoteCatalog = await toolsApi.getCatalog();
-        return await applyToolsFlags(remoteCatalog);
-      } catch {
-        return await applyToolsFlags(toolsPlaceholder);
+      if (isMockDataEnabled()) {
+        return await applyToolsFlags(toolsMock);
       }
+      const remoteCatalog = await toolsApi.getCatalog();
+      return await applyToolsFlags(remoteCatalog);
     },
   });
 };
