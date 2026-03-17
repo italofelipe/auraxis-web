@@ -2,10 +2,13 @@
 import {
   DASHBOARD_PERIOD_OPTIONS,
   useDashboardOverviewQuery,
-  type DashboardAlert,
   type DashboardOverviewFilters,
-  type DashboardTimeseriesPoint,
 } from "~/composables/useDashboard";
+import DashboardAlerts from "~/features/dashboard/components/DashboardAlerts.vue";
+import DashboardPeriodSelector from "~/features/dashboard/components/DashboardPeriodSelector.vue";
+import DashboardSummaryGrid from "~/features/dashboard/components/DashboardSummaryGrid.vue";
+import DashboardTimeseriesChart from "~/features/dashboard/components/DashboardTimeseriesChart.vue";
+import type { DashboardPeriod } from "~/features/dashboard/model/dashboard-period";
 import { formatCurrency } from "~/utils/currency";
 
 definePageMeta({ middleware: ["authenticated"] });
@@ -45,19 +48,18 @@ const isCustomPeriodIncomplete = computed(() => {
 });
 
 /**
- * Formats a comparison metric for compact UI display.
+ * Determines whether the selected period can be managed by DashboardPeriodSelector.
  *
- * @param value Comparison percentage.
- * @returns User-facing percentage string.
+ * @returns Whether the selected period is a quick-select preset.
  */
-const formatPercent = (value: number | null): string => {
-  if (value === null) {
-    return "-";
-  }
-
-  const signal = value > 0 ? "+" : "";
-  return `${signal}${value.toFixed(1)}%`;
-};
+const isQuickSelectPeriod = computed((): boolean => {
+  return (
+    selectedPeriod.value === "1m" ||
+    selectedPeriod.value === "3m" ||
+    selectedPeriod.value === "6m" ||
+    selectedPeriod.value === "12m"
+  );
+});
 
 /**
  * Formats an ISO date to a compact PT-BR label.
@@ -71,71 +73,6 @@ const formatDate = (value: string): string => {
     month: "short",
     year: "numeric",
   }).format(new Date(`${value}T00:00:00`));
-};
-
-/**
- * Resolves the trend class for positive, neutral and negative comparison values.
- *
- * @param value Comparison percentage.
- * @returns CSS class name for the trend tone.
- */
-const buildTrendClass = (value: number | null): string => {
-  if (value === null) {
-    return "trend trend--neutral";
-  }
-
-  if (value > 0) {
-    return "trend trend--positive";
-  }
-
-  if (value < 0) {
-    return "trend trend--negative";
-  }
-
-  return "trend trend--neutral";
-};
-
-/**
- * Computes proportional bar widths for the compact timeseries visualization.
- *
- * @param point Timeseries point to render.
- * @returns Width styles for income, expense and balance bars.
- */
-const buildSeriesBarStyle = (
-  point: DashboardTimeseriesPoint,
-): Record<"income" | "expense" | "balance", { width: string }> => {
-  const largestValue = Math.max(
-    ...timeseries.value.flatMap((item) => [
-      item.income,
-      item.expense,
-      Math.abs(item.balance),
-    ]),
-    1,
-  );
-
-  return {
-    income: { width: `${(point.income / largestValue) * 100}%` },
-    expense: { width: `${(point.expense / largestValue) * 100}%` },
-    balance: { width: `${(Math.abs(point.balance) / largestValue) * 100}%` },
-  };
-};
-
-/**
- * Resolves the visual tone for a dashboard alert card.
- *
- * @param alert Alert item.
- * @returns CSS class name for the alert tone.
- */
-const buildAlertTone = (alert: DashboardAlert): string => {
-  if (alert.type.includes("due") || alert.type.includes("negative")) {
-    return "alert-card alert-card--warning";
-  }
-
-  if (alert.type.includes("goal")) {
-    return "alert-card alert-card--info";
-  }
-
-  return "alert-card";
 };
 
 /**
@@ -165,6 +102,12 @@ const buildEmptyMessage = (): string => {
       </div>
 
       <div class="dashboard-page__controls">
+        <DashboardPeriodSelector
+          v-if="isQuickSelectPeriod"
+          :model-value="(selectedPeriod as DashboardPeriod)"
+          @period-change="(p: DashboardPeriod) => (selectedPeriod = p)"
+        />
+
         <label class="control-field">
           <span>Período</span>
           <select v-model="selectedPeriod">
@@ -211,55 +154,13 @@ const buildEmptyMessage = (): string => {
     </UiBaseCard>
 
     <template v-else>
-      <section class="summary-grid" aria-label="Resumo do período">
-        <UiBaseCard title="Saldo do período">
-          <BaseSkeleton v-if="dashboardQuery.isLoading.value" />
-          <template v-else>
-            <p class="summary-value">{{ formatCurrency(summary?.balance ?? 0) }}</p>
-            <p :class="buildTrendClass(comparison?.balanceVsPreviousMonthPercent ?? null)">
-              {{ formatPercent(comparison?.balanceVsPreviousMonthPercent ?? null) }} vs período anterior
-            </p>
-          </template>
-        </UiBaseCard>
-
-        <UiBaseCard title="Receitas">
-          <BaseSkeleton v-if="dashboardQuery.isLoading.value" />
-          <template v-else>
-            <p class="summary-value">{{ formatCurrency(summary?.income ?? 0) }}</p>
-            <p :class="buildTrendClass(comparison?.incomeVsPreviousMonthPercent ?? null)">
-              {{ formatPercent(comparison?.incomeVsPreviousMonthPercent ?? null) }} vs período anterior
-            </p>
-          </template>
-        </UiBaseCard>
-
-        <UiBaseCard title="Despesas">
-          <BaseSkeleton v-if="dashboardQuery.isLoading.value" />
-          <template v-else>
-            <p class="summary-value">{{ formatCurrency(summary?.expense ?? 0) }}</p>
-            <p :class="buildTrendClass(comparison?.expenseVsPreviousMonthPercent ?? null)">
-              {{ formatPercent(comparison?.expenseVsPreviousMonthPercent ?? null) }} vs período anterior
-            </p>
-          </template>
-        </UiBaseCard>
-
-        <UiBaseCard title="Contas a vencer">
-          <BaseSkeleton v-if="dashboardQuery.isLoading.value" />
-          <template v-else>
-            <p class="summary-value">{{ formatCurrency(summary?.upcomingDueTotal ?? 0) }}</p>
-            <p class="support-copy">{{ upcomingDues.length }} compromisso(s) no período</p>
-          </template>
-        </UiBaseCard>
-
-        <UiBaseCard title="Patrimônio total">
-          <BaseSkeleton v-if="dashboardQuery.isLoading.value" />
-          <template v-else>
-            <p class="summary-value">{{ formatCurrency(summary?.netWorth ?? 0) }}</p>
-            <p :class="buildTrendClass(portfolio?.changePercent ?? null)">
-              {{ formatPercent(portfolio?.changePercent ?? null) }} de variação
-            </p>
-          </template>
-        </UiBaseCard>
-      </section>
+      <DashboardSummaryGrid
+        :summary="summary"
+        :comparison="comparison"
+        :portfolio="portfolio"
+        :upcoming-dues="upcomingDues"
+        :is-loading="dashboardQuery.isLoading.value"
+      />
 
       <UiBaseCard
         v-if="!dashboardQuery.isLoading.value && !summary && !dashboardQuery.isError.value"
@@ -273,44 +174,15 @@ const buildEmptyMessage = (): string => {
 
       <template v-else>
         <section class="dashboard-main-grid">
-          <UiBaseCard title="Evolução do período">
-            <BaseSkeleton v-if="dashboardQuery.isLoading.value" />
-            <div v-else class="series-list">
-              <div
-                v-for="point in timeseries"
-                :key="point.date"
-                class="series-item"
-              >
-                <div class="series-item__header">
-                  <strong>{{ formatDate(point.date) }}</strong>
-                  <span>{{ formatCurrency(point.balance) }}</span>
-                </div>
-                <div class="series-bars">
-                  <span class="series-bars__income" :style="buildSeriesBarStyle(point).income" />
-                  <span class="series-bars__expense" :style="buildSeriesBarStyle(point).expense" />
-                  <span class="series-bars__balance" :style="buildSeriesBarStyle(point).balance" />
-                </div>
-              </div>
-            </div>
-          </UiBaseCard>
+          <DashboardTimeseriesChart
+            :data="timeseries"
+            :is-loading="dashboardQuery.isLoading.value"
+          />
 
-          <UiBaseCard title="Alertas e atenção">
-            <BaseSkeleton v-if="dashboardQuery.isLoading.value" />
-            <div v-else class="alerts-list">
-              <article
-                v-for="alert in alerts"
-                :key="`${alert.type}-${alert.title}`"
-                :class="buildAlertTone(alert)"
-              >
-                <strong>{{ alert.title }}</strong>
-                <p>{{ alert.description ?? "Sem detalhes adicionais." }}</p>
-                <small v-if="alert.actionLabel">{{ alert.actionLabel }}</small>
-              </article>
-              <p v-if="alerts.length === 0" class="support-copy">
-                Nenhum alerta importante para este período.
-              </p>
-            </div>
-          </UiBaseCard>
+          <DashboardAlerts
+            :alerts="alerts"
+            :is-loading="dashboardQuery.isLoading.value"
+          />
 
           <UiBaseCard title="Despesas por categoria">
             <BaseSkeleton v-if="dashboardQuery.isLoading.value" />
@@ -455,36 +327,10 @@ const buildEmptyMessage = (): string => {
   font-weight: var(--font-weight-semibold);
 }
 
-.summary-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: var(--space-2);
-}
-
-.summary-value {
-  margin: 0 0 var(--space-1);
-  font-size: var(--font-size-heading-lg);
-  line-height: var(--line-height-heading-lg);
-  font-weight: var(--font-weight-bold);
-}
-
-.trend,
 .support-copy,
 .error-copy {
   margin: 0;
   color: var(--color-neutral-700);
-}
-
-.trend--positive {
-  color: #0b8f52;
-}
-
-.trend--negative {
-  color: #c75b39;
-}
-
-.trend--neutral {
-  color: var(--color-neutral-600);
 }
 
 .error-copy {
@@ -498,8 +344,6 @@ const buildEmptyMessage = (): string => {
   gap: var(--space-2);
 }
 
-.series-list,
-.alerts-list,
 .category-list,
 .due-list,
 .goal-list {
@@ -507,18 +351,15 @@ const buildEmptyMessage = (): string => {
   gap: var(--space-2);
 }
 
-.series-item,
 .category-item,
 .due-item,
-.goal-item,
-.alert-card {
+.goal-item {
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-outline-soft);
   padding: var(--space-2);
   background: rgba(255, 255, 255, 0.45);
 }
 
-.series-item__header,
 .category-item,
 .due-item,
 .goal-item__header {
@@ -526,31 +367,6 @@ const buildEmptyMessage = (): string => {
   justify-content: space-between;
   gap: var(--space-2);
   align-items: flex-start;
-}
-
-.series-bars {
-  display: grid;
-  gap: 6px;
-  margin-top: var(--space-2);
-}
-
-.series-bars span,
-.goal-item__track span {
-  display: block;
-  height: 10px;
-  border-radius: var(--radius-lg);
-}
-
-.series-bars__income {
-  background: rgba(35, 133, 84, 0.8);
-}
-
-.series-bars__expense {
-  background: rgba(199, 91, 57, 0.82);
-}
-
-.series-bars__balance {
-  background: rgba(255, 190, 77, 0.85);
 }
 
 .due-item__meta {
@@ -568,31 +384,17 @@ const buildEmptyMessage = (): string => {
 }
 
 .goal-item__track span {
+  display: block;
+  height: 10px;
+  border-radius: var(--radius-lg);
   background: linear-gradient(90deg, #ffab1a 0%, #ffbe4d 100%);
 }
 
-.alert-card {
-  display: grid;
-  gap: 6px;
-}
-
-.alert-card p,
-.alert-card small,
 .category-item p,
 .due-item p,
 .goal-item p {
   margin: 0;
   color: var(--color-neutral-700);
-}
-
-.alert-card--warning {
-  border-color: rgba(199, 91, 57, 0.38);
-  background: rgba(199, 91, 57, 0.08);
-}
-
-.alert-card--info {
-  border-color: rgba(255, 171, 26, 0.36);
-  background: rgba(255, 190, 77, 0.12);
 }
 
 @media (max-width: 1024px) {
