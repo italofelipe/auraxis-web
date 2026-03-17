@@ -13,6 +13,9 @@ Antes de qualquer trabalho neste repo, ler:
 5. `/Users/italochagas/Desktop/projetos/auraxis-platform/repos/auraxis-web/.context/quality_gates.md`
 6. `product.md`
 
+Este repositório deve seguir os mesmos conceitos de engenharia frontend do app mobile,
+conforme `/Users/italochagas/Desktop/projetos/auraxis-platform/.context/26_frontend_architecture.md`.
+
 ## Direção arquitetural
 
 - Organização baseada em **feature** dentro de `app/features/*`
@@ -48,6 +51,10 @@ app/
   theme/
   types/
 ```
+
+> **Falha em qualquer gate = não commitar.**
+> Se o bloqueio é dependência de outro time, registrar no GitHub Projects/issue do
+> bloco e deixar o motivo explícito no handoff local.
 
 ## Regras operacionais
 

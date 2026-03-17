@@ -4,8 +4,8 @@
 
 ## Task Reference
 
-- Task ID: `WEBx` / `DSH-x` / `Jx-x`
-- GitHub Project / issue updated: [ ] yes
+- Task ID: `WEBx` / `PLTx` / `DSH-x` / `Bxx` (if integration)
+- GitHub Projects / issue updated: [ ] yes
 
 ## Validation
 

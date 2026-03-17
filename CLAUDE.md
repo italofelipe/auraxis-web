@@ -49,3 +49,56 @@ pnpm policy:check
 pnpm contracts:check
 pnpm build
 ```
+
+Thresholds:
+
+- Cobertura: ≥ 85% (não pode regredir)
+- TypeScript: zero erros
+- Build: deve passar sem warnings críticos
+
+Ver `.context/quality_gates.md` (local) e `auraxis-platform/.context/25_quality_security_playbook.md` para referência completa.
+
+## Convenções
+
+- **Commits**: Conventional Commits (`feat`, `fix`, `chore`, `docs`, `test`, `refactor`)
+- **Branch**: `type/scope-descricao` (ex: `feat/auth-login-page`)
+- **Nunca** commitar direto em `master`
+- **Nunca** expor tokens ou segredos em código
+- **Sempre** rodar `pnpm quality-check` antes de commitar
+
+## Limites operacionais
+
+### Pode fazer autonomamente
+
+- Ler qualquer arquivo do repo
+- Criar/editar páginas, componentes, composables
+- Atualizar documentação local
+- Criar branches de feature
+- Rodar quality gates
+
+### Deve perguntar antes
+
+- Mudanças em `nuxt.config.ts` com impacto em build
+- Adição de módulos Nuxt com configuração externa
+- Alterações em contratos com `auraxis-api`
+- Mudanças em `steering.md` ou arquivos de `.context/`
+
+### Nunca fazer
+
+- Commitar direto em `master`
+- Expor secrets ou chaves de API em código
+- Commitar sem rodar quality gates
+- Usar `git add .` (sempre staged seletivamente)
+
+## Integração com platform
+
+Este repo é orchestrado por `auraxis-platform`.
+Handoffs e decisões de arquitetura ficam em `auraxis-platform/.context/`.
+Contratos de API são definidos e versionados em `auraxis-api`.
+
+## SDD (obrigatório para features)
+
+- Antes de codar: garantir que a task/issue no GitHub Projects tenha critérios de aceite
+  claros e, se necessário, registrar contexto adicional em `.context/reports/`.
+- Ao finalizar bloco: registrar Delivery Report em `.context/reports/`.
+- Se interromper sessão: registrar handoff em `.context/handoffs/`.

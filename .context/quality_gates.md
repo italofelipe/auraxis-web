@@ -8,7 +8,136 @@ pnpm typecheck
 pnpm test:coverage
 pnpm policy:check
 pnpm contracts:check
+
+# Atalho — tudo de uma vez (obrigatório antes de commitar):
+pnpm quality-check
+
+# Paridade CI local (ambiente dockerizado Node 25 + pnpm 10.30.1):
+pnpm ci:local
+```
+
+Audit gate local sem sujar o workspace:
+
+```bash
+node scripts/ci-audit-gate.cjs
+```
+
+- O relatório bruto do audit agora é gravado em arquivo temporário do sistema.
+- Para persistir um arquivo para debug manual, use `AURAXIS_AUDIT_OUTPUT_PATH=/caminho/audit.json`.
+
+> Se qualquer gate falhar: **não commitar**. Corrigir o problema primeiro.
+> Se for bloqueio de dependência externa, registrar na issue correspondente do GitHub
+> Projects e no handoff local, se necessário.
+
+---
+
+## 2. Thresholds locais (vitest.config.ts)
+
+| Gate                     | Threshold | Arquivo de config                             |
+| :----------------------- | :-------- | :-------------------------------------------- |
+| ESLint                   | 0 erros   | `eslint.config.mjs` (gerado por @nuxt/eslint) |
+| TypeScript               | 0 erros   | `tsconfig.json` (strict: true)                |
+| Vitest — testes passando | 100%      | `vitest.config.ts`                            |
+| Vitest — lines           | ≥ 85%     | `vitest.config.ts#coverage.thresholds`        |
+| Vitest — functions       | ≥ 85%     | `vitest.config.ts#coverage.thresholds`        |
+| Vitest — statements      | ≥ 85%     | `vitest.config.ts#coverage.thresholds`        |
+| Vitest — branches        | ≥ 85%     | `vitest.config.ts#coverage.thresholds`        |
+| Build Nuxt               | Sucesso   | `nuxt.config.ts`                              |
+
+---
+
+## 3. Gates de CI — automáticos no GitHub Actions
+
+O CI roda automaticamente em todo push e PR para master.
+
+### Jobs e thresholds
+
+| Job                      | O que verifica          | Threshold            | Bloqueia merge?    |
+| :----------------------- | :---------------------- | :------------------- | :----------------- |
+| `lint`                   | @nuxt/eslint            | 0 erros              | ✅ sim             |
+| `typecheck`              | TypeScript strict       | 0 erros              | ✅ sim             |
+| `test`                   | Vitest + coverage       | ≥ 85% lines          | ✅ sim             |
+| `build`                  | nuxt build              | sucesso              | ✅ sim             |
+| `bundle-analysis`        | Tamanho do bundle       | ≤ 3 MB hard (public) | ✅ sim (PR apenas) |
+| `secret-scan-gitleaks`   | Secrets no código       | 0 detectados         | ✅ sim             |
+| `secret-scan-trufflehog` | Secrets com entropia    | 0 verificados        | ✅ sim             |
+| `audit`                  | CVEs em deps instaladas | 0 high/critical      | ✅ sim             |
+| `sonarcloud`             | Análise estática        | quality gate pass    | ✅ sim             |
+| `lighthouse`             | Perf / A11y / SEO / CWV | ver abaixo           | ✅ sim             |
+| `e2e`                    | Playwright              | 0 falhas             | ✅ sim             |
+| `commitlint`             | Conventional Commits    | válido               | ✅ sim (PR apenas) |
+| `dependency-review`      | CVEs em novas deps      | 0 high/critical      | ✅ sim (PR apenas) |
+
+> **Secret Sonar:** GitHub Secret = `SONAR_AURAXIS_WEB_TOKEN` · `.env` local = `SONAR_AURAXIS_WEB_TOKEN=<token>`
+
+### Lighthouse CI — thresholds detalhados
+
+| Métrica                        | Threshold  | Tipo                         |
+| :----------------------------- | :--------- | :--------------------------- |
+| Performance score              | ≥ 80       | Aviso se 80-89, erro se < 80 |
+| Accessibility score            | ≥ 90       | Erro se < 90 (obrigatório)   |
+| Best Practices score           | ≥ 85       | Aviso se < 85                |
+| SEO score                      | ≥ 90       | Aviso se < 90                |
+| LCP (Largest Contentful Paint) | ≤ 4.000 ms | Core Web Vital — erro        |
+| CLS (Cumulative Layout Shift)  | ≤ 0.1      | Core Web Vital — erro        |
+| TBT (Total Blocking Time)      | ≤ 600 ms   | Aviso                        |
+| FCP (First Contentful Paint)   | ≤ 2.000 ms | Aviso                        |
+
+### Bundle size — thresholds
+
+| Asset                  | Aviso    | Hard limit (falha CI) |
+| :--------------------- | :------- | :-------------------- |
+| Public (client JS/CSS) | > 1.5 MB | > 3 MB                |
+| Server bundle          | > 5 MB   | —                     |
+
+---
+
+## 4. Guardrails de segurança — verificação manual antes de commitar
+
+```bash
+# Verificar se há secrets hardcoded (roda automaticamente no pre-commit via Gitleaks)
+git diff --cached | grep -iE "(api_key|secret|password|token|Bearer)" || echo "ok"
+
+# Verificar variáveis de ambiente
+# NUXT_*        → servidor ✅
+# NUXT_PUBLIC_* → cliente (nunca segredos) ✅
+# Qualquer outra → risco de exposição ⚠️
+```
+
+Checklist manual:
+
+- [ ] Nenhuma chave de API ou token hardcoded no código
+- [ ] `console.log` com dados de usuário removido antes de produção
+- [ ] Variáveis de ambiente de servidor em `NUXT_` (não `NUXT_PUBLIC_`)
+- [ ] Dados sensíveis (JWT) em cookies `httpOnly`, nunca `localStorage`
+- [ ] `.env*` em `.gitignore` e não staged
+
+---
+
+## 5. Executando testes localmente
+
+### Testes unitários
+
+```bash
+# Rodar todos os testes
+pnpm test
+
+# Modo watch (desenvolvimento)
+pnpm test:watch
+
+# Com coverage completo
+pnpm test:coverage
+
+# Arquivo específico
+pnpm test src/composables/useBalance.spec.ts
+```
+
+### Testes E2E (Playwright)
+
+```bash
+# Requer build do projeto primeiro
 pnpm build
+pnpm e2e
 ```
 
 ## Regras
