@@ -72,9 +72,10 @@ Publicar no repositório `auraxis-web`:
 
 1. Deploy executa sem credenciais locais
 2. Arquivos são publicados no bucket oficial
-3. CloudFront é invalidado com sucesso
-4. `https://app.auraxis.com.br` responde com o build novo
-5. Rollback por rerun/tag é executável em menos de 15 minutos
+3. Rotas estáticas profundas (`/login`, `/register`, `/dashboard`) resolvem sem loop nem fallback incorreto do root
+4. CloudFront é invalidado com sucesso
+5. `https://app.auraxis.com.br` responde com o build novo
+6. Rollback por rerun/tag é executável em menos de 15 minutos
 
 ## Observação
 
