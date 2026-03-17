@@ -99,4 +99,16 @@ export default defineNuxtConfig({
       include: ["naive-ui", "vueuc"],
     },
   },
+
+  // ── Nitro ─────────────────────────────────────────────────────────────
+  // `sharp` is a native module consumed by @nuxt/image at build time.
+  // Marking it external prevents Nitro from tracing optional platform
+  // binaries (e.g. @img/sharp-wasm32) that are absent on macOS/arm,
+  // which caused ENOENT crashes in `pnpm build` (WEB-BUILD-01).
+  // The module remains available at runtime from node_modules.
+  nitro: {
+    externals: {
+      external: ["sharp"],
+    },
+  },
 });
