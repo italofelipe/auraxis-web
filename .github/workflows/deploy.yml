@@ -129,16 +129,17 @@ jobs:
         env:
           AWS_WEB_DEPLOY_BUCKET: ${{ secrets.AWS_WEB_DEPLOY_BUCKET }}
         run: |
-          find dist -type f -name index.html | while read -r file; do
-            relative_path="${file#dist/}"
-            route_path="${relative_path%/index.html}"
+          while IFS= read -r index_file; do
+            route_path="${index_file#dist/}"
+            route_path="${route_path%/index.html}"
+
             if [ -z "${route_path}" ] || [[ "${route_path}" == *.* ]]; then
               continue
             fi
 
-            aws s3 cp "$file" "s3://${AWS_WEB_DEPLOY_BUCKET}/${route_path}" \
+            aws s3 cp "${index_file}" "s3://${AWS_WEB_DEPLOY_BUCKET}/${route_path}" \
               --content-type "text/html; charset=utf-8"
-          done
+          done < <(find dist -type f -path '*/index.html')
 
       - name: Invalidate CloudFront
         if: ${{ inputs.invalidate_cache }}
