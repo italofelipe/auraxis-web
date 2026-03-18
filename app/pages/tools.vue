@@ -1,20 +1,30 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { NButton, NModal } from "naive-ui";
-import { useRouter } from "#app";
+import { useRouter, useRoute } from "#app";
 import { useToolsCatalogQuery } from "~/composables/useTools";
 import { useSessionStore } from "~/stores/session";
+import { useToolContextStore } from "~/stores/toolContext";
 import ToolCard from "~/features/tools/components/ToolCard.vue";
 import ToolsEmptyState from "~/features/tools/components/ToolsEmptyState.vue";
 import type { Tool } from "~/features/tools/model/tools";
 
 // Page is intentionally PUBLIC — no middleware: authenticated
+definePageMeta({ middleware: ["tools-context"] });
 
 const toolsCatalogQuery = useToolsCatalogQuery();
 const sessionStore = useSessionStore();
+const toolContextStore = useToolContextStore();
 const router = useRouter();
+const route = useRoute();
 
 const showSaveModal = ref(false);
+
+/**
+ * The tool id that triggered the current save-result flow.
+ * Set when the user clicks "Salvar resultado" on a specific tool.
+ */
+const activeSaveToolId = ref<string | null>(null);
 
 /**
  * Maps the catalog tools (ToolDefinition[]) to the feature domain model (Tool[]).
@@ -43,26 +53,57 @@ const tools = computed<Tool[]>(() => {
 const hasTools = computed<boolean>(() => tools.value.length > 0);
 
 /**
- * Handles tool interaction. If the user is not authenticated, shows a
- * save-result modal prompting them to register or log in.
+ * Returns the pending tool id restored from context after login, if any.
+ * @returns The pending tool id string or null.
  */
-const handleToolInteraction = (): void => {
+const restoredToolId = computed<string | null>(() => {
+  const queryTool = route.query.tool as string | undefined;
+  return queryTool ?? toolContextStore.pendingToolId;
+});
+
+/**
+ * Handles tool interaction for a specific tool. If the user is not
+ * authenticated, shows a save-result modal prompting them to register
+ * or log in, encoding the tool id and a placeholder result in the redirect.
+ * @param toolId The id of the tool that produced a result.
+ * @param result The tool result to persist across the auth redirect.
+ */
+const handleToolInteraction = (toolId: string, result: unknown = null): void => {
   sessionStore.restore();
   if (!sessionStore.isAuthenticated) {
+    activeSaveToolId.value = toolId;
+    toolContextStore.save(toolId, result);
     showSaveModal.value = true;
   }
 };
 
-/** Navigates to the registration page. */
-const goToRegister = (): void => {
-  showSaveModal.value = false;
-  void router.push("/register?redirect=/tools");
+/**
+ * Builds the redirect URL with tool context encoded in query params.
+ * @param basePath The base path to redirect to after login/register.
+ * @returns Full path string with tool and result query params.
+ */
+const buildRedirectWithContext = (basePath: string): string => {
+  const toolId = activeSaveToolId.value;
+  const result = toolContextStore.pendingResult;
+  if (!toolId) {
+    return `${basePath}?redirect=/tools`;
+  }
+  const encodedResult = result !== null
+    ? `&result=${encodeURIComponent(JSON.stringify(result))}`
+    : "";
+  return `${basePath}?redirect=/tools&tool=${toolId}${encodedResult}`;
 };
 
-/** Navigates to the login page. */
+/** Navigates to the registration page with tool context preserved. */
+const goToRegister = (): void => {
+  showSaveModal.value = false;
+  void router.push(buildRedirectWithContext("/register"));
+};
+
+/** Navigates to the login page with tool context preserved. */
 const goToLogin = (): void => {
   showSaveModal.value = false;
-  void router.push("/login?redirect=/tools");
+  void router.push(buildRedirectWithContext("/login"));
 };
 </script>
 
@@ -102,10 +143,17 @@ const goToLogin = (): void => {
         <NButton
           type="primary"
           size="medium"
-          @click="handleToolInteraction"
+          @click="handleToolInteraction(tools[0]?.id ?? 'unknown')"
         >
           Salvar resultado
         </NButton>
+        <p
+          v-if="restoredToolId"
+          class="tools-page__restored-hint"
+          aria-live="polite"
+        >
+          Contexto restaurado para ferramenta: {{ restoredToolId }}
+        </p>
       </div>
     </template>
 
@@ -141,7 +189,15 @@ const goToLogin = (): void => {
 
 .tools-page__cta {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
   margin-top: var(--space-4);
+}
+
+.tools-page__restored-hint {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-secondary, #888);
+  margin: 0;
 }
 </style>
