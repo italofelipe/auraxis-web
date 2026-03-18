@@ -5,6 +5,9 @@ import ToolsPage from "./tools.vue";
 
 const mockIsAuthenticated = vi.hoisted(() => vi.fn(() => false as boolean));
 const mockPush = vi.hoisted(() => vi.fn());
+const mockToolContextSave = vi.hoisted(() => vi.fn());
+const mockToolContextRestore = vi.hoisted(() => vi.fn());
+const mockToolContextClear = vi.hoisted(() => vi.fn());
 
 vi.mock("~/composables/useTools", () => ({
   useToolsCatalogQuery: (): {
@@ -39,8 +42,25 @@ vi.mock("~/stores/session", () => ({
   }),
 }));
 
+vi.mock("~/stores/toolContext", () => ({
+  useToolContextStore: (): {
+    save: typeof mockToolContextSave;
+    restore: typeof mockToolContextRestore;
+    clear: typeof mockToolContextClear;
+    pendingToolId: string | null;
+    pendingResult: unknown;
+  } => ({
+    save: mockToolContextSave,
+    restore: mockToolContextRestore,
+    clear: mockToolContextClear,
+    pendingToolId: null,
+    pendingResult: null,
+  }),
+}));
+
 vi.mock("#app", () => ({
   useRouter: (): { push: typeof mockPush } => ({ push: mockPush }),
+  useRoute: (): { query: Record<string, string> } => ({ query: {} }),
   definePageMeta: vi.fn(),
 }));
 
