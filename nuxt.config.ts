@@ -26,6 +26,7 @@ export default defineNuxtConfig({
 
   // ── Módulos ──────────────────────────────────────────────────────────
   modules: [
+    "@sentry/nuxt/module", // Error tracking e source maps (opt-in via NUXT_PUBLIC_SENTRY_DSN)
     "@nuxt/eslint",       // Lint integrado ao Nuxt (gera eslint.config via `nuxt lint`)
     "@nuxt/image",        // Componente <NuxtImg> com lazy load e otimização
     "@nuxt/content",      // CMS baseado em arquivos Markdown/YAML/JSON
