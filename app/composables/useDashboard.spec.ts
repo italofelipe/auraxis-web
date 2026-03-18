@@ -30,4 +30,21 @@ describe("useDashboard composable facade", () => {
       { period: "6m" },
     ]);
   });
+
+  it("propagates error through the facade without masking it", async () => {
+    const client = {
+      getOverview: vi.fn().mockRejectedValue(new Error("backend unavailable")),
+    };
+
+    useQueryMock.mockImplementation((options: Record<string, unknown>) => options);
+
+    const query = useDashboardOverviewQuery(
+      { period: "current_month" },
+      client as never,
+    ) as unknown as {
+      queryFn: () => Promise<unknown>;
+    };
+
+    await expect(query.queryFn()).rejects.toThrow("backend unavailable");
+  });
 });
