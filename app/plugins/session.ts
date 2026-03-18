@@ -16,6 +16,14 @@ export default defineNuxtPlugin({
   name: "session-restore",
   enforce: "pre",
   setup() {
+    // Only restore session and tool context on the client — during SSR/prerender
+    // there is no cookie or sessionStorage to read from, and accessing Pinia
+    // stores before nuxtApp.payload is fully initialised causes a
+    // "Cannot read properties of undefined (reading 'state')" crash (#190).
+    if (!import.meta.client) {
+      return;
+    }
+
     const sessionStore = useSessionStore();
     sessionStore.restore();
 
