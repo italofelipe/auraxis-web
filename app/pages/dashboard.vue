@@ -94,7 +94,12 @@ const buildEmptyMessage = (): string => {
     <header class="dashboard-page__hero">
       <div>
         <p class="dashboard-page__eyebrow">Dashboard financeiro</p>
-        <h1>{{ overview?.period.label ?? "Seu panorama financeiro" }}</h1>
+        <h1>
+          <template v-if="dashboardQuery.isLoading.value">Carregando período…</template>
+          <template v-else-if="dashboardQuery.isError.value">Dashboard financeiro</template>
+          <template v-else-if="overview">{{ overview.period.label }}</template>
+          <template v-else>Dashboard financeiro</template>
+        </h1>
         <p class="dashboard-page__description">
           Acompanhe entradas, saídas, alertas, metas e patrimônio em uma
           visão única do período.
