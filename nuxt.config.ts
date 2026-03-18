@@ -101,6 +101,32 @@ export default defineNuxtConfig({
     },
   },
 
+  // ── Route Rules ───────────────────────────────────────────────────────
+  // Classifies routes as public/noindex/private for SEO and prerendering.
+  // Auth enforcement for private routes is handled by middleware, not rules.
+  routeRules: {
+    // Public + indexable
+    "/": { prerender: true },
+    "/tools": { prerender: false },
+    "/termos": { prerender: true },
+    "/privacidade": { prerender: true },
+
+    // Public but noindex (no robots)
+    // robots is augmented by @nuxtjs/robots via NitroRouteConfig — vue-tsc does
+    // not pick up the declaration when type-checking nuxt.config.ts directly.
+    // @ts-expect-error — robots key injected by @nuxtjs/robots module augmentation
+    "/login": { robots: false },
+    // @ts-expect-error — robots key injected by @nuxtjs/robots module augmentation
+    "/register": { robots: false },
+    // @ts-expect-error — robots key injected by @nuxtjs/robots module augmentation
+    "/forgot-password": { robots: false },
+
+    // Private (auth required — enforced by middleware, not route rules)
+    "/dashboard": {},
+    "/carteira": {},
+    "/profile": {},
+  },
+
   // ── Nitro ─────────────────────────────────────────────────────────────
   // `sharp` is a native module consumed by @nuxt/image at build time.
   // Marking it external prevents Nitro from tracing optional platform
