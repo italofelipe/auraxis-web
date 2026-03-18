@@ -63,6 +63,8 @@ export default defineVitestConfig({
         "**/*.config.{ts,js}",
         "**/node_modules/**",
         "**/.nuxt/**",
+        // Plugins require Nuxt runtime — unit-testable helpers are tested via __tests__/plugins/
+        "**/app/plugins/**",
       ],
     },
   },
