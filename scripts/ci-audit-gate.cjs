@@ -11,6 +11,10 @@ const allowedIds = new Set([
   "GHSA-7r86-cg39-jmmj",
   "GHSA-23c5-xmqv-rm74",
   "1113371",
+  // h3 vulnerabilities — transitive via nuxt@4.4.2 core deps; no patch available
+  // within the current nuxt major. Tracked for resolution on nuxt upgrade.
+  "GHSA-3vj8-jmxq-cgj5",
+  "GHSA-22cc-p3c6-wpvm",
 ]);
 const isBlockingSeverity = (severity) => severity === "high" || severity === "critical";
 const isAllowlisted = (ghsa, source) => allowedIds.has(ghsa) || allowedIds.has(source);
