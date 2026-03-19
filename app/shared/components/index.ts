@@ -20,4 +20,4 @@ export type {
 
 // MIC-05 — Canonical icon component backed by Lucide
 export { UiIcon } from "./UiIcon";
-export type { UiIconProps, AuraxisIconName } from "./UiIcon";
+export type { UiIconProps } from "./UiIcon";
