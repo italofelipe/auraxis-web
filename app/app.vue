@@ -1,24 +1,30 @@
 <script setup lang="ts">
-import { NConfigProvider, darkTheme } from "naive-ui";
-import { auraxisThemeOverrides } from "~/utils/naive-theme";
+import { NConfigProvider, NMessageProvider, NDialogProvider } from "naive-ui";
+import { useNaiveTheme } from "~/composables/useNaiveTheme";
+
+const { theme, themeOverrides } = useNaiveTheme();
 </script>
 
 <template>
   <!--
     NConfigProvider applies the Auraxis theme globally to all Naive UI components.
-    - darkTheme: Naive UI's built-in dark base (matches Auraxis dark palette)
-    - auraxisThemeOverrides: token overrides from app/utils/naive-theme.ts
+    - theme: darkTheme (Naive UI's built-in dark base, returned by useNaiveTheme)
+    - themeOverrides: token overrides from app/composables/useNaiveTheme.ts
     - preflight-style-disabled: prevents Naive UI from injecting a CSS reset
       that would conflict with our own global styles in assets/css/main.css
   -->
   <NConfigProvider
-    :theme="darkTheme"
-    :theme-overrides="auraxisThemeOverrides"
+    :theme="theme"
+    :theme-overrides="themeOverrides"
     :preflight-style-disabled="true"
   >
-    <NuxtLoadingIndicator color="var(--color-brand-500)" />
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
+    <NMessageProvider>
+      <NDialogProvider>
+        <NuxtLoadingIndicator color="var(--color-brand-500)" />
+        <NuxtLayout>
+          <NuxtPage />
+        </NuxtLayout>
+      </NDialogProvider>
+    </NMessageProvider>
   </NConfigProvider>
 </template>
