@@ -98,7 +98,7 @@ const emit = defineEmits<UiTopbarEmits>();
   padding: 8px 16px;
   border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   font-family: var(--font-body);
   cursor: pointer;
   border: 1px solid transparent;
