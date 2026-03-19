@@ -34,7 +34,6 @@ export default defineNuxtConfig({
     "@nuxt/a11y",         // Auditor de acessibilidade em dev
     "@nuxt/hints",        // Sugestões de boas práticas em dev
     "@pinia/nuxt",        // State management
-    "@pinia/colada-nuxt", // Data fetching layer para Pinia
     "@nuxtjs/i18n",       // Internacionalização
     "@nuxtjs/seo",        // Meta tags, sitemap, robots automáticos
     "@nuxtjs/device",     // Detecção de device (mobile/desktop/tablet)
