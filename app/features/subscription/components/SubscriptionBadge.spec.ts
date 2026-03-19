@@ -1,12 +1,12 @@
-import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 
 import SubscriptionBadge from "./SubscriptionBadge.vue";
 import type { SubscriptionStatus } from "~/features/subscription/model/subscription";
+import { renderWithProviders } from "~/test-utils";
 
 describe("SubscriptionBadge", () => {
   it("renders 'Ativo' label for active status", () => {
-    const wrapper = mount(SubscriptionBadge, {
+    const wrapper = renderWithProviders(SubscriptionBadge, {
       props: { status: "active" as SubscriptionStatus },
     });
 
@@ -16,7 +16,7 @@ describe("SubscriptionBadge", () => {
   });
 
   it("renders 'Trial' label for trialing status", () => {
-    const wrapper = mount(SubscriptionBadge, {
+    const wrapper = renderWithProviders(SubscriptionBadge, {
       props: { status: "trialing" as SubscriptionStatus },
     });
 
@@ -26,7 +26,7 @@ describe("SubscriptionBadge", () => {
   });
 
   it("renders 'Vencido' label for past_due status", () => {
-    const wrapper = mount(SubscriptionBadge, {
+    const wrapper = renderWithProviders(SubscriptionBadge, {
       props: { status: "past_due" as SubscriptionStatus },
     });
 
@@ -36,7 +36,7 @@ describe("SubscriptionBadge", () => {
   });
 
   it("renders 'Cancelado' label for canceled status", () => {
-    const wrapper = mount(SubscriptionBadge, {
+    const wrapper = renderWithProviders(SubscriptionBadge, {
       props: { status: "canceled" as SubscriptionStatus },
     });
 
