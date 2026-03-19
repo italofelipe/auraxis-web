@@ -129,7 +129,7 @@ onUnmounted(() => document.removeEventListener("mousedown", handleClickOutside))
   justify-content: center;
   background: var(--color-brand-glow-xs);
   color: var(--color-brand-600);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   font-size: var(--font-size-md);
 }
 .ui-user-menu__chevron {
@@ -155,7 +155,7 @@ onUnmounted(() => document.removeEventListener("mousedown", handleClickOutside))
   padding: var(--space-2);
 }
 .ui-user-menu__user-name {
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
   font-size: var(--font-size-sm);
   margin: 0;

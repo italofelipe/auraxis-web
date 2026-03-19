@@ -20,7 +20,7 @@ const props = withDefaults(defineProps<UiPageHeaderProps>(), { subtitle: undefin
 .ui-page-header__title {
   font-family: var(--font-heading);
   font-size: var(--font-size-2xl);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   color: var(--color-text-primary);
   margin: 0;
   line-height: 1.2;
