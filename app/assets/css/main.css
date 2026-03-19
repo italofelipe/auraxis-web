@@ -1,75 +1,116 @@
 :root {
+  /* Tipografia */
   --font-heading: "Playfair Display", "Times New Roman", serif;
   --font-body: "Raleway", "Segoe UI", sans-serif;
   --font-weight-regular: 400;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
-  --color-neutral-950: #0b0909;
-  --color-neutral-900: #262121;
-  --color-neutral-700: #413939;
-  --color-brand-600: #ffab1a;
-  --color-brand-500: #ffbe4d;
+  /* Font sizes */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+
+  /* Backgrounds */
+  --color-bg-base:     #0b0909;
+  --color-bg-surface:  #272020;
+  --color-bg-elevated: #413939;
+  --color-bg-glass:    rgba(39, 32, 32, 0.6);
+
+  /* Marca */
   --color-brand-400: #ffd180;
-  --color-surface-50: #ffd180;
-  --color-outline-soft: rgba(38, 33, 33, 0.2);
-  --color-outline-subtle: rgba(38, 33, 33, 0.08);
+  --color-brand-500: #ffbe4d;
+  --color-brand-600: #ffab1a;
+  --color-brand-700: #f59600;
+  --color-brand-800: #d97600;
 
-  --space-1: 8px;
-  --space-2: 16px;
-  --space-3: 24px;
-  --space-4: 32px;
+  /* Glows da marca */
+  --color-brand-glow-lg:  rgba(255, 171, 26, 0.4);
+  --color-brand-glow-md:  rgba(255, 171, 26, 0.3);
+  --color-brand-glow-sm:  rgba(255, 171, 26, 0.2);
+  --color-brand-glow-xs:  rgba(255, 171, 26, 0.1);
+  --color-brand-glow-2xs: rgba(255, 171, 26, 0.05);
 
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
+  /* Texto */
+  --color-text-primary:   #faf9f9;
+  --color-text-secondary: #d1c7c7;
+  --color-text-muted:     #9b8888;
+  --color-text-subtle:    #6c5a5a;
 
-  --font-size-heading-md: 24px;
-  --font-size-heading-lg: 28px;
-  --font-size-body-sm: 14px;
-  --line-height-heading-md: 32px;
-  --line-height-heading-lg: 36px;
-  --line-height-body-sm: 20px;
+  /* Semântico — positivo */
+  --color-positive:      #10b981;
+  --color-positive-dark: #059669;
+  --color-positive-bg:   rgba(16, 185, 129, 0.1);
+  --color-positive-glow: rgba(16, 185, 129, 0.4);
 
-  --shadow-card: 0 10px 24px rgba(11, 9, 9, 0.08);
+  /* Semântico — negativo */
+  --color-negative:      #ef4444;
+  --color-negative-dark: #dc2626;
+  --color-negative-bg:   rgba(239, 68, 68, 0.1);
+  --color-negative-glow: rgba(239, 68, 68, 0.2);
+
+  /* Bordas */
+  --color-outline-hard:   rgba(65, 57, 57, 0.8);
+  --color-outline-soft:   rgba(65, 57, 57, 0.5);
+  --color-outline-subtle: rgba(38, 33, 33, 0.2);
+  --color-outline-ghost:  rgba(38, 33, 33, 0.08);
+
+  /* Sombras */
+  --shadow-sm:            0 1px 2px rgba(11, 9, 9, 0.4);
+  --shadow-md:            0 4px 10px rgba(11, 9, 9, 0.5);
+  --shadow-lg:            0 10px 20px rgba(11, 9, 9, 0.6);
+  --shadow-card:          0 10px 24px rgba(11, 9, 9, 0.08);
+  --shadow-brand-glow:    0 0 20px var(--color-brand-glow-md);
+  --shadow-brand-glow-sm: 0 0 10px var(--color-brand-glow-sm);
+
+  /* Radius */
+  --radius-none: 0px;
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-full: 9999px;
+
+  /* Spacing */
+  --space-px: 1px;
+  --space-0:  0px;
+  --space-1:  8px;
+  --space-2:  16px;
+  --space-3:  24px;
+  --space-4:  32px;
+  --space-5:  40px;
+  --space-6:  48px;
+  --space-7:  56px;
+  --space-8:  64px;
 }
 
-* {
-  box-sizing: border-box;
-}
+/* Reset e base */
+*, *::before, *::after { box-sizing: border-box; }
 
-html,
-body,
-#__nuxt {
+html, body, #__nuxt {
   min-height: 100%;
   margin: 0;
 }
 
 body {
   font-family: var(--font-body);
-  color: var(--color-neutral-900);
-  background: linear-gradient(180deg, var(--color-brand-400) 0%, var(--color-brand-500) 100%);
+  background-color: var(--color-bg-base);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
+a { color: inherit; text-decoration: none; }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
   letter-spacing: 0.01em;
   margin: 0;
+  color: var(--color-text-primary);
 }
 
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
+button, input, select, textarea { font: inherit; }
