@@ -1,11 +1,12 @@
-import { ref, type Ref } from "vue";
+import { ref, type Ref, type Component } from "vue";
 import type { Meta, StoryObj } from "@storybook/vue3";
 import type { UiSegmentedControlOption, UiSegmentedControlProps } from "./UiSegmentedControl.types";
 import UiSegmentedControl from "./UiSegmentedControl.vue";
 
-const meta: Meta<typeof UiSegmentedControl> = {
+// Generic Vue components require a cast when used in Storybook Meta
+const meta: Meta<UiSegmentedControlProps<string>> = {
   title: "Shared/UiSegmentedControl",
-  component: UiSegmentedControl,
+  component: UiSegmentedControl as unknown as Component,
   tags: ["autodocs"],
   argTypes: {
     ariaLabel: { control: "text" },
@@ -13,9 +14,9 @@ const meta: Meta<typeof UiSegmentedControl> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof UiSegmentedControl>;
+type Story = StoryObj<UiSegmentedControlProps<string>>;
 
-const periodOptions: UiSegmentedControlOption[] = [
+const periodOptions: UiSegmentedControlOption<string>[] = [
   { value: "day", label: "Dia" },
   { value: "week", label: "Semana" },
   { value: "month", label: "Mês" },
@@ -30,7 +31,7 @@ export const Default: Story = {
   },
   render: (args) => ({
     components: { UiSegmentedControl },
-    setup(): { args: UiSegmentedControlProps; value: Ref<string> } {
+    setup(): { args: UiSegmentedControlProps<string>; value: Ref<string> } {
       const value = ref(args.modelValue);
       return { args, value };
     },
@@ -51,7 +52,7 @@ export const WithDisabledOption: Story = {
   },
   render: (args) => ({
     components: { UiSegmentedControl },
-    setup(): { args: UiSegmentedControlProps; value: Ref<string> } {
+    setup(): { args: UiSegmentedControlProps<string>; value: Ref<string> } {
       const value = ref(args.modelValue);
       return { args, value };
     },

@@ -16,10 +16,10 @@ describe("UiSegmentedControl", () => {
     });
     const buttons = wrapper.findAll("button");
     expect(buttons).toHaveLength(4);
-    expect(buttons[0].text()).toBe("Dia");
-    expect(buttons[1].text()).toBe("Semana");
-    expect(buttons[2].text()).toBe("Mês");
-    expect(buttons[3].text()).toBe("Ano");
+    expect(buttons[0]!.text()).toBe("Dia");
+    expect(buttons[1]!.text()).toBe("Semana");
+    expect(buttons[2]!.text()).toBe("Mês");
+    expect(buttons[3]!.text()).toBe("Ano");
   });
 
   it("active option has active class", () => {
@@ -27,8 +27,8 @@ describe("UiSegmentedControl", () => {
       props: { modelValue: "week", options },
     });
     const buttons = wrapper.findAll("button");
-    expect(buttons[1].classes()).toContain("ui-segmented-control__option--active");
-    expect(buttons[0].classes()).not.toContain("ui-segmented-control__option--active");
+    expect(buttons[1]!.classes()).toContain("ui-segmented-control__option--active");
+    expect(buttons[0]!.classes()).not.toContain("ui-segmented-control__option--active");
   });
 
   it("active option has aria-pressed=\"true\"", () => {
@@ -36,15 +36,15 @@ describe("UiSegmentedControl", () => {
       props: { modelValue: "month", options },
     });
     const buttons = wrapper.findAll("button");
-    expect(buttons[2].attributes("aria-pressed")).toBe("true");
-    expect(buttons[0].attributes("aria-pressed")).toBe("false");
+    expect(buttons[2]!.attributes("aria-pressed")).toBe("true");
+    expect(buttons[0]!.attributes("aria-pressed")).toBe("false");
   });
 
   it("click emits update:modelValue with correct value", async () => {
     const wrapper = mount(UiSegmentedControl, {
       props: { modelValue: "day", options },
     });
-    await wrapper.findAll("button")[2].trigger("click");
+    await wrapper.findAll("button")[2]!.trigger("click");
     expect(wrapper.emitted("update:modelValue")).toBeTruthy();
     expect(wrapper.emitted("update:modelValue")![0]).toEqual(["month"]);
   });
@@ -53,13 +53,13 @@ describe("UiSegmentedControl", () => {
     const optionsWithDisabled = [
       ...options.slice(0, 2),
       { value: "month", label: "Mês", disabled: true },
-      options[3],
+      options[3]!,
     ];
     const wrapper = mount(UiSegmentedControl, {
       props: { modelValue: "day", options: optionsWithDisabled },
     });
     const buttons = wrapper.findAll("button");
-    expect(buttons[2].attributes("disabled")).toBeDefined();
+    expect(buttons[2]!.attributes("disabled")).toBeDefined();
   });
 
   it("clicking disabled option does not emit", async () => {
@@ -70,7 +70,7 @@ describe("UiSegmentedControl", () => {
     const wrapper = mount(UiSegmentedControl, {
       props: { modelValue: "day", options: optionsWithDisabled },
     });
-    await wrapper.findAll("button")[1].trigger("click");
+    await wrapper.findAll("button")[1]!.trigger("click");
     expect(wrapper.emitted("update:modelValue")).toBeFalsy();
   });
 
