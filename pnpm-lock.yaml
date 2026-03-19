@@ -49,9 +49,6 @@ importers:
       '@nuxtjs/seo':
         specifier: 3.4.0
         version: 3.4.0(@unhead/vue@2.1.12(vue@3.5.30(typescript@5.9.3)))(db0@0.3.4(better-sqlite3@12.8.0))(ioredis@5.10.0)(magicast@0.5.2)(rollup@4.59.0)(unhead@2.1.12)(unstorage@1.17.4(db0@0.3.4(better-sqlite3@12.8.0))(ioredis@5.10.0))(vite@7.3.1(@types/node@25.5.0)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.46.1)(yaml@2.8.2))(vue@3.5.30(typescript@5.9.3))(zod@3.25.76)
-      '@pinia/colada-nuxt':
-        specifier: 0.3.2
-        version: 0.3.2(@pinia/colada@0.21.5(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))(vue@3.5.30(typescript@5.9.3)))(magicast@0.5.2)
       '@pinia/nuxt':
         specifier: 0.11.3
         version: 0.11.3(magicast@0.5.2)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))
@@ -2467,11 +2464,6 @@ packages:
   '@parcel/watcher@2.5.6':
     resolution: {integrity: sha512-tmmZ3lQxAe/k/+rNnXQRawJ4NjxO2hqiOLTHvWchtGZULp4RyFeh6aU4XdOYBFe2KE1oShQTv4AblOs2iOrNnQ==}
     engines: {node: '>= 10.0.0'}
-
-  '@pinia/colada-nuxt@0.3.2':
-    resolution: {integrity: sha512-ICPbRZ03g43CPKYwxkWf3yFbW8iz7L7kF5QoJw7lok7k7fkz9t0tFc3SrOgjl7B8PEiw3syD7rRtu3CeGmuJeg==}
-    peerDependencies:
-      '@pinia/colada': '>=0.21.6'
 
   '@pinia/colada@0.21.5':
     resolution: {integrity: sha512-oWKFUXCE/mibRqeJtWmI37hGnlXk6te7j1XHML/pi2RkUCNl4GWxHYc3Q8cmEuWtuoynvWByiAZhnvthLp+3UA==}
@@ -11091,17 +11083,11 @@ snapshots:
       '@parcel/watcher-win32-ia32': 2.5.6
       '@parcel/watcher-win32-x64': 2.5.6
 
-  '@pinia/colada-nuxt@0.3.2(@pinia/colada@0.21.5(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))(vue@3.5.30(typescript@5.9.3)))(magicast@0.5.2)':
-    dependencies:
-      '@nuxt/kit': 4.3.1(magicast@0.5.2)
-      '@pinia/colada': 0.21.5(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))(vue@3.5.30(typescript@5.9.3))
-    transitivePeerDependencies:
-      - magicast
-
   '@pinia/colada@0.21.5(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))(vue@3.5.30(typescript@5.9.3))':
     dependencies:
       pinia: 3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3))
       vue: 3.5.30(typescript@5.9.3)
+    optional: true
 
   '@pinia/nuxt@0.11.3(magicast@0.5.2)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.30(typescript@5.9.3)))':
     dependencies:
