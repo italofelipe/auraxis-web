@@ -27,9 +27,9 @@ describe("UiSidebarNav", () => {
     });
     const links = wrapper.findAll("a");
     expect(links).toHaveLength(3);
-    expect(links[0].text()).toContain("Dashboard");
-    expect(links[1].text()).toContain("Carteira");
-    expect(links[2].text()).toContain("Análises");
+    expect(links[0]!.text()).toContain("Dashboard");
+    expect(links[1]!.text()).toContain("Carteira");
+    expect(links[2]!.text()).toContain("Análises");
   });
 
   it("marks active item via exact match of currentRoute", () => {
@@ -38,8 +38,8 @@ describe("UiSidebarNav", () => {
       global: globalConfig,
     });
     const links = wrapper.findAll("a");
-    expect(links[1].classes()).toContain("ui-sidebar-nav-item--active");
-    expect(links[0].classes()).not.toContain("ui-sidebar-nav-item--active");
+    expect(links[1]!.classes()).toContain("ui-sidebar-nav-item--active");
+    expect(links[0]!.classes()).not.toContain("ui-sidebar-nav-item--active");
   });
 
   it("marks active item via prefix match of currentRoute", () => {
@@ -48,8 +48,8 @@ describe("UiSidebarNav", () => {
       global: globalConfig,
     });
     const links = wrapper.findAll("a");
-    expect(links[1].classes()).toContain("ui-sidebar-nav-item--active");
-    expect(links[0].classes()).not.toContain("ui-sidebar-nav-item--active");
+    expect(links[1]!.classes()).toContain("ui-sidebar-nav-item--active");
+    expect(links[0]!.classes()).not.toContain("ui-sidebar-nav-item--active");
   });
 
   it("marks no item active when currentRoute is undefined", () => {
