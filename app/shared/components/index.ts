@@ -37,3 +37,23 @@ export type {
   UiSegmentedControlEmits,
   UiSegmentedControlOption,
 } from "./UiSegmentedControl";
+
+// MIC-14 — Sidebar navigation item (single entry)
+export { UiSidebarNavItem } from "./UiSidebarNavItem";
+export type { UiSidebarNavItemProps } from "./UiSidebarNavItem";
+
+// MIC-14 — Sidebar navigation container
+export { UiSidebarNav } from "./UiSidebarNav";
+export type { UiSidebarNavProps, SidebarNavItem } from "./UiSidebarNav";
+
+// MIC-10 — Page header with title and optional subtitle
+export { UiPageHeader } from "./UiPageHeader";
+export type { UiPageHeaderProps } from "./UiPageHeader";
+
+// MIC-15 — User menu dropdown with avatar, name and actions
+export { UiUserMenu } from "./UiUserMenu";
+export type { UiUserMenuProps, UiUserMenuEmits } from "./UiUserMenu";
+
+// MIC-15 — Topbar container with page header, actions and user menu
+export { UiTopbar } from "./UiTopbar";
+export type { UiTopbarProps, UiTopbarEmits, UiTopbarAction } from "./UiTopbar";
