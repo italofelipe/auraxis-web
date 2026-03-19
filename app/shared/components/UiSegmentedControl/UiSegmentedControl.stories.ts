@@ -1,12 +1,12 @@
-import { ref, type Ref, type Component } from "vue";
+import { ref, type Ref } from "vue";
 import type { Meta, StoryObj } from "@storybook/vue3";
 import type { UiSegmentedControlOption, UiSegmentedControlProps } from "./UiSegmentedControl.types";
 import UiSegmentedControl from "./UiSegmentedControl.vue";
 
-// Generic Vue components require a cast when used in Storybook Meta
 const meta: Meta<UiSegmentedControlProps<string>> = {
   title: "Shared/UiSegmentedControl",
-  component: UiSegmentedControl as unknown as Component,
+  // @ts-expect-error — generic Vue component; Storybook Meta expects a ConcreteComponent
+  component: UiSegmentedControl,
   tags: ["autodocs"],
   argTypes: {
     ariaLabel: { control: "text" },
