@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import type { AuthFeatureListProps, AuthFeature } from "./AuthFeatureList.types";
 
+/** Benefícios padrão exibidos quando a prop `features` é omitida. */
 const DEFAULT_FEATURES: AuthFeature[] = [
   {
     icon: "📊",
@@ -24,15 +26,16 @@ const DEFAULT_FEATURES: AuthFeature[] = [
   },
 ];
 
-const props = withDefaults(defineProps<AuthFeatureListProps>(), {
-  features: () => DEFAULT_FEATURES,
-});
+const props = defineProps<AuthFeatureListProps>();
+
+/** Lista de features resolvida: usa a prop quando fornecida, ou os defaults. */
+const features = computed(() => props.features ?? DEFAULT_FEATURES);
 </script>
 
 <template>
   <ul class="auth-feature-list" aria-label="Benefícios do Auraxis">
     <li
-      v-for="feature in props.features"
+      v-for="feature in features"
       :key="feature.title"
       class="auth-feature-list__item"
     >
