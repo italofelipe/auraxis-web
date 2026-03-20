@@ -22,6 +22,12 @@ vi.mock("~/shared/feature-flags", () => ({
   resolveProviderDecision: resolveProviderDecisionMock,
 }));
 
+vi.mock("#app", () => ({
+  useRuntimeConfig: (): { public: Record<string, unknown> } => ({
+    public: { mockData: "false" },
+  }),
+}));
+
 describe("useTools composable", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -75,7 +81,7 @@ describe("useTools composable", () => {
     expect(result).toEqual(remoteCatalog);
   });
 
-  it("retorna placeholder quando backend falha", async () => {
+  it("propaga erro quando backend falha", async () => {
     useHttpMock.mockReturnValue({
       get: vi.fn().mockRejectedValue(new Error("backend down")),
     });
@@ -84,11 +90,8 @@ describe("useTools composable", () => {
     const query = useToolsCatalogQuery() as unknown as {
       queryFn: () => Promise<ToolsCatalog>;
     };
-    const result = await query.queryFn();
 
-    expect(result.tools.length).toBeGreaterThan(0);
-    expect(result.tools[0]?.id).toBe("raise-calculator");
-    expect(result.tools[0]?.enabled).toBe(false);
+    await expect(query.queryFn()).rejects.toThrow("backend down");
   });
 
   it("aplica override da flag para calculadora de aumento", async () => {

@@ -26,6 +26,7 @@ export default defineNuxtConfig({
 
   // ── Módulos ──────────────────────────────────────────────────────────
   modules: [
+    "@sentry/nuxt/module", // Error tracking e source maps (opt-in via NUXT_PUBLIC_SENTRY_DSN)
     "@nuxt/eslint",       // Lint integrado ao Nuxt (gera eslint.config via `nuxt lint`)
     "@nuxt/image",        // Componente <NuxtImg> com lazy load e otimização
     "@nuxt/content",      // CMS baseado em arquivos Markdown/YAML/JSON
@@ -33,7 +34,6 @@ export default defineNuxtConfig({
     "@nuxt/a11y",         // Auditor de acessibilidade em dev
     "@nuxt/hints",        // Sugestões de boas práticas em dev
     "@pinia/nuxt",        // State management
-    "@pinia/colada-nuxt", // Data fetching layer para Pinia
     "@nuxtjs/i18n",       // Internacionalização
     "@nuxtjs/seo",        // Meta tags, sitemap, robots automáticos
     "@nuxtjs/device",     // Detecção de device (mobile/desktop/tablet)
@@ -97,6 +97,44 @@ export default defineNuxtConfig({
   vite: {
     optimizeDeps: {
       include: ["naive-ui", "vueuc"],
+    },
+  },
+
+  // ── Route Rules ───────────────────────────────────────────────────────
+  // Classifies routes as public/noindex/private for SEO and prerendering.
+  // Auth enforcement for private routes is handled by middleware, not rules.
+  routeRules: {
+    // Public + indexable
+    "/": { prerender: true },
+    "/tools": { prerender: false },
+    "/termos": { prerender: true },
+    "/privacidade": { prerender: true },
+
+    // Public but noindex (no robots)
+    // robots is augmented by @nuxtjs/robots via NitroRouteConfig — vue-tsc does
+    // not pick up the declaration when type-checking nuxt.config.ts directly.
+    // @ts-expect-error — robots key injected by @nuxtjs/robots module augmentation
+    "/login": { robots: false },
+    // @ts-expect-error — robots key injected by @nuxtjs/robots module augmentation
+    "/register": { robots: false },
+    // @ts-expect-error — robots key injected by @nuxtjs/robots module augmentation
+    "/forgot-password": { robots: false },
+
+    // Private (auth required — enforced by middleware, not route rules)
+    "/dashboard": {},
+    "/carteira": {},
+    "/profile": {},
+  },
+
+  // ── Nitro ─────────────────────────────────────────────────────────────
+  // `sharp` is a native module consumed by @nuxt/image at build time.
+  // Marking it external prevents Nitro from tracing optional platform
+  // binaries (e.g. @img/sharp-wasm32) that are absent on macOS/arm,
+  // which caused ENOENT crashes in `pnpm build` (WEB-BUILD-01).
+  // The module remains available at runtime from node_modules.
+  nitro: {
+    externals: {
+      external: ["sharp"],
     },
   },
 });

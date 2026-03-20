@@ -23,7 +23,9 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
     "prepare": "husky",
-    "ci:local": "bash scripts/run_ci_like_actions_local.sh"
+    "ci:local": "bash scripts/run_ci_like_actions_local.sh",
+    "storybook": "storybook dev -p 6006",
+    "storybook:build": "storybook build"
   },
   "dependencies": {
     "@bubblesortt/nuxt-es-toolkit": "1.0.10",
@@ -37,8 +39,8 @@
     "@nuxtjs/google-fonts": "3.2.0",
     "@nuxtjs/i18n": "10.2.3",
     "@nuxtjs/seo": "3.4.0",
-    "@pinia/colada-nuxt": "0.3.2",
     "@pinia/nuxt": "0.11.3",
+    "@sentry/nuxt": "^10.44.0",
     "@sentry/vue": "^10.43.0",
     "@tanstack/vue-query": "^5.92.9",
     "@vee-validate/zod": "^4.15.1",
@@ -46,11 +48,14 @@
     "better-sqlite3": "^12.8.0",
     "css-render": "^0.15.14",
     "dayjs-nuxt": "2.1.11",
+    "echarts": "^6.0.0",
+    "lucide-vue-next": "^0.577.0",
     "naive-ui": "^2.44.1",
     "nuxt": "^4.4.2",
     "pinia": "^3.0.4",
     "vee-validate": "^4.15.1",
     "vue": "^3.5.30",
+    "vue-echarts": "^8.0.1",
     "vue-router": "^4.6.4",
     "zod": "^3.25.76"
   },
@@ -61,6 +66,8 @@
     "@nuxt/test-utils": "4.0.0",
     "@nuxtjs/storybook": "9.0.1",
     "@playwright/test": "^1.58.2",
+    "@storybook/addon-a11y": "9.1.20",
+    "@storybook/vue3": "9.1.2",
     "@testing-library/vue": "^8.1.0",
     "@vitest/coverage-v8": "^4.1.0",
     "@vue/test-utils": "^2.4.6",
@@ -85,7 +92,10 @@
       "@rollup/plugin-terser@0.4.4>serialize-javascript": "7.0.3",
       "svgo": "4.0.1",
       "tar": "7.5.11",
-      "simple-git": ">=3.32.3"
+      "simple-git": ">=3.32.3",
+      "fast-xml-parser": ">=5.5.6",
+      "socket.io-parser": ">=4.2.6",
+      "flatted": ">=3.4.2"
     },
     "onlyBuiltDependencies": [
       "@parcel/watcher",

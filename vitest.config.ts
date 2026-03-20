@@ -2,19 +2,19 @@ import { defineVitestConfig } from "@nuxt/test-utils/config";
 
 /**
  * Vitest configuration — auraxis-web
- * Usa defineVitestConfig do @nuxt/test-utils para integração nativa com Nuxt.
+ * Uses defineVitestConfig from @nuxt/test-utils for native Nuxt integration.
  * Docs: https://nuxt.com/docs/getting-started/testing
  */
 export default defineVitestConfig({
   test: {
-    // Baseline WEB10: evita bootstrap completo do Nuxt em testes unitários iniciais.
-    // Para testes com runtime Nuxt, usar `// @vitest-environment nuxt` por arquivo.
+    // Avoids a full Nuxt bootstrap for unit tests.
+    // For tests that require the Nuxt runtime, add `// @vitest-environment nuxt` per file.
     environment: "happy-dom",
 
-    // Inclui os helpers do @nuxt/test-utils automaticamente
+    // Automatically includes @nuxt/test-utils helpers
     globals: true,
 
-    // Padrões de arquivos de teste
+    // Test file patterns
     include: [
       "app/**/*.{spec,test}.{ts,tsx}",
       "components/**/*.{spec,test}.{ts,tsx}",
@@ -30,13 +30,13 @@ export default defineVitestConfig({
       "**/node_modules/**",
       "**/.nuxt/**",
       "**/.output/**",
-      "**/e2e/**",  // E2E é responsabilidade do Playwright
+      "**/e2e/**",  // E2E is handled by Playwright
     ],
 
     coverage: {
       enabled: true,
-      // Falha explicitamente quando qualquer threshold não é atingido.
-      // Sem este flag o relatório pode ser gerado sem bloquear a execução.
+      // Fails explicitly when any threshold is not met.
+      // Without this flag the report can be generated without blocking execution.
       thresholds: {
         lines: 85,
         functions: 85,
@@ -63,6 +63,8 @@ export default defineVitestConfig({
         "**/*.config.{ts,js}",
         "**/node_modules/**",
         "**/.nuxt/**",
+        // Plugins require Nuxt runtime — unit-testable helpers are tested via __tests__/plugins/
+        "**/app/plugins/**",
       ],
     },
   },

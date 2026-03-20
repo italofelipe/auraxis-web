@@ -1,84 +1,25 @@
 <script setup lang="ts">
-import {
-  useLoginForm,
-  useLoginMutation,
-} from "~/composables/useAuth";
+import { useLoginMutation } from "~/composables/useAuth";
+import { useAuthRedirectContext } from "~/composables/useAuthRedirectContext";
+import { LoginForm } from "~/features/auth/components/LoginForm";
 import type { LoginSchema } from "~/schemas/auth";
 
-definePageMeta({ middleware: ["guest-only"] });
+definePageMeta({ layout: "auth", middleware: ["guest-only"] });
 
 const loginMutation = useLoginMutation();
-const { defineField, errors, handleSubmit, isSubmitting } = useLoginForm();
-const [email, emailProps] = defineField("email");
-const [password, passwordProps] = defineField("password");
+const { consumeRedirect } = useAuthRedirectContext();
 
-const submit = handleSubmit(async (values: LoginSchema) => {
+/**
+ * Submete as credenciais de login e redireciona ao destino pós-auth.
+ * @param values - Dados validados do formulário de login.
+ */
+const onSubmit = async (values: LoginSchema): Promise<void> => {
   await loginMutation.mutateAsync(values);
-  await navigateTo("/dashboard");
-});
+  const redirect = consumeRedirect();
+  await navigateTo(redirect);
+};
 </script>
 
 <template>
-  <UiBaseCard title="Entrar">
-    <form class="auth-form" @submit.prevent="submit">
-      <label>
-        E-mail
-        <input v-model="email" type="email" autocomplete="email" v-bind="emailProps">
-      </label>
-      <p class="form-error">{{ errors.email }}</p>
-
-      <label>
-        Senha
-        <input
-          v-model="password"
-          type="password"
-          autocomplete="current-password"
-          v-bind="passwordProps"
-        >
-      </label>
-      <p class="form-error">{{ errors.password }}</p>
-
-      <button type="submit" :disabled="isSubmitting || loginMutation.isPending.value">
-        Entrar
-      </button>
-
-      <NuxtLink to="/forgot-password">Esqueceu sua senha?</NuxtLink>
-    </form>
-  </UiBaseCard>
+  <LoginForm :loading="loginMutation.isPending.value" @submit="onSubmit" />
 </template>
-
-<style scoped>
-.auth-form {
-  display: grid;
-  gap: var(--space-2);
-}
-
-.auth-form label {
-  display: grid;
-  gap: var(--space-1);
-  color: var(--color-neutral-700);
-  font-weight: var(--font-weight-semibold);
-}
-
-.auth-form input {
-  border: 1px solid var(--color-outline-soft);
-  border-radius: var(--radius-sm);
-  padding: var(--space-1);
-  min-height: 44px;
-}
-
-.auth-form button {
-  min-height: 44px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: var(--color-brand-500);
-  color: var(--color-neutral-950);
-  font-weight: var(--font-weight-bold);
-}
-
-.form-error {
-  min-height: 20px;
-  color: var(--color-neutral-950);
-  margin: 0;
-}
-</style>

@@ -6,17 +6,31 @@ Aplicação web do Auraxis para gestão financeira pessoal com foco em clareza, 
 
 ## Escopo atual
 
-- autenticação web
-- dashboard financeira
-- transações
-- metas
-- carteira/patrimônio
-- ferramentas públicas como topo de funil (em evolução)
+- Autenticação web
+- Dashboard financeira com saldo e transações
+- Transações
+- Metas financeiras
+- Carteira/patrimônio
+- Ferramentas públicas como topo de funil (em evolução)
+- Consumo da API Auraxis via composable HTTP padronizado
+- Hospedagem web oficial em AWS/CloudFront
 
 ## Superfícies
 
 - `app.auraxis.com.br` = aplicação autenticada
 - `auraxis.com.br` = institucional
+
+### Páginas públicas
+
+- institucional (SEO obrigatório)
+- área pública de ferramentas
+- landing de newsletter (escopo em discovery / MVP2)
+
+### Páginas privadas (login obrigatório)
+
+- dashboard e fluxos financeiros
+- salvamento de simulações como metas
+- integrações com dados reais e experiências premium
 
 ## Estratégia de produto
 
