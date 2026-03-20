@@ -84,6 +84,13 @@ const globalStubs = {
     props: ["title"],
     template: "<div class='base-card'><slot /></div>",
   },
+  UiGlassPanel: {
+    template: "<div class='glass-panel'><slot /></div>",
+  },
+  UiPageHeader: {
+    props: ["title", "subtitle"],
+    template: "<div class='page-header'>{{ title }} {{ subtitle }}</div>",
+  },
   BaseSkeleton: {
     template: "<div class='skeleton' />",
   },
@@ -107,6 +114,12 @@ describe("ToolsPage (/tools)", () => {
     expect(wrapper.text()).toContain("Pedir aumento");
   });
 
+  it("destaca a ferramenta parcelado vs à vista", () => {
+    const wrapper = mount(ToolsPage, { global: { stubs: globalStubs } });
+    expect(wrapper.text()).toContain("Nova ferramenta: parcelado vs à vista");
+    expect(wrapper.text()).toContain("Abrir ferramenta");
+  });
+
   it("exibe ToolCard para cada ferramenta", () => {
     const wrapper = mount(ToolsPage, { global: { stubs: globalStubs } });
     const cards = wrapper.findAll(".tool-card");
@@ -121,7 +134,8 @@ describe("ToolsPage (/tools)", () => {
   it("abre modal quando usuário não autenticado clica em salvar resultado", async () => {
     mockIsAuthenticated.mockReturnValue(false);
     const wrapper = mount(ToolsPage, { global: { stubs: globalStubs } });
-    await wrapper.find(".n-button").trigger("click");
+    const buttons = wrapper.findAll(".n-button");
+    await buttons[1]?.trigger("click");
     await flushPromises();
     expect(wrapper.find(".n-modal").exists()).toBe(true);
   });
@@ -129,7 +143,8 @@ describe("ToolsPage (/tools)", () => {
   it("não abre modal quando usuário está autenticado e clica em salvar resultado", async () => {
     mockIsAuthenticated.mockReturnValue(true);
     const wrapper = mount(ToolsPage, { global: { stubs: globalStubs } });
-    await wrapper.find(".n-button").trigger("click");
+    const buttons = wrapper.findAll(".n-button");
+    await buttons[1]?.trigger("click");
     await flushPromises();
     expect(wrapper.find(".n-modal").exists()).toBe(false);
   });
