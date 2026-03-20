@@ -1,8 +1,8 @@
 import { QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
 
 /**
- * Instancia QueryClient com defaults conservadores para server-state.
- * @returns QueryClient configurado para a aplicação.
+ * Instantiates a QueryClient with conservative defaults for server state.
+ * @returns QueryClient configured for the application.
  */
 const createQueryClient = (): QueryClient => {
   return new QueryClient({

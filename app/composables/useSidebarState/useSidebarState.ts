@@ -4,11 +4,11 @@ import type { UseSidebarStateReturn } from "./useSidebarState.types";
 const STORAGE_KEY = "auraxis:sidebar:collapsed";
 
 /**
- * Gerencia o estado collapsed/expanded do sidebar principal.
- * Estado é persistido em localStorage e compartilhado entre instâncias.
+ * Manages the collapsed/expanded state of the main sidebar.
+ * State is persisted in localStorage and shared across instances.
  *
- * Singleton por sessão: usa variável de módulo para compartilhar estado
- * sem precisar de store global.
+ * Session singleton: uses a module-level variable to share state
+ * without requiring a global store.
  */
 const isCollapsed = ref<boolean>(
   typeof window !== "undefined"
@@ -17,8 +17,8 @@ const isCollapsed = ref<boolean>(
 );
 
 /**
- * Persiste o estado no localStorage e atualiza o ref.
- * @param value - Novo valor para isCollapsed.
+ * Persists the state to localStorage and updates the ref.
+ * @param value - New value for isCollapsed.
  * @returns void
  */
 function persist(value: boolean): void {
@@ -29,8 +29,8 @@ function persist(value: boolean): void {
 }
 
 /**
- * Composable que expõe o estado collapsed/expanded do sidebar.
- * @returns Objeto com isCollapsed, toggle, collapse e expand.
+ * Composable that exposes the collapsed/expanded state of the sidebar.
+ * @returns Object with isCollapsed, toggle, collapse and expand.
  */
 export function useSidebarState(): UseSidebarStateReturn {
   return {

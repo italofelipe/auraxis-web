@@ -2,31 +2,29 @@ const REDIRECT_KEY = "auraxis:auth:redirect";
 const FALLBACK_PATH = "/dashboard";
 
 export interface AuthRedirectContext {
-  /** Salva a URL atual como destino pós-login. */
+  /** Persists the current URL as the post-login destination. */
   saveRedirect(path: string): void
-  /** Consome e retorna o caminho salvo (limpa após leitura). Retorna fallback se não houver nada salvo. */
+  /** Consumes and returns the saved path (cleared after read). Returns fallback if nothing is saved. */
   consumeRedirect(): string
-  /** Lê sem consumir. */
+  /** Reads without consuming. */
   peekRedirect(): string | null
-  /** Remove explicitamente o redirect salvo. */
+  /** Explicitly removes the saved redirect. */
   clearRedirect(): void
 }
 
 /**
- * Composable que gerencia o contexto de redirecionamento pós-autenticação.
- * Persiste em sessionStorage para sobreviver a reloads dentro da mesma aba.
+ * Composable that manages the post-authentication redirect context.
+ * Persists to sessionStorage to survive reloads within the same tab.
  *
- * MIC-29
- *
- * @returns Conjunto de operações para salvar, consumir e limpar o redirect de auth.
+ * @returns A set of operations to save, consume and clear the auth redirect.
  */
 export function useAuthRedirectContext(): AuthRedirectContext {
   const isClient = typeof window !== "undefined";
 
   /**
-   * Salva o caminho de destino pós-login.
-   * Caminhos que não iniciam com "/" são ignorados e substituídos pelo fallback.
-   * @param path - Caminho absoluto do destino (deve iniciar com "/").
+   * Saves the post-login destination path.
+   * Paths that do not start with "/" are ignored and replaced with the fallback.
+   * @param path - Absolute destination path (must start with "/").
    */
   const saveRedirect = (path: string): void => {
     if (!isClient) {
@@ -37,9 +35,9 @@ export function useAuthRedirectContext(): AuthRedirectContext {
   };
 
   /**
-   * Lê e remove o caminho salvo.
-   * Retorna o fallback "/dashboard" se nenhum caminho estiver armazenado.
-   * @returns O caminho salvo ou "/dashboard" como fallback.
+   * Reads and removes the saved path.
+   * Returns the fallback "/dashboard" if no path is stored.
+   * @returns The saved path or "/dashboard" as fallback.
    */
   const consumeRedirect = (): string => {
     if (!isClient) {
@@ -51,8 +49,8 @@ export function useAuthRedirectContext(): AuthRedirectContext {
   };
 
   /**
-   * Lê o caminho salvo sem removê-lo.
-   * @returns O caminho salvo ou null se não houver nenhum.
+   * Reads the saved path without removing it.
+   * @returns The saved path or null if none exists.
    */
   const peekRedirect = (): string | null => {
     if (!isClient) {
@@ -62,7 +60,7 @@ export function useAuthRedirectContext(): AuthRedirectContext {
   };
 
   /**
-   * Remove explicitamente o redirect salvo.
+   * Explicitly removes the saved redirect.
    */
   const clearRedirect = (): void => {
     if (!isClient) {

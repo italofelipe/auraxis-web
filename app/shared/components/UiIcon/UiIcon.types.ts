@@ -3,8 +3,8 @@ import type { AuraxisIconName } from "../../utils/icons/icons.types";
 export interface UiIconProps {
   name: AuraxisIconName
   size?: number
-  /** Acessibilidade: se o ícone é decorativo (ocultar de leitores de tela) */
+  /** Accessibility: whether the icon is decorative (hidden from screen readers) */
   decorative?: boolean
-  /** Label para leitores de tela quando não decorativo */
+  /** Screen reader label when the icon is not decorative */
   label?: string
 }

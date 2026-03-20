@@ -15,8 +15,8 @@ interface SessionState {
 const SESSION_COOKIE_KEY = "auraxis_session";
 
 /**
- * Resolve o cookie canônico da sessão autenticada.
- * @returns Referência reativa do cookie de sessão.
+ * Resolves the canonical authenticated session cookie.
+ * @returns Reactive reference to the session cookie.
  */
 const useSessionCookie = (): Ref<SessionCookiePayload | null> => {
   return useCookie<SessionCookiePayload | null>(SESSION_COOKIE_KEY, {
@@ -28,9 +28,9 @@ const useSessionCookie = (): Ref<SessionCookiePayload | null> => {
 };
 
 /**
- * Aplica o payload persistido do cookie no estado local da store.
- * @param state Estado mutável da sessão.
- * @param payload Payload persistido ou nulo quando não houver sessão.
+ * Applies the persisted cookie payload to the local store state.
+ * @param state Mutable session state.
+ * @param payload Persisted payload or null when there is no session.
  */
 const applyCookiePayloadToState = (
   state: SessionState,

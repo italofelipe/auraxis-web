@@ -25,14 +25,14 @@ describe("guest-only middleware", () => {
     mockNavigateTo.mockClear();
   });
 
-  it("restaura sessão antes de checar autenticação", async () => {
+  it("restores the session before checking authentication", async () => {
     mockIsAuthenticated.mockReturnValue(false);
     const middleware = await import("./guest-only");
     (middleware.default as () => unknown)();
     expect(mockRestore).toHaveBeenCalledOnce();
   });
 
-  it("redireciona para /dashboard quando já autenticado", async () => {
+  it("redirects to /dashboard when already authenticated", async () => {
     mockIsAuthenticated.mockReturnValue(true);
     const middleware = await import("./guest-only");
     const result = (middleware.default as () => unknown)();
@@ -40,7 +40,7 @@ describe("guest-only middleware", () => {
     expect(result).toBe("/dashboard");
   });
 
-  it("não redireciona quando não autenticado", async () => {
+  it("does not redirect when not authenticated", async () => {
     mockIsAuthenticated.mockReturnValue(false);
     const middleware = await import("./guest-only");
     const result = (middleware.default as () => unknown)();

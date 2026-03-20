@@ -25,14 +25,14 @@ describe("authenticated middleware", () => {
     mockNavigateTo.mockClear();
   });
 
-  it("restaura sessão antes de checar autenticação", async () => {
+  it("restores the session before checking authentication", async () => {
     mockIsAuthenticated.mockReturnValue(false);
     const middleware = await import("./authenticated");
     (middleware.default as () => unknown)();
     expect(mockRestore).toHaveBeenCalledOnce();
   });
 
-  it("redireciona para /login quando não autenticado", async () => {
+  it("redirects to /login when not authenticated", async () => {
     mockIsAuthenticated.mockReturnValue(false);
     const middleware = await import("./authenticated");
     const result = (middleware.default as () => unknown)();
@@ -40,7 +40,7 @@ describe("authenticated middleware", () => {
     expect(result).toBe("/login");
   });
 
-  it("não redireciona quando autenticado", async () => {
+  it("does not redirect when authenticated", async () => {
     mockIsAuthenticated.mockReturnValue(true);
     const middleware = await import("./authenticated");
     const result = (middleware.default as () => unknown)();

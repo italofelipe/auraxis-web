@@ -4,10 +4,10 @@ import type { UseResponsiveShellReturn } from "./useResponsiveShell.types";
 const MOBILE_BREAKPOINT = 768;
 
 /**
- * Gerencia o comportamento responsivo da shell autenticada.
- * - Em desktop: sidebar fixa, drawer não existe.
- * - Em mobile: sidebar vira drawer (overlay).
- * @returns Objeto com isMobile, isDrawerOpen, openDrawer, closeDrawer e toggleDrawer.
+ * Manages the responsive behavior of the authenticated shell.
+ * - On desktop: fixed sidebar, no drawer.
+ * - On mobile: sidebar becomes a drawer (overlay).
+ * @returns Object with isMobile, isDrawerOpen, openDrawer, closeDrawer and toggleDrawer.
  */
 export function useResponsiveShell(): UseResponsiveShellReturn {
   const isMobile = ref(false);

@@ -1,29 +1,29 @@
 import { colors } from "./colors";
 
-// Aliases semânticos — use estes nos componentes, não os primitivos diretamente
+// Semantic aliases — use these in components, not the primitives directly
 export const semantic = {
-  // Superfícies
+  // Surfaces
   surface: {
     page:    colors.bg.base,
     card:    colors.bg.surface,
     overlay: colors.bg.elevated,
     glass:   colors.bg.glass,
   },
-  // Ações
+  // Actions
   action: {
     primary:        colors.brand[600],
     primaryHover:   colors.brand[500],
     primaryPressed: colors.brand[700],
     primarySubtle:  colors.brandGlow.xs,
   },
-  // Feedback financeiro
+  // Financial feedback
   financial: {
     positive:   colors.positive.DEFAULT,
     positiveBg: colors.positive.bg,
     negative:   colors.negative.DEFAULT,
     negativeBg: colors.negative.bg,
   },
-  // Texto
+  // Text
   text: {
     primary:   colors.text.primary,
     secondary: colors.text.secondary,
