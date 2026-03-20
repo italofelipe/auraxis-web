@@ -8,7 +8,11 @@ import { useAlertsClient } from "~/features/alerts/api/alerts.client";
 import AlertsList from "~/features/alerts/components/AlertsList.vue";
 import AlertPreferencesList from "~/features/alerts/components/AlertPreferencesList.vue";
 
-definePageMeta({ middleware: ["authenticated"] });
+definePageMeta({
+  middleware: ["authenticated"],
+  pageTitle: "Alertas",
+  pageSubtitle: "Alertas e preferências de notificação",
+});
 
 const queryClient = useQueryClient();
 const alertsClient = useAlertsClient();
@@ -16,10 +20,8 @@ const alertsClient = useAlertsClient();
 const alertsQuery = useAlertsQuery();
 const preferencesQuery = useAlertPreferencesQuery();
 
-/** Tracks which categories are currently being updated. */
 const updatingCategories = ref<Set<string>>(new Set());
 
-/** Mutation to mark an alert as read. */
 const markReadMutation = useMutation({
   mutationFn: (id: string) => alertsClient.markRead(id),
   onSuccess: () => {
@@ -27,7 +29,6 @@ const markReadMutation = useMutation({
   },
 });
 
-/** Mutation to delete an alert. */
 const deleteAlertMutation = useMutation({
   mutationFn: (id: string) => alertsClient.deleteAlert(id),
   onSuccess: () => {
@@ -35,7 +36,6 @@ const deleteAlertMutation = useMutation({
   },
 });
 
-/** Mutation to update an alert preference. */
 const updatePreferenceMutation = useMutation({
   mutationFn: ({ category, enabled }: { category: string; enabled: boolean }) =>
     alertsClient.updatePreference(category, { enabled, channels: [] }),
@@ -44,27 +44,19 @@ const updatePreferenceMutation = useMutation({
   },
 });
 
-/**
- * Handles marking an alert as read.
- *
- * @param id Alert identifier.
- */
+/** @param id Alert identifier. */
 const onMarkRead = (id: string): void => {
   markReadMutation.mutate(id);
 };
 
-/**
- * Handles deleting an alert.
- *
- * @param id Alert identifier.
- */
+/** @param id Alert identifier. */
 const onDeleteAlert = (id: string): void => {
   deleteAlertMutation.mutate(id);
 };
 
 /**
- * Handles toggling an alert preference.
- *
+ * Toggles an alert preference and tracks the in-flight category
+ * to prevent duplicate mutations while the request is pending.
  * @param category Alert category identifier.
  * @param enabled New enabled state.
  */
@@ -86,24 +78,14 @@ const onTogglePreference = (category: string, enabled: boolean): void => {
 
 <template>
   <div class="alertas-page">
-    <header class="alertas-page__header">
-      <h1>Alertas</h1>
-      <p class="alertas-page__subtitle">
-        Gerencie seus alertas e configure suas preferências de notificação.
-      </p>
-    </header>
-
     <NTabs type="line" animated>
-      <!-- Alerts tab -->
       <NTabPane name="alerts" tab="Alertas">
-        <!-- Error state -->
         <UiBaseCard v-if="alertsQuery.isError.value" title="Erro ao carregar alertas">
           <p class="alertas-page__support-copy">
             Não foi possível carregar seus alertas. Tente novamente.
           </p>
         </UiBaseCard>
 
-        <!-- Loading or loaded state -->
         <AlertsList
           v-else
           :alerts="alertsQuery.data.value?.items ?? []"
@@ -113,16 +95,13 @@ const onTogglePreference = (category: string, enabled: boolean): void => {
         />
       </NTabPane>
 
-      <!-- Preferences tab -->
       <NTabPane name="preferences" tab="Preferências">
-        <!-- Error state -->
         <UiBaseCard v-if="preferencesQuery.isError.value" title="Erro ao carregar preferências">
           <p class="alertas-page__support-copy">
             Não foi possível carregar suas preferências. Tente novamente.
           </p>
         </UiBaseCard>
 
-        <!-- Loading or loaded state -->
         <AlertPreferencesList
           v-else
           :preferences="preferencesQuery.data.value ?? []"
@@ -138,21 +117,11 @@ const onTogglePreference = (category: string, enabled: boolean): void => {
 <style scoped>
 .alertas-page {
   display: grid;
-  gap: var(--space-4, 16px);
-  padding: var(--space-4, 16px);
-}
-
-.alertas-page__header {
-  margin-bottom: var(--space-2, 8px);
-}
-
-.alertas-page__subtitle {
-  margin: var(--space-1, 4px) 0 0;
-  color: var(--color-text-subtle, #888);
+  gap: var(--space-4);
 }
 
 .alertas-page__support-copy {
   margin: 0;
-  color: var(--color-text-subtle, #888);
+  color: var(--color-text-muted);
 }
 </style>
