@@ -6,7 +6,11 @@ import CheckoutButton from "~/features/subscription/components/CheckoutButton.vu
 import { useSubscriptionQuery } from "~/features/subscription/queries/use-subscription-query";
 import { useSubscriptionClient } from "~/features/subscription/api/subscription.client";
 
-definePageMeta({ middleware: ["authenticated"] });
+definePageMeta({
+  middleware: ["authenticated"],
+  pageTitle: "Assinatura",
+  pageSubtitle: "Gerencie seu plano e informações de cobrança",
+});
 
 const subscriptionQuery = useSubscriptionQuery();
 
@@ -15,10 +19,8 @@ const isCanceling = ref(false);
 const cancelError = ref<string | null>(null);
 
 /**
- * Formats an ISO timestamp into a human-readable PT-BR date label.
- *
- * @param iso ISO date string to format.
- * @returns Localized date string or empty string when value is null.
+ * @param iso ISO date string or null.
+ * @returns Localized date string or empty string.
  */
 const formatDate = (iso: string | null): string => {
   if (!iso) { return ""; }
@@ -30,10 +32,8 @@ const formatDate = (iso: string | null): string => {
 };
 
 /**
- * Returns a human-readable plan name for the given plan slug.
- *
  * @param slug Plan slug from the API.
- * @returns Display name for the plan.
+ * @returns Human-readable plan name.
  */
 const planDisplayName = (slug: string): string => {
   const names: Record<string, string> = {
@@ -71,26 +71,16 @@ const isActive = computed(() =>
 
 <template>
   <div class="assinatura-page">
-    <header class="assinatura-page__header">
-      <h1>Assinatura</h1>
-      <p class="assinatura-page__subtitle">
-        Gerencie seu plano e informações de cobrança.
-      </p>
-    </header>
-
-    <!-- Loading state -->
     <NSpace v-if="subscriptionQuery.isLoading.value" vertical :size="16">
       <NSkeleton height="140px" :sharp="false" />
     </NSpace>
 
-    <!-- Error state -->
     <UiBaseCard v-else-if="subscriptionQuery.isError.value" title="Erro ao carregar assinatura">
       <p class="assinatura-page__support-copy">
         Não foi possível carregar sua assinatura. Tente novamente.
       </p>
     </UiBaseCard>
 
-    <!-- Loaded state -->
     <NCard v-else-if="subscription" class="assinatura-page__card">
       <div class="assinatura-page__plan-row">
         <div>
@@ -130,7 +120,6 @@ const isActive = computed(() =>
       </div>
     </NCard>
 
-    <!-- Cancellation confirmation modal -->
     <NModal
       v-model:show="showCancelModal"
       preset="dialog"
@@ -152,44 +141,34 @@ const isActive = computed(() =>
 <style scoped>
 .assinatura-page {
   display: grid;
-  gap: var(--space-4, 16px);
-  padding: var(--space-4, 16px);
+  gap: var(--space-4);
   max-width: 640px;
-}
-
-.assinatura-page__header {
-  margin-bottom: var(--space-2, 8px);
-}
-
-.assinatura-page__subtitle {
-  margin: var(--space-1, 4px) 0 0;
-  color: var(--color-text-subtle, #888);
 }
 
 .assinatura-page__card {
   display: grid;
-  gap: var(--space-3, 12px);
+  gap: var(--space-3);
 }
 
 .assinatura-page__plan-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: var(--space-2, 8px);
+  gap: var(--space-2);
 }
 
 .assinatura-page__label {
-  margin: 0 0 var(--space-1, 4px);
-  font-size: var(--font-size-body-sm, 0.75rem);
-  color: var(--color-text-subtle, #888);
+  margin: 0 0 var(--space-1);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
 
 .assinatura-page__plan-name {
   margin: 0;
-  font-size: var(--font-size-heading-sm, 1.125rem);
-  font-weight: var(--font-weight-semibold, 600);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
 }
 
 .assinatura-page__detail {
@@ -199,26 +178,26 @@ const isActive = computed(() =>
 
 .assinatura-page__detail p:last-child {
   margin: 0;
-  font-weight: var(--font-weight-semibold, 600);
+  font-weight: var(--font-weight-semibold);
 }
 
 .assinatura-page__support-copy {
-  margin: 0 0 var(--space-2, 8px);
-  color: var(--color-neutral-700, #444);
+  margin: 0 0 var(--space-2);
+  color: var(--color-text-secondary);
 }
 
 .assinatura-page__upgrade {
-  padding-top: var(--space-2, 8px);
+  padding-top: var(--space-2);
   border-top: 1px solid var(--color-outline-soft);
 }
 
 .assinatura-page__cancel {
-  padding-top: var(--space-2, 8px);
+  padding-top: var(--space-2);
 }
 
 .assinatura-page__cancel-error {
   margin: 0;
-  font-size: var(--font-size-body-sm, 0.75rem);
-  color: #b24526;
+  font-size: var(--font-size-sm);
+  color: var(--color-negative);
 }
 </style>

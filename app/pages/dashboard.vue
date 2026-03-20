@@ -11,7 +11,11 @@ import DashboardTimeseriesChart from "~/features/dashboard/components/DashboardT
 import type { DashboardPeriod } from "~/features/dashboard/model/dashboard-period";
 import { formatCurrency } from "~/utils/currency";
 
-definePageMeta({ middleware: ["authenticated"] });
+definePageMeta({
+  middleware: ["authenticated"],
+  pageTitle: "Dashboard financeiro",
+  pageSubtitle: "Visão consolidada do período",
+});
 
 const selectedPeriod = ref<DashboardOverviewFilters["period"]>("current_month");
 const customStart = ref("");
@@ -19,16 +23,9 @@ const customEnd = ref("");
 
 const filters = computed<DashboardOverviewFilters>(() => {
   if (selectedPeriod.value === "custom") {
-    return {
-      period: selectedPeriod.value,
-      start: customStart.value || undefined,
-      end: customEnd.value || undefined,
-    };
+    return { period: selectedPeriod.value, start: customStart.value || undefined, end: customEnd.value || undefined };
   }
-
-  return {
-    period: selectedPeriod.value,
-  };
+  return { period: selectedPeriod.value };
 });
 
 const dashboardQuery = useDashboardOverviewQuery(filters);
@@ -43,120 +40,79 @@ const goals = computed(() => overview.value?.goals ?? []);
 const alerts = computed(() => overview.value?.alerts ?? []);
 const portfolio = computed(() => overview.value?.portfolio ?? null);
 
-const isCustomPeriodIncomplete = computed(() => {
-  return selectedPeriod.value === "custom" && (!customStart.value || !customEnd.value);
-});
+const isCustomPeriodIncomplete = computed(
+  () => selectedPeriod.value === "custom" && (!customStart.value || !customEnd.value),
+);
+
+const isQuickSelectPeriod = computed((): boolean =>
+  ["1m", "3m", "6m", "12m"].includes(selectedPeriod.value),
+);
 
 /**
- * Determines whether the selected period can be managed by DashboardPeriodSelector.
- *
- * @returns Whether the selected period is a quick-select preset.
+ * @param value ISO date string (YYYY-MM-DD).
+ * @returns Localized date string in pt-BR format.
  */
-const isQuickSelectPeriod = computed((): boolean => {
-  return (
-    selectedPeriod.value === "1m" ||
-    selectedPeriod.value === "3m" ||
-    selectedPeriod.value === "6m" ||
-    selectedPeriod.value === "12m"
-  );
-});
+const formatDate = (value: string): string =>
+  new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", year: "numeric" })
+    .format(new Date(`${value}T00:00:00`));
 
-/**
- * Formats an ISO date to a compact PT-BR label.
- *
- * @param value ISO-like calendar date.
- * @returns Localized date label.
- */
-const formatDate = (value: string): string => {
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(`${value}T00:00:00`));
-};
-
-/**
- * Builds the empty-state copy for the current filter selection.
- *
- * @returns Empty-state message.
- */
-const buildEmptyMessage = (): string => {
-  if (selectedPeriod.value === "custom") {
-    return "Nenhum dado encontrado para o período personalizado.";
-  }
-
-  return "Ainda não encontramos movimentações para o período selecionado.";
-};
+const emptyMessage = computed(() =>
+  selectedPeriod.value === "custom"
+    ? "Nenhum dado encontrado para o período personalizado."
+    : "Ainda não encontramos movimentações para o período selecionado.",
+);
 </script>
 
 <template>
   <div class="dashboard-page">
-    <header class="dashboard-page__hero">
-      <div>
-        <p class="dashboard-page__eyebrow">Dashboard financeiro</p>
-        <h1>
-          <template v-if="dashboardQuery.isLoading.value">Carregando período…</template>
-          <template v-else-if="dashboardQuery.isError.value">Dashboard financeiro</template>
-          <template v-else-if="overview">{{ overview.period.label }}</template>
-          <template v-else>Dashboard financeiro</template>
-        </h1>
-        <p class="dashboard-page__description">
-          Acompanhe entradas, saídas, alertas, metas e patrimônio em uma
-          visão única do período.
-        </p>
-      </div>
+    <div class="dashboard-page__controls">
+      <DashboardPeriodSelector
+        v-if="isQuickSelectPeriod"
+        :model-value="(selectedPeriod as DashboardPeriod)"
+        @period-change="(p: DashboardPeriod) => (selectedPeriod = p)"
+      />
 
-      <div class="dashboard-page__controls">
-        <DashboardPeriodSelector
-          v-if="isQuickSelectPeriod"
-          :model-value="(selectedPeriod as DashboardPeriod)"
-          @period-change="(p: DashboardPeriod) => (selectedPeriod = p)"
-        />
+      <label class="control-field">
+        <span>Período</span>
+        <select v-model="selectedPeriod">
+          <option
+            v-for="option in DASHBOARD_PERIOD_OPTIONS"
+            :key="option.value"
+            :value="option.value"
+          >
+            {{ option.label }}
+          </option>
+        </select>
+      </label>
 
+      <template v-if="selectedPeriod === 'custom'">
         <label class="control-field">
-          <span>Período</span>
-          <select v-model="selectedPeriod">
-            <option
-              v-for="option in DASHBOARD_PERIOD_OPTIONS"
-              :key="option.value"
-              :value="option.value"
-            >
-              {{ option.label }}
-            </option>
-          </select>
+          <span>Início</span>
+          <input v-model="customStart" type="date">
         </label>
+        <label class="control-field">
+          <span>Fim</span>
+          <input v-model="customEnd" type="date">
+        </label>
+      </template>
+    </div>
 
-        <template v-if="selectedPeriod === 'custom'">
-          <label class="control-field">
-            <span>Início</span>
-            <input v-model="customStart" type="date">
-          </label>
-          <label class="control-field">
-            <span>Fim</span>
-            <input v-model="customEnd" type="date">
-          </label>
-        </template>
-      </div>
-    </header>
+    <UiEmptyState
+      v-if="isCustomPeriodIncomplete"
+      icon="calendar"
+      title="Selecione o intervalo"
+      description="Para consultar um período personalizado, informe a data inicial e a data final."
+    />
 
-    <UiBaseCard v-if="isCustomPeriodIncomplete" title="Período personalizado">
-      <p class="support-copy">
-        Para consultar um período personalizado, selecione a data inicial e a
-        data final.
-      </p>
-    </UiBaseCard>
-
-    <UiBaseCard v-else-if="dashboardQuery.isError.value" title="Não foi possível carregar a dashboard">
-      <p class="support-copy">
-        O overview do período não pôde ser carregado agora.
-      </p>
+    <UiSurfaceCard v-else-if="dashboardQuery.isError.value">
+      <p class="support-copy">O overview do período não pôde ser carregado agora.</p>
       <p class="error-copy">
         {{ dashboardQuery.error.value?.message ?? "Erro desconhecido de integração." }}
       </p>
       <button class="retry-button" type="button" @click="dashboardQuery.refetch()">
         Tentar novamente
       </button>
-    </UiBaseCard>
+    </UiSurfaceCard>
 
     <template v-else>
       <DashboardSummaryGrid
@@ -167,15 +123,12 @@ const buildEmptyMessage = (): string => {
         :is-loading="dashboardQuery.isLoading.value"
       />
 
-      <UiBaseCard
+      <UiEmptyState
         v-if="!dashboardQuery.isLoading.value && !summary && !dashboardQuery.isError.value"
+        icon="chart-no-axes-combined"
         title="Sem dados para este período"
-      >
-        <p class="support-copy">
-          {{ buildEmptyMessage() }} Assim que você registrar receitas, despesas, metas
-          ou patrimônio, a dashboard começa a ganhar vida.
-        </p>
-      </UiBaseCard>
+        :description="emptyMessage"
+      />
 
       <template v-else>
         <section class="dashboard-main-grid">
@@ -189,13 +142,14 @@ const buildEmptyMessage = (): string => {
             :is-loading="dashboardQuery.isLoading.value"
           />
 
-          <UiBaseCard title="Despesas por categoria">
+          <UiSurfaceCard>
+            <template #header>Despesas por categoria</template>
             <BaseSkeleton v-if="dashboardQuery.isLoading.value" />
-            <div v-else class="category-list">
+            <div v-else class="item-list">
               <article
                 v-for="category in expensesByCategory"
                 :key="category.category"
-                class="category-item"
+                class="item-row"
               >
                 <div>
                   <strong>{{ category.category }}</strong>
@@ -203,38 +157,48 @@ const buildEmptyMessage = (): string => {
                 </div>
                 <span>{{ category.percentage.toFixed(1) }}%</span>
               </article>
-              <p v-if="expensesByCategory.length === 0" class="support-copy">
-                Ainda não há categorias suficientes para mostrar a distribuição.
-              </p>
+              <UiEmptyState
+                v-if="expensesByCategory.length === 0"
+                icon="pie-chart"
+                title="Sem categorias"
+                description="Ainda não há categorias suficientes para mostrar a distribuição."
+                compact
+              />
             </div>
-          </UiBaseCard>
+          </UiSurfaceCard>
 
-          <UiBaseCard title="Próximos vencimentos">
+          <UiSurfaceCard>
+            <template #header>Próximos vencimentos</template>
             <BaseSkeleton v-if="dashboardQuery.isLoading.value" />
-            <div v-else class="due-list">
+            <div v-else class="item-list">
               <article
                 v-for="due in upcomingDues"
                 :key="due.id"
-                class="due-item"
+                class="item-row"
               >
                 <div>
                   <strong>{{ due.description }}</strong>
                   <p>{{ due.category ?? "Sem categoria" }}</p>
                 </div>
-                <div class="due-item__meta">
+                <div class="item-row__meta">
                   <span>{{ formatDate(due.dueDate) }}</span>
                   <strong>{{ formatCurrency(due.amount) }}</strong>
                 </div>
               </article>
-              <p v-if="upcomingDues.length === 0" class="support-copy">
-                Nenhum vencimento próximo neste período.
-              </p>
+              <UiEmptyState
+                v-if="upcomingDues.length === 0"
+                icon="calendar-check"
+                title="Nenhum vencimento"
+                description="Nenhum vencimento próximo neste período."
+                compact
+              />
             </div>
-          </UiBaseCard>
+          </UiSurfaceCard>
 
-          <UiBaseCard title="Metas em destaque">
+          <UiSurfaceCard>
+            <template #header>Metas em destaque</template>
             <BaseSkeleton v-if="dashboardQuery.isLoading.value" />
-            <div v-else class="goal-list">
+            <div v-else class="item-list">
               <article
                 v-for="goal in goals"
                 :key="goal.id"
@@ -252,11 +216,15 @@ const buildEmptyMessage = (): string => {
                   {{ formatCurrency(goal.targetAmount) }}
                 </p>
               </article>
-              <p v-if="goals.length === 0" class="support-copy">
-                Nenhuma meta ativa para o período selecionado.
-              </p>
+              <UiEmptyState
+                v-if="goals.length === 0"
+                icon="target"
+                title="Sem metas"
+                description="Nenhuma meta ativa para o período selecionado."
+                compact
+              />
             </div>
-          </UiBaseCard>
+          </UiSurfaceCard>
         </section>
       </template>
     </template>
@@ -269,41 +237,11 @@ const buildEmptyMessage = (): string => {
   gap: var(--space-3);
 }
 
-.dashboard-page__hero {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-3);
-  align-items: flex-start;
-  flex-wrap: wrap;
-}
-
-.dashboard-page__eyebrow {
-  margin: 0 0 var(--space-1);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: var(--font-size-body-sm);
-  color: var(--color-brand-500);
-  font-weight: var(--font-weight-semibold);
-}
-
-.dashboard-page h1 {
-  margin: 0;
-  font-family: var(--font-heading);
-  font-size: var(--font-size-heading-xl);
-  line-height: var(--line-height-heading-lg);
-}
-
-.dashboard-page__description {
-  margin: var(--space-1) 0 0;
-  color: var(--color-neutral-700);
-  max-width: 680px;
-}
-
 .dashboard-page__controls {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
   gap: var(--space-2);
-  min-width: min(100%, 420px);
 }
 
 .control-field {
@@ -312,8 +250,9 @@ const buildEmptyMessage = (): string => {
 }
 
 .control-field span {
-  color: var(--color-neutral-700);
+  color: var(--color-text-secondary);
   font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
 }
 
 .control-field select,
@@ -324,7 +263,8 @@ const buildEmptyMessage = (): string => {
   border: 1px solid var(--color-outline-soft);
   padding-inline: var(--space-2);
   font: inherit;
-  background: var(--color-surface-50);
+  background: var(--color-bg-elevated);
+  color: var(--color-text-primary);
 }
 
 .retry-button {
@@ -332,15 +272,14 @@ const buildEmptyMessage = (): string => {
   font-weight: var(--font-weight-semibold);
 }
 
-.support-copy,
-.error-copy {
+.support-copy {
   margin: 0;
-  color: var(--color-neutral-700);
+  color: var(--color-text-muted);
 }
 
 .error-copy {
   margin-top: var(--space-1);
-  color: #b24526;
+  color: var(--color-negative);
 }
 
 .dashboard-main-grid {
@@ -349,24 +288,41 @@ const buildEmptyMessage = (): string => {
   gap: var(--space-2);
 }
 
-.category-list,
-.due-list,
-.goal-list {
+.item-list {
   display: grid;
   gap: var(--space-2);
 }
 
-.category-item,
-.due-item,
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-outline-soft);
+  padding: var(--space-2);
+  background: var(--color-bg-elevated);
+}
+
+.item-row p,
+.goal-item p {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.item-row__meta {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+}
+
 .goal-item {
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-outline-soft);
   padding: var(--space-2);
-  background: rgba(255, 255, 255, 0.45);
+  background: var(--color-bg-elevated);
 }
 
-.category-item,
-.due-item,
 .goal-item__header {
   display: flex;
   justify-content: space-between;
@@ -374,16 +330,10 @@ const buildEmptyMessage = (): string => {
   align-items: flex-start;
 }
 
-.due-item__meta {
-  display: grid;
-  justify-items: end;
-  gap: 4px;
-}
-
 .goal-item__track {
   height: 10px;
   border-radius: var(--radius-lg);
-  background: rgba(38, 33, 33, 0.12);
+  background: var(--color-outline-soft);
   overflow: hidden;
   margin-block: var(--space-1);
 }
@@ -392,14 +342,7 @@ const buildEmptyMessage = (): string => {
   display: block;
   height: 10px;
   border-radius: var(--radius-lg);
-  background: linear-gradient(90deg, #ffab1a 0%, #ffbe4d 100%);
-}
-
-.category-item p,
-.due-item p,
-.goal-item p {
-  margin: 0;
-  color: var(--color-neutral-700);
+  background: linear-gradient(90deg, var(--color-brand-600) 0%, var(--color-brand-500) 100%);
 }
 
 @media (max-width: 1024px) {

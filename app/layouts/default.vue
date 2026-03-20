@@ -1,53 +1,54 @@
+<script setup lang="ts">
+import {
+  LayoutDashboard,
+  Briefcase,
+  Target,
+  Wrench,
+  Bell,
+  Share2,
+  Calculator,
+  CreditCard,
+} from "lucide-vue-next";
+import type { AppShellNavItem, AppShellUser } from "~/shared/components/UiAppShell/UiAppShell.types";
+
+const route = useRoute();
+const router = useRouter();
+const sessionStore = useSessionStore();
+
+const NAV_ITEMS: AppShellNavItem[] = [
+  { key: "dashboard", label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
+  { key: "carteira", label: "Carteira", to: "/carteira", icon: Briefcase },
+  { key: "metas", label: "Metas", to: "/metas", icon: Target },
+  { key: "alertas", label: "Alertas", to: "/alertas", icon: Bell },
+  { key: "simulacoes", label: "Simulações", to: "/simulacoes", icon: Calculator },
+  { key: "compartilhamentos", label: "Compartilhamentos", to: "/compartilhamentos", icon: Share2 },
+  { key: "tools", label: "Ferramentas", to: "/tools", icon: Wrench },
+  { key: "assinatura", label: "Assinatura", to: "/assinatura", icon: CreditCard },
+];
+
+const user = computed<AppShellUser>(() => ({
+  name: sessionStore.userEmail ?? "Usuário",
+  description: "Conta pessoal",
+}));
+
+const pageTitle = computed(() => (route.meta.pageTitle as string | undefined) ?? "Auraxis");
+const pageSubtitle = computed(() => route.meta.pageSubtitle as string | undefined);
+
+/** Signs out the current user and redirects to login. */
+function onLogout(): void {
+  sessionStore.signOut();
+  router.push("/login");
+}
+</script>
+
 <template>
-  <div class="layout-shell">
-    <header class="layout-header">
-      <div class="layout-brand">Auraxis</div>
-      <nav class="layout-nav">
-        <NuxtLink to="/dashboard">Dashboard</NuxtLink>
-        <NuxtLink to="/carteira">Carteira</NuxtLink>
-        <NuxtLink to="/tools">Ferramentas</NuxtLink>
-      </nav>
-    </header>
-
-    <main class="layout-main">
-      <slot />
-    </main>
-  </div>
+  <UiAppShell
+    :nav-items="NAV_ITEMS"
+    :user="user"
+    :page-title="pageTitle"
+    :page-subtitle="pageSubtitle"
+    @user-logout="onLogout"
+  >
+    <slot />
+  </UiAppShell>
 </template>
-
-<style scoped>
-.layout-shell {
-  min-height: 100dvh;
-}
-
-.layout-header {
-  display: flex;
-  gap: var(--space-2);
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--space-2) var(--space-3);
-  border-bottom: 1px solid rgba(38, 33, 33, 0.08);
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(6px);
-}
-
-.layout-brand {
-  font-family: var(--font-heading);
-  font-size: var(--font-size-heading-md);
-  line-height: var(--line-height-heading-md);
-  color: var(--color-neutral-950);
-}
-
-.layout-nav {
-  display: flex;
-  gap: var(--space-2);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-neutral-700);
-}
-
-.layout-main {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--space-3);
-}
-</style>
