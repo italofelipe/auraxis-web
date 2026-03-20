@@ -61,3 +61,17 @@ export type { UiUserMenuProps, UiUserMenuEmits } from "./UiUserMenu";
 // MIC-15 — Topbar container with page header, actions and user menu
 export { UiTopbar } from "./UiTopbar";
 export type { UiTopbarProps, UiTopbarEmits, UiTopbarAction } from "./UiTopbar";
+
+// MIC-13 — Authenticated layout shell with sidebar, topbar and mobile drawer
+export { UiAppShell } from "./UiAppShell";
+export type {
+  UiAppShellProps,
+  UiAppShellEmits,
+  AppShellNavItem,
+  AppShellUser,
+  AppShellAction,
+} from "./UiAppShell";
+
+// MIC-24 — Social auth buttons (Google, Apple)
+export { UiSocialAuthButtons } from "./UiSocialAuthButtons";
+export type { UiSocialAuthButtonsProps, UiSocialAuthButtonsEmits } from "./UiSocialAuthButtons";
