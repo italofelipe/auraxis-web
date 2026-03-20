@@ -3,35 +3,29 @@ import { NSkeleton, NSpace } from "naive-ui";
 
 import { useSimulationsQuery } from "~/features/simulations/queries/use-simulations-query";
 
-definePageMeta({ middleware: ["authenticated"] });
+definePageMeta({
+  middleware: ["authenticated"],
+  pageTitle: "Simulações",
+  pageSubtitle: "Consulte os resultados salvos das ferramentas",
+});
 
 const simulationsQuery = useSimulationsQuery();
 </script>
 
 <template>
   <div class="simulacoes-page">
-    <header class="simulacoes-page__header">
-      <h1>Simulações salvas</h1>
-      <p class="simulacoes-page__subtitle">
-        Consulte os resultados que você salvou ao usar as ferramentas.
-      </p>
-    </header>
-
-    <!-- Loading state -->
     <NSpace v-if="simulationsQuery.isLoading.value" vertical :size="16">
       <NSkeleton height="80px" :sharp="false" />
       <NSkeleton height="80px" :sharp="false" />
       <NSkeleton height="80px" :sharp="false" />
     </NSpace>
 
-    <!-- Error state -->
     <UiBaseCard v-else-if="simulationsQuery.isError.value" title="Erro ao carregar simulações">
       <p class="simulacoes-page__support-copy">
         Não foi possível carregar suas simulações. Tente novamente mais tarde.
       </p>
     </UiBaseCard>
 
-    <!-- Empty state -->
     <UiBaseCard
       v-else-if="simulationsQuery.data.value && simulationsQuery.data.value.length === 0"
       title="Nenhuma simulação salva"
@@ -42,7 +36,6 @@ const simulationsQuery = useSimulationsQuery();
       </p>
     </UiBaseCard>
 
-    <!-- Loaded state -->
     <ul
       v-else-if="simulationsQuery.data.value && simulationsQuery.data.value.length > 0"
       class="simulacoes-page__list"
@@ -69,22 +62,12 @@ const simulationsQuery = useSimulationsQuery();
 <style scoped>
 .simulacoes-page {
   display: grid;
-  gap: var(--space-4, 16px);
-  padding: var(--space-4, 16px);
-}
-
-.simulacoes-page__header {
-  margin-bottom: var(--space-2, 8px);
-}
-
-.simulacoes-page__subtitle {
-  margin: var(--space-1, 4px) 0 0;
-  color: var(--color-text-subtle, #888);
+  gap: var(--space-4);
 }
 
 .simulacoes-page__support-copy {
   margin: 0;
-  color: var(--color-text-subtle, #888);
+  color: var(--color-text-muted);
 }
 
 .simulacoes-page__list {
@@ -92,12 +75,12 @@ const simulationsQuery = useSimulationsQuery();
   margin: 0;
   padding: 0;
   display: grid;
-  gap: var(--space-3, 12px);
+  gap: var(--space-3);
 }
 
 .simulacoes-page__item-meta {
-  margin: var(--space-1, 4px) 0 0;
-  font-size: var(--font-size-body-sm, 0.875rem);
-  color: var(--color-text-subtle, #888);
+  margin: var(--space-1) 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
 }
 </style>

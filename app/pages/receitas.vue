@@ -13,7 +13,11 @@ import { useRevenueSummaryQuery } from "~/features/receivables/queries/use-reven
 import type { CsvUploadPayload } from "~/features/receivables/api/receivables.client";
 import type { ParsedRow } from "~/features/receivables/model/receivables";
 
-definePageMeta({ middleware: ["authenticated"] });
+definePageMeta({
+  middleware: ["authenticated"],
+  pageTitle: "Receitas",
+  pageSubtitle: "Receitas e importação de extratos",
+});
 
 const activeTab = ref<"import" | "list">("list");
 
@@ -26,12 +30,7 @@ const confirmImportMutation = useConfirmImportMutation();
 const previewRows = ref<ParsedRow[]>([]);
 const createdCount = ref<number | null>(null);
 
-/**
- * Handles preview payload emitted by CsvUploadForm.
- * Calls the upload mutation and stores the returned rows for display.
- *
- * @param payload Upload payload with CSV content and column map.
- */
+/** @param payload CSV upload payload with content and column mapping. */
 const handlePreview = (payload: CsvUploadPayload): void => {
   createdCount.value = null;
   previewRows.value = [];
@@ -44,9 +43,8 @@ const handlePreview = (payload: CsvUploadPayload): void => {
 };
 
 /**
- * Handles import confirmation.
- * Converts ParsedRow[] to the DTO shape expected by the confirm mutation,
- * then invalidates queries and switches to the list tab on success.
+ * Converts preview rows to the DTO shape, confirms import and switches to
+ * the list tab on success. Invalidates both receivables and summary queries.
  */
 const handleConfirm = (): void => {
   const dtoRows = previewRows.value.map((row) => ({
@@ -67,24 +65,12 @@ const handleConfirm = (): void => {
   });
 };
 
-/**
- * Handles the "receive" action on a receivable item.
- * For now, this is a placeholder: actual mark-received logic will be wired
- * when the page is extended with a mark-received mutation.
- *
- * @param _id Receivable entry identifier.
- */
+/** @param _id Receivable entry ID. Stub — mark-received mutation to be wired in follow-up. */
 const handleReceive = (_id: string): void => {
   // mark-received mutation to be wired in follow-up
 };
 
-/**
- * Handles the "delete" action on a receivable item.
- * For now, this is a placeholder: actual delete logic will be wired
- * when the page is extended with a delete mutation.
- *
- * @param _id Receivable entry identifier.
- */
+/** @param _id Receivable entry ID. Stub — delete mutation to be wired in follow-up. */
 const handleDelete = (_id: string): void => {
   // delete mutation to be wired in follow-up
 };
@@ -92,21 +78,12 @@ const handleDelete = (_id: string): void => {
 
 <template>
   <div class="receitas-page">
-    <header class="receitas-page__header">
-      <h1>Receitas</h1>
-      <p class="receitas-page__subtitle">
-        Gerencie suas receitas, importe extratos via CSV e acompanhe o resumo de entradas.
-      </p>
-    </header>
-
-    <!-- Summary: loading state -->
     <NSkeleton
       v-if="summaryQuery.isLoading.value"
       height="100px"
       :sharp="false"
     />
 
-    <!-- Summary: error state -->
     <UiBaseCard
       v-else-if="summaryQuery.isError.value"
       title="Erro ao carregar resumo"
@@ -116,15 +93,12 @@ const handleDelete = (_id: string): void => {
       </p>
     </UiBaseCard>
 
-    <!-- Summary: loaded state -->
     <RevenueSummaryCard
       v-else-if="summaryQuery.data.value"
       :summary="summaryQuery.data.value"
     />
 
-    <!-- Tabs -->
     <NTabs v-model:value="activeTab" type="line" animated>
-      <!-- Import tab -->
       <NTabPane name="import" tab="Importar">
         <NSpace vertical :size="16">
           <CsvUploadForm @preview="handlePreview" />
@@ -157,16 +131,13 @@ const handleDelete = (_id: string): void => {
         </NSpace>
       </NTabPane>
 
-      <!-- List tab -->
       <NTabPane name="list" tab="Receitas">
-        <!-- Loading state -->
         <NSpace v-if="receivablesQuery.isLoading.value" vertical :size="8">
           <NSkeleton height="72px" :sharp="false" />
           <NSkeleton height="72px" :sharp="false" />
           <NSkeleton height="72px" :sharp="false" />
         </NSpace>
 
-        <!-- Error state -->
         <UiBaseCard
           v-else-if="receivablesQuery.isError.value"
           title="Erro ao carregar receitas"
@@ -176,13 +147,11 @@ const handleDelete = (_id: string): void => {
           </p>
         </UiBaseCard>
 
-        <!-- Empty state -->
         <NEmpty
           v-else-if="!receivablesQuery.data.value || receivablesQuery.data.value.length === 0"
           description="Nenhuma receita cadastrada. Importe um CSV ou adicione manualmente."
         />
 
-        <!-- Loaded state -->
         <NCard v-else title="Minhas Receitas">
           <ReceivableItem
             v-for="entry in receivablesQuery.data.value"
@@ -200,26 +169,16 @@ const handleDelete = (_id: string): void => {
 <style scoped>
 .receitas-page {
   display: grid;
-  gap: var(--space-4, 16px);
-  padding: var(--space-4, 16px);
-}
-
-.receitas-page__header {
-  margin-bottom: var(--space-2, 8px);
-}
-
-.receitas-page__subtitle {
-  margin: var(--space-1, 4px) 0 0;
-  color: var(--color-text-subtle, #888);
+  gap: var(--space-4);
 }
 
 .receitas-page__support-copy {
   margin: 0;
-  color: var(--color-text-subtle, #888);
+  color: var(--color-text-muted);
 }
 
 .receitas-page__error-copy {
   margin: 0;
-  color: var(--color-error, #d03050);
+  color: var(--color-negative);
 }
 </style>
