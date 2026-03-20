@@ -1,14 +1,14 @@
 import type { Component } from "vue";
 
 export interface UiMetricCardProps {
-  /** Label do métrica, ex: "Saldo Total" */
+  /** Metric label, e.g. "Total Balance" */
   label: string
-  /** Valor formatado como string, ex: "R$ 12.430,00" */
+  /** Formatted value as string, e.g. "R$ 12.430,00" */
   value: string
-  /** Variação numérica para UiTrendBadge. Se omitido, badge não é exibido */
+  /** Numeric variation for UiTrendBadge. If omitted, the badge is not displayed */
   trend?: number
-  /** Ícone Lucide para decoração */
+  /** Lucide icon for decoration */
   icon?: Component
-  /** Estado de carregamento — exibe skeleton */
+  /** Loading state — displays a skeleton */
   loading?: boolean
 }

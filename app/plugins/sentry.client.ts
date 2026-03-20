@@ -1,21 +1,21 @@
 import * as Sentry from "@sentry/nuxt";
 
 /**
- * Normaliza o DSN: retorna a string sem espaços ou vazio se ausente.
+ * Normalizes the DSN: returns the trimmed string or empty string if absent.
  *
- * @param raw - Valor bruto do DSN vindo do runtimeConfig.
- * @returns DSN normalizado.
+ * @param raw - Raw DSN value from runtimeConfig.
+ * @returns Normalized DSN.
  */
 export function normalizeDsn(raw: unknown): string {
   return String(raw ?? "").trim();
 }
 
 /**
- * Inicializa o Sentry com DSN e ambiente.
- * Exportada separadamente para facilitar testes unitários.
+ * Initializes Sentry with the DSN and environment.
+ * Exported separately to simplify unit testing.
  *
- * @param dsn - Data Source Name do projeto Sentry.
- * @param environment - Ambiente de execução (production, staging, development).
+ * @param dsn - Sentry project Data Source Name.
+ * @param environment - Execution environment (production, staging, development).
  */
 export function initSentry(dsn: string, environment: string): void {
   Sentry.init({
@@ -28,9 +28,9 @@ export function initSentry(dsn: string, environment: string): void {
 }
 
 /**
- * Plugin Nuxt para inicialização do Sentry no cliente.
- * Mantém o plugin inerte quando o DSN não estiver configurado (opt-in).
- * A integração Vue é gerenciada automaticamente pelo @sentry/nuxt/module.
+ * Nuxt plugin for Sentry initialization on the client.
+ * Keeps the plugin inert when the DSN is not configured (opt-in).
+ * Vue integration is managed automatically by @sentry/nuxt/module.
  *
  * Note: the plugin body relies on Nuxt runtime (useRuntimeConfig / defineNuxtPlugin)
  * and is excluded from unit-test coverage — covered by e2e/integration tests.

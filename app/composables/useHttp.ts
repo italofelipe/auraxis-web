@@ -11,8 +11,8 @@ export {
 } from "~/core/http/http-client";
 
 /**
- * Resolve config de runtime e instancia cliente HTTP da aplicação.
- * @returns Cliente HTTP com interceptor de sessão.
+ * Resolves runtime config and instantiates the application HTTP client.
+ * @returns HTTP client with session interceptor.
  */
 export const useHttp = (): AxiosInstance => {
   const runtimeConfig = useRuntimeConfig();

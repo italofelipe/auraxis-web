@@ -62,7 +62,7 @@ describe("ToolCard", () => {
     mockPush.mockClear();
   });
 
-  it("renderiza o nome e a descrição da ferramenta", () => {
+  it("renders the tool name and description", () => {
     const wrapper = mount(ToolCard, {
       props: { tool: publicTool, isAuthenticated: false },
       global: { stubs },
@@ -72,7 +72,7 @@ describe("ToolCard", () => {
     expect(wrapper.text()).toContain("Cálculo de inflação + ganho real desejado.");
   });
 
-  it("exibe badge 'Público' para ferramentas públicas", () => {
+  it("displays the 'Público' badge for public tools", () => {
     const wrapper = mount(ToolCard, {
       props: { tool: publicTool, isAuthenticated: false },
       global: { stubs },
@@ -81,7 +81,7 @@ describe("ToolCard", () => {
     expect(wrapper.text()).toContain("Público");
   });
 
-  it("exibe badge 'Login necessário' para ferramentas autenticadas", () => {
+  it("displays the 'Login necessário' badge for authenticated tools", () => {
     const wrapper = mount(ToolCard, {
       props: { tool: authTool, isAuthenticated: false },
       global: { stubs },
@@ -90,7 +90,7 @@ describe("ToolCard", () => {
     expect(wrapper.text()).toContain("Login necessário");
   });
 
-  it("exibe badge 'Premium' para ferramentas premium", () => {
+  it("displays the 'Premium' badge for premium tools", () => {
     const wrapper = mount(ToolCard, {
       props: { tool: premiumTool, isAuthenticated: false, isPremium: false },
       global: { stubs },
@@ -99,7 +99,7 @@ describe("ToolCard", () => {
     expect(wrapper.text()).toContain("Premium");
   });
 
-  it("exibe CTA 'Usar ferramenta' para ferramenta pública habilitada", () => {
+  it("displays the 'Usar ferramenta' CTA for an enabled public tool", () => {
     const wrapper = mount(ToolCard, {
       props: { tool: publicTool, isAuthenticated: false },
       global: { stubs },
@@ -108,7 +108,7 @@ describe("ToolCard", () => {
     expect(wrapper.text()).toContain("Usar ferramenta");
   });
 
-  it("exibe CTA 'Fazer login para usar' quando não autenticado e ferramenta requer auth", () => {
+  it("displays the 'Fazer login para usar' CTA when unauthenticated and tool requires auth", () => {
     const wrapper = mount(ToolCard, {
       props: { tool: authTool, isAuthenticated: false },
       global: { stubs },
@@ -117,7 +117,7 @@ describe("ToolCard", () => {
     expect(wrapper.text()).toContain("Fazer login para usar");
   });
 
-  it("exibe CTA 'Ver planos' para ferramenta premium quando usuário não é premium", () => {
+  it("displays the 'Ver planos' CTA for a premium tool when the user is not premium", () => {
     const wrapper = mount(ToolCard, {
       props: { tool: premiumTool, isAuthenticated: true, isPremium: false },
       global: { stubs },
@@ -126,7 +126,7 @@ describe("ToolCard", () => {
     expect(wrapper.text()).toContain("Ver planos");
   });
 
-  it("exibe CTA 'Em breve' para ferramenta desabilitada", () => {
+  it("displays the 'Em breve' CTA for a disabled tool", () => {
     const wrapper = mount(ToolCard, {
       props: { tool: disabledTool, isAuthenticated: false },
       global: { stubs },
@@ -135,7 +135,7 @@ describe("ToolCard", () => {
     expect(wrapper.text()).toContain("Em breve");
   });
 
-  it("botão está desabilitado para ferramentas desabilitadas", () => {
+  it("button is disabled for disabled tools", () => {
     const wrapper = mount(ToolCard, {
       props: { tool: disabledTool, isAuthenticated: false },
       global: { stubs },
@@ -145,7 +145,7 @@ describe("ToolCard", () => {
     expect(button.attributes("disabled")).toBeDefined();
   });
 
-  it("navega para /login com redirect ao clicar em ferramenta autenticada sem login", async () => {
+  it("navigates to /login with redirect when clicking an authenticated tool without login", async () => {
     const wrapper = mount(ToolCard, {
       props: { tool: authTool, isAuthenticated: false },
       global: { stubs },
@@ -157,7 +157,7 @@ describe("ToolCard", () => {
     );
   });
 
-  it("não navega ao clicar em ferramenta pública (não requer redirect)", async () => {
+  it("does not navigate when clicking a public tool (no redirect required)", async () => {
     const wrapper = mount(ToolCard, {
       props: { tool: publicTool, isAuthenticated: false },
       global: { stubs },

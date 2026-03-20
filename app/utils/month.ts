@@ -4,9 +4,9 @@ const monthFormatter = new Intl.DateTimeFormat("pt-BR", {
 });
 
 /**
- * Formata mês ISO (`YYYY-MM`) para exibição legível.
- * @param isoMonth Mês no formato ISO curto.
- * @returns Mês formatado em pt-BR.
+ * Formats an ISO month (`YYYY-MM`) for human-readable display.
+ * @param isoMonth Month in short ISO format.
+ * @returns Month formatted using the pt-BR locale.
  */
 export const formatMonth = (isoMonth: string): string => {
   const parsed = new Date(`${isoMonth}-01T00:00:00.000Z`);
