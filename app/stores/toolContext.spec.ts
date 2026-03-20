@@ -1,5 +1,5 @@
-import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, it } from "vitest";
+import { createPinia, setActivePinia } from "pinia";
 
 import { useToolContextStore } from "./toolContext";
 
@@ -9,38 +9,27 @@ describe("toolContext store", () => {
     sessionStorage.clear();
   });
 
-  it("salva tool id e resultado no estado e no sessionStorage", () => {
+  it("persists and restores payload together with result", () => {
     const store = useToolContextStore();
-    const result = { score: 42 };
 
-    store.save("raise-calculator", result);
+    store.save("installment_vs_cash", { result: true }, { form: { foo: "bar" } });
 
-    expect(store.pendingToolId).toBe("raise-calculator");
-    expect(store.pendingResult).toEqual(result);
-    expect(sessionStorage.getItem("auraxis_pending_tool_id")).toBe("raise-calculator");
-    expect(JSON.parse(sessionStorage.getItem("auraxis_pending_result") ?? "null")).toEqual(result);
+    const restoredStore = useToolContextStore();
+    restoredStore.restore();
+
+    expect(restoredStore.pendingToolId).toBe("installment_vs_cash");
+    expect(restoredStore.pendingResult).toEqual({ result: true });
+    expect(restoredStore.pendingPayload).toEqual({ form: { foo: "bar" } });
   });
 
-  it("restaura contexto a partir do sessionStorage", () => {
-    sessionStorage.setItem("auraxis_pending_tool_id", "bill-forecast");
-    sessionStorage.setItem("auraxis_pending_result", JSON.stringify({ balance: 100 }));
-
+  it("clears all persisted state", () => {
     const store = useToolContextStore();
-    store.restore();
 
-    expect(store.pendingToolId).toBe("bill-forecast");
-    expect(store.pendingResult).toEqual({ balance: 100 });
-  });
-
-  it("clear remove dados do estado e do sessionStorage", () => {
-    const store = useToolContextStore();
-    store.save("raise-calculator", { score: 1 });
-
+    store.save("installment_vs_cash", { result: true }, { form: { foo: "bar" } });
     store.clear();
 
     expect(store.pendingToolId).toBeNull();
     expect(store.pendingResult).toBeNull();
-    expect(sessionStorage.getItem("auraxis_pending_tool_id")).toBeNull();
-    expect(sessionStorage.getItem("auraxis_pending_result")).toBeNull();
+    expect(store.pendingPayload).toBeNull();
   });
 });
