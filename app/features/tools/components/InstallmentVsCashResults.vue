@@ -14,8 +14,6 @@ import {
   type InstallmentVsCashCalculation,
   type InstallmentVsCashScheduleItem,
 } from "~/features/tools/model/installment-vs-cash";
-import { INSTALLMENT_VS_CASH_TOOLTIP_COPY } from "~/features/tools/model/installment-vs-cash-tooltips";
-import UiInfoTooltip from "~/shared/components/UiInfoTooltip/UiInfoTooltip.vue";
 import { formatCurrency } from "~/utils/currency";
 
 interface Props {
@@ -115,20 +113,11 @@ const recommendationTagType = computed<
           label="Parcelado nominal"
           :value="formatCurrency(props.calculation.result.comparison.installmentOptionTotal)"
         />
-        <div class="installment-vs-cash-results__metric-stack">
-          <div class="installment-vs-cash-results__metric-label">
-            <span>Parcelado em valor presente</span>
-            <UiInfoTooltip
-              label="Entender valor presente"
-              :content="INSTALLMENT_VS_CASH_TOOLTIP_COPY.presentValue"
-            />
-          </div>
-          <UiMetricCard
-            label="Valor presente"
-            :value="formatCurrency(props.calculation.result.comparison.installmentPresentValue)"
-            :trend="props.calculation.result.comparison.relativeDeltaVsCashPercent"
-          />
-        </div>
+        <UiMetricCard
+          label="Parcelado em valor presente"
+          :value="formatCurrency(props.calculation.result.comparison.installmentPresentValue)"
+          :trend="props.calculation.result.comparison.relativeDeltaVsCashPercent"
+        />
       </div>
     </UiGlassPanel>
 
@@ -162,23 +151,9 @@ const recommendationTagType = computed<
               </span>
               <span>
                 Faixa de neutralidade:
-                <UiInfoTooltip
-                  label="Entender faixa de neutralidade"
-                  :content="INSTALLMENT_VS_CASH_TOOLTIP_COPY.neutralityBand"
-                />
                 <strong>{{ formatCurrency(props.calculation.result.neutralityBand.absoluteBrl) }}</strong>
                 ou
                 <strong>{{ props.calculation.result.neutralityBand.relativePercent.toFixed(2).replace(".", ",") }}%</strong>
-              </span>
-              <span v-if="props.calculation.result.indicatorSnapshot">
-                Snapshot do indicador:
-                <UiInfoTooltip
-                  label="Entender snapshot do indicador"
-                  :content="INSTALLMENT_VS_CASH_TOOLTIP_COPY.indicatorSnapshot"
-                />
-                <strong>{{ props.calculation.result.indicatorSnapshot.source }}</strong>
-                em
-                <strong>{{ props.calculation.result.indicatorSnapshot.asOf }}</strong>
               </span>
             </div>
           </template>
@@ -191,32 +166,14 @@ const recommendationTagType = computed<
             label="Diferença vs à vista"
             :value="formatCurrency(props.calculation.result.comparison.absoluteDeltaVsCash)"
           />
-          <div class="installment-vs-cash-results__metric-stack">
-            <div class="installment-vs-cash-results__metric-label">
-              <span>Desconto à vista para empatar</span>
-              <UiInfoTooltip
-                label="Entender desconto de break-even"
-                :content="INSTALLMENT_VS_CASH_TOOLTIP_COPY.breakEvenDiscount"
-              />
-            </div>
-            <UiMetricCard
-              label="Desconto de break-even"
-              :value="`${props.calculation.result.comparison.breakEvenDiscountPercent.toFixed(2).replace('.', ',')}%`"
-            />
-          </div>
-          <div class="installment-vs-cash-results__metric-stack">
-            <div class="installment-vs-cash-results__metric-label">
-              <span>Taxa mínima para o parcelado empatar</span>
-              <UiInfoTooltip
-                label="Entender taxa minima de break-even"
-                :content="INSTALLMENT_VS_CASH_TOOLTIP_COPY.breakEvenOpportunityRate"
-              />
-            </div>
-            <UiMetricCard
-              label="Taxa mínima"
-              :value="`${props.calculation.result.comparison.breakEvenOpportunityRateAnnual.toFixed(2).replace('.', ',')}% a.a.`"
-            />
-          </div>
+          <UiMetricCard
+            label="Desconto à vista para empatar"
+            :value="`${props.calculation.result.comparison.breakEvenDiscountPercent.toFixed(2).replace('.', ',')}%`"
+          />
+          <UiMetricCard
+            label="Taxa mínima para o parcelado empatar"
+            :value="`${props.calculation.result.comparison.breakEvenOpportunityRateAnnual.toFixed(2).replace('.', ',')}% a.a.`"
+          />
         </div>
       </NCollapseItem>
 
@@ -256,23 +213,6 @@ const recommendationTagType = computed<
   display: grid;
   gap: var(--space-2);
   grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.installment-vs-cash-results__metric-stack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.installment-vs-cash-results__metric-label {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 .installment-vs-cash-results__chart-card {

@@ -2,7 +2,6 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 
 import InstallmentVsCashCalculatorForm from "./InstallmentVsCashCalculatorForm.vue";
-import UiInfoTooltip from "~/shared/components/UiInfoTooltip/UiInfoTooltip.vue";
 import { createDefaultInstallmentVsCashFormState } from "~/features/tools/model/installment-vs-cash";
 
 const stubs = {
@@ -44,12 +43,6 @@ const stubs = {
     template: "<button class='segmented' @click='$emit(\"update:modelValue\", options[1].value)' />",
     emits: ["update:modelValue"],
   },
-  NTooltip: {
-    template: "<div><slot name='trigger' /><slot /></div>",
-  },
-  UiIcon: {
-    template: "<svg class='ui-icon' />",
-  },
 };
 
 describe("InstallmentVsCashCalculatorForm", () => {
@@ -79,23 +72,5 @@ describe("InstallmentVsCashCalculatorForm", () => {
     await wrapper.find(".n-button").trigger("click");
 
     expect(wrapper.text()).toContain("Calcular agora");
-  });
-
-  it("renders tooltip copy for critical concepts", () => {
-    const wrapper = mount(InstallmentVsCashCalculatorForm, {
-      props: {
-        modelValue: createDefaultInstallmentVsCashFormState(),
-        loading: false,
-      },
-      global: { stubs },
-    });
-
-    const tooltips = wrapper.findAllComponents(UiInfoTooltip);
-
-    expect(tooltips).toHaveLength(4);
-    expect(tooltips[0]?.props("label")).toBe("Entender primeira parcela");
-    expect(tooltips[1]?.props("label")).toBe("Entender taxa de oportunidade");
-    expect(tooltips[2]?.props("label")).toBe("Entender inflacao anual");
-    expect(tooltips[3]?.props("label")).toBe("Entender custos extras");
   });
 });
