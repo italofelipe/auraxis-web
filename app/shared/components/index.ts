@@ -10,7 +10,7 @@ export type { UiGlassPanelProps } from "./UiGlassPanel";
 export { UiTrendBadge } from "./UiTrendBadge";
 export type { UiTrendBadgeProps, TrendDirection } from "./UiTrendBadge";
 
-// MIC-08 — Metric card
+// MIC-08 — Metric card (summary card with label, value, trend)
 export { UiMetricCard } from "./UiMetricCard";
 export type { UiMetricCardProps } from "./UiMetricCard";
 
