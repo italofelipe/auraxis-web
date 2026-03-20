@@ -51,3 +51,7 @@ export type {
   AppShellUser,
   AppShellAction,
 } from "./UiAppShell";
+
+// MIC-24 — Social auth buttons (Google, Apple)
+export { UiSocialAuthButtons } from "./UiSocialAuthButtons";
+export type { UiSocialAuthButtonsProps, UiSocialAuthButtonsEmits } from "./UiSocialAuthButtons";

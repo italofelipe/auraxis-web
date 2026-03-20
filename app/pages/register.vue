@@ -1,96 +1,25 @@
 <script setup lang="ts">
-import {
-  useRegisterForm,
-  useRegisterMutation,
-} from "~/composables/useAuth";
+import { useRegisterMutation } from "~/composables/useAuth";
+import { useAuthRedirectContext } from "~/composables/useAuthRedirectContext";
+import { SignupForm } from "~/features/auth/components/SignupForm";
 import type { RegisterSchema } from "~/schemas/auth";
 
-definePageMeta({ middleware: ["guest-only"] });
+definePageMeta({ layout: "auth", middleware: ["guest-only"] });
 
 const registerMutation = useRegisterMutation();
-const { defineField, errors, handleSubmit, isSubmitting } = useRegisterForm();
-const [email, emailProps] = defineField("email");
-const [password, passwordProps] = defineField("password");
-const [confirmPassword, confirmPasswordProps] = defineField("confirmPassword");
+const { consumeRedirect } = useAuthRedirectContext();
 
-const submit = handleSubmit(async (values: RegisterSchema) => {
+/**
+ * Submete o registro de novo usuário e redireciona ao destino pós-auth.
+ * @param values - Dados validados do formulário de registro.
+ */
+const onSubmit = async (values: RegisterSchema): Promise<void> => {
   await registerMutation.mutateAsync(values);
-  await navigateTo("/dashboard");
-});
+  const redirect = consumeRedirect();
+  await navigateTo(redirect);
+};
 </script>
 
 <template>
-  <UiBaseCard title="Registrar">
-    <form class="auth-form" @submit.prevent="submit">
-      <label>
-        E-mail
-        <input v-model="email" type="email" autocomplete="email" v-bind="emailProps" >
-      </label>
-      <p class="form-error">{{ errors.email }}</p>
-
-      <label>
-        Senha
-        <input
-          v-model="password"
-          type="password"
-          autocomplete="new-password"
-          v-bind="passwordProps"
-        >
-      </label>
-      <p class="form-error">{{ errors.password }}</p>
-
-      <label>
-        Confirmar senha
-        <input
-          v-model="confirmPassword"
-          type="password"
-          autocomplete="new-password"
-          v-bind="confirmPasswordProps"
-        >
-      </label>
-      <p class="form-error">{{ errors.confirmPassword }}</p>
-
-      <button type="submit" :disabled="isSubmitting || registerMutation.isPending.value">
-        Registrar
-      </button>
-
-      <NuxtLink to="/login">Já tem uma conta?</NuxtLink>
-    </form>
-  </UiBaseCard>
+  <SignupForm :loading="registerMutation.isPending.value" @submit="onSubmit" />
 </template>
-
-<style scoped>
-.auth-form {
-  display: grid;
-  gap: var(--space-2);
-}
-
-.auth-form label {
-  display: grid;
-  gap: var(--space-1);
-  color: var(--color-neutral-700);
-  font-weight: var(--font-weight-semibold);
-}
-
-.auth-form input {
-  border: 1px solid var(--color-outline-soft);
-  border-radius: var(--radius-sm);
-  padding: var(--space-1);
-  min-height: 44px;
-}
-
-.auth-form button {
-  min-height: 44px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: var(--color-brand-500);
-  color: var(--color-neutral-950);
-  font-weight: var(--font-weight-bold);
-}
-
-.form-error {
-  min-height: 20px;
-  color: var(--color-neutral-950);
-  margin: 0;
-}
-</style>
