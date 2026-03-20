@@ -41,3 +41,11 @@ export type {
 // MIC-05 — Canonical icon component backed by Lucide
 export { UiIcon } from "./UiIcon";
 export type { UiIconProps } from "./UiIcon";
+
+// MIC-14 — Sidebar navigation item (single entry)
+export { UiSidebarNavItem } from "./UiSidebarNavItem";
+export type { UiSidebarNavItemProps } from "./UiSidebarNavItem";
+
+// MIC-14 — Sidebar navigation container
+export { UiSidebarNav } from "./UiSidebarNav";
+export type { UiSidebarNavProps, SidebarNavItem } from "./UiSidebarNav";
