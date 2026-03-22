@@ -53,6 +53,11 @@ const restoredToolId = computed<string | null>(() => {
   return queryTool ?? toolContextStore.pendingToolId;
 });
 
+/** Navigates to the curated public calculator route. */
+const goToInstallmentVsCash = (): void => {
+  void router.push("/tools/parcelado-vs-a-vista");
+};
+
 /**
  * If the user is unauthenticated, persists the tool context and shows the
  * save-result modal — routing them to register/login with tool state encoded
@@ -112,6 +117,27 @@ const goToLogin = (): void => {
     <ToolsEmptyState v-else-if="!hasTools" />
 
     <template v-else>
+      <UiGlassPanel glow class="tools-page__featured-tool">
+        <div class="tools-page__featured-copy">
+          <UiPageHeader
+            title="Nova ferramenta: parcelado vs à vista"
+            subtitle="Compare desconto à vista, parcelamento, inflação e custo de oportunidade em uma experiência pública e detalhada."
+          />
+          <p class="tools-page__featured-description">
+            A ferramenta mostra uma resposta simples para iniciantes e abre os detalhes
+            matemáticos para quem quer auditar a decisão.
+          </p>
+        </div>
+
+        <NButton
+          type="primary"
+          size="large"
+          @click="goToInstallmentVsCash"
+        >
+          Abrir ferramenta
+        </NButton>
+      </UiGlassPanel>
+
       <ul class="tools-page__grid" role="list">
         <li
           v-for="tool in tools"
@@ -172,6 +198,27 @@ const goToLogin = (): void => {
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 }
 
+.tools-page__featured-tool {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.tools-page__featured-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.tools-page__featured-description {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
 .tools-page__cta {
   display: flex;
   flex-direction: column;
@@ -184,5 +231,12 @@ const goToLogin = (): void => {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
   margin: 0;
+}
+
+@media (max-width: 767px) {
+  .tools-page__featured-tool {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 </style>

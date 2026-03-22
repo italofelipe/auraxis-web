@@ -1,0 +1,84 @@
+name: Chromatic
+
+on:
+  pull_request:
+    branches: [main, master]
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+concurrency:
+  group: chromatic-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '25'
+  PNPM_VERSION: '10.30.1'
+
+jobs:
+  chromatic:
+    name: Chromatic Visual Review
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Check Chromatic capability
+        id: capability
+        env:
+          CHROMATIC_TOKEN_VALUE: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+        run: |
+          if [ -n "${CHROMATIC_TOKEN_VALUE:-}" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Chromatic skipped: CHROMATIC_PROJECT_TOKEN is not configured for this repository."
+          fi
+
+      - name: Checkout
+        if: steps.capability.outputs.enabled == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        if: steps.capability.outputs.enabled == 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node
+        if: steps.capability.outputs.enabled == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        if: steps.capability.outputs.enabled == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Chromatic
+        id: chromatic
+        if: steps.capability.outputs.enabled == 'true'
+        uses: chromaui/action@v1
+        with:
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          buildScriptName: storybook:build
+          onlyChanged: true
+          exitZeroOnChanges: true
+
+      - name: Publish summary
+        if: steps.capability.outputs.enabled == 'true'
+        run: |
+          {
+            echo "## Chromatic"
+            echo
+            echo "- Build URL: ${{ steps.chromatic.outputs.buildUrl }}"
+            echo "- Storybook URL: ${{ steps.chromatic.outputs.storybookUrl }}"
+            echo "- Captured snapshots: ${{ steps.chromatic.outputs.actualCaptureCount }}"
+            echo "- Story count: ${{ steps.chromatic.outputs.specCount }}"
+            echo "- Components: ${{ steps.chromatic.outputs.componentCount }}"
+            echo
+            echo "Target custom domain: https://v1.design-system.auraxis.com.br"
+          } >> "$GITHUB_STEP_SUMMARY"
