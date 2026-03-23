@@ -78,8 +78,11 @@ export default defineNuxtConfig({
 
   // ── i18n ──────────────────────────────────────────────────────────────
   i18n: {
-    locales: ["pt-BR", "en"],
-    defaultLocale: "pt-BR",
+    locales: [
+      { code: "pt", language: "pt-BR", name: "Português (Brasil)" },
+      { code: "en", language: "en", name: "English" },
+    ],
+    defaultLocale: "pt",
     baseUrl: process.env.NUXT_PUBLIC_SITE_URL ?? undefined,
     vueI18n: "./i18n.config.ts",
     strategy: "prefix",
@@ -108,26 +111,26 @@ export default defineNuxtConfig({
   // ── Route Rules ───────────────────────────────────────────────────────
   // Dynamic routes are served server-side. Static routes can still be prerendered.
   // Auth enforcement for private routes is handled by middleware, not rules.
-  // Note: i18n uses strategy: "prefix", so all routes need locale prefix (pt-BR/en).
+  // Note: i18n uses strategy: "prefix", so all routes need locale prefix (pt/en).
   routeRules: {
-    // Redirect routes without locale prefix to default locale (pt-BR)
-    // This allows /login → /pt-BR/login, /register → /pt-BR/register, etc.
-    "/login": { redirect: "/pt-BR/login" },
-    "/register": { redirect: "/pt-BR/register" },
-    "/forgot-password": { redirect: "/pt-BR/forgot-password" },
-    "/dashboard": { redirect: "/pt-BR/dashboard" },
-    "/portfolio": { redirect: "/pt-BR/portfolio" },
-    "/profile": { redirect: "/pt-BR/profile" },
-    "/tools": { redirect: "/pt-BR/tools" },
-    "/alerts": { redirect: "/pt-BR/alerts" },
-    "/goals": { redirect: "/pt-BR/goals" },
-    "/simulations": { redirect: "/pt-BR/simulations" },
-    "/shared-entries": { redirect: "/pt-BR/shared-entries" },
-    "/subscription": { redirect: "/pt-BR/subscription" },
+    // Redirect routes without locale prefix to default locale (pt)
+    // This allows /login → /pt/login, /register → /pt/register, etc.
+    "/login": { redirect: "/pt/login" },
+    "/register": { redirect: "/pt/register" },
+    "/forgot-password": { redirect: "/pt/forgot-password" },
+    "/dashboard": { redirect: "/pt/dashboard" },
+    "/portfolio": { redirect: "/pt/portfolio" },
+    "/profile": { redirect: "/pt/profile" },
+    "/tools": { redirect: "/pt/tools" },
+    "/alerts": { redirect: "/pt/alerts" },
+    "/goals": { redirect: "/pt/goals" },
+    "/simulations": { redirect: "/pt/simulations" },
+    "/shared-entries": { redirect: "/pt/shared-entries" },
+    "/subscription": { redirect: "/pt/subscription" },
 
     // Localized public routes — served dynamically for i18n and dynamic content
     // @ts-expect-error — robots key injected by @nuxtjs/robots module augmentation
-    "/pt-BR/**": { robots: true },
+    "/pt/**": { robots: true },
     "/en/**": { robots: true },
     "/**/login": { robots: false },
     "/**/register": { robots: false },
