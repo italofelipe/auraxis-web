@@ -128,13 +128,6 @@ export default defineNuxtConfig({
     "/shared-entries": { redirect: "/pt/shared-entries" },
     "/subscription": { redirect: "/pt/subscription" },
 
-    // Localized public routes — served dynamically for i18n and dynamic content
-    // @ts-expect-error — robots key injected by @nuxtjs/robots module augmentation
-    "/pt/**": { robots: true },
-    "/en/**": { robots: true },
-    "/**/login": { robots: false },
-    "/**/register": { robots: false },
-    "/**/forgot-password": { robots: false },
   },
 
   // ── Nitro ─────────────────────────────────────────────────────────────
