@@ -84,9 +84,9 @@ export default defineNuxtConfig({
     ],
     defaultLocale: "pt",
     baseUrl: process.env.NUXT_PUBLIC_SITE_URL ?? undefined,
-    vueI18n: "./i18n.config.ts",
     strategy: "prefix",
     skipSettingLocaleOnNavigate: false,
+    vueI18n: "./i18n.config.ts",
   },
   ogImage: {
     enabled: false,
