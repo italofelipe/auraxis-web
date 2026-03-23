@@ -1,0 +1,28 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "portfolio": "Carteira",
+    "goals": "Metas",
+    "alerts": "Alertas",
+    "simulations": "Simulações",
+    "sharedEntries": "Lançamentos Compartilhados",
+    "tools": "Ferramentas",
+    "subscription": "Assinatura"
+  },
+  "auth": {
+    "login": {
+      "title": "Bem-vindo de volta",
+      "subtitle": "Faça login em sua conta para continuar",
+      "divider": "Ou continue com",
+      "emailLabel": "Email",
+      "emailPlaceholder": "seu@email.com",
+      "passwordLabel": "Senha",
+      "passwordPlaceholder": "••••••••",
+      "forgotPassword": "Esqueceu sua senha?",
+      "submit": "Entrar",
+      "submitLoading": "Entrando...",
+      "noAccount": "Não tem uma conta?",
+      "createAccount": "Criar conta"
+    }
+  }
+}

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { createAuthApi } from "./useAuth";
+import { createAuthApi } from "./api";
 
 describe("createAuthApi", () => {
   it("faz login via endpoint auth/login", async () => {

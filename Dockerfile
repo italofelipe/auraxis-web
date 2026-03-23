@@ -1,61 +1,35 @@
-FROM node:25-bookworm-slim AS base
-
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-
-RUN set -eux; \
-    npm config set fetch-retries 5; \
-    npm config set fetch-retry-factor 2; \
-    npm config set fetch-retry-mintimeout 10000; \
-    npm config set fetch-retry-maxtimeout 120000; \
-    for attempt in 1 2 3; do \
-      npm install -g pnpm@10.30.1 && break; \
-      echo "pnpm global install failed (attempt ${attempt})"; \
-      if [ "${attempt}" -eq 3 ]; then exit 1; fi; \
-      sleep $((attempt * 10)); \
-    done
+# ── Stage 1: deps ──────────────────────────────────────────────────────────
+FROM node:25-alpine AS deps
 
 WORKDIR /app
 
-FROM base AS deps
-
 COPY package.json pnpm-lock.yaml ./
-RUN set -eux; \
-    pnpm config set fetch-retries 5; \
-    pnpm config set fetch-retry-factor 2; \
-    pnpm config set fetch-retry-mintimeout 10000; \
-    pnpm config set fetch-retry-maxtimeout 120000; \
-    for attempt in 1 2 3; do \
-      pnpm install --frozen-lockfile && break; \
-      echo "pnpm install failed (attempt ${attempt})"; \
-      if [ "${attempt}" -eq 3 ]; then exit 1; fi; \
-      sleep $((attempt * 10)); \
-    done
+RUN npm install -g pnpm@10.30.1 && pnpm install --frozen-lockfile
 
-FROM deps AS build
+# ── Stage 2: builder ───────────────────────────────────────────────────────
+FROM deps AS builder
 
 COPY . .
 RUN pnpm build
 
-FROM base AS runner
-
-ENV NODE_ENV=production
-ENV NITRO_HOST=0.0.0.0
-ENV NITRO_PORT=3000
-
-COPY --from=build /app/.output ./.output
-
-EXPOSE 3000
-
-CMD ["node", ".output/server/index.mjs"]
-
+# ── Stage 3: dev (development server) ──────────────────────────────────────
 FROM deps AS dev
 
 COPY . .
+EXPOSE 3000
+CMD ["pnpm", "dev"]
 
-ENV NITRO_HOST=0.0.0.0
-ENV NITRO_PORT=3000
+# ── Stage 4: runner (production SSR) ───────────────────────────────────────
+# The Nuxt .output directory is self-contained — no install step needed.
+FROM node:25-alpine AS runner
+
+WORKDIR /app
+
+RUN apk add --no-cache dumb-init
+
+COPY --from=builder /app/.output ./.output
 
 EXPOSE 3000
 
-CMD ["pnpm", "dev", "--host", "0.0.0.0", "--port", "3000"]
+ENTRYPOINT ["/usr/sbin/dumb-init", "--"]
+CMD ["node", ".output/server/index.mjs"]

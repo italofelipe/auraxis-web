@@ -2,7 +2,7 @@ import type { EChartsOption } from "echarts";
 import { colors } from "~/theme/tokens/colors";
 import { fonts } from "~/theme/tokens/typography";
 
-interface ChartThemeResult {
+export interface ChartThemeResult {
   auraxisEChartsTheme: Record<string, unknown>;
 }
 
