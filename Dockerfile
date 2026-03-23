@@ -20,6 +20,7 @@ EXPOSE 3000
 CMD ["pnpm", "dev"]
 
 # ── Stage 4: runner (production SSR) ───────────────────────────────────────
+# The Nuxt .output directory is self-contained — no install step needed.
 FROM node:25-alpine AS runner
 
 WORKDIR /app
@@ -27,10 +28,6 @@ WORKDIR /app
 RUN apk add --no-cache dumb-init
 
 COPY --from=builder /app/.output ./.output
-COPY --from=builder /app/package.json ./package.json
-
-RUN npm install -g pnpm@10.30.1 && \
-    pnpm install --prod --frozen-lockfile
 
 EXPOSE 3000
 
