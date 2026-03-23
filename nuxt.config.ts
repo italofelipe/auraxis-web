@@ -138,12 +138,6 @@ export default defineNuxtConfig({
   // which caused ENOENT crashes in `pnpm build` (WEB-BUILD-01).
   // The module remains available at runtime from node_modules.
   nitro: {
-    externals: {
-      external: ["sharp", "@img/sharp-wasm32"],
-      trace: {
-        external: ["sharp"],
-      },
-    },
     prerender: {
       crawlLinks: false,
       routes: [],
