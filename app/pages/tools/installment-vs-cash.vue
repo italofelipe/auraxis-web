@@ -48,13 +48,13 @@ definePageMeta({
   layout: false,
 });
 
+const { t } = useI18n();
+
 useSeoMeta({
-  title: "Parcelado ou à vista: simule qual opção vale mais a pena | Auraxis",
-  description:
-    "Compare pagamento à vista e parcelado considerando desconto, inflação, custo de oportunidade e custos extras. Descubra qual opção fica mais vantajosa financeiramente.",
-  ogTitle: "Parcelado ou à vista: descubra a melhor opção | Auraxis",
-  ogDescription:
-    "Ferramenta pública da Auraxis para comparar à vista e parcelado com clareza, premissas transparentes e resultado confiável.",
+  title: t("pages.installmentVsCash.seo.title"),
+  description: t("pages.installmentVsCash.seo.description"),
+  ogTitle: t("pages.installmentVsCash.seo.ogTitle"),
+  ogDescription: t("pages.installmentVsCash.seo.ogDescription"),
   twitterCard: "summary_large_image",
 });
 
@@ -68,18 +68,18 @@ useHead({
         mainEntity: [
           {
             "@type": "Question",
-            name: "Quando vale a pena pagar parcelado?",
+            name: t("pages.installmentVsCash.faq.q1"),
             acceptedAnswer: {
               "@type": "Answer",
-              text: "Quando o valor presente do parcelamento fica abaixo do preço à vista dentro das premissas de taxa de oportunidade, inflação e custos extras informados.",
+              text: t("pages.installmentVsCash.faq.a1"),
             },
           },
           {
             "@type": "Question",
-            name: "Parcelado sem juros sempre é melhor?",
+            name: t("pages.installmentVsCash.faq.q2"),
             acceptedAnswer: {
               "@type": "Answer",
-              text: "Nem sempre. Se houver desconto relevante à vista ou custos extras, o pagamento único pode continuar mais vantajoso financeiramente.",
+              text: t("pages.installmentVsCash.faq.a2"),
             },
           },
         ],
@@ -87,7 +87,6 @@ useHead({
     },
   ],
 });
-
 const message = useMessage();
 const router = useRouter();
 const sessionStore = useSessionStore();
@@ -245,7 +244,7 @@ const ensureSavedSimulation = async (): Promise<InstallmentVsCashSavedSimulation
 
   const currentCalculation = calculation.value;
   if (currentCalculation === null) {
-    throw new Error("Nenhuma simulação disponível para salvar.");
+    throw new Error(t("pages.installmentVsCash.errors.noSimulation"));
   }
 
   const response = await saveMutation.mutateAsync(
@@ -261,7 +260,7 @@ const ensureSavedSimulation = async (): Promise<InstallmentVsCashSavedSimulation
 const handleCalculate = async (): Promise<void> => {
   const errors = validateInstallmentVsCashForm(form.value);
   if (errors.length > 0) {
-    validationMessage.value = errors[0]?.message ?? "Revise os dados informados.";
+    validationMessage.value = errors[0]?.message ?? t("pages.installmentVsCash.errors.validateForm");
     return;
   }
 
@@ -275,7 +274,7 @@ const handleCalculate = async (): Promise<void> => {
     handleOperationalError(
       error,
       "tools.installment_vs_cash.calculate",
-      "Não foi possível calcular agora. Revise os dados e tente novamente.",
+      t("pages.installmentVsCash.errors.calculate"),
     );
   }
 };
@@ -298,12 +297,12 @@ const handleSave = async (): Promise<void> => {
       toInstallmentVsCashCalculationRequest(form.value),
     );
     savedSimulation.value = response.simulation;
-    message.success("Simulação salva com sucesso.");
+    message.success(t("pages.installmentVsCash.success.saved"));
   } catch (error: unknown) {
     handleOperationalError(
       error,
       "tools.installment_vs_cash.save",
-      "Não foi possível salvar a simulação agora.",
+      t("pages.installmentVsCash.errors.save"),
     );
   }
 };
@@ -322,13 +321,13 @@ const handleGoalAction = async (): Promise<void> => {
   }
 
   if (!hasPremiumAccess.value) {
-    void router.push("/planos");
+    void router.push("/plans");
     return;
   }
 
   try {
     await ensureSavedSimulation();
-    goalForm.title = form.value.scenarioLabel.trim() || "Nova meta";
+    goalForm.title = form.value.scenarioLabel.trim() || t("pages.installmentVsCash.goalModal.defaultTitle");
     goalForm.selectedOption = calculation.value.result.recommendedOption === "installment"
       ? "installment"
       : "cash";
@@ -337,7 +336,7 @@ const handleGoalAction = async (): Promise<void> => {
     handleOperationalError(
       error,
       "tools.installment_vs_cash.goal.prefill",
-      "Não foi possível preparar a criação da meta agora.",
+      t("pages.installmentVsCash.errors.goalPrefill"),
     );
   }
 };
@@ -356,13 +355,13 @@ const handleExpenseAction = async (): Promise<void> => {
   }
 
   if (!hasPremiumAccess.value) {
-    void router.push("/planos");
+    void router.push("/plans");
     return;
   }
 
   try {
     await ensureSavedSimulation();
-    plannedExpenseForm.title = form.value.scenarioLabel.trim() || "Compra planejada";
+    plannedExpenseForm.title = form.value.scenarioLabel.trim() || t("pages.installmentVsCash.expenseModal.defaultTitle");
     plannedExpenseForm.selectedOption =
       calculation.value.result.recommendedOption === "cash" ? "cash" : "installment";
     showExpenseModal.value = true;
@@ -370,7 +369,7 @@ const handleExpenseAction = async (): Promise<void> => {
     handleOperationalError(
       error,
       "tools.installment_vs_cash.expense.prefill",
-      "Não foi possível preparar a despesa planejada agora.",
+      t("pages.installmentVsCash.errors.expensePrefill"),
     );
   }
 };
@@ -381,7 +380,7 @@ const handleExpenseAction = async (): Promise<void> => {
 const submitGoalBridge = async (): Promise<void> => {
   const simulation = savedSimulation.value;
   if (simulation === null) {
-    message.error("Salve a simulação antes de criar uma meta.");
+    message.error(t("pages.installmentVsCash.errors.saveBeforeGoal"));
     return;
   }
 
@@ -400,12 +399,12 @@ const submitGoalBridge = async (): Promise<void> => {
 
     savedSimulation.value = response.simulation;
     showGoalModal.value = false;
-    message.success("Meta criada a partir da simulação.");
+    message.success(t("pages.installmentVsCash.success.goalCreated"));
   } catch (error: unknown) {
     handleOperationalError(
       error,
       "tools.installment_vs_cash.goal.submit",
-      "Não foi possível criar a meta agora.",
+      t("pages.installmentVsCash.errors.goalSubmit"),
     );
   }
 };
@@ -416,7 +415,7 @@ const submitGoalBridge = async (): Promise<void> => {
 const submitExpenseBridge = async (): Promise<void> => {
   const simulation = savedSimulation.value;
   if (simulation === null) {
-    message.error("Salve a simulação antes de planejar a despesa.");
+    message.error(t("pages.installmentVsCash.errors.saveBeforeExpense"));
     return;
   }
 
@@ -442,13 +441,13 @@ const submitExpenseBridge = async (): Promise<void> => {
     savedSimulation.value = response.simulation;
     showExpenseModal.value = false;
     message.success(
-      `${response.transactions.length} lançamento(s) planejado(s) criado(s).`,
+      t("pages.installmentVsCash.success.expensesCreated", { count: response.transactions.length }),
     );
   } catch (error: unknown) {
     handleOperationalError(
       error,
       "tools.installment_vs_cash.expense.submit",
-      "Não foi possível planejar a despesa agora.",
+      t("pages.installmentVsCash.errors.expenseSubmit"),
     );
   }
 };
@@ -480,15 +479,15 @@ onMounted((): void => {
     <header class="installment-vs-cash-page__header">
       <div class="installment-vs-cash-page__brand">
         <span class="installment-vs-cash-page__brand-mark">Auraxis</span>
-        <span class="installment-vs-cash-page__brand-copy">Ferramenta pública</span>
+        <span class="installment-vs-cash-page__brand-copy">{{ t('pages.installmentVsCash.header.publicTool') }}</span>
       </div>
 
       <div class="installment-vs-cash-page__header-actions">
         <NButton quaternary @click="router.push('/tools')">
-          Ver outras ferramentas
+          {{ t('pages.installmentVsCash.header.otherTools') }}
         </NButton>
         <NButton type="primary" @click="router.push('/register')">
-          Criar conta gratuita
+          {{ t('pages.installmentVsCash.header.createAccount') }}
         </NButton>
       </div>
     </header>
@@ -497,21 +496,21 @@ onMounted((): void => {
       <section class="installment-vs-cash-page__hero">
         <div class="installment-vs-cash-page__hero-copy">
           <NTag round type="warning">
-            Parcelado ou à vista
+            {{ t('pages.installmentVsCash.hero.badge') }}
           </NTag>
           <UiPageHeader
-            title="Descubra qual forma de pagamento fica mais vantajosa financeiramente"
-            subtitle="A Auraxis compara preço à vista, parcelado, custo de oportunidade, inflação e custos extras para te dar uma recomendação clara e auditável."
+            :title="t('pages.installmentVsCash.hero.title')"
+            :subtitle="t('pages.installmentVsCash.hero.subtitle')"
           />
 
           <NSpace vertical :size="16">
             <NThing
-              title="Resposta rápida para iniciantes"
-              description="Você recebe um veredito direto em segundos, sem precisar entender matemática financeira."
+              :title="t('pages.installmentVsCash.hero.featureBasic')"
+              :description="t('pages.installmentVsCash.hero.featureBasicDesc')"
             />
             <NThing
-              title="Detalhamento confiável para experts"
-              description="Expandimos a explicação com cronograma, valor presente, break-even e premissas usadas."
+              :title="t('pages.installmentVsCash.hero.featureAdvanced')"
+              :description="t('pages.installmentVsCash.hero.featureAdvancedDesc')"
             />
           </NSpace>
         </div>
@@ -536,7 +535,7 @@ onMounted((): void => {
             type="error"
             class="installment-vs-cash-page__alert"
           >
-            Não foi possível calcular agora. Revise os dados e tente novamente.
+            {{ t('pages.installmentVsCash.errors.calculate') }}
           </NAlert>
         </UiGlassPanel>
       </section>
@@ -546,8 +545,8 @@ onMounted((): void => {
 
         <UiSurfaceCard>
           <NThing
-            title="Próximo passo"
-            :description="`${getRecommendationLabel(calculation.result.recommendedOption)}. Se quiser, salve a simulação para acompanhar depois ou transforme-a em meta/despesa planejada.`"
+            :title="t('pages.installmentVsCash.results.nextStep')"
+            :description="`${getRecommendationLabel(calculation.result.recommendedOption)}.`"
           />
 
           <InstallmentVsCashActionBar
@@ -568,16 +567,16 @@ onMounted((): void => {
         <UiSurfaceCard>
           <NSpace vertical :size="16">
             <NThing
-              title="O que esta página considera"
-              description="Desconto à vista, parcelamento, custo de oportunidade, inflação e custos extras iniciais."
+              :title="t('pages.installmentVsCash.seoSection.considers')"
+              :description="t('pages.installmentVsCash.seoSection.considersDesc')"
             />
             <NThing
-              title="O que esta página não substitui"
-              description="Esta é uma simulação educativa baseada nas premissas informadas. Ela não substitui proposta comercial oficial, contrato ou aconselhamento financeiro."
+              :title="t('pages.installmentVsCash.seoSection.notReplaces')"
+              :description="t('pages.installmentVsCash.seoSection.notReplacesDesc')"
             />
             <NThing
-              title="Como usar melhor"
-              description="Teste o mesmo item com e sem desconto à vista, com parcelas diferentes e com taxas mais conservadoras. Isso te ajuda a entender a sensibilidade da decisão."
+              :title="t('pages.installmentVsCash.seoSection.howToUse')"
+              :description="t('pages.installmentVsCash.seoSection.howToUseDesc')"
             />
           </NSpace>
         </UiSurfaceCard>
@@ -587,19 +586,19 @@ onMounted((): void => {
     <NModal
       v-model:show="showGoalModal"
       preset="card"
-      title="Incluir como meta"
+      :title="t('pages.installmentVsCash.goalModal.title')"
       class="installment-vs-cash-page__modal"
     >
       <NForm label-placement="top">
-        <NFormItem label="Título da meta">
+        <NFormItem :label="t('pages.installmentVsCash.goalModal.titleLabel')">
           <NInput v-model:value="goalForm.title" />
         </NFormItem>
 
-        <NFormItem label="Descrição">
+        <NFormItem :label="t('pages.installmentVsCash.goalModal.descriptionLabel')">
           <NInput v-model:value="goalForm.description" type="textarea" />
         </NFormItem>
 
-        <NFormItem label="Data alvo">
+        <NFormItem :label="t('pages.installmentVsCash.goalModal.targetDateLabel')">
           <NDatePicker
             v-model:value="goalForm.targetDate"
             type="date"
@@ -608,13 +607,13 @@ onMounted((): void => {
         </NFormItem>
 
         <NSpace justify="end">
-          <NButton @click="showGoalModal = false">Cancelar</NButton>
+          <NButton @click="showGoalModal = false">{{ t('pages.installmentVsCash.goalModal.cancel') }}</NButton>
           <NButton
             type="primary"
             :loading="createGoalMutation.isPending.value"
             @click="submitGoalBridge"
           >
-            Criar meta
+            {{ t('pages.installmentVsCash.goalModal.submit') }}
           </NButton>
         </NSpace>
       </NForm>
@@ -623,32 +622,32 @@ onMounted((): void => {
     <NModal
       v-model:show="showExpenseModal"
       preset="card"
-      title="Planejar despesa"
+      :title="t('pages.installmentVsCash.expenseModal.title')"
       class="installment-vs-cash-page__modal"
     >
       <NForm label-placement="top">
-        <NFormItem label="Título da despesa">
+        <NFormItem :label="t('pages.installmentVsCash.expenseModal.titleLabel')">
           <NInput v-model:value="plannedExpenseForm.title" />
         </NFormItem>
 
-        <NFormItem label="Descrição">
+        <NFormItem :label="t('pages.installmentVsCash.expenseModal.descriptionLabel')">
           <NInput v-model:value="plannedExpenseForm.description" type="textarea" />
         </NFormItem>
 
-        <NFormItem label="Modo selecionado">
+        <NFormItem :label="t('pages.installmentVsCash.expenseModal.modeLabel')">
           <UiSegmentedControl
             v-model="plannedExpenseForm.selectedOption"
             :options="[
-              { label: 'À vista', value: 'cash' },
-              { label: 'Parcelado', value: 'installment' },
+              { label: t('pages.installmentVsCash.expenseModal.cashLabel'), value: 'cash' },
+              { label: t('pages.installmentVsCash.expenseModal.installmentLabel'), value: 'installment' },
             ]"
-            aria-label="Modo da despesa planejada"
+            :aria-label="t('pages.installmentVsCash.expenseModal.modeAriaLabel')"
           />
         </NFormItem>
 
         <NFormItem
           v-if="plannedExpenseForm.selectedOption === 'cash'"
-          label="Data do lançamento"
+          :label="t('pages.installmentVsCash.expenseModal.dueDateLabel')"
         >
           <NDatePicker
             v-model:value="plannedExpenseForm.dueDate"
@@ -659,7 +658,7 @@ onMounted((): void => {
 
         <NFormItem
           v-else
-          label="Primeiro vencimento"
+          :label="t('pages.installmentVsCash.expenseModal.firstDueDateLabel')"
         >
           <NDatePicker
             v-model:value="plannedExpenseForm.firstDueDate"
@@ -668,7 +667,7 @@ onMounted((): void => {
           />
         </NFormItem>
 
-        <NFormItem v-if="form.feesEnabled" label="Data dos custos iniciais">
+        <NFormItem v-if="form.feesEnabled" :label="t('pages.installmentVsCash.expenseModal.upfrontDateLabel')">
           <NDatePicker
             v-model:value="plannedExpenseForm.upfrontDueDate"
             type="date"
@@ -677,13 +676,13 @@ onMounted((): void => {
         </NFormItem>
 
         <NSpace justify="end">
-          <NButton @click="showExpenseModal = false">Cancelar</NButton>
+          <NButton @click="showExpenseModal = false">{{ t('pages.installmentVsCash.expenseModal.cancel') }}</NButton>
           <NButton
             type="primary"
             :loading="createPlannedExpenseMutation.isPending.value"
             @click="submitExpenseBridge"
           >
-            Planejar despesa
+            {{ t('pages.installmentVsCash.expenseModal.submit') }}
           </NButton>
         </NSpace>
       </NForm>

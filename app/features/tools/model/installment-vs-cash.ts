@@ -16,7 +16,7 @@ export const INSTALLMENT_VS_CASH_TOOL_ID = "installment_vs_cash";
 /**
  * Public route for the page.
  */
-export const INSTALLMENT_VS_CASH_PUBLIC_PATH = "/tools/parcelado-vs-a-vista";
+export const INSTALLMENT_VS_CASH_PUBLIC_PATH = "/tools/installment-vs-cash";
 
 /**
  * Human-friendly delay presets exposed by the calculator form.

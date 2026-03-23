@@ -6,6 +6,8 @@ import UiPasswordField from "~/shared/components/UiPasswordField/UiPasswordField
 import UiSocialAuthButtons from "~/shared/components/UiSocialAuthButtons/UiSocialAuthButtons.vue";
 import type { LoginFormProps, LoginFormEmits } from "./LoginForm.types";
 
+const { t } = useI18n();
+
 const props = withDefaults(defineProps<LoginFormProps>(), {
   loading: false,
 });
@@ -26,19 +28,19 @@ const isPending = computed(() => props.loading || isSubmitting.value);
 <template>
   <div class="login-form">
     <div class="login-form__header">
-      <h1 class="login-form__title">Bem-vindo de volta</h1>
-      <p class="login-form__subtitle">Entre na sua conta Auraxis</p>
+      <h1 class="login-form__title">{{ t('auth.login.title') }}</h1>
+      <p class="login-form__subtitle">{{ t('auth.login.subtitle') }}</p>
     </div>
 
     <UiSocialAuthButtons class="login-form__social" />
 
     <div class="login-form__divider" aria-hidden="true">
-      <span class="login-form__divider-text">ou entre com e-mail</span>
+      <span class="login-form__divider-text">{{ t('auth.login.divider') }}</span>
     </div>
 
     <form class="login-form__fields" novalidate @submit.prevent="onSubmit">
       <UiFormField
-        label="E-mail"
+        :label="t('auth.login.emailLabel')"
         field-id="login-email"
         :error="errors.email"
         required
@@ -49,7 +51,7 @@ const isPending = computed(() => props.loading || isSubmitting.value);
           class="login-form__input"
           :class="{ 'login-form__input--error': !!errors.email }"
           type="email"
-          placeholder="seu@email.com"
+          :placeholder="t('auth.login.emailPlaceholder')"
           autocomplete="email"
           :disabled="isPending"
           v-bind="emailAttrs"
@@ -68,7 +70,7 @@ const isPending = computed(() => props.loading || isSubmitting.value);
 
       <div class="login-form__forgot">
         <NuxtLink to="/forgot-password" class="login-form__link">
-          Esqueceu sua senha?
+          {{ t('auth.login.forgotPassword') }}
         </NuxtLink>
       </div>
 
@@ -79,14 +81,14 @@ const isPending = computed(() => props.loading || isSubmitting.value);
         :aria-busy="isPending"
       >
         <span v-if="isPending" class="login-form__spinner" aria-hidden="true" />
-        {{ isPending ? "Entrando…" : "Entrar" }}
+        {{ isPending ? t('auth.login.submitLoading') : t('auth.login.submit') }}
       </button>
     </form>
 
     <p class="login-form__register">
-      Não tem uma conta?
+      {{ t('auth.login.noAccount') }}
       <NuxtLink to="/register" class="login-form__link">
-        Criar conta
+        {{ t('auth.login.createAccount') }}
       </NuxtLink>
     </p>
   </div>

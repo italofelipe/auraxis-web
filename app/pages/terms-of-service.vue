@@ -6,9 +6,9 @@ definePageMeta({ layout: false });
   <div class="legal-shell">
     <header class="legal-header">
       <span class="legal-brand">Auraxis</span>
-      <nav class="legal-nav" aria-label="Navegação">
+      <nav class="legal-nav" aria-label="Navigation">
         <NuxtLink to="/login" class="back-link">← Voltar</NuxtLink>
-        <NuxtLink to="/privacidade" class="nav-link">Política de Privacidade</NuxtLink>
+        <NuxtLink to="/privacy-policy" class="nav-link">Política de Privacidade</NuxtLink>
       </nav>
     </header>
 
@@ -95,7 +95,7 @@ definePageMeta({ layout: false });
         <section class="legal-section">
           <h2>8. Privacidade e dados pessoais</h2>
           <ol>
-            <li>O tratamento de dados pessoais segue a <NuxtLink to="/privacidade" class="inline-link">Política de Privacidade v1</NuxtLink>.</li>
+            <li>O tratamento de dados pessoais segue a <NuxtLink to="/privacy-policy" class="inline-link">Política de Privacidade v1</NuxtLink>.</li>
             <li>Ao usar o serviço, o usuário declara ciência de que seus dados serão tratados para operar a plataforma, autenticar acessos, gerar relatórios e manter segurança operacional.</li>
             <li>Caso o usuário registre dados de terceiros no produto, declara ser responsável por possuir base legal adequada para isso e por não utilizar o serviço em desconformidade com a legislação aplicável.</li>
           </ol>
@@ -145,7 +145,7 @@ definePageMeta({ layout: false });
             <a href="mailto:suporte@auraxis.com.br" class="contact-link">suporte@auraxis.com.br</a>
           </p>
           <p>
-            <NuxtLink to="/privacidade" class="inline-link">Ver Política de Privacidade</NuxtLink>
+            <NuxtLink to="/privacy-policy" class="inline-link">Ver Política de Privacidade</NuxtLink>
           </p>
         </footer>
       </article>

@@ -3,7 +3,7 @@ import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ref, type App } from "vue";
 
-import ParceladoVsAVistaPage from "./parcelado-vs-a-vista.vue";
+import InstallmentVsCashPage from "./installment-vs-cash.vue";
 import { useToolContextStore } from "~/stores/toolContext";
 import type { InstallmentVsCashFormState } from "~/features/tools/model/installment-vs-cash";
 
@@ -20,10 +20,15 @@ const mockCaptureException = vi.hoisted(() => vi.fn());
 const mockIsAuthenticated = ref(false);
 const mockHasPremiumAccess = ref(false);
 
+vi.mock("vue-i18n", () => ({
+  useI18n: (): { t: (key: string) => string } => ({ t: (key: string) => key }),
+}));
+
 vi.mock("#imports", () => ({
   definePageMeta: vi.fn(),
   useHead: vi.fn(),
   useSeoMeta: vi.fn(),
+  useI18n: (): { t: (key: string) => string } => ({ t: (key: string) => key }),
   useRouter: (): { push: typeof mockPush } => ({ push: mockPush }),
 }));
 
@@ -312,7 +317,7 @@ function nuxtContextPlugin(app: App): void {
  * @returns Mounted wrapper for assertions and interactions.
  */
 function mountPage(): ReturnType<typeof mount> {
-  return mount(ParceladoVsAVistaPage, {
+  return mount(InstallmentVsCashPage, {
     global: {
       plugins: [{ install: nuxtContextPlugin }],
       stubs: globalStubs,
@@ -352,7 +357,7 @@ function resetPageState(): void {
   sessionStorage.clear();
 }
 
-describe("ParceladoVsAVistaPage", () => {
+describe("InstallmentVsCashPage", () => {
   beforeEach(() => {
     resetPageState();
   });
@@ -360,8 +365,8 @@ describe("ParceladoVsAVistaPage", () => {
   it("renders the public hero copy", () => {
     const wrapper = mountPage();
 
-    expect(wrapper.text()).toContain("Descubra qual forma de pagamento");
-    expect(wrapper.text()).toContain("Ferramenta pública");
+    expect(wrapper.text()).toContain("pages.installmentVsCash.hero.title");
+    expect(wrapper.text()).toContain("pages.installmentVsCash.header.publicTool");
   });
 
   it("shows a validation warning before calling the API", async () => {
@@ -392,7 +397,7 @@ describe("ParceladoVsAVistaPage", () => {
 
     expect(mockCaptureException).toHaveBeenCalledOnce();
     expect(mockMessageError).toHaveBeenCalledWith(
-      "Não foi possível calcular agora. Revise os dados e tente novamente.",
+      "pages.installmentVsCash.errors.calculate",
     );
   });
 
@@ -421,7 +426,7 @@ describe("ParceladoVsAVistaPage", () => {
     await wrapper.find(".save-action").trigger("click");
 
     expect(mockSaveMutateAsync).toHaveBeenCalledOnce();
-    expect(mockMessageSuccess).toHaveBeenCalledWith("Simulação salva com sucesso.");
+    expect(mockMessageSuccess).toHaveBeenCalledWith("pages.installmentVsCash.success.saved");
   });
 
   it("reports save failures for authenticated users", async () => {
@@ -436,7 +441,7 @@ describe("ParceladoVsAVistaPage", () => {
 
     expect(mockCaptureException).toHaveBeenCalledOnce();
     expect(mockMessageError).toHaveBeenCalledWith(
-      "Não foi possível salvar a simulação agora.",
+      "pages.installmentVsCash.errors.save",
     );
   });
 
@@ -448,7 +453,7 @@ describe("ParceladoVsAVistaPage", () => {
     await calculateFromStubForm(wrapper);
     await wrapper.find(".goal-action").trigger("click");
 
-    expect(mockPush).toHaveBeenCalledWith("/planos");
+    expect(mockPush).toHaveBeenCalledWith("/plans");
   });
 
   it("opens the goal modal when the user is premium", async () => {

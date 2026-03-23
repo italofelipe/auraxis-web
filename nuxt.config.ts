@@ -79,6 +79,7 @@ export default defineNuxtConfig({
     locales: ["pt-BR", "en"],
     defaultLocale: "pt-BR",
     baseUrl: process.env.NUXT_PUBLIC_SITE_URL ?? undefined,
+    vueI18n: "./i18n.config.ts",
   },
   ogImage: {
     enabled: false,
@@ -107,8 +108,8 @@ export default defineNuxtConfig({
     // Public + indexable
     "/": { prerender: true },
     "/tools": { prerender: false },
-    "/termos": { prerender: true },
-    "/privacidade": { prerender: true },
+    "/terms-of-service": { prerender: true },
+    "/privacy-policy": { prerender: true },
 
     // Public but noindex (no robots)
     // robots is augmented by @nuxtjs/robots via NitroRouteConfig — vue-tsc does
@@ -122,7 +123,7 @@ export default defineNuxtConfig({
 
     // Private (auth required — enforced by middleware, not route rules)
     "/dashboard": {},
-    "/carteira": {},
+    "/portfolio": {},
     "/profile": {},
   },
 

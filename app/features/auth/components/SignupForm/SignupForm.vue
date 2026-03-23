@@ -6,6 +6,8 @@ import UiPasswordField from "~/shared/components/UiPasswordField/UiPasswordField
 import UiSocialAuthButtons from "~/shared/components/UiSocialAuthButtons/UiSocialAuthButtons.vue";
 import type { SignupFormProps, SignupFormEmits } from "./SignupForm.types";
 
+const { t } = useI18n();
+
 const props = withDefaults(defineProps<SignupFormProps>(), {
   loading: false,
 });
@@ -27,19 +29,19 @@ const isPending = computed(() => props.loading || isSubmitting.value);
 <template>
   <div class="signup-form">
     <div class="signup-form__header">
-      <h1 class="signup-form__title">Criar conta</h1>
-      <p class="signup-form__subtitle">Comece a usar o Auraxis gratuitamente</p>
+      <h1 class="signup-form__title">{{ t('auth.signup.title') }}</h1>
+      <p class="signup-form__subtitle">{{ t('auth.signup.subtitle') }}</p>
     </div>
 
     <UiSocialAuthButtons class="signup-form__social" />
 
     <div class="signup-form__divider" aria-hidden="true">
-      <span class="signup-form__divider-text">ou registre com e-mail</span>
+      <span class="signup-form__divider-text">{{ t('auth.signup.divider') }}</span>
     </div>
 
     <form class="signup-form__fields" novalidate @submit.prevent="onSubmit">
       <UiFormField
-        label="E-mail"
+        :label="t('auth.signup.emailLabel')"
         field-id="signup-email"
         :error="errors.email"
         required
@@ -50,7 +52,7 @@ const isPending = computed(() => props.loading || isSubmitting.value);
           class="signup-form__input"
           :class="{ 'signup-form__input--error': !!errors.email }"
           type="email"
-          placeholder="seu@email.com"
+          :placeholder="t('auth.signup.emailPlaceholder')"
           autocomplete="email"
           :disabled="isPending"
           v-bind="emailAttrs"
@@ -69,7 +71,7 @@ const isPending = computed(() => props.loading || isSubmitting.value);
 
       <UiPasswordField
         v-model="confirmPassword"
-        label="Confirmar senha"
+        :label="t('auth.signup.confirmPassword')"
         field-id="signup-confirm-password"
         :error="errors.confirmPassword"
         :disabled="isPending"
@@ -85,14 +87,14 @@ const isPending = computed(() => props.loading || isSubmitting.value);
         :aria-busy="isPending"
       >
         <span v-if="isPending" class="signup-form__spinner" aria-hidden="true" />
-        {{ isPending ? "Criando conta…" : "Criar conta" }}
+        {{ isPending ? t('auth.signup.submitLoading') : t('auth.signup.submit') }}
       </button>
     </form>
 
     <p class="signup-form__login">
-      Já tem uma conta?
+      {{ t('auth.signup.hasAccount') }}
       <NuxtLink to="/login" class="signup-form__link">
-        Entrar
+        {{ t('auth.signup.signIn') }}
       </NuxtLink>
     </p>
   </div>

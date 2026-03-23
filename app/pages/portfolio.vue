@@ -5,6 +5,8 @@ import { useWalletSummaryQuery } from "~/composables/useWallet";
 import WalletSummaryCard from "~/features/wallet/components/WalletSummaryCard.vue";
 import PositionsList from "~/features/wallet/components/PositionsList.vue";
 
+const { t } = useI18n();
+
 definePageMeta({
   middleware: ["authenticated"],
   pageTitle: "Carteira",
@@ -20,22 +22,21 @@ const isEmpty = computed(() => {
 </script>
 
 <template>
-  <div class="carteira-page">
+  <div class="portfolio-page">
     <NSpace v-if="walletQuery.isLoading.value" vertical :size="16">
       <NSkeleton height="140px" :sharp="false" />
       <NSkeleton height="260px" :sharp="false" />
     </NSpace>
 
-    <UiBaseCard v-else-if="walletQuery.isError.value" title="Erro ao carregar carteira">
-      <p class="carteira-page__support-copy">
-        Não foi possível carregar sua carteira. Tente novamente.
+    <UiBaseCard v-else-if="walletQuery.isError.value" :title="t('pages.portfolio.errorTitle')">
+      <p class="portfolio-page__support-copy">
+        {{ t('pages.portfolio.errorMessage') }}
       </p>
     </UiBaseCard>
 
-    <UiBaseCard v-else-if="isEmpty" title="Carteira vazia">
-      <p class="carteira-page__support-copy">
-        Você ainda não tem ativos cadastrados. Adicione seu primeiro ativo para
-        começar a acompanhar seu patrimônio.
+    <UiBaseCard v-else-if="isEmpty" :title="t('pages.portfolio.emptyTitle')">
+      <p class="portfolio-page__support-copy">
+        {{ t('pages.portfolio.emptyMessage') }}
       </p>
     </UiBaseCard>
 
@@ -47,12 +48,12 @@ const isEmpty = computed(() => {
 </template>
 
 <style scoped>
-.carteira-page {
+.portfolio-page {
   display: grid;
   gap: var(--space-4);
 }
 
-.carteira-page__support-copy {
+.portfolio-page__support-copy {
   margin: 0;
   color: var(--color-text-muted);
 }

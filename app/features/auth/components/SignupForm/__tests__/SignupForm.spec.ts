@@ -1,6 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 import SignupForm from "../SignupForm.vue";
+
+vi.mock("vue-i18n", () => ({
+  useI18n: (): { t: (key: string) => string } => ({ t: (key: string) => key }),
+}));
 
 const NuxtLinkStub = {
   template: "<a :href=\"to\" v-bind=\"$attrs\"><slot /></a>",
@@ -22,8 +26,8 @@ describe("SignupForm", () => {
 
   it("shows login link", () => {
     const wrapper = mount(SignupForm, { global: globalConfig });
-    expect(wrapper.text()).toContain("Já tem uma conta?");
-    expect(wrapper.text()).toContain("Entrar");
+    expect(wrapper.text()).toContain("auth.signup.hasAccount");
+    expect(wrapper.text()).toContain("auth.signup.signIn");
   });
 
   it("disables submit when loading", () => {
@@ -39,7 +43,7 @@ describe("SignupForm", () => {
       props: { loading: true },
       global: globalConfig,
     });
-    expect(wrapper.text()).toContain("Criando conta");
+    expect(wrapper.text()).toContain("auth.signup.submitLoading");
   });
 
   it("renders social auth buttons", () => {
@@ -49,12 +53,12 @@ describe("SignupForm", () => {
 
   it("renders title and subtitle", () => {
     const wrapper = mount(SignupForm, { global: globalConfig });
-    expect(wrapper.text()).toContain("Criar conta");
-    expect(wrapper.text()).toContain("gratuitamente");
+    expect(wrapper.text()).toContain("auth.signup.title");
+    expect(wrapper.text()).toContain("auth.signup.subtitle");
   });
 
   it("shows divider between social and email form", () => {
     const wrapper = mount(SignupForm, { global: globalConfig });
-    expect(wrapper.text()).toContain("ou registre com e-mail");
+    expect(wrapper.text()).toContain("auth.signup.divider");
   });
 });
