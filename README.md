@@ -29,6 +29,7 @@ Aplicação web do Auraxis construída com Nuxt 4, TypeScript estrito e Vue 3 �
 - ESLint (`@nuxt/eslint`) + Prettier
 - Vitest / Playwright
 - Storybook (mantido para evolução do design system)
+- Chromatic (trilha oficial de visual review do design system)
 
 ## Arquitetura-alvo
 
@@ -53,6 +54,8 @@ app/
 ```bash
 pnpm install
 pnpm dev
+pnpm storybook
+pnpm storybook:build
 pnpm lint
 pnpm typecheck
 pnpm test
@@ -67,3 +70,14 @@ pnpm build
 - Não commitar diretamente em `main`/`master`.
 - Toda mudança de contrato com backend deve refletir os tipos e adapters do frontend.
 - Placeholders não devem mascarar falhas do fluxo nominal.
+
+## Visual review oficial
+
+- workflow: `.github/workflows/chromatic.yml`
+- secret esperado: `CHROMATIC_PROJECT_TOKEN`
+- domínio alvo: `https://v1.design-system.auraxis.com.br`
+- fallback operacional: URL nativa do Chromatic em cada build
+
+Referência operacional:
+
+- [Chromatic e Storybook](./docs/chromatic.md)
