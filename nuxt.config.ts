@@ -4,6 +4,8 @@ export default defineNuxtConfig({
 
   devtools: { enabled: true },
   ssr: true,
+  spaLoadingTemplate: false,
+
 
   app: {
     baseURL: process.env.NUXT_APP_BASE_URL ?? "/",
@@ -28,7 +30,6 @@ export default defineNuxtConfig({
   modules: [
     "@sentry/nuxt/module", // Error tracking e source maps (opt-in via NUXT_PUBLIC_SENTRY_DSN)
     "@nuxt/eslint",       // Lint integrado ao Nuxt (gera eslint.config via `nuxt lint`)
-    "@nuxt/image",        // Componente <NuxtImg> com lazy load e otimização
     "@nuxt/content",      // CMS baseado em arquivos Markdown/YAML/JSON
     "@nuxt/scripts",      // Carregamento otimizado de scripts de terceiros
     "@nuxt/a11y",         // Auditor de acessibilidade em dev
@@ -39,7 +40,8 @@ export default defineNuxtConfig({
     "@nuxtjs/device",     // Detecção de device (mobile/desktop/tablet)
     "@nuxtjs/google-fonts",
     "dayjs-nuxt",
-    // '@nuxtjs/apollo',  // ⚠️ Incompatível com Nuxt 4 — aguarda versão estável
+    // '@nuxt/image',      // ⚠️ Removido: Depende de sharp que causa conflitos de build em ARM64
+    // '@nuxtjs/apollo',   // ⚠️ Incompatível com Nuxt 4 — aguarda versão estável
     //                       Adicionar de volta quando disponível: https://github.com/nuxt-modules/apollo
   ],
 
@@ -80,6 +82,8 @@ export default defineNuxtConfig({
     defaultLocale: "pt-BR",
     baseUrl: process.env.NUXT_PUBLIC_SITE_URL ?? undefined,
     vueI18n: "./i18n.config.ts",
+    strategy: "prefix",
+    skipSettingLocaleOnNavigate: false,
   },
   ogImage: {
     enabled: false,
@@ -102,18 +106,12 @@ export default defineNuxtConfig({
   },
 
   // ── Route Rules ───────────────────────────────────────────────────────
-  // Classifies routes as public/noindex/private for SEO and prerendering.
+  // Dynamic routes are served server-side. Static routes can still be prerendered.
   // Auth enforcement for private routes is handled by middleware, not rules.
   routeRules: {
-    // Public + indexable
-    "/": { prerender: true },
-    "/tools": { prerender: false },
-    "/terms-of-service": { prerender: true },
-    "/privacy-policy": { prerender: true },
-
-    // Public but noindex (no robots)
-    // robots is augmented by @nuxtjs/robots via NitroRouteConfig — vue-tsc does
-    // not pick up the declaration when type-checking nuxt.config.ts directly.
+    // Public routes — served dynamically for i18n and dynamic content
+    // @ts-expect-error — robots key injected by @nuxtjs/robots module augmentation
+    "/": { robots: true },
     // @ts-expect-error — robots key injected by @nuxtjs/robots module augmentation
     "/login": { robots: false },
     // @ts-expect-error — robots key injected by @nuxtjs/robots module augmentation
@@ -125,6 +123,12 @@ export default defineNuxtConfig({
     "/dashboard": {},
     "/portfolio": {},
     "/profile": {},
+    "/tools": {},
+    "/alerts": {},
+    "/goals": {},
+    "/simulations": {},
+    "/shared-entries": {},
+    "/subscription": {},
   },
 
   // ── Nitro ─────────────────────────────────────────────────────────────
@@ -135,7 +139,15 @@ export default defineNuxtConfig({
   // The module remains available at runtime from node_modules.
   nitro: {
     externals: {
-      external: ["sharp"],
+      external: ["sharp", "@img/sharp-wasm32"],
+      trace: {
+        external: ["sharp"],
+      },
+    },
+    prerender: {
+      crawlLinks: false,
+      routes: [],
+      ignore: ["/", "/sitemap.xml", "/__nuxt_content"],
     },
   },
 });
