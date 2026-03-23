@@ -3,7 +3,7 @@ import { colors } from "~/theme/tokens/colors";
 import { fonts } from "~/theme/tokens/typography";
 import { radii } from "~/theme/tokens/radii";
 
-interface NaiveThemeResult {
+export interface NaiveThemeResult {
   theme: typeof darkTheme;
   themeOverrides: GlobalThemeOverrides;
 }

@@ -3,7 +3,7 @@ import { computed, type Ref } from "vue";
 import { useEntitlementQuery } from "~/features/paywall/queries/use-entitlement-query";
 import type { FeatureKey } from "~/features/paywall/model/entitlement";
 
-interface FeatureAccessResult {
+export interface FeatureAccessResult {
   hasAccess: Ref<boolean>;
   isLoading: Ref<boolean>;
   isError: Ref<boolean>;
