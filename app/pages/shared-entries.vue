@@ -8,6 +8,8 @@ import { useInvitationsQuery } from "~/features/sharing/queries/use-invitations-
 import { useRevokeShareMutation } from "~/features/sharing/queries/use-revoke-share-mutation";
 import { useSharedByMeQuery, useSharedWithMeQuery } from "~/features/sharing/queries/use-shared-entries-query";
 
+const { t } = useI18n();
+
 definePageMeta({
   middleware: ["authenticated"],
   pageTitle: "Compartilhamentos",
@@ -26,10 +28,10 @@ const handleRevokeShare = (id: string): void => {
 </script>
 
 <template>
-  <div class="compartilhamentos-page">
+  <div class="shared-entries-page">
     <NTabs type="line" animated>
-      <NTabPane name="convidados" tab="Convidados">
-        <NSpace vertical :size="16" class="compartilhamentos-page__tab-content">
+      <NTabPane name="guests" :tab="t('pages.sharedEntries.tabs.guests')">
+        <NSpace vertical :size="16" class="shared-entries-page__tab-content">
           <InviteForm />
 
           <NSpace v-if="invitationsQuery.isLoading.value" vertical :size="8">
@@ -39,14 +41,14 @@ const handleRevokeShare = (id: string): void => {
 
           <p
             v-else-if="invitationsQuery.isError.value"
-            class="compartilhamentos-page__error"
+            class="shared-entries-page__error"
           >
-            Erro ao carregar convites. Tente novamente.
+            {{ t('pages.sharedEntries.errorGuests') }}
           </p>
 
           <NEmpty
             v-else-if="!invitationsQuery.data.value?.length"
-            description="Nenhum convite enviado ainda."
+            :description="t('pages.sharedEntries.emptyGuests')"
           />
 
           <NSpace v-else vertical :size="8">
@@ -59,8 +61,8 @@ const handleRevokeShare = (id: string): void => {
         </NSpace>
       </NTabPane>
 
-      <NTabPane name="com-mim" tab="Compartilhado comigo">
-        <NSpace vertical :size="16" class="compartilhamentos-page__tab-content">
+      <NTabPane name="shared-with-me" :tab="t('pages.sharedEntries.tabs.sharedWithMe')">
+        <NSpace vertical :size="16" class="shared-entries-page__tab-content">
           <NSpace v-if="sharedWithMeQuery.isLoading.value" vertical :size="8">
             <NSkeleton height="56px" :sharp="false" />
             <NSkeleton height="56px" :sharp="false" />
@@ -68,14 +70,14 @@ const handleRevokeShare = (id: string): void => {
 
           <p
             v-else-if="sharedWithMeQuery.isError.value"
-            class="compartilhamentos-page__error"
+            class="shared-entries-page__error"
           >
-            Erro ao carregar entradas compartilhadas com você. Tente novamente.
+            {{ t('pages.sharedEntries.errorSharedWithMe') }}
           </p>
 
           <NEmpty
             v-else-if="!sharedWithMeQuery.data.value?.length"
-            description="Nenhuma entrada foi compartilhada com você."
+            :description="t('pages.sharedEntries.emptySharedWithMe')"
           />
 
           <NSpace v-else vertical :size="8">
@@ -89,8 +91,8 @@ const handleRevokeShare = (id: string): void => {
         </NSpace>
       </NTabPane>
 
-      <NTabPane name="por-mim" tab="Compartilhei">
-        <NSpace vertical :size="16" class="compartilhamentos-page__tab-content">
+      <NTabPane name="shared-by-me" :tab="t('pages.sharedEntries.tabs.sharedByMe')">
+        <NSpace vertical :size="16" class="shared-entries-page__tab-content">
           <NSpace v-if="sharedByMeQuery.isLoading.value" vertical :size="8">
             <NSkeleton height="56px" :sharp="false" />
             <NSkeleton height="56px" :sharp="false" />
@@ -98,14 +100,14 @@ const handleRevokeShare = (id: string): void => {
 
           <p
             v-else-if="sharedByMeQuery.isError.value"
-            class="compartilhamentos-page__error"
+            class="shared-entries-page__error"
           >
-            Erro ao carregar entradas que você compartilhou. Tente novamente.
+            {{ t('pages.sharedEntries.errorSharedByMe') }}
           </p>
 
           <NEmpty
             v-else-if="!sharedByMeQuery.data.value?.length"
-            description="Você ainda não compartilhou nenhuma entrada."
+            :description="t('pages.sharedEntries.emptySharedByMe')"
           />
 
           <NSpace v-else vertical :size="8">
@@ -123,16 +125,16 @@ const handleRevokeShare = (id: string): void => {
 </template>
 
 <style scoped>
-.compartilhamentos-page {
+.shared-entries-page {
   display: grid;
   gap: var(--space-4);
 }
 
-.compartilhamentos-page__tab-content {
+.shared-entries-page__tab-content {
   padding-top: var(--space-3);
 }
 
-.compartilhamentos-page__error {
+.shared-entries-page__error {
   margin: 0;
   color: var(--color-negative);
 }

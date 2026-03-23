@@ -6,9 +6,9 @@ definePageMeta({ layout: false });
   <div class="legal-shell">
     <header class="legal-header">
       <span class="legal-brand">Auraxis</span>
-      <nav class="legal-nav" aria-label="Navegação">
+      <nav class="legal-nav" aria-label="Navigation">
         <NuxtLink to="/login" class="back-link">← Voltar</NuxtLink>
-        <NuxtLink to="/termos" class="nav-link">Termos de Uso</NuxtLink>
+        <NuxtLink to="/terms-of-service" class="nav-link">Termos de Uso</NuxtLink>
       </nav>
     </header>
 
@@ -166,7 +166,7 @@ definePageMeta({ layout: false });
             <a href="mailto:suporte@auraxis.com.br" class="contact-link">suporte@auraxis.com.br</a>
           </p>
           <p>
-            <NuxtLink to="/termos" class="inline-link">Ver Termos de Uso</NuxtLink>
+            <NuxtLink to="/terms-of-service" class="inline-link">Ver Termos de Uso</NuxtLink>
           </p>
         </footer>
       </article>

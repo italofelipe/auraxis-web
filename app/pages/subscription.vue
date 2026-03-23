@@ -6,6 +6,8 @@ import CheckoutButton from "~/features/subscription/components/CheckoutButton.vu
 import { useSubscriptionQuery } from "~/features/subscription/queries/use-subscription-query";
 import { useSubscriptionClient } from "~/features/subscription/api/subscription.client";
 
+const { t } = useI18n();
+
 definePageMeta({
   middleware: ["authenticated"],
   pageTitle: "Assinatura",
@@ -57,7 +59,7 @@ const handleConfirmCancel = async (): Promise<void> => {
     showCancelModal.value = false;
     void subscriptionQuery.refetch();
   } catch (err) {
-    cancelError.value = err instanceof Error ? err.message : "Erro ao cancelar assinatura.";
+    cancelError.value = err instanceof Error ? err.message : t("pages.subscription.cancelError");
   } finally {
     isCanceling.value = false;
   }
@@ -70,52 +72,52 @@ const isActive = computed(() =>
 </script>
 
 <template>
-  <div class="assinatura-page">
+  <div class="subscription-page">
     <NSpace v-if="subscriptionQuery.isLoading.value" vertical :size="16">
       <NSkeleton height="140px" :sharp="false" />
     </NSpace>
 
-    <UiBaseCard v-else-if="subscriptionQuery.isError.value" title="Erro ao carregar assinatura">
-      <p class="assinatura-page__support-copy">
-        Não foi possível carregar sua assinatura. Tente novamente.
+    <UiBaseCard v-else-if="subscriptionQuery.isError.value" :title="t('pages.subscription.errorTitle')">
+      <p class="subscription-page__support-copy">
+        {{ t('pages.subscription.errorMessage') }}
       </p>
     </UiBaseCard>
 
-    <NCard v-else-if="subscription" class="assinatura-page__card">
-      <div class="assinatura-page__plan-row">
+    <NCard v-else-if="subscription" class="subscription-page__card">
+      <div class="subscription-page__plan-row">
         <div>
-          <p class="assinatura-page__label">Plano atual</p>
-          <p class="assinatura-page__plan-name">
+          <p class="subscription-page__label">{{ t('pages.subscription.currentPlan') }}</p>
+          <p class="subscription-page__plan-name">
             {{ planDisplayName(subscription.planSlug) }}
           </p>
         </div>
         <SubscriptionBadge :status="subscription.status" />
       </div>
 
-      <div v-if="subscription.trialEndsAt" class="assinatura-page__detail">
-        <p class="assinatura-page__label">Trial encerra em</p>
+      <div v-if="subscription.trialEndsAt" class="subscription-page__detail">
+        <p class="subscription-page__label">{{ t('pages.subscription.trialEndsAt') }}</p>
         <p>{{ formatDate(subscription.trialEndsAt) }}</p>
       </div>
 
-      <div v-if="subscription.currentPeriodEnd" class="assinatura-page__detail">
-        <p class="assinatura-page__label">Próxima cobrança</p>
+      <div v-if="subscription.currentPeriodEnd" class="subscription-page__detail">
+        <p class="subscription-page__label">{{ t('pages.subscription.nextBilling') }}</p>
         <p>{{ formatDate(subscription.currentPeriodEnd) }}</p>
       </div>
 
-      <div v-if="subscription.planSlug === 'free'" class="assinatura-page__upgrade">
-        <p class="assinatura-page__support-copy">
-          Faça upgrade para o plano Premium e desbloqueie todos os recursos.
+      <div v-if="subscription.planSlug === 'free'" class="subscription-page__upgrade">
+        <p class="subscription-page__support-copy">
+          {{ t('pages.subscription.upgradeMessage') }}
         </p>
-        <CheckoutButton plan-slug="premium" label="Assinar Premium" />
+        <CheckoutButton plan-slug="premium" :label="t('pages.subscription.subscribePremium')" />
       </div>
 
-      <div v-if="isActive" class="assinatura-page__cancel">
+      <div v-if="isActive" class="subscription-page__cancel">
         <NButton
           type="default"
           size="small"
           @click="showCancelModal = true"
         >
-          Cancelar assinatura
+          {{ t('pages.subscription.cancelButton') }}
         </NButton>
       </div>
     </NCard>
@@ -123,41 +125,41 @@ const isActive = computed(() =>
     <NModal
       v-model:show="showCancelModal"
       preset="dialog"
-      title="Cancelar assinatura"
-      content="Tem certeza de que deseja cancelar sua assinatura? Você perderá acesso aos recursos Premium ao final do período atual."
-      positive-text="Confirmar cancelamento"
-      negative-text="Manter assinatura"
+      :title="t('pages.subscription.cancelModal.title')"
+      :content="t('pages.subscription.cancelModal.content')"
+      :positive-text="t('pages.subscription.cancelModal.confirm')"
+      :negative-text="t('pages.subscription.cancelModal.keep')"
       :loading="isCanceling"
       @positive-click="handleConfirmCancel"
       @negative-click="showCancelModal = false"
     />
 
-    <p v-if="cancelError" class="assinatura-page__cancel-error">
+    <p v-if="cancelError" class="subscription-page__cancel-error">
       {{ cancelError }}
     </p>
   </div>
 </template>
 
 <style scoped>
-.assinatura-page {
+.subscription-page {
   display: grid;
   gap: var(--space-4);
   max-width: 640px;
 }
 
-.assinatura-page__card {
+.subscription-page__card {
   display: grid;
   gap: var(--space-3);
 }
 
-.assinatura-page__plan-row {
+.subscription-page__plan-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: var(--space-2);
 }
 
-.assinatura-page__label {
+.subscription-page__label {
   margin: 0 0 var(--space-1);
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
@@ -165,37 +167,37 @@ const isActive = computed(() =>
   letter-spacing: 0.06em;
 }
 
-.assinatura-page__plan-name {
+.subscription-page__plan-name {
   margin: 0;
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
 }
 
-.assinatura-page__detail {
+.subscription-page__detail {
   display: grid;
   gap: 2px;
 }
 
-.assinatura-page__detail p:last-child {
+.subscription-page__detail p:last-child {
   margin: 0;
   font-weight: var(--font-weight-semibold);
 }
 
-.assinatura-page__support-copy {
+.subscription-page__support-copy {
   margin: 0 0 var(--space-2);
   color: var(--color-text-secondary);
 }
 
-.assinatura-page__upgrade {
+.subscription-page__upgrade {
   padding-top: var(--space-2);
   border-top: 1px solid var(--color-outline-soft);
 }
 
-.assinatura-page__cancel {
+.subscription-page__cancel {
   padding-top: var(--space-2);
 }
 
-.assinatura-page__cancel-error {
+.subscription-page__cancel-error {
   margin: 0;
   font-size: var(--font-size-sm);
   color: var(--color-negative);

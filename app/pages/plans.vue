@@ -2,30 +2,32 @@
 import CheckoutButton from "~/features/subscription/components/CheckoutButton.vue";
 import PlanCard from "~/features/subscription/components/PlanCard.vue";
 
-const freePlanFeatures = [
-  "Simulações básicas",
-  "Visualização de carteira",
-];
+const { t } = useI18n();
 
-const premiumPlanFeatures = [
-  "Simulações avançadas",
-  "Exportar PDF",
-  "Entradas compartilhadas",
-  "Alertas avançados",
-];
+const freePlanFeatures = computed(() => [
+  t("pages.plans.free.features.basicSimulations"),
+  t("pages.plans.free.features.portfolioView"),
+]);
+
+const premiumPlanFeatures = computed(() => [
+  t("pages.plans.premium.features.advancedSimulations"),
+  t("pages.plans.premium.features.exportPdf"),
+  t("pages.plans.premium.features.sharedEntries"),
+  t("pages.plans.premium.features.advancedAlerts"),
+]);
 </script>
 
 <template>
-  <div class="planos-page">
-    <header class="planos-page__header">
-      <p class="planos-page__eyebrow">Planos</p>
-      <h1>Escolha o plano ideal para você</h1>
-      <p class="planos-page__subtitle">
-        Comece gratuitamente e faça upgrade quando precisar de mais controle.
+  <div class="plans-page">
+    <header class="plans-page__header">
+      <p class="plans-page__eyebrow">{{ t('pages.plans.eyebrow') }}</p>
+      <h1>{{ t('pages.plans.title') }}</h1>
+      <p class="plans-page__subtitle">
+        {{ t('pages.plans.subtitle') }}
       </p>
     </header>
 
-    <div class="planos-page__grid">
+    <div class="plans-page__grid">
       <PlanCard
         plan-slug="free"
         name="Free"
@@ -33,11 +35,11 @@ const premiumPlanFeatures = [
         :features="freePlanFeatures"
       />
 
-      <div class="planos-page__premium-col">
+      <div class="plans-page__premium-col">
         <PlanCard
           plan-slug="premium"
           name="Premium"
-          price-label="R$ 29,90/mês"
+          :price-label="t('pages.plans.premium.price')"
           :features="premiumPlanFeatures"
         />
         <CheckoutButton plan-slug="premium" />
@@ -47,7 +49,7 @@ const premiumPlanFeatures = [
 </template>
 
 <style scoped>
-.planos-page {
+.plans-page {
   display: grid;
   gap: var(--space-4, 16px);
   padding: var(--space-4, 16px);
@@ -55,11 +57,11 @@ const premiumPlanFeatures = [
   margin-inline: auto;
 }
 
-.planos-page__header {
+.plans-page__header {
   text-align: center;
 }
 
-.planos-page__eyebrow {
+.plans-page__eyebrow {
   margin: 0 0 var(--space-1);
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -68,26 +70,26 @@ const premiumPlanFeatures = [
   font-weight: var(--font-weight-semibold);
 }
 
-.planos-page__header h1 {
+.plans-page__header h1 {
   margin: 0;
   font-family: var(--font-heading);
   font-size: var(--font-size-heading-xl);
   line-height: var(--line-height-heading-lg);
 }
 
-.planos-page__subtitle {
+.plans-page__subtitle {
   margin: var(--space-1) 0 0;
   color: var(--color-neutral-700, #444);
 }
 
-.planos-page__grid {
+.plans-page__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: var(--space-4, 16px);
   align-items: start;
 }
 
-.planos-page__premium-col {
+.plans-page__premium-col {
   display: grid;
   gap: var(--space-2, 8px);
 }

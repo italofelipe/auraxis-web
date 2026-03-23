@@ -2,7 +2,6 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 
 import InstallmentVsCashResults from "./InstallmentVsCashResults.vue";
-import UiInfoTooltip from "~/shared/components/UiInfoTooltip/UiInfoTooltip.vue";
 import type { InstallmentVsCashCalculation } from "~/features/tools/model/installment-vs-cash";
 
 const calculation: InstallmentVsCashCalculation = {
@@ -108,16 +107,6 @@ const stubs = {
     props: ["columns", "data"],
     template: "<div class='table'>{{ data.length }}</div>",
   },
-  NTooltip: {
-    template: "<div><slot name='trigger' /><slot /></div>",
-  },
-  NButton: {
-    props: ["text", "type", "ariaLabel"],
-    template: "<button :aria-label='ariaLabel'><slot /></button>",
-  },
-  UiIcon: {
-    template: "<svg class='ui-icon' />",
-  },
 };
 
 describe("InstallmentVsCashResults", () => {
@@ -130,18 +119,5 @@ describe("InstallmentVsCashResults", () => {
     expect(wrapper.text()).toContain("À vista é a melhor escolha");
     expect(wrapper.text()).toContain("Comparação mês a mês");
     expect(wrapper.text()).toContain("Cronograma mês a mês");
-  });
-
-  it("renders contextual tooltip copy in the result details", () => {
-    const wrapper = mount(InstallmentVsCashResults, {
-      props: { calculation },
-      global: { stubs },
-    });
-
-    const tooltips = wrapper.findAllComponents(UiInfoTooltip);
-
-    expect(tooltips.length).toBeGreaterThanOrEqual(1);
-    expect(tooltips[0]?.props("label")).toBe("Entender valor presente");
-    expect(wrapper.text()).toContain("Parcelado em valor presente");
   });
 });

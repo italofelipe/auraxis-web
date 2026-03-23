@@ -1,6 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 import LoginForm from "../LoginForm.vue";
+
+vi.mock("vue-i18n", () => ({
+  useI18n: (): { t: (key: string) => string } => ({ t: (key: string) => key }),
+}));
 
 const NuxtLinkStub = {
   template: "<a :href=\"to\" v-bind=\"$attrs\"><slot /></a>",
@@ -21,12 +25,12 @@ describe("LoginForm", () => {
 
   it("shows forgot-password link", () => {
     const wrapper = mount(LoginForm, { global: globalConfig });
-    expect(wrapper.text()).toContain("Esqueceu sua senha?");
+    expect(wrapper.text()).toContain("auth.login.forgotPassword");
   });
 
   it("shows register link", () => {
     const wrapper = mount(LoginForm, { global: globalConfig });
-    expect(wrapper.text()).toContain("Criar conta");
+    expect(wrapper.text()).toContain("auth.login.createAccount");
   });
 
   it("disables submit button when loading", () => {
@@ -43,7 +47,7 @@ describe("LoginForm", () => {
       props: { loading: true },
       global: globalConfig,
     });
-    expect(wrapper.text()).toContain("Entrando");
+    expect(wrapper.text()).toContain("auth.login.submitLoading");
   });
 
   it("renders social auth buttons", () => {
@@ -53,12 +57,12 @@ describe("LoginForm", () => {
 
   it("shows divider between social and email form", () => {
     const wrapper = mount(LoginForm, { global: globalConfig });
-    expect(wrapper.text()).toContain("ou entre com e-mail");
+    expect(wrapper.text()).toContain("auth.login.divider");
   });
 
   it("renders title and subtitle", () => {
     const wrapper = mount(LoginForm, { global: globalConfig });
-    expect(wrapper.text()).toContain("Bem-vindo de volta");
-    expect(wrapper.text()).toContain("Entre na sua conta Auraxis");
+    expect(wrapper.text()).toContain("auth.login.title");
+    expect(wrapper.text()).toContain("auth.login.subtitle");
   });
 });

@@ -13,6 +13,8 @@ import { useRevenueSummaryQuery } from "~/features/receivables/queries/use-reven
 import type { CsvUploadPayload } from "~/features/receivables/api/receivables.client";
 import type { ParsedRow } from "~/features/receivables/model/receivables";
 
+const { t } = useI18n();
+
 definePageMeta({
   middleware: ["authenticated"],
   pageTitle: "Receitas",
@@ -77,7 +79,7 @@ const handleDelete = (_id: string): void => {
 </script>
 
 <template>
-  <div class="receitas-page">
+  <div class="income-page">
     <NSkeleton
       v-if="summaryQuery.isLoading.value"
       height="100px"
@@ -86,10 +88,10 @@ const handleDelete = (_id: string): void => {
 
     <UiBaseCard
       v-else-if="summaryQuery.isError.value"
-      title="Erro ao carregar resumo"
+      :title="t('pages.income.errorSummaryTitle')"
     >
-      <p class="receitas-page__support-copy">
-        Não foi possível carregar o resumo de receitas. Tente novamente.
+      <p class="income-page__support-copy">
+        {{ t('pages.income.errorSummaryMessage') }}
       </p>
     </UiBaseCard>
 
@@ -99,13 +101,13 @@ const handleDelete = (_id: string): void => {
     />
 
     <NTabs v-model:value="activeTab" type="line" animated>
-      <NTabPane name="import" tab="Importar">
+      <NTabPane name="import" :tab="t('pages.income.tabs.import')">
         <NSpace vertical :size="16">
           <CsvUploadForm @preview="handlePreview" />
 
           <NCard
             v-if="csvUploadMutation.isPending.value || previewRows.length > 0 || createdCount !== null"
-            title="Pré-visualização"
+            :title="t('pages.income.preview')"
           >
             <NSkeleton
               v-if="csvUploadMutation.isPending.value"
@@ -115,9 +117,9 @@ const handleDelete = (_id: string): void => {
 
             <p
               v-else-if="csvUploadMutation.isError.value"
-              class="receitas-page__error-copy"
+              class="income-page__error-copy"
             >
-              Erro ao processar o CSV. Verifique o arquivo e o mapeamento de colunas.
+              {{ t('pages.income.csvError') }}
             </p>
 
             <ImportPreviewTable
@@ -131,7 +133,7 @@ const handleDelete = (_id: string): void => {
         </NSpace>
       </NTabPane>
 
-      <NTabPane name="list" tab="Receitas">
+      <NTabPane name="list" :tab="t('pages.income.tabs.list')">
         <NSpace v-if="receivablesQuery.isLoading.value" vertical :size="8">
           <NSkeleton height="72px" :sharp="false" />
           <NSkeleton height="72px" :sharp="false" />
@@ -140,19 +142,19 @@ const handleDelete = (_id: string): void => {
 
         <UiBaseCard
           v-else-if="receivablesQuery.isError.value"
-          title="Erro ao carregar receitas"
+          :title="t('pages.income.errorListTitle')"
         >
-          <p class="receitas-page__support-copy">
-            Não foi possível carregar suas receitas. Tente novamente.
+          <p class="income-page__support-copy">
+            {{ t('pages.income.errorListMessage') }}
           </p>
         </UiBaseCard>
 
         <NEmpty
           v-else-if="!receivablesQuery.data.value || receivablesQuery.data.value.length === 0"
-          description="Nenhuma receita cadastrada. Importe um CSV ou adicione manualmente."
+          :description="t('pages.income.emptyList')"
         />
 
-        <NCard v-else title="Minhas Receitas">
+        <NCard v-else :title="t('pages.income.myIncome')">
           <ReceivableItem
             v-for="entry in receivablesQuery.data.value"
             :key="entry.id"
@@ -167,17 +169,17 @@ const handleDelete = (_id: string): void => {
 </template>
 
 <style scoped>
-.receitas-page {
+.income-page {
   display: grid;
   gap: var(--space-4);
 }
 
-.receitas-page__support-copy {
+.income-page__support-copy {
   margin: 0;
   color: var(--color-text-muted);
 }
 
-.receitas-page__error-copy {
+.income-page__error-copy {
   margin: 0;
   color: var(--color-negative);
 }

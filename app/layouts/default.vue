@@ -11,24 +11,25 @@ import {
 } from "lucide-vue-next";
 import type { AppShellNavItem, AppShellUser } from "~/shared/components/UiAppShell/UiAppShell.types";
 
+const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const sessionStore = useSessionStore();
 
-const NAV_ITEMS: AppShellNavItem[] = [
-  { key: "dashboard", label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
-  { key: "carteira", label: "Carteira", to: "/carteira", icon: Briefcase },
-  { key: "metas", label: "Metas", to: "/metas", icon: Target },
-  { key: "alertas", label: "Alertas", to: "/alertas", icon: Bell },
-  { key: "simulacoes", label: "Simulações", to: "/simulacoes", icon: Calculator },
-  { key: "compartilhamentos", label: "Compartilhamentos", to: "/compartilhamentos", icon: Share2 },
-  { key: "tools", label: "Ferramentas", to: "/tools", icon: Wrench },
-  { key: "assinatura", label: "Assinatura", to: "/assinatura", icon: CreditCard },
-];
+const NAV_ITEMS = computed<AppShellNavItem[]>(() => [
+  { key: "dashboard", label: t("nav.dashboard"), to: "/dashboard", icon: LayoutDashboard },
+  { key: "portfolio", label: t("nav.portfolio"), to: "/portfolio", icon: Briefcase },
+  { key: "goals", label: t("nav.goals"), to: "/goals", icon: Target },
+  { key: "alerts", label: t("nav.alerts"), to: "/alerts", icon: Bell },
+  { key: "simulations", label: t("nav.simulations"), to: "/simulations", icon: Calculator },
+  { key: "sharedEntries", label: t("nav.sharedEntries"), to: "/shared-entries", icon: Share2 },
+  { key: "tools", label: t("nav.tools"), to: "/tools", icon: Wrench },
+  { key: "subscription", label: t("nav.subscription"), to: "/subscription", icon: CreditCard },
+]);
 
 const user = computed<AppShellUser>(() => ({
-  name: sessionStore.userEmail ?? "Usuário",
-  description: "Conta pessoal",
+  name: sessionStore.userEmail ?? t("user.fallbackName"),
+  description: t("user.accountDescription"),
 }));
 
 const pageTitle = computed(() => (route.meta.pageTitle as string | undefined) ?? "Auraxis");

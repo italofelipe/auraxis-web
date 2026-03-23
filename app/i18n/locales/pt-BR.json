@@ -1,0 +1,235 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "portfolio": "Carteira",
+    "goals": "Metas",
+    "alerts": "Alertas",
+    "simulations": "Simulações",
+    "sharedEntries": "Compartilhamentos",
+    "tools": "Ferramentas",
+    "subscription": "Assinatura"
+  },
+  "user": {
+    "fallbackName": "Usuário",
+    "accountDescription": "Conta pessoal"
+  },
+  "pages": {
+    "portfolio": {
+      "title": "Carteira",
+      "subtitle": "Acompanhe seu patrimônio, posições e evolução",
+      "errorTitle": "Erro ao carregar carteira",
+      "errorMessage": "Não foi possível carregar sua carteira. Tente novamente.",
+      "emptyTitle": "Carteira vazia",
+      "emptyMessage": "Você ainda não tem ativos cadastrados. Adicione seu primeiro ativo para começar a acompanhar seu patrimônio."
+    },
+    "alerts": {
+      "title": "Alertas",
+      "subtitle": "Alertas e preferências de notificação",
+      "tabs": {
+        "alerts": "Alertas",
+        "preferences": "Preferências"
+      },
+      "errorAlerts": "Não foi possível carregar seus alertas. Tente novamente.",
+      "errorPreferences": "Não foi possível carregar suas preferências. Tente novamente.",
+      "errorTitleAlerts": "Erro ao carregar alertas",
+      "errorTitlePreferences": "Erro ao carregar preferências"
+    },
+    "subscription": {
+      "title": "Assinatura",
+      "subtitle": "Gerencie seu plano e informações de cobrança",
+      "errorTitle": "Erro ao carregar assinatura",
+      "errorMessage": "Não foi possível carregar sua assinatura. Tente novamente.",
+      "currentPlan": "Plano atual",
+      "trialEndsAt": "Trial encerra em",
+      "nextBilling": "Próxima cobrança",
+      "upgradeMessage": "Faça upgrade para o plano Premium e desbloqueie todos os recursos.",
+      "subscribePremium": "Assinar Premium",
+      "cancelButton": "Cancelar assinatura",
+      "cancelModal": {
+        "title": "Cancelar assinatura",
+        "content": "Tem certeza de que deseja cancelar sua assinatura? Você perderá acesso aos recursos Premium ao final do período atual.",
+        "confirm": "Confirmar cancelamento",
+        "keep": "Manter assinatura"
+      },
+      "cancelError": "Erro ao cancelar assinatura."
+    },
+    "sharedEntries": {
+      "title": "Compartilhamentos",
+      "subtitle": "Gerencie convites e entradas compartilhadas",
+      "tabs": {
+        "guests": "Convidados",
+        "sharedWithMe": "Compartilhado comigo",
+        "sharedByMe": "Compartilhei"
+      },
+      "errorGuests": "Erro ao carregar convites. Tente novamente.",
+      "errorSharedWithMe": "Erro ao carregar entradas compartilhadas com você. Tente novamente.",
+      "errorSharedByMe": "Erro ao carregar entradas que você compartilhou. Tente novamente.",
+      "emptyGuests": "Nenhum convite enviado ainda.",
+      "emptySharedWithMe": "Nenhuma entrada foi compartilhada com você.",
+      "emptySharedByMe": "Você ainda não compartilhou nenhuma entrada."
+    },
+    "income": {
+      "title": "Receitas",
+      "subtitle": "Receitas e importação de extratos",
+      "tabs": {
+        "import": "Importar",
+        "list": "Receitas"
+      },
+      "errorSummaryTitle": "Erro ao carregar resumo",
+      "errorSummaryMessage": "Não foi possível carregar o resumo de receitas. Tente novamente.",
+      "errorListTitle": "Erro ao carregar receitas",
+      "errorListMessage": "Não foi possível carregar suas receitas. Tente novamente.",
+      "emptyList": "Nenhuma receita cadastrada. Importe um CSV ou adicione manualmente.",
+      "myIncome": "Minhas Receitas",
+      "preview": "Pré-visualização",
+      "csvError": "Erro ao processar o CSV. Verifique o arquivo e o mapeamento de colunas."
+    },
+    "simulations": {
+      "title": "Simulações",
+      "subtitle": "Consulte os resultados salvos das ferramentas",
+      "errorTitle": "Erro ao carregar simulações",
+      "errorMessage": "Não foi possível carregar suas simulações. Tente novamente mais tarde.",
+      "emptyTitle": "Nenhuma simulação salva",
+      "emptyMessage": "Você ainda não salvou nenhuma simulação. Use as ferramentas e salve seus resultados para acompanhá-los aqui.",
+      "tool": "Ferramenta:",
+      "savedAt": "Salvo em:"
+    },
+    "plans": {
+      "eyebrow": "Planos",
+      "title": "Escolha o plano ideal para você",
+      "subtitle": "Comece gratuitamente e faça upgrade quando precisar de mais controle.",
+      "free": {
+        "features": {
+          "basicSimulations": "Simulações básicas",
+          "portfolioView": "Visualização de carteira"
+        }
+      },
+      "premium": {
+        "price": "R$ 29,90/mês",
+        "features": {
+          "advancedSimulations": "Simulações avançadas",
+          "exportPdf": "Exportar PDF",
+          "sharedEntries": "Entradas compartilhadas",
+          "advancedAlerts": "Alertas avançados"
+        }
+      }
+    },
+    "privacyPolicy": {
+      "navLabel": "Navegação",
+      "backLink": "← Voltar",
+      "termsLink": "Termos de Uso",
+      "privacyLink": "Política de Privacidade"
+    },
+    "termsOfService": {
+      "navLabel": "Navegação",
+      "backLink": "← Voltar",
+      "privacyLink": "Política de Privacidade"
+    },
+    "installmentVsCash": {
+      "seo": {
+        "title": "Parcelado ou à vista: simule qual opção vale mais a pena | Auraxis",
+        "description": "Compare pagamento à vista e parcelado considerando desconto, inflação, custo de oportunidade e custos extras. Descubra qual opção fica mais vantajosa financeiramente.",
+        "ogTitle": "Parcelado ou à vista: descubra a melhor opção | Auraxis",
+        "ogDescription": "Ferramenta pública da Auraxis para comparar à vista e parcelado com clareza, premissas transparentes e resultado confiável."
+      },
+      "faq": {
+        "q1": "Quando vale a pena pagar parcelado?",
+        "a1": "Quando o valor presente do parcelamento fica abaixo do preço à vista dentro das premissas de taxa de oportunidade, inflação e custos extras informados.",
+        "q2": "Parcelado sem juros sempre é melhor?",
+        "a2": "Nem sempre. Se houver desconto relevante à vista ou custos extras, o pagamento único pode continuar mais vantajoso financeiramente."
+      },
+      "header": {
+        "publicTool": "Ferramenta pública",
+        "otherTools": "Ver outras ferramentas",
+        "createAccount": "Criar conta gratuita"
+      },
+      "hero": {
+        "badge": "Parcelado ou à vista",
+        "title": "Descubra qual forma de pagamento fica mais vantajosa financeiramente",
+        "subtitle": "A Auraxis compara preço à vista, parcelado, custo de oportunidade, inflação e custos extras para te dar uma recomendação clara e auditável.",
+        "featureBasic": "Resposta rápida para iniciantes",
+        "featureBasicDesc": "Você recebe um veredito direto em segundos, sem precisar entender matemática financeira.",
+        "featureAdvanced": "Detalhamento confiável para experts",
+        "featureAdvancedDesc": "Expandimos a explicação com cronograma, valor presente, break-even e premissas usadas."
+      },
+      "results": {
+        "nextStep": "Próximo passo"
+      },
+      "seoSection": {
+        "considers": "O que esta página considera",
+        "considersDesc": "Desconto à vista, parcelamento, custo de oportunidade, inflação e custos extras iniciais.",
+        "notReplaces": "O que esta página não substitui",
+        "notReplacesDesc": "Esta é uma simulação educativa baseada nas premissas informadas. Ela não substitui proposta comercial oficial, contrato ou aconselhamento financeiro.",
+        "howToUse": "Como usar melhor",
+        "howToUseDesc": "Teste o mesmo item com e sem desconto à vista, com parcelas diferentes e com taxas mais conservadoras. Isso te ajuda a entender a sensibilidade da decisão."
+      },
+      "errors": {
+        "noSimulation": "Nenhuma simulação disponível para salvar.",
+        "validateForm": "Revise os dados informados.",
+        "calculate": "Não foi possível calcular agora. Revise os dados e tente novamente.",
+        "save": "Não foi possível salvar a simulação agora.",
+        "goalPrefill": "Não foi possível preparar a criação da meta agora.",
+        "expensePrefill": "Não foi possível preparar a despesa planejada agora.",
+        "goalSubmit": "Não foi possível criar a meta agora.",
+        "expenseSubmit": "Não foi possível planejar a despesa agora.",
+        "saveBeforeGoal": "Salve a simulação antes de criar uma meta.",
+        "saveBeforeExpense": "Salve a simulação antes de planejar a despesa."
+      },
+      "success": {
+        "saved": "Simulação salva com sucesso.",
+        "goalCreated": "Meta criada a partir da simulação.",
+        "expensesCreated": "{count} lançamento(s) planejado(s) criado(s)."
+      },
+      "goalModal": {
+        "title": "Incluir como meta",
+        "titleLabel": "Título da meta",
+        "descriptionLabel": "Descrição",
+        "targetDateLabel": "Data alvo",
+        "cancel": "Cancelar",
+        "submit": "Criar meta",
+        "defaultTitle": "Nova meta"
+      },
+      "expenseModal": {
+        "title": "Planejar despesa",
+        "titleLabel": "Título da despesa",
+        "descriptionLabel": "Descrição",
+        "modeLabel": "Modo selecionado",
+        "cashLabel": "À vista",
+        "installmentLabel": "Parcelado",
+        "dueDateLabel": "Data do lançamento",
+        "firstDueDateLabel": "Primeiro vencimento",
+        "upfrontDateLabel": "Data dos custos iniciais",
+        "modeAriaLabel": "Modo da despesa planejada",
+        "cancel": "Cancelar",
+        "submit": "Planejar despesa",
+        "defaultTitle": "Compra planejada"
+      }
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Bem-vindo de volta",
+      "subtitle": "Entre na sua conta Auraxis",
+      "divider": "ou entre com e-mail",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "seu@email.com",
+      "forgotPassword": "Esqueceu sua senha?",
+      "submitLoading": "Entrando…",
+      "submit": "Entrar",
+      "noAccount": "Não tem uma conta?",
+      "createAccount": "Criar conta"
+    },
+    "signup": {
+      "title": "Criar conta",
+      "subtitle": "Comece a usar o Auraxis gratuitamente",
+      "divider": "ou registre com e-mail",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "seu@email.com",
+      "confirmPassword": "Confirmar senha",
+      "submitLoading": "Criando conta…",
+      "submit": "Criar conta",
+      "hasAccount": "Já tem uma conta?",
+      "signIn": "Entrar"
+    }
+  }
+}

@@ -4,6 +4,10 @@ import { createPinia, setActivePinia } from "pinia";
 import type { App } from "vue";
 import DefaultLayout from "./default.vue";
 
+vi.mock("vue-i18n", () => ({
+  useI18n: (): { t: (key: string) => string } => ({ t: (key: string) => key }),
+}));
+
 vi.mock("~/stores/session", () => ({
   useSessionStore: vi.fn(() => ({
     userEmail: "test@auraxis.com",
@@ -11,6 +15,14 @@ vi.mock("~/stores/session", () => ({
     isAuthenticated: true,
   })),
 }));
+
+vi.mock("#imports", async (importOriginal) => {
+  const actual = await importOriginal<Record<string, unknown>>();
+  return {
+    ...actual,
+    useI18n: (): { t: (key: string) => string } => ({ t: (key: string) => key }),
+  };
+});
 
 /**
  * Installs a minimal Nuxt app context on the Vue app instance so that Nuxt
@@ -64,9 +76,9 @@ describe("DefaultLayout", () => {
       },
     });
 
-    expect(wrapper.text()).toContain("Dashboard");
-    expect(wrapper.text()).toContain("Carteira");
-    expect(wrapper.text()).toContain("Ferramentas");
+    expect(wrapper.text()).toContain("nav.dashboard");
+    expect(wrapper.text()).toContain("nav.portfolio");
+    expect(wrapper.text()).toContain("nav.tools");
     expect(wrapper.text()).toContain("Conteudo");
   });
 });

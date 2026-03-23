@@ -8,6 +8,8 @@ import { useAlertsClient } from "~/features/alerts/api/alerts.client";
 import AlertsList from "~/features/alerts/components/AlertsList.vue";
 import AlertPreferencesList from "~/features/alerts/components/AlertPreferencesList.vue";
 
+const { t } = useI18n();
+
 definePageMeta({
   middleware: ["authenticated"],
   pageTitle: "Alertas",
@@ -77,12 +79,12 @@ const onTogglePreference = (category: string, enabled: boolean): void => {
 </script>
 
 <template>
-  <div class="alertas-page">
+  <div class="alerts-page">
     <NTabs type="line" animated>
-      <NTabPane name="alerts" tab="Alertas">
-        <UiBaseCard v-if="alertsQuery.isError.value" title="Erro ao carregar alertas">
-          <p class="alertas-page__support-copy">
-            Não foi possível carregar seus alertas. Tente novamente.
+      <NTabPane name="alerts" :tab="t('pages.alerts.tabs.alerts')">
+        <UiBaseCard v-if="alertsQuery.isError.value" :title="t('pages.alerts.errorTitleAlerts')">
+          <p class="alerts-page__support-copy">
+            {{ t('pages.alerts.errorAlerts') }}
           </p>
         </UiBaseCard>
 
@@ -95,10 +97,10 @@ const onTogglePreference = (category: string, enabled: boolean): void => {
         />
       </NTabPane>
 
-      <NTabPane name="preferences" tab="Preferências">
-        <UiBaseCard v-if="preferencesQuery.isError.value" title="Erro ao carregar preferências">
-          <p class="alertas-page__support-copy">
-            Não foi possível carregar suas preferências. Tente novamente.
+      <NTabPane name="preferences" :tab="t('pages.alerts.tabs.preferences')">
+        <UiBaseCard v-if="preferencesQuery.isError.value" :title="t('pages.alerts.errorTitlePreferences')">
+          <p class="alerts-page__support-copy">
+            {{ t('pages.alerts.errorPreferences') }}
           </p>
         </UiBaseCard>
 
@@ -115,12 +117,12 @@ const onTogglePreference = (category: string, enabled: boolean): void => {
 </template>
 
 <style scoped>
-.alertas-page {
+.alerts-page {
   display: grid;
   gap: var(--space-4);
 }
 
-.alertas-page__support-copy {
+.alerts-page__support-copy {
   margin: 0;
   color: var(--color-text-muted);
 }

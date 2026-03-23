@@ -10,8 +10,6 @@ import {
   NSwitch,
 } from "naive-ui";
 
-import UiInfoTooltip from "~/shared/components/UiInfoTooltip/UiInfoTooltip.vue";
-import { INSTALLMENT_VS_CASH_TOOLTIP_COPY } from "~/features/tools/model/installment-vs-cash-tooltips";
 import type {
   InstallmentDelayPreset,
   InstallmentVsCashFormState,
@@ -173,16 +171,7 @@ const shouldShowFeesInput = computed<boolean>(() => {
     </NFormItem>
 
     <div class="installment-vs-cash-form__grid">
-      <NFormItem>
-        <template #label>
-          <span class="installment-vs-cash-form__label">
-            Primeira parcela
-            <UiInfoTooltip
-              label="Entender primeira parcela"
-              :content="INSTALLMENT_VS_CASH_TOOLTIP_COPY.firstPaymentDelay"
-            />
-          </span>
-        </template>
+      <NFormItem label="Primeira parcela">
         <NSelect
           :value="props.modelValue.firstPaymentDelayPreset"
           :options="delayOptions"
@@ -203,16 +192,7 @@ const shouldShowFeesInput = computed<boolean>(() => {
     </div>
 
     <div class="installment-vs-cash-form__grid">
-      <NFormItem>
-        <template #label>
-          <span class="installment-vs-cash-form__label">
-            Taxa de oportunidade
-            <UiInfoTooltip
-              label="Entender taxa de oportunidade"
-              :content="INSTALLMENT_VS_CASH_TOOLTIP_COPY.opportunityRate"
-            />
-          </span>
-        </template>
+      <NFormItem label="Taxa de oportunidade">
         <NSelect
           :value="props.modelValue.opportunityRateType"
           :options="opportunityRateOptions"
@@ -220,16 +200,7 @@ const shouldShowFeesInput = computed<boolean>(() => {
         />
       </NFormItem>
 
-      <NFormItem>
-        <template #label>
-          <span class="installment-vs-cash-form__label">
-            Inflação anual (%)
-            <UiInfoTooltip
-              label="Entender inflacao anual"
-              :content="INSTALLMENT_VS_CASH_TOOLTIP_COPY.inflation"
-            />
-          </span>
-        </template>
+      <NFormItem label="Inflação anual (%)">
         <NInputNumber
           :value="props.modelValue.inflationRateAnnual"
           :min="0"
@@ -252,16 +223,7 @@ const shouldShowFeesInput = computed<boolean>(() => {
       />
     </NFormItem>
 
-    <NFormItem>
-      <template #label>
-        <span class="installment-vs-cash-form__label">
-          Custos extras iniciais
-          <UiInfoTooltip
-            label="Entender custos extras"
-            :content="INSTALLMENT_VS_CASH_TOOLTIP_COPY.extraFees"
-          />
-        </span>
-      </template>
+    <NFormItem label="Custos extras iniciais">
       <div class="installment-vs-cash-form__fees">
         <NSwitch
           :value="props.modelValue.feesEnabled"
@@ -297,12 +259,6 @@ const shouldShowFeesInput = computed<boolean>(() => {
 .installment-vs-cash-form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-}
-
-.installment-vs-cash-form__label {
-  display: inline-flex;
-  align-items: center;
   gap: var(--space-1);
 }
 
