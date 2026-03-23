@@ -108,27 +108,30 @@ export default defineNuxtConfig({
   // ── Route Rules ───────────────────────────────────────────────────────
   // Dynamic routes are served server-side. Static routes can still be prerendered.
   // Auth enforcement for private routes is handled by middleware, not rules.
+  // Note: i18n uses strategy: "prefix", so all routes need locale prefix (pt-BR/en).
   routeRules: {
-    // Public routes — served dynamically for i18n and dynamic content
-    // @ts-expect-error — robots key injected by @nuxtjs/robots module augmentation
-    "/": { robots: true },
-    // @ts-expect-error — robots key injected by @nuxtjs/robots module augmentation
-    "/login": { robots: false },
-    // @ts-expect-error — robots key injected by @nuxtjs/robots module augmentation
-    "/register": { robots: false },
-    // @ts-expect-error — robots key injected by @nuxtjs/robots module augmentation
-    "/forgot-password": { robots: false },
+    // Redirect routes without locale prefix to default locale (pt-BR)
+    // This allows /login → /pt-BR/login, /register → /pt-BR/register, etc.
+    "/login": { redirect: "/pt-BR/login" },
+    "/register": { redirect: "/pt-BR/register" },
+    "/forgot-password": { redirect: "/pt-BR/forgot-password" },
+    "/dashboard": { redirect: "/pt-BR/dashboard" },
+    "/portfolio": { redirect: "/pt-BR/portfolio" },
+    "/profile": { redirect: "/pt-BR/profile" },
+    "/tools": { redirect: "/pt-BR/tools" },
+    "/alerts": { redirect: "/pt-BR/alerts" },
+    "/goals": { redirect: "/pt-BR/goals" },
+    "/simulations": { redirect: "/pt-BR/simulations" },
+    "/shared-entries": { redirect: "/pt-BR/shared-entries" },
+    "/subscription": { redirect: "/pt-BR/subscription" },
 
-    // Private (auth required — enforced by middleware, not route rules)
-    "/dashboard": {},
-    "/portfolio": {},
-    "/profile": {},
-    "/tools": {},
-    "/alerts": {},
-    "/goals": {},
-    "/simulations": {},
-    "/shared-entries": {},
-    "/subscription": {},
+    // Localized public routes — served dynamically for i18n and dynamic content
+    // @ts-expect-error — robots key injected by @nuxtjs/robots module augmentation
+    "/pt-BR/**": { robots: true },
+    "/en/**": { robots: true },
+    "/**/login": { robots: false },
+    "/**/register": { robots: false },
+    "/**/forgot-password": { robots: false },
   },
 
   // ── Nitro ─────────────────────────────────────────────────────────────
