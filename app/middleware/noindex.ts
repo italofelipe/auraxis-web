@@ -2,9 +2,14 @@ import { defineNuxtRouteMiddleware, useHead } from "#app";
 
 /**
  * Routes that should not be indexed by search engines.
- * Matches the `robots: false` entries in `routeRules` in `nuxt.config.ts`.
+ * Covers both default locale (no prefix, PT) and EN locale (/en/*).
+ * i18n strategy is "prefix_except_default" — PT has no URL prefix.
  */
-const NOINDEX_ROUTES = ["/login", "/register", "/forgot-password"];
+const NOINDEX_ROUTES = [
+  "/login",           "/en/login",
+  "/register",        "/en/register",
+  "/forgot-password", "/en/forgot-password",
+];
 
 /**
  * Global middleware that injects a `noindex,nofollow` robots meta tag for
