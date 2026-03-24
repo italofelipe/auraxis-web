@@ -85,14 +85,22 @@ jobs:
         run: pnpm build
 
       - name: Validate output folder
-        run: test -d .output/server
+        run: |
+          test -d .output/server || (echo "ERROR: .output/server not found"; exit 1)
+          test -f .output/server/index.mjs || (echo "ERROR: server entry not found"; exit 1)
+
+      - name: Package SSR build
+        # .output is in .gitignore, so upload-artifact (via @actions/glob) skips it.
+        # Packaging as tarball bypasses gitignore and preserves permissions.
+        run: tar -czf ssr-build.tar.gz .output
 
       - name: Upload SSR build artifact
         uses: actions/upload-artifact@v4
         with:
           name: web-official-ssr-${{ env.DEPLOY_ENVIRONMENT }}
-          path: .output
+          path: ssr-build.tar.gz
           retention-days: 7
+          if-no-files-found: error
 
   deploy-ssr:
     name: Deploy SSR application
@@ -113,10 +121,13 @@ jobs:
           fi
 
       - name: Download SSR build artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v4
         with:
           name: web-official-ssr-${{ env.DEPLOY_ENVIRONMENT }}
-          path: .output
+          path: .
+
+      - name: Extract SSR build
+        run: tar -xzf ssr-build.tar.gz
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
