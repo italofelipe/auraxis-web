@@ -1,9 +1,14 @@
 // vue-i18n runtime options.
-// Messages are NOT defined here — they are lazy-loaded from
-// app/i18n/locales/{pt,en}.json by @nuxtjs/i18n.
-// The module embeds them into the Nuxt payload at SSR/prerender time
-// so the client hydrates without an extra fetch (no flash of raw keys).
+// Messages are bundled directly (not lazy-loaded) so they are available
+// synchronously during SSG hydration. Lazy loading caused a race condition
+// where components called t() before the async locale fetch resolved,
+// producing "Cannot read properties of undefined (reading '_s')".
+import pt from "./app/locales/pt.json";
+import en from "./app/locales/en.json";
+
 export default defineI18nConfig(() => ({
   legacy: false,
+  locale: "pt",
   fallbackLocale: "pt",
+  messages: { pt, en },
 }));
