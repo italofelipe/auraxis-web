@@ -52,5 +52,11 @@
       "submitLoading": "Enviando...",
       "backToLogin": "Voltar ao login"
     }
+  },
+  "pages": {
+    "goals": {
+      "emptyTitle": "Nenhuma meta cadastrada",
+      "emptyDescription": "Em breve você poderá criar e acompanhar suas metas financeiras aqui."
+    }
   }
 }

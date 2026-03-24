@@ -189,6 +189,7 @@ export default defineNuxtConfig({
     // Auth middleware enforces access. No financial data in static HTML.
     "/dashboard":     { ssr: false },
     "/portfolio":     { ssr: false },
+    "/goals":         { ssr: false },
     "/alerts":        { ssr: false },
     "/simulations":   { ssr: false },
     "/shared-entries":{ ssr: false },
@@ -196,6 +197,7 @@ export default defineNuxtConfig({
     "/subscription":  { ssr: false },
     "/en/dashboard":     { ssr: false },
     "/en/portfolio":     { ssr: false },
+    "/en/goals":         { ssr: false },
     "/en/alerts":        { ssr: false },
     "/en/simulations":   { ssr: false },
     "/en/shared-entries":{ ssr: false },
