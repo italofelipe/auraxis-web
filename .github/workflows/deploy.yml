@@ -37,22 +37,24 @@ env:
   NODE_VERSION: "25"
   PNPM_VERSION: "10.30.1"
   AWS_REGION: "us-east-1"
+  S3_BUCKET: "auraxis-web-prod"
   WEB_OFFICIAL_HOSTNAME: ${{ vars.WEB_OFFICIAL_HOSTNAME || 'app.auraxis.com.br' }}
 
 jobs:
-  build-ssr:
-    name: Build SSR application
+  # ── 1. Generate static output ────────────────────────────────────────────────
+  build:
+    name: Generate static site
     runs-on: ubuntu-latest
     steps:
       - name: Set deployment parameters
         run: |
           if [ "${{ github.event_name }}" == "push" ]; then
-            echo "DEPLOY_ENVIRONMENT=prod" >> $GITHUB_ENV
+            echo "DEPLOY_ENVIRONMENT=prod"                       >> $GITHUB_ENV
             echo "DEPLOY_API_BASE_URL=https://api.auraxis.com.br" >> $GITHUB_ENV
-            echo "DEPLOY_RUN_SMOKE_TEST=true" >> $GITHUB_ENV
+            echo "DEPLOY_RUN_SMOKE_TEST=true"                   >> $GITHUB_ENV
             echo "Automatic deployment triggered by push to main"
           else
-            echo "DEPLOY_ENVIRONMENT=${{ inputs.environment }}" >> $GITHUB_ENV
+            echo "DEPLOY_ENVIRONMENT=${{ inputs.environment }}"   >> $GITHUB_ENV
             echo "DEPLOY_API_BASE_URL=${{ inputs.api_base_url }}" >> $GITHUB_ENV
             echo "DEPLOY_RUN_SMOKE_TEST=${{ inputs.run_smoke_test }}" >> $GITHUB_ENV
             echo "Manual deployment triggered by workflow_dispatch"
@@ -75,37 +77,41 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build SSR application
+      - name: Generate static site
         env:
           NODE_ENV: production
           NUXT_PUBLIC_API_BASE: ${{ env.DEPLOY_API_BASE_URL }}
           NUXT_PUBLIC_SENTRY_DSN: ${{ secrets.NUXT_PUBLIC_SENTRY_DSN }}
           NUXT_PUBLIC_APP_ENV: ${{ env.DEPLOY_ENVIRONMENT }}
           NUXT_PUBLIC_SITE_URL: https://${{ env.WEB_OFFICIAL_HOSTNAME }}
-        run: pnpm build
+        run: pnpm generate
 
-      - name: Validate output folder
+      - name: Validate output
         run: |
-          test -d .output/server || (echo "ERROR: .output/server not found"; exit 1)
-          test -f .output/server/index.mjs || (echo "ERROR: server entry not found"; exit 1)
+          test -d .output/public || (echo "ERROR: .output/public not found"; exit 1)
+          test -f .output/public/index.html || (echo "ERROR: index.html not found"; exit 1)
+          echo "✓ Static output validated"
+          echo "  Files: $(find .output/public -type f | wc -l)"
+          echo "  Size:  $(du -sh .output/public | cut -f1)"
 
-      - name: Package SSR build
-        # .output is in .gitignore, so upload-artifact (via @actions/glob) skips it.
-        # Packaging as tarball bypasses gitignore and preserves permissions.
-        run: tar -czf ssr-build.tar.gz .output
+      - name: Package static output
+        # .output is in .gitignore — package as tarball so upload-artifact
+        # does not skip it via gitignore-aware globbing.
+        run: tar -czf static-build.tar.gz .output/public
 
-      - name: Upload SSR build artifact
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: web-official-ssr-${{ env.DEPLOY_ENVIRONMENT }}
-          path: ssr-build.tar.gz
+          name: web-official-static-${{ env.DEPLOY_ENVIRONMENT }}
+          path: static-build.tar.gz
           retention-days: 7
           if-no-files-found: error
 
-  deploy-ssr:
-    name: Deploy SSR application
+  # ── 2. Deploy to S3 + invalidate CloudFront ───────────────────────────────────
+  deploy:
+    name: Deploy to S3 + CloudFront
     runs-on: ubuntu-latest
-    needs: build-ssr
+    needs: build
     environment:
       name: web-official-prod
       url: https://${{ env.WEB_OFFICIAL_HOSTNAME }}
@@ -113,21 +119,21 @@ jobs:
       - name: Set deployment parameters
         run: |
           if [ "${{ github.event_name }}" == "push" ]; then
-            echo "DEPLOY_ENVIRONMENT=prod" >> $GITHUB_ENV
-            echo "DEPLOY_RUN_SMOKE_TEST=true" >> $GITHUB_ENV
+            echo "DEPLOY_ENVIRONMENT=prod"     >> $GITHUB_ENV
+            echo "DEPLOY_RUN_SMOKE_TEST=true"  >> $GITHUB_ENV
           else
-            echo "DEPLOY_ENVIRONMENT=${{ inputs.environment }}" >> $GITHUB_ENV
+            echo "DEPLOY_ENVIRONMENT=${{ inputs.environment }}"       >> $GITHUB_ENV
             echo "DEPLOY_RUN_SMOKE_TEST=${{ inputs.run_smoke_test }}" >> $GITHUB_ENV
           fi
 
-      - name: Download SSR build artifact
+      - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: web-official-ssr-${{ env.DEPLOY_ENVIRONMENT }}
+          name: web-official-static-${{ env.DEPLOY_ENVIRONMENT }}
           path: .
 
-      - name: Extract SSR build
-        run: tar -xzf ssr-build.tar.gz
+      - name: Extract static output
+        run: tar -xzf static-build.tar.gz
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -135,31 +141,67 @@ jobs:
           role-to-assume: ${{ secrets.AWS_WEB_DEPLOY_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
-      # TODO: Implement actual deployment to ECS/EC2 or PaaS
-      # For now, this is a placeholder that validates the build
-      - name: Validate SSR output
+      # Upload to S3.
+      # --delete removes files from S3 that no longer exist in the build,
+      # preventing stale pages from being served after route changes.
+      # Cache strategy:
+      #   - HTML files: no-cache (always revalidate — ensures stale SPA shells
+      #     are never served to users after a deploy)
+      #   - Assets (hashed filenames): 1-year immutable cache
+      - name: Upload HTML files (no-cache)
         run: |
-          test -d .output/server || (echo "SSR server build not found"; exit 1)
-          test -f .output/server/index.mjs || (echo "Server entry not found"; exit 1)
-          echo "✓ SSR build validated successfully"
-          echo "  Server dir: .output/server"
-          echo "  Entry: .output/server/index.mjs"
-          echo "  Next steps: Deploy to ECS/EC2 or configure cloud.json in AI_SQUAD"
+          aws s3 sync .output/public/ "s3://${{ env.S3_BUCKET }}/" \
+            --region "${{ env.AWS_REGION }}" \
+            --delete \
+            --exclude "*" \
+            --include "*.html" \
+            --cache-control "no-cache, no-store, must-revalidate" \
+            --content-type "text/html; charset=utf-8"
 
-      - name: Smoke test official hostname
+      - name: Upload hashed assets (immutable cache)
+        run: |
+          aws s3 sync .output/public/ "s3://${{ env.S3_BUCKET }}/" \
+            --region "${{ env.AWS_REGION }}" \
+            --exclude "*.html" \
+            --cache-control "public, max-age=31536000, immutable"
+
+      - name: Invalidate CloudFront cache
+        run: |
+          INVALIDATION_ID=$(aws cloudfront create-invalidation \
+            --distribution-id "${{ secrets.AWS_WEB_CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --paths "/*" \
+            --query 'Invalidation.Id' \
+            --output text)
+          echo "Invalidation created: $INVALIDATION_ID"
+          echo "INVALIDATION_ID=$INVALIDATION_ID" >> $GITHUB_ENV
+
+      - name: Wait for invalidation to complete
+        run: |
+          echo "Waiting for CloudFront invalidation ${{ env.INVALIDATION_ID }}..."
+          aws cloudfront wait invalidation-completed \
+            --distribution-id "${{ secrets.AWS_WEB_CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --id "${{ env.INVALIDATION_ID }}"
+          echo "✓ CloudFront cache invalidated"
+
+      # ── Smoke test ──────────────────────────────────────────────────────────
+      # Validates that the login page (a prerendered SSG route) is accessible
+      # and returns non-empty HTML. Private routes (/dashboard) are intentionally
+      # not tested here — they are SPA shells that require client-side auth.
+      - name: Smoke test
         if: ${{ env.DEPLOY_RUN_SMOKE_TEST == 'true' }}
         run: |
-          echo "Waiting for server to be available..."
-          for i in {1..30}; do
-            if curl --fail --show-error --silent --location \
-              "https://${WEB_OFFICIAL_HOSTNAME}/pt-BR/login" \
-              >/tmp/web-official-smoke.html 2>/dev/null; then
-              echo "✓ Login page accessible"
-              test -s /tmp/web-official-smoke.html
+          echo "Running smoke test against https://${WEB_OFFICIAL_HOSTNAME}..."
+          for i in $(seq 1 10); do
+            HTTP_CODE=$(curl --silent --output /tmp/smoke.html \
+              --write-out "%{http_code}" \
+              --location \
+              "https://${WEB_OFFICIAL_HOSTNAME}/login")
+            if [ "$HTTP_CODE" = "200" ] && [ -s /tmp/smoke.html ]; then
+              echo "✓ GET /login → $HTTP_CODE ($(wc -c < /tmp/smoke.html) bytes)"
               exit 0
             fi
-            echo "Attempt $i/30 - server not ready yet..."
-            sleep 2
+            echo "Attempt $i/10 — HTTP $HTTP_CODE — retrying in 3s..."
+            sleep 3
           done
-          echo "⚠ Smoke test skipped: Server deployment not yet configured"
-          exit 0
+          echo "✗ Smoke test failed after 10 attempts"
+          exit 1
