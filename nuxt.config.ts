@@ -104,14 +104,17 @@ export default defineNuxtConfig({
       { code: "pt", language: "pt-BR", name: "Português (Brasil)", file: "pt.json" },
       { code: "en", language: "en-US", name: "English", file: "en.json" },
     ],
-    // langDir is resolved relative to rootDir (project root).
-    // Locale files live at app/locales/{pt,en}.json (Nuxt 4 srcDir = "app/").
-    langDir: "app/locales",
+    // langDir is resolved relative to <rootDir>/i18n/ (the module's restructureDir).
+    // Default value is "locales", resolving to <rootDir>/i18n/locales/.
+    // Locale files live at i18n/locales/{pt,en}.json — the canonical @nuxtjs/i18n v10 structure.
+    langDir: "locales",
     defaultLocale: "pt",
     baseUrl: process.env.NUXT_PUBLIC_SITE_URL ?? undefined,
     strategy: "prefix_except_default",
     skipSettingLocaleOnNavigate: false,
-    vueI18n: "./i18n.config.ts",
+    // vueI18n is resolved relative to <rootDir>/i18n/ (same as langDir base).
+    // File lives at i18n/i18n.config.ts — the canonical @nuxtjs/i18n v10 location.
+    vueI18n: "i18n.config.ts",
   },
 
   ogImage: {
