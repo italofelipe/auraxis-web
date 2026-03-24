@@ -11,6 +11,10 @@ export default defineI18nConfig(() => {
       tools: "Ferramentas",
       subscription: "Assinatura",
     },
+    user: {
+      fallbackName: "Usuário",
+      accountDescription: "Minha conta",
+    },
     auth: {
       login: {
         title: "Bem-vindo de volta",
@@ -39,6 +43,10 @@ export default defineI18nConfig(() => {
       sharedEntries: "Shared Entries",
       tools: "Tools",
       subscription: "Subscription",
+    },
+    user: {
+      fallbackName: "User",
+      accountDescription: "My account",
     },
     auth: {
       login: {
