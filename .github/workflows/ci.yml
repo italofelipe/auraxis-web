@@ -114,6 +114,11 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Validate generated OpenAPI types and contract pack baseline
         run: pnpm contracts:check
+        env:
+          # Required to authenticate against GitHub API when fetching contract
+          # packs from auraxis-platform. Without this, unauthenticated requests
+          # hit rate limits or 403 on private repos.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # ── 5. Build check ─────────────────────────────────────────────────────
   build:
