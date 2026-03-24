@@ -1,8 +1,14 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, useAttrs } from "vue";
 import { Eye, EyeOff } from "lucide-vue-next";
 import type { UiPasswordFieldProps, UiPasswordFieldEmits } from "./UiPasswordField.types";
 import UiFormField from "../UiFormField/UiFormField.vue";
+
+// Prevent fall-through attrs (vee-validate onChange/onBlur/name) from landing
+// on the UiFormField wrapper. We forward them to the <input> directly so that
+// reactive validation and browser autofill work correctly.
+defineOptions({ inheritAttrs: false });
+const attrs = useAttrs();
 
 const props = withDefaults(defineProps<UiPasswordFieldProps>(), {
   label: "Senha",
@@ -30,6 +36,7 @@ function toggle(): void {
   <UiFormField :label="props.label" :field-id="props.fieldId" :error="props.error" :required="props.required">
     <div class="ui-password-field__wrapper">
       <input
+        v-bind="attrs"
         :id="props.fieldId"
         class="ui-password-field__input"
         :class="{ 'ui-password-field__input--error': !!props.error }"

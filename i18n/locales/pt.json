@@ -31,6 +31,7 @@
     "register": {
       "title": "Criar conta",
       "subtitle": "Preencha os dados abaixo para começar",
+      "divider": "Ou continue com",
       "emailLabel": "Email",
       "emailPlaceholder": "seu{'@'}email.com",
       "passwordLabel": "Senha",

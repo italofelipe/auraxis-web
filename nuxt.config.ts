@@ -21,15 +21,13 @@ export default defineNuxtConfig({
         { rel: "manifest", href: "/manifest.webmanifest" },
       ],
       // ── Security meta tags ─────────────────────────────────────────
-      // These complement CloudFront Response Headers Policy.
-      // HTTP-level headers (HSTS, X-Frame-Options, etc.) MUST be
-      // configured in CloudFront — S3 does not serve custom HTTP headers.
+      // NOTE: X-Frame-Options and X-Content-Type-Options cannot be set
+      // via <meta http-equiv> — browsers only honour them as HTTP response
+      // headers. They MUST be configured in the CloudFront Response Headers
+      // Policy (already done). Keeping them here would produce console
+      // warnings ("X-Frame-Options may only be set via an HTTP header").
       meta: [
         { name: "theme-color", content: "#ffbe4d" },
-        // Prevents this app from being embedded in iframes (clickjacking)
-        { "http-equiv": "X-Frame-Options", content: "DENY" },
-        // Prevents MIME-type sniffing attacks
-        { "http-equiv": "X-Content-Type-Options", content: "nosniff" },
         // Restricts referrer info to same origin — protects user session URLs
         { name: "referrer", content: "strict-origin-when-cross-origin" },
       ],
@@ -48,7 +46,9 @@ export default defineNuxtConfig({
     "@nuxt/content",      // CMS baseado em arquivos Markdown/YAML/JSON
     "@nuxt/scripts",      // Carregamento otimizado de scripts de terceiros
     "@nuxt/a11y",         // Auditor de acessibilidade em dev
-    "@nuxt/hints",        // Sugestões de boas práticas em dev
+    // "@nuxt/hints" removed — its virtual config import returned 400 in the
+    // dev server, causing a cascade that broke the dynamic import of entry.js
+    // and made the Vue app fail to hydrate on page load.
     "@pinia/nuxt",        // State management
     "@nuxtjs/i18n",       // Internacionalização
     "@nuxtjs/seo",        // Meta tags, sitemap, robots automáticos
