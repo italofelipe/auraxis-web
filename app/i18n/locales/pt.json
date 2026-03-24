@@ -9,6 +9,10 @@
     "tools": "Ferramentas",
     "subscription": "Assinatura"
   },
+  "user": {
+    "fallbackName": "Usuário",
+    "accountDescription": "Minha conta"
+  },
   "auth": {
     "login": {
       "title": "Bem-vindo de volta",
@@ -23,6 +27,29 @@
       "submitLoading": "Entrando...",
       "noAccount": "Não tem uma conta?",
       "createAccount": "Criar conta"
+    },
+    "register": {
+      "title": "Criar conta",
+      "subtitle": "Preencha os dados abaixo para começar",
+      "emailLabel": "Email",
+      "emailPlaceholder": "seu@email.com",
+      "passwordLabel": "Senha",
+      "passwordPlaceholder": "••••••••",
+      "confirmPasswordLabel": "Confirmar senha",
+      "confirmPasswordPlaceholder": "••••••••",
+      "submit": "Criar conta",
+      "submitLoading": "Criando...",
+      "hasAccount": "Já tem uma conta?",
+      "signIn": "Entrar"
+    },
+    "forgotPassword": {
+      "title": "Recuperar senha",
+      "subtitle": "Informe seu email para receber as instruções",
+      "emailLabel": "Email",
+      "emailPlaceholder": "seu@email.com",
+      "submit": "Enviar instruções",
+      "submitLoading": "Enviando...",
+      "backToLogin": "Voltar ao login"
     }
   }
 }
