@@ -3,9 +3,14 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
 
   devtools: { enabled: true },
+
+  // ── Rendering ─────────────────────────────────────────────────────────
+  // SSR is enabled globally so that `prerender: true` route rules generate
+  // real, fully-rendered HTML at build time (true SSG).
+  // Private app routes are individually set to `ssr: false` (SPA shell).
+  // This keeps the S3 + CloudFront infra intact — no Node.js server needed.
   ssr: true,
   spaLoadingTemplate: false,
-
 
   app: {
     baseURL: process.env.NUXT_APP_BASE_URL ?? "/",
@@ -15,8 +20,18 @@ export default defineNuxtConfig({
       link: [
         { rel: "manifest", href: "/manifest.webmanifest" },
       ],
+      // ── Security meta tags ─────────────────────────────────────────
+      // These complement CloudFront Response Headers Policy.
+      // HTTP-level headers (HSTS, X-Frame-Options, etc.) MUST be
+      // configured in CloudFront — S3 does not serve custom HTTP headers.
       meta: [
         { name: "theme-color", content: "#ffbe4d" },
+        // Prevents this app from being embedded in iframes (clickjacking)
+        { "http-equiv": "X-Frame-Options", content: "DENY" },
+        // Prevents MIME-type sniffing attacks
+        { "http-equiv": "X-Content-Type-Options", content: "nosniff" },
+        // Restricts referrer info to same origin — protects user session URLs
+        { name: "referrer", content: "strict-origin-when-cross-origin" },
       ],
     },
   },
@@ -58,6 +73,7 @@ export default defineNuxtConfig({
       appEnv: process.env.NUXT_PUBLIC_APP_ENV ?? process.env.NODE_ENV ?? "development",
     },
   },
+
   googleFonts: {
     families: {
       "Playfair Display": [400, 500, 600, 700],
@@ -77,6 +93,9 @@ export default defineNuxtConfig({
   },
 
   // ── i18n ──────────────────────────────────────────────────────────────
+  // strategy: "prefix_except_default" → Portuguese (default) uses clean
+  // paths (/login, /plans). English uses /en/login, /en/plans, etc.
+  // This eliminates the need for redirect rules and is simpler to cache.
   i18n: {
     locales: [
       { code: "pt", language: "pt-BR", name: "Português (Brasil)" },
@@ -84,17 +103,16 @@ export default defineNuxtConfig({
     ],
     defaultLocale: "pt",
     baseUrl: process.env.NUXT_PUBLIC_SITE_URL ?? undefined,
-    strategy: "prefix",
+    strategy: "prefix_except_default",
     skipSettingLocaleOnNavigate: false,
     vueI18n: "./i18n.config.ts",
   },
+
   ogImage: {
     enabled: false,
   },
 
   // ── Naive UI — SSR transpile + Vite optimisation ─────────────────────
-  // Required to avoid "Cannot use import statement in a module" errors in SSR
-  // and to pre-bundle Naive UI's heavy dependency tree during dev startup.
   build: {
     transpile:
       process.env.NODE_ENV === "production"
@@ -109,38 +127,90 @@ export default defineNuxtConfig({
   },
 
   // ── Route Rules ───────────────────────────────────────────────────────
-  // Dynamic routes are served server-side. Static routes can still be prerendered.
-  // Auth enforcement for private routes is handled by middleware, not rules.
-  // Note: i18n uses strategy: "prefix", so all routes need locale prefix (pt/en).
+  //
+  // Rendering strategy per route:
+  //
+  //  prerender: true  → HTML generated at build time (SSG). Served as
+  //                     a static file from S3. Good for SEO + performance.
+  //
+  //  ssr: false       → SPA shell only. No server HTML. The client-side
+  //                     router + auth middleware handle access control.
+  //                     Financial data is NEVER embedded in the static HTML.
+  //
+  // Security note: private routes use `ssr: false` intentionally — this
+  // ensures zero user/financial data is ever pre-rendered into static files
+  // that could be cached or indexed by crawlers.
+  //
   routeRules: {
-    // Redirect routes without locale prefix to default locale (pt)
-    // This allows /login → /pt/login, /register → /pt/register, etc.
-    "/login": { redirect: "/pt/login" },
-    "/register": { redirect: "/pt/register" },
-    "/forgot-password": { redirect: "/pt/forgot-password" },
-    "/dashboard": { redirect: "/pt/dashboard" },
-    "/portfolio": { redirect: "/pt/portfolio" },
-    "/profile": { redirect: "/pt/profile" },
-    "/tools": { redirect: "/pt/tools" },
-    "/alerts": { redirect: "/pt/alerts" },
-    "/goals": { redirect: "/pt/goals" },
-    "/simulations": { redirect: "/pt/simulations" },
-    "/shared-entries": { redirect: "/pt/shared-entries" },
-    "/subscription": { redirect: "/pt/subscription" },
+    // ── Public — SSG (indexed, shareable) ─────────────────────────────
+    "/":                          { prerender: true },
+    "/plans":                     { prerender: true },
+    "/tools":                     { prerender: true },
+    "/tools/installment-vs-cash": { prerender: true },
+    "/privacy-policy":            { prerender: true },
+    "/terms-of-service":          { prerender: true },
 
+    // ── Auth — SSG (noindex enforced via noindex middleware) ───────────
+    "/login":           { prerender: true },
+    "/register":        { prerender: true },
+    "/forgot-password": { prerender: true },
+
+    // ── EN locale variants — SSG ───────────────────────────────────────
+    "/en":                          { prerender: true },
+    "/en/plans":                     { prerender: true },
+    "/en/tools":                     { prerender: true },
+    "/en/tools/installment-vs-cash": { prerender: true },
+    "/en/privacy-policy":            { prerender: true },
+    "/en/terms-of-service":          { prerender: true },
+    "/en/login":                     { prerender: true },
+    "/en/register":                  { prerender: true },
+    "/en/forgot-password":           { prerender: true },
+
+    // ── Private app — SPA (no prerender, no server HTML) ──────────────
+    // Auth middleware enforces access. No financial data in static HTML.
+    "/dashboard":     { ssr: false },
+    "/portfolio":     { ssr: false },
+    "/alerts":        { ssr: false },
+    "/simulations":   { ssr: false },
+    "/shared-entries":{ ssr: false },
+    "/income":        { ssr: false },
+    "/subscription":  { ssr: false },
+    "/en/dashboard":     { ssr: false },
+    "/en/portfolio":     { ssr: false },
+    "/en/alerts":        { ssr: false },
+    "/en/simulations":   { ssr: false },
+    "/en/shared-entries":{ ssr: false },
+    "/en/income":        { ssr: false },
+    "/en/subscription":  { ssr: false },
   },
 
   // ── Nitro ─────────────────────────────────────────────────────────────
-  // `sharp` is a native module consumed by @nuxt/image at build time.
-  // Marking it external prevents Nitro from tracing optional platform
-  // binaries (e.g. @img/sharp-wasm32) that are absent on macOS/arm,
-  // which caused ENOENT crashes in `pnpm build` (WEB-BUILD-01).
-  // The module remains available at runtime from node_modules.
   nitro: {
     prerender: {
-      crawlLinks: false,
-      routes: [],
-      ignore: ["/", "/sitemap.xml", "/__nuxt_content"],
+      // Seed routes for the crawler. Public pages + auth pages.
+      // The crawler will follow internal links and generate locale variants.
+      crawlLinks: true,
+      routes: [
+        "/",
+        "/plans",
+        "/tools",
+        "/tools/installment-vs-cash",
+        "/privacy-policy",
+        "/terms-of-service",
+        "/login",
+        "/register",
+        "/forgot-password",
+        "/en",
+        "/en/plans",
+        "/en/tools",
+        "/en/tools/installment-vs-cash",
+        "/en/privacy-policy",
+        "/en/terms-of-service",
+        "/en/login",
+        "/en/register",
+        "/en/forgot-password",
+      ],
+      ignore: ["/sitemap.xml", "/__nuxt_content"],
     },
   },
 });
