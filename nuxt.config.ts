@@ -95,12 +95,16 @@ export default defineNuxtConfig({
   // ── i18n ──────────────────────────────────────────────────────────────
   // strategy: "prefix_except_default" → Portuguese (default) uses clean
   // paths (/login, /plans). English uses /en/login, /en/plans, etc.
-  // This eliminates the need for redirect rules and is simpler to cache.
+  //
+  // lazy: true → each locale's JSON is loaded on demand.
+  // On SSR/prerender the module embeds messages into the Nuxt payload so
+  // the client hydrates without an extra fetch (no flash of raw keys).
   i18n: {
     locales: [
-      { code: "pt", language: "pt-BR", name: "Português (Brasil)" },
-      { code: "en", language: "en", name: "English" },
+      { code: "pt", language: "pt-BR", name: "Português (Brasil)", file: "pt.json" },
+      { code: "en", language: "en-US", name: "English", file: "en.json" },
     ],
+    langDir: "locales",
     defaultLocale: "pt",
     baseUrl: process.env.NUXT_PUBLIC_SITE_URL ?? undefined,
     strategy: "prefix_except_default",
