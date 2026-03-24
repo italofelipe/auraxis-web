@@ -101,10 +101,9 @@ export default defineNuxtConfig({
   // the client hydrates without an extra fetch (no flash of raw keys).
   i18n: {
     locales: [
-      { code: "pt", language: "pt-BR", name: "Português (Brasil)", file: "pt.json" },
-      { code: "en", language: "en-US", name: "English", file: "en.json" },
+      { code: "pt", language: "pt-BR", name: "Português (Brasil)" },
+      { code: "en", language: "en-US", name: "English" },
     ],
-    langDir: "locales",
     defaultLocale: "pt",
     baseUrl: process.env.NUXT_PUBLIC_SITE_URL ?? undefined,
     strategy: "prefix_except_default",
