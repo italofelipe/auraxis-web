@@ -104,7 +104,6 @@ export default defineNuxtConfig({
       { code: "pt", language: "pt-BR", name: "Português (Brasil)", file: "pt.json" },
       { code: "en", language: "en-US", name: "English", file: "en.json" },
     ],
-    lazy: true,
     langDir: "locales",
     defaultLocale: "pt",
     baseUrl: process.env.NUXT_PUBLIC_SITE_URL ?? undefined,
