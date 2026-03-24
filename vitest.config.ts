@@ -14,6 +14,10 @@ export default defineVitestConfig({
     // Automatically includes @nuxt/test-utils helpers
     globals: true,
 
+    // Patches happy-dom's localStorage when --localstorage-file receives an
+    // invalid path (which causes localStorage.getItem to be undefined).
+    setupFiles: ["./vitest.setup.ts"],
+
     // Test file patterns
     include: [
       "app/**/*.{spec,test}.{ts,tsx}",
