@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useI18n } from "vue-i18n";
 import { useRegisterForm } from "~/composables/useAuth";
 import type { RegisterSchema } from "~/schemas/auth";
 import UiFormField from "~/shared/components/UiFormField/UiFormField.vue";
