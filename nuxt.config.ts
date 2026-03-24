@@ -60,6 +60,16 @@ export default defineNuxtConfig({
     //                       Adicionar de volta quando disponível: https://github.com/nuxt-modules/apollo
   ],
 
+  // ── Components auto-import ───────────────────────────────────────────
+  // Nuxt 4 scans app/components/ by default (srcDir = "app/").
+  // Also scan app/shared/components/ so that shared UI components
+  // (UiAppShell, UiFormField, etc.) are auto-imported without explicit
+  // import statements in layouts and pages.
+  components: [
+    { path: "~/components" },
+    { path: "~/shared/components", pathPrefix: false },
+  ],
+
   // ── TypeScript ────────────────────────────────────────────────────────
   typescript: {
     strict: true,

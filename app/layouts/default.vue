@@ -9,10 +9,8 @@ import {
   Calculator,
   CreditCard,
 } from "lucide-vue-next";
-// UiAppShell lives in app/shared/components — outside Nuxt's default auto-import
-// scan path (app/components). Import explicitly to prevent "Failed to resolve
-// component: UiAppShell" warning and broken layout render.
-import UiAppShell from "~/shared/components/UiAppShell/UiAppShell.vue";
+// UiAppShell is auto-imported via the components config in nuxt.config.ts
+// (app/shared/components is registered as a scan directory).
 import type { AppShellNavItem, AppShellUser } from "~/shared/components/UiAppShell/UiAppShell.types";
 
 const { t } = useI18n();
