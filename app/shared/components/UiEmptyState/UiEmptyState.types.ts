@@ -1,8 +1,8 @@
 import type { Component } from "vue";
 
 export interface UiEmptyStateProps {
-  /** Ícone Lucide */
-  icon?: Component
+  /** Ícone Lucide (componente) ou nome de ícone como string para uso com <component :is> */
+  icon?: Component | string
   /** Título principal */
   title: string
   /** Descrição secundária */
