@@ -84,6 +84,9 @@ jobs:
           NUXT_PUBLIC_SENTRY_DSN: ${{ secrets.NUXT_PUBLIC_SENTRY_DSN }}
           NUXT_PUBLIC_APP_ENV: ${{ env.DEPLOY_ENVIRONMENT }}
           NUXT_PUBLIC_SITE_URL: https://${{ env.WEB_OFFICIAL_HOSTNAME }}
+          # Force a unique buildId per deploy so aws s3 sync always detects
+          # content changes and uploads new HTML (prevents ETag match skipping).
+          NUXT_APP_BUILD_ID: ${{ github.run_id }}-${{ github.sha }}
         run: pnpm generate
 
       - name: Validate output
