@@ -1,15 +1,12 @@
 // vue-i18n runtime options.
 // Messages are loaded lazily by @nuxtjs/i18n via the `langDir` + `file`
-// configuration in nuxt.config.ts. Do NOT import or bundle messages here —
-// the module ignores the `messages` key from vueI18n config and manages its
-// own locale registration. Bundling them here would produce a duplicate
-// registration that is silently ignored, leaving the runtime messages empty
-// (keys rendered as raw strings).
+// configuration in nuxt.config.ts (lazy: true). Do NOT import or bundle
+// messages here — the module manages locale registration via lazy imports.
 //
-// NOTE: defineI18nConfig is NOT auto-imported outside app/ — exporting the
-// raw options object directly avoids the wrapper call failing at runtime.
-export default {
+// defineI18nConfig is a global auto-import provided by @nuxtjs/i18n and is
+// available in this file even though it lives outside app/.
+export default defineI18nConfig(() => ({
   legacy: false,
   locale: "pt",
   fallbackLocale: "pt",
-};
+}));

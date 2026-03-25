@@ -106,9 +106,13 @@ export default defineNuxtConfig({
   // strategy: "prefix_except_default" → Portuguese (default) uses clean
   // paths (/login, /plans). English uses /en/login, /en/plans, etc.
   //
-  // lazy: true → each locale's JSON is loaded on demand.
-  // On SSR/prerender the module embeds messages into the Nuxt payload so
-  // the client hydrates without an extra fetch (no flash of raw keys).
+  // lazy: true (REQUIRED when using `file:` per locale) → the module
+  // generates lazy import statements for each locale file. On SSR/prerender
+  // the messages are embedded into the Nuxt payload so the client hydrates
+  // without an extra fetch and without flash of raw keys (_s undefined).
+  // Without lazy: true, the `file:` option has no effect in production and
+  // the vue-i18n Composer initialises with no messages, causing
+  // "Cannot read properties of undefined (reading '_s')" at hydration.
   i18n: {
     locales: [
       { code: "pt", language: "pt-BR", name: "Português (Brasil)", file: "pt.json" },
@@ -118,6 +122,7 @@ export default defineNuxtConfig({
     // Default value is "locales", resolving to <rootDir>/i18n/locales/.
     // Locale files live at i18n/locales/{pt,en}.json — the canonical @nuxtjs/i18n v10 structure.
     langDir: "locales",
+    lazy: true,
     defaultLocale: "pt",
     baseUrl: process.env.NUXT_PUBLIC_SITE_URL ?? undefined,
     strategy: "prefix_except_default",
