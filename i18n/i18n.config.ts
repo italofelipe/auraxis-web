@@ -14,12 +14,17 @@ import type { I18nOptions } from "vue-i18n";
 import pt from "./locales/pt.json";
 import en from "./locales/en.json";
 
+// NOTE: message keys MUST match the runtime locale code used by @nuxtjs/i18n v10.
+// The module promotes the `language` field value (e.g. "pt-BR") as the effective
+// locale code at runtime — NOT the `code` field. Keys must align with that value,
+// otherwise the vue-i18n Composer cannot find the messages and either renders raw
+// translation keys or crashes with "_s undefined".
 export default (): I18nOptions => ({
   legacy: false,
-  locale: "pt",
-  fallbackLocale: "pt",
+  locale: "pt-BR",
+  fallbackLocale: "pt-BR",
   messages: {
-    pt,
+    "pt-BR": pt,
     en,
   },
 });
