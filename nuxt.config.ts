@@ -106,9 +106,16 @@ export default defineNuxtConfig({
   // strategy: "prefix_except_default" → Portuguese (default) uses clean
   // paths (/login, /plans). English uses /en/login, /en/plans, etc.
   //
-  // lazy: true → each locale's JSON is loaded on demand.
-  // On SSR/prerender the module embeds messages into the Nuxt payload so
-  // the client hydrates without an extra fetch (no flash of raw keys).
+  // @nuxtjs/i18n v10 removed the `lazy` option. By default, the module
+  // loads locale messages via the `/_i18n` server endpoint at runtime.
+  // This app is deployed as static files to S3 + CloudFront — there is no
+  // Nitro server, so the `/_i18n` fetch silently fails and the vue-i18n
+  // Composer initialises with no messages, causing at hydration:
+  //   TypeError: Cannot read properties of undefined (reading '_s')
+  //
+  // experimental.preload: true embeds locale messages directly into the
+  // pre-rendered HTML payload during SSG build, making them available
+  // immediately on the client without any server-side API call.
   i18n: {
     locales: [
       { code: "pt", language: "pt-BR", name: "Português (Brasil)", file: "pt.json" },
@@ -125,6 +132,11 @@ export default defineNuxtConfig({
     // vueI18n is resolved relative to <rootDir>/i18n/ (same as langDir base).
     // File lives at i18n/i18n.config.ts — the canonical @nuxtjs/i18n v10 location.
     vueI18n: "i18n.config.ts",
+    experimental: {
+      // Embeds locale messages into the SSG payload so the client can hydrate
+      // without calling /_i18n (which doesn't exist in static S3 deployments).
+      preload: true,
+    },
   },
 
   ogImage: {
