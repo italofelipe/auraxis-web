@@ -9,6 +9,8 @@ import {
   Calculator,
   CreditCard,
 } from "lucide-vue-next";
+// UiAppShell is auto-imported via the components config in nuxt.config.ts
+// (app/shared/components is registered as a scan directory).
 import type { AppShellNavItem, AppShellUser } from "~/shared/components/UiAppShell/UiAppShell.types";
 
 const { t } = useI18n();

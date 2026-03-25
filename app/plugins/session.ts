@@ -3,9 +3,16 @@ import { useToolContextStore } from "~/stores/toolContext";
 
 /**
  * Restores the authenticated session from the persisted cookie before any
- * route middleware runs.  `enforce: 'pre'` guarantees this plugin executes
- * ahead of other plugins so that `sessionStore.isAuthenticated` is already
- * populated when `authenticated` / `guest-only` middlewares evaluate it.
+ * route middleware runs.
+ *
+ * NOTE: `enforce: "pre"` was intentionally removed. With Nuxt's plugin system,
+ * `enforce: "pre"` runs BEFORE the Pinia plugin installs the store registry,
+ * so calling `useSessionStore()` at that point crashes with
+ * "Cannot read properties of undefined (reading '_s')" (activePinia is null).
+ *
+ * Regular plugins (no enforce) still run before route middlewares — middlewares
+ * execute on navigation, after all plugins have initialized — so the auth guard
+ * contract is preserved.
  *
  * Also restores any pending tool context from sessionStorage so that a user
  * who completed login after a /tools redirect lands back with their context
@@ -13,7 +20,6 @@ import { useToolContextStore } from "~/stores/toolContext";
  */
 export default defineNuxtPlugin({
   name: "session-restore",
-  enforce: "pre",
   setup() {
     // Only restore session and tool context on the client — during SSR/prerender
     // there is no cookie or sessionStorage to read from, and accessing Pinia

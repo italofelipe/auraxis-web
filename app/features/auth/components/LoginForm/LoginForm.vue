@@ -60,6 +60,8 @@ const isPending = computed(() => props.loading || isSubmitting.value);
 
       <UiPasswordField
         v-model="password"
+        :label="t('auth.login.passwordLabel')"
+        :placeholder="t('auth.login.passwordPlaceholder')"
         field-id="login-password"
         :error="errors.password"
         :disabled="isPending"

@@ -31,6 +31,7 @@
     "register": {
       "title": "Create account",
       "subtitle": "Fill in the details below to get started",
+      "divider": "Or continue with",
       "emailLabel": "Email",
       "emailPlaceholder": "your{'@'}email.com",
       "passwordLabel": "Password",
@@ -50,6 +51,12 @@
       "submit": "Send instructions",
       "submitLoading": "Sending...",
       "backToLogin": "Back to login"
+    }
+  },
+  "pages": {
+    "goals": {
+      "emptyTitle": "No goals yet",
+      "emptyDescription": "Soon you'll be able to create and track your financial goals here."
     }
   }
 }

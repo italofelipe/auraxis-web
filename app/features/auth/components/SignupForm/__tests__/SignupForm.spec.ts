@@ -26,8 +26,8 @@ describe("SignupForm", () => {
 
   it("shows login link", () => {
     const wrapper = mount(SignupForm, { global: globalConfig });
-    expect(wrapper.text()).toContain("auth.signup.hasAccount");
-    expect(wrapper.text()).toContain("auth.signup.signIn");
+    expect(wrapper.text()).toContain("auth.register.hasAccount");
+    expect(wrapper.text()).toContain("auth.register.signIn");
   });
 
   it("disables submit when loading", () => {
@@ -43,7 +43,7 @@ describe("SignupForm", () => {
       props: { loading: true },
       global: globalConfig,
     });
-    expect(wrapper.text()).toContain("auth.signup.submitLoading");
+    expect(wrapper.text()).toContain("auth.register.submitLoading");
   });
 
   it("renders social auth buttons", () => {
@@ -53,12 +53,12 @@ describe("SignupForm", () => {
 
   it("renders title and subtitle", () => {
     const wrapper = mount(SignupForm, { global: globalConfig });
-    expect(wrapper.text()).toContain("auth.signup.title");
-    expect(wrapper.text()).toContain("auth.signup.subtitle");
+    expect(wrapper.text()).toContain("auth.register.title");
+    expect(wrapper.text()).toContain("auth.register.subtitle");
   });
 
   it("shows divider between social and email form", () => {
     const wrapper = mount(SignupForm, { global: globalConfig });
-    expect(wrapper.text()).toContain("auth.signup.divider");
+    expect(wrapper.text()).toContain("auth.register.divider");
   });
 });
