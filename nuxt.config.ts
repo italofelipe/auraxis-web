@@ -106,37 +106,27 @@ export default defineNuxtConfig({
   // strategy: "prefix_except_default" → Portuguese (default) uses clean
   // paths (/login, /plans). English uses /en/login, /en/plans, etc.
   //
-  // @nuxtjs/i18n v10 removed the `lazy` option. By default, the module
-  // loads locale messages via the `/_i18n` server endpoint at runtime.
   // This app is deployed as static files to S3 + CloudFront — there is no
-  // Nitro server, so the `/_i18n` fetch silently fails and the vue-i18n
-  // Composer initialises with no messages, causing at hydration:
-  //   TypeError: Cannot read properties of undefined (reading '_s')
+  // Nitro server. @nuxtjs/i18n v10 normally loads locale messages via a
+  // /_i18n server endpoint, which would silently fail on a static host and
+  // leave the vue-i18n Composer without messages (_s undefined → 500).
   //
-  // experimental.preload: true embeds locale messages directly into the
-  // pre-rendered HTML payload during SSG build, making them available
-  // immediately on the client without any server-side API call.
+  // Messages are instead imported directly in i18n/i18n.config.ts and
+  // provided synchronously via the `messages` option. This bundles them
+  // into the vueI18n JS chunk so the Composer is always initialised before
+  // any component setup runs — no async fetch required.
   i18n: {
     locales: [
-      { code: "pt", language: "pt-BR", name: "Português (Brasil)", file: "pt.json" },
-      { code: "en", language: "en-US", name: "English", file: "en.json" },
+      { code: "pt", language: "pt-BR", name: "Português (Brasil)" },
+      { code: "en", language: "en-US", name: "English" },
     ],
-    // langDir is resolved relative to <rootDir>/i18n/ (the module's restructureDir).
-    // Default value is "locales", resolving to <rootDir>/i18n/locales/.
-    // Locale files live at i18n/locales/{pt,en}.json — the canonical @nuxtjs/i18n v10 structure.
-    langDir: "locales",
     defaultLocale: "pt",
     baseUrl: process.env.NUXT_PUBLIC_SITE_URL ?? undefined,
     strategy: "prefix_except_default",
     skipSettingLocaleOnNavigate: false,
-    // vueI18n is resolved relative to <rootDir>/i18n/ (same as langDir base).
-    // File lives at i18n/i18n.config.ts — the canonical @nuxtjs/i18n v10 location.
+    // vueI18n is resolved relative to <rootDir>/i18n/ (the module's restructureDir).
+    // File lives at i18n/i18n.config.ts — imports locale JSON and sets messages.
     vueI18n: "i18n.config.ts",
-    experimental: {
-      // Embeds locale messages into the SSG payload so the client can hydrate
-      // without calling /_i18n (which doesn't exist in static S3 deployments).
-      preload: true,
-    },
   },
 
   ogImage: {
