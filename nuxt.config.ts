@@ -116,11 +116,17 @@ export default defineNuxtConfig({
   // into the vueI18n JS chunk so the Composer is always initialised before
   // any component setup runs — no async fetch required.
   i18n: {
+    // NOTE: code MUST equal language so that the runtime locale code (which
+    // @nuxtjs/i18n v10 derives from the `language` field) matches the `code`
+    // used by the URL routing strategy and the vue-i18n messages object.
+    // Using different values (e.g. code:"pt" + language:"pt-BR") causes the
+    // module to register the locale internally as "pt-BR" while the messages
+    // are stored under "pt" → Composer finds no messages → raw keys / _s crash.
     locales: [
-      { code: "pt", language: "pt-BR", name: "Português (Brasil)" },
-      { code: "en", language: "en-US", name: "English" },
+      { code: "pt-BR", language: "pt-BR", name: "Português (Brasil)" },
+      { code: "en", language: "en", name: "English" },
     ],
-    defaultLocale: "pt",
+    defaultLocale: "pt-BR",
     baseUrl: process.env.NUXT_PUBLIC_SITE_URL ?? undefined,
     strategy: "prefix_except_default",
     skipSettingLocaleOnNavigate: false,
