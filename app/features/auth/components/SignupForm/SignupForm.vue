@@ -15,6 +15,7 @@ const props = withDefaults(defineProps<SignupFormProps>(), {
 const emit = defineEmits<SignupFormEmits>();
 
 const { defineField, errors, handleSubmit, isSubmitting } = useRegisterForm();
+const [name, nameAttrs] = defineField("name");
 const [email, emailAttrs] = defineField("email");
 const [password, passwordAttrs] = defineField("password");
 const [confirmPassword, confirmPasswordAttrs] = defineField("confirmPassword");
@@ -40,6 +41,25 @@ const isPending = computed(() => props.loading || isSubmitting.value);
     </div>
 
     <form class="signup-form__fields" novalidate @submit.prevent="onSubmit">
+      <UiFormField
+        :label="t('auth.register.nameLabel')"
+        field-id="signup-name"
+        :error="errors.name"
+        required
+      >
+        <input
+          id="signup-name"
+          v-model="name"
+          class="signup-form__input"
+          :class="{ 'signup-form__input--error': !!errors.name }"
+          type="text"
+          :placeholder="t('auth.register.namePlaceholder')"
+          autocomplete="name"
+          :disabled="isPending"
+          v-bind="nameAttrs"
+        >
+      </UiFormField>
+
       <UiFormField
         :label="t('auth.register.emailLabel')"
         field-id="signup-email"

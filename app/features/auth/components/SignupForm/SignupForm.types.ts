@@ -4,5 +4,5 @@ export interface SignupFormProps {
 }
 
 export interface SignupFormEmits {
-  (e: "submit", values: { email: string; password: string; confirmPassword: string }): void
+  (e: "submit", values: { name: string; email: string; password: string; confirmPassword: string }): void
 }

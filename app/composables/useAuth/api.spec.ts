@@ -59,15 +59,15 @@ describe("createAuthApi", () => {
 
     const authApi = createAuthApi({ post });
     const response = await authApi.register({
+      name: "New User",
       email: "new@auraxis.com",
-      password: "12345678",
-      confirmPassword: "12345678",
+      password: "Senha@12345",
     });
 
     expect(post).toHaveBeenCalledWith("/auth/register", {
+      name: "New User",
       email: "new@auraxis.com",
-      password: "12345678",
-      confirmPassword: "12345678",
+      password: "Senha@12345",
     });
     expect(response.user.email).toBe("new@auraxis.com");
   });

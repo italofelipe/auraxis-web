@@ -39,9 +39,10 @@ describe("useAuth/forms", () => {
     });
   });
 
-  it("cria formulario de registro com confirmacao de senha", () => {
+  it("cria formulario de registro com todos os campos esperados", () => {
     const result = useRegisterForm() as unknown as {
       initialValues: {
+        name: string;
         email: string;
         password: string;
         confirmPassword: string;
@@ -50,6 +51,7 @@ describe("useAuth/forms", () => {
 
     expect(useFormMock).toHaveBeenCalledTimes(1);
     expect(result.initialValues).toEqual({
+      name: "",
       email: "",
       password: "",
       confirmPassword: "",

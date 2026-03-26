@@ -32,6 +32,7 @@ export const useRegisterForm = (): ReturnType<typeof useForm<RegisterSchema>> =>
   return useForm<RegisterSchema>({
     validationSchema: toTypedSchema(registerSchema),
     initialValues: {
+      name: "",
       email: "",
       password: "",
       confirmPassword: "",
