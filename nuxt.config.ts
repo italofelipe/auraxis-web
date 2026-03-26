@@ -111,10 +111,10 @@ export default defineNuxtConfig({
   // /_i18n server endpoint, which would silently fail on a static host and
   // leave the vue-i18n Composer without messages (_s undefined → 500).
   //
-  // Messages are instead imported directly in i18n/i18n.config.ts and
-  // provided synchronously via the `messages` option. This bundles them
-  // into the vueI18n JS chunk so the Composer is always initialised before
-  // any component setup runs — no async fetch required.
+  // FIX: experimental.preload embeds ALL locale messages directly into the
+  // SSR/SSG payload ($si18n:cached-locale-configs). This guarantees messages
+  // are available to the vue-i18n Composer during client hydration without
+  // any /_i18n server call — required for static S3 deployments.
   i18n: {
     // NOTE: code MUST equal language so that the runtime locale code (which
     // @nuxtjs/i18n v10 derives from the `language` field) matches the `code`
@@ -133,6 +133,11 @@ export default defineNuxtConfig({
     // vueI18n is resolved relative to <rootDir>/i18n/ (the module's restructureDir).
     // File lives at i18n/i18n.config.ts — imports locale JSON and sets messages.
     vueI18n: "i18n.config.ts",
+    // experimental.preload: embed locale messages into the SSG payload so they
+    // are available on the client without fetching /_i18n (no server in S3 deploy).
+    experimental: {
+      preload: true,
+    },
   },
 
   ogImage: {
