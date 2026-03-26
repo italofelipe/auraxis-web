@@ -84,6 +84,10 @@ jobs:
           NUXT_PUBLIC_SENTRY_DSN: ${{ secrets.NUXT_PUBLIC_SENTRY_DSN }}
           NUXT_PUBLIC_APP_ENV: ${{ env.DEPLOY_ENVIRONMENT }}
           NUXT_PUBLIC_SITE_URL: https://${{ env.WEB_OFFICIAL_HOSTNAME }}
+          # Baked into every HTML page as <meta name="x-build-id">.
+          # The smoke test reads this tag to confirm CloudFront is serving
+          # the current build and not a stale cached snapshot.
+          NUXT_PUBLIC_BUILD_ID: "${{ github.run_id }}-${{ github.sha }}"
         run: pnpm generate
 
       - name: Validate output
@@ -141,6 +145,28 @@ jobs:
           role-to-assume: ${{ secrets.AWS_WEB_DEPLOY_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
+      # Guard: verify the S3 bucket declared in this workflow matches the
+      # actual origin of the CloudFront distribution before uploading anything.
+      # A mismatch (e.g. S3_BUCKET points to the wrong bucket) would silently
+      # deploy to a bucket CloudFront never reads — root cause of the 26/03
+      # incident where production served a 3-day-old snapshot indefinitely.
+      - name: Verify S3 bucket matches CloudFront origin
+        run: |
+          DIST_ID="${{ vars.AWS_WEB_CLOUDFRONT_DISTRIBUTION_ID }}"
+          CF_ORIGIN=$(aws cloudfront get-distribution \
+            --id "$DIST_ID" \
+            --query 'Distribution.DistributionConfig.Origins.Items[0].DomainName' \
+            --output text)
+          EXPECTED="${{ env.S3_BUCKET }}.s3-website-${{ env.AWS_REGION }}.amazonaws.com"
+          echo "CloudFront origin : $CF_ORIGIN"
+          echo "S3_BUCKET expected: $EXPECTED"
+          if [ "$CF_ORIGIN" != "$EXPECTED" ]; then
+            echo "✗ MISMATCH — deploy abortado para evitar entrega no bucket errado"
+            echo "  Verifique S3_BUCKET no workflow e o origin da distribuição $DIST_ID"
+            exit 1
+          fi
+          echo "✓ CloudFront origin bate com S3_BUCKET"
+
       # Upload to S3.
       # Cache strategy:
       #   - HTML files: cp --recursive (unconditional upload — aws s3 sync skips
@@ -168,7 +194,7 @@ jobs:
 
       - name: Invalidate CloudFront cache
         run: |
-          DIST_ID="${{ secrets.AWS_WEB_CLOUDFRONT_DISTRIBUTION_ID }}"
+          DIST_ID="${{ vars.AWS_WEB_CLOUDFRONT_DISTRIBUTION_ID }}"
           echo "Invalidating CloudFront distribution: $DIST_ID"
           INVALIDATION_ID=$(aws cloudfront create-invalidation \
             --distribution-id "$DIST_ID" \
@@ -182,29 +208,59 @@ jobs:
         run: |
           echo "Waiting for CloudFront invalidation ${{ env.INVALIDATION_ID }}..."
           aws cloudfront wait invalidation-completed \
-            --distribution-id "${{ secrets.AWS_WEB_CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --distribution-id "${{ vars.AWS_WEB_CLOUDFRONT_DISTRIBUTION_ID }}" \
             --id "${{ env.INVALIDATION_ID }}"
           echo "✓ CloudFront cache invalidated"
 
       # ── Smoke test ──────────────────────────────────────────────────────────
-      # Validates that the login page (a prerendered SSG route) is accessible
-      # and returns non-empty HTML. Private routes (/dashboard) are intentionally
-      # not tested here — they are SPA shells that require client-side auth.
+      # Two-phase check:
+      #   1. HTTP 200 — the page is reachable
+      #   2. buildId match — CloudFront is serving THIS deploy, not a stale snapshot
+      #
+      # Phase 2 catches the class of incident that occurred on 26/03/2026,
+      # where S3 had new HTML but CloudFront kept serving 3-day-old content
+      # and the HTTP-200-only smoke test detected nothing.
       - name: Smoke test
         if: ${{ env.DEPLOY_RUN_SMOKE_TEST == 'true' }}
         run: |
-          echo "Running smoke test against https://${WEB_OFFICIAL_HOSTNAME}..."
+          EXPECTED_BUILD_ID="${{ github.run_id }}-${{ github.sha }}"
+          echo "Smoke test → https://${WEB_OFFICIAL_HOSTNAME}/login"
+          echo "Expected buildId: $EXPECTED_BUILD_ID"
+
+          # Phase 1 — HTTP 200
+          HTTP_CODE=""
           for i in $(seq 1 10); do
             HTTP_CODE=$(curl --silent --output /tmp/smoke.html \
               --write-out "%{http_code}" \
               --location \
               "https://${WEB_OFFICIAL_HOSTNAME}/login")
             if [ "$HTTP_CODE" = "200" ] && [ -s /tmp/smoke.html ]; then
-              echo "✓ GET /login → $HTTP_CODE ($(wc -c < /tmp/smoke.html) bytes)"
-              exit 0
+              echo "✓ Phase 1 — HTTP $HTTP_CODE ($(wc -c < /tmp/smoke.html) bytes)"
+              break
             fi
-            echo "Attempt $i/10 — HTTP $HTTP_CODE — retrying in 3s..."
+            echo "  Attempt $i/10 — HTTP $HTTP_CODE — retrying in 3s..."
             sleep 3
           done
-          echo "✗ Smoke test failed after 10 attempts"
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "✗ Phase 1 failed — page not reachable after 10 attempts"
+            exit 1
+          fi
+
+          # Phase 2 — buildId freshness
+          for i in $(seq 1 15); do
+            SERVED_BUILD_ID=$(curl --silent \
+              "https://${WEB_OFFICIAL_HOSTNAME}/login" \
+              | grep 'x-build-id' \
+              | grep -o 'content="[^"]*"' \
+              | cut -d'"' -f2)
+            if [ "$SERVED_BUILD_ID" = "$EXPECTED_BUILD_ID" ]; then
+              echo "✓ Phase 2 — buildId verified: $SERVED_BUILD_ID"
+              exit 0
+            fi
+            echo "  Attempt $i/15 — served=$SERVED_BUILD_ID expected=$EXPECTED_BUILD_ID — retrying in 5s..."
+            sleep 5
+          done
+          echo "✗ Phase 2 failed — CloudFront still serving stale build after 75s"
+          echo "  served:   $SERVED_BUILD_ID"
+          echo "  expected: $EXPECTED_BUILD_ID"
           exit 1

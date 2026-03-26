@@ -30,6 +30,11 @@ export default defineNuxtConfig({
         { name: "theme-color", content: "#ffbe4d" },
         // Restricts referrer info to same origin — protects user session URLs
         { name: "referrer", content: "strict-origin-when-cross-origin" },
+        // Baked in by CI via NUXT_PUBLIC_BUILD_ID="<run_id>-<sha>".
+        // The post-deploy smoke test reads this tag to verify CloudFront is
+        // serving the current build and not a cached stale snapshot.
+        // Empty string in local dev — harmless.
+        { name: "x-build-id", content: process.env.NUXT_PUBLIC_BUILD_ID ?? "" },
       ],
     },
   },
@@ -81,6 +86,10 @@ export default defineNuxtConfig({
       apiBase: process.env.NUXT_PUBLIC_API_BASE ?? "http://localhost:5000",
       sentryDsn: process.env.NUXT_PUBLIC_SENTRY_DSN ?? "",
       appEnv: process.env.NUXT_PUBLIC_APP_ENV ?? process.env.NODE_ENV ?? "development",
+      // Injected by CI as "<run_id>-<sha>". Baked into the HTML meta tag
+      // `x-build-id` during SSG so the smoke test can verify that CloudFront
+      // is serving the freshly-deployed build rather than a stale snapshot.
+      buildId: process.env.NUXT_PUBLIC_BUILD_ID ?? "",
     },
   },
 

@@ -1,0 +1,13 @@
+# CODEOWNERS — auraxis-web
+#
+# Files listed here require at least one approval from the specified owner
+# before a PR can be merged. This prevents silent changes to deploy pipelines
+# and infra configuration — the root cause of the 26/03/2026 production incident.
+
+# Deploy and infra workflows — any change must be reviewed by a human
+/.github/workflows/deploy*.yml @italofelipe
+/.github/workflows/infra*.yml  @italofelipe
+/.github/workflows/health*.yml @italofelipe
+
+# Nuxt config — changes affect build output and all deployed pages
+/nuxt.config.ts @italofelipe
