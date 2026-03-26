@@ -29,6 +29,10 @@ export type AuraxisIconName =
   | "download"
   | "filter"
   | "calendar"
+  | "calendarCheck"
   | "menu"
+  | "pieChart"
+  | "chartLine"
+  | "target"
 
 export type IconMap = Record<AuraxisIconName, LucideIcon>

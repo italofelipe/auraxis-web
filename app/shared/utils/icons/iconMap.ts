@@ -4,7 +4,8 @@ import {
   User, Bell, Plus, Minus, Search, X,
   ChevronRight, ChevronDown, TrendingUp, TrendingDown,
   Eye, EyeOff, Check, AlertTriangle, Info,
-  Upload, Download, Filter, Calendar, Menu,
+  Upload, Download, Filter, Calendar, CalendarCheck,
+  Menu, PieChart, ChartLine,
 } from "lucide-vue-next";
 import type { IconMap } from "./icons.types";
 
@@ -41,5 +42,9 @@ export const ICON_MAP: IconMap = {
   download:      Download,
   filter:        Filter,
   calendar:      Calendar,
+  calendarCheck: CalendarCheck,
   menu:          Menu,
+  pieChart:      PieChart,
+  chartLine:     ChartLine,
+  target:        Target,
 };
