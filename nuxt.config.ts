@@ -122,19 +122,40 @@ export default defineNuxtConfig({
     // Using different values (e.g. code:"pt" + language:"pt-BR") causes the
     // module to register the locale internally as "pt-BR" while the messages
     // are stored under "pt" → Composer finds no messages → raw keys / _s crash.
+    //
+    // `file` is required so that @nuxtjs/i18n populates `localeLoaders` for each
+    // locale. Without `file`, localeLoaders is empty → the internal messages.json
+    // server route (used by experimental.preload during SSG) returns {} → no
+    // <script data-nuxt-i18n> is injected in the HTML → client falls back to the
+    // /_i18n runtime endpoint which does not exist on static S3 → _s undefined.
+    langDir: "locales",
     locales: [
-      { code: "pt-BR", language: "pt-BR", name: "Português (Brasil)" },
-      { code: "en", language: "en", name: "English" },
+      {
+        code: "pt-BR",
+        language: "pt-BR",
+        name: "Português (Brasil)",
+        file: "pt.json",
+      },
+      {
+        code: "en",
+        language: "en",
+        name: "English",
+        file: "en.json",
+      },
     ],
     defaultLocale: "pt-BR",
     baseUrl: process.env.NUXT_PUBLIC_SITE_URL ?? undefined,
     strategy: "prefix_except_default",
     skipSettingLocaleOnNavigate: false,
     // vueI18n is resolved relative to <rootDir>/i18n/ (the module's restructureDir).
-    // File lives at i18n/i18n.config.ts — imports locale JSON and sets messages.
+    // File lives at i18n/i18n.config.ts — sets initialization options only (legacy,
+    // fallbackLocale, etc.). Messages are loaded via locales[].file above.
     vueI18n: "i18n.config.ts",
-    // experimental.preload: embed locale messages into the SSG payload so they
-    // are available on the client without fetching /_i18n (no server in S3 deploy).
+    // experimental.preload: during SSG, fetches messages from the internal
+    // messages.json Nitro route (populated via localeLoaders from locales[].file)
+    // and injects a <script data-nuxt-i18n> tag into every prerendered HTML page.
+    // The client plugin reads from this tag instead of fetching /_i18n — required
+    // for static S3 deployments where there is no Nitro server at runtime.
     experimental: {
       preload: true,
     },
