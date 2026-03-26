@@ -1,0 +1,234 @@
+name: Deploy Staging Web (pilot.auraxis.com.br)
+
+# Deploys automatically on push to the `develop` branch.
+# Also available on demand via workflow_dispatch.
+#
+# Staging environment:
+#   URL  : https://pilot.auraxis.com.br
+#   S3   : pilot.auraxis.com.br  (vars.AWS_WEB_STAGING_S3_BUCKET)
+#   CF   : vars.AWS_WEB_STAGING_CLOUDFRONT_DISTRIBUTION_ID
+#   Role : secrets.AWS_WEB_DEPLOY_ROLE_ARN  (same OIDC role, broader trust policy)
+#
+# Purpose:
+#   - Validate all PRs / branch builds before they reach production
+#   - Break the "deploy straight to prod from main" habit
+#   - Allow QA smoke tests on real AWS stack without risking app.auraxis.com.br
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+    inputs:
+      api_base_url:
+        description: API base URL for this staging build
+        required: true
+        default: https://api.auraxis.com.br
+        type: string
+      run_smoke_test:
+        description: Run smoke test after deploy
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: web-staging
+  cancel-in-progress: true   # staging can be interrupted by newer pushes
+
+env:
+  NODE_VERSION: "25"
+  PNPM_VERSION: "10.30.1"
+  AWS_REGION: "us-east-1"
+  S3_BUCKET: ${{ vars.AWS_WEB_STAGING_S3_BUCKET || 'pilot.auraxis.com.br' }}
+  STAGING_HOSTNAME: ${{ vars.AWS_WEB_STAGING_HOSTNAME || 'pilot.auraxis.com.br' }}
+
+jobs:
+  # ── 1. Build ──────────────────────────────────────────────────────────────────
+  build:
+    name: Generate staging static site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve deploy parameters
+        run: |
+          if [ "${{ github.event_name }}" == "push" ]; then
+            echo "DEPLOY_API_BASE_URL=https://api.auraxis.com.br" >> $GITHUB_ENV
+            echo "DEPLOY_RUN_SMOKE_TEST=true"                     >> $GITHUB_ENV
+          else
+            echo "DEPLOY_API_BASE_URL=${{ inputs.api_base_url }}"       >> $GITHUB_ENV
+            echo "DEPLOY_RUN_SMOKE_TEST=${{ inputs.run_smoke_test }}"   >> $GITHUB_ENV
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate static site (staging)
+        env:
+          NODE_ENV: production
+          NUXT_PUBLIC_API_BASE: ${{ env.DEPLOY_API_BASE_URL }}
+          NUXT_PUBLIC_SENTRY_DSN: ${{ secrets.NUXT_PUBLIC_SENTRY_DSN }}
+          NUXT_PUBLIC_APP_ENV: staging
+          NUXT_PUBLIC_SITE_URL: https://${{ env.STAGING_HOSTNAME }}
+          NUXT_PUBLIC_BUILD_ID: "${{ github.run_id }}-${{ github.sha }}"
+        run: pnpm generate
+
+      - name: Validate output
+        run: |
+          test -d .output/public || (echo "ERROR: .output/public not found"; exit 1)
+          test -f .output/public/index.html || (echo "ERROR: index.html not found"; exit 1)
+          echo "✓ Static output validated"
+          echo "  Files: $(find .output/public -type f | wc -l)"
+
+      - name: Package static output
+        run: tar -czf static-build-staging.tar.gz .output/public
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-staging-static-${{ github.run_id }}
+          path: static-build-staging.tar.gz
+          retention-days: 3
+          if-no-files-found: error
+
+  # ── 2. Deploy ─────────────────────────────────────────────────────────────────
+  deploy:
+    name: Deploy to staging S3 + CloudFront
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: staging
+      url: https://${{ env.STAGING_HOSTNAME }}
+    steps:
+      - name: Resolve deploy parameters
+        run: |
+          if [ "${{ github.event_name }}" == "push" ]; then
+            echo "DEPLOY_RUN_SMOKE_TEST=true" >> $GITHUB_ENV
+          else
+            echo "DEPLOY_RUN_SMOKE_TEST=${{ inputs.run_smoke_test }}" >> $GITHUB_ENV
+          fi
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: web-staging-static-${{ github.run_id }}
+          path: .
+
+      - name: Extract static output
+        run: tar -xzf static-build-staging.tar.gz
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_WEB_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # Guard: same as prod — never deploy to the wrong bucket.
+      - name: Verify S3 bucket matches CloudFront origin
+        run: |
+          DIST_ID="${{ vars.AWS_WEB_STAGING_CLOUDFRONT_DISTRIBUTION_ID }}"
+          CF_ORIGIN=$(aws cloudfront get-distribution \
+            --id "$DIST_ID" \
+            --query 'Distribution.DistributionConfig.Origins.Items[0].DomainName' \
+            --output text)
+          EXPECTED="${{ env.S3_BUCKET }}.s3-website-${{ env.AWS_REGION }}.amazonaws.com"
+          echo "CloudFront origin : $CF_ORIGIN"
+          echo "S3_BUCKET expected: $EXPECTED"
+          if [ "$CF_ORIGIN" != "$EXPECTED" ]; then
+            echo "✗ MISMATCH — staging deploy aborted"
+            exit 1
+          fi
+          echo "✓ CloudFront origin matches S3_BUCKET"
+
+      - name: Upload HTML files (no-cache, force)
+        run: |
+          aws s3 cp .output/public/ "s3://${{ env.S3_BUCKET }}/" \
+            --region "${{ env.AWS_REGION }}" \
+            --recursive \
+            --exclude "*" \
+            --include "*.html" \
+            --cache-control "no-cache, no-store, must-revalidate" \
+            --content-type "text/html; charset=utf-8"
+
+      - name: Upload hashed assets (immutable cache)
+        run: |
+          aws s3 sync .output/public/ "s3://${{ env.S3_BUCKET }}/" \
+            --region "${{ env.AWS_REGION }}" \
+            --exclude "*.html" \
+            --cache-control "public, max-age=31536000, immutable"
+
+      - name: Invalidate CloudFront cache
+        run: |
+          DIST_ID="${{ vars.AWS_WEB_STAGING_CLOUDFRONT_DISTRIBUTION_ID }}"
+          INVALIDATION_ID=$(aws cloudfront create-invalidation \
+            --distribution-id "$DIST_ID" \
+            --paths "/*" \
+            --query 'Invalidation.Id' \
+            --output text)
+          echo "Invalidation created: $INVALIDATION_ID"
+          echo "INVALIDATION_ID=$INVALIDATION_ID" >> $GITHUB_ENV
+
+      - name: Wait for invalidation
+        run: |
+          aws cloudfront wait invalidation-completed \
+            --distribution-id "${{ vars.AWS_WEB_STAGING_CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --id "${{ env.INVALIDATION_ID }}"
+          echo "✓ CloudFront cache invalidated"
+
+      # Staging smoke test — same checks as prod, but against pilot.auraxis.com.br
+      - name: Smoke test
+        if: ${{ env.DEPLOY_RUN_SMOKE_TEST == 'true' }}
+        run: |
+          EXPECTED_BUILD_ID="${{ github.run_id }}-${{ github.sha }}"
+          echo "Smoke test → https://${STAGING_HOSTNAME}/login"
+
+          # Phase 1 — HTTP 200
+          HTTP_CODE=""
+          for i in $(seq 1 10); do
+            HTTP_CODE=$(curl --silent --output /tmp/smoke-staging.html \
+              --write-out "%{http_code}" \
+              --location \
+              "https://${STAGING_HOSTNAME}/login")
+            if [ "$HTTP_CODE" = "200" ] && [ -s /tmp/smoke-staging.html ]; then
+              echo "✓ Phase 1 — HTTP $HTTP_CODE ($(wc -c < /tmp/smoke-staging.html) bytes)"
+              break
+            fi
+            echo "  Attempt $i/10 — HTTP $HTTP_CODE — retrying in 3s..."
+            sleep 3
+          done
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "✗ Phase 1 failed — staging not reachable after 10 attempts"
+            exit 1
+          fi
+
+          # Phase 2 — buildId freshness
+          for i in $(seq 1 15); do
+            SERVED_BUILD_ID=$(curl --silent \
+              "https://${STAGING_HOSTNAME}/login" \
+              | grep 'x-build-id' \
+              | grep -o 'content="[^"]*"' \
+              | cut -d'"' -f2)
+            if [ "$SERVED_BUILD_ID" = "$EXPECTED_BUILD_ID" ]; then
+              echo "✓ Phase 2 — buildId verified: $SERVED_BUILD_ID"
+              exit 0
+            fi
+            echo "  Attempt $i/15 — served=$SERVED_BUILD_ID expected=$EXPECTED_BUILD_ID — retrying in 5s..."
+            sleep 5
+          done
+          echo "✗ Phase 2 failed — CloudFront still serving stale build after 75s"
+          exit 1
