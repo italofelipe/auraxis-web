@@ -216,13 +216,12 @@ jobs:
             exit 1
           fi
 
-          # Phase 2 — buildId freshness
+          # Phase 2 — buildId freshness (anchored grep to avoid matching other meta tags)
           for i in $(seq 1 15); do
             SERVED_BUILD_ID=$(curl --silent \
               "https://${STAGING_HOSTNAME}/login" \
-              | grep 'x-build-id' \
-              | grep -o 'content="[^"]*"' \
-              | cut -d'"' -f2)
+              | grep -o 'name="x-build-id" content="[^"]*"' \
+              | cut -d'"' -f4)
             if [ "$SERVED_BUILD_ID" = "$EXPECTED_BUILD_ID" ]; then
               echo "✓ Phase 2 — buildId verified: $SERVED_BUILD_ID"
               exit 0

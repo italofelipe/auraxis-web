@@ -43,7 +43,8 @@
       "submit": "Create account",
       "submitLoading": "Creating...",
       "hasAccount": "Already have an account?",
-      "signIn": "Sign in"
+      "signIn": "Sign in",
+      "successToast": "Account created successfully"
     },
     "forgotPassword": {
       "title": "Recover password",

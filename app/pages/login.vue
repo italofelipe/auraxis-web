@@ -19,8 +19,11 @@ const { consumeRedirect } = useAuthRedirectContext();
 const onSubmit = async (values: LoginSchema): Promise<void> => {
   try {
     await loginMutation.mutateAsync(values);
+    // consumeRedirect returns the saved destination or "/dashboard" as fallback.
+    // This preserves the "redirect to intended page after auth" pattern while
+    // guaranteeing the user always lands on the Dashboard when there is no saved path.
     const redirect = consumeRedirect();
-    await navigateTo(redirect);
+    await navigateTo(redirect || "/dashboard");
   } catch (err) {
     const msg = axios.isAxiosError(err)
       ? (err.response?.data?.message ?? "Credenciais inválidas. Verifique seu e-mail e senha.")

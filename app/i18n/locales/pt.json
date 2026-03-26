@@ -43,7 +43,8 @@
       "submit": "Criar conta",
       "submitLoading": "Criando...",
       "hasAccount": "Já tem uma conta?",
-      "signIn": "Entrar"
+      "signIn": "Entrar",
+      "successToast": "A conta foi criada"
     },
     "forgotPassword": {
       "title": "Recuperar senha",

@@ -8,6 +8,7 @@ import type { RegisterSchema } from "~/schemas/auth";
 
 definePageMeta({ layout: "auth", middleware: ["guest-only"] });
 
+const { t } = useI18n();
 const message = useMessage();
 const registerMutation = useRegisterMutation();
 const { consumeRedirect } = useAuthRedirectContext();
@@ -20,8 +21,11 @@ const onSubmit = async (values: RegisterSchema): Promise<void> => {
   const { confirmPassword: _discard, ...registerPayload } = values;
   try {
     await registerMutation.mutateAsync(registerPayload);
-    const redirect = consumeRedirect();
-    await navigateTo(redirect);
+    // Clear any pending redirect so the user lands on the login page,
+    // not on a protected route that would bounce back to login anyway.
+    consumeRedirect();
+    message.success(t("auth.register.successToast"), { duration: 4000 });
+    await navigateTo("/login");
   } catch (err) {
     const msg = axios.isAxiosError(err)
       ? (err.response?.data?.message ?? "Não foi possível criar a conta. Verifique os dados e tente novamente.")
