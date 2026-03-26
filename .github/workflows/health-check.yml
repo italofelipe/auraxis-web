@@ -1,0 +1,97 @@
+name: Health Check — Production
+
+# Runs every 6 hours (4x/day ≈ 60 min/month — well within GitHub Actions free tier).
+# Also triggered manually via workflow_dispatch for on-demand checks.
+#
+# Detects the class of issues that the HTTP-200-only smoke test misses:
+#   - CloudFront serving stale HTML (raw i18n keys, _s crash)
+#   - i18n preload missing (<script data-nuxt-i18n> absent)
+#   - Broken pages returning empty or non-HTML responses
+#
+# Cost: $0 (GitHub Actions, public repo free tier).
+# Alternative considered: CloudWatch Synthetics (~$10–26/month) — rejected, over budget.
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  WEB_HOSTNAME: ${{ vars.WEB_OFFICIAL_HOSTNAME || 'app.auraxis.com.br' }}
+
+jobs:
+  health-check:
+    name: Production health check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch /login page
+        run: |
+          echo "Checking https://${WEB_HOSTNAME}/login ..."
+          HTTP_CODE=$(curl --silent \
+            --output /tmp/health.html \
+            --write-out "%{http_code}" \
+            --location \
+            --max-time 15 \
+            "https://${WEB_HOSTNAME}/login")
+          SIZE=$(wc -c < /tmp/health.html)
+          echo "HTTP $HTTP_CODE — $SIZE bytes"
+          echo "HTTP_CODE=$HTTP_CODE" >> $GITHUB_ENV
+          echo "PAGE_SIZE=$SIZE"      >> $GITHUB_ENV
+
+      - name: Check — HTTP 200
+        run: |
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "✗ /login returned HTTP $HTTP_CODE (expected 200)"
+            exit 1
+          fi
+          echo "✓ HTTP 200"
+
+      - name: Check — page is not empty
+        run: |
+          if [ "$PAGE_SIZE" -lt 5000 ]; then
+            echo "✗ Page is suspiciously small: $PAGE_SIZE bytes (expected ≥ 5000)"
+            exit 1
+          fi
+          echo "✓ Page size OK: $PAGE_SIZE bytes"
+
+      - name: Check — no raw i18n keys in HTML
+        run: |
+          # Raw keys indicate that vue-i18n Composer has no messages — either
+          # the <script data-nuxt-i18n> tag is missing or the i18n plugin crashed.
+          RAW_KEYS=$(grep -c 'auth\.\(login\|register\|forgotPassword\)\.' /tmp/health.html || true)
+          if [ "$RAW_KEYS" -gt "0" ]; then
+            echo "✗ Raw i18n keys detected in HTML ($RAW_KEYS occurrences)"
+            echo "  Likely cause: <script data-nuxt-i18n> missing or i18n preload failed"
+            grep -o 'auth\.[a-z.]*' /tmp/health.html | sort -u | head -10
+            exit 1
+          fi
+          echo "✓ No raw i18n keys"
+
+      - name: Check — data-nuxt-i18n script tag present
+        run: |
+          if ! grep -q 'data-nuxt-i18n' /tmp/health.html; then
+            echo "✗ <script data-nuxt-i18n> tag is missing"
+            echo "  Cause: experimental.preload did not embed messages during SSG"
+            echo "  Effect: client falls back to /_i18n endpoint which does not exist on S3"
+            exit 1
+          fi
+          echo "✓ data-nuxt-i18n tag present"
+
+      - name: Check — no JS error indicators in HTML
+        run: |
+          # A 500 error from Nitro during SSG leaves error text in the HTML.
+          if grep -qi 'internal server error\|cannot read properties of undefined' /tmp/health.html; then
+            echo "✗ Error text detected in page HTML"
+            grep -i 'internal server error\|cannot read properties' /tmp/health.html | head -3
+            exit 1
+          fi
+          echo "✓ No error indicators in HTML"
+
+      - name: Summary
+        if: success()
+        run: |
+          echo "✅ All health checks passed for https://${WEB_HOSTNAME}/login"
+          echo "   HTTP 200 | $(wc -c < /tmp/health.html) bytes | i18n OK | no errors"
