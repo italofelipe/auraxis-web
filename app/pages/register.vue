@@ -17,8 +17,9 @@ const { consumeRedirect } = useAuthRedirectContext();
  * @param values - Dados validados do formulário de registro.
  */
 const onSubmit = async (values: RegisterSchema): Promise<void> => {
+  const { confirmPassword: _discard, ...registerPayload } = values;
   try {
-    await registerMutation.mutateAsync(values);
+    await registerMutation.mutateAsync(registerPayload);
     const redirect = consumeRedirect();
     await navigateTo(redirect);
   } catch (err) {
