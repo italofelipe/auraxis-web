@@ -152,7 +152,7 @@ jobs:
       # incident where production served a 3-day-old snapshot indefinitely.
       - name: Verify S3 bucket matches CloudFront origin
         run: |
-          DIST_ID="${{ secrets.AWS_WEB_CLOUDFRONT_DISTRIBUTION_ID }}"
+          DIST_ID="${{ vars.AWS_WEB_CLOUDFRONT_DISTRIBUTION_ID }}"
           CF_ORIGIN=$(aws cloudfront get-distribution \
             --id "$DIST_ID" \
             --query 'Distribution.DistributionConfig.Origins.Items[0].DomainName' \
@@ -194,7 +194,7 @@ jobs:
 
       - name: Invalidate CloudFront cache
         run: |
-          DIST_ID="${{ secrets.AWS_WEB_CLOUDFRONT_DISTRIBUTION_ID }}"
+          DIST_ID="${{ vars.AWS_WEB_CLOUDFRONT_DISTRIBUTION_ID }}"
           echo "Invalidating CloudFront distribution: $DIST_ID"
           INVALIDATION_ID=$(aws cloudfront create-invalidation \
             --distribution-id "$DIST_ID" \
@@ -208,7 +208,7 @@ jobs:
         run: |
           echo "Waiting for CloudFront invalidation ${{ env.INVALIDATION_ID }}..."
           aws cloudfront wait invalidation-completed \
-            --distribution-id "${{ secrets.AWS_WEB_CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --distribution-id "${{ vars.AWS_WEB_CLOUDFRONT_DISTRIBUTION_ID }}" \
             --id "${{ env.INVALIDATION_ID }}"
           echo "✓ CloudFront cache invalidated"
 
