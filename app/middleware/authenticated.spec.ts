@@ -25,11 +25,21 @@ describe("authenticated middleware", () => {
     mockNavigateTo.mockClear();
   });
 
-  it("restores the session before checking authentication", async () => {
+  it("restores session from cookie when in-memory state is empty", async () => {
     mockIsAuthenticated.mockReturnValue(false);
     const middleware = await import("./authenticated");
     (middleware.default as () => unknown)();
     expect(mockRestore).toHaveBeenCalledOnce();
+  });
+
+  it("skips restore when session is already loaded in memory", async () => {
+    // After a fresh login, signIn() already populated the Pinia state.
+    // Calling restore() would overwrite it with the cookie value, which may
+    // read as null when useCookie loses its Nuxt context in an async callback.
+    mockIsAuthenticated.mockReturnValue(true);
+    const middleware = await import("./authenticated");
+    (middleware.default as () => unknown)();
+    expect(mockRestore).not.toHaveBeenCalled();
   });
 
   it("redirects to /login when not authenticated", async () => {
