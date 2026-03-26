@@ -37,7 +37,7 @@ env:
   NODE_VERSION: "25"
   PNPM_VERSION: "10.30.1"
   AWS_REGION: "us-east-1"
-  S3_BUCKET: "auraxis-web-prod"
+  S3_BUCKET: "app.auraxis.com.br"
   WEB_OFFICIAL_HOSTNAME: ${{ vars.WEB_OFFICIAL_HOSTNAME || 'app.auraxis.com.br' }}
 
 jobs:
@@ -168,8 +168,10 @@ jobs:
 
       - name: Invalidate CloudFront cache
         run: |
+          DIST_ID="${{ secrets.AWS_WEB_CLOUDFRONT_DISTRIBUTION_ID }}"
+          echo "Invalidating CloudFront distribution: $DIST_ID"
           INVALIDATION_ID=$(aws cloudfront create-invalidation \
-            --distribution-id "${{ secrets.AWS_WEB_CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --distribution-id "$DIST_ID" \
             --paths "/*" \
             --query 'Invalidation.Id' \
             --output text)
