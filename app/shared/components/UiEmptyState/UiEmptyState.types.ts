@@ -1,14 +1,17 @@
 import type { Component } from "vue";
+import type { AuraxisIconName } from "../../utils/icons/icons.types";
 
 export interface UiEmptyStateProps {
-  /** Ícone Lucide (componente) ou nome de ícone como string para uso com <component :is> */
-  icon?: Component | string
+  /** Ícone: nome canônico do ICON_MAP ou componente Vue direto */
+  icon?: AuraxisIconName | Component
   /** Título principal */
   title: string
   /** Descrição secundária */
   description?: string
   /** Label do botão CTA */
   actionLabel?: string
+  /** Variante compacta — menor padding e ícone reduzido, para uso dentro de cards */
+  compact?: boolean
 }
 
 export interface UiEmptyStateEmits {

@@ -99,7 +99,7 @@ const emptyMessage = computed(() =>
 
     <UiEmptyState
       v-if="isCustomPeriodIncomplete"
-      icon="calendar"
+      icon="calendarCheck"
       title="Selecione o intervalo"
       description="Para consultar um período personalizado, informe a data inicial e a data final."
     />
@@ -125,7 +125,7 @@ const emptyMessage = computed(() =>
 
       <UiEmptyState
         v-if="!dashboardQuery.isLoading.value && !summary && !dashboardQuery.isError.value"
-        icon="chart-no-axes-combined"
+        icon="chartLine"
         title="Sem dados para este período"
         :description="emptyMessage"
       />
@@ -159,10 +159,10 @@ const emptyMessage = computed(() =>
               </article>
               <UiEmptyState
                 v-if="expensesByCategory.length === 0"
-                icon="pie-chart"
+                icon="pieChart"
                 title="Sem categorias"
                 description="Ainda não há categorias suficientes para mostrar a distribuição."
-                compact
+                :compact="true"
               />
             </div>
           </UiSurfaceCard>
@@ -187,10 +187,10 @@ const emptyMessage = computed(() =>
               </article>
               <UiEmptyState
                 v-if="upcomingDues.length === 0"
-                icon="calendar-check"
+                icon="calendarCheck"
                 title="Nenhum vencimento"
                 description="Nenhum vencimento próximo neste período."
-                compact
+                :compact="true"
               />
             </div>
           </UiSurfaceCard>
@@ -221,7 +221,7 @@ const emptyMessage = computed(() =>
                 icon="target"
                 title="Sem metas"
                 description="Nenhuma meta ativa para o período selecionado."
-                compact
+                :compact="true"
               />
             </div>
           </UiSurfaceCard>

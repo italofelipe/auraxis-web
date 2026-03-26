@@ -1,19 +1,39 @@
 <script setup lang="ts">
+import { computed } from "vue";
+import { ICON_MAP } from "../../utils/icons/iconMap";
+import type { AuraxisIconName } from "../../utils/icons/icons.types";
 import type { UiEmptyStateProps, UiEmptyStateEmits } from "./UiEmptyState.types";
 
-withDefaults(defineProps<UiEmptyStateProps>(), {
+const props = withDefaults(defineProps<UiEmptyStateProps>(), {
   icon: undefined,
   description: undefined,
   actionLabel: undefined,
+  compact: false,
 });
 
 const emit = defineEmits<UiEmptyStateEmits>();
+
+/**
+ * Resolves the icon prop to a renderable component.
+ * Accepts either a string key from ICON_MAP or a Component reference directly.
+ */
+const resolvedIcon = computed(() => {
+  if (!props.icon) { return undefined; }
+  if (typeof props.icon === "string") { return ICON_MAP[props.icon as AuraxisIconName]; }
+  return props.icon;
+});
+
+const iconSize = computed(() => (props.compact ? 24 : 40));
 </script>
 
 <template>
-  <div class="ui-empty-state" role="status">
-    <div v-if="icon" class="ui-empty-state__icon-wrap" aria-hidden="true">
-      <component :is="icon" :size="40" />
+  <div
+    class="ui-empty-state"
+    :class="{ 'ui-empty-state--compact': compact }"
+    role="status"
+  >
+    <div v-if="resolvedIcon" class="ui-empty-state__icon-wrap" aria-hidden="true">
+      <component :is="resolvedIcon" :size="iconSize" />
     </div>
     <h3 class="ui-empty-state__title">{{ title }}</h3>
     <p v-if="description" class="ui-empty-state__description">{{ description }}</p>
@@ -38,6 +58,12 @@ const emit = defineEmits<UiEmptyStateEmits>();
   padding: var(--space-5);
   text-align: center;
 }
+
+.ui-empty-state--compact {
+  padding: var(--space-3);
+  gap: var(--space-1);
+}
+
 .ui-empty-state__icon-wrap {
   width: 64px;
   height: 64px;
@@ -48,6 +74,12 @@ const emit = defineEmits<UiEmptyStateEmits>();
   border-radius: var(--radius-full);
   color: var(--color-text-muted);
 }
+
+.ui-empty-state--compact .ui-empty-state__icon-wrap {
+  width: 40px;
+  height: 40px;
+}
+
 .ui-empty-state__title {
   font-family: var(--font-heading);
   font-size: var(--font-size-lg);
@@ -55,12 +87,22 @@ const emit = defineEmits<UiEmptyStateEmits>();
   color: var(--color-text-primary);
   margin: 0;
 }
+
+.ui-empty-state--compact .ui-empty-state__title {
+  font-size: var(--font-size-sm);
+}
+
 .ui-empty-state__description {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
   max-width: 320px;
   margin: 0;
 }
+
+.ui-empty-state--compact .ui-empty-state__description {
+  font-size: var(--font-size-xs);
+}
+
 .ui-empty-state__action {
   margin-top: var(--space-1);
   padding: 10px var(--space-3);
@@ -72,6 +114,7 @@ const emit = defineEmits<UiEmptyStateEmits>();
   cursor: pointer;
   transition: background 0.15s ease;
 }
+
 .ui-empty-state__action:hover {
   background: var(--color-brand-500);
 }
