@@ -1,28 +1,17 @@
 <script setup lang="ts">
-import { Target } from "lucide-vue-next";
-
-const { t } = useI18n();
-
 definePageMeta({
   middleware: ["authenticated"],
   pageTitle: "Metas",
-  pageSubtitle: "Acompanhe e gerencie suas metas financeiras",
+  pageSubtitle: "Acompanhe suas metas financeiras",
 });
 </script>
 
 <template>
-  <div class="goals-page">
-    <UiEmptyState
-      :icon="Target"
-      :title="t('pages.goals.emptyTitle')"
-      :description="t('pages.goals.emptyDescription')"
-    />
+  <div class="placeholder-page">
+    <h1>Metas</h1>
   </div>
 </template>
 
 <style scoped>
-.goals-page {
-  display: grid;
-  gap: var(--space-4);
-}
+.placeholder-page { padding: var(--space-4); }
 </style>
