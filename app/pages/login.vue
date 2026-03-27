@@ -8,6 +8,9 @@ import type { LoginSchema } from "~/schemas/auth";
 
 definePageMeta({ layout: "auth", middleware: ["guest-only"] });
 
+const { t } = useI18n();
+useSeoMeta({ description: t("auth.login.metaDescription") });
+
 const message = useMessage();
 const loginMutation = useLoginMutation();
 const { consumeRedirect } = useAuthRedirectContext();
