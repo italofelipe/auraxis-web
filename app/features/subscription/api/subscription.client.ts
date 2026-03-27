@@ -3,7 +3,7 @@ import type { AxiosInstance } from "axios";
 import { useHttp } from "~/composables/useHttp";
 import type {
   CheckoutResponseDto,
-  SubscriptionDto,
+  ApiSubscriptionDto,
 } from "~/features/subscription/contracts/subscription.dto";
 import { mapSubscriptionDto } from "~/features/subscription/api/subscription.mapper";
 import type { Subscription } from "~/features/subscription/model/subscription";
@@ -30,7 +30,7 @@ export class SubscriptionClient {
    * @returns Mapped subscription view model.
    */
   async getMySubscription(): Promise<Subscription> {
-    const response = await this.#http.get<SubscriptionDto>("/subscriptions/me");
+    const response = await this.#http.get<ApiSubscriptionDto>("/subscriptions/me");
     return mapSubscriptionDto(response.data);
   }
 

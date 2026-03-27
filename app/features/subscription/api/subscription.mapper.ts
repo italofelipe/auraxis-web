@@ -1,4 +1,4 @@
-import type { SubscriptionDto } from "~/features/subscription/contracts/subscription.dto";
+import type { ApiSubscriptionDto } from "~/features/subscription/contracts/subscription.dto";
 import type { Subscription } from "~/features/subscription/model/subscription";
 
 /**
@@ -7,7 +7,7 @@ import type { Subscription } from "~/features/subscription/model/subscription";
  * @param dto Raw subscription payload from the API (snake_case).
  * @returns Mapped Subscription view model (camelCase).
  */
-export const mapSubscriptionDto = (dto: SubscriptionDto): Subscription => {
+export const mapSubscriptionDto = (dto: ApiSubscriptionDto): Subscription => {
   return {
     id: dto.id,
     planSlug: dto.plan_slug,
