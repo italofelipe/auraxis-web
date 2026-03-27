@@ -1,7 +1,7 @@
 import type { AxiosInstance } from "axios";
 import { useHttp } from "~/composables/useHttp";
 import type {
-  GetUserProfileResponse,
+  GetUserMeResponse,
   UpdateUserProfileRequest,
   UpdateUserProfileResponse,
   UserProfileDto,
@@ -20,13 +20,13 @@ export interface UserProfileApi {
  */
 export const createUserProfileApi = (http: AxiosInstance): UserProfileApi => ({
   async getProfile(): Promise<UserProfileDto> {
-    const response = await http.get<GetUserProfileResponse>("/user/profile");
-    return response.data.data;
+    const response = await http.get<GetUserMeResponse>("/user/me");
+    return response.data.data.user;
   },
 
   async updateProfile(payload: UpdateUserProfileRequest): Promise<UserProfileDto> {
     const response = await http.put<UpdateUserProfileResponse>("/user/profile", payload);
-    return response.data.data;
+    return response.data.data.user;
   },
 });
 

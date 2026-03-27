@@ -40,7 +40,7 @@ const createAuthInterceptor = (
 };
 
 /**
- * Creates the canonical Auraxis HTTP client with auth interception.
+ * Creates the canonical Auraxis HTTP client with auth interception and v2 contract header.
  *
  * @param baseUrl API base URL.
  * @param getAccessToken Lazy token resolver.
@@ -53,6 +53,7 @@ export const createHttpClient = (
   const client = axios.create({
     baseURL: normalizeBaseUrl(baseUrl),
     timeout: 15_000,
+    headers: { "X-API-Contract": "v2" },
   });
 
   client.interceptors.request.use(createAuthInterceptor(getAccessToken));

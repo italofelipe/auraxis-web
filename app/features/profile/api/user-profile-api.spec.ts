@@ -48,20 +48,20 @@ function makeMockHttp(
 }
 
 describe("createUserProfileApi", () => {
-  it("getProfile calls GET /user/profile and returns the data field", async () => {
+  it("getProfile calls GET /user/me and returns data.user from v2 envelope", async () => {
     const dto = makeProfileDto();
-    const http = makeMockHttp({ data: { message: "ok", data: dto } });
+    const http = makeMockHttp({ data: { success: true, message: "ok", data: { user: dto } } });
     const api = createUserProfileApi(http);
 
     const result = await api.getProfile();
 
-    expect(http.get).toHaveBeenCalledWith("/user/profile");
+    expect(http.get).toHaveBeenCalledWith("/user/me");
     expect(result).toEqual(dto);
   });
 
-  it("updateProfile calls PUT /user/profile with payload and returns the data field", async () => {
+  it("updateProfile calls PUT /user/profile with payload and returns data.user from v2 envelope", async () => {
     const dto = makeProfileDto();
-    const http = makeMockHttp({}, { data: { message: "ok", data: dto } });
+    const http = makeMockHttp({}, { data: { success: true, message: "ok", data: { user: dto } } });
     const api = createUserProfileApi(http);
 
     const payload = {

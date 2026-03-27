@@ -1,4 +1,4 @@
-/** Raw user profile shape as returned by the API (GET /user/profile, GET /user/me). */
+/** Raw user profile shape as returned by the API. */
 export interface UserProfileDto {
   id: string;
   name: string;
@@ -21,19 +21,36 @@ export interface UserProfileDto {
   taxonomy_version: string | null;
 }
 
-/** Response envelope from GET /user/profile (legacy format). */
-export interface GetUserProfileResponse {
+/**
+ * Standard v2 success envelope used by all Auraxis API endpoints when the
+ * request carries the `X-API-Contract: v2` header.
+ */
+export interface V2SuccessResponse<T> {
+  readonly success: boolean;
   readonly message: string;
-  readonly data: UserProfileDto;
+  readonly data: T;
+  readonly meta?: Record<string, unknown>;
 }
 
-/** Response envelope from PUT /user/profile (legacy format). */
-export interface UpdateUserProfileResponse {
-  readonly message: string;
-  readonly data: UserProfileDto;
+/** Data payload inside the `GET /user/me` v2 response. */
+export interface GetUserMeResponseData {
+  /** Full user profile. */
+  readonly user: UserProfileDto;
 }
 
-/** Request body for PUT /user/profile. Monetary values sent as decimal strings. */
+/** Full v2 response from `GET /user/me`. */
+export type GetUserMeResponse = V2SuccessResponse<GetUserMeResponseData>;
+
+/** Data payload inside the `PUT /user/profile` v2 response. */
+export interface UpdateUserProfileResponseData {
+  /** Updated user profile. */
+  readonly user: UserProfileDto;
+}
+
+/** Full v2 response from `PUT /user/profile`. */
+export type UpdateUserProfileResponse = V2SuccessResponse<UpdateUserProfileResponseData>;
+
+/** Request body for `PUT /user/profile`. Monetary values sent as decimal strings. */
 export interface UpdateUserProfileRequest {
   gender: string;
   birth_date: string;
