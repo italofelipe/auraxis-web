@@ -196,6 +196,10 @@ const isPending = computed(() => props.loading || isSubmitting.value);
 }
 
 .login-form__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding-block: 4px;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--color-brand-400);

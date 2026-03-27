@@ -6,6 +6,9 @@ import type { ForgotPasswordSchema } from "~/schemas/auth";
 
 definePageMeta({ layout: "auth", middleware: ["guest-only"] });
 
+const { t } = useI18n();
+useSeoMeta({ description: t("auth.forgotPassword.metaDescription") });
+
 const forgotPasswordMutation = useForgotPasswordMutation();
 const emailSent = ref(false);
 

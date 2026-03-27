@@ -26,7 +26,8 @@
       "submit": "Entrar",
       "submitLoading": "Entrando...",
       "noAccount": "Não tem uma conta?",
-      "createAccount": "Criar conta"
+      "createAccount": "Criar conta",
+      "metaDescription": "Faça login na Auraxis para acessar seu painel de investimentos."
     },
     "register": {
       "title": "Criar conta",
@@ -44,7 +45,8 @@
       "submitLoading": "Criando...",
       "hasAccount": "Já tem uma conta?",
       "signIn": "Entrar",
-      "successToast": "A conta foi criada"
+      "successToast": "A conta foi criada",
+      "metaDescription": "Crie sua conta gratuita na Auraxis e comece a controlar seus investimentos."
     },
     "forgotPassword": {
       "title": "Recuperar senha",
@@ -53,7 +55,8 @@
       "emailPlaceholder": "seu@email.com",
       "submit": "Enviar instruções",
       "submitLoading": "Enviando...",
-      "backToLogin": "Voltar ao login"
+      "backToLogin": "Voltar ao login",
+      "metaDescription": "Recupere o acesso à sua conta Auraxis com seu endereço de e-mail."
     }
   }
 }
