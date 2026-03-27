@@ -8,6 +8,7 @@ import DashboardAlerts from "~/features/dashboard/components/DashboardAlerts.vue
 import DashboardPeriodSelector from "~/features/dashboard/components/DashboardPeriodSelector.vue";
 import DashboardSummaryGrid from "~/features/dashboard/components/DashboardSummaryGrid.vue";
 import DashboardTimeseriesChart from "~/features/dashboard/components/DashboardTimeseriesChart.vue";
+import DashboardTransactionsPanel from "~/features/dashboard/components/DashboardTransactionsPanel.vue";
 import type { DashboardPeriod } from "~/features/dashboard/model/dashboard-period";
 import { formatCurrency } from "~/utils/currency";
 
@@ -47,14 +48,6 @@ const isCustomPeriodIncomplete = computed(
 const isQuickSelectPeriod = computed((): boolean =>
   ["1m", "3m", "6m", "12m"].includes(selectedPeriod.value),
 );
-
-/**
- * @param value ISO date string (YYYY-MM-DD).
- * @returns Localized date string in pt-BR format.
- */
-const formatDate = (value: string): string =>
-  new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", year: "numeric" })
-    .format(new Date(`${value}T00:00:00`));
 
 const emptyMessage = computed(() =>
   selectedPeriod.value === "custom"
@@ -142,58 +135,11 @@ const emptyMessage = computed(() =>
             :is-loading="dashboardQuery.isLoading.value"
           />
 
-          <UiSurfaceCard>
-            <template #header>Despesas por categoria</template>
-            <BaseSkeleton v-if="dashboardQuery.isLoading.value" />
-            <div v-else class="item-list">
-              <article
-                v-for="category in expensesByCategory"
-                :key="category.category"
-                class="item-row"
-              >
-                <div>
-                  <strong>{{ category.category }}</strong>
-                  <p>{{ formatCurrency(category.amount) }}</p>
-                </div>
-                <span>{{ category.percentage.toFixed(1) }}%</span>
-              </article>
-              <UiEmptyState
-                v-if="expensesByCategory.length === 0"
-                icon="pieChart"
-                title="Sem categorias"
-                description="Ainda não há categorias suficientes para mostrar a distribuição."
-                :compact="true"
-              />
-            </div>
-          </UiSurfaceCard>
-
-          <UiSurfaceCard>
-            <template #header>Próximos vencimentos</template>
-            <BaseSkeleton v-if="dashboardQuery.isLoading.value" />
-            <div v-else class="item-list">
-              <article
-                v-for="due in upcomingDues"
-                :key="due.id"
-                class="item-row"
-              >
-                <div>
-                  <strong>{{ due.description }}</strong>
-                  <p>{{ due.category ?? "Sem categoria" }}</p>
-                </div>
-                <div class="item-row__meta">
-                  <span>{{ formatDate(due.dueDate) }}</span>
-                  <strong>{{ formatCurrency(due.amount) }}</strong>
-                </div>
-              </article>
-              <UiEmptyState
-                v-if="upcomingDues.length === 0"
-                icon="calendarCheck"
-                title="Nenhum vencimento"
-                description="Nenhum vencimento próximo neste período."
-                :compact="true"
-              />
-            </div>
-          </UiSurfaceCard>
+          <DashboardTransactionsPanel
+            :upcoming-dues="upcomingDues"
+            :expenses-by-category="expensesByCategory"
+            :is-loading="dashboardQuery.isLoading.value"
+          />
 
           <UiSurfaceCard>
             <template #header>Metas em destaque</template>
@@ -293,27 +239,9 @@ const emptyMessage = computed(() =>
   gap: var(--space-2);
 }
 
-.item-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--space-2);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--color-outline-soft);
-  padding: var(--space-2);
-  background: var(--color-bg-elevated);
-}
-
-.item-row p,
 .goal-item p {
   margin: 0;
   color: var(--color-text-muted);
-}
-
-.item-row__meta {
-  display: grid;
-  justify-items: end;
-  gap: 4px;
 }
 
 .goal-item {
