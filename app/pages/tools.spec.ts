@@ -1,158 +1,24 @@
-import { mount, flushPromises } from "@vue/test-utils";
+import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
-import { ref } from "vue";
 import ToolsPage from "./tools.vue";
 
-const mockIsAuthenticated = vi.hoisted(() => vi.fn(() => false as boolean));
-const mockPush = vi.hoisted(() => vi.fn());
-const mockToolContextSave = vi.hoisted(() => vi.fn());
-const mockToolContextRestore = vi.hoisted(() => vi.fn());
-const mockToolContextClear = vi.hoisted(() => vi.fn());
-
-vi.mock("~/composables/useTools", () => ({
-  useToolsCatalogQuery: (): {
-    isLoading: ReturnType<typeof ref<boolean>>;
-    isError: ReturnType<typeof ref<boolean>>;
-    data: ReturnType<typeof ref>;
-  } => ({
-    isLoading: ref(false),
-    isError: ref(false),
-    data: ref({
-      tools: [
-        {
-          id: "raise-calculator",
-          name: "Pedir aumento",
-          description: "Calculo de inflacao",
-          enabled: true,
-        },
-      ],
-    }),
-  }),
-}));
-
-vi.mock("~/stores/session", () => ({
-  useSessionStore: (): {
-    restore: () => void;
-    isAuthenticated: boolean;
-  } => ({
-    restore: vi.fn(),
-    get isAuthenticated(): boolean {
-      return mockIsAuthenticated();
-    },
-  }),
-}));
-
-vi.mock("~/stores/toolContext", () => ({
-  useToolContextStore: (): {
-    save: typeof mockToolContextSave;
-    restore: typeof mockToolContextRestore;
-    clear: typeof mockToolContextClear;
-    pendingToolId: string | null;
-    pendingResult: unknown;
-  } => ({
-    save: mockToolContextSave,
-    restore: mockToolContextRestore,
-    clear: mockToolContextClear,
-    pendingToolId: null,
-    pendingResult: null,
-  }),
-}));
-
 vi.mock("#app", () => ({
-  useRouter: (): { push: typeof mockPush } => ({ push: mockPush }),
-  useRoute: (): { query: Record<string, string> } => ({ query: {} }),
   definePageMeta: vi.fn(),
 }));
 
-vi.mock("naive-ui", () => ({
-  NButton: {
-    name: "NButton",
-    props: ["type", "size", "disabled"],
-    template: "<button class='n-button' @click='$emit(\"click\")'><slot /></button>",
-    emits: ["click"],
-  },
-  NModal: {
-    name: "NModal",
-    props: ["show", "title", "content", "positiveText", "negativeText", "preset"],
-    emits: ["update:show", "positiveClick", "negativeClick"],
-    template: "<div v-if='show' class='n-modal'></div>",
-  },
-}));
-
-const globalStubs = {
-  UiBaseCard: {
-    props: ["title"],
-    template: "<div class='base-card'><slot /></div>",
-  },
-  UiGlassPanel: {
-    template: "<div class='glass-panel'><slot /></div>",
-  },
-  UiPageHeader: {
-    props: ["title", "subtitle"],
-    template: "<div class='page-header'>{{ title }} {{ subtitle }}</div>",
-  },
-  BaseSkeleton: {
-    template: "<div class='skeleton' />",
-  },
-  ToolCard: {
-    props: ["tool", "isAuthenticated", "isPremium"],
-    template: "<div class='tool-card' :data-id='tool.id'>{{ tool.name }}</div>",
-  },
-  ToolsEmptyState: {
-    template: "<div class='empty-state'>Nenhuma ferramenta disponível</div>",
-  },
-};
-
-describe("ToolsPage (/tools)", () => {
-  it("não define middleware authenticated — página é pública", () => {
-    const wrapper = mount(ToolsPage, { global: { stubs: globalStubs } });
+describe("ToolsPage (/tools) — placeholder", () => {
+  it("renders without crashing", () => {
+    const wrapper = mount(ToolsPage);
     expect(wrapper.exists()).toBe(true);
   });
 
-  it("renderiza ferramentas do catálogo", () => {
-    const wrapper = mount(ToolsPage, { global: { stubs: globalStubs } });
-    expect(wrapper.text()).toContain("Pedir aumento");
+  it("renders the placeholder heading", () => {
+    const wrapper = mount(ToolsPage);
+    expect(wrapper.find("h1").text()).toBe("Ferramentas");
   });
 
-  it("destaca a ferramenta parcelado vs à vista", () => {
-    const wrapper = mount(ToolsPage, { global: { stubs: globalStubs } });
-    expect(wrapper.text()).toContain("Nova ferramenta: parcelado vs à vista");
-    expect(wrapper.text()).toContain("Abrir ferramenta");
-  });
-
-  it("exibe ToolCard para cada ferramenta", () => {
-    const wrapper = mount(ToolsPage, { global: { stubs: globalStubs } });
-    const cards = wrapper.findAll(".tool-card");
-    expect(cards.length).toBe(1);
-  });
-
-  it("exibe botão de salvar resultado", () => {
-    const wrapper = mount(ToolsPage, { global: { stubs: globalStubs } });
-    expect(wrapper.text()).toContain("Salvar resultado");
-  });
-
-  it("abre modal quando usuário não autenticado clica em salvar resultado", async () => {
-    mockIsAuthenticated.mockReturnValue(false);
-    const wrapper = mount(ToolsPage, { global: { stubs: globalStubs } });
-    const buttons = wrapper.findAll(".n-button");
-    await buttons[1]?.trigger("click");
-    await flushPromises();
-    expect(wrapper.find(".n-modal").exists()).toBe(true);
-  });
-
-  it("não abre modal quando usuário está autenticado e clica em salvar resultado", async () => {
-    mockIsAuthenticated.mockReturnValue(true);
-    const wrapper = mount(ToolsPage, { global: { stubs: globalStubs } });
-    const buttons = wrapper.findAll(".n-button");
-    await buttons[1]?.trigger("click");
-    await flushPromises();
-    expect(wrapper.find(".n-modal").exists()).toBe(false);
-  });
-});
-
-describe("ToolsPage — estado de loading", () => {
-  it("exibe skeleton quando isLoading é true", () => {
-    const wrapper = mount(ToolsPage, { global: { stubs: globalStubs } });
-    expect(wrapper.find(".skeleton").exists()).toBe(false);
+  it("renders the placeholder container", () => {
+    const wrapper = mount(ToolsPage);
+    expect(wrapper.find(".placeholder-page").exists()).toBe(true);
   });
 });
