@@ -24,6 +24,21 @@ vi.mock("#imports", async (importOriginal) => {
   };
 });
 
+vi.mock("~/stores/user", () => ({
+  useUserStore: vi.fn(() => ({
+    profile: null,
+    isLoaded: false,
+    isProfileComplete: false,
+    displayName: "",
+    setProfile: vi.fn(),
+    clearProfile: vi.fn(),
+  })),
+}));
+
+vi.mock("~/features/profile/composables/use-user-profile-query", () => ({
+  useUserProfileQuery: vi.fn(() => ({ data: null, isLoading: false })),
+}));
+
 /**
  * Installs a minimal Nuxt app context on the Vue app instance so that Nuxt
  * composables (useRoute, useRouter) can resolve without a full Nuxt runtime.
@@ -72,6 +87,7 @@ describe("DefaultLayout", () => {
               </div>
             `,
           },
+          ProfileCompletionModal: true,
         },
       },
     });
