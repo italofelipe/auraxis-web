@@ -12,11 +12,17 @@ import {
 // UiAppShell is auto-imported via the components config in nuxt.config.ts
 // (app/shared/components is registered as a scan directory).
 import type { AppShellNavItem, AppShellUser } from "~/shared/components/UiAppShell/UiAppShell.types";
+import ProfileCompletionModal from "~/features/profile/components/ProfileCompletionModal/ProfileCompletionModal.vue";
+import { useUserProfileQuery } from "~/features/profile/composables/use-user-profile-query";
+import { useUserStore } from "~/stores/user";
 
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const sessionStore = useSessionStore();
+const userStore = useUserStore();
+
+useUserProfileQuery();
 
 const NAV_ITEMS = computed<AppShellNavItem[]>(() => [
   { key: "dashboard", label: t("nav.dashboard"), to: "/dashboard", icon: LayoutDashboard },
@@ -30,12 +36,25 @@ const NAV_ITEMS = computed<AppShellNavItem[]>(() => [
 ]);
 
 const user = computed<AppShellUser>(() => ({
-  name: sessionStore.userEmail ?? t("user.fallbackName"),
+  name: userStore.profile?.name || sessionStore.userEmail || t("user.fallbackName"),
   description: t("user.accountDescription"),
+  avatarUrl: undefined,
 }));
 
 const pageTitle = computed(() => (route.meta.pageTitle as string | undefined) ?? "Auraxis");
 const pageSubtitle = computed(() => route.meta.pageSubtitle as string | undefined);
+
+const showProfileModal = ref(false);
+
+watch(
+  () => userStore.isLoaded && !userStore.isProfileComplete,
+  (shouldShow) => {
+    if (shouldShow) {
+      showProfileModal.value = true;
+    }
+  },
+  { immediate: true },
+);
 
 /** Signs out the current user and redirects to login. */
 function onLogout(): void {
@@ -53,5 +72,10 @@ function onLogout(): void {
     @user-logout="onLogout"
   >
     <slot />
+    <ProfileCompletionModal
+      :open="showProfileModal"
+      @close="showProfileModal = false"
+      @saved="showProfileModal = false"
+    />
   </UiAppShell>
 </template>
