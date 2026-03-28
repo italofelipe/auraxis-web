@@ -2,7 +2,6 @@
 import { NModal, useMessage } from "naive-ui";
 import { toTypedSchema } from "@vee-validate/zod";
 import { useForm } from "vee-validate";
-import UiFormField from "~/shared/components/UiFormField/UiFormField.vue";
 import {
   userProfileSchema,
   GENDER_OPTIONS,

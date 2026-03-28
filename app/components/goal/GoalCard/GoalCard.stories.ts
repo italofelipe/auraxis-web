@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 import GoalCard from "./GoalCard.vue";
-import type { GoalDto } from "../../contracts/goal.dto";
+import type { GoalDto } from "~/features/goals/contracts/goal.dto";
 
 const meta: Meta<typeof GoalCard> = {
   title: "Features/Goals/GoalCard",

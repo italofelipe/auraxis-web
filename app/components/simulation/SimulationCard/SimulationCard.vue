@@ -3,7 +3,7 @@ import { NCard, NTag, NText, NStatistic, NButton, NSkeleton } from "naive-ui";
 import { Trash2Icon } from "lucide-vue-next";
 import { formatCurrency } from "~/utils/currency";
 import type { SimulationCardProps, SimulationCardEmits } from "./SimulationCard.types";
-import type { SimulationType } from "../../contracts/simulation-card.dto";
+import type { SimulationType } from "~/features/simulations/contracts/simulation-card.dto";
 
 const props = defineProps<SimulationCardProps>();
 const emit = defineEmits<SimulationCardEmits>();

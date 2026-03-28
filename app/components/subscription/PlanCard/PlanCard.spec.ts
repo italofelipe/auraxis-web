@@ -3,7 +3,7 @@ import { describe, it, expect } from "vitest";
 import { NTag, NButton, NSkeleton } from "naive-ui";
 
 import PlanCard from "./PlanCard.vue";
-import type { PlanDto } from "../../contracts/subscription.dto";
+import type { PlanDto } from "~/features/subscription/contracts/subscription.dto";
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 

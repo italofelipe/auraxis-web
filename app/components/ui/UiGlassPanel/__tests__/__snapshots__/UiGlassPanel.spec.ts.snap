@@ -1,3 +1,3 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`UiGlassPanel > matches snapshot with default state 1`] = `"<div data-v-aef6c9ab="" class="ui-glass-panel ui-glass-panel--padding-md ui-glass-panel--radius-lg">Panel content</div>"`;
+exports[`UiGlassPanel > matches snapshot with default state 1`] = `"<div data-v-7b827082="" class="ui-glass-panel ui-glass-panel--padding-md ui-glass-panel--radius-lg">Panel content</div>"`;

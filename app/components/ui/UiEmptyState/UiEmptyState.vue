@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { ICON_MAP } from "../../utils/icons/iconMap";
-import type { AuraxisIconName } from "../../utils/icons/icons.types";
+import { ICON_MAP } from "~/shared/utils/icons/iconMap";
+import type { AuraxisIconName } from "~/shared/utils/icons/icons.types";
 import type { UiEmptyStateProps, UiEmptyStateEmits } from "./UiEmptyState.types";
 
 const props = withDefaults(defineProps<UiEmptyStateProps>(), {

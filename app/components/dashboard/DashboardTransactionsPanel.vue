@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import UiListPanel from "~/shared/components/UiListPanel/UiListPanel.vue";
-import UiSegmentedControl from "~/shared/components/UiSegmentedControl/UiSegmentedControl.vue";
-import UiEmptyState from "~/shared/components/UiEmptyState/UiEmptyState.vue";
 import { formatCurrency } from "~/utils/currency";
 import type {
   DashboardTransactionTab,

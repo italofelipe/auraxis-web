@@ -1,4 +1,4 @@
-import type { PlanDto, PlanSlug } from "../../contracts/subscription.dto";
+import type { PlanDto, PlanSlug } from "~/features/subscription/contracts/subscription.dto";
 
 export type PlanCardProps = {
   plan: PlanDto;

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 import PortfolioSummaryBar from "./PortfolioSummaryBar.vue";
-import type { PortfolioSummaryDto } from "../../contracts/portfolio.dto";
+import type { PortfolioSummaryDto } from "~/features/portfolio/contracts/portfolio.dto";
 
 const meta: Meta<typeof PortfolioSummaryBar> = {
   title: "Features/Portfolio/PortfolioSummaryBar",

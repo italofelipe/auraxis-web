@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { NCard, NEmpty, NSkeleton, NSpace } from "naive-ui";
 
-import AlertPreferenceToggle from "~/features/alerts/components/AlertPreferenceToggle.vue";
 import type { AlertPreference } from "~/features/alerts/model/alerts";
 
 interface Props {

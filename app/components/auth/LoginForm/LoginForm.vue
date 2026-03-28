@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { useLoginForm } from "~/composables/useAuth";
 import type { LoginSchema } from "~/schemas/auth";
-import UiFormField from "~/shared/components/UiFormField/UiFormField.vue";
-import UiPasswordField from "~/shared/components/UiPasswordField/UiPasswordField.vue";
-import UiSocialAuthButtons from "~/shared/components/UiSocialAuthButtons/UiSocialAuthButtons.vue";
 import type { LoginFormProps, LoginFormEmits } from "./LoginForm.types";
 
 const { t } = useI18n();

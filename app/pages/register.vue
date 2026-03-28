@@ -3,7 +3,6 @@ import axios from "axios";
 import { useMessage } from "naive-ui";
 import { useRegisterMutation } from "~/composables/useAuth";
 import { useAuthRedirectContext } from "~/composables/useAuthRedirectContext";
-import { SignupForm } from "~/features/auth/components/SignupForm";
 import type { RegisterSchema } from "~/schemas/auth";
 
 definePageMeta({ layout: "auth", middleware: ["guest-only"] });

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 import SharedEntryRow from "./SharedEntryRow.vue";
-import type { SharedEntryDto } from "../../contracts/shared-entry.dto";
+import type { SharedEntryDto } from "~/features/shared-entries/contracts/shared-entry.dto";
 
 const meta: Meta<typeof SharedEntryRow> = {
   title: "Features/SharedEntries/SharedEntryRow",

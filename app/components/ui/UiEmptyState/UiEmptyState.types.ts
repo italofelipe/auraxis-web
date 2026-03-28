@@ -1,5 +1,5 @@
 import type { Component } from "vue";
-import type { AuraxisIconName } from "../../utils/icons/icons.types";
+import type { AuraxisIconName } from "~/shared/utils/icons/icons.types";
 
 export interface UiEmptyStateProps {
   /** Ícone: nome canônico do ICON_MAP ou componente Vue direto */

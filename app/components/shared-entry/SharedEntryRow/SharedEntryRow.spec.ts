@@ -3,7 +3,7 @@ import { describe, it, expect } from "vitest";
 import { NTag, NButton } from "naive-ui";
 
 import SharedEntryRow from "./SharedEntryRow.vue";
-import type { SharedEntryDto } from "../../contracts/shared-entry.dto";
+import type { SharedEntryDto } from "~/features/shared-entries/contracts/shared-entry.dto";
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 

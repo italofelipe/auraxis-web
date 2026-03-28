@@ -1,18 +1,18 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`UiEmptyState > matches snapshot in compact mode 1`] = `
-"<div data-v-899e937a="" class="ui-empty-state ui-empty-state--compact" role="status">
-  <div data-v-899e937a="" class="ui-empty-state__icon-wrap" aria-hidden="true"><svg data-v-899e937a="" class="mock-icon"></svg></div>
-  <h3 data-v-899e937a="" class="ui-empty-state__title">Sem dados</h3>
-  <p data-v-899e937a="" class="ui-empty-state__description">Nenhuma entrada disponível.</p>
+"<div data-v-1eb04e1a="" class="ui-empty-state ui-empty-state--compact" role="status">
+  <div data-v-1eb04e1a="" class="ui-empty-state__icon-wrap" aria-hidden="true"><svg data-v-1eb04e1a="" class="mock-icon"></svg></div>
+  <h3 data-v-1eb04e1a="" class="ui-empty-state__title">Sem dados</h3>
+  <p data-v-1eb04e1a="" class="ui-empty-state__description">Nenhuma entrada disponível.</p>
   <!--v-if-->
 </div>"
 `;
 
 exports[`UiEmptyState > matches snapshot with all props 1`] = `
-"<div data-v-899e937a="" class="ui-empty-state" role="status">
-  <div data-v-899e937a="" class="ui-empty-state__icon-wrap" aria-hidden="true"><svg data-v-899e937a="" class="mock-icon"></svg></div>
-  <h3 data-v-899e937a="" class="ui-empty-state__title">Nenhum item</h3>
-  <p data-v-899e937a="" class="ui-empty-state__description">Adicione itens para ver aqui.</p><button data-v-899e937a="" class="ui-empty-state__action" type="button">Adicionar</button>
+"<div data-v-1eb04e1a="" class="ui-empty-state" role="status">
+  <div data-v-1eb04e1a="" class="ui-empty-state__icon-wrap" aria-hidden="true"><svg data-v-1eb04e1a="" class="mock-icon"></svg></div>
+  <h3 data-v-1eb04e1a="" class="ui-empty-state__title">Nenhum item</h3>
+  <p data-v-1eb04e1a="" class="ui-empty-state__description">Adicione itens para ver aqui.</p><button data-v-1eb04e1a="" class="ui-empty-state__action" type="button">Adicionar</button>
 </div>"
 `;

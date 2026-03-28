@@ -1,4 +1,4 @@
-import type { AuraxisIconName } from "../../utils/icons/icons.types";
+import type { AuraxisIconName } from "~/shared/utils/icons/icons.types";
 
 export interface UiIconProps {
   name: AuraxisIconName

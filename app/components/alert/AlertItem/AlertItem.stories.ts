@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 import AlertItem from "./AlertItem.vue";
-import type { AlertDto } from "../../contracts/alert.dto";
+import type { AlertDto } from "~/features/alerts/contracts/alert.dto";
 
 const meta: Meta<typeof AlertItem> = {
   title: "Features/Alerts/AlertItem",

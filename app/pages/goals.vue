@@ -7,7 +7,6 @@ import {
   NRadioGroup,
   NRadioButton,
 } from "naive-ui";
-import GoalCard from "~/features/goals/components/GoalCard/GoalCard.vue";
 import { MOCK_GOALS } from "~/features/goals/mock/goals.mock";
 import type { GoalStatus } from "~/features/goals/contracts/goal.dto";
 

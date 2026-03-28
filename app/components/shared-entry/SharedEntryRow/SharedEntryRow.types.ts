@@ -1,4 +1,4 @@
-import type { SharedEntryDto } from "../../contracts/shared-entry.dto";
+import type { SharedEntryDto } from "~/features/shared-entries/contracts/shared-entry.dto";
 
 export type SharedEntryRowProps = {
   entry: SharedEntryDto;

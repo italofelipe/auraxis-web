@@ -1,4 +1,4 @@
-import type { PortfolioSummaryDto } from "../../contracts/portfolio.dto";
+import type { PortfolioSummaryDto } from "~/features/portfolio/contracts/portfolio.dto";
 
 export type PortfolioSummaryBarProps = {
   summary: PortfolioSummaryDto | null;

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 import UiIcon from "./UiIcon.vue";
-import type { AuraxisIconName } from "../../utils/icons/icons.types";
+import type { AuraxisIconName } from "~/shared/utils/icons/icons.types";
 
 const meta: Meta<typeof UiIcon> = {
   title: "Shared/UiIcon",

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { ICON_MAP } from "../../utils/icons/iconMap";
+import { ICON_MAP } from "~/shared/utils/icons/iconMap";
 import type { UiIconProps } from "./UiIcon.types";
 
 const props = withDefaults(defineProps<UiIconProps>(), {

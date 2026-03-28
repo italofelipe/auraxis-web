@@ -7,7 +7,6 @@ import {
   NRadioGroup,
   NRadioButton,
 } from "naive-ui";
-import AlertItem from "~/features/alerts/components/AlertItem/AlertItem.vue";
 import { MOCK_ALERTS } from "~/features/alerts/mock/alerts.mock";
 
 definePageMeta({

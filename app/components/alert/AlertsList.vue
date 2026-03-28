@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { NCard, NEmpty, NSkeleton, NSpace } from "naive-ui";
 
-import AlertItem from "~/features/alerts/components/AlertItem.vue";
-import type { Alert } from "~/features/alerts/model/alerts";
+import type { AlertDto } from "~/features/alerts/contracts/alert.dto";
 
 interface Props {
   /** List of alerts to display. */
-  alerts: Alert[];
+  alerts: AlertDto[];
   /** Whether the alerts list is loading. */
   isLoading?: boolean;
 }

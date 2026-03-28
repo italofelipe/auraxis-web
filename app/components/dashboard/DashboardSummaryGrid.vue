@@ -7,7 +7,6 @@ import {
   Wallet,
 } from "lucide-vue-next";
 
-import UiMetricCard from "~/shared/components/UiMetricCard/UiMetricCard.vue";
 import { formatCurrency } from "~/utils/currency";
 import type { DashboardSummaryGridProps } from "./DashboardSummaryGrid.types";
 

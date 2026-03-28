@@ -1,4 +1,4 @@
-import type { AlertDto } from "../../contracts/alert.dto";
+import type { AlertDto } from "~/features/alerts/contracts/alert.dto";
 
 export type AlertItemProps = {
   alert: AlertDto;

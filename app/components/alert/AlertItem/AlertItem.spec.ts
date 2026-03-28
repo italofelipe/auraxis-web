@@ -3,7 +3,7 @@ import { describe, it, expect } from "vitest";
 import { NTag, NButton } from "naive-ui";
 
 import AlertItem from "./AlertItem.vue";
-import type { AlertDto } from "../../contracts/alert.dto";
+import type { AlertDto } from "~/features/alerts/contracts/alert.dto";
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 

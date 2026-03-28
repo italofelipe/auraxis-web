@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useForgotPasswordForm } from "~/composables/useAuth";
 import type { ForgotPasswordSchema } from "~/schemas/auth";
-import UiFormField from "~/shared/components/UiFormField/UiFormField.vue";
 import type { ForgotPasswordFormProps, ForgotPasswordFormEmits } from "./ForgotPasswordForm.types";
 
 const props = withDefaults(defineProps<ForgotPasswordFormProps>(), {

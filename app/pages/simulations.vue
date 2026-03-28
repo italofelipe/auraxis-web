@@ -6,7 +6,6 @@ import {
   NRadioButton,
   NPageHeader,
 } from "naive-ui";
-import SimulationCard from "~/features/simulations/components/SimulationCard/SimulationCard.vue";
 import { MOCK_SIMULATIONS } from "~/features/simulations/mock/simulations.mock";
 import type { SimulationType } from "~/features/simulations/contracts/simulation-card.dto";
 

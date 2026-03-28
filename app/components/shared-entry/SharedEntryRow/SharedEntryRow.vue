@@ -2,7 +2,7 @@
 import { NCard, NTag, NText, NStatistic, NButton } from "naive-ui";
 import { formatCurrency } from "~/utils/currency";
 import type { SharedEntryRowProps, SharedEntryRowEmits } from "./SharedEntryRow.types";
-import type { SplitType } from "../../contracts/shared-entry.dto";
+import type { SplitType } from "~/features/shared-entries/contracts/shared-entry.dto";
 
 const props = defineProps<SharedEntryRowProps>();
 const emit = defineEmits<SharedEntryRowEmits>();

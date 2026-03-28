@@ -1,20 +1,29 @@
 <script setup lang="ts">
-import CheckoutButton from "~/features/subscription/components/CheckoutButton.vue";
-import PlanCard from "~/features/subscription/components/PlanCard.vue";
+import type { PlanDto } from "~/features/subscription/contracts/subscription.dto";
 
 const { t } = useI18n();
 
-const freePlanFeatures = computed(() => [
-  t("pages.plans.free.features.basicSimulations"),
-  t("pages.plans.free.features.portfolioView"),
-]);
+const freePlan = computed((): PlanDto => ({
+  slug: "free",
+  name: "Free",
+  price_monthly: 0,
+  features: [
+    { label: t("pages.plans.free.features.basicSimulations"), included: true },
+    { label: t("pages.plans.free.features.portfolioView"), included: true },
+  ],
+}));
 
-const premiumPlanFeatures = computed(() => [
-  t("pages.plans.premium.features.advancedSimulations"),
-  t("pages.plans.premium.features.exportPdf"),
-  t("pages.plans.premium.features.sharedEntries"),
-  t("pages.plans.premium.features.advancedAlerts"),
-]);
+const premiumPlan = computed((): PlanDto => ({
+  slug: "premium",
+  name: "Premium",
+  price_monthly: 97,
+  features: [
+    { label: t("pages.plans.premium.features.advancedSimulations"), included: true },
+    { label: t("pages.plans.premium.features.exportPdf"), included: true },
+    { label: t("pages.plans.premium.features.sharedEntries"), included: true },
+    { label: t("pages.plans.premium.features.advancedAlerts"), included: true },
+  ],
+}));
 </script>
 
 <template>
@@ -28,20 +37,10 @@ const premiumPlanFeatures = computed(() => [
     </header>
 
     <div class="plans-page__grid">
-      <PlanCard
-        plan-slug="free"
-        name="Free"
-        price-label="Grátis"
-        :features="freePlanFeatures"
-      />
+      <PlanCard :plan="freePlan" :is-current="false" />
 
       <div class="plans-page__premium-col">
-        <PlanCard
-          plan-slug="premium"
-          name="Premium"
-          :price-label="t('pages.plans.premium.price')"
-          :features="premiumPlanFeatures"
-        />
+        <PlanCard :plan="premiumPlan" :is-current="false" />
         <CheckoutButton plan-slug="premium" />
       </div>
     </div>

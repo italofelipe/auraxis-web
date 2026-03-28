@@ -1,4 +1,4 @@
-import type { SimulationCardDto, SimulationType } from "../../contracts/simulation-card.dto";
+import type { SimulationCardDto, SimulationType } from "~/features/simulations/contracts/simulation-card.dto";
 
 export type SimulationCardProps = {
   simulation: SimulationCardDto;

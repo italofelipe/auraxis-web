@@ -3,7 +3,7 @@ import { describe, it, expect } from "vitest";
 import { NStatistic, NSkeleton } from "naive-ui";
 
 import PortfolioSummaryBar from "./PortfolioSummaryBar.vue";
-import type { PortfolioSummaryDto } from "../../contracts/portfolio.dto";
+import type { PortfolioSummaryDto } from "~/features/portfolio/contracts/portfolio.dto";
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 

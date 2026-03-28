@@ -3,7 +3,7 @@ import { describe, it, expect } from "vitest";
 import { NTag, NSkeleton } from "naive-ui";
 
 import SimulationCard from "./SimulationCard.vue";
-import type { SimulationCardDto } from "../../contracts/simulation-card.dto";
+import type { SimulationCardDto } from "~/features/simulations/contracts/simulation-card.dto";
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 

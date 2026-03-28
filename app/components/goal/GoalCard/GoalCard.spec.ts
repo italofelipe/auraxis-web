@@ -3,7 +3,7 @@ import { describe, it, expect } from "vitest";
 import { NTag, NProgress, NSkeleton } from "naive-ui";
 
 import GoalCard from "./GoalCard.vue";
-import type { GoalDto } from "../../contracts/goal.dto";
+import type { GoalDto } from "~/features/goals/contracts/goal.dto";
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 

@@ -66,13 +66,13 @@ export default defineNuxtConfig({
   ],
 
   // ── Components auto-import ───────────────────────────────────────────
-  // Nuxt 4 scans app/components/ by default (srcDir = "app/").
-  // Also scan app/shared/components/ so that shared UI components
-  // (UiAppShell, UiFormField, etc.) are auto-imported without explicit
-  // import statements in layouts and pages.
+  // All components live in app/components/, organized into domain
+  // subdirectories (alert/, auth/, dashboard/, ui/, etc.).
+  // pathPrefix: false → Nuxt uses the filename as the component name,
+  // not the directory path. So components/alert/AlertItem.vue → <AlertItem>
+  // and components/ui/UiAppShell/UiAppShell.vue → <UiAppShell>.
   components: [
-    { path: "~/components" },
-    { path: "~/shared/components", pathPrefix: false },
+    { path: "~/components", pathPrefix: false },
   ],
 
   // ── TypeScript ────────────────────────────────────────────────────────

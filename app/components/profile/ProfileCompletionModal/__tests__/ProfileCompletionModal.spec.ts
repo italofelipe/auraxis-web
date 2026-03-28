@@ -55,7 +55,7 @@ vi.mock("naive-ui", async (importOriginal) => {
   };
 });
 
-vi.mock("~/shared/components/UiFormField/UiFormField.vue", () => ({
+vi.mock("~/components/ui/UiFormField/UiFormField.vue", () => ({
   default: UiFormFieldStub,
 }));
 

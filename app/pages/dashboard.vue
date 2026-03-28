@@ -4,11 +4,6 @@ import {
   useDashboardOverviewQuery,
   type DashboardOverviewFilters,
 } from "~/composables/useDashboard";
-import DashboardAlerts from "~/features/dashboard/components/DashboardAlerts.vue";
-import DashboardPeriodSelector from "~/features/dashboard/components/DashboardPeriodSelector.vue";
-import DashboardSummaryGrid from "~/features/dashboard/components/DashboardSummaryGrid.vue";
-import DashboardTimeseriesChart from "~/features/dashboard/components/DashboardTimeseriesChart.vue";
-import DashboardTransactionsPanel from "~/features/dashboard/components/DashboardTransactionsPanel.vue";
 import type { DashboardPeriod } from "~/features/dashboard/model/dashboard-period";
 import { formatCurrency } from "~/utils/currency";
 

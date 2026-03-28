@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 import SimulationCard from "./SimulationCard.vue";
-import type { SimulationCardDto } from "../../contracts/simulation-card.dto";
+import type { SimulationCardDto } from "~/features/simulations/contracts/simulation-card.dto";
 
 const meta: Meta<typeof SimulationCard> = {
   title: "Features/Simulations/SimulationCard",

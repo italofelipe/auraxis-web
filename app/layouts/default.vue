@@ -9,10 +9,8 @@ import {
   Calculator,
   CreditCard,
 } from "lucide-vue-next";
-// UiAppShell is auto-imported via the components config in nuxt.config.ts
-// (app/shared/components is registered as a scan directory).
-import type { AppShellNavItem, AppShellUser } from "~/shared/components/UiAppShell/UiAppShell.types";
-import ProfileCompletionModal from "~/features/profile/components/ProfileCompletionModal/ProfileCompletionModal.vue";
+// UiAppShell and ProfileCompletionModal are auto-imported from app/components/.
+import type { AppShellNavItem, AppShellUser } from "~/components/ui/UiAppShell/UiAppShell.types";
 import { useUserProfileQuery } from "~/features/profile/composables/use-user-profile-query";
 import { useUserStore } from "~/stores/user";
 

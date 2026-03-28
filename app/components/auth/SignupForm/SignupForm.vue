@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { useRegisterForm } from "~/composables/useAuth";
 import type { RegisterSchema } from "~/schemas/auth";
-import UiFormField from "~/shared/components/UiFormField/UiFormField.vue";
-import UiPasswordField from "~/shared/components/UiPasswordField/UiPasswordField.vue";
-import UiSocialAuthButtons from "~/shared/components/UiSocialAuthButtons/UiSocialAuthButtons.vue";
 import type { SignupFormProps, SignupFormEmits } from "./SignupForm.types";
 
 const { t } = useI18n();

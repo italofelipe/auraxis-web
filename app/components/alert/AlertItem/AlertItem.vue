@@ -2,7 +2,7 @@
 import { NCard, NTag, NText, NButton } from "naive-ui";
 import { CheckIcon, Trash2Icon } from "lucide-vue-next";
 import type { AlertItemProps, AlertItemEmits } from "./AlertItem.types";
-import type { AlertType } from "../../contracts/alert.dto";
+import type { AlertType } from "~/features/alerts/contracts/alert.dto";
 
 const props = defineProps<AlertItemProps>();
 const emit = defineEmits<AlertItemEmits>();

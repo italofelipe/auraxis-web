@@ -1,4 +1,4 @@
-import type { GoalDto } from "../../contracts/goal.dto";
+import type { GoalDto } from "~/features/goals/contracts/goal.dto";
 
 export type GoalCardProps = {
   goal: GoalDto;

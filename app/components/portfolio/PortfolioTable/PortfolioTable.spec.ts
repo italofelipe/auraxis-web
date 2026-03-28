@@ -3,7 +3,7 @@ import { describe, it, expect } from "vitest";
 import { NDataTable } from "naive-ui";
 
 import PortfolioTable from "./PortfolioTable.vue";
-import type { WalletEntryDto } from "../../contracts/portfolio.dto";
+import type { WalletEntryDto } from "~/features/portfolio/contracts/portfolio.dto";
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 

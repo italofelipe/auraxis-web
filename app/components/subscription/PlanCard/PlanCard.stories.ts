@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 import PlanCard from "./PlanCard.vue";
-import type { PlanDto } from "../../contracts/subscription.dto";
+import type { PlanDto } from "~/features/subscription/contracts/subscription.dto";
 
 const meta: Meta<typeof PlanCard> = {
   title: "Features/Subscription/PlanCard",

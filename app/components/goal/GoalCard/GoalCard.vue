@@ -9,7 +9,7 @@ import {
 } from "naive-ui";
 import { formatCurrency } from "~/utils/currency";
 import type { GoalCardProps } from "./GoalCard.types";
-import type { GoalStatus } from "../../contracts/goal.dto";
+import type { GoalStatus } from "~/features/goals/contracts/goal.dto";
 
 const props = defineProps<GoalCardProps>();
 

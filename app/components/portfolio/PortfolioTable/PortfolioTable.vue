@@ -10,7 +10,7 @@ import {
 } from "naive-ui";
 import { formatCurrency } from "~/utils/currency";
 import type { PortfolioTableProps } from "./PortfolioTable.types";
-import type { WalletEntryDto } from "../../contracts/portfolio.dto";
+import type { WalletEntryDto } from "~/features/portfolio/contracts/portfolio.dto";
 
 const props = defineProps<PortfolioTableProps>();
 

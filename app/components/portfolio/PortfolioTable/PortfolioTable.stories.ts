@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 import PortfolioTable from "./PortfolioTable.vue";
-import type { WalletEntryDto } from "../../contracts/portfolio.dto";
-import { MOCK_WALLET_ENTRIES } from "../../mock/portfolio.mock";
+import type { WalletEntryDto } from "~/features/portfolio/contracts/portfolio.dto";
+import { MOCK_WALLET_ENTRIES } from "~/features/portfolio/mock/portfolio.mock";
 
 const meta: Meta<typeof PortfolioTable> = {
   title: "Features/Portfolio/PortfolioTable",
