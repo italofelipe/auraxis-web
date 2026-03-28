@@ -1,3 +1,0 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
-
-exports[`UiTrendBadge > matches snapshot for positive state 1`] = `"<span data-v-1e613e1c="" class="ui-trend-badge ui-trend-badge--positive" aria-label="variação: +12,50%"><svg data-v-1e613e1c="" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide ui-trend-badge__icon lucide-trending-up-icon lucide-trending-up ui-trend-badge__icon" aria-hidden="true"><path d="M16 7h6v6"></path><path d="m22 7-8.5 8.5-5-5L2 17"></path></svg><span data-v-1e613e1c="">+12,50%</span></span>"`;

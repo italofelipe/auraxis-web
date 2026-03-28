@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import PortfolioSummaryBar from "~/features/portfolio/components/PortfolioSummaryBar/PortfolioSummaryBar.vue";
-import PortfolioTable from "~/features/portfolio/components/PortfolioTable/PortfolioTable.vue";
 import {
   MOCK_WALLET_ENTRIES,
   MOCK_PORTFOLIO_SUMMARY,

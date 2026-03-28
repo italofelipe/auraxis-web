@@ -5,10 +5,12 @@ const path = require("node:path");
 
 const PRODUCT_DIRECTORIES = ["app"];
 const REQUIRED_SHARED_DIRECTORIES = [
-  "app/shared/components",
+  // app/shared/components removed — all components now live in app/components/
+  // app/shared/validators removed — validators now in app/core/validation/ + app/utils/validators.ts
   "app/shared/types",
-  "app/shared/validators",
   "app/shared/utils",
+  "app/components",
+  "app/core/validation",
 ];
 const DISALLOWED_SOURCE_EXTENSIONS = new Set([".js", ".jsx", ".cjs", ".mjs"]);
 const DISALLOWED_SOURCE_PATTERNS = [

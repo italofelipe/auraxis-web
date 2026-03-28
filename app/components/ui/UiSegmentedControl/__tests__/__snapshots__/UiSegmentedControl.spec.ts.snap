@@ -1,0 +1,3 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`UiSegmentedControl > snapshot default state 1`] = `"<div data-v-58e35b2d="" class="ui-segmented-control" role="group" aria-label="Selecionar opção"><button data-v-58e35b2d="" type="button" class="ui-segmented-control__option" aria-pressed="false">Dia</button><button data-v-58e35b2d="" type="button" class="ui-segmented-control__option" aria-pressed="false">Semana</button><button data-v-58e35b2d="" type="button" class="ui-segmented-control__option ui-segmented-control__option--active" aria-pressed="true">Mês</button><button data-v-58e35b2d="" type="button" class="ui-segmented-control__option" aria-pressed="false">Ano</button></div>"`;

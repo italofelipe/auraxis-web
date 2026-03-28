@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useForgotPasswordMutation } from "~/composables/useAuth";
-import { ForgotPasswordForm } from "~/features/auth/components/ForgotPasswordForm";
 import type { ForgotPasswordSchema } from "~/schemas/auth";
 
 definePageMeta({ layout: "auth", middleware: ["guest-only"] });

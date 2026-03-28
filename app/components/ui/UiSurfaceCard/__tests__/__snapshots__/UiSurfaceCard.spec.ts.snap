@@ -1,0 +1,3 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`UiSurfaceCard > matches snapshot with default state 1`] = `"<div data-v-f6c522b2="" class="ui-surface-card ui-surface-card--padding-md ui-surface-card--shadow ui-surface-card--bordered">Snapshot content</div>"`;

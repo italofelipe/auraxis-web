@@ -7,7 +7,6 @@ import {
   NTabPane,
   NPageHeader,
 } from "naive-ui";
-import SharedEntryRow from "~/features/shared-entries/components/SharedEntryRow/SharedEntryRow.vue";
 import {
   MOCK_SHARED_BY_ME,
   MOCK_SHARED_WITH_ME,

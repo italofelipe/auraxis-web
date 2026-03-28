@@ -1,0 +1,24 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`UiAppShell > snapshot default state 1`] = `
+"<div data-v-8ce079b1="" class="ui-app-shell">
+  <!-- Overlay mobile -->
+  <transition-stub data-v-8ce079b1="" name="ui-app-shell-overlay" appear="false" persisted="false" css="true">
+    <!--v-if-->
+  </transition-stub><!-- Sidebar -->
+  <aside data-v-8ce079b1="" class="ui-app-shell__sidebar" aria-label="Navegação principal">
+    <!-- Logo -->
+    <div data-v-8ce079b1="" class="ui-app-shell__logo">
+      <div data-v-8ce079b1="" class="ui-app-shell__logo-mark" aria-hidden="true"><svg data-v-8ce079b1="" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chart-pie-icon lucide-chart-pie" aria-hidden="true">
+          <path d="M21 12c.552 0 1.005-.449.95-.998a10 10 0 0 0-8.953-8.951c-.55-.055-.998.398-.998.95v8a1 1 0 0 0 1 1z"></path>
+          <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
+        </svg></div><span data-v-8ce079b1="" class="ui-app-shell__logo-text">Auraxis</span>
+    </div><!-- Nav -->
+    <nav data-v-8ce079b1="" items="[object Object],[object Object]" collapsed="false" current-route="/dashboard" class="ui-app-shell__nav"></nav>
+  </aside><!-- Main area -->
+  <div data-v-8ce079b1="" class="ui-app-shell__main">
+    <header data-v-8ce079b1="" title="Dashboard" subtitle="Dezembro 2025" actions="" user-name="João Silva" user-description="Investidor Moderado" show-menu-button="false"></header>
+    <main data-v-8ce079b1="" class="ui-app-shell__content"></main>
+  </div>
+</div>"
+`;

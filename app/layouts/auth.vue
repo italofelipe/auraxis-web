@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import AuthBrandPanel from "~/features/auth/components/AuthBrandPanel/AuthBrandPanel.vue";
-import AuthFeatureList from "~/features/auth/components/AuthFeatureList/AuthFeatureList.vue";
 </script>
 
 <template>

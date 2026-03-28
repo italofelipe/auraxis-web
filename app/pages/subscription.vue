@@ -9,7 +9,6 @@ import {
   NGridItem,
   NPageHeader,
 } from "naive-ui";
-import PlanCard from "~/features/subscription/components/PlanCard/PlanCard.vue";
 import {
   MOCK_CURRENT_SUBSCRIPTION,
   MOCK_ALL_PLANS,

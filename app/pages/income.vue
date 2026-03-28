@@ -2,10 +2,6 @@
 import { NCard, NEmpty, NSkeleton, NSpace, NTabPane, NTabs } from "naive-ui";
 import { ref } from "vue";
 
-import CsvUploadForm from "~/features/receivables/components/CsvUploadForm.vue";
-import ImportPreviewTable from "~/features/receivables/components/ImportPreviewTable.vue";
-import ReceivableItem from "~/features/receivables/components/ReceivableItem.vue";
-import RevenueSummaryCard from "~/features/receivables/components/RevenueSummaryCard.vue";
 import { useConfirmImportMutation } from "~/features/receivables/queries/use-confirm-import-mutation";
 import { useCsvUploadMutation } from "~/features/receivables/queries/use-csv-upload-mutation";
 import { useReceivablesQuery } from "~/features/receivables/queries/use-receivables-query";
