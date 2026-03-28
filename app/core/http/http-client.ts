@@ -3,6 +3,9 @@ import axios, {
   type InternalAxiosRequestConfig,
 } from "axios";
 
+import { registerResponseInterceptors } from "~/core/api/interceptors";
+import type { ResponseInterceptorOptions } from "~/core/api/types";
+
 /**
  * Removes trailing slashes from a base URL to avoid duplicated separators.
  *
@@ -40,15 +43,26 @@ const createAuthInterceptor = (
 };
 
 /**
- * Creates the canonical Auraxis HTTP client with auth interception and v2 contract header.
+ * Creates the canonical Auraxis HTTP client with auth interception, v2 contract
+ * header, and optional global response interceptors for 403/5xx side effects.
  *
- * @param baseUrl API base URL.
- * @param getAccessToken Lazy token resolver.
- * @returns Configured Axios client.
+ * When `interceptorOptions` is provided, 403 and 5xx responses automatically
+ * invoke the corresponding callbacks (typically to show toast notifications)
+ * before re-throwing the normalised {@link ApiError}. Feature-level `catch`
+ * blocks still receive the error unchanged.
+ *
+ * 401 is intentionally excluded from global handling to avoid conflicting with
+ * auth-endpoint flows (e.g., wrong credentials returning 401 on `/auth/login`).
+ *
+ * @param baseUrl API base URL (trailing slashes are removed automatically).
+ * @param getAccessToken Lazy token resolver injected into every request header.
+ * @param interceptorOptions Optional callbacks for cross-cutting response handling.
+ * @returns Configured Axios instance.
  */
 export const createHttpClient = (
   baseUrl: string,
   getAccessToken: () => string | null,
+  interceptorOptions?: ResponseInterceptorOptions,
 ): AxiosInstance => {
   const client = axios.create({
     baseURL: normalizeBaseUrl(baseUrl),
@@ -57,5 +71,10 @@ export const createHttpClient = (
   });
 
   client.interceptors.request.use(createAuthInterceptor(getAccessToken));
+
+  if (interceptorOptions !== undefined) {
+    registerResponseInterceptors(client, interceptorOptions);
+  }
+
   return client;
 };
