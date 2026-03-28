@@ -1,0 +1,16 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`UiInlineError > matches snapshot with all props 1`] = `
+"<div data-v-a58f983a="" class="ui-inline-error" role="alert">
+  <p data-v-a58f983a="" class="ui-inline-error__title">Falha ao carregar portfólio</p>
+  <p data-v-a58f983a="" class="ui-inline-error__message">Serviço indisponível (503).</p><button data-v-a58f983a="" class="n-button ui-inline-error__retry">Tentar novamente</button>
+</div>"
+`;
+
+exports[`UiInlineError > matches snapshot with only title 1`] = `
+"<div data-v-a58f983a="" class="ui-inline-error" role="alert">
+  <p data-v-a58f983a="" class="ui-inline-error__title">Erro genérico</p>
+  <!--v-if-->
+  <!--v-if-->
+</div>"
+`;
