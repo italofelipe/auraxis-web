@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/vue3";
 import AlertItem from "./AlertItem.vue";
-import type { AlertDto } from "~/features/alerts/contracts/alert.dto";
+import type { Alert } from "~/features/alerts/model/alerts";
 
 const meta: Meta<typeof AlertItem> = {
   title: "Features/Alerts/AlertItem",
@@ -11,7 +11,7 @@ const meta: Meta<typeof AlertItem> = {
     docs: {
       description: {
         component:
-          "Row component for a single alert. Displays type tag, title, description, relative timestamp, and action buttons.",
+          "Row component for a single alert. Displays type tag, title, body, relative timestamp, and action buttons.",
       },
     },
   },
@@ -21,13 +21,14 @@ export default meta;
 
 type Story = StoryObj<typeof AlertItem>;
 
-const baseAlert: AlertDto = {
+const baseAlert: Alert = {
   id: "alert-001",
   type: "goal_achieved",
   title: "Meta atingida: Reserva de emergência",
-  description: "Parabéns! Você atingiu 100% da sua meta de reserva de emergência de R$ 30.000.",
-  created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-  is_read: false,
+  body: "Parabéns! Você atingiu 100% da sua meta de reserva de emergência de R$ 30.000.",
+  severity: "info",
+  readAt: null,
+  createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
 };
 
 export const Unread: Story = {
@@ -44,10 +45,11 @@ export const Read: Story = {
       id: "alert-007",
       type: "system",
       title: "Atualização de termos de uso",
-      description: "Os termos de uso e política de privacidade foram atualizados.",
-      created_at: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString(),
-      is_read: true,
-    } satisfies AlertDto,
+      body: "Os termos de uso e política de privacidade foram atualizados.",
+      severity: "info",
+      readAt: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString(),
+      createdAt: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString(),
+    } satisfies Alert,
   },
 };
 
@@ -58,10 +60,11 @@ export const OverduePayment: Story = {
       id: "alert-003",
       type: "overdue_payment",
       title: "Pagamento atrasado: Fatura cartão de crédito",
-      description: "A fatura do seu cartão no valor de R$ 1.250,00 está atrasada há 3 dias.",
-      created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-      is_read: false,
-    } satisfies AlertDto,
+      body: "A fatura do seu cartão no valor de R$ 1.250,00 está atrasada há 3 dias.",
+      severity: "warning",
+      readAt: null,
+      createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    } satisfies Alert,
   },
 };
 
@@ -72,10 +75,11 @@ export const BudgetExceeded: Story = {
       id: "alert-005",
       type: "budget_exceeded",
       title: "Orçamento excedido: Alimentação",
-      description: "Você já gastou R$ 1.850,00 em alimentação este mês, ultrapassando o limite de R$ 1.500,00.",
-      created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-      is_read: true,
-    } satisfies AlertDto,
+      body: "Você já gastou R$ 1.850,00 em alimentação este mês, ultrapassando o limite de R$ 1.500,00.",
+      severity: "warning",
+      readAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+      createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    } satisfies Alert,
   },
 };
 
@@ -86,9 +90,10 @@ export const InvestmentOpportunity: Story = {
       id: "alert-006",
       type: "investment_opportunity",
       title: "Oportunidade de investimento: CDB 14,5% ao ano",
-      description: "Um novo CDB com liquidez diária e taxa de 14,5% ao ano está disponível na sua corretora.",
-      created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-      is_read: false,
-    } satisfies AlertDto,
+      body: "Um novo CDB com liquidez diária e taxa de 14,5% ao ano está disponível na sua corretora.",
+      severity: "info",
+      readAt: null,
+      createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+    } satisfies Alert,
   },
 };

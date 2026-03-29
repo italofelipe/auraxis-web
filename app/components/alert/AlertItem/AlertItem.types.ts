@@ -1,7 +1,7 @@
-import type { AlertDto } from "~/features/alerts/contracts/alert.dto";
+import type { Alert } from "~/features/alerts/model/alerts";
 
 export type AlertItemProps = {
-  alert: AlertDto;
+  alert: Alert;
 };
 
 export type AlertItemEmits = {

@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import {
-  MOCK_WALLET_ENTRIES,
-  MOCK_PORTFOLIO_SUMMARY,
-} from "~/features/portfolio/mock/portfolio.mock";
+import { usePortfolioSummaryQuery } from "~/features/wallet/queries/use-portfolio-summary-query";
+import { useWalletEntriesQuery } from "~/features/wallet/queries/use-wallet-entries-query";
 
 definePageMeta({
   middleware: ["authenticated"],
@@ -11,6 +9,12 @@ definePageMeta({
 });
 
 useHead({ title: "Carteira | Auraxis" });
+
+const { data: summary, isLoading: isSummaryLoading, isError: isSummaryError } = usePortfolioSummaryQuery();
+const { data: entries, isLoading: isEntriesLoading, isError: isEntriesError } = useWalletEntriesQuery();
+
+const isLoading = computed(() => isSummaryLoading.value || isEntriesLoading.value);
+const isError = computed(() => isSummaryError.value || isEntriesError.value);
 </script>
 
 <template>
@@ -24,9 +28,20 @@ useHead({ title: "Carteira | Auraxis" });
       </div>
     </div>
 
-    <PortfolioSummaryBar :summary="MOCK_PORTFOLIO_SUMMARY" />
+    <UiInlineError
+      v-if="isError"
+      title="Não foi possível carregar a carteira"
+      message="Tente recarregar a página."
+    />
 
-    <PortfolioTable :entries="MOCK_WALLET_ENTRIES" />
+    <template v-else>
+      <UiPageLoader v-if="isLoading" :rows="4" :with-title="true" />
+
+      <template v-else>
+        <PortfolioSummaryBar :summary="summary ?? null" />
+        <PortfolioTable :entries="entries ?? []" />
+      </template>
+    </template>
   </div>
 </template>
 

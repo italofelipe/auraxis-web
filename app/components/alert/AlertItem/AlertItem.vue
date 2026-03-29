@@ -7,14 +7,18 @@ import type { AlertType } from "~/features/alerts/contracts/alert.dto";
 const props = defineProps<AlertItemProps>();
 const emit = defineEmits<AlertItemEmits>();
 
+/** True when the alert has not been read yet. */
+const isUnread = computed<boolean>(() => props.alert.readAt === null);
+
 /**
- * Resolves the NaiveUI tag type for a given alert type.
+ * Resolves the NaiveUI tag type for a given alert type string.
+ * Falls back to "default" for unrecognised types.
  *
  * @param type - The alert type value.
  * @returns NaiveUI tag type string.
  */
 const alertTagType = (
-  type: AlertType,
+  type: string,
 ): "success" | "error" | "warning" | "info" | "default" => {
   const map: Record<AlertType, "success" | "error" | "warning" | "info" | "default"> = {
     goal_achieved: "success",
@@ -23,16 +27,17 @@ const alertTagType = (
     investment_opportunity: "info",
     system: "default",
   };
-  return map[type];
+  return (map as Record<string, "success" | "error" | "warning" | "info" | "default">)[type] ?? "default";
 };
 
 /**
- * Resolves a human-readable label for a given alert type.
+ * Resolves a human-readable label for a given alert type string.
+ * Falls back to the raw type value for unrecognised types.
  *
  * @param type - The alert type value.
  * @returns Localised label string in PT-BR.
  */
-const alertTypeLabel = (type: AlertType): string => {
+const alertTypeLabel = (type: string): string => {
   const map: Record<AlertType, string> = {
     goal_achieved: "Meta atingida",
     overdue_payment: "Pagamento atrasado",
@@ -40,7 +45,7 @@ const alertTypeLabel = (type: AlertType): string => {
     investment_opportunity: "Oportunidade",
     system: "Sistema",
   };
-  return map[type];
+  return (map as Record<string, string>)[type] ?? type;
 };
 
 /**
@@ -78,13 +83,13 @@ const onDelete = (): void => {
   <NCard
     :bordered="true"
     class="alert-item"
-    :class="{ 'alert-item--unread': !alert.is_read }"
+    :class="{ 'alert-item--unread': isUnread }"
     content-style="padding: var(--space-3);"
   >
     <div class="alert-item__row">
       <div class="alert-item__content">
         <div class="alert-item__header">
-          <NText :strong="!alert.is_read" class="alert-item__title">
+          <NText :strong="isUnread" class="alert-item__title">
             {{ alert.title }}
           </NText>
           <NTag :type="alertTagType(alert.type)" size="small" :bordered="false">
@@ -92,15 +97,15 @@ const onDelete = (): void => {
           </NTag>
         </div>
         <NText class="alert-item__description" depth="3">
-          {{ alert.description }}
+          {{ alert.body }}
         </NText>
         <NText class="alert-item__timestamp" depth="3">
-          {{ relativeTime(alert.created_at) }}
+          {{ relativeTime(alert.createdAt) }}
         </NText>
       </div>
       <div class="alert-item__actions">
         <NButton
-          v-if="!alert.is_read"
+          v-if="isUnread"
           size="small"
           quaternary
           :focusable="false"
