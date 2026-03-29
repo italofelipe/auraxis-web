@@ -1,9 +1,6 @@
 import type { AxiosInstance } from "axios";
 
 import { useHttp } from "~/composables/useHttp";
-import type { WalletSummaryDto } from "~/features/wallet/contracts/wallet.dto";
-import { mapWalletSummaryDto } from "~/features/wallet/services/wallet.mapper";
-import type { WalletSummary } from "~/features/wallet/model/wallet";
 import type {
   PortfolioSummaryDto,
   WalletEntryDto,
@@ -43,16 +40,6 @@ export class WalletClient {
    */
   constructor(http: AxiosInstance) {
     this.#http = http;
-  }
-
-  /**
-   * Fetches the wallet summary for the authenticated user.
-   *
-   * @returns Mapped wallet summary view model.
-   */
-  async getSummary(): Promise<WalletSummary> {
-    const response = await this.#http.get<WalletSummaryDto>("/wallet/summary");
-    return mapWalletSummaryDto(response.data);
   }
 
   /**
