@@ -50,9 +50,30 @@ export const useSessionStore = defineStore("session", {
   },
   actions: {
     restore(): void {
-      const sessionCookie = useSessionCookie();
+      // useCookie() requires an active Nuxt app context and is unreliable
+      // when called from inside a Pinia action (e.g. from a plugin or middleware).
+      // For all private routes (ssr: false) the browser's document.cookie is
+      // always available on the client, so we parse it directly.
+      if (typeof document === "undefined") {
+        return;
+      }
 
-      applyCookiePayloadToState(this, sessionCookie.value);
+      const entry = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith(`${SESSION_COOKIE_KEY}=`));
+
+      if (!entry) {
+        applyCookiePayloadToState(this, null);
+        return;
+      }
+
+      try {
+        const raw = entry.split("=").slice(1).join("=");
+        const payload = JSON.parse(decodeURIComponent(raw)) as SessionCookiePayload;
+        applyCookiePayloadToState(this, payload);
+      } catch {
+        applyCookiePayloadToState(this, null);
+      }
     },
     getAccessToken(): string | null {
       if (this.accessToken) {
