@@ -3,8 +3,24 @@ name: Chromatic
 on:
   pull_request:
     branches: [main, master]
+    paths:
+      - 'app/components/**'
+      - 'app/features/**/components/**'
+      - 'app/shared/components/**'
+      - '**/*.stories.ts'
+      - '**/*.stories.vue'
+      - '**/*.stories.mdx'
+      - '.storybook/**'
   push:
     branches: [main, master]
+    paths:
+      - 'app/components/**'
+      - 'app/features/**/components/**'
+      - 'app/shared/components/**'
+      - '**/*.stories.ts'
+      - '**/*.stories.vue'
+      - '**/*.stories.mdx'
+      - '.storybook/**'
   workflow_dispatch:
 
 concurrency:
@@ -16,6 +32,7 @@ env:
   PNPM_VERSION: '10.30.1'
 
 jobs:
+  # ── Visual regression review via Chromatic ────────────────────────────────
   chromatic:
     name: Chromatic Visual Review
     runs-on: ubuntu-latest
@@ -32,14 +49,14 @@ jobs:
             echo "enabled=true" >> "$GITHUB_OUTPUT"
           else
             echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Chromatic skipped: CHROMATIC_PROJECT_TOKEN is not configured for this repository."
+            echo "::notice::Chromatic skipped: CHROMATIC_PROJECT_TOKEN is not configured."
           fi
 
       - name: Checkout
         if: steps.capability.outputs.enabled == 'true'
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # required for TurboSnap ancestry analysis
 
       - name: Setup pnpm
         if: steps.capability.outputs.enabled == 'true'
@@ -65,8 +82,8 @@ jobs:
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           buildScriptName: storybook:build
-          onlyChanged: true
-          exitZeroOnChanges: true
+          onlyChanged: true        # TurboSnap: snapshot only affected stories
+          exitZeroOnChanges: true  # don't block CI on visual changes; team reviews manually
 
       - name: Publish summary
         if: steps.capability.outputs.enabled == 'true'
@@ -74,11 +91,103 @@ jobs:
           {
             echo "## Chromatic"
             echo
-            echo "- Build URL: ${{ steps.chromatic.outputs.buildUrl }}"
-            echo "- Storybook URL: ${{ steps.chromatic.outputs.storybookUrl }}"
-            echo "- Captured snapshots: ${{ steps.chromatic.outputs.actualCaptureCount }}"
-            echo "- Story count: ${{ steps.chromatic.outputs.specCount }}"
-            echo "- Components: ${{ steps.chromatic.outputs.componentCount }}"
+            echo "| Field | Value |"
+            echo "|-------|-------|"
+            echo "| Build URL | ${{ steps.chromatic.outputs.buildUrl }} |"
+            echo "| Storybook URL | ${{ steps.chromatic.outputs.storybookUrl }} |"
+            echo "| Snapshots captured | ${{ steps.chromatic.outputs.actualCaptureCount }} |"
+            echo "| Stories | ${{ steps.chromatic.outputs.specCount }} |"
+            echo "| Components | ${{ steps.chromatic.outputs.componentCount }} |"
             echo
-            echo "Target custom domain: https://v1.design-system.auraxis.com.br"
+            echo "Public design system: https://design.auraxis.com.br"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ── Deploy static Storybook to design.auraxis.com.br ─────────────────────
+  deploy-storybook:
+    name: Deploy Storybook → design.auraxis.com.br
+    runs-on: ubuntu-latest
+    needs: chromatic
+    # Only deploy on pushes to main (not PRs); skip if infra secrets not yet configured
+    if: |
+      github.event_name != 'pull_request' &&
+      github.ref == 'refs/heads/main'
+    permissions:
+      id-token: write   # required for OIDC
+      contents: read
+    steps:
+      - name: Check deploy capability
+        id: deploy-cap
+        env:
+          BUCKET_VALUE: ${{ secrets.STORYBOOK_DEPLOY_BUCKET }}
+          CF_VALUE: ${{ secrets.STORYBOOK_CF_DISTRIBUTION_ID }}
+        run: |
+          if [ -n "${BUCKET_VALUE:-}" ] && [ -n "${CF_VALUE:-}" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Storybook deploy skipped: STORYBOOK_DEPLOY_BUCKET or STORYBOOK_CF_DISTRIBUTION_ID not configured."
+            echo "::notice::Run the setup-design-infra workflow first, then add the secrets."
+          fi
+
+      - name: Checkout
+        if: steps.deploy-cap.outputs.enabled == 'true'
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        if: steps.deploy-cap.outputs.enabled == 'true'
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node
+        if: steps.deploy-cap.outputs.enabled == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        if: steps.deploy-cap.outputs.enabled == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Storybook
+        if: steps.deploy-cap.outputs.enabled == 'true'
+        run: pnpm storybook:build
+
+      - name: Configure AWS credentials (OIDC)
+        if: steps.deploy-cap.outputs.enabled == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_WEB_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Deploy to S3
+        if: steps.deploy-cap.outputs.enabled == 'true'
+        run: |
+          # Long-lived assets (hashed filenames) — aggressive cache
+          aws s3 sync storybook-static/ s3://${{ secrets.STORYBOOK_DEPLOY_BUCKET }} \
+            --delete \
+            --exclude "*.html" \
+            --cache-control "public,max-age=31536000,immutable"
+
+          # HTML files — no cache (always revalidate)
+          aws s3 sync storybook-static/ s3://${{ secrets.STORYBOOK_DEPLOY_BUCKET }} \
+            --exclude "*" \
+            --include "*.html" \
+            --cache-control "no-cache,no-store,must-revalidate"
+
+      - name: Invalidate CloudFront
+        if: steps.deploy-cap.outputs.enabled == 'true'
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.STORYBOOK_CF_DISTRIBUTION_ID }} \
+            --paths "/*"
+
+      - name: Publish deploy summary
+        if: steps.deploy-cap.outputs.enabled == 'true'
+        run: |
+          {
+            echo "## Storybook Deploy"
+            echo
+            echo "✅ Published to [design.auraxis.com.br](https://design.auraxis.com.br)"
           } >> "$GITHUB_STEP_SUMMARY"
