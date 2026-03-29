@@ -14,6 +14,14 @@
     "fallbackName": "User",
     "accountDescription": "My account"
   },
+  "pages": {
+    "plans": {
+      "meta": {
+        "title": "Plans & Pricing",
+        "description": "Explore Auraxis plans. Start for free or upgrade to Premium with advanced simulations, smart alerts and complete financial planning."
+      }
+    }
+  },
   "auth": {
     "login": {
       "title": "Welcome back",

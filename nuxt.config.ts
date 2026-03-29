@@ -15,7 +15,10 @@ export default defineNuxtConfig({
   app: {
     baseURL: process.env.NUXT_APP_BASE_URL ?? "/",
     head: {
-      title: "Auraxis",
+      // Default title rendered when no page overrides it via useSeoMeta/useHead.
+      // titleTemplate wraps every page title: "Planos e Preços | Auraxis", etc.
+      // Avoids the previous "Auraxis | Auraxis" duplication.
+      title: "Planner Financeiro Inteligente",
       titleTemplate: "%s | Auraxis",
       link: [
         { rel: "manifest", href: "/manifest.webmanifest" },
@@ -27,6 +30,38 @@ export default defineNuxtConfig({
       // Policy (already done). Keeping them here would produce console
       // warnings ("X-Frame-Options may only be set via an HTTP header").
       meta: [
+        // ── SEO ───────────────────────────────────────────────────────
+        {
+          name: "description",
+          content:
+            "Gerencie carteira, metas e finanças pessoais em um só lugar. "
+            + "Acompanhe investimentos, simule cenários e tome decisões financeiras com inteligência.",
+        },
+        { property: "og:type", content: "website" },
+        { property: "og:site_name", content: "Auraxis" },
+        {
+          property: "og:title",
+          content: "Auraxis – Planner Financeiro Inteligente",
+        },
+        {
+          property: "og:description",
+          content:
+            "Gerencie carteira, metas e finanças pessoais em um só lugar. "
+            + "Acompanhe investimentos, simule cenários e tome decisões financeiras com inteligência.",
+        },
+        { property: "og:locale", content: "pt_BR" },
+        { name: "twitter:card", content: "summary_large_image" },
+        {
+          name: "twitter:title",
+          content: "Auraxis – Planner Financeiro Inteligente",
+        },
+        {
+          name: "twitter:description",
+          content:
+            "Gerencie carteira, metas e finanças pessoais em um só lugar. "
+            + "Acompanhe investimentos, simule cenários e tome decisões financeiras com inteligência.",
+        },
+        // ── Security ──────────────────────────────────────────────────
         { name: "theme-color", content: "#ffbe4d" },
         // Restricts referrer info to same origin — protects user session URLs
         { name: "referrer", content: "strict-origin-when-cross-origin" },
@@ -40,8 +75,17 @@ export default defineNuxtConfig({
   },
   css: ["~/assets/css/main.css"],
 
+  // ── @nuxtjs/seo — site-wide defaults ─────────────────────────────────────
+  // Used by nuxt-site-config (bundled in @nuxtjs/seo) to auto-generate
+  // canonical URLs, og:url, sitemap entries and locale alternate links.
   site: {
     url: process.env.NUXT_PUBLIC_SITE_URL ?? "https://app.auraxis.com.br",
+    name: "Auraxis",
+    description:
+      "Planner financeiro inteligente para gerenciar carteira de investimentos, "
+      + "metas financeiras e finanças pessoais.",
+    defaultLocale: "pt-BR",
+    indexable: true,
   },
 
   // ── Módulos ──────────────────────────────────────────────────────────
