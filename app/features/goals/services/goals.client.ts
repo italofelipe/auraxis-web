@@ -1,7 +1,12 @@
 import type { AxiosInstance } from "axios";
 
 import { useHttp } from "~/composables/useHttp";
-import type { GoalDto } from "~/features/goals/contracts/goal.dto";
+import type {
+  GoalDto,
+  GoalPlanDto,
+  CreateGoalPayload,
+  UpdateGoalPayload,
+} from "~/features/goals/contracts/goal.dto";
 
 /**
  * API client for the goals feature.
@@ -26,6 +31,49 @@ export class GoalsClient {
    */
   async listGoals(): Promise<GoalDto[]> {
     const response = await this.#http.get<GoalDto[]>("/goals");
+    return response.data;
+  }
+
+  /**
+   * Creates a new financial goal for the authenticated user.
+   *
+   * @param payload - Goal creation payload.
+   * @returns Created GoalDto.
+   */
+  async createGoal(payload: CreateGoalPayload): Promise<GoalDto> {
+    const response = await this.#http.post<GoalDto>("/goals", payload);
+    return response.data;
+  }
+
+  /**
+   * Updates an existing financial goal by ID.
+   *
+   * @param id - Goal identifier.
+   * @param payload - Partial update payload.
+   * @returns Updated GoalDto.
+   */
+  async updateGoal(id: string, payload: UpdateGoalPayload): Promise<GoalDto> {
+    const response = await this.#http.patch<GoalDto>(`/goals/${id}`, payload);
+    return response.data;
+  }
+
+  /**
+   * Deletes a financial goal by ID.
+   *
+   * @param id - Goal identifier.
+   */
+  async deleteGoal(id: string): Promise<void> {
+    await this.#http.delete(`/goals/${id}`);
+  }
+
+  /**
+   * Fetches the planning projection for a given goal.
+   *
+   * @param id - Goal identifier.
+   * @returns GoalPlanDto with monthly contribution and projection data.
+   */
+  async getGoalPlan(id: string): Promise<GoalPlanDto> {
+    const response = await this.#http.get<GoalPlanDto>(`/goals/${id}/plan`);
     return response.data;
   }
 }
