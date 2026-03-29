@@ -3,11 +3,10 @@ import {
   NCard,
   NButton,
   NStatistic,
-  NEmpty,
   NRadioGroup,
   NRadioButton,
 } from "naive-ui";
-import { MOCK_GOALS } from "~/features/goals/mock/goals.mock";
+import { useGoalsQuery } from "~/features/goals/queries/use-goals-query";
 import type { GoalStatus } from "~/features/goals/contracts/goal.dto";
 
 definePageMeta({
@@ -20,6 +19,8 @@ useHead({ title: "Metas | Auraxis" });
 
 type FilterValue = "all" | GoalStatus;
 
+const { data: goals, isLoading, isError } = useGoalsQuery();
+
 const activeFilter = ref<FilterValue>("all");
 
 const FILTER_OPTIONS: Array<{ value: FilterValue; label: string }> = [
@@ -29,19 +30,21 @@ const FILTER_OPTIONS: Array<{ value: FilterValue; label: string }> = [
   { value: "paused", label: "Pausadas" },
 ];
 
+const allGoals = computed(() => goals.value ?? []);
+
 const filteredGoals = computed(() => {
-  if (activeFilter.value === "all") {return MOCK_GOALS;}
-  return MOCK_GOALS.filter((g) => g.status === activeFilter.value);
+  if (activeFilter.value === "all") {return allGoals.value;}
+  return allGoals.value.filter((g) => g.status === activeFilter.value);
 });
 
-const totalGoals = computed(() => MOCK_GOALS.length);
+const totalGoals = computed(() => allGoals.value.length);
 
 const activeGoalsCount = computed(
-  () => MOCK_GOALS.filter((g) => g.status === "active").length,
+  () => allGoals.value.filter((g) => g.status === "active").length,
 );
 
 const completedGoalsCount = computed(
-  () => MOCK_GOALS.filter((g) => g.status === "completed").length,
+  () => allGoals.value.filter((g) => g.status === "completed").length,
 );
 </script>
 
@@ -57,38 +60,50 @@ const completedGoalsCount = computed(
       <NButton type="primary" size="medium">Nova Meta</NButton>
     </div>
 
-    <NCard class="goals-page__summary-card" :bordered="true">
-      <div class="goals-page__summary-stats">
-        <NStatistic label="Total de metas" :value="String(totalGoals)" />
-        <NStatistic label="Em andamento" :value="String(activeGoalsCount)" />
-        <NStatistic label="Concluídas" :value="String(completedGoalsCount)" />
-      </div>
-    </NCard>
-
-    <div class="goals-page__filter-bar">
-      <NRadioGroup v-model:value="activeFilter" size="medium">
-        <NRadioButton
-          v-for="opt in FILTER_OPTIONS"
-          :key="opt.value"
-          :value="opt.value"
-          :label="opt.label"
-        />
-      </NRadioGroup>
-    </div>
-
-    <NEmpty
-      v-if="filteredGoals.length === 0"
-      description="Nenhuma meta encontrada para o filtro selecionado."
-      class="goals-page__empty"
+    <UiInlineError
+      v-if="isError"
+      title="Não foi possível carregar as metas"
+      message="Tente recarregar a página."
     />
 
-    <div v-else class="goals-page__grid">
-      <GoalCard
-        v-for="goal in filteredGoals"
-        :key="goal.id"
-        :goal="goal"
-      />
-    </div>
+    <template v-else>
+      <NCard class="goals-page__summary-card" :bordered="true">
+        <div class="goals-page__summary-stats">
+          <NStatistic label="Total de metas" :value="String(totalGoals)" />
+          <NStatistic label="Em andamento" :value="String(activeGoalsCount)" />
+          <NStatistic label="Concluídas" :value="String(completedGoalsCount)" />
+        </div>
+      </NCard>
+
+      <div class="goals-page__filter-bar">
+        <NRadioGroup v-model:value="activeFilter" size="medium">
+          <NRadioButton
+            v-for="opt in FILTER_OPTIONS"
+            :key="opt.value"
+            :value="opt.value"
+            :label="opt.label"
+          />
+        </NRadioGroup>
+      </div>
+
+      <UiPageLoader v-if="isLoading" :rows="3" />
+
+      <template v-else>
+        <div v-if="filteredGoals.length === 0" class="goals-page__empty-state">
+          <span class="goals-page__empty-text">
+            Nenhuma meta encontrada para o filtro selecionado.
+          </span>
+        </div>
+
+        <div v-else class="goals-page__grid">
+          <GoalCard
+            v-for="goal in filteredGoals"
+            :key="goal.id"
+            :goal="goal"
+          />
+        </div>
+      </template>
+    </template>
   </div>
 </template>
 
@@ -136,8 +151,14 @@ const completedGoalsCount = computed(
   align-items: center;
 }
 
-.goals-page__empty {
+.goals-page__empty-state {
   padding: var(--space-4) 0;
+  text-align: center;
+}
+
+.goals-page__empty-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
 }
 
 .goals-page__grid {

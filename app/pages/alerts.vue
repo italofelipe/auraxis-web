@@ -3,11 +3,13 @@ import {
   NCard,
   NButton,
   NStatistic,
-  NEmpty,
   NRadioGroup,
   NRadioButton,
 } from "naive-ui";
-import { MOCK_ALERTS } from "~/features/alerts/mock/alerts.mock";
+import { useAlertsQuery } from "~/features/alerts/queries/use-alerts-query";
+import { useMarkAlertReadMutation } from "~/features/alerts/queries/use-mark-alert-read-mutation";
+import { useDeleteAlertMutation } from "~/features/alerts/queries/use-delete-alert-mutation";
+import type { Alert } from "~/features/alerts/model/alerts";
 
 definePageMeta({
   layout: "default",
@@ -20,7 +22,10 @@ useHead({ title: "Alertas | Auraxis" });
 
 type FilterValue = "all" | "unread" | "read";
 
-const alerts = ref([...MOCK_ALERTS]);
+const { data: alertsPage, isLoading, isError } = useAlertsQuery();
+const markReadMutation = useMarkAlertReadMutation();
+const deleteMutation = useDeleteAlertMutation();
+
 const activeFilter = ref<FilterValue>("all");
 
 const FILTER_OPTIONS: Array<{ value: FilterValue; label: string }> = [
@@ -29,21 +34,24 @@ const FILTER_OPTIONS: Array<{ value: FilterValue; label: string }> = [
   { value: "read", label: "Lidos" },
 ];
 
-const filteredAlerts = computed(() => {
-  if (activeFilter.value === "unread") {return alerts.value.filter((a) => !a.is_read);}
-  if (activeFilter.value === "read") {return alerts.value.filter((a) => a.is_read);}
-  return alerts.value;
+const allAlerts = computed<Alert[]>(() => alertsPage.value?.items ?? []);
+
+const filteredAlerts = computed<Alert[]>(() => {
+  if (activeFilter.value === "unread") {return allAlerts.value.filter((a) => a.readAt === null);}
+  if (activeFilter.value === "read") {return allAlerts.value.filter((a) => a.readAt !== null);}
+  return allAlerts.value;
 });
 
-const totalCount = computed(() => alerts.value.length);
-const unreadCount = computed(() => alerts.value.filter((a) => !a.is_read).length);
-const readCount = computed(() => alerts.value.filter((a) => a.is_read).length);
+const totalCount = computed(() => allAlerts.value.length);
+const unreadCount = computed(() => allAlerts.value.filter((a) => a.readAt === null).length);
+const readCount = computed(() => allAlerts.value.filter((a) => a.readAt !== null).length);
 
 /**
- * Marks all alerts as read in local state.
+ * Marks all unread alerts as read via the API.
  */
 const onMarkAllRead = (): void => {
-  alerts.value = alerts.value.map((a) => ({ ...a, is_read: true }));
+  const unread = allAlerts.value.filter((a) => a.readAt === null);
+  unread.forEach((a) => markReadMutation.mutate(a.id));
 };
 
 /**
@@ -52,18 +60,16 @@ const onMarkAllRead = (): void => {
  * @param id - The alert id to mark as read.
  */
 const onMarkRead = (id: string): void => {
-  alerts.value = alerts.value.map((a) =>
-    a.id === id ? { ...a, is_read: true } : a,
-  );
+  markReadMutation.mutate(id);
 };
 
 /**
- * Deletes a single alert by id from local state.
+ * Deletes a single alert by id.
  *
  * @param id - The alert id to delete.
  */
 const onDelete = (id: string): void => {
-  alerts.value = alerts.value.filter((a) => a.id !== id);
+  deleteMutation.mutate(id);
 };
 </script>
 
@@ -84,40 +90,52 @@ const onDelete = (id: string): void => {
       </NButton>
     </div>
 
-    <NCard :bordered="true" class="alerts-page__summary-card">
-      <div class="alerts-page__summary-stats">
-        <NStatistic label="Total" :value="String(totalCount)" />
-        <NStatistic label="Não lidos" :value="String(unreadCount)" />
-        <NStatistic label="Lidos" :value="String(readCount)" />
-      </div>
-    </NCard>
-
-    <div class="alerts-page__filter-bar">
-      <NRadioGroup v-model:value="activeFilter" size="medium">
-        <NRadioButton
-          v-for="opt in FILTER_OPTIONS"
-          :key="opt.value"
-          :value="opt.value"
-          :label="opt.label"
-        />
-      </NRadioGroup>
-    </div>
-
-    <NEmpty
-      v-if="filteredAlerts.length === 0"
-      description="Nenhum alerta encontrado para o filtro selecionado."
-      class="alerts-page__empty"
+    <UiInlineError
+      v-if="isError"
+      title="Não foi possível carregar os alertas"
+      message="Tente recarregar a página."
     />
 
-    <div v-else class="alerts-page__list">
-      <AlertItem
-        v-for="alert in filteredAlerts"
-        :key="alert.id"
-        :alert="alert"
-        @mark-read="onMarkRead"
-        @delete="onDelete"
-      />
-    </div>
+    <template v-else>
+      <NCard :bordered="true" class="alerts-page__summary-card">
+        <div class="alerts-page__summary-stats">
+          <NStatistic label="Total" :value="String(totalCount)" />
+          <NStatistic label="Não lidos" :value="String(unreadCount)" />
+          <NStatistic label="Lidos" :value="String(readCount)" />
+        </div>
+      </NCard>
+
+      <div class="alerts-page__filter-bar">
+        <NRadioGroup v-model:value="activeFilter" size="medium">
+          <NRadioButton
+            v-for="opt in FILTER_OPTIONS"
+            :key="opt.value"
+            :value="opt.value"
+            :label="opt.label"
+          />
+        </NRadioGroup>
+      </div>
+
+      <UiPageLoader v-if="isLoading" :rows="4" />
+
+      <template v-else-if="filteredAlerts.length === 0">
+        <div class="alerts-page__empty-state">
+          <span class="alerts-page__empty-text">
+            Nenhum alerta encontrado para o filtro selecionado.
+          </span>
+        </div>
+      </template>
+
+      <div v-else class="alerts-page__list">
+        <AlertItem
+          v-for="alert in filteredAlerts"
+          :key="alert.id"
+          :alert="alert"
+          @mark-read="onMarkRead"
+          @delete="onDelete"
+        />
+      </div>
+    </template>
   </div>
 </template>
 
@@ -165,8 +183,14 @@ const onDelete = (id: string): void => {
   align-items: center;
 }
 
-.alerts-page__empty {
+.alerts-page__empty-state {
   padding: var(--space-4) 0;
+  text-align: center;
+}
+
+.alerts-page__empty-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
 }
 
 .alerts-page__list {

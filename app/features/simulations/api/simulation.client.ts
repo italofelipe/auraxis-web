@@ -49,6 +49,15 @@ export class SimulationClient {
     const response = await this.#http.get<SimulationDto[]>("/simulations");
     return response.data.map(mapSimulationDto);
   }
+
+  /**
+   * Deletes a saved simulation by id.
+   *
+   * @param id Simulation identifier.
+   */
+  async deleteSimulation(id: string): Promise<void> {
+    await this.#http.delete(`/simulations/${id}`);
+  }
 }
 
 /**

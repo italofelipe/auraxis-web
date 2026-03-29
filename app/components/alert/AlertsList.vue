@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { NCard, NEmpty, NSkeleton, NSpace } from "naive-ui";
 
-import type { AlertDto } from "~/features/alerts/contracts/alert.dto";
+import type { Alert } from "~/features/alerts/model/alerts";
 
 interface Props {
   /** List of alerts to display. */
-  alerts: AlertDto[];
+  alerts: Alert[];
   /** Whether the alerts list is loading. */
   isLoading?: boolean;
 }

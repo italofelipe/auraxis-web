@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import {
   NButton,
-  NEmpty,
   NRadioGroup,
   NRadioButton,
   NPageHeader,
 } from "naive-ui";
-import { MOCK_SIMULATIONS } from "~/features/simulations/mock/simulations.mock";
+import { useSimulationsQuery } from "~/features/simulations/queries/use-simulations-query";
+import { useDeleteSimulationMutation } from "~/features/simulations/queries/use-delete-simulation-mutation";
 import type { SimulationType } from "~/features/simulations/contracts/simulation-card.dto";
 
 definePageMeta({
@@ -20,7 +20,9 @@ useHead({ title: "Simulações | Auraxis" });
 
 type FilterValue = "all" | SimulationType;
 
-const simulations = ref([...MOCK_SIMULATIONS]);
+const { data: simulations, isLoading, isError } = useSimulationsQuery();
+const deleteMutation = useDeleteSimulationMutation();
+
 const activeFilter = ref<FilterValue>("all");
 
 const FILTER_OPTIONS: Array<{ value: FilterValue; label: string }> = [
@@ -30,18 +32,20 @@ const FILTER_OPTIONS: Array<{ value: FilterValue; label: string }> = [
   { value: "investment_return", label: "Retorno" },
 ];
 
+const allSimulations = computed(() => simulations.value ?? []);
+
 const filteredSimulations = computed(() => {
-  if (activeFilter.value === "all") {return simulations.value;}
-  return simulations.value.filter((s) => s.type === activeFilter.value);
+  if (activeFilter.value === "all") {return allSimulations.value;}
+  return allSimulations.value.filter((s) => s.type === activeFilter.value);
 });
 
 /**
- * Removes a simulation from local state by id.
+ * Deletes a simulation by id via the API.
  *
  * @param id - The simulation id to remove.
  */
 const onDelete = (id: string): void => {
-  simulations.value = simulations.value.filter((s) => s.id !== id);
+  deleteMutation.mutate(id);
 };
 </script>
 
@@ -56,31 +60,43 @@ const onDelete = (id: string): void => {
       <NButton type="primary" size="medium">Nova simulação</NButton>
     </div>
 
-    <div class="simulations-page__filter-bar">
-      <NRadioGroup v-model:value="activeFilter" size="medium">
-        <NRadioButton
-          v-for="opt in FILTER_OPTIONS"
-          :key="opt.value"
-          :value="opt.value"
-          :label="opt.label"
-        />
-      </NRadioGroup>
-    </div>
-
-    <NEmpty
-      v-if="filteredSimulations.length === 0"
-      description="Nenhuma simulação encontrada para o filtro selecionado."
-      class="simulations-page__empty"
+    <UiInlineError
+      v-if="isError"
+      title="Não foi possível carregar as simulações"
+      message="Tente recarregar a página."
     />
 
-    <div v-else class="simulations-page__grid">
-      <SimulationCard
-        v-for="sim in filteredSimulations"
-        :key="sim.id"
-        :simulation="sim"
-        @delete="onDelete"
-      />
-    </div>
+    <template v-else>
+      <div class="simulations-page__filter-bar">
+        <NRadioGroup v-model:value="activeFilter" size="medium">
+          <NRadioButton
+            v-for="opt in FILTER_OPTIONS"
+            :key="opt.value"
+            :value="opt.value"
+            :label="opt.label"
+          />
+        </NRadioGroup>
+      </div>
+
+      <UiPageLoader v-if="isLoading" :rows="3" />
+
+      <template v-else>
+        <div v-if="filteredSimulations.length === 0" class="simulations-page__empty-state">
+          <span class="simulations-page__empty-text">
+            Nenhuma simulação encontrada para o filtro selecionado.
+          </span>
+        </div>
+
+        <div v-else class="simulations-page__grid">
+          <SimulationCard
+            v-for="sim in filteredSimulations"
+            :key="sim.id"
+            :simulation="sim"
+            @delete="onDelete"
+          />
+        </div>
+      </template>
+    </template>
   </div>
 </template>
 
@@ -111,8 +127,14 @@ const onDelete = (id: string): void => {
   gap: var(--space-2);
 }
 
-.simulations-page__empty {
+.simulations-page__empty-state {
   padding: var(--space-4) 0;
+  text-align: center;
+}
+
+.simulations-page__empty-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
 }
 
 .simulations-page__grid {

@@ -3,23 +3,24 @@ import { describe, it, expect } from "vitest";
 import { NTag, NButton } from "naive-ui";
 
 import AlertItem from "./AlertItem.vue";
-import type { AlertDto } from "~/features/alerts/contracts/alert.dto";
+import type { Alert } from "~/features/alerts/model/alerts";
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 
 /**
- * Creates a minimal valid AlertDto for testing.
+ * Creates a minimal valid Alert view model for testing.
  *
  * @param overrides - Partial properties to override defaults.
- * @returns A complete AlertDto fixture.
+ * @returns A complete Alert fixture.
  */
-const makeAlert = (overrides: Partial<AlertDto> = {}): AlertDto => ({
+const makeAlert = (overrides: Partial<Alert> = {}): Alert => ({
   id: "alert-test-001",
   type: "system",
   title: "Título de teste",
-  description: "Descrição de teste do alerta.",
-  created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-  is_read: false,
+  body: "Descrição de teste do alerta.",
+  severity: "info",
+  readAt: null,
+  createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
   ...overrides,
 });
 
@@ -29,7 +30,7 @@ const makeAlert = (overrides: Partial<AlertDto> = {}): AlertDto => ({
  * @param alert - Alert data to render.
  * @returns VueWrapper around the mounted component.
  */
-function mountAlertItem(alert: AlertDto): ReturnType<typeof mount> {
+function mountAlertItem(alert: Alert): ReturnType<typeof mount> {
   return mount(AlertItem, {
     props: { alert },
     global: {
@@ -49,23 +50,23 @@ describe("AlertItem", () => {
     expect(wrapper.text()).toContain("Meta atingida!");
   });
 
-  it("renders the alert description", () => {
-    const wrapper = mountAlertItem(makeAlert({ description: "Você alcançou sua meta." }));
+  it("renders the alert body", () => {
+    const wrapper = mountAlertItem(makeAlert({ body: "Você alcançou sua meta." }));
     expect(wrapper.text()).toContain("Você alcançou sua meta.");
   });
 
-  it("applies unread border class when alert is unread", () => {
-    const wrapper = mountAlertItem(makeAlert({ is_read: false }));
+  it("applies unread border class when readAt is null", () => {
+    const wrapper = mountAlertItem(makeAlert({ readAt: null }));
     expect(wrapper.find(".alert-item--unread").exists()).toBe(true);
   });
 
-  it("does not apply unread border class when alert is read", () => {
-    const wrapper = mountAlertItem(makeAlert({ is_read: true }));
+  it("does not apply unread border class when readAt is set", () => {
+    const wrapper = mountAlertItem(makeAlert({ readAt: new Date().toISOString() }));
     expect(wrapper.find(".alert-item--unread").exists()).toBe(false);
   });
 
   it("emits 'mark-read' with the alert id when check button is clicked", async () => {
-    const alert = makeAlert({ is_read: false, id: "alert-xyz" });
+    const alert = makeAlert({ readAt: null, id: "alert-xyz" });
     const wrapper = mountAlertItem(alert);
     const buttons = wrapper.findAllComponents(NButton);
     const markReadBtn = buttons.at(0);
@@ -77,7 +78,7 @@ describe("AlertItem", () => {
   });
 
   it("emits 'delete' with the alert id when trash button is clicked", async () => {
-    const alert = makeAlert({ is_read: false, id: "alert-delete-01" });
+    const alert = makeAlert({ readAt: null, id: "alert-delete-01" });
     const wrapper = mountAlertItem(alert);
     const buttons = wrapper.findAllComponents(NButton);
     const deleteBtn = buttons.at(buttons.length - 1);
@@ -89,8 +90,8 @@ describe("AlertItem", () => {
   });
 
   it("shows the mark-read button only when alert is unread", () => {
-    const unread = mountAlertItem(makeAlert({ is_read: false }));
-    const read = mountAlertItem(makeAlert({ is_read: true }));
+    const unread = mountAlertItem(makeAlert({ readAt: null }));
+    const read = mountAlertItem(makeAlert({ readAt: new Date().toISOString() }));
     expect(unread.findAllComponents(NButton).length).toBe(2);
     expect(read.findAllComponents(NButton).length).toBe(1);
   });
@@ -121,6 +122,12 @@ describe("AlertItem", () => {
 
   it("renders NTag with type='default' for system alerts", () => {
     const wrapper = mountAlertItem(makeAlert({ type: "system" }));
+    const tag = wrapper.findComponent(NTag);
+    expect(tag.props("type")).toBe("default");
+  });
+
+  it("renders NTag with type='default' for unknown alert types", () => {
+    const wrapper = mountAlertItem(makeAlert({ type: "unknown_type" }));
     const tag = wrapper.findComponent(NTag);
     expect(tag.props("type")).toBe("default");
   });
