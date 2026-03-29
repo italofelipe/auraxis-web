@@ -1,6 +1,4 @@
-import { useCookie } from "#app";
 import { defineStore } from "pinia";
-import type { Ref } from "vue";
 
 interface SessionCookiePayload {
   accessToken: string;
@@ -13,19 +11,7 @@ interface SessionState {
 }
 
 const SESSION_COOKIE_KEY = "auraxis_session";
-
-/**
- * Resolves the canonical authenticated session cookie.
- * @returns Reactive reference to the session cookie.
- */
-const useSessionCookie = (): Ref<SessionCookiePayload | null> => {
-  return useCookie<SessionCookiePayload | null>(SESSION_COOKIE_KEY, {
-    default: () => null,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    watch: false,
-  }) as Ref<SessionCookiePayload | null>;
-};
+const SESSION_COOKIE_MAX_AGE = 604800; // 7 days in seconds
 
 /**
  * Applies the persisted cookie payload to the local store state.
@@ -87,17 +73,26 @@ export const useSessionStore = defineStore("session", {
       this.accessToken = accessToken;
       this.userEmail = userEmail;
 
-      const sessionCookie = useSessionCookie();
-      sessionCookie.value = {
-        accessToken,
-        userEmail,
-      };
+      // Write cookie directly via document.cookie to avoid calling useCookie()
+      // outside a Nuxt app context. signIn is invoked from Vue Query mutation
+      // onSuccess callbacks which run outside the Nuxt composable context.
+      if (typeof document === "undefined") {
+        return;
+      }
+
+      const isProduction = process.env.NODE_ENV === "production";
+      const secure = isProduction ? "; Secure" : "";
+      document.cookie = `${SESSION_COOKIE_KEY}=${encodeURIComponent(JSON.stringify({ accessToken, userEmail }))}; path=/; SameSite=Lax; Max-Age=${SESSION_COOKIE_MAX_AGE}${secure}`;
     },
     signOut(): void {
       applyCookiePayloadToState(this, null);
 
-      const sessionCookie = useSessionCookie();
-      sessionCookie.value = null;
+      // Clear cookie directly via document.cookie for the same reason as signIn.
+      if (typeof document === "undefined") {
+        return;
+      }
+
+      document.cookie = `${SESSION_COOKIE_KEY}=; path=/; SameSite=Lax; Max-Age=0`;
     },
   },
 });
