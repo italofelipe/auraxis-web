@@ -1,7 +1,7 @@
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
 import { isMockDataEnabled } from "~/core/config";
-import { useAlertsClient, type AlertsClient } from "~/features/alerts/api/alerts.client";
+import { useAlertsClient, type AlertsClient } from "~/features/alerts/services/alerts.client";
 import type { AlertsPage } from "~/features/alerts/model/alerts";
 
 /** Mock payload used only when NUXT_PUBLIC_MOCK_DATA=true. */

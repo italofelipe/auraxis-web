@@ -2,7 +2,7 @@ import type { AxiosInstance } from "axios";
 
 import { useHttp } from "~/composables/useHttp";
 import type { CreateInvitationDto, CreateSharedEntryDto, InvitationDto, SharedEntryDto } from "~/features/sharing/contracts/sharing.dto";
-import { mapInvitationDto, mapSharedEntryDto } from "~/features/sharing/api/sharing.mapper";
+import { mapInvitationDto, mapSharedEntryDto } from "~/features/sharing/services/sharing.mapper";
 import type { CreateInvitationParams, CreateSharedEntryParams, Invitation, SharedEntry } from "~/features/sharing/model/sharing";
 
 /**

@@ -1,6 +1,6 @@
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
-import { useSharingClient, type SharingClient } from "~/features/sharing/api/sharing.client";
+import { useSharingClient, type SharingClient } from "~/features/sharing/services/sharing.client";
 import type { Invitation } from "~/features/sharing/model/sharing";
 
 /**

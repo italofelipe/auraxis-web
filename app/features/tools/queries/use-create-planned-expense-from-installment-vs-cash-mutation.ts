@@ -3,7 +3,7 @@ import { type UseMutationReturnType, useMutation, useQueryClient } from "@tansta
 import {
   type InstallmentVsCashClient,
   useInstallmentVsCashClient,
-} from "~/features/tools/api/installment-vs-cash.client";
+} from "~/features/tools/services/installment-vs-cash.client";
 import type {
   CreateInstallmentVsCashPlannedExpensePayload,
   InstallmentVsCashPlannedExpenseBridgeResponse,

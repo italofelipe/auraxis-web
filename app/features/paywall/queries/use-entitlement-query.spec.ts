@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useEntitlementQuery } from "./use-entitlement-query";
-import type { EntitlementClient } from "~/features/paywall/api/entitlement.client";
+import type { EntitlementClient } from "~/features/paywall/services/entitlement.client";
 
 const useQueryMock = vi.hoisted(() => vi.fn());
 

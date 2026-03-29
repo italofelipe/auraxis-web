@@ -1,7 +1,7 @@
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
 import { isMockDataEnabled } from "~/core/config";
-import { useWalletClient, type WalletClient } from "~/features/wallet/api/wallet.client";
+import { useWalletClient, type WalletClient } from "~/features/wallet/services/wallet.client";
 import { MOCK_PORTFOLIO_SUMMARY } from "~/features/portfolio/mock/portfolio.mock";
 import type { PortfolioSummaryDto } from "~/features/portfolio/contracts/portfolio.dto";
 

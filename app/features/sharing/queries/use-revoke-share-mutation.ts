@@ -1,6 +1,6 @@
 import { type UseMutationReturnType, useMutation } from "@tanstack/vue-query";
 
-import { useSharingClient, type SharingClient } from "~/features/sharing/api/sharing.client";
+import { useSharingClient, type SharingClient } from "~/features/sharing/services/sharing.client";
 
 /**
  * Vue Query mutation hook for revoking a shared entry.

@@ -3,7 +3,7 @@ import { type UseMutationReturnType, useMutation } from "@tanstack/vue-query";
 import {
   useSimulationClient,
   type SimulationClient,
-} from "~/features/simulations/api/simulation.client";
+} from "~/features/simulations/services/simulation.client";
 import type { Simulation, SaveSimulationPayload } from "~/features/simulations/model/simulation";
 
 /**

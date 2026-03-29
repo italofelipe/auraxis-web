@@ -2,7 +2,7 @@ import type { AxiosInstance } from "axios";
 
 import { useHttp } from "~/composables/useHttp";
 import type { SimulationDto, SaveSimulationPayloadDto } from "~/features/simulations/contracts/simulation.dto";
-import { mapSimulationDto } from "~/features/simulations/api/simulation.mapper";
+import { mapSimulationDto } from "~/features/simulations/services/simulation.mapper";
 import type { Simulation, SaveSimulationPayload } from "~/features/simulations/model/simulation";
 
 /**

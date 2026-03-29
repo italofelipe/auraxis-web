@@ -19,7 +19,7 @@ import { captureException } from "~/core/observability";
 import { useAuthRedirectContext } from "~/composables/useAuthRedirectContext";
 import { useSessionStore } from "~/stores/session";
 import { useToolContextStore } from "~/stores/toolContext";
-import { useEntitlementClient } from "~/features/paywall/api/entitlement.client";
+import { useEntitlementClient } from "~/features/paywall/services/entitlement.client";
 import { useCreateGoalFromInstallmentVsCashMutation } from "~/features/tools/queries/use-create-goal-from-installment-vs-cash-mutation";
 import { useCreatePlannedExpenseFromInstallmentVsCashMutation } from "~/features/tools/queries/use-create-planned-expense-from-installment-vs-cash-mutation";
 import { useInstallmentVsCashCalculateMutation } from "~/features/tools/queries/use-installment-vs-cash-calculate-mutation";

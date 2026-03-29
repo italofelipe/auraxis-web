@@ -4,7 +4,7 @@ import {
   useReceivablesClient,
   type CsvUploadPayload,
   type ReceivablesClient,
-} from "~/features/receivables/api/receivables.client";
+} from "~/features/receivables/services/receivables.client";
 import type { ParsedRow } from "~/features/receivables/model/receivables";
 
 /**

@@ -1,6 +1,6 @@
 import { type UseMutationReturnType, useMutation, useQueryClient } from "@tanstack/vue-query";
 
-import { useAlertsClient, type AlertsClient } from "~/features/alerts/api/alerts.client";
+import { useAlertsClient, type AlertsClient } from "~/features/alerts/services/alerts.client";
 
 /**
  * Vue Query mutation hook for deleting a single alert.

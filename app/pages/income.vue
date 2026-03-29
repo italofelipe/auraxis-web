@@ -6,7 +6,7 @@ import { useConfirmImportMutation } from "~/features/receivables/queries/use-con
 import { useCsvUploadMutation } from "~/features/receivables/queries/use-csv-upload-mutation";
 import { useReceivablesQuery } from "~/features/receivables/queries/use-receivables-query";
 import { useRevenueSummaryQuery } from "~/features/receivables/queries/use-revenue-summary-query";
-import type { CsvUploadPayload } from "~/features/receivables/api/receivables.client";
+import type { CsvUploadPayload } from "~/features/receivables/services/receivables.client";
 import type { ParsedRow } from "~/features/receivables/model/receivables";
 
 const { t } = useI18n();

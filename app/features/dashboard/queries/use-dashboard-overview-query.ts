@@ -3,7 +3,7 @@ import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 import {
   useDashboardOverviewApiClient,
   type DashboardOverviewApiClient,
-} from "~/features/dashboard/api/dashboard-overview.client";
+} from "~/features/dashboard/services/dashboard-overview.client";
 import {
   DEFAULT_DASHBOARD_FILTERS,
   isCustomDashboardPeriod,

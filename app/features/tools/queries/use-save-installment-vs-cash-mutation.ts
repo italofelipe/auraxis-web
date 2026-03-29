@@ -7,7 +7,7 @@ import {
 import {
   type InstallmentVsCashClient,
   useInstallmentVsCashClient,
-} from "~/features/tools/api/installment-vs-cash.client";
+} from "~/features/tools/services/installment-vs-cash.client";
 import type { InstallmentVsCashSaveRequestDto } from "~/features/tools/contracts/installment-vs-cash.dto";
 import type { InstallmentVsCashSavedCalculation } from "~/features/tools/model/installment-vs-cash";
 

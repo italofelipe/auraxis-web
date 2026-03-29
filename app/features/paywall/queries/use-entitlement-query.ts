@@ -4,7 +4,7 @@ import { isMockDataEnabled } from "~/core/config";
 import {
   useEntitlementClient,
   type EntitlementClient,
-} from "~/features/paywall/api/entitlement.client";
+} from "~/features/paywall/services/entitlement.client";
 import type { FeatureKey } from "~/features/paywall/model/entitlement";
 
 /**

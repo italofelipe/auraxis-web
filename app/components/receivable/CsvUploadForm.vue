@@ -2,7 +2,7 @@
 import { NButton, NCard, NInput, NSpace } from "naive-ui";
 import { ref } from "vue";
 
-import type { CsvUploadPayload } from "~/features/receivables/api/receivables.client";
+import type { CsvUploadPayload } from "~/features/receivables/services/receivables.client";
 
 interface Emits {
   /** Emitted with the assembled upload payload when the user requests a preview. */

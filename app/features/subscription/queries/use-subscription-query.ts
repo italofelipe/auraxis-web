@@ -4,7 +4,7 @@ import { isMockDataEnabled } from "~/core/config";
 import {
   useSubscriptionClient,
   type SubscriptionClient,
-} from "~/features/subscription/api/subscription.client";
+} from "~/features/subscription/services/subscription.client";
 import type { Subscription } from "~/features/subscription/model/subscription";
 
 /** Mock payload used only when NUXT_PUBLIC_MOCK_DATA=true. */

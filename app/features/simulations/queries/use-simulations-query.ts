@@ -4,7 +4,7 @@ import { isMockDataEnabled } from "~/core/config";
 import {
   useSimulationClient,
   type SimulationClient,
-} from "~/features/simulations/api/simulation.client";
+} from "~/features/simulations/services/simulation.client";
 import { MOCK_SIMULATIONS } from "~/features/simulations/mock/simulations.mock";
 import { mapToSimulationCardDto } from "~/features/simulations/model/simulation-card.mapper";
 import type { SimulationCardDto } from "~/features/simulations/contracts/simulation-card.dto";
