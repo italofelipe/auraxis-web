@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { BarChart2 } from "lucide-vue-next";
 
 import type { DashboardTimeseriesPoint } from "~/features/dashboard/model/dashboard-overview";
 import { formatCurrency } from "~/utils/currency";
+import { useChartSeriesMapper } from "~/composables/useChartSeriesMapper";
 
 interface Props {
   data: DashboardTimeseriesPoint[];
@@ -11,6 +13,20 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   isLoading: false,
+});
+
+const { mapTimeseries } = useChartSeriesMapper();
+
+const mapped = computed(() => mapTimeseries(props.data));
+
+/** Colors derived from design tokens via the chart series mapper. */
+const seriesColors = computed(() => {
+  const [income, expense, balance] = mapped.value.series;
+  return {
+    income: income?.color ?? "",
+    expense: expense?.color ?? "",
+    balance: balance?.color ?? "",
+  };
 });
 
 /**
@@ -70,9 +86,9 @@ const formatDate = (value: string): string => {
           <span>{{ formatCurrency(point.balance) }}</span>
         </div>
         <div class="series-bars" aria-hidden="true">
-          <span class="series-bars__income" :style="barStyles(point).income" />
-          <span class="series-bars__expense" :style="barStyles(point).expense" />
-          <span class="series-bars__balance" :style="barStyles(point).balance" />
+          <span class="series-bars__income" :style="{ ...barStyles(point).income, background: seriesColors.income }" />
+          <span class="series-bars__expense" :style="{ ...barStyles(point).expense, background: seriesColors.expense }" />
+          <span class="series-bars__balance" :style="{ ...barStyles(point).balance, background: seriesColors.balance }" />
         </div>
       </div>
     </div>
@@ -134,15 +150,4 @@ const formatDate = (value: string): string => {
   border-radius: var(--radius-lg);
 }
 
-.series-bars__income {
-  background: rgba(35, 133, 84, 0.8);
-}
-
-.series-bars__expense {
-  background: rgba(199, 91, 57, 0.82);
-}
-
-.series-bars__balance {
-  background: rgba(255, 190, 77, 0.85);
-}
 </style>
