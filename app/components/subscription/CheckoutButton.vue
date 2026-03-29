@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { NButton } from "naive-ui";
 
-import { useSubscriptionClient } from "~/features/subscription/api/subscription.client";
+import { useSubscriptionClient } from "~/features/subscription/services/subscription.client";
 
 interface Props {
   /** Plan slug to initiate checkout for. */

@@ -9,11 +9,11 @@ import {
   NGridItem,
   NPageHeader,
 } from "naive-ui";
-import {
-  MOCK_CURRENT_SUBSCRIPTION,
-  MOCK_ALL_PLANS,
-} from "~/features/subscription/mock/subscription.mock";
-import type { SubscriptionStatus } from "~/features/subscription/contracts/subscription.dto";
+import { useSubscriptionQuery } from "~/features/subscription/queries/use-subscription-query";
+import { useCancelSubscriptionMutation } from "~/features/subscription/queries/use-cancel-subscription-mutation";
+import { useCreateCheckoutMutation } from "~/features/subscription/queries/use-create-checkout-mutation";
+import type { SubscriptionStatus } from "~/features/subscription/model/subscription";
+import type { PlanDto, PlanSlug } from "~/features/subscription/contracts/subscription.dto";
 
 definePageMeta({
   layout: "default",
@@ -24,43 +24,106 @@ definePageMeta({
 
 useHead({ title: "Assinatura | Auraxis" });
 
-const subscription = ref({ ...MOCK_CURRENT_SUBSCRIPTION });
-const plans = ref([...MOCK_ALL_PLANS]);
+const ALL_PLANS: PlanDto[] = [
+  {
+    slug: "free",
+    name: "Gratuito",
+    price_monthly: 0,
+    features: [
+      { label: "Até 50 transações/mês", included: true },
+      { label: "1 meta financeira", included: true },
+      { label: "Relatórios básicos", included: false },
+      { label: "Simulações financeiras", included: false },
+      { label: "Lançamentos compartilhados", included: false },
+      { label: "Suporte prioritário", included: false },
+    ],
+  },
+  {
+    slug: "starter",
+    name: "Starter",
+    price_monthly: 29.9,
+    features: [
+      { label: "Até 200 transações/mês", included: true },
+      { label: "3 metas financeiras", included: true },
+      { label: "Relatórios básicos", included: true },
+      { label: "Simulações financeiras", included: false },
+      { label: "Lançamentos compartilhados", included: false },
+      { label: "Suporte prioritário", included: false },
+    ],
+  },
+  {
+    slug: "pro",
+    name: "Pro",
+    price_monthly: 59.9,
+    features: [
+      { label: "Transações ilimitadas", included: true },
+      { label: "Metas ilimitadas", included: true },
+      { label: "Relatórios avançados", included: true },
+      { label: "Simulações financeiras", included: true },
+      { label: "Lançamentos compartilhados", included: true },
+      { label: "Suporte prioritário", included: false },
+    ],
+  },
+  {
+    slug: "premium",
+    name: "Premium",
+    price_monthly: 99.9,
+    features: [
+      { label: "Transações ilimitadas", included: true },
+      { label: "Metas ilimitadas", included: true },
+      { label: "Relatórios avançados", included: true },
+      { label: "Simulações financeiras", included: true },
+      { label: "Lançamentos compartilhados", included: true },
+      { label: "Suporte prioritário", included: true },
+    ],
+  },
+];
+
+const { data: subscription, isLoading, isError } = useSubscriptionQuery();
+const cancelMutation = useCancelSubscriptionMutation();
+const checkoutMutation = useCreateCheckoutMutation();
+
+const currentPlan = computed<PlanDto | null>(() => {
+  if (!subscription.value) {return null;}
+  return ALL_PLANS.find((p) => p.slug === (subscription.value!.planSlug as PlanSlug)) ?? null;
+});
+
+const status = computed<SubscriptionStatus | "none">(() => subscription.value?.status ?? "none");
 
 /**
  * Returns a human-readable label for a subscription status.
  *
- * @param status - The subscription status value.
+ * @param s - The subscription status value.
  * @returns Localised label string in PT-BR.
  */
-const statusLabel = (status: SubscriptionStatus): string => {
-  const map: Record<SubscriptionStatus, string> = {
+const statusLabel = (s: SubscriptionStatus | "none"): string => {
+  const map: Record<SubscriptionStatus | "none", string> = {
     active: "Ativo",
     canceled: "Cancelado",
     past_due: "Em atraso",
     trialing: "Período de teste",
     none: "Sem assinatura",
   };
-  return map[status];
+  return map[s];
 };
 
 /**
  * Resolves the NaiveUI tag type for a given subscription status.
  *
- * @param status - The subscription status value.
+ * @param s - The subscription status value.
  * @returns NaiveUI tag type string.
  */
 const statusTagType = (
-  status: SubscriptionStatus,
+  s: SubscriptionStatus | "none",
 ): "success" | "error" | "warning" | "info" | "default" => {
-  const map: Record<SubscriptionStatus, "success" | "error" | "warning" | "info" | "default"> = {
+  const map: Record<SubscriptionStatus | "none", "success" | "error" | "warning" | "info" | "default"> = {
     active: "success",
     canceled: "error",
     past_due: "warning",
     trialing: "info",
     none: "default",
   };
-  return map[status];
+  return map[s];
 };
 
 /**
@@ -77,43 +140,37 @@ const formatDate = (value: string): string =>
   }).format(new Date(value));
 
 const showCancelButton = computed(
-  () =>
-    subscription.value.status === "active" &&
-    !subscription.value.cancel_at_period_end,
+  () => status.value === "active" || status.value === "trialing",
 );
 
 const showWarningAlert = computed(
-  () =>
-    subscription.value.status === "past_due" ||
-    subscription.value.status === "canceled",
+  () => status.value === "past_due" || status.value === "canceled",
 );
 
 const warningAlertMessage = computed((): string => {
-  if (subscription.value.status === "past_due") {
+  if (status.value === "past_due") {
     return "Sua assinatura está em atraso. Atualize seu método de pagamento para continuar usando o Auraxis.";
   }
   return "Sua assinatura foi cancelada. Escolha um plano abaixo para reativar.";
 });
 
-/** Handles cancel subscription action. Updates local state. */
+/** Cancels the active subscription. */
 const onCancelSubscription = (): void => {
-  subscription.value = { ...subscription.value, cancel_at_period_end: true };
+  cancelMutation.mutate();
 };
 
 /**
- * Handles plan selection. Updates the current subscription plan in local state.
+ * Initiates checkout for the selected plan.
+ * Redirects to the returned checkout URL on success.
  *
  * @param slug - The selected plan slug.
  */
 const onSelectPlan = (slug: string): void => {
-  const selected = plans.value.find((p) => p.slug === slug);
-  if (!selected) {return;}
-  subscription.value = {
-    ...subscription.value,
-    plan: selected,
-    status: "active",
-    cancel_at_period_end: false,
-  };
+  checkoutMutation.mutate(slug, {
+    onSuccess: (checkoutUrl: string) => {
+      window.location.href = checkoutUrl;
+    },
+  });
 };
 </script>
 
@@ -124,75 +181,82 @@ const onSelectPlan = (slug: string): void => {
       subtitle="Gerencie seu plano Auraxis"
     />
 
-    <NAlert
-      v-if="showWarningAlert"
-      type="warning"
-      :title="subscription.status === 'past_due' ? 'Pagamento em atraso' : 'Assinatura cancelada'"
-      class="subscription-page__alert"
-    >
-      {{ warningAlertMessage }}
-    </NAlert>
+    <UiInlineError
+      v-if="isError"
+      title="Não foi possível carregar a assinatura"
+      message="Tente recarregar a página."
+    />
 
-    <NCard :bordered="true" class="subscription-page__status-card">
-      <div class="subscription-page__status-row">
-        <div class="subscription-page__status-info">
-          <div class="subscription-page__status-header">
-            <NText strong class="subscription-page__plan-name">
-              {{ subscription.plan.name }}
-            </NText>
-            <NTag :type="statusTagType(subscription.status)" size="small" :bordered="false">
-              {{ statusLabel(subscription.status) }}
-            </NTag>
+    <template v-else>
+      <UiPageLoader v-if="isLoading" :rows="3" :with-title="true" />
+
+      <template v-else>
+        <NAlert
+          v-if="showWarningAlert"
+          type="warning"
+          :title="status === 'past_due' ? 'Pagamento em atraso' : 'Assinatura cancelada'"
+          class="subscription-page__alert"
+        >
+          {{ warningAlertMessage }}
+        </NAlert>
+
+        <NCard v-if="subscription" :bordered="true" class="subscription-page__status-card">
+          <div class="subscription-page__status-row">
+            <div class="subscription-page__status-info">
+              <div class="subscription-page__status-header">
+                <NText strong class="subscription-page__plan-name">
+                  {{ currentPlan?.name ?? subscription.planSlug }}
+                </NText>
+                <NTag :type="statusTagType(status)" size="small" :bordered="false">
+                  {{ statusLabel(status) }}
+                </NTag>
+              </div>
+              <NText
+                v-if="subscription.currentPeriodEnd"
+                class="subscription-page__period-end"
+                depth="3"
+              >
+                Próxima cobrança: {{ formatDate(subscription.currentPeriodEnd) }}
+              </NText>
+            </div>
+            <NButton
+              v-if="showCancelButton"
+              type="error"
+              size="small"
+              quaternary
+              :loading="cancelMutation.isPending.value"
+              @click="onCancelSubscription"
+            >
+              Cancelar assinatura
+            </NButton>
           </div>
-          <NText
-            v-if="subscription.current_period_end"
-            class="subscription-page__period-end"
-            depth="3"
-          >
-            Próxima cobrança: {{ formatDate(subscription.current_period_end) }}
-          </NText>
-          <NText
-            v-if="subscription.cancel_at_period_end"
-            class="subscription-page__cancel-notice"
-            depth="3"
-          >
-            Assinatura será cancelada ao fim do período atual.
-          </NText>
-        </div>
-        <NButton
-          v-if="showCancelButton"
-          type="error"
-          size="small"
-          quaternary
-          @click="onCancelSubscription"
-        >
-          Cancelar assinatura
-        </NButton>
-      </div>
-    </NCard>
+        </NCard>
 
-    <div class="subscription-page__plans-section">
-      <NText tag="h3" class="subscription-page__plans-title">
-        Escolha seu plano
-      </NText>
-      <NGrid :x-gap="16" :y-gap="16" :cols="4" responsive="screen" item-responsive>
-        <NGridItem
-          v-for="plan in plans"
-          :key="plan.slug"
-          :span="4"
-          :xs="4"
-          :s="2"
-          :m="2"
-          :l="1"
-        >
-          <PlanCard
-            :plan="plan"
-            :is-current="plan.slug === subscription.plan.slug"
-            @select="onSelectPlan"
-          />
-        </NGridItem>
-      </NGrid>
-    </div>
+        <div class="subscription-page__plans-section">
+          <NText tag="h3" class="subscription-page__plans-title">
+            Escolha seu plano
+          </NText>
+          <NGrid :x-gap="16" :y-gap="16" :cols="4" responsive="screen" item-responsive>
+            <NGridItem
+              v-for="plan in ALL_PLANS"
+              :key="plan.slug"
+              :span="4"
+              :xs="4"
+              :s="2"
+              :m="2"
+              :l="1"
+            >
+              <PlanCard
+                :plan="plan"
+                :is-current="plan.slug === subscription?.planSlug"
+                :loading="checkoutMutation.isPending.value && checkoutMutation.variables.value === plan.slug"
+                @select="onSelectPlan"
+              />
+            </NGridItem>
+          </NGrid>
+        </div>
+      </template>
+    </template>
   </div>
 </template>
 
@@ -236,11 +300,6 @@ const onSelectPlan = (slug: string): void => {
 }
 
 .subscription-page__period-end {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-}
-
-.subscription-page__cancel-notice {
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
 }
