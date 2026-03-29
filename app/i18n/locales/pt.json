@@ -22,6 +22,32 @@
       }
     }
   },
+  "investorProfile": {
+    "page": { "title": "Perfil do Investidor" },
+    "wizard": {
+      "questionLabel": "Pergunta {current} de {total}",
+      "next": "Próxima",
+      "prev": "Anterior",
+      "submit": "Concluir"
+    },
+    "result": {
+      "conservador": {
+        "title": "Conservador",
+        "description": "Você prioriza a segurança do patrimônio. Prefere rentabilidade estável a riscos elevados."
+      },
+      "explorador": {
+        "title": "Explorador",
+        "description": "Você busca equilíbrio entre segurança e crescimento, aceitando riscos moderados."
+      },
+      "entusiasta": {
+        "title": "Entusiasta",
+        "description": "Você tem alta tolerância ao risco e busca maximizar retornos no longo prazo."
+      },
+      "cta": "Ir para o Dashboard"
+    },
+    "loading": "Carregando questionário...",
+    "error": "Erro ao carregar o questionário. Tente novamente."
+  },
   "auth": {
     "login": {
       "title": "Bem-vindo de volta",
