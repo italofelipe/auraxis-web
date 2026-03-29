@@ -10,6 +10,26 @@ import type {
 } from "~/features/portfolio/contracts/portfolio.dto";
 
 /**
+ * Payload for creating a new wallet entry.
+ */
+export type CreateWalletEntryPayload = {
+  /** Display name for the asset. */
+  readonly name: string;
+  /** Current monetary value — required when no ticker is provided. */
+  readonly value?: number | null;
+  /** Stock/crypto/fund ticker symbol — when provided, quantity is required. */
+  readonly ticker?: string | null;
+  /** Number of units held — required when ticker is provided. */
+  readonly quantity?: number | null;
+  /** Asset class classification. */
+  readonly asset_class?: "stock" | "fii" | "etf" | "bdr" | "crypto" | "cdb" | "custom";
+  /** ISO 8601 date (YYYY-MM-DD) of the registration. */
+  readonly register_date: string;
+  /** Whether this asset should count towards total patrimony. */
+  readonly should_be_on_wallet: boolean;
+};
+
+/**
  * API client for the wallet feature.
  *
  * Encapsulates all HTTP calls to the `/wallet` endpoints and returns
@@ -53,6 +73,31 @@ export class WalletClient {
   async getEntries(): Promise<WalletEntryDto[]> {
     const response = await this.#http.get<WalletEntryDto[]>("/wallet/entries");
     return response.data;
+  }
+
+  /**
+   * Creates a new wallet entry for the authenticated user.
+   *
+   * The backend responds with `{ message, data: { investment: WalletEntryDto } }`.
+   *
+   * @param payload - Data for the new asset entry.
+   * @returns The newly created WalletEntryDto.
+   */
+  async createEntry(payload: CreateWalletEntryPayload): Promise<WalletEntryDto> {
+    const response = await this.#http.post<{ data: { investment: WalletEntryDto } }>(
+      "/wallet",
+      payload,
+    );
+    return response.data.data.investment;
+  }
+
+  /**
+   * Deletes a wallet entry by its identifier.
+   *
+   * @param id - The unique identifier of the entry to delete.
+   */
+  async deleteEntry(id: string): Promise<void> {
+    await this.#http.delete(`/wallet/${id}`);
   }
 }
 
