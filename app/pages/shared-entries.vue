@@ -7,10 +7,9 @@ import {
   NTabPane,
   NPageHeader,
 } from "naive-ui";
-import {
-  MOCK_SHARED_BY_ME,
-  MOCK_SHARED_WITH_ME,
-} from "~/features/shared-entries/mock/shared-entries.mock";
+import { useSharedByMeQuery } from "~/features/shared-entries/queries/use-shared-by-me-query";
+import { useSharedWithMeQuery } from "~/features/shared-entries/queries/use-shared-with-me-query";
+import { useRevokeSharedEntryMutation } from "~/features/shared-entries/queries/use-revoke-shared-entry-mutation";
 
 definePageMeta({
   layout: "default",
@@ -21,10 +20,17 @@ definePageMeta({
 
 useHead({ title: "Entradas Compartilhadas | Auraxis" });
 
-const sharedByMe = ref([...MOCK_SHARED_BY_ME]);
-const sharedWithMe = ref([...MOCK_SHARED_WITH_ME]);
+const { data: sharedByMe, isLoading: isByMeLoading, isError: isByMeError } = useSharedByMeQuery();
+const { data: sharedWithMe, isLoading: isWithMeLoading, isError: isWithMeError } = useSharedWithMeQuery();
+const revokeMutation = useRevokeSharedEntryMutation();
 
-const allEntries = computed(() => [...sharedByMe.value, ...sharedWithMe.value]);
+const isLoading = computed(() => isByMeLoading.value || isWithMeLoading.value);
+const isError = computed(() => isByMeError.value || isWithMeError.value);
+
+const byMeList = computed(() => sharedByMe.value ?? []);
+const withMeList = computed(() => sharedWithMe.value ?? []);
+
+const allEntries = computed(() => [...byMeList.value, ...withMeList.value]);
 
 const totalCount = computed(() => allEntries.value.length);
 
@@ -37,12 +43,12 @@ const acceptedCount = computed(
 );
 
 /**
- * Revokes a shared entry by id, removing it from the by-me list.
+ * Revokes a shared entry by id via the API.
  *
  * @param id - The shared entry id to revoke.
  */
 const onRevoke = (id: string): void => {
-  sharedByMe.value = sharedByMe.value.filter((e) => e.id !== id);
+  revokeMutation.mutate(id);
 };
 </script>
 
@@ -53,50 +59,60 @@ const onRevoke = (id: string): void => {
       subtitle="Gerencie divisões de transações"
     />
 
-    <NCard :bordered="true" class="shared-entries-page__summary-card">
-      <div class="shared-entries-page__summary-stats">
-        <NStatistic label="Total" :value="String(totalCount)" />
-        <NStatistic label="Pendentes" :value="String(pendingCount)" />
-        <NStatistic label="Aceitas" :value="String(acceptedCount)" />
-      </div>
-    </NCard>
+    <UiInlineError
+      v-if="isError"
+      title="Não foi possível carregar as entradas compartilhadas"
+      message="Tente recarregar a página."
+    />
 
-    <NTabs type="line" animated>
-      <NTabPane name="by-me" tab="Compartilhadas por mim">
-        <div class="shared-entries-page__tab-content">
-          <NEmpty
-            v-if="sharedByMe.length === 0"
-            description="Nenhuma entrada compartilhada por você."
-          />
-          <div v-else class="shared-entries-page__list">
-            <SharedEntryRow
-              v-for="entry in sharedByMe"
-              :key="entry.id"
-              :entry="entry"
-              mode="by-me"
-              @revoke="onRevoke"
-            />
-          </div>
+    <template v-else>
+      <NCard :bordered="true" class="shared-entries-page__summary-card">
+        <div class="shared-entries-page__summary-stats">
+          <NStatistic label="Total" :value="String(totalCount)" />
+          <NStatistic label="Pendentes" :value="String(pendingCount)" />
+          <NStatistic label="Aceitas" :value="String(acceptedCount)" />
         </div>
-      </NTabPane>
+      </NCard>
 
-      <NTabPane name="with-me" tab="Compartilhadas comigo">
-        <div class="shared-entries-page__tab-content">
-          <NEmpty
-            v-if="sharedWithMe.length === 0"
-            description="Nenhuma entrada compartilhada com você."
-          />
-          <div v-else class="shared-entries-page__list">
-            <SharedEntryRow
-              v-for="entry in sharedWithMe"
-              :key="entry.id"
-              :entry="entry"
-              mode="with-me"
+      <UiPageLoader v-if="isLoading" :rows="3" />
+
+      <NTabs v-else type="line" animated>
+        <NTabPane name="by-me" tab="Compartilhadas por mim">
+          <div class="shared-entries-page__tab-content">
+            <NEmpty
+              v-if="byMeList.length === 0"
+              description="Nenhuma entrada compartilhada por você."
             />
+            <div v-else class="shared-entries-page__list">
+              <SharedEntryRow
+                v-for="entry in byMeList"
+                :key="entry.id"
+                :entry="entry"
+                mode="by-me"
+                @revoke="onRevoke"
+              />
+            </div>
           </div>
-        </div>
-      </NTabPane>
-    </NTabs>
+        </NTabPane>
+
+        <NTabPane name="with-me" tab="Compartilhadas comigo">
+          <div class="shared-entries-page__tab-content">
+            <NEmpty
+              v-if="withMeList.length === 0"
+              description="Nenhuma entrada compartilhada com você."
+            />
+            <div v-else class="shared-entries-page__list">
+              <SharedEntryRow
+                v-for="entry in withMeList"
+                :key="entry.id"
+                :entry="entry"
+                mode="with-me"
+              />
+            </div>
+          </div>
+        </NTabPane>
+      </NTabs>
+    </template>
   </div>
 </template>
 
