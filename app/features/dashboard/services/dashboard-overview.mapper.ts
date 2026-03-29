@@ -1,5 +1,5 @@
 import type { DashboardOverviewDto } from "~/features/dashboard/contracts/dashboard-overview.dto";
-import { DashboardOverviewContractError } from "~/features/dashboard/api/dashboard-overview.contract-error";
+import { DashboardOverviewContractError } from "~/features/dashboard/services/dashboard-overview.contract-error";
 import type {
   DashboardAlert,
   DashboardComparison,
@@ -95,21 +95,6 @@ const expectNullableNumber = (value: unknown, field: string): number | null => {
   }
 
   return expectNumber(value, field);
-};
-
-/**
- * Ensures a contract field is an array.
- *
- * @param value Unknown runtime value.
- * @param field Contract field label for error reporting.
- * @returns Parsed array value.
- */
-const expectArray = (value: unknown, field: string): unknown[] => {
-  if (!Array.isArray(value)) {
-    throw new DashboardOverviewContractError(`${field} must be an array`);
-  }
-
-  return value;
 };
 
 /**
@@ -284,35 +269,170 @@ const toAlert = (value: unknown, index: number): DashboardAlert => {
 };
 
 /**
+ * Extracts the data payload from either a bare object or a v2-wrapped response.
+ *
+ * The backend wraps all v2 responses as `{ success, message, data: {...} }`.
+ * Some code paths may also pass the inner data directly.
+ *
+ * @param input Unknown runtime payload from the API.
+ * @returns The inner data record.
+ */
+const unwrapV2 = (input: unknown): Record<string, unknown> => {
+  const top = expectRecord(input, "response");
+  // v2 contract wrapper: { success: true, message: "...", data: {...} }
+  if ("data" in top && isRecord(top.data)) {
+    return top.data as Record<string, unknown>;
+  }
+  return top;
+};
+
+/**
+ * Maps the backend's simplified `totals` block to the frontend summary model.
+ *
+ * @param raw The unwrapped data payload.
+ * @returns Parsed summary model.
+ */
+const toSummaryFromTotals = (raw: Record<string, unknown>): DashboardSummary => {
+  if (isRecord(raw.summary)) {
+    return toSummary(raw.summary);
+  }
+
+  if (isRecord(raw.totals)) {
+    const totals = raw.totals as Record<string, unknown>;
+    return {
+      income: typeof totals.income_total === "number" ? totals.income_total : 0,
+      expense: typeof totals.expense_total === "number" ? totals.expense_total : 0,
+      balance: typeof totals.balance === "number" ? totals.balance : 0,
+      upcomingDueTotal: 0,
+      netWorth: 0,
+    };
+  }
+
+  return { income: 0, expense: 0, balance: 0, upcomingDueTotal: 0, netWorth: 0 };
+};
+
+/**
+ * Maps the backend's `top_categories.expense[]` to the frontend category model.
+ *
+ * @param raw The unwrapped data payload.
+ * @returns Parsed expense category array.
+ */
+const toExpenseCategoriesFromTopCategories = (
+  raw: Record<string, unknown>,
+): DashboardExpenseCategory[] => {
+  if (Array.isArray(raw.expenses_by_category)) {
+    return (raw.expenses_by_category as unknown[]).map(toExpenseCategory);
+  }
+
+  if (isRecord(raw.top_categories) && Array.isArray((raw.top_categories as Record<string, unknown>).expense)) {
+    const items = (raw.top_categories as Record<string, unknown[]>).expense ?? [];
+    return items.map((item, i) => {
+      const it = isRecord(item) ? item : {};
+      const categoryName = it.category_name ?? it.category;
+      const totalAmount = it.total_amount ?? it.amount;
+      const total = typeof raw.totals === "object" && raw.totals !== null
+        ? (raw.totals as Record<string, unknown>).expense_total ?? 1
+        : 1;
+      const amount = typeof totalAmount === "number" ? totalAmount : 0;
+      const pct = typeof total === "number" && total > 0 ? (amount / total) * 100 : 0;
+
+      return {
+        category: typeof categoryName === "string" ? categoryName : `Category ${i}`,
+        amount,
+        percentage: Math.round(pct * 100) / 100,
+      };
+    });
+  }
+
+  return [];
+};
+
+/**
+ * Derives the period label from an YYYY-MM month string.
+ *
+ * @param month YYYY-MM month string.
+ * @returns Localised PT-BR month label.
+ */
+const monthLabel = (month: string): string => {
+  const [year, mon] = month.split("-");
+  if (!year || !mon) {return month;}
+  const date = new Date(Number(year), Number(mon) - 1, 1);
+  return date.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+};
+
+/**
  * Maps the canonical dashboard overview DTO into the internal dashboard model.
+ *
+ * Handles two response shapes:
+ * 1. Rich contract (period/summary/comparison/…) — returned by future API versions.
+ * 2. Simplified backend contract (month/totals/counts/top_categories) — current MVP backend.
+ *    In this case the v2 wrapper `{ success, message, data }` is stripped first.
  *
  * @param input Unknown runtime payload from the API.
  * @returns Parsed dashboard overview model.
  */
 export const mapDashboardOverviewDto = (input: unknown): DashboardOverview => {
-  const raw = expectRecord(input, "dashboard_overview");
-  const period = expectRecord(raw.period, "period");
+  const data = unwrapV2(input);
+
+  // Rich contract path (period object present)
+  if (isRecord(data.period)) {
+    const period = data.period as Record<string, unknown>;
+    return {
+      period: {
+        key: expectString(period.key, "period.key") as DashboardOverviewDto["period"]["key"],
+        start: expectString(period.start, "period.start"),
+        end: expectString(period.end, "period.end"),
+        label: expectString(period.label, "period.label"),
+      },
+      summary: toSummary(data.summary),
+      comparison: toComparison(data.comparison),
+      timeseries: Array.isArray(data.timeseries)
+        ? (data.timeseries as unknown[]).map(toTimeseriesPoint)
+        : [],
+      expensesByCategory: Array.isArray(data.expenses_by_category)
+        ? (data.expenses_by_category as unknown[]).map(toExpenseCategory)
+        : [],
+      upcomingDues: Array.isArray(data.upcoming_dues)
+        ? (data.upcoming_dues as unknown[]).map(toUpcomingDue)
+        : [],
+      goals: Array.isArray(data.goals)
+        ? (data.goals as unknown[]).map(toGoalSummary)
+        : [],
+      portfolio: isRecord(data.portfolio) ? toPortfolio(data.portfolio) : { currentValue: 0, changePercent: null },
+      alerts: Array.isArray(data.alerts)
+        ? (data.alerts as unknown[]).map(toAlert)
+        : [],
+    };
+  }
+
+  // Simplified backend contract path (month / totals / counts / top_categories)
+  const month = typeof data.month === "string" ? data.month : "";
+  const now = new Date();
+  const startOfMonth = `${month}-01`;
+  const endOfMonthDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  const endOfMonth = month
+    ? `${month}-${String(endOfMonthDate.getDate()).padStart(2, "0")}`
+    : "";
 
   return {
     period: {
-      key: expectString(period.key, "period.key") as DashboardOverviewDto["period"]["key"],
-      start: expectString(period.start, "period.start"),
-      end: expectString(period.end, "period.end"),
-      label: expectString(period.label, "period.label"),
+      key: "current_month",
+      start: startOfMonth,
+      end: endOfMonth,
+      label: monthLabel(month),
     },
-    summary: toSummary(raw.summary),
-    comparison: toComparison(raw.comparison),
-    timeseries: expectArray(raw.timeseries, "timeseries").map(toTimeseriesPoint),
-    expensesByCategory: expectArray(
-      raw.expenses_by_category,
-      "expenses_by_category",
-    ).map(toExpenseCategory),
-    upcomingDues: expectArray(raw.upcoming_dues, "upcoming_dues").map(
-      toUpcomingDue,
-    ),
-    goals: expectArray(raw.goals, "goals").map(toGoalSummary),
-    portfolio: toPortfolio(raw.portfolio),
-    alerts: expectArray(raw.alerts, "alerts").map(toAlert),
+    summary: toSummaryFromTotals(data),
+    comparison: {
+      incomeVsPreviousMonthPercent: null,
+      expenseVsPreviousMonthPercent: null,
+      balanceVsPreviousMonthPercent: null,
+    },
+    timeseries: [],
+    expensesByCategory: toExpenseCategoriesFromTopCategories(data),
+    upcomingDues: [],
+    goals: [],
+    portfolio: { currentValue: 0, changePercent: null },
+    alerts: [],
   };
 };
 

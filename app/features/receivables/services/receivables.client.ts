@@ -10,7 +10,7 @@ import {
   mapParsedRowDto,
   mapReceivableEntryDto,
   mapRevenueSummaryDto,
-} from "~/features/receivables/api/receivables.mapper";
+} from "~/features/receivables/services/receivables.mapper";
 import type {
   ParsedRow,
   ReceivableEntry,

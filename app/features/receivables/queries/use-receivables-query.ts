@@ -4,7 +4,7 @@ import { isMockDataEnabled } from "~/core/config";
 import {
   useReceivablesClient,
   type ReceivablesClient,
-} from "~/features/receivables/api/receivables.client";
+} from "~/features/receivables/services/receivables.client";
 import type { ReceivableEntry, ReceivableStatus } from "~/features/receivables/model/receivables";
 
 /** Mock payload used only when NUXT_PUBLIC_MOCK_DATA=true. */

@@ -16,7 +16,7 @@ import {
   mapInstallmentVsCashGoalBridgeResponseDto,
   mapInstallmentVsCashPlannedExpenseBridgeResponseDto,
   mapInstallmentVsCashSaveResponseDto,
-} from "~/features/tools/api/installment-vs-cash.mapper";
+} from "~/features/tools/services/installment-vs-cash.mapper";
 import type {
   CreateInstallmentVsCashGoalPayload,
   CreateInstallmentVsCashPlannedExpensePayload,

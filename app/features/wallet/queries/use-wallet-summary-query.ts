@@ -1,7 +1,7 @@
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
 import { isMockDataEnabled } from "~/core/config";
-import { useWalletClient, type WalletClient } from "~/features/wallet/api/wallet.client";
+import { useWalletClient, type WalletClient } from "~/features/wallet/services/wallet.client";
 import type { WalletSummary } from "~/features/wallet/model/wallet";
 
 /** Mock payload used only when NUXT_PUBLIC_MOCK_DATA=true. */

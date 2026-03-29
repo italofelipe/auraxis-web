@@ -3,7 +3,7 @@ import { type UseMutationReturnType, useMutation } from "@tanstack/vue-query";
 import {
   type InstallmentVsCashClient,
   useInstallmentVsCashClient,
-} from "~/features/tools/api/installment-vs-cash.client";
+} from "~/features/tools/services/installment-vs-cash.client";
 import type { InstallmentVsCashCalculationRequestDto } from "~/features/tools/contracts/installment-vs-cash.dto";
 import type { InstallmentVsCashCalculation } from "~/features/tools/model/installment-vs-cash";
 

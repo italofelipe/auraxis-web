@@ -110,7 +110,7 @@ vi.mock("~/stores/session", () => ({
   }),
 }));
 
-vi.mock("~/features/paywall/api/entitlement.client", () => ({
+vi.mock("~/features/paywall/services/entitlement.client", () => ({
   useEntitlementClient: (): {
     checkEntitlement: typeof mockEntitlementCheck;
   } => ({

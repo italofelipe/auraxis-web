@@ -1,6 +1,6 @@
 import { type UseMutationReturnType, useMutation, useQueryClient } from "@tanstack/vue-query";
 
-import { useSimulationClient, type SimulationClient } from "~/features/simulations/api/simulation.client";
+import { useSimulationClient, type SimulationClient } from "~/features/simulations/services/simulation.client";
 
 /**
  * Vue Query mutation hook for deleting a saved simulation.

@@ -5,7 +5,7 @@ import type {
   CheckoutResponseDto,
   ApiSubscriptionDto,
 } from "~/features/subscription/contracts/subscription.dto";
-import { mapSubscriptionDto } from "~/features/subscription/api/subscription.mapper";
+import { mapSubscriptionDto } from "~/features/subscription/services/subscription.mapper";
 import type { Subscription } from "~/features/subscription/model/subscription";
 
 /**

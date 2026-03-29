@@ -1,5 +1,5 @@
 import { type UseMutationReturnType, useMutation, useQueryClient } from "@tanstack/vue-query";
-import { useUserProfileApi, type UserProfileApi } from "~/features/profile/api/user-profile-api";
+import { useUserProfileApi, type UserProfileApi } from "~/features/profile/services/user-profile-api";
 import type { UpdateUserProfileRequest, UserProfileDto } from "~/features/profile/contracts/user-profile.dto";
 import { useUserStore } from "~/stores/user";
 import { USER_PROFILE_QUERY_KEY } from "./use-user-profile-query";

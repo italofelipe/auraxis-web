@@ -4,7 +4,7 @@ import {
   useReceivablesClient,
   type CsvConfirmResult,
   type ReceivablesClient,
-} from "~/features/receivables/api/receivables.client";
+} from "~/features/receivables/services/receivables.client";
 import type { ParsedRowDto } from "~/features/receivables/contracts/receivables.dto";
 
 /**

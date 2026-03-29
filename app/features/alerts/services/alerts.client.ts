@@ -2,7 +2,7 @@ import type { AxiosInstance } from "axios";
 
 import { useHttp } from "~/composables/useHttp";
 import type { AlertDto, AlertPreferenceDto } from "~/features/alerts/contracts/alerts.dto";
-import { mapAlertDto, mapAlertPreferenceDto } from "~/features/alerts/api/alerts.mapper";
+import { mapAlertDto, mapAlertPreferenceDto } from "~/features/alerts/services/alerts.mapper";
 import type {
   AlertPreference,
   AlertsPage,

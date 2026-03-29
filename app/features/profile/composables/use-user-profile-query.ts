@@ -1,5 +1,5 @@
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
-import { useUserProfileApi, type UserProfileApi } from "~/features/profile/api/user-profile-api";
+import { useUserProfileApi, type UserProfileApi } from "~/features/profile/services/user-profile-api";
 import type { UserProfileDto } from "~/features/profile/contracts/user-profile.dto";
 import { useUserStore } from "~/stores/user";
 import { useSessionStore } from "~/stores/session";

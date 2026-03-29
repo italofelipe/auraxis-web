@@ -5,7 +5,7 @@ import CheckoutButton from "./CheckoutButton.vue";
 
 const createCheckoutMock = vi.hoisted(() => vi.fn());
 
-vi.mock("~/features/subscription/api/subscription.client", () => ({
+vi.mock("~/features/subscription/services/subscription.client", () => ({
   useSubscriptionClient: (): { createCheckout: typeof createCheckoutMock } => ({
     createCheckout: createCheckoutMock,
   }),
