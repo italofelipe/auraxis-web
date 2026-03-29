@@ -20,6 +20,22 @@
         "title": "Planos e Preços",
         "description": "Conheça os planos da Auraxis. Comece gratuitamente ou evolua para o Premium com simulações avançadas, alertas inteligentes e planejamento financeiro completo."
       }
+    },
+    "tools": {
+      "meta": {
+        "title": "Ferramentas Financeiras",
+        "description": "Calculadoras e utilitários para tomar melhores decisões financeiras."
+      },
+      "accessLevel": {
+        "public": "Público",
+        "authenticated": "Gratuito",
+        "premium": "Premium"
+      },
+      "card": {
+        "open": "Abrir ferramenta",
+        "disabled": "Em breve"
+      },
+      "empty": "Nenhuma ferramenta disponível no momento."
     }
   },
   "investorProfile": {
