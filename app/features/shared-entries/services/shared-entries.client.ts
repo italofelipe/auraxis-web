@@ -1,7 +1,10 @@
 import type { AxiosInstance } from "axios";
 
 import { useHttp } from "~/composables/useHttp";
-import type { SharedEntryDto } from "~/features/shared-entries/contracts/shared-entry.dto";
+import type {
+  SharedEntryDto,
+  SharedEntriesListResponseEnvelope,
+} from "~/features/shared-entries/contracts/shared-entry.dto";
 
 /**
  * API client for the shared-entries feature.
@@ -22,21 +25,29 @@ export class SharedEntriesClient {
   /**
    * Fetches entries shared by the authenticated user.
    *
+   * Unwraps the backend envelope: `{ success, data: { shared_entries: [...] } }`.
+   *
    * @returns Array of SharedEntryDto objects.
    */
   async getSharedByMe(): Promise<SharedEntryDto[]> {
-    const response = await this.#http.get<SharedEntryDto[]>("/shared-entries/by-me");
-    return response.data;
+    const response = await this.#http.get<SharedEntriesListResponseEnvelope>(
+      "/shared-entries/by-me",
+    );
+    return response.data.data.shared_entries;
   }
 
   /**
    * Fetches entries shared with the authenticated user by others.
    *
+   * Unwraps the backend envelope: `{ success, data: { shared_entries: [...] } }`.
+   *
    * @returns Array of SharedEntryDto objects.
    */
   async getSharedWithMe(): Promise<SharedEntryDto[]> {
-    const response = await this.#http.get<SharedEntryDto[]>("/shared-entries/with-me");
-    return response.data;
+    const response = await this.#http.get<SharedEntriesListResponseEnvelope>(
+      "/shared-entries/with-me",
+    );
+    return response.data.data.shared_entries;
   }
 
   /**

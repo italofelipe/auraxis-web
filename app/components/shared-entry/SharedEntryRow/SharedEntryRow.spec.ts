@@ -15,14 +15,16 @@ import type { SharedEntryDto } from "~/features/shared-entries/contracts/shared-
  */
 const makeEntry = (overrides: Partial<SharedEntryDto> = {}): SharedEntryDto => ({
   id: "se-test-001",
+  owner_id: "user-owner-001",
   transaction_id: "txn-test",
   transaction_title: "Jantar de teste",
   transaction_amount: 400,
-  split_type: "equal",
   my_share: 200,
   other_party_email: "test@example.com",
-  created_at: "2026-03-20T10:00:00Z",
+  split_type: "equal",
   status: "pending",
+  created_at: "2026-03-20T10:00:00Z",
+  updated_at: "2026-03-20T10:00:00Z",
   ...overrides,
 });
 
