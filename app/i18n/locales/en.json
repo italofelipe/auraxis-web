@@ -22,6 +22,32 @@
       }
     }
   },
+  "investorProfile": {
+    "page": { "title": "Investor Profile" },
+    "wizard": {
+      "questionLabel": "Question {current} of {total}",
+      "next": "Next",
+      "prev": "Previous",
+      "submit": "Submit"
+    },
+    "result": {
+      "conservador": {
+        "title": "Conservative",
+        "description": "You prioritize asset security. You prefer stable returns over high risk."
+      },
+      "explorador": {
+        "title": "Explorer",
+        "description": "You seek a balance between security and growth, accepting moderate risks."
+      },
+      "entusiasta": {
+        "title": "Enthusiast",
+        "description": "You have a high risk tolerance and aim to maximize long-term returns."
+      },
+      "cta": "Go to Dashboard"
+    },
+    "loading": "Loading questionnaire...",
+    "error": "Failed to load the questionnaire. Please try again."
+  },
   "auth": {
     "login": {
       "title": "Welcome back",
