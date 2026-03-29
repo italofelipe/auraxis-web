@@ -3,41 +3,6 @@ import { NConfigProvider, NMessageProvider, NDialogProvider } from "naive-ui";
 import { useNaiveTheme } from "~/composables/useNaiveTheme";
 
 const { theme, themeOverrides } = useNaiveTheme();
-
-// ── Structured data (JSON-LD) ────────────────────────────────────────────────
-// WebApplication schema helps Google display rich results and understand the
-// app category. Rendered on every prerendered page (/, /plans, /login, etc.).
-useHead({
-  script: [
-    {
-      type: "application/ld+json",
-      innerHTML: JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "WebApplication",
-        "name": "Auraxis",
-        "alternateName": "Auraxis – Planner Financeiro Inteligente",
-        "description":
-          "Planner financeiro inteligente para gerenciar carteira de investimentos, "
-          + "metas financeiras e finanças pessoais.",
-        "url": "https://app.auraxis.com.br",
-        "applicationCategory": "FinanceApplication",
-        "operatingSystem": "Web",
-        "inLanguage": "pt-BR",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "BRL",
-          "description": "Plano gratuito disponível",
-        },
-        "publisher": {
-          "@type": "Organization",
-          "name": "Auraxis",
-          "url": "https://app.auraxis.com.br",
-        },
-      }),
-    },
-  ],
-});
 </script>
 
 <template>
