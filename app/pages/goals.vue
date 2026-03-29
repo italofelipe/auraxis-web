@@ -7,7 +7,10 @@ import {
   NRadioButton,
 } from "naive-ui";
 import { useGoalsQuery } from "~/features/goals/queries/use-goals-query";
-import type { GoalStatus } from "~/features/goals/contracts/goal.dto";
+import { useCreateGoalMutation } from "~/features/goals/queries/use-create-goal-mutation";
+import { useUpdateGoalMutation } from "~/features/goals/queries/use-update-goal-mutation";
+import { useDeleteGoalMutation } from "~/features/goals/queries/use-delete-goal-mutation";
+import type { GoalDto, GoalStatus, CreateGoalPayload } from "~/features/goals/contracts/goal.dto";
 
 definePageMeta({
   middleware: ["authenticated"],
@@ -20,8 +23,14 @@ useHead({ title: "Metas | Auraxis" });
 type FilterValue = "all" | GoalStatus;
 
 const { data: goals, isLoading, isError } = useGoalsQuery();
+const createMutation = useCreateGoalMutation();
+const updateMutation = useUpdateGoalMutation();
+const deleteMutation = useDeleteGoalMutation();
 
 const activeFilter = ref<FilterValue>("all");
+const showForm = ref<boolean>(false);
+const editingGoal = ref<GoalDto | null>(null);
+const planGoalId = ref<string | null>(null);
 
 const FILTER_OPTIONS: Array<{ value: FilterValue; label: string }> = [
   { value: "all", label: "Todas" },
@@ -46,6 +55,73 @@ const activeGoalsCount = computed(
 const completedGoalsCount = computed(
   () => allGoals.value.filter((g) => g.status === "completed").length,
 );
+
+/** Opens the form in create mode. */
+const onNewGoal = (): void => {
+  editingGoal.value = null;
+  showForm.value = true;
+};
+
+/**
+ * Opens the form in edit mode for the given goal.
+ *
+ * @param goal - The goal to edit.
+ */
+const onEditGoal = (goal: GoalDto): void => {
+  editingGoal.value = goal;
+  showForm.value = true;
+};
+
+/**
+ * Shows the planning panel for the given goal, toggling off if already shown.
+ *
+ * @param goal - The goal whose plan panel to toggle.
+ */
+const onShowPlan = (goal: GoalDto): void => {
+  planGoalId.value = planGoalId.value === goal.id ? null : goal.id;
+};
+
+/**
+ * Handles form submission for both create and edit flows.
+ *
+ * @param payload - The CreateGoalPayload emitted by GoalForm.
+ */
+const onCreateOrUpdate = (payload: CreateGoalPayload): void => {
+  if (editingGoal.value) {
+    updateMutation.mutate(
+      { id: editingGoal.value.id, ...payload },
+      {
+        onSuccess: (): void => {
+          showForm.value = false;
+          editingGoal.value = null;
+        },
+      },
+    );
+  } else {
+    createMutation.mutate(payload, {
+      onSuccess: (): void => {
+        showForm.value = false;
+      },
+    });
+  }
+};
+
+/**
+ * Deletes a goal by ID after the caller triggers confirmation.
+ *
+ * @param id - The goal ID to delete.
+ */
+const onDeleteGoal = (id: string): void => {
+  deleteMutation.mutate(id, {
+    onSuccess: (): void => {
+      if (planGoalId.value === id) {
+        planGoalId.value = null;
+      }
+    },
+  });
+};
+
+void onDeleteGoal;
 </script>
 
 <template>
@@ -57,7 +133,7 @@ const completedGoalsCount = computed(
           Acompanhe o progresso das suas metas financeiras
         </span>
       </div>
-      <NButton type="primary" size="medium">Nova Meta</NButton>
+      <NButton type="primary" size="medium" @click="onNewGoal">Nova Meta</NButton>
     </div>
 
     <UiInlineError
@@ -100,10 +176,25 @@ const completedGoalsCount = computed(
             v-for="goal in filteredGoals"
             :key="goal.id"
             :goal="goal"
+            @edit="onEditGoal(goal)"
+            @show-plan="onShowPlan(goal)"
           />
         </div>
       </template>
+
+      <GoalPlanPanel
+        v-if="planGoalId !== null"
+        :goal-id="planGoalId"
+        class="goals-page__plan-panel"
+      />
     </template>
+
+    <GoalForm
+      :visible="showForm"
+      :goal="editingGoal"
+      @update:visible="showForm = $event"
+      @submit="onCreateOrUpdate"
+    />
   </div>
 </template>
 
@@ -165,6 +256,10 @@ const completedGoalsCount = computed(
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: var(--space-3);
+}
+
+.goals-page__plan-panel {
+  margin-top: var(--space-1);
 }
 
 @media (max-width: 640px) {
