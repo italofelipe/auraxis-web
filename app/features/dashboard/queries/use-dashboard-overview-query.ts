@@ -72,5 +72,6 @@ export const useDashboardOverviewQuery = (
     queryKey: computed(() => createQueryKey(resolvedFilters.value)),
     queryFn: () => dashboardClient.getOverview(resolvedFilters.value),
     enabled: computed(() => canRunDashboardOverviewQuery(resolvedFilters.value)),
+    staleTime: 60_000,
   });
 };
