@@ -23,14 +23,16 @@ type Story = StoryObj<typeof SharedEntryRow>;
 
 const pendingEntry: SharedEntryDto = {
   id: "se-001",
+  owner_id: "user-current-001",
   transaction_id: "txn-001",
   transaction_title: "Jantar no restaurante",
   transaction_amount: 320,
-  split_type: "equal",
   my_share: 160,
   other_party_email: "carlos@exemplo.com",
-  created_at: "2026-03-20T19:30:00Z",
+  split_type: "equal",
   status: "pending",
+  created_at: "2026-03-20T19:30:00Z",
+  updated_at: "2026-03-20T19:30:00Z",
 };
 
 export const ByMePending: Story = {
@@ -46,14 +48,16 @@ export const ByMeAccepted: Story = {
   args: {
     entry: {
       id: "se-002",
+      owner_id: "user-current-001",
       transaction_id: "txn-002",
       transaction_title: "Aluguel de temporada",
       transaction_amount: 1800,
-      split_type: "percentage",
       my_share: 900,
       other_party_email: "ana@exemplo.com",
-      created_at: "2026-03-15T10:00:00Z",
+      split_type: "percentage",
       status: "accepted",
+      created_at: "2026-03-15T10:00:00Z",
+      updated_at: "2026-03-16T08:00:00Z",
     } satisfies SharedEntryDto,
     mode: "by-me",
   },
@@ -64,14 +68,16 @@ export const WithMePending: Story = {
   args: {
     entry: {
       id: "se-with-001",
+      owner_id: "user-pedro-001",
       transaction_id: "txn-101",
       transaction_title: "Churrasco de aniversário",
       transaction_amount: 800,
-      split_type: "equal",
       my_share: 200,
       other_party_email: "pedro@exemplo.com",
-      created_at: "2026-03-22T17:00:00Z",
+      split_type: "equal",
       status: "pending",
+      created_at: "2026-03-22T17:00:00Z",
+      updated_at: "2026-03-22T17:00:00Z",
     } satisfies SharedEntryDto,
     mode: "with-me",
   },
@@ -82,14 +88,16 @@ export const WithMeDeclined: Story = {
   args: {
     entry: {
       id: "se-with-003",
+      owner_id: "user-rafael-001",
       transaction_id: "txn-103",
       transaction_title: "Presente coletivo",
       transaction_amount: 350,
-      split_type: "custom",
       my_share: 87.5,
       other_party_email: "rafael@exemplo.com",
-      created_at: "2026-03-12T11:30:00Z",
+      split_type: "custom",
       status: "declined",
+      created_at: "2026-03-12T11:30:00Z",
+      updated_at: "2026-03-13T08:00:00Z",
     } satisfies SharedEntryDto,
     mode: "with-me",
   },

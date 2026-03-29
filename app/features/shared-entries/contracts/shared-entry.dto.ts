@@ -10,12 +10,28 @@ export type SplitType = "equal" | "custom" | "percentage";
 
 export type SharedEntryDto = {
   readonly id: string;
+  readonly owner_id: string;
   readonly transaction_id: string;
   readonly transaction_title: string;
   readonly transaction_amount: number;
-  readonly split_type: SplitType;
   readonly my_share: number;
   readonly other_party_email: string;
-  readonly created_at: string;
+  readonly split_type: SplitType;
   readonly status: "pending" | "accepted" | "declined";
+  readonly created_at: string;
+  readonly updated_at: string;
+};
+
+/**
+ * Response envelope returned by all shared-entry list endpoints.
+ *
+ * @example
+ * { success: true, message: "...", data: { shared_entries: [...] } }
+ */
+export type SharedEntriesListResponseEnvelope = {
+  readonly success: boolean;
+  readonly message: string;
+  readonly data: {
+    readonly shared_entries: SharedEntryDto[];
+  };
 };
