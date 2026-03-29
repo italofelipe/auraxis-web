@@ -7,7 +7,8 @@
     "simulations": "Simulations",
     "sharedEntries": "Shared Entries",
     "tools": "Tools",
-    "subscription": "Subscription"
+    "subscription": "Subscription",
+    "personalData": "Personal Data"
   },
   "user": {
     "fallbackName": "User",
