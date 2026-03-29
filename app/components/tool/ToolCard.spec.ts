@@ -31,6 +31,7 @@ const publicTool: Tool = {
   description: "Cálculo de inflação + ganho real desejado.",
   enabled: true,
   accessLevel: "public",
+  route: "/tools/raise-calculator",
 };
 
 const authTool: Tool = {
@@ -39,6 +40,7 @@ const authTool: Tool = {
   description: "Previsão de saldo após contas recorrentes.",
   enabled: true,
   accessLevel: "authenticated",
+  route: "/tools/bill-forecast",
 };
 
 const premiumTool: Tool = {
@@ -47,6 +49,7 @@ const premiumTool: Tool = {
   description: "Exclusiva para assinantes.",
   enabled: true,
   accessLevel: "premium",
+  route: "/tools/premium-tool",
 };
 
 const disabledTool: Tool = {
@@ -55,6 +58,7 @@ const disabledTool: Tool = {
   description: "Disponível em breve.",
   enabled: false,
   accessLevel: "public",
+  route: "/tools/coming-soon",
 };
 
 describe("ToolCard", () => {

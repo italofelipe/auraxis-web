@@ -20,6 +20,22 @@
         "title": "Plans & Pricing",
         "description": "Explore Auraxis plans. Start for free or upgrade to Premium with advanced simulations, smart alerts and complete financial planning."
       }
+    },
+    "tools": {
+      "meta": {
+        "title": "Financial Tools",
+        "description": "Calculators and utilities to make better financial decisions."
+      },
+      "accessLevel": {
+        "public": "Public",
+        "authenticated": "Free",
+        "premium": "Premium"
+      },
+      "card": {
+        "open": "Open tool",
+        "disabled": "Coming soon"
+      },
+      "empty": "No tools available at this time."
     }
   },
   "investorProfile": {

@@ -17,6 +17,8 @@ export interface Tool {
   description: string;
   enabled: boolean;
   accessLevel: ToolAccessLevel;
+  /** Client-side route for navigating to the tool page. */
+  route: string;
 }
 
 /**
@@ -45,6 +47,7 @@ export const mapToolDtoToModel = (dto: ToolDto): Tool => {
     description: dto.description,
     enabled: dto.enabled,
     accessLevel,
+    route: `/tools/${dto.id}`,
   };
 };
 
