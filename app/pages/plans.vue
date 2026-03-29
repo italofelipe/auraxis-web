@@ -3,6 +3,11 @@ import type { PlanDto } from "~/features/subscription/contracts/subscription.dto
 
 const { t } = useI18n();
 
+useSeoMeta({
+  title: t("pages.plans.meta.title"),
+  description: t("pages.plans.meta.description"),
+});
+
 const freePlan = computed((): PlanDto => ({
   slug: "free",
   name: "Free",

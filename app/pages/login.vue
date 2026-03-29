@@ -8,7 +8,11 @@ import type { LoginSchema } from "~/schemas/auth";
 definePageMeta({ layout: "auth", middleware: ["guest-only"] });
 
 const { t } = useI18n();
-useSeoMeta({ description: t("auth.login.metaDescription") });
+useSeoMeta({
+  title: t("auth.login.title"),
+  description: t("auth.login.metaDescription"),
+  robots: "noindex, nofollow",
+});
 
 const message = useMessage();
 const loginMutation = useLoginMutation();

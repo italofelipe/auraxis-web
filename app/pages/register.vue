@@ -8,7 +8,11 @@ import type { RegisterSchema } from "~/schemas/auth";
 definePageMeta({ layout: "auth", middleware: ["guest-only"] });
 
 const { t } = useI18n();
-useSeoMeta({ description: t("auth.register.metaDescription") });
+useSeoMeta({
+  title: t("auth.register.title"),
+  description: t("auth.register.metaDescription"),
+  robots: "noindex, nofollow",
+});
 const message = useMessage();
 const registerMutation = useRegisterMutation();
 const { consumeRedirect } = useAuthRedirectContext();

@@ -14,6 +14,14 @@
     "fallbackName": "Usuário",
     "accountDescription": "Minha conta"
   },
+  "pages": {
+    "plans": {
+      "meta": {
+        "title": "Planos e Preços",
+        "description": "Conheça os planos da Auraxis. Comece gratuitamente ou evolua para o Premium com simulações avançadas, alertas inteligentes e planejamento financeiro completo."
+      }
+    }
+  },
   "auth": {
     "login": {
       "title": "Bem-vindo de volta",
