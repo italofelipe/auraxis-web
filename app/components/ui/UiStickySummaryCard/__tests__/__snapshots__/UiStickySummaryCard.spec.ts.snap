@@ -1,0 +1,7 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`UiStickySummaryCard > matches snapshot with defaults 1`] = `
+"<div data-v-5c0e03ef="" class="ui-sticky-summary-card ui-sticky-summary-card--sticky" style="top: var(--space-3);">
+  <div data-v-7b827082="" data-v-5c0e03ef="" class="ui-glass-panel ui-glass-panel--padding-md ui-glass-panel--radius-lg ui-glass-panel--glow">Content</div>
+</div>"
+`;
