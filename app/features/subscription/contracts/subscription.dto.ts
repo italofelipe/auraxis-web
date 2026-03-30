@@ -32,8 +32,8 @@ export interface CheckoutResponseDto {
 
 // ── View-layer DTOs (used by PlanCard, subscription page, mocks) ──
 
-/** Available plan tiers. The platform offers a single paid tier ("pro"). */
-export type PlanSlug = "free" | "pro";
+/** Available plan tiers. The platform offers a single paid tier ("premium"). */
+export type PlanSlug = "free" | "premium";
 
 /** Billing frequency chosen by the user at checkout. */
 export type BillingCycle = "monthly" | "annual";

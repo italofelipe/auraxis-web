@@ -37,7 +37,7 @@ const freePlan: PlanDto = {
 };
 
 const proPlan: PlanDto = {
-  slug: "pro",
+  slug: "premium",
   name: "Pro",
   price_monthly: 29.9,
   price_annual: 24.9,
