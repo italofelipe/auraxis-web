@@ -17,18 +17,21 @@
   "pages": {
     "plans": {
       "meta": {
-        "title": "Plans & Pricing",
-        "description": "Explore Auraxis plans. Start for free or upgrade to Premium with advanced simulations, smart alerts and complete financial planning."
+        "title": "Plans and Pricing",
+        "description": "Discover Auraxis plans. Start for free or subscribe to Pro with advanced simulations, full reports and priority support."
       },
-      "eyebrow": "Plans & Pricing",
+      "eyebrow": "Plans and Pricing",
       "title": "Invest in your financial freedom",
-      "subtitle": "Choose the ideal plan and start controlling your finances intelligently.",
+      "subtitle": "Choose the right plan and start managing your finances intelligently.",
       "mostPopular": "Most popular",
       "checkoutError": "Error starting checkout. Please try again.",
       "footnote": "Prices in BRL. Cancel anytime. Billed monthly.",
-      "cta": {
-        "subscribe": "Get started",
-        "free": "Current plan"
+      "billing": {
+        "monthly": "Monthly",
+        "annual": "Annual",
+        "toggleAriaLabel": "Toggle between monthly and annual billing",
+        "annualNote": "Paying annually saves you 2 months — no commitment.",
+        "footnoteAnnual": "Prices in BRL. Billed annually. Cancel anytime."
       },
       "plans": {
         "free": {
@@ -42,30 +45,8 @@
             "support": "Priority support"
           }
         },
-        "starter": {
-          "name": "Starter",
-          "features": {
-            "transactions": "Up to 200 transactions/month",
-            "goals": "3 financial goals",
-            "advancedReports": "Advanced reports",
-            "simulations": "Financial simulations",
-            "sharedEntries": "Shared entries",
-            "support": "Priority support"
-          }
-        },
         "pro": {
           "name": "Pro",
-          "features": {
-            "transactions": "Unlimited transactions",
-            "goals": "Unlimited goals",
-            "advancedReports": "Advanced reports",
-            "simulations": "Financial simulations",
-            "sharedEntries": "Shared entries",
-            "support": "Priority support"
-          }
-        },
-        "premium": {
-          "name": "Premium",
           "features": {
             "transactions": "Unlimited transactions",
             "goals": "Unlimited goals",
@@ -214,14 +195,8 @@
         "free": {
           "name": "Free"
         },
-        "starter": {
-          "name": "Starter"
-        },
         "pro": {
           "name": "Pro"
-        },
-        "premium": {
-          "name": "Premium"
         },
         "features": {
           "transactions50": "Up to 50 transactions/month",
@@ -236,6 +211,11 @@
           "sharedEntries": "Shared entries",
           "prioritySupport": "Priority support"
         }
+      },
+      "billing": {
+        "monthly": "Monthly",
+        "annual": "Annual",
+        "toggleAriaLabel": "Toggle between monthly and annual billing"
       }
     },
     "settings": {
@@ -951,7 +931,8 @@
       "free": "Free",
       "pricePerMonth": "{price}/month",
       "currentPlan": "Current plan",
-      "subscribe": "Subscribe"
+      "subscribe": "Subscribe",
+      "billedAnnually": "Billed {total}/year"
     }
   },
   "paywall": {

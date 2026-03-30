@@ -18,7 +18,7 @@
     "plans": {
       "meta": {
         "title": "Planos e Preços",
-        "description": "Conheça os planos da Auraxis. Comece gratuitamente ou evolua para o Premium com simulações avançadas, alertas inteligentes e planejamento financeiro completo."
+        "description": "Conheça os planos da Auraxis. Comece gratuitamente ou assine o Pro com simulações avançadas, relatórios completos e suporte prioritário."
       },
       "eyebrow": "Planos e Preços",
       "title": "Invista na sua liberdade financeira",
@@ -26,9 +26,12 @@
       "mostPopular": "Mais popular",
       "checkoutError": "Erro ao iniciar o checkout. Tente novamente.",
       "footnote": "Preços em BRL. Cancele a qualquer momento. Cobrança mensal.",
-      "cta": {
-        "subscribe": "Começar agora",
-        "free": "Plano atual"
+      "billing": {
+        "monthly": "Mensal",
+        "annual": "Anual",
+        "toggleAriaLabel": "Alternar entre cobrança mensal e anual",
+        "annualNote": "Pagando anualmente você economiza 2 meses — sem compromisso.",
+        "footnoteAnnual": "Preços em BRL. Cobrado anualmente. Cancele a qualquer momento."
       },
       "plans": {
         "free": {
@@ -42,30 +45,8 @@
             "support": "Suporte prioritário"
           }
         },
-        "starter": {
-          "name": "Starter",
-          "features": {
-            "transactions": "Até 200 transações/mês",
-            "goals": "3 metas financeiras",
-            "advancedReports": "Relatórios avançados",
-            "simulations": "Simulações financeiras",
-            "sharedEntries": "Lançamentos compartilhados",
-            "support": "Suporte prioritário"
-          }
-        },
         "pro": {
           "name": "Pro",
-          "features": {
-            "transactions": "Transações ilimitadas",
-            "goals": "Metas ilimitadas",
-            "advancedReports": "Relatórios avançados",
-            "simulations": "Simulações financeiras",
-            "sharedEntries": "Lançamentos compartilhados",
-            "support": "Suporte prioritário"
-          }
-        },
-        "premium": {
-          "name": "Premium",
           "features": {
             "transactions": "Transações ilimitadas",
             "goals": "Metas ilimitadas",
@@ -214,14 +195,8 @@
         "free": {
           "name": "Gratuito"
         },
-        "starter": {
-          "name": "Starter"
-        },
         "pro": {
           "name": "Pro"
-        },
-        "premium": {
-          "name": "Premium"
         },
         "features": {
           "transactions50": "Até 50 transações/mês",
@@ -236,6 +211,11 @@
           "sharedEntries": "Lançamentos compartilhados",
           "prioritySupport": "Suporte prioritário"
         }
+      },
+      "billing": {
+        "monthly": "Mensal",
+        "annual": "Anual",
+        "toggleAriaLabel": "Alternar entre cobrança mensal e anual"
       }
     },
     "settings": {
@@ -951,7 +931,8 @@
       "free": "Grátis",
       "pricePerMonth": "{price}/mês",
       "currentPlan": "Plano atual",
-      "subscribe": "Assinar"
+      "subscribe": "Assinar",
+      "billedAnnually": "Cobrado {total}/ano"
     }
   },
   "paywall": {
