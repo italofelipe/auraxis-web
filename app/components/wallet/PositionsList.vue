@@ -4,6 +4,7 @@ import { NCard, NEmpty, NTag, NSpace } from "naive-ui";
 import { formatCurrency } from "~/utils/currency";
 import type { Position } from "~/features/wallet/model/wallet";
 
+
 interface Props {
   /** List of portfolio positions to display. */
   positions: Position[];
@@ -36,10 +37,10 @@ const variationClass = (value: number): string => {
 </script>
 
 <template>
-  <NCard title="Posições">
+  <NCard :title="$t('positions.title')">
     <NEmpty
       v-if="positions.length === 0"
-      description="Nenhuma posição cadastrada. Adicione seu primeiro ativo."
+      :description="$t('positions.empty')"
     />
 
     <ul v-else class="positions-list">
@@ -61,13 +62,13 @@ const variationClass = (value: number): string => {
         <div class="positions-list__values">
           <NSpace :size="24" class="positions-list__amounts">
             <div class="positions-list__amount-block">
-              <span class="positions-list__amount-label">Investido</span>
+              <span class="positions-list__amount-label">{{ $t('positions.invested') }}</span>
               <span class="positions-list__amount-value">
                 {{ formatCurrency(position.invested) }}
               </span>
             </div>
             <div class="positions-list__amount-block">
-              <span class="positions-list__amount-label">Atual</span>
+              <span class="positions-list__amount-label">{{ $t('positions.current') }}</span>
               <span class="positions-list__amount-value">
                 {{ formatCurrency(position.currentValue) }}
               </span>

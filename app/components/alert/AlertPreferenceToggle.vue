@@ -3,6 +3,8 @@ import { NSwitch } from "naive-ui";
 
 import type { AlertPreference } from "~/features/alerts/model/alerts";
 
+const { t } = useI18n();
+
 interface Props {
   /** Alert preference data to display. */
   preference: AlertPreference;
@@ -29,12 +31,12 @@ const emit = defineEmits<Emits>();
  */
 const categoryLabel = (category: string): string => {
   const labels: Record<string, string> = {
-    system: "Sistema",
-    account: "Conta",
-    security: "Segurança",
-    marketing: "Marketing",
-    transactions: "Transações",
-    goals: "Metas",
+    system: t("alert.preferences.categories.system"),
+    account: t("alert.preferences.categories.account"),
+    security: t("alert.preferences.categories.security"),
+    marketing: t("alert.preferences.categories.marketing"),
+    transactions: t("alert.preferences.categories.transactions"),
+    goals: t("alert.preferences.categories.goals"),
   };
   return labels[category] ?? category;
 };

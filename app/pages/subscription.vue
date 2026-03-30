@@ -15,6 +15,8 @@ import { useCreateCheckoutMutation } from "~/features/subscription/queries/use-c
 import type { SubscriptionStatus } from "~/features/subscription/model/subscription";
 import type { PlanDto, PlanSlug } from "~/features/subscription/contracts/subscription.dto";
 
+const { t } = useI18n();
+
 definePageMeta({
   layout: "default",
   middleware: ["authenticated"],
@@ -24,60 +26,60 @@ definePageMeta({
 
 useHead({ title: "Assinatura | Auraxis" });
 
-const ALL_PLANS: PlanDto[] = [
+const ALL_PLANS = computed((): PlanDto[] => [
   {
     slug: "free",
-    name: "Gratuito",
+    name: t("pages.subscription.plans.free.name"),
     price_monthly: 0,
     features: [
-      { label: "Até 50 transações/mês", included: true },
-      { label: "1 meta financeira", included: true },
-      { label: "Relatórios básicos", included: false },
-      { label: "Simulações financeiras", included: false },
-      { label: "Lançamentos compartilhados", included: false },
-      { label: "Suporte prioritário", included: false },
+      { label: t("pages.subscription.plans.features.transactions50"), included: true },
+      { label: t("pages.subscription.plans.features.goals1"), included: true },
+      { label: t("pages.subscription.plans.features.basicReports"), included: false },
+      { label: t("pages.subscription.plans.features.simulations"), included: false },
+      { label: t("pages.subscription.plans.features.sharedEntries"), included: false },
+      { label: t("pages.subscription.plans.features.prioritySupport"), included: false },
     ],
   },
   {
     slug: "starter",
-    name: "Starter",
+    name: t("pages.subscription.plans.starter.name"),
     price_monthly: 29.9,
     features: [
-      { label: "Até 200 transações/mês", included: true },
-      { label: "3 metas financeiras", included: true },
-      { label: "Relatórios básicos", included: true },
-      { label: "Simulações financeiras", included: false },
-      { label: "Lançamentos compartilhados", included: false },
-      { label: "Suporte prioritário", included: false },
+      { label: t("pages.subscription.plans.features.transactions200"), included: true },
+      { label: t("pages.subscription.plans.features.goals3"), included: true },
+      { label: t("pages.subscription.plans.features.basicReports"), included: true },
+      { label: t("pages.subscription.plans.features.simulations"), included: false },
+      { label: t("pages.subscription.plans.features.sharedEntries"), included: false },
+      { label: t("pages.subscription.plans.features.prioritySupport"), included: false },
     ],
   },
   {
     slug: "pro",
-    name: "Pro",
+    name: t("pages.subscription.plans.pro.name"),
     price_monthly: 59.9,
     features: [
-      { label: "Transações ilimitadas", included: true },
-      { label: "Metas ilimitadas", included: true },
-      { label: "Relatórios avançados", included: true },
-      { label: "Simulações financeiras", included: true },
-      { label: "Lançamentos compartilhados", included: true },
-      { label: "Suporte prioritário", included: false },
+      { label: t("pages.subscription.plans.features.unlimitedTransactions"), included: true },
+      { label: t("pages.subscription.plans.features.unlimitedGoals"), included: true },
+      { label: t("pages.subscription.plans.features.advancedReports"), included: true },
+      { label: t("pages.subscription.plans.features.simulations"), included: true },
+      { label: t("pages.subscription.plans.features.sharedEntries"), included: true },
+      { label: t("pages.subscription.plans.features.prioritySupport"), included: false },
     ],
   },
   {
     slug: "premium",
-    name: "Premium",
+    name: t("pages.subscription.plans.premium.name"),
     price_monthly: 99.9,
     features: [
-      { label: "Transações ilimitadas", included: true },
-      { label: "Metas ilimitadas", included: true },
-      { label: "Relatórios avançados", included: true },
-      { label: "Simulações financeiras", included: true },
-      { label: "Lançamentos compartilhados", included: true },
-      { label: "Suporte prioritário", included: true },
+      { label: t("pages.subscription.plans.features.unlimitedTransactions"), included: true },
+      { label: t("pages.subscription.plans.features.unlimitedGoals"), included: true },
+      { label: t("pages.subscription.plans.features.advancedReports"), included: true },
+      { label: t("pages.subscription.plans.features.simulations"), included: true },
+      { label: t("pages.subscription.plans.features.sharedEntries"), included: true },
+      { label: t("pages.subscription.plans.features.prioritySupport"), included: true },
     ],
   },
-];
+]);
 
 const { data: subscription, isLoading, isError } = useSubscriptionQuery();
 const cancelMutation = useCancelSubscriptionMutation();
@@ -85,7 +87,7 @@ const checkoutMutation = useCreateCheckoutMutation();
 
 const currentPlan = computed<PlanDto | null>(() => {
   if (!subscription.value) {return null;}
-  return ALL_PLANS.find((p) => p.slug === (subscription.value!.planSlug as PlanSlug)) ?? null;
+  return ALL_PLANS.value.find((p) => p.slug === (subscription.value!.planSlug as PlanSlug)) ?? null;
 });
 
 const status = computed<SubscriptionStatus | "none">(() => subscription.value?.status ?? "none");
@@ -94,15 +96,15 @@ const status = computed<SubscriptionStatus | "none">(() => subscription.value?.s
  * Returns a human-readable label for a subscription status.
  *
  * @param s - The subscription status value.
- * @returns Localised label string in PT-BR.
+ * @returns Localised label string.
  */
 const statusLabel = (s: SubscriptionStatus | "none"): string => {
   const map: Record<SubscriptionStatus | "none", string> = {
-    active: "Ativo",
-    canceled: "Cancelado",
-    past_due: "Em atraso",
-    trialing: "Período de teste",
-    none: "Sem assinatura",
+    active: t("pages.subscription.status.active"),
+    canceled: t("pages.subscription.status.canceled"),
+    past_due: t("pages.subscription.status.pastDue"),
+    trialing: t("pages.subscription.status.trialing"),
+    none: t("pages.subscription.status.none"),
   };
   return map[s];
 };
@@ -149,9 +151,9 @@ const showWarningAlert = computed(
 
 const warningAlertMessage = computed((): string => {
   if (status.value === "past_due") {
-    return "Sua assinatura está em atraso. Atualize seu método de pagamento para continuar usando o Auraxis.";
+    return t("pages.subscription.pastDueMessage");
   }
-  return "Sua assinatura foi cancelada. Escolha um plano abaixo para reativar.";
+  return t("pages.subscription.canceledMessage");
 });
 
 /** Cancels the active subscription. */
@@ -177,14 +179,14 @@ const onSelectPlan = (slug: string): void => {
 <template>
   <div class="subscription-page">
     <NPageHeader
-      title="Assinatura"
-      subtitle="Gerencie seu plano Auraxis"
+      :title="$t('pages.subscription.title')"
+      :subtitle="$t('pages.subscription.subtitle')"
     />
 
     <UiInlineError
       v-if="isError"
-      title="Não foi possível carregar a assinatura"
-      message="Tente recarregar a página."
+      :title="$t('pages.subscription.loadError')"
+      :message="$t('pages.subscription.loadErrorMessage')"
     />
 
     <template v-else>
@@ -194,7 +196,7 @@ const onSelectPlan = (slug: string): void => {
         <NAlert
           v-if="showWarningAlert"
           type="warning"
-          :title="status === 'past_due' ? 'Pagamento em atraso' : 'Assinatura cancelada'"
+          :title="status === 'past_due' ? $t('pages.subscription.pastDueTitle') : $t('pages.subscription.canceledTitle')"
           class="subscription-page__alert"
         >
           {{ warningAlertMessage }}
@@ -216,7 +218,7 @@ const onSelectPlan = (slug: string): void => {
                 class="subscription-page__period-end"
                 depth="3"
               >
-                Próxima cobrança: {{ formatDate(subscription.currentPeriodEnd) }}
+                {{ $t('pages.subscription.nextBilling') }} {{ formatDate(subscription.currentPeriodEnd) }}
               </NText>
             </div>
             <NButton
@@ -227,14 +229,14 @@ const onSelectPlan = (slug: string): void => {
               :loading="cancelMutation.isPending.value"
               @click="onCancelSubscription"
             >
-              Cancelar assinatura
+              {{ $t('pages.subscription.cancelSubscription') }}
             </NButton>
           </div>
         </NCard>
 
         <div class="subscription-page__plans-section">
           <NText tag="h3" class="subscription-page__plans-title">
-            Escolha seu plano
+            {{ $t('pages.subscription.choosePlan') }}
           </NText>
           <NGrid :x-gap="16" :y-gap="16" :cols="4" responsive="screen" item-responsive>
             <NGridItem

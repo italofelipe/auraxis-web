@@ -11,6 +11,8 @@ import { formatCurrency } from "~/utils/currency";
 import type { GoalCardProps } from "./GoalCard.types";
 import type { GoalStatus } from "~/features/goals/contracts/goal.dto";
 
+const { t } = useI18n();
+
 const props = defineProps<GoalCardProps>();
 
 /**
@@ -48,23 +50,23 @@ const progressColor = (status: GoalStatus): string => {
 };
 
 /**
- * Returns a human-readable label for a goal status.
+ * Returns a translated label for a goal status.
  *
  * @param status - The goal status value.
  * @returns Localised label string.
  */
 const statusLabel = (status: GoalStatus): string => {
   const map: Record<GoalStatus, string> = {
-    active: "Ativa",
-    completed: "Concluída",
-    paused: "Pausada",
-    cancelled: "Cancelada",
+    active: t("goal.status.active"),
+    completed: t("goal.status.completed"),
+    paused: t("goal.status.paused"),
+    cancelled: t("goal.status.cancelled"),
   };
   return map[status];
 };
 
 /**
- * Formats an ISO date string (YYYY-MM-DD) to a localised pt-BR short date.
+ * Formats an ISO date string (YYYY-MM-DD) to a localised short date.
  *
  * @param value - ISO date string.
  * @returns Formatted date string like "31/12/2026".
@@ -112,7 +114,7 @@ const progressPercent = computed(() => {
 
       <div class="goal-card__progress-section">
         <div class="goal-card__progress-header">
-          <span class="goal-card__progress-label">Progresso</span>
+          <span class="goal-card__progress-label">{{ $t('goal.card.progress') }}</span>
           <span class="goal-card__progress-pct">{{ progressPercent }}%</span>
         </div>
         <NProgress
@@ -127,12 +129,12 @@ const progressPercent = computed(() => {
 
       <div class="goal-card__stats">
         <NStatistic
-          label="Acumulado"
+          :label="$t('goal.card.accumulated')"
           :value="formatCurrency(props.goal.current_amount)"
           class="goal-card__stat"
         />
         <NStatistic
-          label="Meta"
+          :label="$t('goal.card.target')"
           :value="formatCurrency(props.goal.target_amount)"
           class="goal-card__stat"
         />
@@ -140,9 +142,9 @@ const progressPercent = computed(() => {
 
       <div class="goal-card__footer">
         <span class="goal-card__target-date">
-          Meta: {{ formatDate(props.goal.target_date) }}
+          {{ $t('goal.card.targetDate') }} {{ formatDate(props.goal.target_date) }}
         </span>
-        <NButton size="small" quaternary>Ver detalhes</NButton>
+        <NButton size="small" quaternary>{{ $t('goal.card.viewDetails') }}</NButton>
       </div>
     </template>
   </NCard>

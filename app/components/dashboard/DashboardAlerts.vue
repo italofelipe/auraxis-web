@@ -3,6 +3,7 @@ import { AlertCircle } from "lucide-vue-next";
 
 import type { DashboardAlert } from "~/features/dashboard/model/dashboard-overview";
 
+
 interface Props {
   alerts: DashboardAlert[];
   isLoading?: boolean;
@@ -30,15 +31,15 @@ const alertToneClass = (alert: DashboardAlert): string => {
 </script>
 
 <template>
-  <UiBaseCard title="Alertas e atenção">
+  <UiBaseCard :title="$t('dashboard.alerts.title')">
     <BaseSkeleton v-if="props.isLoading" style="height: 80px" />
 
     <div v-else-if="props.alerts.length === 0" class="alerts-empty">
       <AlertCircle class="alerts-empty__icon" :size="28" aria-hidden="true" />
-      <p>Nenhum alerta no momento.</p>
+      <p>{{ $t('dashboard.alerts.empty') }}</p>
     </div>
 
-    <div v-else class="alerts-list" role="list" aria-label="Alertas e pendências">
+    <div v-else class="alerts-list" role="list" :aria-label="$t('dashboard.alerts.listAriaLabel')">
       <article
         v-for="alert in props.alerts"
         :key="`${alert.type}-${alert.title}`"
@@ -49,7 +50,7 @@ const alertToneClass = (alert: DashboardAlert): string => {
           <AlertCircle :size="16" aria-hidden="true" />
           <strong>{{ alert.title }}</strong>
         </div>
-        <p>{{ alert.description ?? "Sem detalhes adicionais." }}</p>
+        <p>{{ alert.description ?? $t('dashboard.alerts.noDetails') }}</p>
         <small v-if="alert.actionLabel">{{ alert.actionLabel }}</small>
       </article>
     </div>

@@ -3,6 +3,7 @@ import { NCard, NStatistic, NSkeleton } from "naive-ui";
 import { formatCurrency } from "~/utils/currency";
 import type { PortfolioSummaryBarProps } from "./PortfolioSummaryBar.types";
 
+
 const props = defineProps<PortfolioSummaryBarProps>();
 
 /**
@@ -47,20 +48,20 @@ const percentColor = (value: number | null): string => {
     <template v-else>
       <div class="portfolio-summary-bar__grid">
         <NStatistic
-          label="Patrimônio total"
+          :label="$t('portfolio.summaryBar.totalPatrimony')"
           :value="props.summary ? formatCurrency(props.summary.total_value) : 'N/A'"
           class="portfolio-summary-bar__stat"
         />
 
         <NStatistic
-          label="Custo total"
+          :label="$t('portfolio.summaryBar.totalCost')"
           :value="props.summary ? formatCurrency(props.summary.total_cost) : 'N/A'"
           class="portfolio-summary-bar__stat"
         />
 
         <div class="portfolio-summary-bar__stat">
           <NStatistic
-            label="Retorno total"
+            :label="$t('portfolio.summaryBar.totalReturn')"
             :value="props.summary?.total_return_percent != null
               ? formatPercent(props.summary.total_return_percent)
               : 'N/A'"
@@ -72,7 +73,7 @@ const percentColor = (value: number | null): string => {
 
         <div class="portfolio-summary-bar__stat">
           <NStatistic
-            label="Variação do dia"
+            :label="$t('portfolio.summaryBar.dayChange')"
             :value="props.summary?.day_change_percent != null
               ? formatPercent(props.summary.day_change_percent)
               : 'N/A'"

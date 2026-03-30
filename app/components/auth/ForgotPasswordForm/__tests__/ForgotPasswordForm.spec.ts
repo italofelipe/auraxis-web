@@ -21,12 +21,14 @@ describe("ForgotPasswordForm", () => {
   it("shows title and instructions", () => {
     const wrapper = mount(ForgotPasswordForm, { global: globalConfig });
     expect(wrapper.text()).toContain("Recuperar senha");
-    expect(wrapper.text()).toContain("link para redefinir");
+    // Subtitle comes from i18n key auth.forgotPassword.subtitle
+    expect(wrapper.text()).toContain("Informe seu email");
   });
 
   it("shows back-to-login link", () => {
     const wrapper = mount(ForgotPasswordForm, { global: globalConfig });
-    expect(wrapper.text()).toContain("Voltar para o login");
+    // Translation for auth.forgotPassword.backToLogin
+    expect(wrapper.text()).toContain("Voltar ao login");
   });
 
   it("disables submit when loading", () => {
@@ -68,6 +70,7 @@ describe("ForgotPasswordForm", () => {
       props: { success: true },
       global: globalConfig,
     });
-    expect(wrapper.text()).toContain("Voltar para o login");
+    // Translation for auth.forgotPassword.backToLogin
+    expect(wrapper.text()).toContain("Voltar ao login");
   });
 });

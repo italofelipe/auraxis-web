@@ -22,6 +22,8 @@ import { useBrapiTickerSearchQuery } from "~/features/wallet/queries/use-brapi-t
 import { useBrapiHistoricalPriceQuery } from "~/features/wallet/queries/use-brapi-historical-price-query";
 import { useBrapiCurrentQuoteQuery } from "~/features/wallet/queries/use-brapi-current-quote-query";
 
+const { t } = useI18n();
+
 const props = defineProps<WalletEntryFormProps>();
 
 const emit = defineEmits<{
@@ -179,11 +181,10 @@ watch(
 const unitPriceTooltipContent = computed((): string => {
   const tradingDate = historicalPrice.value?.date;
   const currency = historicalPrice.value?.currency ?? "BRL";
-  const base = `Valor estimado com base no fechamento da bolsa em ${tradingDate ?? "..."}`;
-  const extra = tradingDate
-    ? ` (${currency}). A data pode diferir do registro se cair em fim de semana ou feriado.`
-    : ` (${currency}).`;
-  return `${base}${extra} Você pode editar este valor se necessário.`;
+  if (tradingDate) {
+    return t("wallet.form.unitPrice.tooltip", { date: tradingDate, currency });
+  }
+  return t("wallet.form.unitPrice.tooltipNoDate", { currency });
 });
 
 /**
@@ -207,32 +208,32 @@ const currentQuoteLabel = computed((): string | null => {
   const sign = q.changePercent >= 0 ? "+" : "";
   const price = q.price.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const pct = `${sign}${q.changePercent.toFixed(2)}%`;
-  return `Cotação atual (${q.currency}): ${price} (${pct})`;
+  return t("wallet.form.currentQuote", { currency: q.currency, price, change: pct });
 });
 
 // ── Form logic ────────────────────────────────────────────────────────────────
 
-/** Asset class options with PT-BR labels. */
-const assetClassOptions = [
-  { label: "Ação", value: "stock" },
-  { label: "FII", value: "fii" },
-  { label: "ETF", value: "etf" },
-  { label: "BDR", value: "bdr" },
-  { label: "Criptomoeda", value: "crypto" },
-  { label: "CDB / Renda Fixa", value: "cdb" },
-  { label: "Personalizado", value: "custom" },
-];
+/** Asset class options with translated labels. */
+const assetClassOptions = computed(() => [
+  { label: t("wallet.assetClass.stock"), value: "stock" },
+  { label: t("wallet.assetClass.fii"), value: "fii" },
+  { label: t("wallet.assetClass.etf"), value: "etf" },
+  { label: t("wallet.assetClass.bdr"), value: "bdr" },
+  { label: t("wallet.assetClass.crypto"), value: "crypto" },
+  { label: t("wallet.assetClass.cdb"), value: "cdb" },
+  { label: t("wallet.assetClass.custom"), value: "custom" },
+]);
 
 const rules = computed((): FormRules => ({
-  name: [{ required: true, message: "Informe o nome do ativo", trigger: "blur" }],
-  asset_class: [{ required: true, message: "Selecione o tipo de ativo", trigger: "change" }],
+  name: [{ required: true, message: t("wallet.form.required.name"), trigger: "blur" }],
+  asset_class: [{ required: true, message: t("wallet.form.required.assetClass"), trigger: "change" }],
   quantity: showQuantity.value
-    ? [{ required: true, type: "number", message: "Informe a quantidade", trigger: ["blur", "change"] }]
+    ? [{ required: true, type: "number", message: t("wallet.form.required.quantity"), trigger: ["blur", "change"] }]
     : [],
   value: showValue.value
-    ? [{ required: true, type: "number", message: "Informe o valor atual", trigger: ["blur", "change"] }]
+    ? [{ required: true, type: "number", message: t("wallet.form.required.value"), trigger: ["blur", "change"] }]
     : [],
-  register_date: [{ required: true, type: "number", message: "Selecione a data", trigger: "change" }],
+  register_date: [{ required: true, type: "number", message: t("wallet.form.required.registerDate"), trigger: "change" }],
 }));
 
 /**
@@ -306,25 +307,25 @@ const handleClose = (): void => {
   <NModal
     :show="props.visible"
     preset="card"
-    title="Adicionar ativo"
+    :title="$t('wallet.form.title')"
     class="wallet-entry-form-modal"
     :style="{ maxWidth: '500px', width: '100%' }"
     @update:show="handleClose"
   >
     <NForm ref="formRef" :model="form" :rules="rules" label-placement="top">
       <!-- Asset class — must come first so ticker field appears in the right order -->
-      <NFormItem label="Tipo de ativo" path="asset_class">
+      <NFormItem :label="$t('wallet.form.assetClass.label')" path="asset_class">
         <NSelect
           v-model:value="form.asset_class"
           :options="assetClassOptions"
-          placeholder="Selecione o tipo"
+          :placeholder="$t('wallet.form.assetClass.placeholder')"
         />
       </NFormItem>
 
       <!-- Ticker autocomplete — only shown for ticker-based asset classes -->
       <NFormItem
         v-if="isTickerClass"
-        label="Ticker (opcional)"
+        :label="$t('wallet.form.ticker.label')"
         path="ticker"
       >
         <NSelect
@@ -335,19 +336,19 @@ const handleClose = (): void => {
           remote
           :filter-option="false"
           clearable
-          placeholder="Ex: PETR4, BTC"
+          :placeholder="$t('wallet.form.ticker.placeholder')"
           @search="handleTickerSearch"
           @update:value="handleTickerSelect"
         />
       </NFormItem>
 
       <!-- Asset name — auto-filled from BRAPI on ticker selection -->
-      <NFormItem label="Nome do ativo" path="name">
-        <NInput v-model:value="form.name" placeholder="Ex: Tesouro Direto IPCA+" />
+      <NFormItem :label="$t('wallet.form.name.label')" path="name">
+        <NInput v-model:value="form.name" :placeholder="$t('wallet.form.name.placeholder')" />
       </NFormItem>
 
       <!-- Date of purchase — drives the BRAPI historical price lookup -->
-      <NFormItem label="Data de registro" path="register_date">
+      <NFormItem :label="$t('wallet.form.registerDate.label')" path="register_date">
         <NDatePicker
           v-model:value="form.register_date"
           type="date"
@@ -356,10 +357,10 @@ const handleClose = (): void => {
       </NFormItem>
 
       <!-- Quantity — only for ticker-based classes -->
-      <NFormItem v-if="showQuantity" label="Quantidade" path="quantity">
+      <NFormItem v-if="showQuantity" :label="$t('wallet.form.quantity.label')" path="quantity">
         <NInputNumber
           v-model:value="form.quantity"
-          placeholder="Ex: 100"
+          :placeholder="$t('wallet.form.quantity.placeholder')"
           :min="0"
           style="width: 100%"
         />
@@ -369,10 +370,10 @@ const handleClose = (): void => {
       <NFormItem v-if="isTickerClass" path="unit_price">
         <template #label>
           <span class="wallet-entry-form__label-row">
-            <span>Preço unitário na data (R$)</span>
+            <span>{{ $t('wallet.form.unitPrice.label') }}</span>
             <UiInfoTooltip
               :content="unitPriceTooltipContent"
-              label="Informação sobre o preço estimado"
+              :label="$t('wallet.form.unitPrice.label')"
               placement="top"
             />
           </span>
@@ -381,7 +382,7 @@ const handleClose = (): void => {
         <div class="wallet-entry-form__price-field">
           <NInputNumber
             v-model:value="form.unit_price"
-            placeholder="Aguardando ticker e data…"
+            :placeholder="$t('wallet.form.unitPrice.placeholder')"
             :min="0"
             :precision="2"
             style="width: 100%"
@@ -393,7 +394,7 @@ const handleClose = (): void => {
         <!-- Estimated total cost basis -->
         <template v-if="estimatedTotal">
           <NText depth="3" class="wallet-entry-form__hint">
-            Total estimado: {{ estimatedTotal }}
+            {{ $t('wallet.form.totalEstimated') }} {{ estimatedTotal }}
           </NText>
         </template>
 
@@ -406,25 +407,25 @@ const handleClose = (): void => {
       </NFormItem>
 
       <!-- Total value — only for non-ticker asset classes -->
-      <NFormItem v-if="showValue" label="Valor atual (R$)" path="value">
+      <NFormItem v-if="showValue" :label="$t('wallet.form.value.label')" path="value">
         <NInputNumber
           v-model:value="form.value"
-          placeholder="Ex: 5000.00"
+          :placeholder="$t('wallet.form.value.placeholder')"
           :min="0"
           :precision="2"
           style="width: 100%"
         />
       </NFormItem>
 
-      <NFormItem label="Incluir no patrimônio" path="should_be_on_wallet">
+      <NFormItem :label="$t('wallet.form.shouldBeOnWallet.label')" path="should_be_on_wallet">
         <NSwitch v-model:value="form.should_be_on_wallet" />
       </NFormItem>
     </NForm>
 
     <template #footer>
       <NSpace justify="end">
-        <NButton @click="handleClose">Cancelar</NButton>
-        <NButton type="primary" @click="handleSubmit">Salvar</NButton>
+        <NButton @click="handleClose">{{ $t('common.cancel') }}</NButton>
+        <NButton type="primary" @click="handleSubmit">{{ $t('common.save') }}</NButton>
       </NSpace>
     </template>
   </NModal>

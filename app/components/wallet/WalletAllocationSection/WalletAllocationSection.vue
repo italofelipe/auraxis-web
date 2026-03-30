@@ -4,6 +4,8 @@ import { formatCurrency } from "~/utils/currency";
 import type { WalletEntryDto } from "~/features/portfolio/contracts/portfolio.dto";
 import type { WalletAllocationSectionProps } from "./WalletAllocationSection.types";
 
+const { t } = useI18n();
+
 const props = defineProps<WalletAllocationSectionProps>();
 
 /** Internal representation of a single asset-type allocation row. */
@@ -16,18 +18,18 @@ interface AllocationRow {
 }
 
 /**
- * Returns a human-readable PT-BR label for an asset type.
+ * Returns a translated label for an asset type.
  *
  * @param assetType - The asset type value.
  * @returns Localised label string.
  */
 const assetTypeLabel = (assetType: WalletEntryDto["asset_type"]): string => {
   const map: Record<WalletEntryDto["asset_type"], string> = {
-    stock: "Ações",
-    fii: "FIIs",
-    crypto: "Cripto",
-    fixed_income: "Renda Fixa",
-    other: "Outros",
+    stock: t("wallet.assetTypeAllocation.stock"),
+    fii: t("wallet.assetTypeAllocation.fii"),
+    crypto: t("wallet.assetTypeAllocation.crypto"),
+    fixed_income: t("wallet.assetTypeAllocation.fixedIncome"),
+    other: t("wallet.assetTypeAllocation.other"),
   };
   return map[assetType];
 };
@@ -71,19 +73,31 @@ const allocations = computed((): AllocationRow[] => {
 
   return rows.sort((a, b) => b.totalValue - a.totalValue);
 });
+
+/**
+ * Returns a localised label for the asset count.
+ *
+ * @param count - The number of assets in the allocation group.
+ * @returns Singular or plural label string with the count.
+ */
+const assetCountLabel = (count: number): string => {
+  return count === 1
+    ? t("wallet.allocation.assetCount", { n: count })
+    : t("wallet.allocation.assetCountPlural", { n: count });
+};
 </script>
 
 <template>
   <NCard :bordered="true" class="wallet-allocation-section">
     <template #header>
-      <span class="wallet-allocation-section__title">Alocação por tipo</span>
+      <span class="wallet-allocation-section__title">{{ $t('wallet.allocation.title') }}</span>
     </template>
 
     <UiPageLoader v-if="props.isLoading" :rows="3" />
 
     <NEmpty
       v-else-if="allocations.length === 0"
-      description="Nenhum ativo para calcular alocação."
+      :description="$t('wallet.allocation.empty')"
       class="wallet-allocation-section__empty"
     />
 
@@ -96,7 +110,7 @@ const allocations = computed((): AllocationRow[] => {
         <div class="was-row__meta">
           <span class="was-row__label">{{ row.label }}</span>
           <div class="was-row__stats">
-            <span class="was-row__count">{{ row.count }} ativo{{ row.count !== 1 ? "s" : "" }}</span>
+            <span class="was-row__count">{{ assetCountLabel(row.count) }}</span>
             <span class="was-row__value">{{ formatCurrency(row.totalValue) }}</span>
             <span class="was-row__pct">{{ row.percentage.toFixed(1) }}%</span>
           </div>

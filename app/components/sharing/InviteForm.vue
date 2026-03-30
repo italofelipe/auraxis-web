@@ -9,6 +9,7 @@ import { useInviteMutation } from "~/features/sharing/queries/use-invite-mutatio
  *
  * Calls useInviteMutation on submit and resets the input on success.
  */
+
 const email = ref("");
 const inviteMutation = useInviteMutation();
 
@@ -31,11 +32,11 @@ const handleSubmit = (): void => {
 
 <template>
   <form class="invite-form" @submit.prevent="handleSubmit">
-    <NFormItem label="E-mail do convidado" class="invite-form__field">
+    <NFormItem :label="$t('sharing.inviteForm.emailLabel')" class="invite-form__field">
       <NInput
         v-model:value="email"
         type="text"
-        placeholder="nome@exemplo.com"
+        :placeholder="$t('sharing.inviteForm.emailPlaceholder')"
         :disabled="inviteMutation.isPending.value"
         data-testid="invite-email-input"
       />
@@ -47,10 +48,10 @@ const handleSubmit = (): void => {
       attr-type="submit"
       data-testid="invite-submit-button"
     >
-      Convidar
+      {{ $t('sharing.inviteForm.submit') }}
     </NButton>
     <p v-if="inviteMutation.isError.value" class="invite-form__error">
-      Erro ao enviar convite. Tente novamente.
+      {{ $t('sharing.inviteForm.error') }}
     </p>
   </form>
 </template>

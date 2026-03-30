@@ -3,6 +3,7 @@ import { NCard, NEmpty, NSkeleton, NSpace } from "naive-ui";
 
 import type { Alert } from "~/features/alerts/model/alerts";
 
+
 interface Props {
   /** List of alerts to display. */
   alerts: Alert[];
@@ -41,7 +42,7 @@ const onDelete = (id: string): void => {
 </script>
 
 <template>
-  <NCard title="Alertas">
+  <NCard :title="$t('alert.list.title')">
     <!-- Loading skeletons -->
     <NSpace v-if="isLoading" vertical :size="12">
       <NSkeleton v-for="n in 3" :key="n" height="72px" :sharp="false" />
@@ -50,7 +51,7 @@ const onDelete = (id: string): void => {
     <!-- Empty state -->
     <NEmpty
       v-else-if="alerts.length === 0"
-      description="Nenhum alerta encontrado. Você está em dia!"
+      :description="$t('alert.list.empty')"
     />
 
     <!-- Alerts list -->

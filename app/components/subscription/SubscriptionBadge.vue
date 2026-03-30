@@ -8,6 +8,8 @@ interface Props {
   status: SubscriptionStatus;
 }
 
+const { t } = useI18n();
+
 const props = defineProps<Props>();
 
 type NTagType = "default" | "success" | "warning" | "error" | "info" | "primary";
@@ -34,10 +36,10 @@ const tagType = computed((): NTagType => {
  */
 const statusLabel = computed((): string => {
   const map: Record<SubscriptionStatus, string> = {
-    active: "Ativo",
-    trialing: "Trial",
-    past_due: "Vencido",
-    canceled: "Cancelado",
+    active: t("subscription.badge.active"),
+    trialing: t("subscription.badge.trialing"),
+    past_due: t("subscription.badge.pastDue"),
+    canceled: t("subscription.badge.canceled"),
   };
   return map[props.status];
 });

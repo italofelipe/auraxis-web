@@ -4,6 +4,7 @@ import { NCard, NSpace, NStatistic, NTag } from "naive-ui";
 import { formatCurrency } from "~/utils/currency";
 import type { WalletSummary } from "~/features/wallet/model/wallet";
 
+
 interface Props {
   /** Wallet summary data to display. */
   summary: WalletSummary;
@@ -21,8 +22,6 @@ const formatVariationPct = (value: number): string => {
   const sign = value > 0 ? "+" : "";
   return `${sign}${value.toFixed(2)}%`;
 };
-
-
 
 /**
  * Resolves the NaiveUI tag type for positive, neutral and negative variation.
@@ -49,7 +48,7 @@ const trendArrow = (value: number): string => {
 };
 
 /**
- * Formats the lastUpdated ISO timestamp into a human-readable PT-BR date label.
+ * Formats the lastUpdated ISO timestamp into a human-readable date label.
  *
  * @returns Localized date/time string or empty string when lastUpdated is missing.
  */
@@ -66,11 +65,11 @@ const lastUpdatedLabel = computed((): string => {
 </script>
 
 <template>
-  <NCard class="wallet-summary-card" title="Patrimônio">
+  <NCard class="wallet-summary-card" :title="$t('wallet.summary.title')">
     <NSpace vertical :size="16">
       <div class="wallet-summary-card__primary">
         <NStatistic
-          label="Total de Patrimônio"
+          :label="$t('wallet.summary.totalPatrimony')"
           :value="formatCurrency(summary.totalPatrimony)"
           class="wallet-summary-card__total"
         />
@@ -87,17 +86,17 @@ const lastUpdatedLabel = computed((): string => {
 
       <NSpace :size="24" class="wallet-summary-card__secondary">
         <NStatistic
-          label="Valor Investido"
+          :label="$t('wallet.summary.investedValue')"
           :value="formatCurrency(summary.investedValue)"
         />
         <NStatistic
-          label="Valor Atual"
+          :label="$t('wallet.summary.currentValue')"
           :value="formatCurrency(summary.currentValue)"
         />
       </NSpace>
 
       <p v-if="lastUpdatedLabel" class="wallet-summary-card__updated">
-        Atualizado em {{ lastUpdatedLabel }}
+        {{ $t('wallet.summary.updatedAt', { date: lastUpdatedLabel }) }}
       </p>
     </NSpace>
   </NCard>

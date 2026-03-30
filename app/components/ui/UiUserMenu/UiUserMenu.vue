@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUnmounted } from "vue";
 import { Settings, LogOut, ChevronRight } from "lucide-vue-next";
 import type { UiUserMenuProps, UiUserMenuEmits } from "./UiUserMenu.types";
 
+
 const props = withDefaults(defineProps<UiUserMenuProps>(), {
   description: undefined,
   avatarUrl: undefined,
@@ -84,7 +85,7 @@ onUnmounted(() => document.removeEventListener("mousedown", handleClickOutside))
         @click="emit('settings'); close()"
       >
         <Settings :size="16" aria-hidden="true" />
-        Configurações
+        {{ $t('ui.userMenu.settings') }}
       </button>
       <button
         class="ui-user-menu__item ui-user-menu__item--danger"
@@ -92,7 +93,7 @@ onUnmounted(() => document.removeEventListener("mousedown", handleClickOutside))
         @click="emit('logout'); close()"
       >
         <LogOut :size="16" aria-hidden="true" />
-        Sair
+        {{ $t('ui.userMenu.logout') }}
       </button>
     </div>
   </div>

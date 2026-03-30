@@ -13,6 +13,7 @@ const props = withDefaults(defineProps<UiTopbarProps>(), {
 });
 
 const emit = defineEmits<UiTopbarEmits>();
+
 </script>
 
 <template>
@@ -21,7 +22,7 @@ const emit = defineEmits<UiTopbarEmits>();
       <button
         v-if="props.showMenuButton"
         class="ui-topbar__menu-btn"
-        aria-label="Abrir menu"
+        :aria-label="$t('ui.topbar.openMenu')"
         @click="emit('menu-toggle')"
       >
         <Menu :size="22" aria-hidden="true" />

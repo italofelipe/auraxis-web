@@ -11,7 +11,7 @@ defineOptions({ inheritAttrs: false });
 const attrs = useAttrs();
 
 const props = withDefaults(defineProps<UiPasswordFieldProps>(), {
-  label: "Senha",
+  label: undefined,
   fieldId: "password",
   placeholder: "",
   error: undefined,
@@ -33,7 +33,7 @@ function toggle(): void {
 </script>
 
 <template>
-  <UiFormField :label="props.label" :field-id="props.fieldId" :error="props.error" :required="props.required">
+  <UiFormField :label="props.label ?? $t('ui.passwordField.label')" :field-id="props.fieldId" :error="props.error" :required="props.required">
     <div class="ui-password-field__wrapper">
       <input
         v-bind="attrs"
@@ -50,7 +50,7 @@ function toggle(): void {
       <button
         type="button"
         class="ui-password-field__toggle"
-        :aria-label="isVisible ? 'Ocultar senha' : 'Mostrar senha'"
+        :aria-label="isVisible ? $t('ui.passwordField.hidePassword') : $t('ui.passwordField.showPassword')"
         :aria-pressed="isVisible"
         @click="toggle"
       >

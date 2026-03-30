@@ -5,6 +5,8 @@ import type { GoalPlanPanelProps } from "./GoalPlanPanel.types";
 import { useGoalPlanQuery } from "~/features/goals/queries/use-goal-plan-query";
 import { formatCurrency } from "~/utils/currency";
 
+const { t } = useI18n();
+
 const props = defineProps<GoalPlanPanelProps>();
 
 const goalIdRef = ref<string | null>(props.goalId);
@@ -19,7 +21,7 @@ watch(
 const { data: plan, isLoading, isError } = useGoalPlanQuery(goalIdRef);
 
 /**
- * Formats an ISO date string to a PT-BR long date.
+ * Formats an ISO date string to a localised long date.
  *
  * @param value - ISO date string (YYYY-MM-DD or ISO-8601).
  * @returns Formatted string like "31 de dezembro de 2026".
@@ -36,7 +38,9 @@ const monthsLabel = computed((): string => {
     return "—";
   }
   const n = plan.value.months_remaining;
-  return `${n} ${n === 1 ? "mês restante" : "meses restantes"}`;
+  return n === 1
+    ? t("goal.plan.monthsRemaining", { n })
+    : t("goal.plan.monthsRemainingPlural", { n });
 });
 
 const onTrackType = computed((): "success" | "warning" => {
@@ -44,14 +48,14 @@ const onTrackType = computed((): "success" | "warning" => {
 });
 
 const onTrackLabel = computed((): string => {
-  return plan.value?.is_on_track ? "No prazo" : "Atenção: atrasado";
+  return plan.value?.is_on_track ? t("goal.plan.onTrack") : t("goal.plan.delayed");
 });
 </script>
 
 <template>
   <UiSurfaceCard v-if="props.goalId !== null" class="goal-plan-panel">
     <div class="goal-plan-panel__header">
-      <span class="goal-plan-panel__title">Planejamento da Meta</span>
+      <span class="goal-plan-panel__title">{{ $t('goal.plan.title') }}</span>
       <NTag
         v-if="plan"
         :type="onTrackType"
@@ -66,21 +70,21 @@ const onTrackLabel = computed((): string => {
 
     <UiInlineError
       v-else-if="isError"
-      title="Não foi possível carregar o planejamento"
-      message="Tente novamente."
+      :title="$t('goal.plan.loadError')"
+      :message="$t('goal.plan.loadErrorMessage')"
     />
 
     <div v-else-if="plan" class="goal-plan-panel__stats">
       <NStatistic
-        label="Contribuição mensal necessária"
+        :label="$t('goal.plan.monthlyContribution')"
         :value="formatCurrency(plan.required_monthly_contribution)"
       />
       <NStatistic
-        label="Prazo"
+        :label="$t('goal.plan.deadline')"
         :value="monthsLabel"
       />
       <NStatistic
-        label="Conclusão prevista"
+        :label="$t('goal.plan.projectedCompletion')"
         :value="formatDate(plan.projected_completion_date)"
       />
     </div>

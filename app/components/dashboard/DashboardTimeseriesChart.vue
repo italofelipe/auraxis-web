@@ -11,6 +11,7 @@ interface Props {
   isLoading?: boolean;
 }
 
+
 const props = withDefaults(defineProps<Props>(), {
   isLoading: false,
 });
@@ -65,16 +66,16 @@ const formatDate = (value: string): string => {
 </script>
 
 <template>
-  <UiBaseCard title="Evolução do período">
+  <UiBaseCard :title="$t('dashboard.timeseries.title')">
     <BaseSkeleton v-if="props.isLoading" style="height: 120px" />
 
     <div v-else-if="props.data.length === 0" class="timeseries-empty">
       <BarChart2 class="timeseries-empty__icon" :size="32" aria-hidden="true" />
-      <p>Gráfico de evolução disponível em breve</p>
-      <small>Adicione lançamentos para visualizar a evolução do período.</small>
+      <p>{{ $t('dashboard.timeseries.emptyTitle') }}</p>
+      <small>{{ $t('dashboard.timeseries.emptyDescription') }}</small>
     </div>
 
-    <div v-else class="series-list" role="list" aria-label="Evolução por data">
+    <div v-else class="series-list" role="list" :aria-label="$t('dashboard.timeseries.listAriaLabel')">
       <div
         v-for="point in props.data"
         :key="point.date"

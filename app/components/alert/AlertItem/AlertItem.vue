@@ -4,6 +4,8 @@ import { CheckIcon, Trash2Icon } from "lucide-vue-next";
 import type { AlertItemProps, AlertItemEmits } from "./AlertItem.types";
 import type { AlertType } from "~/features/alerts/contracts/alert.dto";
 
+const { t } = useI18n();
+
 const props = defineProps<AlertItemProps>();
 const emit = defineEmits<AlertItemEmits>();
 
@@ -39,11 +41,11 @@ const alertTagType = (
  */
 const alertTypeLabel = (type: string): string => {
   const map: Record<AlertType, string> = {
-    goal_achieved: "Meta atingida",
-    overdue_payment: "Pagamento atrasado",
-    budget_exceeded: "Orçamento excedido",
-    investment_opportunity: "Oportunidade",
-    system: "Sistema",
+    goal_achieved: t("alert.type.goalAchieved"),
+    overdue_payment: t("alert.type.overduePayment"),
+    budget_exceeded: t("alert.type.budgetExceeded"),
+    investment_opportunity: t("alert.type.investmentOpportunity"),
+    system: t("alert.type.system"),
   };
   return (map as Record<string, string>)[type] ?? type;
 };
@@ -109,7 +111,7 @@ const onDelete = (): void => {
           size="small"
           quaternary
           :focusable="false"
-          aria-label="Marcar como lido"
+          :aria-label="$t('alert.actions.markRead')"
           @click="onMarkRead"
         >
           <template #icon>
@@ -120,7 +122,7 @@ const onDelete = (): void => {
           size="small"
           quaternary
           :focusable="false"
-          aria-label="Excluir alerta"
+          :aria-label="$t('alert.actions.delete')"
           @click="onDelete"
         >
           <template #icon>

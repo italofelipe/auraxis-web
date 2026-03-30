@@ -48,13 +48,13 @@ const onDeleteEntry = (id: string): void => {
   <div class="portfolio-page">
     <div class="portfolio-page__header">
       <div class="portfolio-page__title-block">
-        <span class="portfolio-page__title">Carteira</span>
+        <span class="portfolio-page__title">{{ $t('pages.portfolio.title') }}</span>
         <span class="portfolio-page__subtitle">
-          Visão geral dos seus investimentos
+          {{ $t('pages.portfolio.subtitle') }}
         </span>
       </div>
       <NButton type="primary" size="small" @click="showEntryForm = true">
-        Adicionar ativo
+        {{ $t('pages.portfolio.addAsset') }}
       </NButton>
     </div>
 
@@ -66,8 +66,8 @@ const onDeleteEntry = (id: string): void => {
 
     <UiInlineError
       v-if="isError"
-      title="Não foi possível carregar a carteira"
-      message="Tente recarregar a página."
+      :title="$t('pages.portfolio.loadError')"
+      :message="$t('pages.portfolio.loadErrorMessage')"
     />
 
     <template v-else>

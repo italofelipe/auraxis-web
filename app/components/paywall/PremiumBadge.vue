@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { Crown } from "lucide-vue-next";
+
 </script>
 
 <template>
   <span class="premium-badge">
     <Crown class="premium-badge__icon" :size="12" />
-    Premium
+    {{ $t('paywall.premium') }}
   </span>
 </template>
 

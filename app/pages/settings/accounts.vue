@@ -18,6 +18,8 @@ import { useCreateAccountMutation } from "~/features/accounts/queries/use-create
 import { useUpdateAccountMutation } from "~/features/accounts/queries/use-update-account-mutation";
 import { useDeleteAccountMutation } from "~/features/accounts/queries/use-delete-account-mutation";
 
+const { t } = useI18n();
+
 definePageMeta({
   middleware: ["authenticated"],
   pageTitle: "Contas",
@@ -87,13 +89,13 @@ async function confirmDelete(id: string): Promise<void> {
   await deleteMutation.mutateAsync(id);
 }
 
-const columns: DataTableColumns<AccountDto> = [
+const columns = computed((): DataTableColumns<AccountDto> => [
   {
-    title: "Nome",
+    title: t("pages.settings.accounts.columns.name"),
     key: "name",
   },
   {
-    title: "Ações",
+    title: t("pages.settings.accounts.columns.actions"),
     key: "actions",
     width: 160,
     render(row: AccountDto): VNodeChild {
@@ -104,7 +106,7 @@ const columns: DataTableColumns<AccountDto> = [
             size: "small",
             onClick: () => openEdit(row),
           },
-          () => "Editar",
+          () => t("pages.settings.accounts.edit"),
         ),
         h(
           NPopconfirm,
@@ -112,29 +114,29 @@ const columns: DataTableColumns<AccountDto> = [
             onPositiveClick: () => confirmDelete(row.id),
           },
           {
-            default: () => "Confirma remoção desta conta?",
+            default: () => t("pages.settings.accounts.confirmDelete"),
             trigger: () =>
               h(
                 NButton,
                 { size: "small", type: "error" },
-                () => "Remover",
+                () => t("pages.settings.accounts.remove"),
               ),
           },
         ),
       ]);
     },
   },
-];
+]);
 </script>
 
 <template>
   <div class="settings-page">
     <div class="settings-page__header">
       <div class="settings-page__title-block">
-        <span class="settings-page__title">Contas</span>
-        <span class="settings-page__subtitle">Gerencie suas contas bancárias</span>
+        <span class="settings-page__title">{{ $t('pages.settings.accounts.title') }}</span>
+        <span class="settings-page__subtitle">{{ $t('pages.settings.accounts.subtitle') }}</span>
       </div>
-      <NButton type="primary" size="medium" @click="openCreate">Nova Conta</NButton>
+      <NButton type="primary" size="medium" @click="openCreate">{{ $t('pages.settings.accounts.newAccount') }}</NButton>
     </div>
 
     <NCard>
@@ -152,15 +154,15 @@ const columns: DataTableColumns<AccountDto> = [
     <NModal
       v-model:show="showModal"
       preset="dialog"
-      :title="editingAccount ? 'Editar Conta' : 'Nova Conta'"
-      :positive-text="editingAccount ? 'Salvar' : 'Criar'"
-      negative-text="Cancelar"
+      :title="editingAccount ? $t('pages.settings.accounts.editAccount') : $t('pages.settings.accounts.newAccount')"
+      :positive-text="editingAccount ? $t('pages.settings.accounts.save') : $t('pages.settings.accounts.create')"
+      :negative-text="$t('pages.settings.accounts.cancel')"
       @positive-click="submitForm"
       @negative-click="closeModal"
     >
       <NInput
         v-model:value="formName"
-        placeholder="Nome da conta"
+        :placeholder="$t('pages.settings.accounts.placeholder')"
         maxlength="100"
         show-count
       />

@@ -7,6 +7,8 @@ import {
 import type { DashboardPeriod } from "~/features/dashboard/model/dashboard-period";
 import { formatCurrency } from "~/utils/currency";
 
+const { t } = useI18n();
+
 definePageMeta({
   middleware: ["authenticated"],
   pageTitle: "Dashboard financeiro",
@@ -46,8 +48,8 @@ const isQuickSelectPeriod = computed((): boolean =>
 
 const emptyMessage = computed(() =>
   selectedPeriod.value === "custom"
-    ? "Nenhum dado encontrado para o período personalizado."
-    : "Ainda não encontramos movimentações para o período selecionado.",
+    ? t("pages.dashboard.noDataCustom")
+    : t("pages.dashboard.noDataPeriod"),
 );
 </script>
 
@@ -61,7 +63,7 @@ const emptyMessage = computed(() =>
       />
 
       <label class="control-field">
-        <span>Período</span>
+        <span>{{ $t('pages.dashboard.period') }}</span>
         <select v-model="selectedPeriod">
           <option
             v-for="option in DASHBOARD_PERIOD_OPTIONS"
@@ -75,11 +77,11 @@ const emptyMessage = computed(() =>
 
       <template v-if="selectedPeriod === 'custom'">
         <label class="control-field">
-          <span>Início</span>
+          <span>{{ $t('pages.dashboard.start') }}</span>
           <input v-model="customStart" type="date">
         </label>
         <label class="control-field">
-          <span>Fim</span>
+          <span>{{ $t('pages.dashboard.end') }}</span>
           <input v-model="customEnd" type="date">
         </label>
       </template>
@@ -88,17 +90,17 @@ const emptyMessage = computed(() =>
     <UiEmptyState
       v-if="isCustomPeriodIncomplete"
       icon="calendarCheck"
-      title="Selecione o intervalo"
-      description="Para consultar um período personalizado, informe a data inicial e a data final."
+      :title="$t('pages.dashboard.selectInterval')"
+      :description="$t('pages.dashboard.selectIntervalDesc')"
     />
 
     <UiSurfaceCard v-else-if="dashboardQuery.isError.value">
-      <p class="support-copy">O overview do período não pôde ser carregado agora.</p>
+      <p class="support-copy">{{ $t('pages.dashboard.loadError') }}</p>
       <p class="error-copy">
-        {{ dashboardQuery.error.value?.message ?? "Erro desconhecido de integração." }}
+        {{ dashboardQuery.error.value?.message ?? $t('pages.dashboard.unknownError') }}
       </p>
       <button class="retry-button" type="button" @click="dashboardQuery.refetch()">
-        Tentar novamente
+        {{ $t('pages.dashboard.retry') }}
       </button>
     </UiSurfaceCard>
 
@@ -114,7 +116,7 @@ const emptyMessage = computed(() =>
       <UiEmptyState
         v-if="!dashboardQuery.isLoading.value && !summary && !dashboardQuery.isError.value"
         icon="chartLine"
-        title="Sem dados para este período"
+        :title="$t('pages.dashboard.noData')"
         :description="emptyMessage"
       />
 
@@ -137,7 +139,7 @@ const emptyMessage = computed(() =>
           />
 
           <UiSurfaceCard>
-            <template #header>Metas em destaque</template>
+            <template #header>{{ $t('pages.dashboard.featuredGoals') }}</template>
             <BaseSkeleton v-if="dashboardQuery.isLoading.value" />
             <div v-else class="item-list">
               <article
@@ -153,15 +155,15 @@ const emptyMessage = computed(() =>
                   <span :style="{ width: `${Math.min(goal.progressPercent, 100)}%` }" />
                 </div>
                 <p>
-                  {{ formatCurrency(goal.currentAmount) }} de
+                  {{ formatCurrency(goal.currentAmount) }} {{ $t('pages.dashboard.goalOf') }}
                   {{ formatCurrency(goal.targetAmount) }}
                 </p>
               </article>
               <UiEmptyState
                 v-if="goals.length === 0"
                 icon="target"
-                title="Sem metas"
-                description="Nenhuma meta ativa para o período selecionado."
+                :title="$t('pages.dashboard.noGoals')"
+                :description="$t('pages.dashboard.noGoalsDesc')"
                 :compact="true"
               />
             </div>

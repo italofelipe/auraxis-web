@@ -13,6 +13,8 @@ interface Emits {
   (event: "revoke", id: string): void;
 }
 
+const { t } = useI18n();
+
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
@@ -40,10 +42,10 @@ const statusTagType = (status: InvitationStatus): "default" | "success" | "error
  */
 const statusLabel = (status: InvitationStatus): string => {
   const map: Record<InvitationStatus, string> = {
-    pending: "Pendente",
-    accepted: "Aceito",
-    revoked: "Revogado",
-    expired: "Expirado",
+    pending: t("sharing.invitation.status.pending"),
+    accepted: t("sharing.invitation.status.accepted"),
+    revoked: t("sharing.invitation.status.revoked"),
+    expired: t("sharing.invitation.status.expired"),
   };
   return map[status] ?? status;
 };
@@ -84,7 +86,7 @@ const handleRevoke = (): void => {
       </NTag>
     </div>
     <span class="invitation-item__date">
-      Enviado em {{ formatDate(invitation.createdAt) }}
+      {{ $t('sharing.invitation.sentAt', { date: formatDate(invitation.createdAt) }) }}
     </span>
     <NButton
       v-if="invitation.status === 'pending'"
@@ -93,7 +95,7 @@ const handleRevoke = (): void => {
       class="invitation-item__revoke"
       @click="handleRevoke"
     >
-      Revogar
+      {{ $t('sharing.invitation.revoke') }}
     </NButton>
   </div>
 </template>

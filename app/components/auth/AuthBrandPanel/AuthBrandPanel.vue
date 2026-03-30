@@ -2,10 +2,11 @@
 // FEAT-01 — AuthBrandPanel
 // Left-side branding panel for the split auth layout.
 // Static by design; no props needed.
+
 </script>
 
 <template>
-  <aside class="auth-brand-panel" aria-label="Auraxis — painel de marca">
+  <aside class="auth-brand-panel" :aria-label="$t('authBrandPanel.ariaLabel')">
     <div class="auth-brand-panel__inner">
       <!-- Logo -->
       <div class="auth-brand-panel__logo" aria-label="Auraxis">
@@ -16,11 +17,11 @@
       <!-- Headline -->
       <div class="auth-brand-panel__copy">
         <p class="auth-brand-panel__tagline">
-          Dados financeiros complexos.<br>
-          Clareza radical.
+          {{ $t('authBrandPanel.taglineLine1') }}<br>
+          {{ $t('authBrandPanel.taglineLine2') }}
         </p>
         <p class="auth-brand-panel__sub">
-          Gerencie seu patrimônio, metas e transações em um único lugar — com a precisão que você merece.
+          {{ $t('authBrandPanel.sub') }}
         </p>
       </div>
 

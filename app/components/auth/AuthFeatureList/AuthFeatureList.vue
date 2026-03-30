@@ -2,38 +2,40 @@
 import { computed } from "vue";
 import type { AuthFeatureListProps, AuthFeature } from "./AuthFeatureList.types";
 
-/** Benefícios padrão exibidos quando a prop `features` é omitida. */
-const DEFAULT_FEATURES: AuthFeature[] = [
-  {
-    icon: "📊",
-    title: "Dashboard financeira",
-    description: "Visão consolidada do seu mês com saldo, metas e patrimônio.",
-  },
-  {
-    icon: "🎯",
-    title: "Metas inteligentes",
-    description: "Defina, acompanhe e conquiste metas financeiras com presets prontos.",
-  },
-  {
-    icon: "💼",
-    title: "Carteira & patrimônio",
-    description: "Acompanhe seus investimentos com dados em tempo real via BRAPI.",
-  },
-  {
-    icon: "🔒",
-    title: "Segurança primeiro",
-    description: "Seus dados protegidos com autenticação segura e criptografia.",
-  },
-];
+const { t } = useI18n();
 
 const props = defineProps<AuthFeatureListProps>();
 
+/** Benefícios padrão exibidos quando a prop `features` é omitida. */
+const DEFAULT_FEATURES = computed((): AuthFeature[] => [
+  {
+    icon: "📊",
+    title: t("authFeatureList.features.dashboard.title"),
+    description: t("authFeatureList.features.dashboard.description"),
+  },
+  {
+    icon: "🎯",
+    title: t("authFeatureList.features.goals.title"),
+    description: t("authFeatureList.features.goals.description"),
+  },
+  {
+    icon: "💼",
+    title: t("authFeatureList.features.wallet.title"),
+    description: t("authFeatureList.features.wallet.description"),
+  },
+  {
+    icon: "🔒",
+    title: t("authFeatureList.features.security.title"),
+    description: t("authFeatureList.features.security.description"),
+  },
+]);
+
 /** Lista de features resolvida: usa a prop quando fornecida, ou os defaults. */
-const features = computed(() => props.features ?? DEFAULT_FEATURES);
+const features = computed(() => props.features ?? DEFAULT_FEATURES.value);
 </script>
 
 <template>
-  <ul class="auth-feature-list" aria-label="Benefícios do Auraxis">
+  <ul class="auth-feature-list" :aria-label="$t('authFeatureList.ariaLabel')">
     <li
       v-for="feature in features"
       :key="feature.title"

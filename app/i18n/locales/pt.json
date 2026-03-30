@@ -36,6 +36,237 @@
         "disabled": "Em breve"
       },
       "empty": "Nenhuma ferramenta disponível no momento."
+    },
+    "income": {
+      "tabs": {
+        "import": "Importar CSV",
+        "list": "Minhas Receitas"
+      },
+      "preview": "Pré-visualização",
+      "csvError": "Erro ao processar o CSV. Verifique o arquivo e tente novamente.",
+      "errorSummaryTitle": "Erro ao carregar resumo",
+      "errorSummaryMessage": "Não foi possível carregar o resumo de receitas.",
+      "errorListTitle": "Erro ao carregar receitas",
+      "errorListMessage": "Não foi possível carregar a lista de receitas.",
+      "emptyList": "Nenhuma receita cadastrada.",
+      "myIncome": "Minhas Receitas"
+    },
+    "dashboard": {
+      "period": "Período",
+      "start": "Início",
+      "end": "Fim",
+      "selectInterval": "Selecione o intervalo",
+      "selectIntervalDesc": "Para consultar um período personalizado, informe a data inicial e a data final.",
+      "loadError": "O overview do período não pôde ser carregado agora.",
+      "unknownError": "Erro desconhecido de integração.",
+      "retry": "Tentar novamente",
+      "noData": "Sem dados para este período",
+      "noDataCustom": "Nenhum dado encontrado para o período personalizado.",
+      "noDataPeriod": "Ainda não encontramos movimentações para o período selecionado.",
+      "featuredGoals": "Metas em destaque",
+      "noGoals": "Sem metas",
+      "noGoalsDesc": "Nenhuma meta ativa para o período selecionado.",
+      "goalOf": "de"
+    },
+    "goals": {
+      "title": "Minhas Metas",
+      "subtitle": "Acompanhe o progresso das suas metas financeiras",
+      "newGoal": "Nova Meta",
+      "loadError": "Não foi possível carregar as metas",
+      "loadErrorMessage": "Tente recarregar a página.",
+      "totalGoals": "Total de metas",
+      "inProgress": "Em andamento",
+      "completed": "Concluídas",
+      "filters": {
+        "all": "Todas",
+        "active": "Ativas",
+        "completed": "Concluídas",
+        "paused": "Pausadas"
+      },
+      "empty": "Nenhuma meta encontrada para o filtro selecionado."
+    },
+    "portfolio": {
+      "title": "Carteira",
+      "subtitle": "Visão geral dos seus investimentos",
+      "addAsset": "Adicionar ativo",
+      "loadError": "Não foi possível carregar a carteira",
+      "loadErrorMessage": "Tente recarregar a página."
+    },
+    "alerts": {
+      "title": "Alertas",
+      "subtitle": "Notificações e alertas do período",
+      "markAllRead": "Marcar todos como lidos",
+      "loadError": "Não foi possível carregar os alertas",
+      "loadErrorMessage": "Tente recarregar a página.",
+      "total": "Total",
+      "unread": "Não lidos",
+      "read": "Lidos",
+      "filters": {
+        "all": "Todos",
+        "unread": "Não lidos",
+        "read": "Lidos"
+      },
+      "empty": "Nenhum alerta encontrado para o filtro selecionado."
+    },
+    "simulations": {
+      "title": "Simulações",
+      "subtitle": "Projete cenários financeiros e guarde seus resultados",
+      "newSimulation": "Nova simulação",
+      "loadError": "Não foi possível carregar as simulações",
+      "loadErrorMessage": "Tente recarregar a página.",
+      "filters": {
+        "all": "Todas",
+        "installmentVsCash": "Parcelamento × À vista",
+        "goalProjection": "Projeção de Meta",
+        "investmentReturn": "Retorno"
+      },
+      "empty": "Nenhuma simulação encontrada para o filtro selecionado."
+    },
+    "sharedEntries": {
+      "title": "Entradas Compartilhadas",
+      "subtitle": "Gerencie divisões de transações",
+      "loadError": "Não foi possível carregar as entradas compartilhadas",
+      "loadErrorMessage": "Tente recarregar a página.",
+      "total": "Total",
+      "pending": "Pendentes",
+      "accepted": "Aceitas",
+      "byMe": "Compartilhadas por mim",
+      "withMe": "Compartilhadas comigo",
+      "emptyByMe": "Nenhuma entrada compartilhada por você.",
+      "emptyWithMe": "Nenhuma entrada compartilhada com você."
+    },
+    "subscription": {
+      "title": "Assinatura",
+      "subtitle": "Gerencie seu plano Auraxis",
+      "loadError": "Não foi possível carregar a assinatura",
+      "loadErrorMessage": "Tente recarregar a página.",
+      "cancelSubscription": "Cancelar assinatura",
+      "choosePlan": "Escolha seu plano",
+      "nextBilling": "Próxima cobrança:",
+      "pastDueTitle": "Pagamento em atraso",
+      "canceledTitle": "Assinatura cancelada",
+      "pastDueMessage": "Sua assinatura está em atraso. Atualize seu método de pagamento para continuar usando o Auraxis.",
+      "canceledMessage": "Sua assinatura foi cancelada. Escolha um plano abaixo para reativar.",
+      "status": {
+        "active": "Ativo",
+        "canceled": "Cancelado",
+        "pastDue": "Em atraso",
+        "trialing": "Período de teste",
+        "none": "Sem assinatura"
+      },
+      "plans": {
+        "free": { "name": "Gratuito" },
+        "starter": { "name": "Starter" },
+        "pro": { "name": "Pro" },
+        "premium": { "name": "Premium" },
+        "features": {
+          "transactions50": "Até 50 transações/mês",
+          "transactions200": "Até 200 transações/mês",
+          "unlimitedTransactions": "Transações ilimitadas",
+          "goals1": "1 meta financeira",
+          "goals3": "3 metas financeiras",
+          "unlimitedGoals": "Metas ilimitadas",
+          "basicReports": "Relatórios básicos",
+          "advancedReports": "Relatórios avançados",
+          "simulations": "Simulações financeiras",
+          "sharedEntries": "Lançamentos compartilhados",
+          "prioritySupport": "Suporte prioritário"
+        }
+      }
+    },
+    "settings": {
+      "profile": {
+        "title": "Dados Pessoais",
+        "subtitle": "Seu perfil e preferências",
+        "editProfile": "Editar Perfil",
+        "incompleteWarning": "Seu perfil está incompleto. Complete agora para personalizar sua experiência.",
+        "completeProfile": "Completar perfil",
+        "fields": {
+          "gender": "Gênero",
+          "birthDate": "Data de Nascimento",
+          "monthlyIncome": "Renda Mensal",
+          "monthlyExpenses": "Despesas Mensais",
+          "netWorth": "Patrimônio Líquido",
+          "stateUf": "Estado (UF)",
+          "occupation": "Ocupação",
+          "financialObjectives": "Objetivos Financeiros",
+          "investorProfile": "Perfil de Investidor"
+        },
+        "investorProfile": {
+          "conservador": "Conservador",
+          "explorador": "Explorador",
+          "entusiasta": "Entusiasta",
+          "undefined": "Não definido"
+        }
+      },
+      "accounts": {
+        "title": "Contas",
+        "subtitle": "Gerencie suas contas bancárias",
+        "newAccount": "Nova Conta",
+        "editAccount": "Editar Conta",
+        "columns": {
+          "name": "Nome",
+          "actions": "Ações"
+        },
+        "confirmDelete": "Confirma remoção desta conta?",
+        "save": "Salvar",
+        "create": "Criar",
+        "cancel": "Cancelar",
+        "edit": "Editar",
+        "remove": "Remover",
+        "placeholder": "Nome da conta"
+      },
+      "tags": {
+        "title": "Tags",
+        "subtitle": "Gerencie suas tags de categorização",
+        "newTag": "Nova Tag",
+        "editTag": "Editar Tag",
+        "columns": {
+          "name": "Nome",
+          "actions": "Ações"
+        },
+        "confirmDelete": "Confirma remoção desta tag?",
+        "save": "Salvar",
+        "create": "Criar",
+        "cancel": "Cancelar",
+        "edit": "Editar",
+        "remove": "Remover",
+        "placeholder": "Nome da tag"
+      },
+      "creditCards": {
+        "title": "Cartões de Crédito",
+        "subtitle": "Gerencie seus cartões de crédito",
+        "newCard": "Novo Cartão",
+        "editCard": "Editar Cartão",
+        "columns": {
+          "name": "Nome",
+          "actions": "Ações"
+        },
+        "confirmDelete": "Confirma remoção deste cartão?",
+        "save": "Salvar",
+        "create": "Criar",
+        "cancel": "Cancelar",
+        "edit": "Editar",
+        "remove": "Remover",
+        "placeholder": "Nome do cartão"
+      }
+    }
+  },
+  "common": {
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "create": "Criar",
+    "retry": "Tentar novamente",
+    "loading": "Carregando...",
+    "noData": "Nenhum dado encontrado.",
+    "confirm": "Confirmar",
+    "remove": "Remover",
+    "revoke": "Revogar",
+    "error": {
+      "loadFailed": "Não foi possível carregar os dados",
+      "reload": "Tente recarregar a página."
     }
   },
   "investorProfile": {
@@ -70,7 +301,7 @@
       "subtitle": "Faça login em sua conta para continuar",
       "divider": "Ou continue com",
       "emailLabel": "Email",
-      "emailPlaceholder": "seu@email.com",
+      "emailPlaceholder": "seu{'@'}email.com",
       "passwordLabel": "Senha",
       "passwordPlaceholder": "••••••••",
       "forgotPassword": "Esqueceu sua senha?",
@@ -87,7 +318,7 @@
       "nameLabel": "Nome completo",
       "namePlaceholder": "Seu nome completo",
       "emailLabel": "Email",
-      "emailPlaceholder": "seu@email.com",
+      "emailPlaceholder": "seu{'@'}email.com",
       "passwordLabel": "Senha",
       "passwordPlaceholder": "••••••••",
       "confirmPasswordLabel": "Confirmar senha",
@@ -103,11 +334,444 @@
       "title": "Recuperar senha",
       "subtitle": "Informe seu email para receber as instruções",
       "emailLabel": "Email",
-      "emailPlaceholder": "seu@email.com",
+      "emailPlaceholder": "seu{'@'}email.com",
       "submit": "Enviar instruções",
       "submitLoading": "Enviando...",
       "backToLogin": "Voltar ao login",
-      "metaDescription": "Recupere o acesso à sua conta Auraxis com seu endereço de e-mail."
+      "metaDescription": "Recupere o acesso à sua conta Auraxis com seu endereço de e-mail.",
+      "successTitle": "E-mail enviado",
+      "successMessage": "Se esse e-mail estiver cadastrado, você receberá um link de recuperação em instantes. Verifique também sua pasta de spam.",
+      "rememberPassword": "Lembrou a senha?",
+      "sendLink": "Enviar link de recuperação",
+      "sending": "Enviando…"
+    }
+  },
+  "wallet": {
+    "form": {
+      "title": "Adicionar ativo",
+      "assetClass": {
+        "label": "Tipo de ativo",
+        "placeholder": "Selecione o tipo"
+      },
+      "ticker": {
+        "label": "Ticker (opcional)",
+        "placeholder": "Ex: PETR4, BTC"
+      },
+      "name": {
+        "label": "Nome do ativo",
+        "placeholder": "Ex: Tesouro Direto IPCA+"
+      },
+      "registerDate": {
+        "label": "Data de registro"
+      },
+      "quantity": {
+        "label": "Quantidade",
+        "placeholder": "Ex: 100"
+      },
+      "unitPrice": {
+        "label": "Preço unitário na data (R$)",
+        "placeholder": "Aguardando ticker e data…",
+        "tooltip": "Valor estimado com base no fechamento da bolsa em {date} ({currency}). A data pode diferir do registro se cair em fim de semana ou feriado. Você pode editar este valor se necessário.",
+        "tooltipNoDate": "Valor estimado com base no fechamento da bolsa em ... ({currency}). Você pode editar este valor se necessário."
+      },
+      "value": {
+        "label": "Valor atual (R$)",
+        "placeholder": "Ex: 5000.00"
+      },
+      "shouldBeOnWallet": {
+        "label": "Incluir no patrimônio"
+      },
+      "totalEstimated": "Total estimado:",
+      "currentQuote": "Cotação atual ({currency}): {price} ({change})",
+      "required": {
+        "name": "Informe o nome do ativo",
+        "assetClass": "Selecione o tipo de ativo",
+        "quantity": "Informe a quantidade",
+        "value": "Informe o valor atual",
+        "registerDate": "Selecione a data"
+      }
+    },
+    "assetClass": {
+      "stock": "Ação",
+      "fii": "FII",
+      "etf": "ETF",
+      "bdr": "BDR",
+      "crypto": "Criptomoeda",
+      "cdb": "CDB / Renda Fixa",
+      "custom": "Personalizado"
+    },
+    "assetType": {
+      "stock": "Ação",
+      "fii": "FII",
+      "crypto": "Cripto",
+      "fixedIncome": "Renda Fixa",
+      "other": "Outro"
+    },
+    "assetTypeAllocation": {
+      "stock": "Ações",
+      "fii": "FIIs",
+      "crypto": "Cripto",
+      "fixedIncome": "Renda Fixa",
+      "other": "Outros"
+    },
+    "positions": {
+      "title": "Posições",
+      "empty": "Nenhum ativo na carteira."
+    },
+    "allocation": {
+      "title": "Alocação por tipo",
+      "empty": "Nenhum ativo para calcular alocação.",
+      "assetCount": "{n} ativo",
+      "assetCountPlural": "{n} ativos"
+    },
+    "summary": {
+      "title": "Patrimônio",
+      "totalPatrimony": "Total de Patrimônio",
+      "investedValue": "Valor Investido",
+      "currentValue": "Valor Atual",
+      "updatedAt": "Atualizado em {date}"
+    }
+  },
+  "positions": {
+    "title": "Posições",
+    "empty": "Nenhuma posição cadastrada. Adicione seu primeiro ativo.",
+    "invested": "Investido",
+    "current": "Atual"
+  },
+  "portfolio": {
+    "summaryBar": {
+      "totalPatrimony": "Patrimônio total",
+      "totalCost": "Custo total",
+      "totalReturn": "Retorno total",
+      "dayChange": "Variação do dia"
+    },
+    "table": {
+      "title": "Ativos na carteira",
+      "addAsset": "Adicionar ativo",
+      "empty": "Nenhum ativo cadastrado na carteira.",
+      "columns": {
+        "asset": "Ativo",
+        "type": "Tipo",
+        "currentValue": "Valor atual",
+        "cost": "Custo",
+        "variation": "Variação",
+        "quantity": "Quantidade"
+      }
+    }
+  },
+  "goal": {
+    "status": {
+      "active": "Ativa",
+      "completed": "Concluída",
+      "paused": "Pausada",
+      "cancelled": "Cancelada"
+    },
+    "card": {
+      "progress": "Progresso",
+      "accumulated": "Acumulado",
+      "target": "Meta",
+      "targetDate": "Meta:",
+      "viewDetails": "Ver detalhes"
+    },
+    "form": {
+      "titleCreate": "Nova Meta",
+      "titleEdit": "Editar Meta",
+      "name": {
+        "label": "Nome",
+        "placeholder": "Ex: Reserva de emergência",
+        "required": "Nome é obrigatório",
+        "minLength": "Mínimo 2 caracteres"
+      },
+      "description": {
+        "label": "Descrição",
+        "placeholder": "Descrição opcional da meta"
+      },
+      "targetAmount": {
+        "label": "Valor da meta (R$)",
+        "required": "Valor da meta é obrigatório",
+        "positive": "Valor deve ser positivo"
+      },
+      "currentAmount": {
+        "label": "Valor acumulado (R$)"
+      },
+      "deadline": {
+        "label": "Prazo",
+        "placeholder": "Selecione a data"
+      },
+      "datePresets": {
+        "1m": "1 mês",
+        "3m": "3 meses",
+        "6m": "6 meses",
+        "1y": "1 ano",
+        "custom": "Personalizado"
+      },
+      "status": {
+        "label": "Status",
+        "placeholder": "Selecione o status"
+      },
+      "submitCreate": "Criar meta",
+      "submitEdit": "Salvar alterações"
+    },
+    "plan": {
+      "title": "Planejamento da Meta",
+      "onTrack": "No prazo",
+      "delayed": "Atenção: atrasado",
+      "monthlyContribution": "Contribuição mensal necessária",
+      "deadline": "Prazo",
+      "projectedCompletion": "Conclusão prevista",
+      "monthsRemaining": "{n} mês restante",
+      "monthsRemainingPlural": "{n} meses restantes",
+      "loadError": "Não foi possível carregar o planejamento",
+      "loadErrorMessage": "Tente novamente."
+    }
+  },
+  "alert": {
+    "type": {
+      "goalAchieved": "Meta atingida",
+      "overduePayment": "Pagamento atrasado",
+      "budgetExceeded": "Orçamento excedido",
+      "investmentOpportunity": "Oportunidade",
+      "system": "Sistema"
+    },
+    "actions": {
+      "markRead": "Marcar como lido",
+      "delete": "Excluir alerta"
+    },
+    "list": {
+      "title": "Alertas",
+      "empty": "Nenhum alerta encontrado. Você está em dia!"
+    },
+    "preferences": {
+      "title": "Preferências de Alertas",
+      "empty": "Nenhuma preferência de alerta configurada.",
+      "categories": {
+        "system": "Sistema",
+        "account": "Conta",
+        "security": "Segurança",
+        "marketing": "Marketing",
+        "transactions": "Transações",
+        "goals": "Metas"
+      }
+    }
+  },
+  "dashboard": {
+    "alerts": {
+      "title": "Alertas e atenção",
+      "empty": "Nenhum alerta no momento.",
+      "listAriaLabel": "Alertas e pendências",
+      "noDetails": "Sem detalhes adicionais."
+    },
+    "summaryGrid": {
+      "ariaLabel": "Resumo do período",
+      "balance": "Saldo do período",
+      "income": "Receitas",
+      "expense": "Despesas",
+      "upcomingDue": "Contas a vencer",
+      "netWorth": "Patrimônio total"
+    },
+    "timeseries": {
+      "title": "Evolução do período",
+      "emptyTitle": "Gráfico de evolução disponível em breve",
+      "emptyDescription": "Adicione lançamentos para visualizar a evolução do período.",
+      "listAriaLabel": "Evolução por data"
+    },
+    "transactions": {
+      "dues": "Vencimentos",
+      "expenses": "Por categoria",
+      "noCategory": "Sem categoria",
+      "noDues": {
+        "title": "Nenhum vencimento",
+        "description": "Não há contas a vencer no período selecionado."
+      },
+      "noExpenses": {
+        "title": "Sem categorias",
+        "description": "Não há despesas categorizadas no período selecionado."
+      },
+      "upcomingDues": "Próximos vencimentos",
+      "byCategory": "Despesas por categoria",
+      "tabAriaLabel": "Tipo de transação"
+    },
+    "periodSelector": {
+      "ariaLabel": "Selecionar período"
+    }
+  },
+  "receivable": {
+    "status": {
+      "received": "Recebido",
+      "pending": "Pendente",
+      "cancelled": "Cancelado"
+    },
+    "dueDate": "Vence em {date}",
+    "actions": {
+      "receive": "Recebido",
+      "delete": "Excluir"
+    },
+    "summary": {
+      "title": "Resumo de Receitas",
+      "expectedTotal": "Total Esperado",
+      "receivedTotal": "Total Recebido",
+      "pendingTotal": "Total Pendente"
+    },
+    "csv": {
+      "title": "Importar CSV",
+      "fileLabel": "Arquivo CSV",
+      "mappingHint": "Mapeie os cabeçalhos do CSV para os campos correspondentes.",
+      "fields": {
+        "description": "Descrição",
+        "amount": "Valor",
+        "date": "Data",
+        "category": "Categoria"
+      },
+      "placeholders": {
+        "description": "ex: descricao",
+        "amount": "ex: valor",
+        "date": "ex: data",
+        "category": "ex: categoria"
+      },
+      "preview": "Pré-visualizar"
+    },
+    "importPreview": {
+      "empty": "Nenhuma linha para pré-visualizar.",
+      "successMessage": "{count} receita(s) importada(s) com sucesso.",
+      "columns": {
+        "description": "Descrição",
+        "amount": "Valor",
+        "date": "Data",
+        "category": "Categoria"
+      },
+      "confirm": "Confirmar"
+    }
+  },
+  "sharing": {
+    "invitation": {
+      "status": {
+        "pending": "Pendente",
+        "accepted": "Aceito",
+        "revoked": "Revogado",
+        "expired": "Expirado"
+      },
+      "sentAt": "Enviado em {date}",
+      "revoke": "Revogar"
+    },
+    "inviteForm": {
+      "emailLabel": "E-mail do convidado",
+      "emailPlaceholder": "nome@exemplo.com",
+      "submit": "Convidar",
+      "error": "Erro ao enviar convite. Tente novamente."
+    },
+    "sharedEntry": {
+      "permissions": {
+        "read": "Leitura",
+        "write": "Escrita"
+      },
+      "revoked": "Revogado",
+      "revoke": "Revogar"
+    },
+    "sharedEntryRow": {
+      "status": {
+        "pending": "Pendente",
+        "accepted": "Aceito",
+        "declined": "Recusado"
+      },
+      "splitType": {
+        "equal": "Igual",
+        "custom": "Personalizado",
+        "percentage": "Percentual"
+      },
+      "email": "Email:",
+      "myShare": "Minha parte",
+      "total": "Total",
+      "revoke": "Revogar"
+    }
+  },
+  "subscription": {
+    "badge": {
+      "active": "Ativo",
+      "trialing": "Trial",
+      "pastDue": "Vencido",
+      "canceled": "Cancelado"
+    },
+    "checkoutButton": {
+      "default": "Assinar",
+      "error": "Erro ao iniciar checkout."
+    },
+    "planCard": {
+      "free": "Grátis",
+      "pricePerMonth": "{price}/mês",
+      "currentPlan": "Plano atual",
+      "subscribe": "Assinar"
+    }
+  },
+  "paywall": {
+    "premium": "Premium",
+    "upgradeCTA": {
+      "title": "Recurso Premium",
+      "subtitle": "Faça upgrade para acessar este recurso",
+      "button": "Ver planos"
+    }
+  },
+  "ui": {
+    "socialAuth": {
+      "google": "Continuar com Google",
+      "googleAriaLabel": "Entrar com Google",
+      "apple": "Continuar com Apple",
+      "appleAriaLabel": "Entrar com Apple"
+    },
+    "passwordField": {
+      "label": "Senha",
+      "showPassword": "Mostrar senha",
+      "hidePassword": "Ocultar senha"
+    },
+    "userMenu": {
+      "settings": "Configurações",
+      "logout": "Sair"
+    },
+    "topbar": {
+      "openMenu": "Abrir menu"
+    }
+  },
+  "simulation": {
+    "type": {
+      "installmentVsCash": "Parcelamento × À vista",
+      "goalProjection": "Projeção de Meta",
+      "investmentReturn": "Retorno de Investimento"
+    },
+    "card": {
+      "mainResult": "Resultado principal",
+      "createdAt": "Criado em {date}",
+      "deleteAriaLabel": "Excluir simulação"
+    },
+    "saveButton": {
+      "label": "Salvar resultado",
+      "success": "Simulação salva com sucesso!",
+      "error": "Erro ao salvar simulação. Tente novamente."
+    }
+  },
+  "authBrandPanel": {
+    "ariaLabel": "Auraxis — painel de marca",
+    "taglineLine1": "Dados financeiros complexos.",
+    "taglineLine2": "Clareza radical.",
+    "sub": "Gerencie seu patrimônio, metas e transações em um único lugar — com a precisão que você merece."
+  },
+  "authFeatureList": {
+    "ariaLabel": "Benefícios do Auraxis",
+    "features": {
+      "dashboard": {
+        "title": "Dashboard financeira",
+        "description": "Visão consolidada do seu mês com saldo, metas e patrimônio."
+      },
+      "goals": {
+        "title": "Metas inteligentes",
+        "description": "Defina, acompanhe e conquiste metas financeiras com presets prontos."
+      },
+      "wallet": {
+        "title": "Carteira & patrimônio",
+        "description": "Acompanhe seus investimentos com dados em tempo real via BRAPI."
+      },
+      "security": {
+        "title": "Segurança primeiro",
+        "description": "Seus dados protegidos com autenticação segura e criptografia."
+      }
     }
   }
 }

@@ -11,6 +11,8 @@ import { useMarkAlertReadMutation } from "~/features/alerts/queries/use-mark-ale
 import { useDeleteAlertMutation } from "~/features/alerts/queries/use-delete-alert-mutation";
 import type { Alert } from "~/features/alerts/model/alerts";
 
+const { t } = useI18n();
+
 definePageMeta({
   layout: "default",
   middleware: ["authenticated"],
@@ -28,11 +30,11 @@ const deleteMutation = useDeleteAlertMutation();
 
 const activeFilter = ref<FilterValue>("all");
 
-const FILTER_OPTIONS: Array<{ value: FilterValue; label: string }> = [
-  { value: "all", label: "Todos" },
-  { value: "unread", label: "Não lidos" },
-  { value: "read", label: "Lidos" },
-];
+const FILTER_OPTIONS = computed((): Array<{ value: FilterValue; label: string }> => [
+  { value: "all", label: t("pages.alerts.filters.all") },
+  { value: "unread", label: t("pages.alerts.filters.unread") },
+  { value: "read", label: t("pages.alerts.filters.read") },
+]);
 
 const allAlerts = computed<Alert[]>(() => alertsPage.value?.items ?? []);
 
@@ -77,8 +79,8 @@ const onDelete = (id: string): void => {
   <div class="alerts-page">
     <div class="alerts-page__header">
       <div class="alerts-page__title-block">
-        <span class="alerts-page__title">Alertas</span>
-        <span class="alerts-page__subtitle">Notificações e alertas do período</span>
+        <span class="alerts-page__title">{{ $t('pages.alerts.title') }}</span>
+        <span class="alerts-page__subtitle">{{ $t('pages.alerts.subtitle') }}</span>
       </div>
       <NButton
         type="default"
@@ -86,22 +88,22 @@ const onDelete = (id: string): void => {
         :disabled="unreadCount === 0"
         @click="onMarkAllRead"
       >
-        Marcar todos como lidos
+        {{ $t('pages.alerts.markAllRead') }}
       </NButton>
     </div>
 
     <UiInlineError
       v-if="isError"
-      title="Não foi possível carregar os alertas"
-      message="Tente recarregar a página."
+      :title="$t('pages.alerts.loadError')"
+      :message="$t('pages.alerts.loadErrorMessage')"
     />
 
     <template v-else>
       <NCard :bordered="true" class="alerts-page__summary-card">
         <div class="alerts-page__summary-stats">
-          <NStatistic label="Total" :value="String(totalCount)" />
-          <NStatistic label="Não lidos" :value="String(unreadCount)" />
-          <NStatistic label="Lidos" :value="String(readCount)" />
+          <NStatistic :label="$t('pages.alerts.total')" :value="String(totalCount)" />
+          <NStatistic :label="$t('pages.alerts.unread')" :value="String(unreadCount)" />
+          <NStatistic :label="$t('pages.alerts.read')" :value="String(readCount)" />
         </div>
       </NCard>
 
@@ -121,7 +123,7 @@ const onDelete = (id: string): void => {
       <template v-else-if="filteredAlerts.length === 0">
         <div class="alerts-page__empty-state">
           <span class="alerts-page__empty-text">
-            Nenhum alerta encontrado para o filtro selecionado.
+            {{ $t('pages.alerts.empty') }}
           </span>
         </div>
       </template>

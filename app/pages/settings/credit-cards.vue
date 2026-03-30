@@ -18,6 +18,8 @@ import { useCreateCreditCardMutation } from "~/features/credit-cards/queries/use
 import { useUpdateCreditCardMutation } from "~/features/credit-cards/queries/use-update-credit-card-mutation";
 import { useDeleteCreditCardMutation } from "~/features/credit-cards/queries/use-delete-credit-card-mutation";
 
+const { t } = useI18n();
+
 definePageMeta({
   middleware: ["authenticated"],
   pageTitle: "Cartões de Crédito",
@@ -87,13 +89,13 @@ async function confirmDelete(id: string): Promise<void> {
   await deleteMutation.mutateAsync(id);
 }
 
-const columns: DataTableColumns<CreditCardDto> = [
+const columns = computed((): DataTableColumns<CreditCardDto> => [
   {
-    title: "Nome",
+    title: t("pages.settings.creditCards.columns.name"),
     key: "name",
   },
   {
-    title: "Ações",
+    title: t("pages.settings.creditCards.columns.actions"),
     key: "actions",
     width: 160,
     render(row: CreditCardDto): VNodeChild {
@@ -104,7 +106,7 @@ const columns: DataTableColumns<CreditCardDto> = [
             size: "small",
             onClick: () => openEdit(row),
           },
-          () => "Editar",
+          () => t("pages.settings.creditCards.edit"),
         ),
         h(
           NPopconfirm,
@@ -112,29 +114,29 @@ const columns: DataTableColumns<CreditCardDto> = [
             onPositiveClick: () => confirmDelete(row.id),
           },
           {
-            default: () => "Confirma remoção deste cartão?",
+            default: () => t("pages.settings.creditCards.confirmDelete"),
             trigger: () =>
               h(
                 NButton,
                 { size: "small", type: "error" },
-                () => "Remover",
+                () => t("pages.settings.creditCards.remove"),
               ),
           },
         ),
       ]);
     },
   },
-];
+]);
 </script>
 
 <template>
   <div class="settings-page">
     <div class="settings-page__header">
       <div class="settings-page__title-block">
-        <span class="settings-page__title">Cartões de Crédito</span>
-        <span class="settings-page__subtitle">Gerencie seus cartões de crédito</span>
+        <span class="settings-page__title">{{ $t('pages.settings.creditCards.title') }}</span>
+        <span class="settings-page__subtitle">{{ $t('pages.settings.creditCards.subtitle') }}</span>
       </div>
-      <NButton type="primary" size="medium" @click="openCreate">Novo Cartão</NButton>
+      <NButton type="primary" size="medium" @click="openCreate">{{ $t('pages.settings.creditCards.newCard') }}</NButton>
     </div>
 
     <NCard>
@@ -152,15 +154,15 @@ const columns: DataTableColumns<CreditCardDto> = [
     <NModal
       v-model:show="showModal"
       preset="dialog"
-      :title="editingCard ? 'Editar Cartão' : 'Novo Cartão'"
-      :positive-text="editingCard ? 'Salvar' : 'Criar'"
-      negative-text="Cancelar"
+      :title="editingCard ? $t('pages.settings.creditCards.editCard') : $t('pages.settings.creditCards.newCard')"
+      :positive-text="editingCard ? $t('pages.settings.creditCards.save') : $t('pages.settings.creditCards.create')"
+      :negative-text="$t('pages.settings.creditCards.cancel')"
       @positive-click="submitForm"
       @negative-click="closeModal"
     >
       <NInput
         v-model:value="formName"
-        placeholder="Nome do cartão"
+        :placeholder="$t('pages.settings.creditCards.placeholder')"
         maxlength="100"
         show-count
       />
