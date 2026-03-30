@@ -530,6 +530,70 @@
       "overdue": "Overdue"
     }
   },
+  "transaction": {
+    "form": {
+      "title": {
+        "income": "New Income",
+        "expense": "New Expense",
+        "label": "Title",
+        "placeholder": "E.g. March salary"
+      },
+      "amount": {
+        "label": "Amount",
+        "placeholder": "0.00"
+      },
+      "dueDate": {
+        "label": "Due date"
+      },
+      "tag": {
+        "label": "Category",
+        "placeholder": "Select a category"
+      },
+      "account": {
+        "label": "Account",
+        "placeholder": "Select an account"
+      },
+      "creditCard": {
+        "label": "Credit card",
+        "placeholder": "Select a card"
+      },
+      "status": {
+        "label": "Status"
+      },
+      "installment": {
+        "label": "Split into installments?"
+      },
+      "installmentCount": {
+        "label": "Number of installments",
+        "placeholder": "E.g. 12"
+      },
+      "recurring": {
+        "label": "Recurring?"
+      },
+      "endDate": {
+        "label": "Repeat until (optional)"
+      },
+      "description": {
+        "label": "Notes",
+        "placeholder": "Additional notes about this entry"
+      },
+      "errorTitle": "Save failed",
+      "errorFallback": "Could not save the entry. Please try again.",
+      "required": {
+        "title": "Please enter a title",
+        "amount": "Please enter an amount",
+        "dueDate": "Please select a date",
+        "installmentCount": "Please enter the number of installments"
+      }
+    },
+    "status": {
+      "pending": "Pending",
+      "paid": "Paid / Received",
+      "cancelled": "Cancelled",
+      "postponed": "Postponed",
+      "overdue": "Overdue"
+    }
+  },
   "wallet": {
     "form": {
       "title": "Add asset",
