@@ -19,6 +19,62 @@
       "meta": {
         "title": "Planos e Preços",
         "description": "Conheça os planos da Auraxis. Comece gratuitamente ou evolua para o Premium com simulações avançadas, alertas inteligentes e planejamento financeiro completo."
+      },
+      "eyebrow": "Planos e Preços",
+      "title": "Invista na sua liberdade financeira",
+      "subtitle": "Escolha o plano ideal e comece a controlar suas finanças com inteligência.",
+      "mostPopular": "Mais popular",
+      "checkoutError": "Erro ao iniciar o checkout. Tente novamente.",
+      "footnote": "Preços em BRL. Cancele a qualquer momento. Cobrança mensal.",
+      "cta": {
+        "subscribe": "Começar agora",
+        "free": "Plano atual"
+      },
+      "plans": {
+        "free": {
+          "name": "Gratuito",
+          "features": {
+            "transactions": "Até 50 transações/mês",
+            "goals": "1 meta financeira",
+            "basicReports": "Relatórios básicos",
+            "simulations": "Simulações financeiras",
+            "sharedEntries": "Lançamentos compartilhados",
+            "support": "Suporte prioritário"
+          }
+        },
+        "starter": {
+          "name": "Starter",
+          "features": {
+            "transactions": "Até 200 transações/mês",
+            "goals": "3 metas financeiras",
+            "advancedReports": "Relatórios avançados",
+            "simulations": "Simulações financeiras",
+            "sharedEntries": "Lançamentos compartilhados",
+            "support": "Suporte prioritário"
+          }
+        },
+        "pro": {
+          "name": "Pro",
+          "features": {
+            "transactions": "Transações ilimitadas",
+            "goals": "Metas ilimitadas",
+            "advancedReports": "Relatórios avançados",
+            "simulations": "Simulações financeiras",
+            "sharedEntries": "Lançamentos compartilhados",
+            "support": "Suporte prioritário"
+          }
+        },
+        "premium": {
+          "name": "Premium",
+          "features": {
+            "transactions": "Transações ilimitadas",
+            "goals": "Metas ilimitadas",
+            "advancedReports": "Relatórios avançados",
+            "simulations": "Simulações financeiras",
+            "sharedEntries": "Lançamentos compartilhados",
+            "support": "Suporte prioritário"
+          }
+        }
       }
     },
     "tools": {
@@ -155,10 +211,18 @@
         "none": "Sem assinatura"
       },
       "plans": {
-        "free": { "name": "Gratuito" },
-        "starter": { "name": "Starter" },
-        "pro": { "name": "Pro" },
-        "premium": { "name": "Premium" },
+        "free": {
+          "name": "Gratuito"
+        },
+        "starter": {
+          "name": "Starter"
+        },
+        "pro": {
+          "name": "Pro"
+        },
+        "premium": {
+          "name": "Premium"
+        },
         "features": {
           "transactions50": "Até 50 transações/mês",
           "transactions200": "Até 200 transações/mês",
@@ -250,6 +314,56 @@
         "remove": "Remover",
         "placeholder": "Nome do cartão"
       }
+    },
+    "checkout": {
+      "success": {
+        "meta": {
+          "title": "Assinatura ativada",
+          "description": "Sua assinatura Auraxis foi ativada com sucesso."
+        },
+        "title": "Assinatura ativada!",
+        "description": "Bem-vindo ao Auraxis. Seu plano já está ativo e você tem acesso a todos os recursos.",
+        "cta": "Ir para o Dashboard",
+        "viewSubscription": "Ver assinatura"
+      },
+      "cancel": {
+        "meta": {
+          "title": "Checkout cancelado",
+          "description": "O processo de assinatura foi cancelado."
+        },
+        "title": "Checkout cancelado",
+        "description": "Você cancelou o processo de assinatura. Nenhuma cobrança foi realizada.",
+        "cta": "Ver planos novamente",
+        "backToDashboard": "Voltar ao Dashboard"
+      }
+    },
+    "confirmEmail": {
+      "meta": {
+        "title": "Confirmar e-mail",
+        "description": "Confirme seu endereço de e-mail para ativar sua conta."
+      },
+      "confirming": "Confirmando seu e-mail…",
+      "wait": "Por favor, aguarde um instante.",
+      "successTitle": "E-mail confirmado!",
+      "successDescription": "Sua conta está ativa. Você já pode usar todos os recursos do Auraxis.",
+      "cta": "Ir para o Dashboard",
+      "errorTitle": "Link inválido ou expirado",
+      "errorDescription": "O link de confirmação é inválido ou já expirou. Solicite um novo link.",
+      "resendCta": "Reenviar e-mail de confirmação",
+      "noTokenTitle": "Link não encontrado",
+      "noTokenDescription": "Acesse o link enviado para seu e-mail para confirmar sua conta."
+    },
+    "resendConfirmation": {
+      "meta": {
+        "title": "Reenviar confirmação",
+        "description": "Solicite o reenvio do e-mail de confirmação de conta."
+      },
+      "title": "Confirme seu e-mail",
+      "description": "Ainda não confirmou seu endereço de e-mail? Clique abaixo para receber um novo link de confirmação.",
+      "cta": "Reenviar e-mail",
+      "sent": "E-mail enviado! Verifique sua caixa de entrada e a pasta de spam.",
+      "error": "Não foi possível enviar o e-mail. Tente novamente.",
+      "skip": "Fazer isso depois"
     }
   },
   "common": {
@@ -270,7 +384,9 @@
     }
   },
   "investorProfile": {
-    "page": { "title": "Perfil do Investidor" },
+    "page": {
+      "title": "Perfil do Investidor"
+    },
     "wizard": {
       "questionLabel": "Pergunta {current} de {total}",
       "next": "Próxima",
@@ -344,6 +460,10 @@
       "rememberPassword": "Lembrou a senha?",
       "sendLink": "Enviar link de recuperação",
       "sending": "Enviando…"
+    },
+    "emailBanner": {
+      "message": "Confirme seu e-mail para garantir acesso completo à sua conta.",
+      "cta": "Confirmar e-mail"
     }
   },
   "transaction": {
@@ -840,6 +960,13 @@
         "title": "Segurança primeiro",
         "description": "Seus dados protegidos com autenticação segura e criptografia."
       }
+    }
+  },
+  "billing": {
+    "banner": {
+      "pastDueMessage": "Seu pagamento está em atraso. Atualize seu método de pagamento para não perder o acesso.",
+      "canceledMessage": "Sua assinatura foi cancelada. Renove seu plano para recuperar o acesso completo.",
+      "cta": "Gerenciar assinatura"
     }
   }
 }

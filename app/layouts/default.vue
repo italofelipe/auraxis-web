@@ -88,7 +88,10 @@ function onLogout(): void {
 </script>
 
 <template>
-  <UiAppShell
+  <div class="app-root">
+    <EmailConfirmationBanner />
+    <BillingStatusBanner />
+    <UiAppShell
     :nav-items="NAV_ITEMS"
     :user="user"
     :page-title="pageTitle"
@@ -102,4 +105,5 @@ function onLogout(): void {
       @saved="showProfileModal = false"
     />
   </UiAppShell>
+  </div>
 </template>

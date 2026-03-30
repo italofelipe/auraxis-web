@@ -19,6 +19,62 @@
       "meta": {
         "title": "Plans & Pricing",
         "description": "Explore Auraxis plans. Start for free or upgrade to Premium with advanced simulations, smart alerts and complete financial planning."
+      },
+      "eyebrow": "Plans & Pricing",
+      "title": "Invest in your financial freedom",
+      "subtitle": "Choose the ideal plan and start controlling your finances intelligently.",
+      "mostPopular": "Most popular",
+      "checkoutError": "Error starting checkout. Please try again.",
+      "footnote": "Prices in BRL. Cancel anytime. Billed monthly.",
+      "cta": {
+        "subscribe": "Get started",
+        "free": "Current plan"
+      },
+      "plans": {
+        "free": {
+          "name": "Free",
+          "features": {
+            "transactions": "Up to 50 transactions/month",
+            "goals": "1 financial goal",
+            "basicReports": "Basic reports",
+            "simulations": "Financial simulations",
+            "sharedEntries": "Shared entries",
+            "support": "Priority support"
+          }
+        },
+        "starter": {
+          "name": "Starter",
+          "features": {
+            "transactions": "Up to 200 transactions/month",
+            "goals": "3 financial goals",
+            "advancedReports": "Advanced reports",
+            "simulations": "Financial simulations",
+            "sharedEntries": "Shared entries",
+            "support": "Priority support"
+          }
+        },
+        "pro": {
+          "name": "Pro",
+          "features": {
+            "transactions": "Unlimited transactions",
+            "goals": "Unlimited goals",
+            "advancedReports": "Advanced reports",
+            "simulations": "Financial simulations",
+            "sharedEntries": "Shared entries",
+            "support": "Priority support"
+          }
+        },
+        "premium": {
+          "name": "Premium",
+          "features": {
+            "transactions": "Unlimited transactions",
+            "goals": "Unlimited goals",
+            "advancedReports": "Advanced reports",
+            "simulations": "Financial simulations",
+            "sharedEntries": "Shared entries",
+            "support": "Priority support"
+          }
+        }
       }
     },
     "tools": {
@@ -155,10 +211,18 @@
         "none": "No subscription"
       },
       "plans": {
-        "free": { "name": "Free" },
-        "starter": { "name": "Starter" },
-        "pro": { "name": "Pro" },
-        "premium": { "name": "Premium" },
+        "free": {
+          "name": "Free"
+        },
+        "starter": {
+          "name": "Starter"
+        },
+        "pro": {
+          "name": "Pro"
+        },
+        "premium": {
+          "name": "Premium"
+        },
         "features": {
           "transactions50": "Up to 50 transactions/month",
           "transactions200": "Up to 200 transactions/month",
@@ -250,6 +314,56 @@
         "remove": "Remove",
         "placeholder": "Card name"
       }
+    },
+    "checkout": {
+      "success": {
+        "meta": {
+          "title": "Subscription activated",
+          "description": "Your Auraxis subscription has been activated successfully."
+        },
+        "title": "Subscription activated!",
+        "description": "Welcome to Auraxis. Your plan is now active and you have access to all features.",
+        "cta": "Go to Dashboard",
+        "viewSubscription": "View subscription"
+      },
+      "cancel": {
+        "meta": {
+          "title": "Checkout cancelled",
+          "description": "The subscription process was cancelled."
+        },
+        "title": "Checkout cancelled",
+        "description": "You cancelled the subscription process. No charges were made.",
+        "cta": "View plans again",
+        "backToDashboard": "Back to Dashboard"
+      }
+    },
+    "confirmEmail": {
+      "meta": {
+        "title": "Confirm email",
+        "description": "Confirm your email address to activate your account."
+      },
+      "confirming": "Confirming your email…",
+      "wait": "Please wait a moment.",
+      "successTitle": "Email confirmed!",
+      "successDescription": "Your account is active. You can now use all Auraxis features.",
+      "cta": "Go to Dashboard",
+      "errorTitle": "Invalid or expired link",
+      "errorDescription": "The confirmation link is invalid or has expired. Please request a new one.",
+      "resendCta": "Resend confirmation email",
+      "noTokenTitle": "Link not found",
+      "noTokenDescription": "Access the link sent to your email to confirm your account."
+    },
+    "resendConfirmation": {
+      "meta": {
+        "title": "Resend confirmation",
+        "description": "Request a new account confirmation email."
+      },
+      "title": "Confirm your email",
+      "description": "Haven't confirmed your email address yet? Click below to receive a new confirmation link.",
+      "cta": "Resend email",
+      "sent": "Email sent! Check your inbox and spam folder.",
+      "error": "Could not send the email. Please try again.",
+      "skip": "Do this later"
     }
   },
   "common": {
@@ -270,7 +384,9 @@
     }
   },
   "investorProfile": {
-    "page": { "title": "Investor Profile" },
+    "page": {
+      "title": "Investor Profile"
+    },
     "wizard": {
       "questionLabel": "Question {current} of {total}",
       "next": "Next",
@@ -344,6 +460,10 @@
       "rememberPassword": "Remember your password?",
       "sendLink": "Send recovery link",
       "sending": "Sending…"
+    },
+    "emailBanner": {
+      "message": "Confirm your email to ensure full access to your account.",
+      "cta": "Confirm email"
     }
   },
   "transaction": {
@@ -840,6 +960,13 @@
         "title": "Security first",
         "description": "Your data protected with secure authentication and encryption."
       }
+    }
+  },
+  "billing": {
+    "banner": {
+      "pastDueMessage": "Your payment is past due. Update your payment method to keep your access.",
+      "canceledMessage": "Your subscription has been cancelled. Renew your plan to restore full access.",
+      "cta": "Manage subscription"
     }
   }
 }

@@ -70,6 +70,7 @@
     "@storybook/addon-a11y": "9.1.20",
     "@storybook/vue3": "9.1.20",
     "@testing-library/vue": "^8.1.0",
+    "@vite-pwa/nuxt": "^1.1.1",
     "@vitest/coverage-v8": "^4.1.0",
     "@vue/test-utils": "^2.4.6",
     "eslint": "^9.39.4",
