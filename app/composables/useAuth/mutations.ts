@@ -40,7 +40,7 @@ export const useLoginMutation = (authApi?: AuthApi): LoginMutation => {
   return useMutation({
     mutationFn: resolvedAuthApi.login,
     onSuccess: (response: LoginResponse): void => {
-      sessionStore.signIn(response.accessToken, response.user.email);
+      sessionStore.signIn(response.accessToken, response.user.email, response.user.emailConfirmed);
     },
   });
 };
@@ -57,7 +57,7 @@ export const useRegisterMutation = (authApi?: AuthApi): RegisterMutation => {
   return useMutation({
     mutationFn: resolvedAuthApi.register,
     onSuccess: (response: RegisterResponse): void => {
-      sessionStore.signIn(response.accessToken, response.user.email);
+      sessionStore.signIn(response.accessToken, response.user.email, response.user.emailConfirmed);
     },
   });
 };

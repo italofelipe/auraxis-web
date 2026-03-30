@@ -10,6 +10,8 @@ export interface LoginResponse {
   readonly user: {
     readonly email: string;
     readonly displayName: string;
+    /** Whether the user's email address has been confirmed. */
+    readonly emailConfirmed?: boolean;
   };
 }
 
@@ -26,6 +28,8 @@ export interface RegisterResponse {
   readonly user: {
     readonly email: string;
     readonly displayName: string;
+    /** Whether the user's email address has been confirmed. Always false for new registrations. */
+    readonly emailConfirmed?: boolean;
   };
 }
 
