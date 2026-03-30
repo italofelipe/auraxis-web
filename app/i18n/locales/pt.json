@@ -907,6 +907,15 @@
     "quickAdd": {
       "income": "Nova Receita",
       "expense": "Nova Despesa"
+    },
+    "charts": {
+      "incomeExpense": "Receita vs Despesa",
+      "incomeExpenseSubtitle": "Comparativo do período",
+      "timeline": "Evolução financeira",
+      "timelineSubtitle": "Movimentações ao longo do período",
+      "income": "Receita",
+      "expense": "Despesa",
+      "balance": "Saldo"
     }
   },
   "receivable": {
@@ -1127,6 +1136,35 @@
     "empty": {
       "title": "Nenhuma transação encontrada",
       "description": "Adicione sua primeira receita ou despesa para começar."
+    },
+    "table": {
+      "status": "Status",
+      "date": "Data",
+      "description": "Descrição",
+      "category": "Categoria",
+      "account": "Conta",
+      "amount": "Valor",
+      "actions": "Ações"
+    },
+    "action": {
+      "markPaid": "Marcar como pago",
+      "edit": "Editar",
+      "delete": "Excluir",
+      "deleteConfirm": "Deseja excluir esta transação? Esta ação não pode ser desfeita.",
+      "deleteConfirmYes": "Excluir",
+      "deleteConfirmNo": "Cancelar"
+    },
+    "status": {
+      "nearDue": "Vence em breve"
+    },
+    "reorder": {
+      "enter": "Reordenar",
+      "exit": "Concluir",
+      "hint": "Arraste as linhas para reorganizar a visualização"
+    },
+    "swipe": {
+      "payHint": "Deslize → para pagar",
+      "deleteHint": "Deslize ← para excluir"
     }
   }
 }

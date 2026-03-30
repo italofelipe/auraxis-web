@@ -907,6 +907,15 @@
     "quickAdd": {
       "income": "New Income",
       "expense": "New Expense"
+    },
+    "charts": {
+      "incomeExpense": "Income vs Expense",
+      "incomeExpenseSubtitle": "Period comparison",
+      "timeline": "Financial evolution",
+      "timelineSubtitle": "Movements over the period",
+      "income": "Income",
+      "expense": "Expense",
+      "balance": "Balance"
     }
   },
   "receivable": {
@@ -1127,6 +1136,35 @@
     "empty": {
       "title": "No transactions found",
       "description": "Add your first income or expense to get started."
+    },
+    "table": {
+      "status": "Status",
+      "date": "Date",
+      "description": "Description",
+      "category": "Category",
+      "account": "Account",
+      "amount": "Amount",
+      "actions": "Actions"
+    },
+    "action": {
+      "markPaid": "Mark as paid",
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleteConfirm": "Do you want to delete this transaction? This action cannot be undone.",
+      "deleteConfirmYes": "Delete",
+      "deleteConfirmNo": "Cancel"
+    },
+    "status": {
+      "nearDue": "Due soon"
+    },
+    "reorder": {
+      "enter": "Reorder",
+      "exit": "Done",
+      "hint": "Drag rows to reorder the view"
+    },
+    "swipe": {
+      "payHint": "Swipe → to pay",
+      "deleteHint": "Swipe ← to delete"
     }
   }
 }

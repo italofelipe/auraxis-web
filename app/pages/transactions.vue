@@ -1,24 +1,42 @@
 <script setup lang="ts">
+import { computed, h, reactive, ref, watch } from "vue";
 import {
-  NSelect,
   NButton,
-  NTag,
+  NDataTable,
+  NModal,
+  NSelect,
+  NSpace,
+  type DataTableColumns,
+  type DataTableRowKey,
   type SelectOption,
 } from "naive-ui";
 import {
-  ArrowDownUp,
-  ArrowUpDown,
+  AlertCircle,
+  AlertTriangle,
+  Check,
+  CheckCircle2,
+  Clock,
+  GripVertical,
+  Pencil,
   RefreshCw,
-  TrendingUp,
+  Trash2,
   TrendingDown,
+  TrendingUp,
 } from "lucide-vue-next";
+
 import { useListTransactionsQuery } from "~/features/transactions/queries/use-list-transactions-query";
+import { useDeleteTransactionMutation } from "~/features/transactions/queries/use-delete-transaction-mutation";
+import { useMarkTransactionPaidMutation } from "~/features/transactions/queries/use-mark-transaction-paid-mutation";
+import { useTagsQuery } from "~/features/tags/queries/use-tags-query";
+import { useAccountsQuery } from "~/features/accounts/queries/use-accounts-query";
 import type {
   TransactionDto,
   TransactionStatusDto,
   TransactionTypeDto,
 } from "~/features/transactions/contracts/transaction.dto";
 import { formatCurrency } from "~/utils/currency";
+
+// ── Page meta ─────────────────────────────────────────────────────────────────
 
 const { t } = useI18n();
 
@@ -30,29 +48,59 @@ definePageMeta({
 
 useHead({ title: "Transações | Auraxis" });
 
-// ── Filter state ──────────────────────────────────────────────────────────────
+// ── Filter / sort state ───────────────────────────────────────────────────────
 
 type FilterType = TransactionTypeDto | "all";
 type FilterStatus = TransactionStatusDto | "all";
-type SortKey = "due_date" | "amount" | "title" | "status" | "is_recurring";
-type SortDir = "asc" | "desc";
 
 const filterType = ref<FilterType>("all");
 const filterStatus = ref<FilterStatus>("all");
 
-const sortKey = ref<SortKey>("due_date");
-const sortDir = ref<SortDir>("desc");
-
-// ── Quick-add modal ───────────────────────────────────────────────────────────
+// ── Modals ────────────────────────────────────────────────────────────────────
 
 const showIncome = ref(false);
 const showExpense = ref(false);
 
-// ── Query ─────────────────────────────────────────────────────────────────────
+const deleteTarget = ref<TransactionDto | null>(null);
+const showDeleteConfirm = ref(false);
+
+// ── Reorder / drag state ──────────────────────────────────────────────────────
+
+const reorderMode = ref(false);
+const localOrder = ref<string[]>([]);
+const dragSourceId = ref<string | null>(null);
+const dragTargetId = ref<string | null>(null);
+
+// ── Swipe state (mobile) ──────────────────────────────────────────────────────
+
+const touchStartX = ref(0);
+const swipingRowId = ref<string | null>(null);
+const swipeDir = ref<"left" | "right" | null>(null);
+const SWIPE_THRESHOLD = 72;
+
+// ── Queries ───────────────────────────────────────────────────────────────────
 
 const { data, isLoading, isError, refetch } = useListTransactionsQuery();
+const { data: tags } = useTagsQuery();
+const { data: accounts } = useAccountsQuery();
 
-// ── Computed options ──────────────────────────────────────────────────────────
+// ── Mutations ─────────────────────────────────────────────────────────────────
+
+const deleteMutation = useDeleteTransactionMutation();
+const markPaidMutation = useMarkTransactionPaidMutation();
+
+// ── Lookup maps ───────────────────────────────────────────────────────────────
+
+const tagMap = computed(
+  () => new Map((tags.value ?? []).map((tg: { id: string; name: string }) => [tg.id, tg.name])),
+);
+
+const accountMap = computed(
+  () =>
+    new Map((accounts.value ?? []).map((ac: { id: string; name: string }) => [ac.id, ac.name])),
+);
+
+// ── Select options ────────────────────────────────────────────────────────────
 
 const TYPE_OPTIONS = computed((): SelectOption[] => [
   { label: t("transactions.filter.all"), value: "all" },
@@ -69,13 +117,51 @@ const STATUS_OPTIONS = computed((): SelectOption[] => [
   { label: t("transaction.status.postponed"), value: "postponed" },
 ]);
 
-const SORT_OPTIONS = computed((): SelectOption[] => [
-  { label: t("transactions.sort.date"), value: "due_date" },
-  { label: t("transactions.sort.amount"), value: "amount" },
-  { label: t("transactions.sort.title"), value: "title" },
-  { label: t("transactions.sort.status"), value: "status" },
-  { label: t("transactions.sort.recurring"), value: "is_recurring" },
-]);
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+/**
+ * Formats an ISO date string (YYYY-MM-DD) as dd/MM/yyyy.
+ *
+ * @param isoDate ISO 8601 date string.
+ * @returns Localised short date.
+ */
+const formatDate = (isoDate: string): string =>
+  new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(new Date(`${isoDate}T00:00:00`));
+
+/**
+ * Returns true when the due date is in the past and the transaction is not paid.
+ *
+ * @param dueDate YYYY-MM-DD string.
+ * @param status  Current transaction status.
+ * @returns Whether the transaction is overdue.
+ */
+const isOverdue = (dueDate: string, status: string): boolean => {
+  if (status === "paid") { return false; }
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return new Date(`${dueDate}T00:00:00`) < today;
+};
+
+/**
+ * Returns true when the due date is within 7 calendar days and not yet paid.
+ *
+ * @param dueDate YYYY-MM-DD string.
+ * @param status  Current transaction status.
+ * @returns Whether the transaction is near its due date.
+ */
+const isNearDue = (dueDate: string, status: string): boolean => {
+  if (status === "paid") { return false; }
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(`${dueDate}T00:00:00`);
+  const diffMs = due.getTime() - today.getTime();
+  const diffDays = diffMs / (1000 * 60 * 60 * 24);
+  return diffDays >= 0 && diffDays < 7;
+};
 
 // ── Processed list ────────────────────────────────────────────────────────────
 
@@ -90,27 +176,43 @@ const processedTransactions = computed((): TransactionDto[] => {
     list = list.filter((tx) => tx.status === filterStatus.value);
   }
 
-  const dir = sortDir.value === "asc" ? 1 : -1;
-
-  list = [...list].sort((a, b) => {
-    switch (sortKey.value) {
-      case "due_date":
-        return dir * a.due_date.localeCompare(b.due_date);
-      case "amount":
-        return dir * (parseFloat(a.amount) - parseFloat(b.amount));
-      case "title":
-        return dir * a.title.localeCompare(b.title, "pt-BR");
-      case "status":
-        return dir * a.status.localeCompare(b.status);
-      case "is_recurring":
-        return dir * (Number(b.is_recurring) - Number(a.is_recurring));
-      default:
-        return 0;
-    }
-  });
-
   return list;
 });
+
+/** Table data: respects the local drag-and-drop order when in reorder mode. */
+const tableData = computed((): TransactionDto[] => {
+  if (!reorderMode.value || localOrder.value.length === 0) {
+    return processedTransactions.value;
+  }
+  const map = new Map(processedTransactions.value.map((tx) => [tx.id, tx]));
+  return localOrder.value.flatMap((id) => {
+    const tx = map.get(id);
+    return tx ? [tx] : [];
+  });
+});
+
+// Keep localOrder in sync with processedTransactions when filters change.
+watch(
+  processedTransactions,
+  (list) => {
+    const newIds = list.map((tx) => tx.id);
+    // Reset when ids are entirely different (filter changed) OR when first loaded.
+    const currentSet = new Set(localOrder.value);
+    const allPresent = newIds.every((id) => currentSet.has(id));
+    if (!allPresent || localOrder.value.length === 0) {
+      localOrder.value = newIds;
+    }
+  },
+  { immediate: true },
+);
+
+// Exit reorder mode when filters change.
+watch([filterType, filterStatus], () => {
+  reorderMode.value = false;
+  localOrder.value = processedTransactions.value.map((tx) => tx.id);
+});
+
+// ── Summary ───────────────────────────────────────────────────────────────────
 
 const totalIncome = computed(() =>
   (data.value ?? [])
@@ -124,82 +226,427 @@ const totalExpense = computed(() =>
     .reduce((sum, tx) => sum + parseFloat(tx.amount), 0),
 );
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ── Action handlers ───────────────────────────────────────────────────────────
 
 /**
- * Formats an ISO date string (YYYY-MM-DD) as a localised short date.
+ * Opens the delete confirmation modal for the given row.
  *
- * @param isoDate ISO 8601 date string.
- * @returns Formatted date like "20/03/2026".
+ * @param row Transaction to delete.
  */
-const formatDate = (isoDate: string): string =>
-  new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(new Date(`${isoDate}T00:00:00`));
+const handleDeleteClick = (row: TransactionDto): void => {
+  deleteTarget.value = row;
+  showDeleteConfirm.value = true;
+};
 
-/**
- * Returns the Naive UI tag type for a given transaction status.
- *
- * @param status Transaction lifecycle status.
- * @returns Naive UI tag type string.
- */
-const statusTagType = (
-  status: TransactionStatusDto,
-): "success" | "warning" | "error" | "default" => {
-  switch (status) {
-    case "paid": return "success";
-    case "pending": return "warning";
-    case "overdue": return "error";
-    case "cancelled": return "default";
-    case "postponed": return "default";
-    default: return "default";
-  }
+/** Confirms and executes the pending deletion. */
+const confirmDelete = (): void => {
+  if (!deleteTarget.value) { return; }
+  deleteMutation.mutate(deleteTarget.value.id, {
+    onSuccess: () => {
+      showDeleteConfirm.value = false;
+      deleteTarget.value = null;
+    },
+  });
 };
 
 /**
- * Returns a localised label for the given transaction status.
+ * Marks a transaction as paid via mutation.
  *
- * @param status Transaction lifecycle status.
- * @returns Localised status label.
+ * @param row Transaction to mark as paid.
  */
-const statusLabel = (status: TransactionStatusDto): string =>
-  t(`transaction.status.${status}`);
-
-/** Toggles the sort direction between asc and desc. */
-const toggleSortDir = (): void => {
-  sortDir.value = sortDir.value === "asc" ? "desc" : "asc";
+const handleMarkPaid = (row: TransactionDto): void => {
+  if (row.status === "paid") { return; }
+  markPaidMutation.mutate(row.id);
 };
 
-/** Called by the quick-add modal on successful transaction creation. */
+/**
+ * Stubs the edit action until an edit form is available.
+ *
+ * @param _row Transaction to edit (unused until edit modal is implemented).
+ */
+const handleEdit = (_row: TransactionDto): void => {
+  // TODO: open edit modal
+};
+
+/** Called by quick-add modals on successful creation. */
 const onTransactionCreated = (): void => {
   void refetch();
 };
+
+// ── Drag-and-drop handlers ────────────────────────────────────────────────────
+
+/** Enters visual reorder mode and copies the current order into localOrder. */
+const enterReorderMode = (): void => {
+  localOrder.value = processedTransactions.value.map((tx) => tx.id);
+  reorderMode.value = true;
+};
+
+/** Exits reorder mode, keeping the user's custom order for display. */
+const exitReorderMode = (): void => {
+  reorderMode.value = false;
+};
+
+// ── NDataTable ────────────────────────────────────────────────────────────────
+
+/**
+ * Renders the status icon cell.
+ *
+ * Priority: paid → overdue → near-due → pending.
+ *
+ * @param row Transaction row data.
+ * @returns VNode for the status icon.
+ */
+const statusIconRender = (row: TransactionDto): ReturnType<typeof h> => {
+  if (row.status === "paid") {
+    return h(CheckCircle2, {
+      size: 16,
+      class: "tx-status-icon tx-status-icon--paid",
+      title: t("transaction.status.paid"),
+    });
+  }
+  if (isOverdue(row.due_date, row.status)) {
+    return h(AlertCircle, {
+      size: 16,
+      class: "tx-status-icon tx-status-icon--overdue",
+      title: t("transaction.status.overdue"),
+    });
+  }
+  if (isNearDue(row.due_date, row.status)) {
+    return h(AlertTriangle, {
+      size: 16,
+      class: "tx-status-icon tx-status-icon--near-due",
+      title: t("transactions.status.nearDue"),
+    });
+  }
+  return h(Clock, {
+    size: 16,
+    class: "tx-status-icon tx-status-icon--pending",
+    title: t("transaction.status.pending"),
+  });
+};
+
+/**
+ * Renders the coloured amount cell with income/expense prefix.
+ *
+ * @param row Transaction row data.
+ * @returns VNode for the amount cell.
+ */
+const amountRender = (row: TransactionDto): ReturnType<typeof h> =>
+  h(
+    "span",
+    {
+      class: [
+        "tx-amount",
+        row.type === "income" ? "tx-amount--income" : "tx-amount--expense",
+      ],
+    },
+    [
+      row.type === "expense" ? "−" : "+",
+      formatCurrency(parseFloat(row.amount)),
+    ],
+  );
+
+/**
+ * Renders the description cell with optional recurring/installment badges.
+ *
+ * @param row Transaction row data.
+ * @returns VNode for the title cell.
+ */
+const titleRender = (row: TransactionDto): ReturnType<typeof h> =>
+  h("div", { class: "tx-title-cell" }, [
+    h("span", { class: "tx-title-cell__name" }, row.title),
+    row.is_recurring
+      ? h("span", { class: "tx-badge" }, [
+          h(RefreshCw, { size: 9 }),
+          t("transactions.recurring"),
+        ])
+      : null,
+    row.is_installment && row.installment_count
+      ? h("span", { class: "tx-badge" }, t("transactions.installment", { count: row.installment_count }))
+      : null,
+  ]);
+
+/**
+ * Renders the actions toolbar (edit, mark-paid, delete).
+ *
+ * @param row Transaction row data.
+ * @returns VNode for the actions cell.
+ */
+const actionsRender = (row: TransactionDto): ReturnType<typeof h> =>
+  h(NSpace, { size: 4, align: "center", wrap: false }, {
+    default: () => [
+      h(
+        NButton,
+        {
+          size: "tiny",
+          quaternary: true,
+          circle: true,
+          title: t("transactions.action.edit"),
+          onClick: () => handleEdit(row),
+        },
+        { default: () => h(Pencil, { size: 13 }) },
+      ),
+      h(
+        NButton,
+        {
+          size: "tiny",
+          quaternary: true,
+          circle: true,
+          type: "success",
+          disabled: row.status === "paid" || markPaidMutation.isPending.value,
+          title: t("transactions.action.markPaid"),
+          onClick: () => handleMarkPaid(row),
+        },
+        { default: () => h(Check, { size: 13 }) },
+      ),
+      h(
+        NButton,
+        {
+          size: "tiny",
+          quaternary: true,
+          circle: true,
+          type: "error",
+          loading: deleteMutation.isPending.value && deleteTarget.value?.id === row.id,
+          title: t("transactions.action.delete"),
+          onClick: () => handleDeleteClick(row),
+        },
+        { default: () => h(Trash2, { size: 13 }) },
+      ),
+    ],
+  });
+
+/** Full column definitions. Sorters are disabled while in reorder mode. */
+const columns = computed((): DataTableColumns<TransactionDto> => {
+  const withSort = !reorderMode.value;
+
+  return [
+    // ── Drag handle (reorder mode only) ────────────────────────────────────
+    ...(reorderMode.value
+      ? [
+          {
+            key: "__drag" as DataTableRowKey,
+            title: "",
+            width: 36,
+            render: (): ReturnType<typeof h> =>
+              h("span", { class: "tx-drag-handle", "aria-hidden": "true" }, [
+                h(GripVertical, { size: 14 }),
+              ]),
+          },
+        ]
+      : []),
+
+    // ── Status icon ─────────────────────────────────────────────────────────
+    {
+      key: "status" as DataTableRowKey,
+      title: t("transactions.table.status"),
+      width: 64,
+      render: statusIconRender,
+    },
+
+    // ── Date ────────────────────────────────────────────────────────────────
+    {
+      key: "due_date" as DataTableRowKey,
+      title: t("transactions.table.date"),
+      width: 108,
+      defaultSortOrder: "descend" as const,
+      sorter: withSort
+        ? (a: TransactionDto, b: TransactionDto): number => a.due_date.localeCompare(b.due_date)
+        : undefined,
+      render: (row: TransactionDto): string => formatDate(row.due_date),
+    },
+
+    // ── Description ─────────────────────────────────────────────────────────
+    {
+      key: "title" as DataTableRowKey,
+      title: t("transactions.table.description"),
+      ellipsis: { tooltip: true },
+      sorter: withSort
+        ? (a: TransactionDto, b: TransactionDto): number => a.title.localeCompare(b.title, "pt-BR")
+        : undefined,
+      render: titleRender,
+    },
+
+    // ── Category ────────────────────────────────────────────────────────────
+    {
+      key: "tag_id" as DataTableRowKey,
+      title: t("transactions.table.category"),
+      width: 130,
+      ellipsis: { tooltip: true },
+      render: (row: TransactionDto): string => tagMap.value.get(row.tag_id ?? "") ?? "—",
+    },
+
+    // ── Account ─────────────────────────────────────────────────────────────
+    {
+      key: "account_id" as DataTableRowKey,
+      title: t("transactions.table.account"),
+      width: 120,
+      ellipsis: { tooltip: true },
+      render: (row: TransactionDto): string => accountMap.value.get(row.account_id ?? "") ?? "—",
+    },
+
+    // ── Amount ──────────────────────────────────────────────────────────────
+    {
+      key: "amount" as DataTableRowKey,
+      title: t("transactions.table.amount"),
+      width: 138,
+      sorter: withSort
+        ? (a: TransactionDto, b: TransactionDto): number =>
+            parseFloat(a.amount) - parseFloat(b.amount)
+        : undefined,
+      render: amountRender,
+    },
+
+    // ── Actions ─────────────────────────────────────────────────────────────
+    {
+      key: "__actions" as DataTableRowKey,
+      title: t("transactions.table.actions"),
+      width: 108,
+      render: actionsRender,
+    },
+  ];
+});
+
+// ── Row props (drag + swipe) ──────────────────────────────────────────────────
+
+/**
+ * Returns HTML attributes applied to each `<tr>` element.
+ *
+ * Handles:
+ * - HTML5 drag-and-drop (reorder mode)
+ * - Touch swipe gestures (mobile/PWA): swipe right → mark paid, swipe left → delete
+ *
+ * @param row Transaction row data.
+ * @returns HTML attribute object for the table row element.
+ */
+const rowProps = (row: TransactionDto): Record<string, unknown> => ({
+  class: [
+    "tx-table-row",
+    dragSourceId.value === row.id ? "tx-table-row--dragging" : "",
+    dragTargetId.value === row.id && dragSourceId.value !== row.id
+      ? "tx-table-row--drag-over"
+      : "",
+    swipingRowId.value === row.id && swipeDir.value === "right"
+      ? "tx-table-row--swiping-right"
+      : "",
+    swipingRowId.value === row.id && swipeDir.value === "left"
+      ? "tx-table-row--swiping-left"
+      : "",
+  ]
+    .filter(Boolean)
+    .join(" "),
+
+  // ── Drag ──────────────────────────────────────────────────────────────────
+  draggable: reorderMode.value,
+
+  onDragstart: (e: DragEvent): void => {
+    if (!reorderMode.value) { e.preventDefault(); return; }
+    dragSourceId.value = row.id;
+    if (e.dataTransfer) { e.dataTransfer.effectAllowed = "move"; }
+  },
+
+  onDragover: (e: DragEvent): void => {
+    if (!reorderMode.value) { return; }
+    e.preventDefault();
+    dragTargetId.value = row.id;
+    if (e.dataTransfer) { e.dataTransfer.dropEffect = "move"; }
+  },
+
+  onDragleave: (): void => {
+    if (dragTargetId.value === row.id) { dragTargetId.value = null; }
+  },
+
+  onDrop: (e: DragEvent): void => {
+    e.preventDefault();
+    if (!dragSourceId.value || dragSourceId.value === row.id) {
+      dragSourceId.value = null;
+      dragTargetId.value = null;
+      return;
+    }
+    const order = [...localOrder.value];
+    const srcIdx = order.indexOf(dragSourceId.value);
+    const tgtIdx = order.indexOf(row.id);
+    if (srcIdx !== -1 && tgtIdx !== -1) {
+      const [item] = order.splice(srcIdx, 1);
+      order.splice(tgtIdx, 0, item!);
+      localOrder.value = order;
+    }
+    dragSourceId.value = null;
+    dragTargetId.value = null;
+  },
+
+  onDragend: (): void => {
+    dragSourceId.value = null;
+    dragTargetId.value = null;
+  },
+
+  // ── Touch swipe ───────────────────────────────────────────────────────────
+  onTouchstart: (e: TouchEvent): void => {
+    touchStartX.value = e.touches[0]?.clientX ?? 0;
+    swipingRowId.value = row.id;
+    swipeDir.value = null;
+  },
+
+  onTouchmove: (e: TouchEvent): void => {
+    if (swipingRowId.value !== row.id) { return; }
+    const delta = (e.touches[0]?.clientX ?? 0) - touchStartX.value;
+    if (Math.abs(delta) > 20) {
+      swipeDir.value = delta > 0 ? "right" : "left";
+    }
+  },
+
+  onTouchend: (e: TouchEvent): void => {
+    const delta = (e.changedTouches[0]?.clientX ?? 0) - touchStartX.value;
+    swipingRowId.value = null;
+    swipeDir.value = null;
+
+    if (Math.abs(delta) < SWIPE_THRESHOLD) { return; }
+
+    if (delta > 0) {
+      // Swipe right → mark as paid
+      handleMarkPaid(row);
+    } else {
+      // Swipe left → delete
+      handleDeleteClick(row);
+    }
+  },
+});
+
+// ── Pagination ────────────────────────────────────────────────────────────────
+
+const pagination = reactive({
+  page: 1,
+  pageSize: 20,
+  showSizePicker: true,
+  pageSizes: [10, 20, 50],
+  prefix: ({ itemCount }: { itemCount: number | undefined }): string =>
+    t("transactions.count", { n: itemCount ?? 0 }),
+  onChange: (page: number): void => {
+    pagination.page = page;
+  },
+  onUpdatePageSize: (pageSize: number): void => {
+    pagination.pageSize = pageSize;
+    pagination.page = 1;
+  },
+});
+
+// Reset to first page when filters change.
+watch([filterType, filterStatus], () => {
+  pagination.page = 1;
+});
+
+/**
+ * Row key accessor for NDataTable.
+ *
+ * @param row Transaction row data.
+ * @returns Unique row identifier.
+ */
+const rowKey = (row: TransactionDto): string => row.id;
 </script>
 
 <template>
   <div class="transactions-page">
 
-    <!-- ── Header ──────────────────────────────────────────────────────────── -->
-    <div class="transactions-page__header">
-      <div class="transactions-page__title-block">
-        <span class="transactions-page__title">{{ $t('transactions.title') }}</span>
-        <span class="transactions-page__subtitle">{{ $t('transactions.subtitle') }}</span>
-      </div>
-      <div class="transactions-page__header-actions">
-        <NButton size="small" @click="showIncome = true">
-          <template #icon><TrendingUp :size="14" /></template>
-          {{ $t('transactions.addIncome') }}
-        </NButton>
-        <NButton type="primary" size="small" @click="showExpense = true">
-          <template #icon><TrendingDown :size="14" /></template>
-          {{ $t('transactions.addExpense') }}
-        </NButton>
-      </div>
-    </div>
-
-    <!-- ── Quick-add modals (reuse existing form) ──────────────────────────── -->
+    <!-- ── Quick-add modals ──────────────────────────────────────────────────── -->
     <QuickTransactionForm
       :visible="showIncome"
       type="income"
@@ -213,7 +660,22 @@ const onTransactionCreated = (): void => {
       @success="onTransactionCreated"
     />
 
-    <!-- ── Summary cards ──────────────────────────────────────────────────── -->
+    <!-- ── Delete confirmation ───────────────────────────────────────────────── -->
+    <NModal
+      :show="showDeleteConfirm"
+      preset="dialog"
+      type="error"
+      :title="$t('transactions.action.delete')"
+      :content="$t('transactions.action.deleteConfirm')"
+      :positive-text="$t('transactions.action.deleteConfirmYes')"
+      :negative-text="$t('transactions.action.deleteConfirmNo')"
+      :loading="deleteMutation.isPending.value"
+      @positive-click="confirmDelete"
+      @negative-click="showDeleteConfirm = false"
+      @close="showDeleteConfirm = false"
+    />
+
+    <!-- ── Summary strip ─────────────────────────────────────────────────────── -->
     <div class="transactions-page__summary">
       <div class="summary-card summary-card--income">
         <TrendingUp :size="18" class="summary-card__icon" />
@@ -231,8 +693,9 @@ const onTransactionCreated = (): void => {
       </div>
     </div>
 
-    <!-- ── Filter / sort bar ──────────────────────────────────────────────── -->
+    <!-- ── Toolbar ───────────────────────────────────────────────────────────── -->
     <div class="transactions-page__toolbar">
+      <!-- Filters -->
       <NSelect
         v-model:value="filterType"
         :options="TYPE_OPTIONS"
@@ -243,39 +706,57 @@ const onTransactionCreated = (): void => {
         v-model:value="filterStatus"
         :options="STATUS_OPTIONS"
         size="small"
-        style="min-width: 140px"
+        style="min-width: 150px"
       />
-      <NSelect
-        v-model:value="sortKey"
-        :options="SORT_OPTIONS"
-        size="small"
-        style="min-width: 140px"
-      />
+
+      <!-- Spacer -->
+      <div class="transactions-page__toolbar-spacer" />
+
+      <!-- Reorder toggle -->
       <NButton
         size="small"
-        :title="sortDir === 'asc' ? $t('transactions.sort.asc') : $t('transactions.sort.desc')"
-        @click="toggleSortDir"
+        :type="reorderMode ? 'primary' : 'default'"
+        @click="reorderMode ? exitReorderMode() : enterReorderMode()"
       >
-        <template #icon>
-          <ArrowUpDown v-if="sortDir === 'asc'" :size="14" />
-          <ArrowDownUp v-else :size="14" />
-        </template>
+        <template #icon><GripVertical :size="14" /></template>
+        {{ reorderMode ? $t('transactions.reorder.exit') : $t('transactions.reorder.enter') }}
+      </NButton>
+
+      <!-- Add buttons -->
+      <NButton size="small" @click="showIncome = true">
+        <template #icon><TrendingUp :size="14" /></template>
+        {{ $t('transactions.addIncome') }}
+      </NButton>
+      <NButton type="primary" size="small" @click="showExpense = true">
+        <template #icon><TrendingDown :size="14" /></template>
+        {{ $t('transactions.addExpense') }}
       </NButton>
     </div>
 
-    <!-- ── Error state ────────────────────────────────────────────────────── -->
+    <!-- ── Reorder hint ──────────────────────────────────────────────────────── -->
+    <p v-if="reorderMode" class="transactions-page__reorder-hint">
+      <GripVertical :size="12" />
+      {{ $t('transactions.reorder.hint') }}
+    </p>
+
+    <!-- ── Swipe hint (mobile only) ─────────────────────────────────────────── -->
+    <p v-if="!reorderMode" class="transactions-page__swipe-hint">
+      {{ $t('transactions.swipe.payHint') }} &nbsp;·&nbsp; {{ $t('transactions.swipe.deleteHint') }}
+    </p>
+
+    <!-- ── Error ─────────────────────────────────────────────────────────────── -->
     <UiInlineError
       v-if="isError"
       :title="$t('transactions.loadError')"
       :message="$t('transactions.loadErrorMessage')"
     />
 
-    <!-- ── Loading state ─────────────────────────────────────────────────── -->
+    <!-- ── Loading ───────────────────────────────────────────────────────────── -->
     <UiPageLoader v-else-if="isLoading" :rows="5" />
 
-    <!-- ── Empty state ────────────────────────────────────────────────────── -->
+    <!-- ── Empty ─────────────────────────────────────────────────────────────── -->
     <UiEmptyState
-      v-else-if="processedTransactions.length === 0"
+      v-else-if="tableData.length === 0"
       icon="transactions"
       :title="$t('transactions.empty.title')"
       :description="$t('transactions.empty.description')"
@@ -287,55 +768,19 @@ const onTransactionCreated = (): void => {
       </template>
     </UiEmptyState>
 
-    <!-- ── Transaction list ───────────────────────────────────────────────── -->
-    <div v-else class="transactions-page__list">
-      <article
-        v-for="tx in processedTransactions"
-        :key="tx.id"
-        class="tx-row"
-        :class="{
-          'tx-row--income': tx.type === 'income',
-          'tx-row--expense': tx.type === 'expense',
-        }"
-      >
-        <!-- Type indicator -->
-        <div class="tx-row__indicator" aria-hidden="true">
-          <TrendingUp v-if="tx.type === 'income'" :size="14" />
-          <TrendingDown v-else :size="14" />
-        </div>
-
-        <!-- Main info -->
-        <div class="tx-row__body">
-          <div class="tx-row__top">
-            <span class="tx-row__title">{{ tx.title }}</span>
-            <span
-              class="tx-row__amount"
-              :class="tx.type === 'income' ? 'tx-row__amount--income' : 'tx-row__amount--expense'"
-            >
-              {{ tx.type === 'expense' ? '−' : '+' }}{{ formatCurrency(parseFloat(tx.amount)) }}
-            </span>
-          </div>
-          <div class="tx-row__meta">
-            <span class="tx-row__date">{{ formatDate(tx.due_date) }}</span>
-            <NTag :type="statusTagType(tx.status as TransactionStatusDto)" size="tiny" round>
-              {{ statusLabel(tx.status as TransactionStatusDto) }}
-            </NTag>
-            <span v-if="tx.is_recurring" class="tx-row__badge">
-              <RefreshCw :size="10" />
-              {{ $t('transactions.recurring') }}
-            </span>
-            <span v-if="tx.is_installment" class="tx-row__badge">
-              {{ $t('transactions.installment', { count: tx.installment_count }) }}
-            </span>
-          </div>
-        </div>
-      </article>
-
-      <!-- Count -->
-      <p class="transactions-page__count">
-        {{ $t('transactions.count', { n: processedTransactions.length }) }}
-      </p>
-    </div>
+    <!-- ── Data table ────────────────────────────────────────────────────────── -->
+    <NDataTable
+      v-else
+      :columns="columns"
+      :data="tableData"
+      :loading="isLoading"
+      :pagination="pagination"
+      :row-key="rowKey"
+      :row-props="rowProps"
+      :scroll-x="780"
+      size="small"
+      class="transactions-page__table"
+    />
 
   </div>
 </template>
@@ -348,39 +793,7 @@ const onTransactionCreated = (): void => {
   padding: var(--space-3);
 }
 
-/* ── Header ────────────────────────────────────────────────────────────────── */
-.transactions-page__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-}
-
-.transactions-page__title-block {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.transactions-page__title {
-  font-size: var(--font-size-lg, 1.25rem);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-}
-
-.transactions-page__subtitle {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-}
-
-.transactions-page__header-actions {
-  display: flex;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-}
-
-/* ── Summary cards ─────────────────────────────────────────────────────────── */
+/* ── Summary strip ──────────────────────────────────────────────────────────── */
 .transactions-page__summary {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -397,13 +810,8 @@ const onTransactionCreated = (): void => {
   background: var(--color-bg-elevated);
 }
 
-.summary-card--income .summary-card__icon {
-  color: var(--color-positive);
-}
-
-.summary-card--expense .summary-card__icon {
-  color: var(--color-negative);
-}
+.summary-card--income .summary-card__icon { color: var(--color-positive); }
+.summary-card--expense .summary-card__icon { color: var(--color-negative); }
 
 .summary-card__body {
   display: flex;
@@ -422,7 +830,7 @@ const onTransactionCreated = (): void => {
   color: var(--color-text-primary);
 }
 
-/* ── Toolbar ───────────────────────────────────────────────────────────────── */
+/* ── Toolbar ────────────────────────────────────────────────────────────────── */
 .transactions-page__toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -430,105 +838,116 @@ const onTransactionCreated = (): void => {
   align-items: center;
 }
 
-/* ── List ──────────────────────────────────────────────────────────────────── */
-.transactions-page__list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+.transactions-page__toolbar-spacer {
+  flex: 1;
 }
 
-.tx-row {
+/* ── Hints ──────────────────────────────────────────────────────────────────── */
+.transactions-page__reorder-hint,
+.transactions-page__swipe-hint {
   display: flex;
-  align-items: flex-start;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+/* Swipe hint only visible on touch devices */
+.transactions-page__swipe-hint {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .transactions-page__swipe-hint {
+    display: flex;
+  }
+}
+
+/* ── Table ──────────────────────────────────────────────────────────────────── */
+.transactions-page__table {
   border-radius: var(--radius-md);
   border: 1px solid var(--color-outline-soft);
-  background: var(--color-bg-elevated);
+  overflow: hidden;
 }
 
-.tx-row__indicator {
-  flex-shrink: 0;
-  margin-top: 2px;
+/* Global styles applied via :deep() since NDataTable renders <tr> elements */
+.transactions-page__table :deep(.tx-table-row) {
+  cursor: default;
+  transition:
+    background-color 0.15s ease,
+    transform 0.12s ease;
 }
 
-.tx-row--income .tx-row__indicator {
-  color: var(--color-positive);
+.transactions-page__table :deep(.tx-table-row:hover) {
+  background-color: var(--color-bg-elevated) !important;
 }
 
-.tx-row--expense .tx-row__indicator {
-  color: var(--color-negative);
+.transactions-page__table :deep(.tx-table-row--dragging) {
+  opacity: 0.45;
+  cursor: grabbing;
 }
 
-.tx-row__body {
-  flex: 1;
-  min-width: 0;
+.transactions-page__table :deep(.tx-table-row--drag-over) {
+  background-color: color-mix(in srgb, var(--color-brand-500) 8%, transparent) !important;
+  border-top: 2px solid var(--color-brand-500);
+}
+
+/* Mobile swipe visual feedback */
+.transactions-page__table :deep(.tx-table-row--swiping-right) {
+  background-color: color-mix(in srgb, var(--color-positive) 10%, transparent) !important;
+}
+
+.transactions-page__table :deep(.tx-table-row--swiping-left) {
+  background-color: color-mix(in srgb, var(--color-negative) 10%, transparent) !important;
+}
+
+/* ── Row-level component styles ─────────────────────────────────────────────── */
+:deep(.tx-status-icon) { display: block; }
+:deep(.tx-status-icon--paid)     { color: var(--color-positive); }
+:deep(.tx-status-icon--overdue)  { color: var(--color-negative); }
+:deep(.tx-status-icon--near-due) { color: var(--color-warning, #f0a020); }
+:deep(.tx-status-icon--pending)  { color: var(--color-text-muted); }
+
+:deep(.tx-amount) {
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+:deep(.tx-amount--income)  { color: var(--color-positive); }
+:deep(.tx-amount--expense) { color: var(--color-negative); }
+
+:deep(.tx-title-cell) {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
-
-.tx-row__top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--space-2);
-}
-
-.tx-row__title {
+:deep(.tx-title-cell__name) {
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.tx-row__amount {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.tx-row__amount--income {
-  color: var(--color-positive);
-}
-
-.tx-row__amount--expense {
-  color: var(--color-negative);
-}
-
-.tx-row__meta {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-}
-
-.tx-row__date {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-}
-
-.tx-row__badge {
+:deep(.tx-badge) {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
 }
 
-/* ── Count ─────────────────────────────────────────────────────────────────── */
-.transactions-page__count {
-  margin: 0;
-  text-align: center;
-  font-size: var(--font-size-xs);
+:deep(.tx-drag-handle) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
   color: var(--color-text-muted);
-  padding-top: var(--space-1);
 }
 
-@media (max-width: 480px) {
+:deep(.tx-drag-handle:active) {
+  cursor: grabbing;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
   .transactions-page__summary {
     grid-template-columns: 1fr;
   }
@@ -536,6 +955,10 @@ const onTransactionCreated = (): void => {
   .transactions-page__toolbar {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .transactions-page__toolbar-spacer {
+    display: none;
   }
 }
 </style>

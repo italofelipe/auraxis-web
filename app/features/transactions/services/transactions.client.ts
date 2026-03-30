@@ -96,6 +96,39 @@ export class TransactionsClient {
   }
 
   /**
+   * Permanently removes a transaction.
+   *
+   * @param id UUID of the transaction to delete.
+   */
+  async deleteTransaction(id: string): Promise<void> {
+    await this.#http.delete(`/transactions/${id}`);
+  }
+
+  /**
+   * Updates a transaction's status.
+   *
+   * Used primarily to mark a transaction as "paid". The backend accepts any
+   * valid TransactionStatusDto via PATCH /transactions/:id.
+   *
+   * @param id    UUID of the transaction to update.
+   * @param status New lifecycle status.
+   * @returns Updated TransactionDto.
+   */
+  async updateStatus(id: string, status: TransactionStatusDto): Promise<TransactionDto> {
+    const response = await this.#http.patch<
+      | { data?: { transaction?: TransactionDto }; transaction?: TransactionDto }
+      | TransactionDto
+    >(`/transactions/${id}`, { status });
+
+    const raw = response.data as {
+      data?: { transaction?: TransactionDto };
+      transaction?: TransactionDto;
+    } & Partial<TransactionDto>;
+
+    return raw.data?.transaction ?? raw.transaction ?? (raw as unknown as TransactionDto);
+  }
+
+  /**
    * Lists the authenticated user's transactions, optionally filtered by
    * type, status and date range.
    *
