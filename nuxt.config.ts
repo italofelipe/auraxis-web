@@ -138,6 +138,7 @@ export default defineNuxtConfig({
       // BRAPI public API key for ticker autocomplete and market data.
       // Register at https://brapi.dev to obtain a key.
       brapiApiKey: process.env.NUXT_PUBLIC_BRAPI_API_KEY ?? "",
+      recaptchaSiteKey: process.env.NUXT_PUBLIC_RECAPTCHA_SITE_KEY ?? "",
     },
   },
 
@@ -304,6 +305,7 @@ export default defineNuxtConfig({
     "/register":               { prerender: true },
     "/forgot-password":        { prerender: true },
     "/confirm-email":          { prerender: true },
+    "/confirm-email-pending":  { ssr: false },
     "/resend-confirmation":    { prerender: true },
     "/checkout/success":       { ssr: false },
     "/checkout/cancel":        { prerender: true },
@@ -319,6 +321,7 @@ export default defineNuxtConfig({
     "/en/register":                  { prerender: true },
     "/en/forgot-password":           { prerender: true },
     "/en/confirm-email":             { prerender: true },
+    "/en/confirm-email-pending":     { ssr: false },
     "/en/resend-confirmation":       { prerender: true },
     "/en/checkout/success":          { ssr: false },
     "/en/checkout/cancel":           { prerender: true },

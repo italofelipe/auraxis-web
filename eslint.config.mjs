@@ -10,6 +10,9 @@ export default withNuxt(
       "coverage/**",
       "playwright-report/**",
       "test-results/**",
+      // Duplicate artefact files with spaces in their names left by automated
+      // tooling. They are not tracked by git and should not be linted.
+      "**/* 2.*",
     ],
   },
   {

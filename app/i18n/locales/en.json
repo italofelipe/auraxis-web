@@ -344,6 +344,135 @@
       "sent": "Email sent! Check your inbox and spam folder.",
       "error": "Could not send the email. Please try again.",
       "skip": "Do this later"
+    },
+    "confirmEmailPending": {
+      "meta": {
+        "title": "Confirm your email"
+      },
+      "title": "Check your email",
+      "description": "We sent a confirmation link to",
+      "deadline": {
+        "heading": "Confirm within 7 days",
+        "body": "After that period, access to some features will be limited until you confirm."
+      },
+      "benefits": {
+        "access": "Full access to all features",
+        "recovery": "Account recovery via email",
+        "notifications": "Important notifications and alerts"
+      },
+      "resent": "Email resent! Check your inbox.",
+      "resendError": "Could not resend the email. Please try again.",
+      "resendCta": "Resend email",
+      "resentCta": "Email sent",
+      "skip": "Skip for now",
+      "skipNote": "You have up to 7 days to confirm your email. After that, some features may be restricted."
+    },
+    "installmentVsCash": {
+      "seo": {
+        "title": "Installment vs Cash — Financial Calculator",
+        "description": "Find out whether it's worth paying in installments or upfront. Calculate the opportunity cost and make the best financial decision.",
+        "ogTitle": "Installment vs Cash — Auraxis",
+        "ogDescription": "Free calculator to compare installment payments and lump-sum payments."
+      },
+      "faq": {
+        "q1": "How do I know whether to pay in installments or upfront?",
+        "a1": "Compare the total cost of installments with the return the money would earn if invested. If the return exceeds the interest cost, paying upfront is more advantageous.",
+        "q2": "What is opportunity cost?",
+        "a2": "It is the value you forgo by tying up your money. By paying upfront, you give up the return that capital would have earned if invested."
+      },
+      "header": {
+        "publicTool": "Free tool",
+        "otherTools": "Other tools",
+        "createAccount": "Create account"
+      },
+      "hero": {
+        "badge": "Free calculator",
+        "title": "Installment vs Cash",
+        "subtitle": "Discover whether it is worth paying in installments or using your cash upfront by factoring in opportunity cost.",
+        "featureBasic": "Free calculation",
+        "featureBasicDesc": "Compare installment and lump-sum scenarios without needing an account.",
+        "featureAdvanced": "Save and plan",
+        "featureAdvancedDesc": "With a free account, save simulations and turn them into goals or planned expenses."
+      },
+      "errors": {
+        "calculate": "Calculation error. Check your data and try again.",
+        "validateForm": "Please fill in all required fields.",
+        "noSimulation": "No simulation found.",
+        "save": "Error saving the simulation. Please try again.",
+        "saveBeforeGoal": "Save the simulation before creating a goal.",
+        "saveBeforeExpense": "Save the simulation before creating an expense.",
+        "goalPrefill": "Error prefilling goal data.",
+        "goalSubmit": "Error creating goal. Please try again.",
+        "expensePrefill": "Error prefilling expense data.",
+        "expenseSubmit": "Error creating expense. Please try again."
+      },
+      "success": {
+        "saved": "Simulation saved successfully!",
+        "goalCreated": "Goal created successfully!",
+        "expensesCreated": "{count} transaction(s) created successfully!"
+      },
+      "results": {
+        "nextStep": "Next step"
+      },
+      "seoSection": {
+        "considers": "What does this calculator consider?",
+        "considersDesc": "Installment interest, potential capital return, and real opportunity cost.",
+        "notReplaces": "This tool does not replace financial advice",
+        "notReplacesDesc": "Results are estimates based on the data entered. Consult a professional for high-impact decisions.",
+        "howToUse": "How to use?",
+        "howToUseDesc": "Enter the product price, number of installments, interest rate (if any), and your savings yield rate. The calculator does the rest."
+      },
+      "goalModal": {
+        "title": "Create financial goal",
+        "titleLabel": "Goal name",
+        "defaultTitle": "Purchase",
+        "descriptionLabel": "Description (optional)",
+        "targetDateLabel": "Target date",
+        "cancel": "Cancel",
+        "submit": "Create goal"
+      },
+      "expenseModal": {
+        "title": "Create planned expense",
+        "titleLabel": "Expense name",
+        "defaultTitle": "Purchase",
+        "descriptionLabel": "Description (optional)",
+        "modeLabel": "Payment mode",
+        "modeAriaLabel": "Select payment mode",
+        "cashLabel": "Upfront",
+        "installmentLabel": "Installments",
+        "dueDateLabel": "Due date",
+        "firstDueDateLabel": "First installment date",
+        "upfrontDateLabel": "Upfront payment date",
+        "cancel": "Cancel",
+        "submit": "Create expense"
+      },
+      "guestCta": {
+        "ariaLabel": "Create your free account",
+        "badge": "Auraxis — Free",
+        "title": "Liked the tool? Create your free account",
+        "subtitle": "Save simulations, create financial goals, and access the complete financial management ecosystem.",
+        "features": {
+          "portfolio": {
+            "title": "Investment Portfolio",
+            "desc": "Track stocks, REITs, and fixed income in a single dashboard."
+          },
+          "goals": {
+            "title": "Financial Goals",
+            "desc": "Set objectives and track your progress month by month."
+          },
+          "security": {
+            "title": "Security & Privacy",
+            "desc": "Your data is protected and never shared."
+          },
+          "tools": {
+            "title": "More Tools",
+            "desc": "Access advanced simulations and save your results."
+          }
+        },
+        "registerCta": "Create free account",
+        "loginCta": "I already have an account",
+        "trust": "Free forever · No credit card · Cancel anytime"
+      }
     }
   },
   "common": {
@@ -444,6 +573,20 @@
     "emailBanner": {
       "message": "Confirm your email to ensure full access to your account.",
       "cta": "Confirm email"
+    },
+    "password": {
+      "strength": {
+        "length": "Min. 10 characters",
+        "uppercase": "Uppercase letter",
+        "number": "Number",
+        "special": "Special character",
+        "level": {
+          "weak": "Weak",
+          "fair": "Fair",
+          "good": "Good",
+          "strong": "Strong"
+        }
+      }
     }
   },
   "transaction": {

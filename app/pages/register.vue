@@ -2,7 +2,7 @@
 import axios from "axios";
 import { useMessage } from "naive-ui";
 import { useRegisterMutation } from "~/composables/useAuth";
-import { useAuthRedirectContext } from "~/composables/useAuthRedirectContext";
+import { useCaptcha } from "~/composables/useCaptcha";
 import type { RegisterSchema } from "~/schemas/auth";
 
 definePageMeta({ layout: "auth", middleware: ["guest-only"] });
@@ -15,21 +15,27 @@ useSeoMeta({
 });
 const message = useMessage();
 const registerMutation = useRegisterMutation();
-const { consumeRedirect } = useAuthRedirectContext();
+const captcha = useCaptcha();
 
 /**
- * Submete o registro de novo usuário e redireciona ao destino pós-auth.
- * @param values - Dados validados do formulário de registro.
+ * Submits the registration form.
+ *
+ * Obtains a reCAPTCHA v3 token before sending the request. After a successful
+ * registration the user is already signed in via the mutation's onSuccess hook
+ * (see useRegisterMutation). We redirect directly to the email-confirmation
+ * landing page so the user can either confirm or skip.
+ *
+ * @param values - Validated form data from SignupForm.
  */
 const onSubmit = async (values: RegisterSchema): Promise<void> => {
   const { confirmPassword: _discard, ...registerPayload } = values;
   try {
-    await registerMutation.mutateAsync(registerPayload);
-    // Clear any pending redirect so the user lands on the login page,
-    // not on a protected route that would bounce back to login anyway.
-    consumeRedirect();
-    message.success(t("auth.register.successToast"), { duration: 4000 });
-    await navigateTo("/login");
+    const captchaToken = await captcha.execute("register");
+    await registerMutation.mutateAsync({ ...registerPayload, captchaToken });
+    message.success(t("auth.register.successToast"), { duration: 3000 });
+    // The mutation's onSuccess already calls sessionStore.signIn(), so the
+    // user is authenticated. Redirect to the email-confirmation gate.
+    await navigateTo("/confirm-email-pending");
   } catch (err) {
     const msg = axios.isAxiosError(err)
       ? (err.response?.data?.message ?? "Não foi possível criar a conta. Verifique os dados e tente novamente.")

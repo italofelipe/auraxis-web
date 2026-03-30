@@ -15,6 +15,8 @@ export interface RegisterRequest {
   readonly name: string;
   readonly email: string;
   readonly password: string;
+  /** reCAPTCHA v3 token — null when the site key is not configured (dev mode). */
+  readonly captchaToken?: string | null;
 }
 
 export interface RegisterResponse {
