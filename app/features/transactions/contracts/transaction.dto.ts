@@ -66,6 +66,44 @@ export interface CreateTransactionPayload {
 }
 
 /**
+ * Payload sent to PATCH /transactions/:id.
+ *
+ * All fields are optional — only the fields that changed need to be sent.
+ * The backend merges the partial update into the existing record.
+ */
+export interface UpdateTransactionPayload {
+  /** Short title for the transaction. */
+  readonly title?: string;
+
+  /** Positive monetary value as a decimal string (e.g. "150.50"). */
+  readonly amount?: string;
+
+  /** Due date in ISO 8601 format (YYYY-MM-DD). */
+  readonly due_date?: string;
+
+  /** Optional long-form description. */
+  readonly description?: string | null;
+
+  /** Current lifecycle status. */
+  readonly status?: TransactionStatusDto;
+
+  /** Whether this transaction repeats periodically. */
+  readonly is_recurring?: boolean;
+
+  /** End date for recurring transactions (YYYY-MM-DD). */
+  readonly end_date?: string | null;
+
+  /** UUID of the tag/category associated with this transaction. */
+  readonly tag_id?: string | null;
+
+  /** UUID of the bank account associated with this transaction. */
+  readonly account_id?: string | null;
+
+  /** UUID of the credit card associated with this transaction. */
+  readonly credit_card_id?: string | null;
+}
+
+/**
  * Single transaction item returned by POST /transactions.
  *
  * The backend wraps the response in `data: { transactions: [...] }` for

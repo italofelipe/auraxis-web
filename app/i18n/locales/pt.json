@@ -591,6 +591,9 @@
     }
   },
   "transaction": {
+    "edit": {
+      "title": "Editar transação"
+    },
     "form": {
       "title": {
         "income": "Nova Receita",

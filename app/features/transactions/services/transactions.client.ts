@@ -6,6 +6,7 @@ import type {
   TransactionDto,
   TransactionStatusDto,
   TransactionTypeDto,
+  UpdateTransactionPayload,
 } from "~/features/transactions/contracts/transaction.dto";
 
 /**
@@ -119,6 +120,30 @@ export class TransactionsClient {
       | { data?: { transaction?: TransactionDto }; transaction?: TransactionDto }
       | TransactionDto
     >(`/transactions/${id}`, { status });
+
+    const raw = response.data as {
+      data?: { transaction?: TransactionDto };
+      transaction?: TransactionDto;
+    } & Partial<TransactionDto>;
+
+    return raw.data?.transaction ?? raw.transaction ?? (raw as unknown as TransactionDto);
+  }
+
+  /**
+   * Updates an existing transaction with partial changes.
+   *
+   * Sends only the changed fields to PATCH /transactions/:id.
+   * The backend merges the partial payload into the existing record.
+   *
+   * @param id      UUID of the transaction to update.
+   * @param payload Partial fields to update.
+   * @returns Updated TransactionDto.
+   */
+  async updateTransaction(id: string, payload: UpdateTransactionPayload): Promise<TransactionDto> {
+    const response = await this.#http.patch<
+      | { data?: { transaction?: TransactionDto }; transaction?: TransactionDto }
+      | TransactionDto
+    >(`/transactions/${id}`, payload);
 
     const raw = response.data as {
       data?: { transaction?: TransactionDto };

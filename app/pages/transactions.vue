@@ -67,6 +67,9 @@ const showDeleteConfirm = ref(false);
 const payTarget = ref<TransactionDto | null>(null);
 const showPayConfirm = ref(false);
 
+const editTarget = ref<TransactionDto | null>(null);
+const showEditModal = ref(false);
+
 // ── Reorder / drag state ──────────────────────────────────────────────────────
 
 const reorderMode = ref(false);
@@ -278,12 +281,13 @@ const confirmMarkPaid = (): void => {
 };
 
 /**
- * Stubs the edit action until an edit form is available.
+ * Opens the edit modal pre-filled with the given row's data.
  *
- * @param _row Transaction to edit (unused until edit modal is implemented).
+ * @param row Transaction to edit.
  */
-const handleEdit = (_row: TransactionDto): void => {
-  // TODO: open edit modal
+const handleEdit = (row: TransactionDto): void => {
+  editTarget.value = row;
+  showEditModal.value = true;
 };
 
 /** Called by quick-add modals on successful creation. */
@@ -675,6 +679,14 @@ const rowKey = (row: TransactionDto): string => row.id;
       :visible="showExpense"
       type="expense"
       @update:visible="showExpense = $event"
+      @success="onTransactionCreated"
+    />
+
+    <!-- ── Edit modal ───────────────────────────────────────────────────────── -->
+    <EditTransactionModal
+      :visible="showEditModal"
+      :transaction="editTarget"
+      @update:visible="showEditModal = $event"
       @success="onTransactionCreated"
     />
 

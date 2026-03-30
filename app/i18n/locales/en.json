@@ -591,6 +591,9 @@
     }
   },
   "transaction": {
+    "edit": {
+      "title": "Edit transaction"
+    },
     "form": {
       "title": {
         "income": "New Income",
