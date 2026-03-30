@@ -2,6 +2,7 @@ import type { AxiosInstance } from "axios";
 
 import { useHttp } from "~/composables/useHttp";
 import type {
+  BillingCycle,
   CheckoutResponseDto,
   ApiSubscriptionDto,
 } from "~/features/subscription/contracts/subscription.dto";
@@ -35,14 +36,16 @@ export class SubscriptionClient {
   }
 
   /**
-   * Initiates a checkout session for the given plan.
+   * Initiates a checkout session for the given plan and billing cycle.
    *
-   * @param planSlug Identifier of the plan to subscribe to.
+   * @param planSlug - Identifier of the plan to subscribe to.
+   * @param billingCycle - Whether the user is paying monthly or annually.
    * @returns Checkout URL to redirect the user to.
    */
-  async createCheckout(planSlug: string): Promise<string> {
+  async createCheckout(planSlug: string, billingCycle: BillingCycle = "monthly"): Promise<string> {
     const response = await this.#http.post<CheckoutResponseDto>("/subscriptions/checkout", {
       plan_slug: planSlug,
+      billing_cycle: billingCycle,
     });
     return response.data.checkout_url;
   }

@@ -31,7 +31,7 @@ describe("CheckoutButton", () => {
 
   it("renders the default label 'Assinar'", () => {
     const wrapper = mount(CheckoutButton, {
-      props: { planSlug: "premium" },
+      props: { planSlug: "pro" },
       global: { stubs },
     });
 
@@ -40,19 +40,19 @@ describe("CheckoutButton", () => {
 
   it("renders a custom label when provided", () => {
     const wrapper = mount(CheckoutButton, {
-      props: { planSlug: "premium", label: "Iniciar trial" },
+      props: { planSlug: "pro", label: "Iniciar trial" },
       global: { stubs },
     });
 
     expect(wrapper.text()).toContain("Iniciar trial");
   });
 
-  it("calls createCheckout with planSlug and redirects to checkout_url on success", async () => {
+  it("calls createCheckout with planSlug and monthly cycle by default, then redirects", async () => {
     const checkoutUrl = "https://checkout.stripe.com/session-123";
     createCheckoutMock.mockResolvedValue(checkoutUrl);
 
     const wrapper = mount(CheckoutButton, {
-      props: { planSlug: "premium" },
+      props: { planSlug: "pro" },
       global: { stubs },
     });
 
@@ -62,7 +62,23 @@ describe("CheckoutButton", () => {
     // Allow microtask queue to flush
     await new Promise<void>((resolve) => setTimeout(resolve, 0));
 
-    expect(createCheckoutMock).toHaveBeenCalledWith("premium");
+    expect(createCheckoutMock).toHaveBeenCalledWith("pro", "monthly");
+    expect(window.location.href).toBe(checkoutUrl);
+  });
+
+  it("calls createCheckout with annual billing cycle when prop is set", async () => {
+    const checkoutUrl = "https://checkout.stripe.com/session-456";
+    createCheckoutMock.mockResolvedValue(checkoutUrl);
+
+    const wrapper = mount(CheckoutButton, {
+      props: { planSlug: "pro", billingCycle: "annual" },
+      global: { stubs },
+    });
+
+    await wrapper.find(".n-button").trigger("click");
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+
+    expect(createCheckoutMock).toHaveBeenCalledWith("pro", "annual");
     expect(window.location.href).toBe(checkoutUrl);
   });
 
@@ -70,7 +86,7 @@ describe("CheckoutButton", () => {
     createCheckoutMock.mockRejectedValue(new Error("payment provider unavailable"));
 
     const wrapper = mount(CheckoutButton, {
-      props: { planSlug: "premium" },
+      props: { planSlug: "pro" },
       global: { stubs },
     });
 

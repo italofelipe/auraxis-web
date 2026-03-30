@@ -13,7 +13,7 @@ import { useSubscriptionQuery } from "~/features/subscription/queries/use-subscr
 import { useCancelSubscriptionMutation } from "~/features/subscription/queries/use-cancel-subscription-mutation";
 import { useCreateCheckoutMutation } from "~/features/subscription/queries/use-create-checkout-mutation";
 import type { SubscriptionStatus } from "~/features/subscription/model/subscription";
-import type { PlanDto, PlanSlug } from "~/features/subscription/contracts/subscription.dto";
+import type { BillingCycle, PlanDto, PlanSlug } from "~/features/subscription/contracts/subscription.dto";
 
 const { t } = useI18n();
 
@@ -26,27 +26,26 @@ definePageMeta({
 
 useHead({ title: "Assinatura | Auraxis" });
 
+// ── Billing cycle toggle ──────────────────────────────────────────────────────
+
+const billingCycle = ref<BillingCycle>("monthly");
+
+/** Flips the active billing cycle between monthly and annual. */
+const toggleCycle = (): void => {
+  billingCycle.value = billingCycle.value === "monthly" ? "annual" : "monthly";
+};
+
+// ── Plan definitions ──────────────────────────────────────────────────────────
+
 const ALL_PLANS = computed((): PlanDto[] => [
   {
     slug: "free",
     name: t("pages.subscription.plans.free.name"),
     price_monthly: 0,
+    price_annual: 0,
     features: [
       { label: t("pages.subscription.plans.features.transactions50"), included: true },
       { label: t("pages.subscription.plans.features.goals1"), included: true },
-      { label: t("pages.subscription.plans.features.basicReports"), included: false },
-      { label: t("pages.subscription.plans.features.simulations"), included: false },
-      { label: t("pages.subscription.plans.features.sharedEntries"), included: false },
-      { label: t("pages.subscription.plans.features.prioritySupport"), included: false },
-    ],
-  },
-  {
-    slug: "starter",
-    name: t("pages.subscription.plans.starter.name"),
-    price_monthly: 29.9,
-    features: [
-      { label: t("pages.subscription.plans.features.transactions200"), included: true },
-      { label: t("pages.subscription.plans.features.goals3"), included: true },
       { label: t("pages.subscription.plans.features.basicReports"), included: true },
       { label: t("pages.subscription.plans.features.simulations"), included: false },
       { label: t("pages.subscription.plans.features.sharedEntries"), included: false },
@@ -56,20 +55,8 @@ const ALL_PLANS = computed((): PlanDto[] => [
   {
     slug: "pro",
     name: t("pages.subscription.plans.pro.name"),
-    price_monthly: 59.9,
-    features: [
-      { label: t("pages.subscription.plans.features.unlimitedTransactions"), included: true },
-      { label: t("pages.subscription.plans.features.unlimitedGoals"), included: true },
-      { label: t("pages.subscription.plans.features.advancedReports"), included: true },
-      { label: t("pages.subscription.plans.features.simulations"), included: true },
-      { label: t("pages.subscription.plans.features.sharedEntries"), included: true },
-      { label: t("pages.subscription.plans.features.prioritySupport"), included: false },
-    ],
-  },
-  {
-    slug: "premium",
-    name: t("pages.subscription.plans.premium.name"),
-    price_monthly: 99.9,
+    price_monthly: 29.90,
+    price_annual: 24.90,
     features: [
       { label: t("pages.subscription.plans.features.unlimitedTransactions"), included: true },
       { label: t("pages.subscription.plans.features.unlimitedGoals"), included: true },
@@ -86,7 +73,7 @@ const cancelMutation = useCancelSubscriptionMutation();
 const checkoutMutation = useCreateCheckoutMutation();
 
 const currentPlan = computed<PlanDto | null>(() => {
-  if (!subscription.value) {return null;}
+  if (!subscription.value) { return null; }
   return ALL_PLANS.value.find((p) => p.slug === (subscription.value!.planSlug as PlanSlug)) ?? null;
 });
 
@@ -162,17 +149,20 @@ const onCancelSubscription = (): void => {
 };
 
 /**
- * Initiates checkout for the selected plan.
+ * Initiates checkout for the selected plan with the active billing cycle.
  * Redirects to the returned checkout URL on success.
  *
  * @param slug - The selected plan slug.
  */
 const onSelectPlan = (slug: string): void => {
-  checkoutMutation.mutate(slug, {
-    onSuccess: (checkoutUrl: string) => {
-      window.location.href = checkoutUrl;
+  checkoutMutation.mutate(
+    { planSlug: slug, billingCycle: billingCycle.value },
+    {
+      onSuccess: (checkoutUrl: string) => {
+        window.location.href = checkoutUrl;
+      },
     },
-  });
+  );
 };
 </script>
 
@@ -235,23 +225,53 @@ const onSelectPlan = (slug: string): void => {
         </NCard>
 
         <div class="subscription-page__plans-section">
-          <NText tag="h3" class="subscription-page__plans-title">
-            {{ $t('pages.subscription.choosePlan') }}
-          </NText>
-          <NGrid :x-gap="16" :y-gap="16" :cols="4" responsive="screen" item-responsive>
+          <div class="subscription-page__plans-header">
+            <NText tag="h3" class="subscription-page__plans-title">
+              {{ $t('pages.subscription.choosePlan') }}
+            </NText>
+
+            <!-- Billing cycle toggle -->
+            <div class="subscription-page__toggle-wrap">
+              <span
+                class="subscription-page__toggle-label"
+                :class="{ 'subscription-page__toggle-label--active': billingCycle === 'monthly' }"
+              >
+                {{ $t('pages.subscription.billing.monthly') }}
+              </span>
+              <button
+                class="subscription-page__toggle"
+                :aria-checked="billingCycle === 'annual'"
+                :aria-label="$t('pages.subscription.billing.toggleAriaLabel')"
+                role="switch"
+                type="button"
+                @click="toggleCycle"
+              >
+                <span
+                  class="subscription-page__toggle-knob"
+                  :class="{ 'subscription-page__toggle-knob--annual': billingCycle === 'annual' }"
+                />
+              </button>
+              <span
+                class="subscription-page__toggle-label"
+                :class="{ 'subscription-page__toggle-label--active': billingCycle === 'annual' }"
+              >
+                {{ $t('pages.subscription.billing.annual') }}
+              </span>
+            </div>
+          </div>
+
+          <NGrid :x-gap="16" :y-gap="16" :cols="2" responsive="screen" item-responsive>
             <NGridItem
               v-for="plan in ALL_PLANS"
               :key="plan.slug"
-              :span="4"
-              :xs="4"
-              :s="2"
-              :m="2"
-              :l="1"
+              :span="2"
+              :s="1"
             >
               <PlanCard
                 :plan="plan"
                 :is-current="plan.slug === subscription?.planSlug"
-                :loading="checkoutMutation.isPending.value && checkoutMutation.variables.value === plan.slug"
+                :billing-cycle="billingCycle"
+                :loading="checkoutMutation.isPending.value && checkoutMutation.variables.value?.planSlug === plan.slug"
                 @select="onSelectPlan"
               />
             </NGridItem>
@@ -312,10 +332,68 @@ const onSelectPlan = (slug: string): void => {
   gap: var(--space-3);
 }
 
+.subscription-page__plans-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
 .subscription-page__plans-title {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
   margin: 0;
+}
+
+/* ── Billing toggle (compact variant) ────────────────────────────────────── */
+.subscription-page__toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.subscription-page__toggle-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  transition: color 0.15s ease;
+}
+
+.subscription-page__toggle-label--active {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.subscription-page__toggle {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  background: var(--color-neutral-300, #ccc);
+  border-radius: var(--radius-full);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s ease;
+}
+
+.subscription-page__toggle[aria-checked="true"] {
+  background: var(--color-brand-500);
+}
+
+.subscription-page__toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: var(--radius-full);
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 20%);
+}
+
+.subscription-page__toggle-knob--annual {
+  transform: translateX(16px);
 }
 </style>

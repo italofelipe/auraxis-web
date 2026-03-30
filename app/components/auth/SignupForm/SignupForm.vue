@@ -76,17 +76,20 @@ const isPending = computed(() => props.loading || isSubmitting.value);
         >
       </UiFormField>
 
-      <UiPasswordField
-        v-model="password"
-        :label="t('auth.register.passwordLabel')"
-        :placeholder="t('auth.register.passwordPlaceholder')"
-        field-id="signup-password"
-        :error="errors.password"
-        :disabled="isPending"
-        autocomplete="new-password"
-        required
-        v-bind="passwordAttrs"
-      />
+      <div class="signup-form__password-block">
+        <UiPasswordField
+          v-model="password"
+          :label="t('auth.register.passwordLabel')"
+          :placeholder="t('auth.register.passwordPlaceholder')"
+          field-id="signup-password"
+          :error="errors.password"
+          :disabled="isPending"
+          autocomplete="new-password"
+          required
+          v-bind="passwordAttrs"
+        />
+        <PasswordStrengthMeter :password="password ?? ''" />
+      </div>
 
       <UiPasswordField
         v-model="confirmPassword"
@@ -179,6 +182,12 @@ const isPending = computed(() => props.loading || isSubmitting.value);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+}
+
+.signup-form__password-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .signup-form__input {

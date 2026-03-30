@@ -17,8 +17,45 @@
   "pages": {
     "plans": {
       "meta": {
-        "title": "Plans & Pricing",
-        "description": "Explore Auraxis plans. Start for free or upgrade to Premium with advanced simulations, smart alerts and complete financial planning."
+        "title": "Plans and Pricing",
+        "description": "Discover Auraxis plans. Start for free or subscribe to Pro with advanced simulations, full reports and priority support."
+      },
+      "eyebrow": "Plans and Pricing",
+      "title": "Invest in your financial freedom",
+      "subtitle": "Choose the right plan and start managing your finances intelligently.",
+      "mostPopular": "Most popular",
+      "checkoutError": "Error starting checkout. Please try again.",
+      "footnote": "Prices in BRL. Cancel anytime. Billed monthly.",
+      "billing": {
+        "monthly": "Monthly",
+        "annual": "Annual",
+        "toggleAriaLabel": "Toggle between monthly and annual billing",
+        "annualNote": "Paying annually saves you 2 months — no commitment.",
+        "footnoteAnnual": "Prices in BRL. Billed annually. Cancel anytime."
+      },
+      "plans": {
+        "free": {
+          "name": "Free",
+          "features": {
+            "transactions": "Up to 50 transactions/month",
+            "goals": "1 financial goal",
+            "basicReports": "Basic reports",
+            "simulations": "Financial simulations",
+            "sharedEntries": "Shared entries",
+            "support": "Priority support"
+          }
+        },
+        "pro": {
+          "name": "Pro",
+          "features": {
+            "transactions": "Unlimited transactions",
+            "goals": "Unlimited goals",
+            "advancedReports": "Advanced reports",
+            "simulations": "Financial simulations",
+            "sharedEntries": "Shared entries",
+            "support": "Priority support"
+          }
+        }
       }
     },
     "tools": {
@@ -155,10 +192,12 @@
         "none": "No subscription"
       },
       "plans": {
-        "free": { "name": "Free" },
-        "starter": { "name": "Starter" },
-        "pro": { "name": "Pro" },
-        "premium": { "name": "Premium" },
+        "free": {
+          "name": "Free"
+        },
+        "pro": {
+          "name": "Pro"
+        },
         "features": {
           "transactions50": "Up to 50 transactions/month",
           "transactions200": "Up to 200 transactions/month",
@@ -172,6 +211,11 @@
           "sharedEntries": "Shared entries",
           "prioritySupport": "Priority support"
         }
+      },
+      "billing": {
+        "monthly": "Monthly",
+        "annual": "Annual",
+        "toggleAriaLabel": "Toggle between monthly and annual billing"
       }
     },
     "settings": {
@@ -250,6 +294,185 @@
         "remove": "Remove",
         "placeholder": "Card name"
       }
+    },
+    "checkout": {
+      "success": {
+        "meta": {
+          "title": "Subscription activated",
+          "description": "Your Auraxis subscription has been activated successfully."
+        },
+        "title": "Subscription activated!",
+        "description": "Welcome to Auraxis. Your plan is now active and you have access to all features.",
+        "cta": "Go to Dashboard",
+        "viewSubscription": "View subscription"
+      },
+      "cancel": {
+        "meta": {
+          "title": "Checkout cancelled",
+          "description": "The subscription process was cancelled."
+        },
+        "title": "Checkout cancelled",
+        "description": "You cancelled the subscription process. No charges were made.",
+        "cta": "View plans again",
+        "backToDashboard": "Back to Dashboard"
+      }
+    },
+    "confirmEmail": {
+      "meta": {
+        "title": "Confirm email",
+        "description": "Confirm your email address to activate your account."
+      },
+      "confirming": "Confirming your email…",
+      "wait": "Please wait a moment.",
+      "successTitle": "Email confirmed!",
+      "successDescription": "Your account is active. You can now use all Auraxis features.",
+      "cta": "Go to Dashboard",
+      "errorTitle": "Invalid or expired link",
+      "errorDescription": "The confirmation link is invalid or has expired. Please request a new one.",
+      "resendCta": "Resend confirmation email",
+      "noTokenTitle": "Link not found",
+      "noTokenDescription": "Access the link sent to your email to confirm your account."
+    },
+    "resendConfirmation": {
+      "meta": {
+        "title": "Resend confirmation",
+        "description": "Request a new account confirmation email."
+      },
+      "title": "Confirm your email",
+      "description": "Haven't confirmed your email address yet? Click below to receive a new confirmation link.",
+      "cta": "Resend email",
+      "sent": "Email sent! Check your inbox and spam folder.",
+      "error": "Could not send the email. Please try again.",
+      "skip": "Do this later"
+    },
+    "confirmEmailPending": {
+      "meta": {
+        "title": "Confirm your email"
+      },
+      "title": "Check your email",
+      "description": "We sent a confirmation link to",
+      "deadline": {
+        "heading": "Confirm within 7 days",
+        "body": "After that period, access to some features will be limited until you confirm."
+      },
+      "benefits": {
+        "access": "Full access to all features",
+        "recovery": "Account recovery via email",
+        "notifications": "Important notifications and alerts"
+      },
+      "resent": "Email resent! Check your inbox.",
+      "resendError": "Could not resend the email. Please try again.",
+      "resendCta": "Resend email",
+      "resentCta": "Email sent",
+      "skip": "Skip for now",
+      "skipNote": "You have up to 7 days to confirm your email. After that, some features may be restricted."
+    },
+    "installmentVsCash": {
+      "seo": {
+        "title": "Installment vs Cash — Financial Calculator",
+        "description": "Find out whether it's worth paying in installments or upfront. Calculate the opportunity cost and make the best financial decision.",
+        "ogTitle": "Installment vs Cash — Auraxis",
+        "ogDescription": "Free calculator to compare installment payments and lump-sum payments."
+      },
+      "faq": {
+        "q1": "How do I know whether to pay in installments or upfront?",
+        "a1": "Compare the total cost of installments with the return the money would earn if invested. If the return exceeds the interest cost, paying upfront is more advantageous.",
+        "q2": "What is opportunity cost?",
+        "a2": "It is the value you forgo by tying up your money. By paying upfront, you give up the return that capital would have earned if invested."
+      },
+      "header": {
+        "publicTool": "Free tool",
+        "otherTools": "Other tools",
+        "createAccount": "Create account"
+      },
+      "hero": {
+        "badge": "Free calculator",
+        "title": "Installment vs Cash",
+        "subtitle": "Discover whether it is worth paying in installments or using your cash upfront by factoring in opportunity cost.",
+        "featureBasic": "Free calculation",
+        "featureBasicDesc": "Compare installment and lump-sum scenarios without needing an account.",
+        "featureAdvanced": "Save and plan",
+        "featureAdvancedDesc": "With a free account, save simulations and turn them into goals or planned expenses."
+      },
+      "errors": {
+        "calculate": "Calculation error. Check your data and try again.",
+        "validateForm": "Please fill in all required fields.",
+        "noSimulation": "No simulation found.",
+        "save": "Error saving the simulation. Please try again.",
+        "saveBeforeGoal": "Save the simulation before creating a goal.",
+        "saveBeforeExpense": "Save the simulation before creating an expense.",
+        "goalPrefill": "Error prefilling goal data.",
+        "goalSubmit": "Error creating goal. Please try again.",
+        "expensePrefill": "Error prefilling expense data.",
+        "expenseSubmit": "Error creating expense. Please try again."
+      },
+      "success": {
+        "saved": "Simulation saved successfully!",
+        "goalCreated": "Goal created successfully!",
+        "expensesCreated": "{count} transaction(s) created successfully!"
+      },
+      "results": {
+        "nextStep": "Next step"
+      },
+      "seoSection": {
+        "considers": "What does this calculator consider?",
+        "considersDesc": "Installment interest, potential capital return, and real opportunity cost.",
+        "notReplaces": "This tool does not replace financial advice",
+        "notReplacesDesc": "Results are estimates based on the data entered. Consult a professional for high-impact decisions.",
+        "howToUse": "How to use?",
+        "howToUseDesc": "Enter the product price, number of installments, interest rate (if any), and your savings yield rate. The calculator does the rest."
+      },
+      "goalModal": {
+        "title": "Create financial goal",
+        "titleLabel": "Goal name",
+        "defaultTitle": "Purchase",
+        "descriptionLabel": "Description (optional)",
+        "targetDateLabel": "Target date",
+        "cancel": "Cancel",
+        "submit": "Create goal"
+      },
+      "expenseModal": {
+        "title": "Create planned expense",
+        "titleLabel": "Expense name",
+        "defaultTitle": "Purchase",
+        "descriptionLabel": "Description (optional)",
+        "modeLabel": "Payment mode",
+        "modeAriaLabel": "Select payment mode",
+        "cashLabel": "Upfront",
+        "installmentLabel": "Installments",
+        "dueDateLabel": "Due date",
+        "firstDueDateLabel": "First installment date",
+        "upfrontDateLabel": "Upfront payment date",
+        "cancel": "Cancel",
+        "submit": "Create expense"
+      },
+      "guestCta": {
+        "ariaLabel": "Create your free account",
+        "badge": "Auraxis — Free",
+        "title": "Liked the tool? Create your free account",
+        "subtitle": "Save simulations, create financial goals, and access the complete financial management ecosystem.",
+        "features": {
+          "portfolio": {
+            "title": "Investment Portfolio",
+            "desc": "Track stocks, REITs, and fixed income in a single dashboard."
+          },
+          "goals": {
+            "title": "Financial Goals",
+            "desc": "Set objectives and track your progress month by month."
+          },
+          "security": {
+            "title": "Security & Privacy",
+            "desc": "Your data is protected and never shared."
+          },
+          "tools": {
+            "title": "More Tools",
+            "desc": "Access advanced simulations and save your results."
+          }
+        },
+        "registerCta": "Create free account",
+        "loginCta": "I already have an account",
+        "trust": "Free forever · No credit card · Cancel anytime"
+      }
     }
   },
   "common": {
@@ -270,7 +493,9 @@
     }
   },
   "investorProfile": {
-    "page": { "title": "Investor Profile" },
+    "page": {
+      "title": "Investor Profile"
+    },
     "wizard": {
       "questionLabel": "Question {current} of {total}",
       "next": "Next",
@@ -344,6 +569,88 @@
       "rememberPassword": "Remember your password?",
       "sendLink": "Send recovery link",
       "sending": "Sending…"
+    },
+    "emailBanner": {
+      "message": "Confirm your email to ensure full access to your account.",
+      "cta": "Confirm email"
+    },
+    "password": {
+      "strength": {
+        "length": "Min. 10 characters",
+        "uppercase": "Uppercase letter",
+        "number": "Number",
+        "special": "Special character",
+        "level": {
+          "weak": "Weak",
+          "fair": "Fair",
+          "good": "Good",
+          "strong": "Strong"
+        }
+      }
+    }
+  },
+  "transaction": {
+    "form": {
+      "title": {
+        "income": "New Income",
+        "expense": "New Expense",
+        "label": "Title",
+        "placeholder": "E.g. March salary"
+      },
+      "amount": {
+        "label": "Amount",
+        "placeholder": "0.00"
+      },
+      "dueDate": {
+        "label": "Due date"
+      },
+      "tag": {
+        "label": "Category",
+        "placeholder": "Select a category"
+      },
+      "account": {
+        "label": "Account",
+        "placeholder": "Select an account"
+      },
+      "creditCard": {
+        "label": "Credit card",
+        "placeholder": "Select a card"
+      },
+      "status": {
+        "label": "Status"
+      },
+      "installment": {
+        "label": "Split into installments?"
+      },
+      "installmentCount": {
+        "label": "Number of installments",
+        "placeholder": "E.g. 12"
+      },
+      "recurring": {
+        "label": "Recurring?"
+      },
+      "endDate": {
+        "label": "Repeat until (optional)"
+      },
+      "description": {
+        "label": "Notes",
+        "placeholder": "Additional notes about this entry"
+      },
+      "errorTitle": "Save failed",
+      "errorFallback": "Could not save the entry. Please try again.",
+      "required": {
+        "title": "Please enter a title",
+        "amount": "Please enter an amount",
+        "dueDate": "Please select a date",
+        "installmentCount": "Please enter the number of installments"
+      }
+    },
+    "status": {
+      "pending": "Pending",
+      "paid": "Paid / Received",
+      "cancelled": "Cancelled",
+      "postponed": "Postponed",
+      "overdue": "Overdue"
     }
   },
   "transaction": {
@@ -767,7 +1074,8 @@
       "free": "Free",
       "pricePerMonth": "{price}/month",
       "currentPlan": "Current plan",
-      "subscribe": "Subscribe"
+      "subscribe": "Subscribe",
+      "billedAnnually": "Billed {total}/year"
     }
   },
   "paywall": {
@@ -840,6 +1148,13 @@
         "title": "Security first",
         "description": "Your data protected with secure authentication and encryption."
       }
+    }
+  },
+  "billing": {
+    "banner": {
+      "pastDueMessage": "Your payment is past due. Update your payment method to keep your access.",
+      "canceledMessage": "Your subscription has been cancelled. Renew your plan to restore full access.",
+      "cta": "Manage subscription"
     }
   }
 }

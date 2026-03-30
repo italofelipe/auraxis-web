@@ -32,7 +32,11 @@ export interface CheckoutResponseDto {
 
 // ── View-layer DTOs (used by PlanCard, subscription page, mocks) ──
 
-export type PlanSlug = "free" | "starter" | "pro" | "premium";
+/** Available plan tiers. The platform offers a single paid tier ("pro"). */
+export type PlanSlug = "free" | "pro";
+
+/** Billing frequency chosen by the user at checkout. */
+export type BillingCycle = "monthly" | "annual";
 
 export type SubscriptionStatus =
   | "active"
@@ -49,7 +53,10 @@ export type PlanFeature = {
 export type PlanDto = {
   readonly slug: PlanSlug;
   readonly name: string;
+  /** Price when billed monthly, in BRL. */
   readonly price_monthly: number;
+  /** Effective monthly price when billed annually, in BRL. 0 for free plans. */
+  readonly price_annual: number;
   readonly features: PlanFeature[];
 };
 
