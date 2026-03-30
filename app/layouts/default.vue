@@ -9,6 +9,7 @@ import {
   Calculator,
   CreditCard,
   User,
+  ArrowLeftRight,
 } from "lucide-vue-next";
 // UiAppShell and ProfileCompletionModal are auto-imported from app/components/.
 import type { AppShellNavItem, AppShellUser } from "~/components/ui/UiAppShell/UiAppShell.types";
@@ -25,6 +26,7 @@ useUserProfileQuery();
 
 const NAV_ITEMS = computed<AppShellNavItem[]>(() => [
   { key: "dashboard", label: t("nav.dashboard"), to: "/dashboard", icon: LayoutDashboard },
+  { key: "transactions", label: t("nav.transactions"), to: "/transactions", icon: ArrowLeftRight },
   { key: "portfolio", label: t("nav.portfolio"), to: "/portfolio", icon: Briefcase },
   { key: "goals", label: t("nav.goals"), to: "/goals", icon: Target },
   { key: "alerts", label: t("nav.alerts"), to: "/alerts", icon: Bell },

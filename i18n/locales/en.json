@@ -8,7 +8,8 @@
     "sharedEntries": "Shared Entries",
     "tools": "Tools",
     "subscription": "Subscription",
-    "personalData": "Personal Data"
+    "personalData": "Personal Data",
+    "transactions": "Transactions"
   },
   "user": {
     "fallbackName": "User",
@@ -606,11 +607,13 @@
       },
       "tag": {
         "label": "Category",
-        "placeholder": "Select a category"
+        "placeholder": "Select a category",
+        "createHint": "No categories. Create in Settings → Tags"
       },
       "account": {
         "label": "Account",
-        "placeholder": "Select an account"
+        "placeholder": "Select an account",
+        "createHint": "No accounts. Create in Settings → Accounts"
       },
       "creditCard": {
         "label": "Credit card",
@@ -1091,6 +1094,39 @@
       "pastDueMessage": "Your payment is past due. Update your payment method to keep your access.",
       "canceledMessage": "Your subscription has been cancelled. Renew your plan to restore full access.",
       "cta": "Manage subscription"
+    }
+  },
+  "transactions": {
+    "title": "Transactions",
+    "subtitle": "Recorded income and expenses",
+    "addIncome": "New Income",
+    "addExpense": "New Expense",
+    "recurring": "Recurring",
+    "installment": "{count}x",
+    "count": "{n} transactions",
+    "loadError": "Could not load transactions",
+    "loadErrorMessage": "Try reloading the page.",
+    "filter": {
+      "all": "All",
+      "income": "Income",
+      "expense": "Expenses"
+    },
+    "sort": {
+      "date": "Date",
+      "amount": "Amount",
+      "title": "Title",
+      "status": "Status",
+      "recurring": "Recurrence",
+      "asc": "Ascending",
+      "desc": "Descending"
+    },
+    "summary": {
+      "income": "Total Income",
+      "expense": "Total Expenses"
+    },
+    "empty": {
+      "title": "No transactions found",
+      "description": "Add your first income or expense to get started."
     }
   }
 }
