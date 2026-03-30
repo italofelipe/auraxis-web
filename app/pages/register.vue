@@ -20,7 +20,7 @@ const captcha = useCaptcha();
 /**
  * Submits the registration form.
  *
- * Obtains a reCAPTCHA v3 token before sending the request. After a successful
+ * Obtains a Cloudflare Turnstile token before sending the request. After a successful
  * registration the user is already signed in via the mutation's onSuccess hook
  * (see useRegisterMutation). We redirect directly to the email-confirmation
  * landing page so the user can either confirm or skip.
@@ -30,7 +30,7 @@ const captcha = useCaptcha();
 const onSubmit = async (values: RegisterSchema): Promise<void> => {
   const { confirmPassword: _discard, ...registerPayload } = values;
   try {
-    const captchaToken = await captcha.execute("register");
+    const captchaToken = await captcha.execute();
     await registerMutation.mutateAsync({ ...registerPayload, captchaToken });
     message.success(t("auth.register.successToast"), { duration: 3000 });
     // The mutation's onSuccess already calls sessionStore.signIn(), so the

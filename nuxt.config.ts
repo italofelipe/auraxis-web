@@ -138,7 +138,11 @@ export default defineNuxtConfig({
       // BRAPI public API key for ticker autocomplete and market data.
       // Register at https://brapi.dev to obtain a key.
       brapiApiKey: process.env.NUXT_PUBLIC_BRAPI_API_KEY ?? "",
-      recaptchaSiteKey: process.env.NUXT_PUBLIC_RECAPTCHA_SITE_KEY ?? "",
+      // Cloudflare Turnstile public site key (invisible CAPTCHA).
+      // Set CLOUDFLARE_TURNSTILE_SITE_KEY in the environment. When empty
+      // (local dev without a key) useCaptcha() resolves to null — the form
+      // still submits and the backend accepts a null captchaToken in dev mode.
+      turnstileSiteKey: process.env.CLOUDFLARE_TURNSTILE_SITE_KEY ?? "",
     },
   },
 
