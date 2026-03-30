@@ -10,22 +10,22 @@ const mockHttp = {
 describe("AuthEmailClient", () => {
   const client = new AuthEmailClient(mockHttp);
 
-  it("calls GET /auth/confirm-email with the token param", async () => {
-    vi.mocked(mockHttp.get).mockResolvedValueOnce({ data: { success: true } });
+  it("calls POST /auth/email/confirm with the token in the JSON body", async () => {
+    vi.mocked(mockHttp.post).mockResolvedValueOnce({ data: { success: true } });
     await client.confirmEmail("abc123");
-    expect(mockHttp.get).toHaveBeenCalledWith("/auth/confirm-email", {
-      params: { token: "abc123" },
+    expect(mockHttp.post).toHaveBeenCalledWith("/auth/email/confirm", {
+      token: "abc123",
     });
   });
 
-  it("calls POST /auth/resend-confirmation", async () => {
+  it("calls POST /auth/email/resend", async () => {
     vi.mocked(mockHttp.post).mockResolvedValueOnce({ data: { success: true } });
     await client.resendConfirmation();
-    expect(mockHttp.post).toHaveBeenCalledWith("/auth/resend-confirmation");
+    expect(mockHttp.post).toHaveBeenCalledWith("/auth/email/resend");
   });
 
   it("propagates errors from confirmEmail", async () => {
-    vi.mocked(mockHttp.get).mockRejectedValueOnce(new Error("Network error"));
+    vi.mocked(mockHttp.post).mockRejectedValueOnce(new Error("Network error"));
     await expect(client.confirmEmail("bad-token")).rejects.toThrow("Network error");
   });
 

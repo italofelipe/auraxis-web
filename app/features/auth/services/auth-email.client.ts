@@ -27,19 +27,21 @@ export class AuthEmailClient {
   /**
    * Confirms the user's email address using the one-time token sent by email.
    *
+   * Backend: POST /auth/email/confirm — expects `{ token }` as JSON body.
+   *
    * @param token Confirmation token extracted from the URL query param.
    */
   async confirmEmail(token: string): Promise<void> {
-    await this.#http.get<AuthEmailResponse>("/auth/confirm-email", {
-      params: { token },
-    });
+    await this.#http.post<AuthEmailResponse>("/auth/email/confirm", { token });
   }
 
   /**
    * Requests a new confirmation email for the authenticated user.
+   *
+   * Backend: POST /auth/email/resend
    */
   async resendConfirmation(): Promise<void> {
-    await this.#http.post<AuthEmailResponse>("/auth/resend-confirmation");
+    await this.#http.post<AuthEmailResponse>("/auth/email/resend");
   }
 }
 
