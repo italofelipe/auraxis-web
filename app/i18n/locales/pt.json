@@ -346,6 +346,70 @@
       "sending": "Enviando…"
     }
   },
+  "transaction": {
+    "form": {
+      "title": {
+        "income": "Nova Receita",
+        "expense": "Nova Despesa",
+        "label": "Título",
+        "placeholder": "Ex: Salário de março"
+      },
+      "amount": {
+        "label": "Valor",
+        "placeholder": "0,00"
+      },
+      "dueDate": {
+        "label": "Data de vencimento"
+      },
+      "tag": {
+        "label": "Categoria",
+        "placeholder": "Selecione uma categoria"
+      },
+      "account": {
+        "label": "Conta",
+        "placeholder": "Selecione uma conta"
+      },
+      "creditCard": {
+        "label": "Cartão de crédito",
+        "placeholder": "Selecione um cartão"
+      },
+      "status": {
+        "label": "Status"
+      },
+      "installment": {
+        "label": "Parcelado?"
+      },
+      "installmentCount": {
+        "label": "Número de parcelas",
+        "placeholder": "Ex: 12"
+      },
+      "recurring": {
+        "label": "Recorrente?"
+      },
+      "endDate": {
+        "label": "Repetir até (opcional)"
+      },
+      "description": {
+        "label": "Observações",
+        "placeholder": "Notas adicionais sobre este lançamento"
+      },
+      "errorTitle": "Erro ao salvar",
+      "errorFallback": "Não foi possível salvar o lançamento. Tente novamente.",
+      "required": {
+        "title": "Informe o título",
+        "amount": "Informe o valor",
+        "dueDate": "Selecione a data",
+        "installmentCount": "Informe o número de parcelas"
+      }
+    },
+    "status": {
+      "pending": "Pendente",
+      "paid": "Pago / Recebido",
+      "cancelled": "Cancelado",
+      "postponed": "Adiado",
+      "overdue": "Vencido"
+    }
+  },
   "wallet": {
     "form": {
       "title": "Adicionar ativo",
@@ -593,6 +657,10 @@
     },
     "periodSelector": {
       "ariaLabel": "Selecionar período"
+    },
+    "quickAdd": {
+      "income": "Nova Receita",
+      "expense": "Nova Despesa"
     }
   },
   "receivable": {
