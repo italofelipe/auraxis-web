@@ -55,6 +55,13 @@ const emptyMessage = computed(() =>
 
 <template>
   <div class="dashboard-page">
+
+    <!-- ── Quick-add bar ──────────────────────────────────────────────────── -->
+    <div class="dashboard-page__topbar">
+      <DashboardQuickAdd />
+    </div>
+
+    <!-- ── Period controls ────────────────────────────────────────────────── -->
     <div class="dashboard-page__controls">
       <DashboardPeriodSelector
         v-if="isQuickSelectPeriod"
@@ -178,6 +185,13 @@ const emptyMessage = computed(() =>
 .dashboard-page {
   display: grid;
   gap: var(--space-3);
+}
+
+.dashboard-page__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
 }
 
 .dashboard-page__controls {
