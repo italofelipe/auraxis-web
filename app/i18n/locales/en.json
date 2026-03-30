@@ -1148,6 +1148,10 @@
     },
     "action": {
       "markPaid": "Mark as paid",
+      "markPaidConfirm": "Confirm payment",
+      "markPaidConfirmDesc": "Mark \"{title}\" ({amount}) as paid?",
+      "markPaidConfirmYes": "Confirm",
+      "markPaidConfirmNo": "Cancel",
       "edit": "Edit",
       "delete": "Delete",
       "deleteConfirm": "Do you want to delete this transaction? This action cannot be undone.",

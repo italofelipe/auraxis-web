@@ -76,7 +76,7 @@ export interface TransactionDto {
   readonly id: string;
   readonly title: string;
   readonly amount: string;
-  readonly type: string;
+  readonly type: TransactionTypeDto;
   readonly due_date: string;
   readonly description: string | null;
   readonly observation: string | null;
@@ -84,7 +84,7 @@ export interface TransactionDto {
   readonly is_installment: boolean;
   readonly installment_count: number | null;
   readonly currency: string;
-  readonly status: string;
+  readonly status: TransactionStatusDto;
   readonly start_date: string | null;
   readonly end_date: string | null;
   readonly tag_id: string | null;
