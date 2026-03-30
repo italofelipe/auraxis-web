@@ -1030,7 +1030,7 @@
     },
     "inviteForm": {
       "emailLabel": "Guest email",
-      "emailPlaceholder": "name@example.com",
+      "emailPlaceholder": "name{'@'}example.com",
       "submit": "Invite",
       "error": "Error sending invite. Please try again."
     },

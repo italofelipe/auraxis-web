@@ -1030,7 +1030,7 @@
     },
     "inviteForm": {
       "emailLabel": "E-mail do convidado",
-      "emailPlaceholder": "nome@exemplo.com",
+      "emailPlaceholder": "nome{'@'}exemplo.com",
       "submit": "Convidar",
       "error": "Erro ao enviar convite. Tente novamente."
     },
