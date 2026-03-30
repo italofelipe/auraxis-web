@@ -591,6 +591,9 @@
     }
   },
   "transaction": {
+    "edit": {
+      "title": "Editar transação"
+    },
     "form": {
       "title": {
         "income": "Nova Receita",
@@ -1112,7 +1115,7 @@
     "addExpense": "Nova Despesa",
     "recurring": "Recorrente",
     "installment": "{count}x",
-    "count": "{n} transações",
+    "count": "{n} transação | {n} transações",
     "loadError": "Não foi possível carregar as transações",
     "loadErrorMessage": "Tente recarregar a página.",
     "filter": {
@@ -1148,6 +1151,10 @@
     },
     "action": {
       "markPaid": "Marcar como pago",
+      "markPaidConfirm": "Confirmar pagamento",
+      "markPaidConfirmDesc": "Marcar \"{title}\" ({amount}) como pago?",
+      "markPaidConfirmYes": "Confirmar",
+      "markPaidConfirmNo": "Cancelar",
       "edit": "Editar",
       "delete": "Excluir",
       "deleteConfirm": "Deseja excluir esta transação? Esta ação não pode ser desfeita.",

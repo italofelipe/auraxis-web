@@ -64,6 +64,12 @@ const showExpense = ref(false);
 const deleteTarget = ref<TransactionDto | null>(null);
 const showDeleteConfirm = ref(false);
 
+const payTarget = ref<TransactionDto | null>(null);
+const showPayConfirm = ref(false);
+
+const editTarget = ref<TransactionDto | null>(null);
+const showEditModal = ref(false);
+
 // ── Reorder / drag state ──────────────────────────────────────────────────────
 
 const reorderMode = ref(false);
@@ -250,22 +256,38 @@ const confirmDelete = (): void => {
 };
 
 /**
- * Marks a transaction as paid via mutation.
+ * Opens the pay confirmation modal for the given row.
+ *
+ * Used by both the action button and the swipe-right gesture so the user
+ * always gets an explicit confirmation before financial state is changed.
  *
  * @param row Transaction to mark as paid.
  */
 const handleMarkPaid = (row: TransactionDto): void => {
   if (row.status === "paid") { return; }
-  markPaidMutation.mutate(row.id);
+  payTarget.value = row;
+  showPayConfirm.value = true;
+};
+
+/** Confirms and executes the pending mark-as-paid mutation. */
+const confirmMarkPaid = (): void => {
+  if (!payTarget.value) { return; }
+  markPaidMutation.mutate(payTarget.value.id, {
+    onSuccess: () => {
+      showPayConfirm.value = false;
+      payTarget.value = null;
+    },
+  });
 };
 
 /**
- * Stubs the edit action until an edit form is available.
+ * Opens the edit modal pre-filled with the given row's data.
  *
- * @param _row Transaction to edit (unused until edit modal is implemented).
+ * @param row Transaction to edit.
  */
-const handleEdit = (_row: TransactionDto): void => {
-  // TODO: open edit modal
+const handleEdit = (row: TransactionDto): void => {
+  editTarget.value = row;
+  showEditModal.value = true;
 };
 
 /** Called by quick-add modals on successful creation. */
@@ -660,6 +682,14 @@ const rowKey = (row: TransactionDto): string => row.id;
       @success="onTransactionCreated"
     />
 
+    <!-- ── Edit modal ───────────────────────────────────────────────────────── -->
+    <EditTransactionModal
+      :visible="showEditModal"
+      :transaction="editTarget"
+      @update:visible="showEditModal = $event"
+      @success="onTransactionCreated"
+    />
+
     <!-- ── Delete confirmation ───────────────────────────────────────────────── -->
     <NModal
       :show="showDeleteConfirm"
@@ -673,6 +703,21 @@ const rowKey = (row: TransactionDto): string => row.id;
       @positive-click="confirmDelete"
       @negative-click="showDeleteConfirm = false"
       @close="showDeleteConfirm = false"
+    />
+
+    <!-- ── Pay confirmation ──────────────────────────────────────────────────── -->
+    <NModal
+      :show="showPayConfirm"
+      preset="dialog"
+      type="success"
+      :title="$t('transactions.action.markPaidConfirm')"
+      :content="payTarget ? $t('transactions.action.markPaidConfirmDesc', { title: payTarget.title, amount: formatCurrency(parseFloat(payTarget.amount)) }) : ''"
+      :positive-text="$t('transactions.action.markPaidConfirmYes')"
+      :negative-text="$t('transactions.action.markPaidConfirmNo')"
+      :loading="markPaidMutation.isPending.value"
+      @positive-click="confirmMarkPaid"
+      @negative-click="showPayConfirm = false"
+      @close="showPayConfirm = false"
     />
 
     <!-- ── Summary strip ─────────────────────────────────────────────────────── -->

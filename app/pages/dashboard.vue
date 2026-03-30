@@ -141,11 +141,6 @@ const emptyMessage = computed(() =>
         </section>
 
         <section class="dashboard-main-grid">
-          <DashboardTimeseriesChart
-            :data="timeseries"
-            :is-loading="dashboardQuery.isLoading.value"
-          />
-
           <DashboardAlerts
             :alerts="alerts"
             :is-loading="dashboardQuery.isLoading.value"
