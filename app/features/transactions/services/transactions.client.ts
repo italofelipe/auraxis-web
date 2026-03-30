@@ -4,6 +4,8 @@ import { useHttp } from "~/composables/useHttp";
 import type {
   CreateTransactionPayload,
   TransactionDto,
+  TransactionStatusDto,
+  TransactionTypeDto,
 } from "~/features/transactions/contracts/transaction.dto";
 
 /**
@@ -22,6 +24,31 @@ interface TransactionCreateResponseEnvelope {
   // Legacy flat shape (no envelope) — kept for backward compat:
   readonly transaction?: TransactionDto | TransactionDto[];
   readonly transactions?: TransactionDto | TransactionDto[];
+}
+
+/**
+ * Raw envelope returned by GET /transactions.
+ *
+ * Accepts both the v2 envelope shape (`data.transactions`) and a bare
+ * array for backward compatibility.
+ */
+interface TransactionListResponseEnvelope {
+  readonly data?: {
+    readonly transactions?: TransactionDto[];
+  };
+  readonly transactions?: TransactionDto[];
+}
+
+/** Optional filters accepted by GET /transactions. */
+export interface ListTransactionsFilters {
+  /** Filter by transaction type. */
+  readonly type?: TransactionTypeDto;
+  /** Filter by lifecycle status. */
+  readonly status?: TransactionStatusDto;
+  /** Earliest due_date to include (YYYY-MM-DD). */
+  readonly start_date?: string;
+  /** Latest due_date to include (YYYY-MM-DD). */
+  readonly end_date?: string;
 }
 
 /**
@@ -66,6 +93,63 @@ export class TransactionsClient {
       ?? [];
 
     return Array.isArray(items) ? items : [items];
+  }
+
+  /**
+   * Permanently removes a transaction.
+   *
+   * @param id UUID of the transaction to delete.
+   */
+  async deleteTransaction(id: string): Promise<void> {
+    await this.#http.delete(`/transactions/${id}`);
+  }
+
+  /**
+   * Updates a transaction's status.
+   *
+   * Used primarily to mark a transaction as "paid". The backend accepts any
+   * valid TransactionStatusDto via PATCH /transactions/:id.
+   *
+   * @param id    UUID of the transaction to update.
+   * @param status New lifecycle status.
+   * @returns Updated TransactionDto.
+   */
+  async updateStatus(id: string, status: TransactionStatusDto): Promise<TransactionDto> {
+    const response = await this.#http.patch<
+      | { data?: { transaction?: TransactionDto }; transaction?: TransactionDto }
+      | TransactionDto
+    >(`/transactions/${id}`, { status });
+
+    const raw = response.data as {
+      data?: { transaction?: TransactionDto };
+      transaction?: TransactionDto;
+    } & Partial<TransactionDto>;
+
+    return raw.data?.transaction ?? raw.transaction ?? (raw as unknown as TransactionDto);
+  }
+
+  /**
+   * Lists the authenticated user's transactions, optionally filtered by
+   * type, status and date range.
+   *
+   * @param filters Optional query-parameter filters.
+   * @returns Array of TransactionDto records.
+   */
+  async listTransactions(filters?: ListTransactionsFilters): Promise<TransactionDto[]> {
+    const response = await this.#http.get<TransactionListResponseEnvelope | TransactionDto[]>(
+      "/transactions",
+      { params: filters },
+    );
+
+    const raw = response.data;
+
+    if (Array.isArray(raw)) {
+      return raw;
+    }
+
+    return (raw as TransactionListResponseEnvelope).data?.transactions
+      ?? (raw as TransactionListResponseEnvelope).transactions
+      ?? [];
   }
 }
 

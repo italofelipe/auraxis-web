@@ -8,7 +8,8 @@
     "sharedEntries": "Lançamentos Compartilhados",
     "tools": "Ferramentas",
     "subscription": "Assinatura",
-    "personalData": "Dados Pessoais"
+    "personalData": "Dados Pessoais",
+    "transactions": "Transações"
   },
   "user": {
     "fallbackName": "Usuário",
@@ -606,75 +607,13 @@
       },
       "tag": {
         "label": "Categoria",
-        "placeholder": "Selecione uma categoria"
+        "placeholder": "Selecione uma categoria",
+        "createHint": "Nenhuma categoria. Criar em Configurações → Tags"
       },
       "account": {
         "label": "Conta",
-        "placeholder": "Selecione uma conta"
-      },
-      "creditCard": {
-        "label": "Cartão de crédito",
-        "placeholder": "Selecione um cartão"
-      },
-      "status": {
-        "label": "Status"
-      },
-      "installment": {
-        "label": "Parcelado?"
-      },
-      "installmentCount": {
-        "label": "Número de parcelas",
-        "placeholder": "Ex: 12"
-      },
-      "recurring": {
-        "label": "Recorrente?"
-      },
-      "endDate": {
-        "label": "Repetir até (opcional)"
-      },
-      "description": {
-        "label": "Observações",
-        "placeholder": "Notas adicionais sobre este lançamento"
-      },
-      "errorTitle": "Erro ao salvar",
-      "errorFallback": "Não foi possível salvar o lançamento. Tente novamente.",
-      "required": {
-        "title": "Informe o título",
-        "amount": "Informe o valor",
-        "dueDate": "Selecione a data",
-        "installmentCount": "Informe o número de parcelas"
-      }
-    },
-    "status": {
-      "pending": "Pendente",
-      "paid": "Pago / Recebido",
-      "cancelled": "Cancelado",
-      "postponed": "Adiado",
-      "overdue": "Vencido"
-    }
-  },
-  "transaction": {
-    "form": {
-      "title": {
-        "income": "Nova Receita",
-        "expense": "Nova Despesa",
-        "label": "Título",
-        "placeholder": "Ex: Salário de março"
-      },
-      "amount": {
-        "label": "Valor",
-        "placeholder": "0,00"
-      },
-      "dueDate": {
-        "label": "Data de vencimento"
-      },
-      "tag": {
-        "label": "Categoria",
-        "placeholder": "Selecione uma categoria"
-      },
-      "account": {
-        "label": "Conta",
-        "placeholder": "Selecione uma conta"
+        "placeholder": "Selecione uma conta",
+        "createHint": "Nenhuma conta. Criar em Configurações → Contas"
       },
       "creditCard": {
         "label": "Cartão de crédito",
@@ -968,6 +907,15 @@
     "quickAdd": {
       "income": "Nova Receita",
       "expense": "Nova Despesa"
+    },
+    "charts": {
+      "incomeExpense": "Receita vs Despesa",
+      "incomeExpenseSubtitle": "Comparativo do período",
+      "timeline": "Evolução financeira",
+      "timelineSubtitle": "Movimentações ao longo do período",
+      "income": "Receita",
+      "expense": "Despesa",
+      "balance": "Saldo"
     }
   },
   "receivable": {
@@ -1155,6 +1103,68 @@
       "pastDueMessage": "Seu pagamento está em atraso. Atualize seu método de pagamento para não perder o acesso.",
       "canceledMessage": "Sua assinatura foi cancelada. Renove seu plano para recuperar o acesso completo.",
       "cta": "Gerenciar assinatura"
+    }
+  },
+  "transactions": {
+    "title": "Transações",
+    "subtitle": "Receitas e despesas registradas",
+    "addIncome": "Nova Receita",
+    "addExpense": "Nova Despesa",
+    "recurring": "Recorrente",
+    "installment": "{count}x",
+    "count": "{n} transações",
+    "loadError": "Não foi possível carregar as transações",
+    "loadErrorMessage": "Tente recarregar a página.",
+    "filter": {
+      "all": "Todos",
+      "income": "Receitas",
+      "expense": "Despesas"
+    },
+    "sort": {
+      "date": "Data",
+      "amount": "Valor",
+      "title": "Título",
+      "status": "Status",
+      "recurring": "Recorrência",
+      "asc": "Crescente",
+      "desc": "Decrescente"
+    },
+    "summary": {
+      "income": "Total Receitas",
+      "expense": "Total Despesas"
+    },
+    "empty": {
+      "title": "Nenhuma transação encontrada",
+      "description": "Adicione sua primeira receita ou despesa para começar."
+    },
+    "table": {
+      "status": "Status",
+      "date": "Data",
+      "description": "Descrição",
+      "category": "Categoria",
+      "account": "Conta",
+      "amount": "Valor",
+      "actions": "Ações"
+    },
+    "action": {
+      "markPaid": "Marcar como pago",
+      "edit": "Editar",
+      "delete": "Excluir",
+      "deleteConfirm": "Deseja excluir esta transação? Esta ação não pode ser desfeita.",
+      "deleteConfirmYes": "Excluir",
+      "deleteConfirmNo": "Cancelar"
+    },
+    "status": {
+      "nearDue": "Vence em breve"
+    },
+    "reorder": {
+      "enter": "Reordenar",
+      "exit": "Concluir",
+      "hint": "Arraste as linhas para reorganizar a visualização"
+    },
+    "swipe": {
+      "payHint": "Deslize → para pagar",
+      "deleteHint": "Deslize ← para excluir"
     }
   }
 }
