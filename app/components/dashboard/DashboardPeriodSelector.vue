@@ -28,7 +28,7 @@ const handleSelect = (period: DashboardPeriod): void => {
 </script>
 
 <template>
-  <div class="period-selector" role="group" aria-label="Selecionar período">
+  <div class="period-selector" role="group" :aria-label="$t('dashboard.periodSelector.ariaLabel')">
     <button
       v-for="option in PERIOD_OPTIONS"
       :key="option.value"

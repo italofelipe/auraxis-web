@@ -3,6 +3,7 @@ import { useForgotPasswordForm } from "~/composables/useAuth";
 import type { ForgotPasswordSchema } from "~/schemas/auth";
 import type { ForgotPasswordFormProps, ForgotPasswordFormEmits } from "./ForgotPasswordForm.types";
 
+
 const props = withDefaults(defineProps<ForgotPasswordFormProps>(), {
   loading: false,
   success: false,
@@ -26,13 +27,12 @@ const isPending = computed(() => props.loading || isSubmitting.value);
     <template v-if="props.success">
       <div class="forgot-form__success">
         <span class="forgot-form__success-icon" aria-hidden="true">📬</span>
-        <h1 class="forgot-form__title">E-mail enviado</h1>
+        <h1 class="forgot-form__title">{{ $t('auth.forgotPassword.successTitle') }}</h1>
         <p class="forgot-form__subtitle">
-          Se esse e-mail estiver cadastrado, você receberá um link de recuperação em instantes.
-          Verifique também sua pasta de spam.
+          {{ $t('auth.forgotPassword.successMessage') }}
         </p>
         <NuxtLink to="/login" class="forgot-form__back-link">
-          Voltar para o login
+          {{ $t('auth.forgotPassword.backToLogin') }}
         </NuxtLink>
       </div>
     </template>
@@ -40,15 +40,15 @@ const isPending = computed(() => props.loading || isSubmitting.value);
     <!-- Form state -->
     <template v-else>
       <div class="forgot-form__header">
-        <h1 class="forgot-form__title">Recuperar senha</h1>
+        <h1 class="forgot-form__title">{{ $t('auth.forgotPassword.title') }}</h1>
         <p class="forgot-form__subtitle">
-          Informe seu e-mail e enviaremos um link para redefinir sua senha.
+          {{ $t('auth.forgotPassword.subtitle') }}
         </p>
       </div>
 
       <form class="forgot-form__fields" novalidate @submit.prevent="onSubmit">
         <UiFormField
-          label="E-mail"
+          :label="$t('auth.forgotPassword.emailLabel')"
           field-id="forgot-email"
           :error="errors.email"
           required
@@ -59,7 +59,7 @@ const isPending = computed(() => props.loading || isSubmitting.value);
             class="forgot-form__input"
             :class="{ 'forgot-form__input--error': !!errors.email }"
             type="email"
-            placeholder="seu@email.com"
+            :placeholder="$t('auth.forgotPassword.emailPlaceholder')"
             autocomplete="email"
             :disabled="isPending"
             v-bind="emailAttrs"
@@ -73,14 +73,14 @@ const isPending = computed(() => props.loading || isSubmitting.value);
           :aria-busy="isPending"
         >
           <span v-if="isPending" class="forgot-form__spinner" aria-hidden="true" />
-          {{ isPending ? "Enviando…" : "Enviar link de recuperação" }}
+          {{ isPending ? $t('auth.forgotPassword.sending') : $t('auth.forgotPassword.sendLink') }}
         </button>
       </form>
 
       <p class="forgot-form__login">
-        Lembrou a senha?
+        {{ $t('auth.forgotPassword.rememberPassword') }}
         <NuxtLink to="/login" class="forgot-form__link">
-          Voltar para o login
+          {{ $t('auth.forgotPassword.backToLogin') }}
         </NuxtLink>
       </p>
     </template>

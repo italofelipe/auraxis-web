@@ -3,6 +3,7 @@ import { NCard, NEmpty, NSkeleton, NSpace } from "naive-ui";
 
 import type { AlertPreference } from "~/features/alerts/model/alerts";
 
+
 interface Props {
   /** List of alert preferences to display. */
   preferences: AlertPreference[];
@@ -36,7 +37,7 @@ const onToggle = (category: string, enabled: boolean): void => {
 </script>
 
 <template>
-  <NCard title="Preferências de Alertas">
+  <NCard :title="$t('alert.preferences.title')">
     <!-- Loading skeletons -->
     <NSpace v-if="isLoading" vertical :size="12">
       <NSkeleton v-for="n in 4" :key="n" height="52px" :sharp="false" />
@@ -45,7 +46,7 @@ const onToggle = (category: string, enabled: boolean): void => {
     <!-- Empty state -->
     <NEmpty
       v-else-if="preferences.length === 0"
-      description="Nenhuma preferência de alerta configurada."
+      :description="$t('alert.preferences.empty')"
     />
 
     <!-- Preferences list -->

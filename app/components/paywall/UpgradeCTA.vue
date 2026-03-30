@@ -3,6 +3,7 @@ import { NButton } from "naive-ui";
 import { Lock } from "lucide-vue-next";
 import { useRouter } from "#app";
 
+
 const router = useRouter();
 
 /** Navigates the user to the plans page. */
@@ -14,12 +15,12 @@ const goToPlanos = (): void => {
 <template>
   <div class="upgrade-cta">
     <Lock class="upgrade-cta__icon" :size="32" />
-    <p class="upgrade-cta__title">Recurso Premium</p>
+    <p class="upgrade-cta__title">{{ $t('paywall.upgradeCTA.title') }}</p>
     <p class="upgrade-cta__subtitle">
-      Faça upgrade para acessar este recurso
+      {{ $t('paywall.upgradeCTA.subtitle') }}
     </p>
     <NButton type="primary" size="medium" @click="goToPlanos">
-      Ver planos
+      {{ $t('paywall.upgradeCTA.button') }}
     </NButton>
   </div>
 </template>

@@ -18,6 +18,7 @@ interface Emits {
   (e: "confirm"): void;
 }
 
+
 withDefaults(defineProps<Props>(), {
   isLoading: false,
   createdCount: null,
@@ -44,7 +45,7 @@ const formatDate = (isoDate: string): string => {
   <div class="import-preview-table">
     <NEmpty
       v-if="rows.length === 0 && createdCount === null"
-      description="Nenhuma linha para pré-visualizar."
+      :description="$t('receivable.importPreview.empty')"
     />
 
     <template v-else>
@@ -52,17 +53,17 @@ const formatDate = (isoDate: string): string => {
         v-if="createdCount !== null"
         class="import-preview-table__success"
       >
-        {{ createdCount }} receita(s) importada(s) com sucesso.
+        {{ $t('receivable.importPreview.successMessage', { count: createdCount }) }}
       </div>
 
       <div v-if="rows.length > 0" class="import-preview-table__wrapper">
         <table class="import-preview-table__table">
           <thead>
             <tr>
-              <th class="import-preview-table__th">Descrição</th>
-              <th class="import-preview-table__th">Valor</th>
-              <th class="import-preview-table__th">Data</th>
-              <th class="import-preview-table__th">Categoria</th>
+              <th class="import-preview-table__th">{{ $t('receivable.importPreview.columns.description') }}</th>
+              <th class="import-preview-table__th">{{ $t('receivable.importPreview.columns.amount') }}</th>
+              <th class="import-preview-table__th">{{ $t('receivable.importPreview.columns.date') }}</th>
+              <th class="import-preview-table__th">{{ $t('receivable.importPreview.columns.category') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -87,7 +88,7 @@ const formatDate = (isoDate: string): string => {
           :disabled="isLoading"
           @click="$emit('confirm')"
         >
-          Confirmar
+          {{ $t('receivable.importPreview.confirm') }}
         </NButton>
       </NSpace>
     </template>

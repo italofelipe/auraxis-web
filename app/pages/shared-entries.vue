@@ -55,33 +55,33 @@ const onRevoke = (id: string): void => {
 <template>
   <div class="shared-entries-page">
     <NPageHeader
-      title="Entradas Compartilhadas"
-      subtitle="Gerencie divisões de transações"
+      :title="$t('pages.sharedEntries.title')"
+      :subtitle="$t('pages.sharedEntries.subtitle')"
     />
 
     <UiInlineError
       v-if="isError"
-      title="Não foi possível carregar as entradas compartilhadas"
-      message="Tente recarregar a página."
+      :title="$t('pages.sharedEntries.loadError')"
+      :message="$t('pages.sharedEntries.loadErrorMessage')"
     />
 
     <template v-else>
       <NCard :bordered="true" class="shared-entries-page__summary-card">
         <div class="shared-entries-page__summary-stats">
-          <NStatistic label="Total" :value="String(totalCount)" />
-          <NStatistic label="Pendentes" :value="String(pendingCount)" />
-          <NStatistic label="Aceitas" :value="String(acceptedCount)" />
+          <NStatistic :label="$t('pages.sharedEntries.total')" :value="String(totalCount)" />
+          <NStatistic :label="$t('pages.sharedEntries.pending')" :value="String(pendingCount)" />
+          <NStatistic :label="$t('pages.sharedEntries.accepted')" :value="String(acceptedCount)" />
         </div>
       </NCard>
 
       <UiPageLoader v-if="isLoading" :rows="3" />
 
       <NTabs v-else type="line" animated>
-        <NTabPane name="by-me" tab="Compartilhadas por mim">
+        <NTabPane name="by-me" :tab="$t('pages.sharedEntries.byMe')">
           <div class="shared-entries-page__tab-content">
             <NEmpty
               v-if="byMeList.length === 0"
-              description="Nenhuma entrada compartilhada por você."
+              :description="$t('pages.sharedEntries.emptyByMe')"
             />
             <div v-else class="shared-entries-page__list">
               <SharedEntryRow
@@ -95,11 +95,11 @@ const onRevoke = (id: string): void => {
           </div>
         </NTabPane>
 
-        <NTabPane name="with-me" tab="Compartilhadas comigo">
+        <NTabPane name="with-me" :tab="$t('pages.sharedEntries.withMe')">
           <div class="shared-entries-page__tab-content">
             <NEmpty
               v-if="withMeList.length === 0"
-              description="Nenhuma entrada compartilhada com você."
+              :description="$t('pages.sharedEntries.emptyWithMe')"
             />
             <div v-else class="shared-entries-page__list">
               <SharedEntryRow

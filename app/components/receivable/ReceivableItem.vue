@@ -14,6 +14,8 @@ interface Emits {
   (e: "receive" | "delete", id: string): void;
 }
 
+const { t } = useI18n();
+
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
@@ -38,9 +40,9 @@ const statusTagType = (
  * @returns Localized status label.
  */
 const statusLabel = (status: ReceivableEntry["status"]): string => {
-  if (status === "received") { return "Recebido"; }
-  if (status === "pending") { return "Pendente"; }
-  return "Cancelado";
+  if (status === "received") { return t("receivable.status.received"); }
+  if (status === "pending") { return t("receivable.status.pending"); }
+  return t("receivable.status.cancelled");
 };
 
 /**
@@ -89,7 +91,7 @@ const handleDelete = (): void => {
       <div class="receivable-item__meta">
         <span class="receivable-item__amount">{{ formatCurrency(entry.amount) }}</span>
         <span class="receivable-item__date">
-          Vence em {{ formatDate(entry.expectedDate) }}
+          {{ $t('receivable.dueDate', { date: formatDate(entry.expectedDate) }) }}
         </span>
         <span v-if="entry.category" class="receivable-item__category">
           {{ entry.category }}
@@ -104,14 +106,14 @@ const handleDelete = (): void => {
         size="small"
         @click="handleReceive"
       >
-        Recebido
+        {{ $t('receivable.actions.receive') }}
       </NButton>
       <NButton
         type="default"
         size="small"
         @click="handleDelete"
       >
-        Excluir
+        {{ $t('receivable.actions.delete') }}
       </NButton>
     </NSpace>
   </div>

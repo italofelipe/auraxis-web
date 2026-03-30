@@ -10,23 +10,24 @@ interface Props {
 }
 
 defineProps<Props>();
+
 </script>
 
 <template>
-  <NCard class="revenue-summary-card" title="Resumo de Receitas">
+  <NCard class="revenue-summary-card" :title="$t('receivable.summary.title')">
     <NSpace :size="24" class="revenue-summary-card__stats">
       <NStatistic
-        label="Total Esperado"
+        :label="$t('receivable.summary.expectedTotal')"
         :value="formatCurrency(summary.expectedTotal)"
         class="revenue-summary-card__stat"
       />
       <NStatistic
-        label="Total Recebido"
+        :label="$t('receivable.summary.receivedTotal')"
         :value="formatCurrency(summary.receivedTotal)"
         class="revenue-summary-card__stat revenue-summary-card__stat--received"
       />
       <NStatistic
-        label="Total Pendente"
+        :label="$t('receivable.summary.pendingTotal')"
         :value="formatCurrency(summary.pendingTotal)"
         class="revenue-summary-card__stat revenue-summary-card__stat--pending"
       />

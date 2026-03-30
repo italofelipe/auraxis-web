@@ -18,6 +18,8 @@ import { useCreateTagMutation } from "~/features/tags/queries/use-create-tag-mut
 import { useUpdateTagMutation } from "~/features/tags/queries/use-update-tag-mutation";
 import { useDeleteTagMutation } from "~/features/tags/queries/use-delete-tag-mutation";
 
+const { t } = useI18n();
+
 definePageMeta({
   middleware: ["authenticated"],
   pageTitle: "Tags",
@@ -87,13 +89,13 @@ async function confirmDelete(id: string): Promise<void> {
   await deleteMutation.mutateAsync(id);
 }
 
-const columns: DataTableColumns<TagDto> = [
+const columns = computed((): DataTableColumns<TagDto> => [
   {
-    title: "Nome",
+    title: t("pages.settings.tags.columns.name"),
     key: "name",
   },
   {
-    title: "Ações",
+    title: t("pages.settings.tags.columns.actions"),
     key: "actions",
     width: 160,
     render(row: TagDto): VNodeChild {
@@ -104,7 +106,7 @@ const columns: DataTableColumns<TagDto> = [
             size: "small",
             onClick: () => openEdit(row),
           },
-          () => "Editar",
+          () => t("pages.settings.tags.edit"),
         ),
         h(
           NPopconfirm,
@@ -112,29 +114,29 @@ const columns: DataTableColumns<TagDto> = [
             onPositiveClick: () => confirmDelete(row.id),
           },
           {
-            default: () => "Confirma remoção desta tag?",
+            default: () => t("pages.settings.tags.confirmDelete"),
             trigger: () =>
               h(
                 NButton,
                 { size: "small", type: "error" },
-                () => "Remover",
+                () => t("pages.settings.tags.remove"),
               ),
           },
         ),
       ]);
     },
   },
-];
+]);
 </script>
 
 <template>
   <div class="settings-page">
     <div class="settings-page__header">
       <div class="settings-page__title-block">
-        <span class="settings-page__title">Tags</span>
-        <span class="settings-page__subtitle">Gerencie suas tags de categorização</span>
+        <span class="settings-page__title">{{ $t('pages.settings.tags.title') }}</span>
+        <span class="settings-page__subtitle">{{ $t('pages.settings.tags.subtitle') }}</span>
       </div>
-      <NButton type="primary" size="medium" @click="openCreate">Nova Tag</NButton>
+      <NButton type="primary" size="medium" @click="openCreate">{{ $t('pages.settings.tags.newTag') }}</NButton>
     </div>
 
     <NCard>
@@ -152,15 +154,15 @@ const columns: DataTableColumns<TagDto> = [
     <NModal
       v-model:show="showModal"
       preset="dialog"
-      :title="editingTag ? 'Editar Tag' : 'Nova Tag'"
-      :positive-text="editingTag ? 'Salvar' : 'Criar'"
-      negative-text="Cancelar"
+      :title="editingTag ? $t('pages.settings.tags.editTag') : $t('pages.settings.tags.newTag')"
+      :positive-text="editingTag ? $t('pages.settings.tags.save') : $t('pages.settings.tags.create')"
+      :negative-text="$t('pages.settings.tags.cancel')"
       @positive-click="submitForm"
       @negative-click="closeModal"
     >
       <NInput
         v-model:value="formName"
-        placeholder="Nome da tag"
+        :placeholder="$t('pages.settings.tags.placeholder')"
         maxlength="50"
         show-count
       />

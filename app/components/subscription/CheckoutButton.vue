@@ -10,8 +10,10 @@ interface Props {
   label?: string;
 }
 
+const { t } = useI18n();
+
 const props = withDefaults(defineProps<Props>(), {
-  label: "Assinar",
+  label: undefined,
 });
 
 const isLoading = ref(false);
@@ -32,7 +34,7 @@ const handleCheckout = async (): Promise<void> => {
     const checkoutUrl = await client.createCheckout(props.planSlug);
     window.location.href = checkoutUrl;
   } catch (err) {
-    error.value = err instanceof Error ? err.message : "Erro ao iniciar checkout.";
+    error.value = err instanceof Error ? err.message : t("subscription.checkoutButton.error");
   } finally {
     isLoading.value = false;
   }
@@ -48,7 +50,7 @@ const handleCheckout = async (): Promise<void> => {
       block
       @click="handleCheckout"
     >
-      {{ label }}
+      {{ label ?? $t('subscription.checkoutButton.default') }}
     </NButton>
     <p v-if="error" class="checkout-button__error">
       {{ error }}

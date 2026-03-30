@@ -134,6 +134,9 @@ export default defineNuxtConfig({
       // `x-build-id` during SSG so the smoke test can verify that CloudFront
       // is serving the freshly-deployed build rather than a stale snapshot.
       buildId: process.env.NUXT_PUBLIC_BUILD_ID ?? "",
+      // BRAPI public API key for ticker autocomplete and market data.
+      // Register at https://brapi.dev to obtain a key.
+      brapiApiKey: process.env.NUXT_PUBLIC_BRAPI_API_KEY ?? "",
     },
   },
 

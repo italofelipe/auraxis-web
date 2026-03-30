@@ -22,6 +22,8 @@ const props = withDefaults(
   },
 );
 
+const { t } = useI18n();
+
 const router = useRouter();
 const message = useMessage();
 const sessionStore = useSessionStore();
@@ -65,10 +67,10 @@ const handleSave = (): void => {
       },
       {
         onSuccess: (): void => {
-          message.success("Simulação salva com sucesso!");
+          message.success(t("simulation.saveButton.success"));
         },
         onError: (): void => {
-          message.error("Erro ao salvar simulação. Tente novamente.");
+          message.error(t("simulation.saveButton.error"));
         },
       },
     );
@@ -91,7 +93,7 @@ const handleSave = (): void => {
     class="save-simulation-button"
     @click="handleSave"
   >
-    Salvar resultado
+    {{ $t('simulation.saveButton.label') }}
   </NButton>
 </template>
 

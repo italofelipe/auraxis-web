@@ -12,6 +12,8 @@ import { useUpdateGoalMutation } from "~/features/goals/queries/use-update-goal-
 import { useDeleteGoalMutation } from "~/features/goals/queries/use-delete-goal-mutation";
 import type { GoalDto, GoalStatus, CreateGoalPayload } from "~/features/goals/contracts/goal.dto";
 
+const { t } = useI18n();
+
 definePageMeta({
   middleware: ["authenticated"],
   pageTitle: "Metas",
@@ -32,12 +34,12 @@ const showForm = ref<boolean>(false);
 const editingGoal = ref<GoalDto | null>(null);
 const planGoalId = ref<string | null>(null);
 
-const FILTER_OPTIONS: Array<{ value: FilterValue; label: string }> = [
-  { value: "all", label: "Todas" },
-  { value: "active", label: "Ativas" },
-  { value: "completed", label: "Concluídas" },
-  { value: "paused", label: "Pausadas" },
-];
+const FILTER_OPTIONS = computed((): Array<{ value: FilterValue; label: string }> => [
+  { value: "all", label: t("pages.goals.filters.all") },
+  { value: "active", label: t("pages.goals.filters.active") },
+  { value: "completed", label: t("pages.goals.filters.completed") },
+  { value: "paused", label: t("pages.goals.filters.paused") },
+]);
 
 const allGoals = computed(() => goals.value ?? []);
 
@@ -128,26 +130,26 @@ void onDeleteGoal;
   <div class="goals-page">
     <div class="goals-page__header">
       <div class="goals-page__title-block">
-        <span class="goals-page__title">Minhas Metas</span>
+        <span class="goals-page__title">{{ $t('pages.goals.title') }}</span>
         <span class="goals-page__subtitle">
-          Acompanhe o progresso das suas metas financeiras
+          {{ $t('pages.goals.subtitle') }}
         </span>
       </div>
-      <NButton type="primary" size="medium" @click="onNewGoal">Nova Meta</NButton>
+      <NButton type="primary" size="medium" @click="onNewGoal">{{ $t('pages.goals.newGoal') }}</NButton>
     </div>
 
     <UiInlineError
       v-if="isError"
-      title="Não foi possível carregar as metas"
-      message="Tente recarregar a página."
+      :title="$t('pages.goals.loadError')"
+      :message="$t('pages.goals.loadErrorMessage')"
     />
 
     <template v-else>
       <NCard class="goals-page__summary-card" :bordered="true">
         <div class="goals-page__summary-stats">
-          <NStatistic label="Total de metas" :value="String(totalGoals)" />
-          <NStatistic label="Em andamento" :value="String(activeGoalsCount)" />
-          <NStatistic label="Concluídas" :value="String(completedGoalsCount)" />
+          <NStatistic :label="$t('pages.goals.totalGoals')" :value="String(totalGoals)" />
+          <NStatistic :label="$t('pages.goals.inProgress')" :value="String(activeGoalsCount)" />
+          <NStatistic :label="$t('pages.goals.completed')" :value="String(completedGoalsCount)" />
         </div>
       </NCard>
 
@@ -167,7 +169,7 @@ void onDeleteGoal;
       <template v-else>
         <div v-if="filteredGoals.length === 0" class="goals-page__empty-state">
           <span class="goals-page__empty-text">
-            Nenhuma meta encontrada para o filtro selecionado.
+            {{ $t('pages.goals.empty') }}
           </span>
         </div>
 

@@ -4,6 +4,8 @@ import { formatCurrency } from "~/utils/currency";
 import type { WalletEntryDto } from "~/features/portfolio/contracts/portfolio.dto";
 import type { WalletPositionsPanelProps } from "./WalletPositionsPanel.types";
 
+const { t } = useI18n();
+
 const props = defineProps<WalletPositionsPanelProps>();
 
 /**
@@ -26,18 +28,18 @@ const tagType = (
 };
 
 /**
- * Returns a human-readable PT-BR label for an asset type.
+ * Returns a translated label for an asset type.
  *
  * @param assetType - The asset type value.
  * @returns Localised label string.
  */
 const assetTypeLabel = (assetType: WalletEntryDto["asset_type"]): string => {
   const map: Record<WalletEntryDto["asset_type"], string> = {
-    stock: "Ação",
-    fii: "FII",
-    crypto: "Cripto",
-    fixed_income: "Renda Fixa",
-    other: "Outro",
+    stock: t("wallet.assetType.stock"),
+    fii: t("wallet.assetType.fii"),
+    crypto: t("wallet.assetType.crypto"),
+    fixed_income: t("wallet.assetType.fixedIncome"),
+    other: t("wallet.assetType.other"),
   };
   return map[assetType];
 };
@@ -70,7 +72,7 @@ const changeColor = (value: number | null): string => {
 <template>
   <div class="wallet-positions-panel">
     <div class="wallet-positions-panel__header">
-      <span class="wallet-positions-panel__title">Posições</span>
+      <span class="wallet-positions-panel__title">{{ $t('wallet.positions.title') }}</span>
       <NTag v-if="!props.isLoading" size="small" :bordered="false">
         {{ props.entries.length }}
       </NTag>
@@ -80,7 +82,7 @@ const changeColor = (value: number | null): string => {
 
     <NEmpty
       v-else-if="props.entries.length === 0"
-      description="Nenhum ativo na carteira."
+      :description="$t('wallet.positions.empty')"
       class="wallet-positions-panel__empty"
     />
 

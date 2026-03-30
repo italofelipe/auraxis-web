@@ -12,6 +12,8 @@ import { formatCurrency } from "~/utils/currency";
 import type { PortfolioTableProps } from "./PortfolioTable.types";
 import type { WalletEntryDto } from "~/features/portfolio/contracts/portfolio.dto";
 
+const { t } = useI18n();
+
 const props = defineProps<PortfolioTableProps>();
 
 /**
@@ -44,11 +46,11 @@ const assetTypeTagType = (
  */
 const assetTypeLabel = (assetType: WalletEntryDto["asset_type"]): string => {
   const map: Record<WalletEntryDto["asset_type"], string> = {
-    stock: "Ação",
-    fii: "FII",
-    crypto: "Cripto",
-    fixed_income: "Renda Fixa",
-    other: "Outro",
+    stock: t("wallet.assetType.stock"),
+    fii: t("wallet.assetType.fii"),
+    crypto: t("wallet.assetType.crypto"),
+    fixed_income: t("wallet.assetType.fixedIncome"),
+    other: t("wallet.assetType.other"),
   };
   return map[assetType];
 };
@@ -64,9 +66,9 @@ const formatPercent = (value: number): string => {
   return `${sign}${value.toFixed(2)}%`;
 };
 
-const columns: DataTableColumns<WalletEntryDto> = [
+const columns = computed((): DataTableColumns<WalletEntryDto> => [
   {
-    title: "Ativo",
+    title: t("portfolio.table.columns.asset"),
     key: "name",
     render(row): VNodeChild {
       return h("div", { class: "pt-name-cell" }, [
@@ -82,7 +84,7 @@ const columns: DataTableColumns<WalletEntryDto> = [
     },
   },
   {
-    title: "Tipo",
+    title: t("portfolio.table.columns.type"),
     key: "asset_type",
     render(row): VNodeChild {
       return h(
@@ -93,7 +95,7 @@ const columns: DataTableColumns<WalletEntryDto> = [
     },
   },
   {
-    title: "Valor atual",
+    title: t("portfolio.table.columns.currentValue"),
     key: "current_value",
     render(row): VNodeChild {
       return h(
@@ -104,7 +106,7 @@ const columns: DataTableColumns<WalletEntryDto> = [
     },
   },
   {
-    title: "Custo",
+    title: t("portfolio.table.columns.cost"),
     key: "cost_basis",
     render(row): VNodeChild {
       return h(
@@ -115,7 +117,7 @@ const columns: DataTableColumns<WalletEntryDto> = [
     },
   },
   {
-    title: "Variação",
+    title: t("portfolio.table.columns.variation"),
     key: "change_percent",
     render(row): VNodeChild {
       if (row.change_percent === null) {
@@ -130,14 +132,14 @@ const columns: DataTableColumns<WalletEntryDto> = [
     },
   },
   {
-    title: "Quantidade",
+    title: t("portfolio.table.columns.quantity"),
     key: "quantity",
     render(row): VNodeChild {
       if (row.quantity === null) { return h("span", {}, "—"); }
       return h("span", {}, String(row.quantity));
     },
   },
-];
+]);
 
 const entryCount = computed(() => props.entries.length);
 </script>
@@ -147,18 +149,18 @@ const entryCount = computed(() => props.entries.length);
     <template #header>
       <div class="portfolio-table__header">
         <div class="portfolio-table__title-row">
-          <span class="portfolio-table__title">Ativos na carteira</span>
+          <span class="portfolio-table__title">{{ $t('portfolio.table.title') }}</span>
           <NTag size="small" type="default" :bordered="false">
             {{ entryCount }}
           </NTag>
         </div>
-        <NButton size="small" secondary>Adicionar ativo</NButton>
+        <NButton size="small" secondary>{{ $t('portfolio.table.addAsset') }}</NButton>
       </div>
     </template>
 
     <NEmpty
       v-if="!props.loading && props.entries.length === 0"
-      description="Nenhum ativo cadastrado na carteira."
+      :description="$t('portfolio.table.empty')"
       class="portfolio-table__empty"
     />
 

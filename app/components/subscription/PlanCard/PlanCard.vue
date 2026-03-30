@@ -12,18 +12,20 @@ import { CheckIcon, XIcon } from "lucide-vue-next";
 import { formatCurrency } from "~/utils/currency";
 import type { PlanCardProps, PlanCardEmits } from "./PlanCard.types";
 
+const { t } = useI18n();
+
 const props = defineProps<PlanCardProps>();
 const emit = defineEmits<PlanCardEmits>();
 
 /**
  * Returns the formatted price string for a plan.
- * Returns "Grátis" if the price is 0.
+ * Returns the free label if the price is 0.
  *
- * @returns Formatted price string in PT-BR.
+ * @returns Formatted price string.
  */
 const priceLabel = computed((): string => {
-  if (props.plan.price_monthly === 0) {return "Grátis";}
-  return `${formatCurrency(props.plan.price_monthly)}/mês`;
+  if (props.plan.price_monthly === 0) {return t("subscription.planCard.free");}
+  return t("subscription.planCard.pricePerMonth", { price: formatCurrency(props.plan.price_monthly) });
 });
 
 /** Handles the subscribe button click. */
@@ -54,7 +56,7 @@ const onSelect = (): void => {
       <div class="plan-card__header">
         <NText class="plan-card__name" strong>{{ plan.name }}</NText>
         <NTag v-if="isCurrent" type="success" size="small" :bordered="false">
-          Plano atual
+          {{ $t('subscription.planCard.currentPlan') }}
         </NTag>
       </div>
 
@@ -91,7 +93,7 @@ const onSelect = (): void => {
         class="plan-card__cta"
         @click="onSelect"
       >
-        {{ isCurrent ? "Plano atual" : "Assinar" }}
+        {{ isCurrent ? $t('subscription.planCard.currentPlan') : $t('subscription.planCard.subscribe') }}
       </NButton>
     </template>
   </NCard>

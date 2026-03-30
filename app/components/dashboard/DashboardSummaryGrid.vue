@@ -10,13 +10,15 @@ import {
 import { formatCurrency } from "~/utils/currency";
 import type { DashboardSummaryGridProps } from "./DashboardSummaryGrid.types";
 
+const { t } = useI18n();
+
 const props = defineProps<DashboardSummaryGridProps>();
 </script>
 
 <template>
-  <section class="summary-grid" aria-label="Resumo do período">
+  <section class="summary-grid" :aria-label="$t('dashboard.summaryGrid.ariaLabel')">
     <UiMetricCard
-      :label="'Saldo do período'"
+      :label="t('dashboard.summaryGrid.balance')"
       :value="formatCurrency(props.summary?.balance ?? 0)"
       :trend="props.comparison?.balanceVsPreviousMonthPercent ?? undefined"
       :icon="Wallet"
@@ -24,7 +26,7 @@ const props = defineProps<DashboardSummaryGridProps>();
     />
 
     <UiMetricCard
-      :label="'Receitas'"
+      :label="t('dashboard.summaryGrid.income')"
       :value="formatCurrency(props.summary?.income ?? 0)"
       :trend="props.comparison?.incomeVsPreviousMonthPercent ?? undefined"
       :icon="ArrowUpCircle"
@@ -32,7 +34,7 @@ const props = defineProps<DashboardSummaryGridProps>();
     />
 
     <UiMetricCard
-      :label="'Despesas'"
+      :label="t('dashboard.summaryGrid.expense')"
       :value="formatCurrency(props.summary?.expense ?? 0)"
       :trend="props.comparison?.expenseVsPreviousMonthPercent ?? undefined"
       :icon="ArrowDownCircle"
@@ -40,14 +42,14 @@ const props = defineProps<DashboardSummaryGridProps>();
     />
 
     <UiMetricCard
-      :label="'Contas a vencer'"
+      :label="t('dashboard.summaryGrid.upcomingDue')"
       :value="formatCurrency(props.summary?.upcomingDueTotal ?? 0)"
       :icon="AlertCircle"
       :loading="props.isLoading"
     />
 
     <UiMetricCard
-      :label="'Patrimônio total'"
+      :label="t('dashboard.summaryGrid.netWorth')"
       :value="formatCurrency(props.summary?.netWorth ?? 0)"
       :trend="props.portfolio?.changePercent ?? undefined"
       :icon="TrendingUp"

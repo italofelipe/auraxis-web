@@ -4,6 +4,8 @@ import { formatCurrency } from "~/utils/currency";
 import type { SharedEntryRowProps, SharedEntryRowEmits } from "./SharedEntryRow.types";
 import type { SplitType } from "~/features/shared-entries/contracts/shared-entry.dto";
 
+const { t } = useI18n();
+
 const props = defineProps<SharedEntryRowProps>();
 const emit = defineEmits<SharedEntryRowEmits>();
 
@@ -32,9 +34,9 @@ const statusTagType = (
  */
 const statusLabel = (status: "pending" | "accepted" | "declined"): string => {
   const map: Record<"pending" | "accepted" | "declined", string> = {
-    pending: "Pendente",
-    accepted: "Aceito",
-    declined: "Recusado",
+    pending: t("sharing.sharedEntryRow.status.pending"),
+    accepted: t("sharing.sharedEntryRow.status.accepted"),
+    declined: t("sharing.sharedEntryRow.status.declined"),
   };
   return map[status];
 };
@@ -62,9 +64,9 @@ const splitTagType = (splitType: SplitType): "default" | "info" | "success" => {
  */
 const splitLabel = (splitType: SplitType): string => {
   const map: Record<SplitType, string> = {
-    equal: "Igual",
-    custom: "Personalizado",
-    percentage: "Percentual",
+    equal: t("sharing.sharedEntryRow.splitType.equal"),
+    custom: t("sharing.sharedEntryRow.splitType.custom"),
+    percentage: t("sharing.sharedEntryRow.splitType.percentage"),
   };
   return map[splitType];
 };
@@ -114,17 +116,17 @@ const onRevoke = (): void => {
       </div>
 
       <NText class="shared-entry-row__email" depth="3">
-        Email: {{ entry.other_party_email }}
+        {{ $t('sharing.sharedEntryRow.email') }} {{ entry.other_party_email }}
       </NText>
 
       <div class="shared-entry-row__amounts">
         <NStatistic
-          label="Minha parte"
+          :label="$t('sharing.sharedEntryRow.myShare')"
           :value="formatCurrency(entry.my_share)"
           class="shared-entry-row__stat"
         />
         <NStatistic
-          label="Total"
+          :label="$t('sharing.sharedEntryRow.total')"
           :value="formatCurrency(entry.transaction_amount)"
           class="shared-entry-row__stat"
         />
@@ -140,7 +142,7 @@ const onRevoke = (): void => {
           quaternary
           @click="onRevoke"
         >
-          Revogar
+          {{ $t('sharing.sharedEntryRow.revoke') }}
         </NButton>
       </div>
     </div>

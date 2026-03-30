@@ -5,14 +5,16 @@ import type {
   DashboardTransactionsPanelProps,
 } from "./DashboardTransactionsPanel.types";
 
+const { t } = useI18n();
+
 const props = defineProps<DashboardTransactionsPanelProps>();
 
 const activeTab = ref<DashboardTransactionTab>("dues");
 
-const TAB_OPTIONS = [
-  { value: "dues" as DashboardTransactionTab, label: "Vencimentos" },
-  { value: "expenses" as DashboardTransactionTab, label: "Por categoria" },
-];
+const TAB_OPTIONS = computed(() => [
+  { value: "dues" as DashboardTransactionTab, label: t("dashboard.transactions.dues") },
+  { value: "expenses" as DashboardTransactionTab, label: t("dashboard.transactions.expenses") },
+]);
 
 /**
  * Formats an ISO date string to a short localised display value.
@@ -28,7 +30,7 @@ const formatDate = (value: string): string =>
   }).format(new Date(`${value}T00:00:00`));
 
 const panelTitle = computed(() =>
-  activeTab.value === "dues" ? "Próximos vencimentos" : "Despesas por categoria",
+  activeTab.value === "dues" ? t("dashboard.transactions.upcomingDues") : t("dashboard.transactions.byCategory"),
 );
 </script>
 
@@ -38,7 +40,7 @@ const panelTitle = computed(() =>
       <UiSegmentedControl
         v-model="activeTab"
         :options="TAB_OPTIONS"
-        aria-label="Tipo de transação"
+        :aria-label="$t('dashboard.transactions.tabAriaLabel')"
       />
     </template>
 
@@ -46,8 +48,8 @@ const panelTitle = computed(() =>
       <UiEmptyState
         v-if="props.upcomingDues.length === 0"
         icon="calendarCheck"
-        title="Nenhum vencimento"
-        description="Não há contas a vencer no período selecionado."
+        :title="$t('dashboard.transactions.noDues.title')"
+        :description="$t('dashboard.transactions.noDues.description')"
         :compact="true"
       />
       <article
@@ -58,7 +60,7 @@ const panelTitle = computed(() =>
         <div class="transaction-row__info">
           <span class="transaction-row__description">{{ due.description }}</span>
           <span class="transaction-row__meta">
-            {{ due.category ?? "Sem categoria" }} · {{ formatDate(due.dueDate) }}
+            {{ due.category ?? $t('dashboard.transactions.noCategory') }} · {{ formatDate(due.dueDate) }}
           </span>
         </div>
         <strong class="transaction-row__amount">
@@ -71,8 +73,8 @@ const panelTitle = computed(() =>
       <UiEmptyState
         v-if="props.expensesByCategory.length === 0"
         icon="pieChart"
-        title="Sem categorias"
-        description="Não há despesas categorizadas no período selecionado."
+        :title="$t('dashboard.transactions.noExpenses.title')"
+        :description="$t('dashboard.transactions.noExpenses.description')"
         :compact="true"
       />
       <article

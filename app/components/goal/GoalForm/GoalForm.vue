@@ -15,6 +15,8 @@ import {
 import type { GoalFormProps } from "./GoalForm.types";
 import type { CreateGoalPayload, GoalStatus } from "~/features/goals/contracts/goal.dto";
 
+const { t } = useI18n();
+
 const props = defineProps<GoalFormProps>();
 
 const emit = defineEmits<{
@@ -84,41 +86,41 @@ const datePickerValue = computed<number | null>(() => {
   return new Date(`${formModel.target_date}T00:00:00`).getTime();
 });
 
-const STATUS_OPTIONS: Array<{ label: string; value: GoalStatus }> = [
-  { label: "Ativa", value: "active" },
-  { label: "Concluída", value: "completed" },
-  { label: "Pausada", value: "paused" },
-  { label: "Cancelada", value: "cancelled" },
-];
+const STATUS_OPTIONS = computed((): Array<{ label: string; value: GoalStatus }> => [
+  { label: t("goal.status.active"), value: "active" },
+  { label: t("goal.status.completed"), value: "completed" },
+  { label: t("goal.status.paused"), value: "paused" },
+  { label: t("goal.status.cancelled"), value: "cancelled" },
+]);
 
-const DATE_PRESETS: Array<{ label: string; value: DatePreset }> = [
-  { label: "1 mês", value: "1m" },
-  { label: "3 meses", value: "3m" },
-  { label: "6 meses", value: "6m" },
-  { label: "1 ano", value: "1y" },
-  { label: "Personalizado", value: "custom" },
-];
+const DATE_PRESETS = computed((): Array<{ label: string; value: DatePreset }> => [
+  { label: t("goal.form.datePresets.1m"), value: "1m" },
+  { label: t("goal.form.datePresets.3m"), value: "3m" },
+  { label: t("goal.form.datePresets.6m"), value: "6m" },
+  { label: t("goal.form.datePresets.1y"), value: "1y" },
+  { label: t("goal.form.datePresets.custom"), value: "custom" },
+]);
 
-const rules: FormRules = {
+const rules = computed((): FormRules => ({
   name: [
-    { required: true, message: "Nome é obrigatório", trigger: ["blur", "input"] },
-    { min: 2, message: "Mínimo 2 caracteres", trigger: ["blur", "input"] },
+    { required: true, message: t("goal.form.name.required"), trigger: ["blur", "input"] },
+    { min: 2, message: t("goal.form.name.minLength"), trigger: ["blur", "input"] },
   ],
   target_amount: [
     {
       required: true,
       type: "number",
-      message: "Valor da meta é obrigatório",
+      message: t("goal.form.targetAmount.required"),
       trigger: ["blur", "change"],
     },
     {
       validator: (_rule: unknown, value: unknown): boolean =>
         typeof value === "number" && value > 0,
-      message: "Valor deve ser positivo",
+      message: t("goal.form.targetAmount.positive"),
       trigger: ["blur", "change"],
     },
   ],
-};
+}));
 
 /** Resets the form to its initial state. */
 const resetForm = (): void => {
@@ -190,7 +192,7 @@ const onClose = (): void => {
 <template>
   <NModal
     :show="props.visible"
-    :title="isEditMode ? 'Editar Meta' : 'Nova Meta'"
+    :title="isEditMode ? $t('goal.form.titleEdit') : $t('goal.form.titleCreate')"
     preset="card"
     class="goal-form-modal"
     :mask-closable="true"
@@ -203,25 +205,25 @@ const onClose = (): void => {
       label-placement="top"
       require-mark-placement="right-hanging"
     >
-      <NFormItem label="Nome" path="name">
+      <NFormItem :label="$t('goal.form.name.label')" path="name">
         <NInput
           v-model:value="formModel.name"
-          placeholder="Ex: Reserva de emergência"
+          :placeholder="$t('goal.form.name.placeholder')"
           maxlength="120"
         />
       </NFormItem>
 
-      <NFormItem label="Descrição" path="description">
+      <NFormItem :label="$t('goal.form.description.label')" path="description">
         <NInput
           v-model:value="formModel.description"
           type="textarea"
-          placeholder="Descrição opcional da meta"
+          :placeholder="$t('goal.form.description.placeholder')"
           :rows="2"
           maxlength="500"
         />
       </NFormItem>
 
-      <NFormItem label="Valor da meta (R$)" path="target_amount">
+      <NFormItem :label="$t('goal.form.targetAmount.label')" path="target_amount">
         <NInputNumber
           v-model:value="formModel.target_amount"
           placeholder="0,00"
@@ -231,7 +233,7 @@ const onClose = (): void => {
         />
       </NFormItem>
 
-      <NFormItem label="Valor acumulado (R$)" path="current_amount">
+      <NFormItem :label="$t('goal.form.currentAmount.label')" path="current_amount">
         <NInputNumber
           v-model:value="formModel.current_amount"
           placeholder="0,00"
@@ -241,7 +243,7 @@ const onClose = (): void => {
         />
       </NFormItem>
 
-      <NFormItem label="Prazo" path="target_date">
+      <NFormItem :label="$t('goal.form.deadline.label')" path="target_date">
         <div class="goal-form__date-section">
           <NSpace wrap>
             <NButton
@@ -259,27 +261,27 @@ const onClose = (): void => {
             :value="datePickerValue"
             type="date"
             format="dd/MM/yyyy"
-            placeholder="Selecione a data"
+            :placeholder="$t('goal.form.deadline.placeholder')"
             class="goal-form__date-picker"
             @update:value="onDatePickerUpdate"
           />
         </div>
       </NFormItem>
 
-      <NFormItem v-if="isEditMode" label="Status" path="status">
+      <NFormItem v-if="isEditMode" :label="$t('goal.form.status.label')" path="status">
         <NSelect
           v-model:value="formModel.status"
           :options="STATUS_OPTIONS"
-          placeholder="Selecione o status"
+          :placeholder="$t('goal.form.status.placeholder')"
         />
       </NFormItem>
     </NForm>
 
     <template #footer>
       <NSpace justify="end">
-        <NButton @click="onClose">Cancelar</NButton>
+        <NButton @click="onClose">{{ $t('common.cancel') }}</NButton>
         <NButton type="primary" @click="onSubmit">
-          {{ isEditMode ? "Salvar alterações" : "Criar meta" }}
+          {{ isEditMode ? $t('goal.form.submitEdit') : $t('goal.form.submitCreate') }}
         </NButton>
       </NSpace>
     </template>

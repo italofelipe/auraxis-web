@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { UiSocialAuthButtonsProps, UiSocialAuthButtonsEmits } from "./UiSocialAuthButtons.types";
 
+
 const props = withDefaults(defineProps<UiSocialAuthButtonsProps>(), {
   disabled: false,
   compact: false,
@@ -15,7 +16,7 @@ const emit = defineEmits<UiSocialAuthButtonsEmits>();
       type="button"
       class="ui-social-auth__btn ui-social-auth__btn--google"
       :disabled="props.disabled"
-      :aria-label="props.compact ? 'Entrar com Google' : undefined"
+      :aria-label="props.compact ? $t('ui.socialAuth.googleAriaLabel') : undefined"
       @click="emit('google-click')"
     >
       <!-- Google icon (SVG inline) -->
@@ -42,14 +43,14 @@ const emit = defineEmits<UiSocialAuthButtonsEmits>();
           fill="#EA4335"
         />
       </svg>
-      <span v-if="!props.compact" class="ui-social-auth__label">Continuar com Google</span>
+      <span v-if="!props.compact" class="ui-social-auth__label">{{ $t('ui.socialAuth.google') }}</span>
     </button>
 
     <button
       type="button"
       class="ui-social-auth__btn ui-social-auth__btn--apple"
       :disabled="props.disabled"
-      :aria-label="props.compact ? 'Entrar com Apple' : undefined"
+      :aria-label="props.compact ? $t('ui.socialAuth.appleAriaLabel') : undefined"
       @click="emit('apple-click')"
     >
       <!-- Apple icon (SVG inline) -->
@@ -62,7 +63,7 @@ const emit = defineEmits<UiSocialAuthButtonsEmits>();
       >
         <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.4c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.53 4zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
       </svg>
-      <span v-if="!props.compact" class="ui-social-auth__label">Continuar com Apple</span>
+      <span v-if="!props.compact" class="ui-social-auth__label">{{ $t('ui.socialAuth.apple') }}</span>
     </button>
   </div>
 </template>

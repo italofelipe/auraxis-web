@@ -5,6 +5,8 @@ import { formatCurrency } from "~/utils/currency";
 import type { SimulationCardProps, SimulationCardEmits } from "./SimulationCard.types";
 import type { SimulationType } from "~/features/simulations/contracts/simulation-card.dto";
 
+const { t } = useI18n();
+
 const props = defineProps<SimulationCardProps>();
 const emit = defineEmits<SimulationCardEmits>();
 
@@ -31,9 +33,9 @@ const typeTagType = (type: SimulationType): "info" | "success" | "warning" => {
  */
 const typeLabel = (type: SimulationType): string => {
   const map: Record<SimulationType, string> = {
-    installment_vs_cash: "Parcelamento × À vista",
-    goal_projection: "Projeção de Meta",
-    investment_return: "Retorno de Investimento",
+    installment_vs_cash: t("simulation.type.installmentVsCash"),
+    goal_projection: t("simulation.type.goalProjection"),
+    investment_return: t("simulation.type.investmentReturn"),
   };
   return map[type];
 };
@@ -84,7 +86,7 @@ const onDelete = (): void => {
 
       <div v-if="props.simulation.result_value !== null" class="simulation-card__result">
         <NStatistic
-          label="Resultado principal"
+          :label="$t('simulation.card.mainResult')"
           :value="formatCurrency(props.simulation.result_value)"
         />
       </div>
@@ -94,13 +96,13 @@ const onDelete = (): void => {
 
       <div class="simulation-card__footer">
         <NText class="simulation-card__date" depth="3">
-          Criado em {{ formatDate(props.simulation.created_at) }}
+          {{ $t('simulation.card.createdAt', { date: formatDate(props.simulation.created_at) }) }}
         </NText>
         <NButton
           size="small"
           quaternary
           :focusable="false"
-          aria-label="Excluir simulação"
+          :aria-label="$t('simulation.card.deleteAriaLabel')"
           @click="onDelete"
         >
           <template #icon>

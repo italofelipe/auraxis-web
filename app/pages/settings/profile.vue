@@ -3,6 +3,8 @@ import { useUserStore } from "~/stores/user";
 import { useUserProfileQuery } from "~/features/profile/composables/use-user-profile-query";
 import { formatCurrency } from "~/utils/currency";
 
+const { t } = useI18n();
+
 definePageMeta({
   middleware: ["authenticated"],
   pageTitle: "Dados Pessoais",
@@ -20,10 +22,10 @@ const showEditModal = ref(false);
 /** Returns the display label for a given investor_profile value. */
 const investorProfileLabel = computed((): string => {
   switch (userStore.profile?.investor_profile) {
-    case "conservador": return "Conservador";
-    case "explorador": return "Explorador";
-    case "entusiasta": return "Entusiasta";
-    default: return "Não definido";
+    case "conservador": return t("pages.settings.profile.investorProfile.conservador");
+    case "explorador": return t("pages.settings.profile.investorProfile.explorador");
+    case "entusiasta": return t("pages.settings.profile.investorProfile.entusiasta");
+    default: return t("pages.settings.profile.investorProfile.undefined");
   }
 });
 
@@ -78,11 +80,11 @@ function displayValue(value: string | null | undefined): string {
   <div class="profile-page">
     <div class="profile-page__header">
       <div class="profile-page__title-block">
-        <span class="profile-page__title">Dados Pessoais</span>
-        <span class="profile-page__subtitle">Seu perfil e preferências</span>
+        <span class="profile-page__title">{{ $t('pages.settings.profile.title') }}</span>
+        <span class="profile-page__subtitle">{{ $t('pages.settings.profile.subtitle') }}</span>
       </div>
       <button class="profile-page__edit-btn" @click="showEditModal = true">
-        Editar Perfil
+        {{ $t('pages.settings.profile.editProfile') }}
       </button>
     </div>
 
@@ -91,10 +93,10 @@ function displayValue(value: string | null | undefined): string {
       class="profile-page__warning"
     >
       <span class="profile-page__warning-text">
-        Seu perfil está incompleto. Complete agora para personalizar sua experiência.
+        {{ $t('pages.settings.profile.incompleteWarning') }}
       </span>
       <button class="profile-page__warning-cta" @click="showEditModal = true">
-        Completar perfil
+        {{ $t('pages.settings.profile.completeProfile') }}
       </button>
     </div>
 
@@ -117,39 +119,39 @@ function displayValue(value: string | null | undefined): string {
 
       <div class="profile-page__fields">
         <div class="profile-page__field">
-          <span class="profile-page__field-label">Gênero</span>
+          <span class="profile-page__field-label">{{ $t('pages.settings.profile.fields.gender') }}</span>
           <span class="profile-page__field-value">{{ displayValue(userStore.profile?.gender) }}</span>
         </div>
         <div class="profile-page__field">
-          <span class="profile-page__field-label">Data de Nascimento</span>
+          <span class="profile-page__field-label">{{ $t('pages.settings.profile.fields.birthDate') }}</span>
           <span class="profile-page__field-value">{{ formatBirthDate(userStore.profile?.birth_date) }}</span>
         </div>
         <div class="profile-page__field">
-          <span class="profile-page__field-label">Renda Mensal</span>
+          <span class="profile-page__field-label">{{ $t('pages.settings.profile.fields.monthlyIncome') }}</span>
           <span class="profile-page__field-value">{{ formatMoney(userStore.profile?.monthly_income) }}</span>
         </div>
         <div class="profile-page__field">
-          <span class="profile-page__field-label">Despesas Mensais</span>
+          <span class="profile-page__field-label">{{ $t('pages.settings.profile.fields.monthlyExpenses') }}</span>
           <span class="profile-page__field-value">{{ formatMoney(userStore.profile?.monthly_expenses) }}</span>
         </div>
         <div class="profile-page__field">
-          <span class="profile-page__field-label">Patrimônio Líquido</span>
+          <span class="profile-page__field-label">{{ $t('pages.settings.profile.fields.netWorth') }}</span>
           <span class="profile-page__field-value">{{ formatMoney(userStore.profile?.net_worth) }}</span>
         </div>
         <div class="profile-page__field">
-          <span class="profile-page__field-label">Estado (UF)</span>
+          <span class="profile-page__field-label">{{ $t('pages.settings.profile.fields.stateUf') }}</span>
           <span class="profile-page__field-value">{{ displayValue(userStore.profile?.state_uf) }}</span>
         </div>
         <div class="profile-page__field">
-          <span class="profile-page__field-label">Ocupação</span>
+          <span class="profile-page__field-label">{{ $t('pages.settings.profile.fields.occupation') }}</span>
           <span class="profile-page__field-value">{{ displayValue(userStore.profile?.occupation) }}</span>
         </div>
         <div class="profile-page__field">
-          <span class="profile-page__field-label">Objetivos Financeiros</span>
+          <span class="profile-page__field-label">{{ $t('pages.settings.profile.fields.financialObjectives') }}</span>
           <span class="profile-page__field-value">{{ displayValue(userStore.profile?.financial_objectives) }}</span>
         </div>
         <div class="profile-page__field">
-          <span class="profile-page__field-label">Perfil de Investidor</span>
+          <span class="profile-page__field-label">{{ $t('pages.settings.profile.fields.investorProfile') }}</span>
           <span class="profile-page__field-value">{{ investorProfileLabel }}</span>
         </div>
       </div>

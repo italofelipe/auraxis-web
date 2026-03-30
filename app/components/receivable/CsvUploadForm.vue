@@ -9,6 +9,7 @@ interface Emits {
   (e: "preview", payload: CsvUploadPayload): void;
 }
 
+
 const emit = defineEmits<Emits>();
 
 const fileContent = ref<string>("");
@@ -60,11 +61,11 @@ defineExpose({ fileContent });
 </script>
 
 <template>
-  <NCard class="csv-upload-form" title="Importar CSV">
+  <NCard class="csv-upload-form" :title="$t('receivable.csv.title')">
     <NSpace vertical :size="16">
       <div class="csv-upload-form__field">
         <label class="csv-upload-form__label" for="csv-file-input">
-          Arquivo CSV
+          {{ $t('receivable.csv.fileLabel') }}
         </label>
         <input
           id="csv-file-input"
@@ -76,42 +77,42 @@ defineExpose({ fileContent });
       </div>
 
       <p class="csv-upload-form__hint">
-        Mapeie os cabeçalhos do CSV para os campos correspondentes.
+        {{ $t('receivable.csv.mappingHint') }}
       </p>
 
       <NSpace :size="12" class="csv-upload-form__mapping">
         <div class="csv-upload-form__mapping-field">
-          <label class="csv-upload-form__label">Descrição</label>
+          <label class="csv-upload-form__label">{{ $t('receivable.csv.fields.description') }}</label>
           <NInput
             v-model:value="mapDescription"
-            placeholder="ex: descricao"
+            :placeholder="$t('receivable.csv.placeholders.description')"
             size="small"
           />
         </div>
 
         <div class="csv-upload-form__mapping-field">
-          <label class="csv-upload-form__label">Valor</label>
+          <label class="csv-upload-form__label">{{ $t('receivable.csv.fields.amount') }}</label>
           <NInput
             v-model:value="mapAmount"
-            placeholder="ex: valor"
+            :placeholder="$t('receivable.csv.placeholders.amount')"
             size="small"
           />
         </div>
 
         <div class="csv-upload-form__mapping-field">
-          <label class="csv-upload-form__label">Data</label>
+          <label class="csv-upload-form__label">{{ $t('receivable.csv.fields.date') }}</label>
           <NInput
             v-model:value="mapDate"
-            placeholder="ex: data"
+            :placeholder="$t('receivable.csv.placeholders.date')"
             size="small"
           />
         </div>
 
         <div class="csv-upload-form__mapping-field">
-          <label class="csv-upload-form__label">Categoria</label>
+          <label class="csv-upload-form__label">{{ $t('receivable.csv.fields.category') }}</label>
           <NInput
             v-model:value="mapCategory"
-            placeholder="ex: categoria"
+            :placeholder="$t('receivable.csv.placeholders.category')"
             size="small"
           />
         </div>
@@ -123,7 +124,7 @@ defineExpose({ fileContent });
           :disabled="isPreviewDisabled"
           @click="handlePreview"
         >
-          Pré-visualizar
+          {{ $t('receivable.csv.preview') }}
         </NButton>
       </NSpace>
     </NSpace>

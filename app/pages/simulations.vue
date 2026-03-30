@@ -9,6 +9,8 @@ import { useSimulationsQuery } from "~/features/simulations/queries/use-simulati
 import { useDeleteSimulationMutation } from "~/features/simulations/queries/use-delete-simulation-mutation";
 import type { SimulationType } from "~/features/simulations/contracts/simulation-card.dto";
 
+const { t } = useI18n();
+
 definePageMeta({
   layout: "default",
   middleware: ["authenticated"],
@@ -25,12 +27,12 @@ const deleteMutation = useDeleteSimulationMutation();
 
 const activeFilter = ref<FilterValue>("all");
 
-const FILTER_OPTIONS: Array<{ value: FilterValue; label: string }> = [
-  { value: "all", label: "Todas" },
-  { value: "installment_vs_cash", label: "Parcelamento × À vista" },
-  { value: "goal_projection", label: "Projeção de Meta" },
-  { value: "investment_return", label: "Retorno" },
-];
+const FILTER_OPTIONS = computed((): Array<{ value: FilterValue; label: string }> => [
+  { value: "all", label: t("pages.simulations.filters.all") },
+  { value: "installment_vs_cash", label: t("pages.simulations.filters.installmentVsCash") },
+  { value: "goal_projection", label: t("pages.simulations.filters.goalProjection") },
+  { value: "investment_return", label: t("pages.simulations.filters.investmentReturn") },
+]);
 
 const allSimulations = computed(() => simulations.value ?? []);
 
@@ -53,17 +55,17 @@ const onDelete = (id: string): void => {
   <div class="simulations-page">
     <div class="simulations-page__header">
       <NPageHeader
-        title="Simulações"
-        subtitle="Projete cenários financeiros e guarde seus resultados"
+        :title="$t('pages.simulations.title')"
+        :subtitle="$t('pages.simulations.subtitle')"
         class="simulations-page__page-header"
       />
-      <NButton type="primary" size="medium">Nova simulação</NButton>
+      <NButton type="primary" size="medium">{{ $t('pages.simulations.newSimulation') }}</NButton>
     </div>
 
     <UiInlineError
       v-if="isError"
-      title="Não foi possível carregar as simulações"
-      message="Tente recarregar a página."
+      :title="$t('pages.simulations.loadError')"
+      :message="$t('pages.simulations.loadErrorMessage')"
     />
 
     <template v-else>
@@ -83,7 +85,7 @@ const onDelete = (id: string): void => {
       <template v-else>
         <div v-if="filteredSimulations.length === 0" class="simulations-page__empty-state">
           <span class="simulations-page__empty-text">
-            Nenhuma simulação encontrada para o filtro selecionado.
+            {{ $t('pages.simulations.empty') }}
           </span>
         </div>
 

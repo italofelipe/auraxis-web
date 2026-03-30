@@ -13,6 +13,8 @@ interface Emits {
   (event: "revoke", id: string): void;
 }
 
+const { t } = useI18n();
+
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
@@ -34,8 +36,8 @@ const permissionTagType = (permission: SharePermission): "info" | "success" => {
  */
 const permissionLabel = (permission: SharePermission): string => {
   const map: Record<SharePermission, string> = {
-    read: "Leitura",
-    write: "Escrita",
+    read: t("sharing.sharedEntry.permissions.read"),
+    write: t("sharing.sharedEntry.permissions.write"),
   };
   return map[permission] ?? permission;
 };
@@ -66,7 +68,7 @@ const handleRevoke = (): void => {
         size="small"
         round
       >
-        Revogado
+        {{ $t('sharing.sharedEntry.revoked') }}
       </NTag>
     </div>
     <NButton
@@ -76,7 +78,7 @@ const handleRevoke = (): void => {
       class="shared-entry-item__revoke"
       @click="handleRevoke"
     >
-      Revogar
+      {{ $t('sharing.sharedEntry.revoke') }}
     </NButton>
   </div>
 </template>
