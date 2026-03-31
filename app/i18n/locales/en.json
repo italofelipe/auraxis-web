@@ -8,7 +8,8 @@
     "sharedEntries": "Shared Entries",
     "tools": "Tools",
     "subscription": "Subscription",
-    "personalData": "Personal Data"
+    "personalData": "Personal Data",
+    "transactions": "Transactions"
   },
   "user": {
     "fallbackName": "User",
@@ -25,12 +26,12 @@
       "subtitle": "Choose the right plan and start managing your finances intelligently.",
       "mostPopular": "Most popular",
       "checkoutError": "Error starting checkout. Please try again.",
-      "footnote": "Prices in BRL. Cancel anytime. Billed monthly.",
+      "footnote": "Prices in BRL. Cancel anytime. Monthly billing from R$39.90.",
       "billing": {
         "monthly": "Monthly",
         "annual": "Annual",
         "toggleAriaLabel": "Toggle between monthly and annual billing",
-        "annualNote": "Paying annually saves you 2 months — no commitment.",
+        "annualNote": "Paying annually saves you 3 months — no commitment.",
         "footnoteAnnual": "Prices in BRL. Billed annually. Cancel anytime."
       },
       "plans": {
@@ -45,8 +46,8 @@
             "support": "Priority support"
           }
         },
-        "pro": {
-          "name": "Pro",
+        "premium": {
+          "name": "Premium",
           "features": {
             "transactions": "Unlimited transactions",
             "goals": "Unlimited goals",
@@ -56,7 +57,8 @@
             "support": "Priority support"
           }
         }
-      }
+      },
+      "trialBadge": "7 days free"
     },
     "tools": {
       "meta": {
@@ -195,9 +197,6 @@
         "free": {
           "name": "Free"
         },
-        "pro": {
-          "name": "Pro"
-        },
         "features": {
           "transactions50": "Up to 50 transactions/month",
           "transactions200": "Up to 200 transactions/month",
@@ -210,6 +209,9 @@
           "simulations": "Financial simulations",
           "sharedEntries": "Shared entries",
           "prioritySupport": "Priority support"
+        },
+        "premium": {
+          "name": "Premium"
         }
       },
       "billing": {
@@ -590,70 +592,9 @@
     }
   },
   "transaction": {
-    "form": {
-      "title": {
-        "income": "New Income",
-        "expense": "New Expense",
-        "label": "Title",
-        "placeholder": "E.g. March salary"
-      },
-      "amount": {
-        "label": "Amount",
-        "placeholder": "0.00"
-      },
-      "dueDate": {
-        "label": "Due date"
-      },
-      "tag": {
-        "label": "Category",
-        "placeholder": "Select a category"
-      },
-      "account": {
-        "label": "Account",
-        "placeholder": "Select an account"
-      },
-      "creditCard": {
-        "label": "Credit card",
-        "placeholder": "Select a card"
-      },
-      "status": {
-        "label": "Status"
-      },
-      "installment": {
-        "label": "Split into installments?"
-      },
-      "installmentCount": {
-        "label": "Number of installments",
-        "placeholder": "E.g. 12"
-      },
-      "recurring": {
-        "label": "Recurring?"
-      },
-      "endDate": {
-        "label": "Repeat until (optional)"
-      },
-      "description": {
-        "label": "Notes",
-        "placeholder": "Additional notes about this entry"
-      },
-      "errorTitle": "Save failed",
-      "errorFallback": "Could not save the entry. Please try again.",
-      "required": {
-        "title": "Please enter a title",
-        "amount": "Please enter an amount",
-        "dueDate": "Please select a date",
-        "installmentCount": "Please enter the number of installments"
-      }
+    "edit": {
+      "title": "Edit transaction"
     },
-    "status": {
-      "pending": "Pending",
-      "paid": "Paid / Received",
-      "cancelled": "Cancelled",
-      "postponed": "Postponed",
-      "overdue": "Overdue"
-    }
-  },
-  "transaction": {
     "form": {
       "title": {
         "income": "New Income",
@@ -670,11 +611,13 @@
       },
       "tag": {
         "label": "Category",
-        "placeholder": "Select a category"
+        "placeholder": "Select a category",
+        "createHint": "No categories. Create in Settings → Tags"
       },
       "account": {
         "label": "Account",
-        "placeholder": "Select an account"
+        "placeholder": "Select an account",
+        "createHint": "No accounts. Create in Settings → Accounts"
       },
       "creditCard": {
         "label": "Credit card",
@@ -968,6 +911,15 @@
     "quickAdd": {
       "income": "New Income",
       "expense": "New Expense"
+    },
+    "charts": {
+      "incomeExpense": "Income vs Expense",
+      "incomeExpenseSubtitle": "Period comparison",
+      "timeline": "Financial evolution",
+      "timelineSubtitle": "Movements over the period",
+      "income": "Income",
+      "expense": "Expense",
+      "balance": "Balance"
     }
   },
   "receivable": {
@@ -1030,7 +982,7 @@
     },
     "inviteForm": {
       "emailLabel": "Guest email",
-      "emailPlaceholder": "name@example.com",
+      "emailPlaceholder": "name{'@'}example.com",
       "submit": "Invite",
       "error": "Error sending invite. Please try again."
     },
@@ -1154,7 +1106,75 @@
     "banner": {
       "pastDueMessage": "Your payment is past due. Update your payment method to keep your access.",
       "canceledMessage": "Your subscription has been cancelled. Renew your plan to restore full access.",
-      "cta": "Manage subscription"
+      "cta": "Manage subscription",
+      "trialingMessage": "You are in your free trial period. Subscribe now to keep access.",
+      "ctaUpgrade": "See plans"
+    }
+  },
+  "transactions": {
+    "title": "Transactions",
+    "subtitle": "Recorded income and expenses",
+    "addIncome": "New Income",
+    "addExpense": "New Expense",
+    "recurring": "Recurring",
+    "installment": "{count}x",
+    "count": "{n} transactions",
+    "loadError": "Could not load transactions",
+    "loadErrorMessage": "Try reloading the page.",
+    "filter": {
+      "all": "All",
+      "income": "Income",
+      "expense": "Expenses"
+    },
+    "sort": {
+      "date": "Date",
+      "amount": "Amount",
+      "title": "Title",
+      "status": "Status",
+      "recurring": "Recurrence",
+      "asc": "Ascending",
+      "desc": "Descending"
+    },
+    "summary": {
+      "income": "Total Income",
+      "expense": "Total Expenses"
+    },
+    "empty": {
+      "title": "No transactions found",
+      "description": "Add your first income or expense to get started."
+    },
+    "table": {
+      "status": "Status",
+      "date": "Date",
+      "description": "Description",
+      "category": "Category",
+      "account": "Account",
+      "amount": "Amount",
+      "actions": "Actions"
+    },
+    "action": {
+      "markPaid": "Mark as paid",
+      "markPaidConfirm": "Confirm payment",
+      "markPaidConfirmDesc": "Mark \"{title}\" ({amount}) as paid?",
+      "markPaidConfirmYes": "Confirm",
+      "markPaidConfirmNo": "Cancel",
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleteConfirm": "Do you want to delete this transaction? This action cannot be undone.",
+      "deleteConfirmYes": "Delete",
+      "deleteConfirmNo": "Cancel"
+    },
+    "status": {
+      "nearDue": "Due soon"
+    },
+    "reorder": {
+      "enter": "Reorder",
+      "exit": "Done",
+      "hint": "Drag rows to reorder the view"
+    },
+    "swipe": {
+      "payHint": "Swipe → to pay",
+      "deleteHint": "Swipe ← to delete"
     }
   }
 }

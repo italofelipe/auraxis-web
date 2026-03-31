@@ -190,6 +190,12 @@ export default defineNuxtConfig({
     // server route (used by experimental.preload during SSG) returns {} → no
     // <script data-nuxt-i18n> is injected in the HTML → client falls back to the
     // /_i18n runtime endpoint which does not exist on static S3 → _s undefined.
+    // restructureDir: "app/i18n" moves the i18n module's base directory from
+    // the default <rootDir>/i18n/ to <rootDir>/app/i18n/ (the Nuxt 4 srcDir).
+    // This makes langDir: "locales" resolve to app/i18n/locales/ and
+    // vueI18n: "i18n.config.ts" resolve to app/i18n/i18n.config.ts.
+    // Single source of truth — no more duplicate root-level i18n/locales/ files.
+    restructureDir: "app/i18n",
     langDir: "locales",
     locales: [
       {
@@ -209,9 +215,9 @@ export default defineNuxtConfig({
     baseUrl: process.env.NUXT_PUBLIC_SITE_URL ?? undefined,
     strategy: "prefix_except_default",
     skipSettingLocaleOnNavigate: false,
-    // vueI18n is resolved relative to <rootDir>/i18n/ (the module's restructureDir).
-    // File lives at i18n/i18n.config.ts — sets initialization options only (legacy,
-    // fallbackLocale, etc.). Messages are loaded via locales[].file above.
+    // vueI18n is resolved relative to restructureDir (<rootDir>/app/i18n/).
+    // File lives at app/i18n/i18n.config.ts — sets initialization options only
+    // (legacy, fallbackLocale, etc.). Messages are loaded via locales[].file above.
     vueI18n: "i18n.config.ts",
     // experimental.preload: during SSG, fetches messages from the internal
     // messages.json Nitro route (populated via localeLoaders from locales[].file)

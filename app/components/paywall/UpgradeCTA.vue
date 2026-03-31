@@ -8,7 +8,7 @@ const router = useRouter();
 
 /** Navigates the user to the plans page. */
 const goToPlanos = (): void => {
-  void router.push("/planos");
+  void router.push("/plans");
 };
 </script>
 

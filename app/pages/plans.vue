@@ -35,18 +35,18 @@ const freePlan = computed((): PlanDto => ({
   ],
 }));
 
-const proPlan = computed((): PlanDto => ({
-  slug: "pro",
-  name: t("pages.plans.plans.pro.name"),
-  price_monthly: 29.90,
-  price_annual: 24.90,
+const premiumPlan = computed((): PlanDto => ({
+  slug: "premium",
+  name: t("pages.plans.plans.premium.name"),
+  price_monthly: 39.90,
+  price_annual: 29.90,
   features: [
-    { label: t("pages.plans.plans.pro.features.transactions"), included: true },
-    { label: t("pages.plans.plans.pro.features.goals"), included: true },
-    { label: t("pages.plans.plans.pro.features.advancedReports"), included: true },
-    { label: t("pages.plans.plans.pro.features.simulations"), included: true },
-    { label: t("pages.plans.plans.pro.features.sharedEntries"), included: true },
-    { label: t("pages.plans.plans.pro.features.support"), included: true },
+    { label: t("pages.plans.plans.premium.features.transactions"), included: true },
+    { label: t("pages.plans.plans.premium.features.goals"), included: true },
+    { label: t("pages.plans.plans.premium.features.advancedReports"), included: true },
+    { label: t("pages.plans.plans.premium.features.simulations"), included: true },
+    { label: t("pages.plans.plans.premium.features.sharedEntries"), included: true },
+    { label: t("pages.plans.plans.premium.features.support"), included: true },
   ],
 }));
 
@@ -58,9 +58,9 @@ const checkoutMutation = useCreateCheckoutMutation();
  * Initiates checkout for the Pro plan with the active billing cycle.
  * Redirects to the provider checkout URL on success.
  */
-const onSubscribePro = (): void => {
+const onSubscribePremium = (): void => {
   checkoutMutation.mutate(
-    { planSlug: "pro", billingCycle: billingCycle.value },
+    { planSlug: "premium", billingCycle: billingCycle.value },
     {
       onSuccess: (url: string) => {
         window.location.href = url;
@@ -72,7 +72,7 @@ const onSubscribePro = (): void => {
 // ── Annual savings helpers ────────────────────────────────────────────────────
 
 const annualDiscountPercent = computed(() =>
-  Math.round(((proPlan.value.price_monthly - proPlan.value.price_annual) / proPlan.value.price_monthly) * 100),
+  Math.round(((premiumPlan.value.price_monthly - premiumPlan.value.price_annual) / premiumPlan.value.price_monthly) * 100),
 );
 </script>
 
@@ -129,17 +129,22 @@ const annualDiscountPercent = computed(() =>
       <!-- Free plan -->
       <PlanCard :plan="freePlan" :is-current="false" :billing-cycle="billingCycle" />
 
-      <!-- Pro plan -->
-      <div class="plans-page__pro-col">
-        <div class="plans-page__popular-badge">
-          {{ t('pages.plans.mostPopular') }}
+      <!-- Premium plan -->
+      <div class="plans-page__premium-col">
+        <div class="plans-page__badges">
+          <div class="plans-page__popular-badge">
+            {{ t('pages.plans.mostPopular') }}
+          </div>
+          <div class="plans-page__trial-badge">
+            {{ t('pages.plans.trialBadge') }}
+          </div>
         </div>
         <PlanCard
-          :plan="proPlan"
+          :plan="premiumPlan"
           :is-current="false"
           :billing-cycle="billingCycle"
           :loading="checkoutMutation.isPending.value"
-          @select="onSubscribePro"
+          @select="onSubscribePremium"
         />
       </div>
     </div>
@@ -273,9 +278,14 @@ const annualDiscountPercent = computed(() =>
   align-items: start;
 }
 
-.plans-page__pro-col {
+.plans-page__premium-col {
   display: grid;
   gap: 0;
+}
+
+.plans-page__badges {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }
 
 .plans-page__popular-badge {
@@ -285,7 +295,19 @@ const annualDiscountPercent = computed(() =>
   font-weight: var(--font-weight-semibold);
   text-align: center;
   padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  border-radius: var(--radius-md) 0 0 0;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.plans-page__trial-badge {
+  background: var(--color-success);
+  color: #fff;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+  padding: var(--space-1) var(--space-2);
+  border-radius: 0 var(--radius-md) 0 0;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }

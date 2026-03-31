@@ -46,17 +46,17 @@ describe("useAuth/mutations", () => {
 
     const mutation = useLoginMutation(authApi) as unknown as {
       mutationFn: unknown;
-      onSuccess: (response: { accessToken: string; user: { email: string } }) => void;
+      onSuccess: (response: { accessToken: string; user: { email: string; emailConfirmed?: boolean } }) => void;
     };
 
     expect(mutation.mutationFn).toBe(authApi.login);
 
     mutation.onSuccess({
       accessToken: "login-token",
-      user: { email: "login@auraxis.com" },
+      user: { email: "login@auraxis.com", emailConfirmed: true },
     });
 
-    expect(signInMock).toHaveBeenCalledWith("login-token", "login@auraxis.com");
+    expect(signInMock).toHaveBeenCalledWith("login-token", "login@auraxis.com", true);
   });
 
   it("usa API injetada em useRegisterMutation e dispara signIn no sucesso", () => {
@@ -68,17 +68,17 @@ describe("useAuth/mutations", () => {
 
     const mutation = useRegisterMutation(authApi) as unknown as {
       mutationFn: unknown;
-      onSuccess: (response: { accessToken: string; user: { email: string } }) => void;
+      onSuccess: (response: { accessToken: string; user: { email: string; emailConfirmed?: boolean } }) => void;
     };
 
     expect(mutation.mutationFn).toBe(authApi.register);
 
     mutation.onSuccess({
       accessToken: "register-token",
-      user: { email: "register@auraxis.com" },
+      user: { email: "register@auraxis.com", emailConfirmed: false },
     });
 
-    expect(signInMock).toHaveBeenCalledWith("register-token", "register@auraxis.com");
+    expect(signInMock).toHaveBeenCalledWith("register-token", "register@auraxis.com", false);
   });
 
   it("usa API injetada em useForgotPasswordMutation", () => {

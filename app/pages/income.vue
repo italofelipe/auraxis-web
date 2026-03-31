@@ -4,6 +4,8 @@ import { ref } from "vue";
 
 import { useConfirmImportMutation } from "~/features/receivables/queries/use-confirm-import-mutation";
 import { useCsvUploadMutation } from "~/features/receivables/queries/use-csv-upload-mutation";
+import { useDeleteReceivableMutation } from "~/features/receivables/queries/use-delete-receivable-mutation";
+import { useMarkReceivedMutation } from "~/features/receivables/queries/use-mark-received-mutation";
 import { useReceivablesQuery } from "~/features/receivables/queries/use-receivables-query";
 import { useRevenueSummaryQuery } from "~/features/receivables/queries/use-revenue-summary-query";
 import type { CsvUploadPayload } from "~/features/receivables/services/receivables.client";
@@ -24,6 +26,8 @@ const receivablesQuery = useReceivablesQuery();
 
 const csvUploadMutation = useCsvUploadMutation();
 const confirmImportMutation = useConfirmImportMutation();
+const markReceivedMutation = useMarkReceivedMutation();
+const deleteReceivableMutation = useDeleteReceivableMutation();
 
 const previewRows = ref<ParsedRow[]>([]);
 const createdCount = ref<number | null>(null);
@@ -63,14 +67,26 @@ const handleConfirm = (): void => {
   });
 };
 
-/** @param _id Receivable entry ID. Stub — mark-received mutation to be wired in follow-up. */
-const handleReceive = (_id: string): void => {
-  // mark-received mutation to be wired in follow-up
+/**
+ * Marks a receivable as received using today's date.
+ *
+ * Invalidation is handled by the mutation's onSuccess hook.
+ *
+ * @param id Receivable entry ID.
+ */
+const handleReceive = (id: string): void => {
+  markReceivedMutation.mutate({ id });
 };
 
-/** @param _id Receivable entry ID. Stub — delete mutation to be wired in follow-up. */
-const handleDelete = (_id: string): void => {
-  // delete mutation to be wired in follow-up
+/**
+ * Deletes a receivable entry.
+ *
+ * Invalidation is handled by the mutation's onSuccess hook.
+ *
+ * @param id Receivable entry ID.
+ */
+const handleDelete = (id: string): void => {
+  deleteReceivableMutation.mutate(id);
 };
 </script>
 

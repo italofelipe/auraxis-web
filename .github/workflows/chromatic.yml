@@ -60,7 +60,7 @@ jobs:
 
       - name: Setup pnpm
         if: steps.capability.outputs.enabled == 'true'
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
         with:
           version: ${{ env.PNPM_VERSION }}
 
@@ -78,7 +78,7 @@ jobs:
       - name: Run Chromatic
         id: chromatic
         if: steps.capability.outputs.enabled == 'true'
-        uses: chromaui/action@v1
+        uses: chromaui/action@v16
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           buildScriptName: storybook:build
@@ -135,7 +135,7 @@ jobs:
 
       - name: Setup pnpm
         if: steps.deploy-cap.outputs.enabled == 'true'
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
         with:
           version: ${{ env.PNPM_VERSION }}
 
