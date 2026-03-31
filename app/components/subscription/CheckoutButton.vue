@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { NButton } from "naive-ui";
 
+import type { BillingCycle } from "~/features/subscription/contracts/subscription.dto";
 import { useSubscriptionClient } from "~/features/subscription/services/subscription.client";
 
 interface Props {
   /** Plan slug to initiate checkout for. */
   planSlug: string;
+  /** Billing cycle to send to the checkout endpoint. Defaults to "monthly". */
+  billingCycle?: BillingCycle;
   /** Optional label override for the button. */
   label?: string;
 }
@@ -13,6 +16,7 @@ interface Props {
 const { t } = useI18n();
 
 const props = withDefaults(defineProps<Props>(), {
+  billingCycle: "monthly",
   label: undefined,
 });
 
@@ -20,7 +24,7 @@ const isLoading = ref(false);
 const error = ref<string | null>(null);
 
 /**
- * Initiates the checkout flow for the bound plan slug.
+ * Initiates the checkout flow for the bound plan slug and billing cycle.
  *
  * Calls createCheckout, then redirects the browser to the returned URL.
  * Sets loading state during the request and surfaces errors inline.
@@ -31,7 +35,7 @@ const handleCheckout = async (): Promise<void> => {
 
   try {
     const client = useSubscriptionClient();
-    const checkoutUrl = await client.createCheckout(props.planSlug);
+    const checkoutUrl = await client.createCheckout(props.planSlug, props.billingCycle);
     window.location.href = checkoutUrl;
   } catch (err) {
     error.value = err instanceof Error ? err.message : t("subscription.checkoutButton.error");

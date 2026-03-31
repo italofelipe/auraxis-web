@@ -191,12 +191,16 @@ const buildInstallmentFields = (): Partial<CreateTransactionPayload> => {
 /**
  * Builds the optional recurrence fields when the toggle is active.
  *
+ * The backend requires both `start_date` and `end_date` (YYYY-MM-DD) when
+ * `is_recurring` is true. `start_date` defaults to the transaction's due_date.
+ *
  * @returns Partial payload fields for recurring mode, or empty object.
  */
 const buildRecurringFields = (): Partial<CreateTransactionPayload> => {
   if (!form.is_recurring) { return {}; }
   return {
     is_recurring: true,
+    start_date: form.due_date ? tsToDate(form.due_date) : undefined,
     ...(form.end_date ? { end_date: tsToDate(form.end_date) } : {}),
   };
 };
@@ -322,6 +326,7 @@ const submitButtonType = computed(() =>
         <NDatePicker
           v-model:value="form.due_date"
           type="date"
+          format="dd/MM/yyyy"
           style="width: 100%"
         />
       </NFormItem>
@@ -334,6 +339,14 @@ const submitButtonType = computed(() =>
           :placeholder="$t('transaction.form.tag.placeholder')"
           clearable
         />
+        <template v-if="tagOptions.length === 0">
+          <NuxtLink
+            to="/settings/tags"
+            class="quick-transaction-form__settings-link"
+          >
+            {{ $t('transaction.form.tag.createHint') }}
+          </NuxtLink>
+        </template>
       </NFormItem>
 
       <!-- Account -->
@@ -344,6 +357,14 @@ const submitButtonType = computed(() =>
           :placeholder="$t('transaction.form.account.placeholder')"
           clearable
         />
+        <template v-if="accountOptions.length === 0">
+          <NuxtLink
+            to="/settings/accounts"
+            class="quick-transaction-form__settings-link"
+          >
+            {{ $t('transaction.form.account.createHint') }}
+          </NuxtLink>
+        </template>
       </NFormItem>
 
       <!-- Credit card (expense only) -->
@@ -405,6 +426,7 @@ const submitButtonType = computed(() =>
         <NDatePicker
           v-model:value="form.end_date"
           type="date"
+          format="dd/MM/yyyy"
           style="width: 100%"
           clearable
         />
@@ -442,5 +464,17 @@ const submitButtonType = computed(() =>
 <style scoped>
 .quick-transaction-form-modal {
   color: var(--color-text-primary);
+}
+
+.quick-transaction-form__settings-link {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: var(--font-size-xs);
+  color: var(--color-brand-500);
+  text-decoration: none;
+}
+
+.quick-transaction-form__settings-link:hover {
+  text-decoration: underline;
 }
 </style>

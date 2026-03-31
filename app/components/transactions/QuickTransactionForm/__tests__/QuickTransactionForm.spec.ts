@@ -44,12 +44,20 @@ vi.mock("~/features/credit-cards/queries/use-credit-cards-query", () => ({
 /**
  * Mounts the QuickTransactionForm with sensible defaults.
  *
+ * NuxtLink requires a Nuxt router context that is not available in Vitest.
+ * We stub it with a plain <a> element to prevent "nuxt instance unavailable" errors.
+ *
  * @param type Transaction type — "income" or "expense".
  * @returns Vue Test Utils wrapper.
  */
 const mountForm = (type: "income" | "expense" = "expense"): VueWrapper =>
   mount(QuickTransactionForm, {
     props: { visible: true, type },
+    global: {
+      stubs: {
+        NuxtLink: { template: "<a><slot /></a>" },
+      },
+    },
   });
 
 describe("QuickTransactionForm", () => {
@@ -116,6 +124,11 @@ describe("QuickTransactionForm", () => {
   it("does not render modal content when visible is false", () => {
     const wrapper = mount(QuickTransactionForm, {
       props: { visible: false, type: "expense" },
+      global: {
+        stubs: {
+          NuxtLink: { template: "<a><slot /></a>" },
+        },
+      },
     });
     expect(wrapper.find("[data-testid='n-modal']").exists()).toBe(false);
   });

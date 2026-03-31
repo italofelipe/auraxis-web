@@ -14,6 +14,8 @@ type V2AuthUser = {
   readonly id: string;
   readonly name: string;
   readonly email: string;
+  /** Whether the user's email address has been verified. */
+  readonly email_confirmed?: boolean;
 };
 
 /** v2 envelope data payload for login and register. */
@@ -48,6 +50,7 @@ const normalizeAuthEnvelope = (envelope: V2AuthEnvelope): LoginResponse => ({
   user: {
     email: envelope.data.user.email,
     displayName: envelope.data.user.name,
+    emailConfirmed: envelope.data.user.email_confirmed,
   },
 });
 

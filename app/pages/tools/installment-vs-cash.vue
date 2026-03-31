@@ -2,6 +2,14 @@
 import { computed, onMounted, reactive, ref } from "vue";
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 import {
+  BarChart3,
+  Target,
+  ShieldCheck,
+  Zap,
+  ArrowRight,
+  Sparkles,
+} from "lucide-vue-next";
+import {
   NAlert,
   NButton,
   NDatePicker,
@@ -472,7 +480,105 @@ onMounted((): void => {
 </script>
 
 <template>
-  <div class="installment-vs-cash-page">
+  <!-- Transparent root wrapper required by vue/no-multiple-template-root.
+       display:contents makes it invisible to the layout engine. -->
+  <div class="installment-vs-cash-root">
+  <!-- ═══ AUTHENTICATED VIEW — tool inside the app shell ══════════════════ -->
+  <NuxtLayout v-if="isAuthenticated" name="default">
+    <main class="installment-vs-cash-page__content installment-vs-cash-page__content--in-app">
+      <section class="installment-vs-cash-page__hero">
+        <div class="installment-vs-cash-page__hero-copy">
+          <NTag round type="warning">
+            {{ t('pages.installmentVsCash.hero.badge') }}
+          </NTag>
+          <UiPageHeader
+            :title="t('pages.installmentVsCash.hero.title')"
+            :subtitle="t('pages.installmentVsCash.hero.subtitle')"
+          />
+
+          <NSpace vertical :size="16">
+            <NThing
+              :title="t('pages.installmentVsCash.hero.featureBasic')"
+              :description="t('pages.installmentVsCash.hero.featureBasicDesc')"
+            />
+            <NThing
+              :title="t('pages.installmentVsCash.hero.featureAdvanced')"
+              :description="t('pages.installmentVsCash.hero.featureAdvancedDesc')"
+            />
+          </NSpace>
+        </div>
+
+        <UiGlassPanel glow class="installment-vs-cash-page__hero-panel">
+          <InstallmentVsCashCalculatorForm
+            v-model="form"
+            :loading="calculateMutation.isPending.value"
+            @submit="handleCalculate"
+          />
+
+          <NAlert
+            v-if="validationMessage"
+            type="warning"
+            class="installment-vs-cash-page__alert"
+          >
+            {{ validationMessage }}
+          </NAlert>
+
+          <NAlert
+            v-if="calculateMutation.isError.value"
+            type="error"
+            class="installment-vs-cash-page__alert"
+          >
+            {{ t('pages.installmentVsCash.errors.calculate') }}
+          </NAlert>
+        </UiGlassPanel>
+      </section>
+
+      <section v-if="calculation" class="installment-vs-cash-page__results">
+        <InstallmentVsCashResults :calculation="calculation" />
+
+        <UiSurfaceCard>
+          <NThing
+            :title="t('pages.installmentVsCash.results.nextStep')"
+            :description="`${getRecommendationLabel(calculation.result.recommendedOption)}.`"
+          />
+
+          <InstallmentVsCashActionBar
+            class="installment-vs-cash-page__actions"
+            :is-authenticated="isAuthenticated"
+            :has-premium-access="hasPremiumAccess"
+            :is-saving="saveMutation.isPending.value"
+            :is-bridging="isBridging"
+            :has-saved-simulation="savedSimulation !== null"
+            @save="handleSave"
+            @goal="handleGoalAction"
+            @expense="handleExpenseAction"
+          />
+        </UiSurfaceCard>
+      </section>
+
+      <section class="installment-vs-cash-page__seo">
+        <UiSurfaceCard>
+          <NSpace vertical :size="16">
+            <NThing
+              :title="t('pages.installmentVsCash.seoSection.considers')"
+              :description="t('pages.installmentVsCash.seoSection.considersDesc')"
+            />
+            <NThing
+              :title="t('pages.installmentVsCash.seoSection.notReplaces')"
+              :description="t('pages.installmentVsCash.seoSection.notReplacesDesc')"
+            />
+            <NThing
+              :title="t('pages.installmentVsCash.seoSection.howToUse')"
+              :description="t('pages.installmentVsCash.seoSection.howToUseDesc')"
+            />
+          </NSpace>
+        </UiSurfaceCard>
+      </section>
+    </main>
+  </NuxtLayout>
+
+  <!-- ═══ GUEST VIEW — standalone branded page ════════════════════════════ -->
+  <div v-else class="installment-vs-cash-page">
     <header class="installment-vs-cash-page__header">
       <div class="installment-vs-cash-page__brand">
         <span class="installment-vs-cash-page__brand-mark">Auraxis</span>
@@ -580,114 +686,225 @@ onMounted((): void => {
       </section>
     </main>
 
-    <NModal
-      v-model:show="showGoalModal"
-      preset="card"
-      :title="t('pages.installmentVsCash.goalModal.title')"
-      class="installment-vs-cash-page__modal"
-    >
-      <NForm label-placement="top">
-        <NFormItem :label="t('pages.installmentVsCash.goalModal.titleLabel')">
-          <NInput v-model:value="goalForm.title" />
-        </NFormItem>
+    <!-- ─── Guest CTA — invite visitors to create a free account ─────────── -->
+    <section class="ivc-guest-cta" :aria-label="t('pages.installmentVsCash.guestCta.ariaLabel')">
+      <div class="ivc-guest-cta__inner">
+        <!-- ── Headline ─────────────────────────────────────────────────── -->
+        <div class="ivc-guest-cta__headline">
+          <div class="ivc-guest-cta__badge">
+            <Sparkles :size="14" aria-hidden="true" />
+            {{ t('pages.installmentVsCash.guestCta.badge') }}
+          </div>
+          <h2 class="ivc-guest-cta__title">
+            {{ t('pages.installmentVsCash.guestCta.title') }}
+          </h2>
+          <p class="ivc-guest-cta__subtitle">
+            {{ t('pages.installmentVsCash.guestCta.subtitle') }}
+          </p>
+        </div>
 
-        <NFormItem :label="t('pages.installmentVsCash.goalModal.descriptionLabel')">
-          <NInput v-model:value="goalForm.description" type="textarea" />
-        </NFormItem>
+        <!-- ── Feature cards ────────────────────────────────────────────── -->
+        <ul class="ivc-guest-cta__features" aria-label="Recursos inclusos">
+          <li class="ivc-guest-cta__feature">
+            <div class="ivc-guest-cta__feature-icon ivc-guest-cta__feature-icon--blue">
+              <BarChart3 :size="22" aria-hidden="true" />
+            </div>
+            <div>
+              <strong class="ivc-guest-cta__feature-title">
+                {{ t('pages.installmentVsCash.guestCta.features.portfolio.title') }}
+              </strong>
+              <span class="ivc-guest-cta__feature-desc">
+                {{ t('pages.installmentVsCash.guestCta.features.portfolio.desc') }}
+              </span>
+            </div>
+          </li>
 
-        <NFormItem :label="t('pages.installmentVsCash.goalModal.targetDateLabel')">
-          <NDatePicker
-            v-model:value="goalForm.targetDate"
-            type="date"
-            clearable
-          />
-        </NFormItem>
+          <li class="ivc-guest-cta__feature">
+            <div class="ivc-guest-cta__feature-icon ivc-guest-cta__feature-icon--green">
+              <Target :size="22" aria-hidden="true" />
+            </div>
+            <div>
+              <strong class="ivc-guest-cta__feature-title">
+                {{ t('pages.installmentVsCash.guestCta.features.goals.title') }}
+              </strong>
+              <span class="ivc-guest-cta__feature-desc">
+                {{ t('pages.installmentVsCash.guestCta.features.goals.desc') }}
+              </span>
+            </div>
+          </li>
 
-        <NSpace justify="end">
-          <NButton @click="showGoalModal = false">{{ t('pages.installmentVsCash.goalModal.cancel') }}</NButton>
+          <li class="ivc-guest-cta__feature">
+            <div class="ivc-guest-cta__feature-icon ivc-guest-cta__feature-icon--purple">
+              <ShieldCheck :size="22" aria-hidden="true" />
+            </div>
+            <div>
+              <strong class="ivc-guest-cta__feature-title">
+                {{ t('pages.installmentVsCash.guestCta.features.security.title') }}
+              </strong>
+              <span class="ivc-guest-cta__feature-desc">
+                {{ t('pages.installmentVsCash.guestCta.features.security.desc') }}
+              </span>
+            </div>
+          </li>
+
+          <li class="ivc-guest-cta__feature">
+            <div class="ivc-guest-cta__feature-icon ivc-guest-cta__feature-icon--amber">
+              <Zap :size="22" aria-hidden="true" />
+            </div>
+            <div>
+              <strong class="ivc-guest-cta__feature-title">
+                {{ t('pages.installmentVsCash.guestCta.features.tools.title') }}
+              </strong>
+              <span class="ivc-guest-cta__feature-desc">
+                {{ t('pages.installmentVsCash.guestCta.features.tools.desc') }}
+              </span>
+            </div>
+          </li>
+        </ul>
+
+        <!-- ── Actions ──────────────────────────────────────────────────── -->
+        <div class="ivc-guest-cta__actions">
           <NButton
             type="primary"
-            :loading="createGoalMutation.isPending.value"
-            @click="submitGoalBridge"
+            size="large"
+            class="ivc-guest-cta__primary-btn"
+            @click="router.push('/register')"
           >
-            {{ t('pages.installmentVsCash.goalModal.submit') }}
+            {{ t('pages.installmentVsCash.guestCta.registerCta') }}
+            <ArrowRight :size="16" aria-hidden="true" />
           </NButton>
-        </NSpace>
-      </NForm>
-    </NModal>
 
-    <NModal
-      v-model:show="showExpenseModal"
-      preset="card"
-      :title="t('pages.installmentVsCash.expenseModal.title')"
-      class="installment-vs-cash-page__modal"
-    >
-      <NForm label-placement="top">
-        <NFormItem :label="t('pages.installmentVsCash.expenseModal.titleLabel')">
-          <NInput v-model:value="plannedExpenseForm.title" />
-        </NFormItem>
-
-        <NFormItem :label="t('pages.installmentVsCash.expenseModal.descriptionLabel')">
-          <NInput v-model:value="plannedExpenseForm.description" type="textarea" />
-        </NFormItem>
-
-        <NFormItem :label="t('pages.installmentVsCash.expenseModal.modeLabel')">
-          <UiSegmentedControl
-            v-model="plannedExpenseForm.selectedOption"
-            :options="[
-              { label: t('pages.installmentVsCash.expenseModal.cashLabel'), value: 'cash' },
-              { label: t('pages.installmentVsCash.expenseModal.installmentLabel'), value: 'installment' },
-            ]"
-            :aria-label="t('pages.installmentVsCash.expenseModal.modeAriaLabel')"
-          />
-        </NFormItem>
-
-        <NFormItem
-          v-if="plannedExpenseForm.selectedOption === 'cash'"
-          :label="t('pages.installmentVsCash.expenseModal.dueDateLabel')"
-        >
-          <NDatePicker
-            v-model:value="plannedExpenseForm.dueDate"
-            type="date"
-            clearable
-          />
-        </NFormItem>
-
-        <NFormItem
-          v-else
-          :label="t('pages.installmentVsCash.expenseModal.firstDueDateLabel')"
-        >
-          <NDatePicker
-            v-model:value="plannedExpenseForm.firstDueDate"
-            type="date"
-            clearable
-          />
-        </NFormItem>
-
-        <NFormItem v-if="form.feesEnabled" :label="t('pages.installmentVsCash.expenseModal.upfrontDateLabel')">
-          <NDatePicker
-            v-model:value="plannedExpenseForm.upfrontDueDate"
-            type="date"
-            clearable
-          />
-        </NFormItem>
-
-        <NSpace justify="end">
-          <NButton @click="showExpenseModal = false">{{ t('pages.installmentVsCash.expenseModal.cancel') }}</NButton>
           <NButton
-            type="primary"
-            :loading="createPlannedExpenseMutation.isPending.value"
-            @click="submitExpenseBridge"
+            quaternary
+            size="large"
+            @click="router.push('/login')"
           >
-            {{ t('pages.installmentVsCash.expenseModal.submit') }}
+            {{ t('pages.installmentVsCash.guestCta.loginCta') }}
           </NButton>
-        </NSpace>
-      </NForm>
-    </NModal>
+        </div>
+
+        <!-- ── Trust line ────────────────────────────────────────────────── -->
+        <p class="ivc-guest-cta__trust">
+          {{ t('pages.installmentVsCash.guestCta.trust') }}
+        </p>
+      </div>
+    </section>
+  </div>
+
+  <!-- ─── Modals — teleport to <body>, safe outside layout branches ─────── -->
+  <NModal
+    v-model:show="showGoalModal"
+    preset="card"
+    :title="t('pages.installmentVsCash.goalModal.title')"
+    class="installment-vs-cash-page__modal"
+  >
+    <NForm label-placement="top">
+      <NFormItem :label="t('pages.installmentVsCash.goalModal.titleLabel')">
+        <NInput v-model:value="goalForm.title" />
+      </NFormItem>
+
+      <NFormItem :label="t('pages.installmentVsCash.goalModal.descriptionLabel')">
+        <NInput v-model:value="goalForm.description" type="textarea" />
+      </NFormItem>
+
+      <NFormItem :label="t('pages.installmentVsCash.goalModal.targetDateLabel')">
+        <NDatePicker
+          v-model:value="goalForm.targetDate"
+          type="date"
+          clearable
+        />
+      </NFormItem>
+
+      <NSpace justify="end">
+        <NButton @click="showGoalModal = false">{{ t('pages.installmentVsCash.goalModal.cancel') }}</NButton>
+        <NButton
+          type="primary"
+          :loading="createGoalMutation.isPending.value"
+          @click="submitGoalBridge"
+        >
+          {{ t('pages.installmentVsCash.goalModal.submit') }}
+        </NButton>
+      </NSpace>
+    </NForm>
+  </NModal>
+
+  <NModal
+    v-model:show="showExpenseModal"
+    preset="card"
+    :title="t('pages.installmentVsCash.expenseModal.title')"
+    class="installment-vs-cash-page__modal"
+  >
+    <NForm label-placement="top">
+      <NFormItem :label="t('pages.installmentVsCash.expenseModal.titleLabel')">
+        <NInput v-model:value="plannedExpenseForm.title" />
+      </NFormItem>
+
+      <NFormItem :label="t('pages.installmentVsCash.expenseModal.descriptionLabel')">
+        <NInput v-model:value="plannedExpenseForm.description" type="textarea" />
+      </NFormItem>
+
+      <NFormItem :label="t('pages.installmentVsCash.expenseModal.modeLabel')">
+        <UiSegmentedControl
+          v-model="plannedExpenseForm.selectedOption"
+          :options="[
+            { label: t('pages.installmentVsCash.expenseModal.cashLabel'), value: 'cash' },
+            { label: t('pages.installmentVsCash.expenseModal.installmentLabel'), value: 'installment' },
+          ]"
+          :aria-label="t('pages.installmentVsCash.expenseModal.modeAriaLabel')"
+        />
+      </NFormItem>
+
+      <NFormItem
+        v-if="plannedExpenseForm.selectedOption === 'cash'"
+        :label="t('pages.installmentVsCash.expenseModal.dueDateLabel')"
+      >
+        <NDatePicker
+          v-model:value="plannedExpenseForm.dueDate"
+          type="date"
+          clearable
+        />
+      </NFormItem>
+
+      <NFormItem
+        v-else
+        :label="t('pages.installmentVsCash.expenseModal.firstDueDateLabel')"
+      >
+        <NDatePicker
+          v-model:value="plannedExpenseForm.firstDueDate"
+          type="date"
+          clearable
+        />
+      </NFormItem>
+
+      <NFormItem v-if="form.feesEnabled" :label="t('pages.installmentVsCash.expenseModal.upfrontDateLabel')">
+        <NDatePicker
+          v-model:value="plannedExpenseForm.upfrontDueDate"
+          type="date"
+          clearable
+        />
+      </NFormItem>
+
+      <NSpace justify="end">
+        <NButton @click="showExpenseModal = false">{{ t('pages.installmentVsCash.expenseModal.cancel') }}</NButton>
+        <NButton
+          type="primary"
+          :loading="createPlannedExpenseMutation.isPending.value"
+          @click="submitExpenseBridge"
+        >
+          {{ t('pages.installmentVsCash.expenseModal.submit') }}
+        </NButton>
+      </NSpace>
+    </NForm>
+  </NModal>
   </div>
 </template>
 
 <style scoped>
+/* Transparent wrapper needed for single-root template constraint. */
+.installment-vs-cash-root {
+  display: contents;
+}
+
 .installment-vs-cash-page {
   min-height: 100dvh;
   background:
@@ -799,6 +1016,199 @@ onMounted((): void => {
 
   .installment-vs-cash-page__content {
     padding-inline: var(--space-2);
+  }
+}
+
+/* ── In-app variant (authenticated, inside NuxtLayout default) ───────────── */
+.installment-vs-cash-page__content--in-app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--space-4) var(--space-4) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* ── Guest CTA section ───────────────────────────────────────────────────── */
+.ivc-guest-cta {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 70% 50%, color-mix(in srgb, var(--color-brand-500) 8%, transparent), transparent 60%),
+    linear-gradient(180deg, var(--color-bg-base) 0%, var(--color-bg-surface) 100%);
+  border-top: 1px solid var(--color-outline-soft);
+  padding: var(--space-6) var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.ivc-guest-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 80%, color-mix(in srgb, var(--color-brand-500) 5%, transparent), transparent 50%);
+  pointer-events: none;
+}
+
+.ivc-guest-cta__inner {
+  position: relative;
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  text-align: center;
+}
+
+/* ── Badge ────────────────────────────────────────────────────────────────── */
+.ivc-guest-cta__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--color-brand-500) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-brand-500) 25%, transparent);
+  color: var(--color-brand-400);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* ── Headline ─────────────────────────────────────────────────────────────── */
+.ivc-guest-cta__headline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.ivc-guest-cta__title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-size-heading-lg);
+  line-height: var(--line-height-heading-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  max-width: 600px;
+}
+
+.ivc-guest-cta__subtitle {
+  margin: 0;
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  max-width: 520px;
+  line-height: 1.6;
+}
+
+/* ── Feature grid ─────────────────────────────────────────────────────────── */
+.ivc-guest-cta__features {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+  width: 100%;
+  text-align: left;
+}
+
+.ivc-guest-cta__feature {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-outline-soft);
+  border-radius: var(--radius-lg);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.ivc-guest-cta__feature:hover {
+  border-color: color-mix(in srgb, var(--color-brand-500) 35%, transparent);
+  transform: translateY(-2px);
+}
+
+.ivc-guest-cta__feature-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+.ivc-guest-cta__feature-icon--blue {
+  background: color-mix(in srgb, #3b82f6 12%, transparent);
+  color: #3b82f6;
+}
+
+.ivc-guest-cta__feature-icon--green {
+  background: color-mix(in srgb, var(--color-positive) 12%, transparent);
+  color: var(--color-positive);
+}
+
+.ivc-guest-cta__feature-icon--purple {
+  background: color-mix(in srgb, #a855f7 12%, transparent);
+  color: #a855f7;
+}
+
+.ivc-guest-cta__feature-icon--amber {
+  background: color-mix(in srgb, #f59e0b 12%, transparent);
+  color: #f59e0b;
+}
+
+.ivc-guest-cta__feature-title {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: 2px;
+}
+
+.ivc-guest-cta__feature-desc {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+/* ── Actions ──────────────────────────────────────────────────────────────── */
+.ivc-guest-cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: center;
+}
+
+.ivc-guest-cta__primary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* ── Trust line ───────────────────────────────────────────────────────────── */
+.ivc-guest-cta__trust {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 639px) {
+  .ivc-guest-cta__features {
+    grid-template-columns: 1fr;
+  }
+
+  .ivc-guest-cta__title {
+    font-size: var(--font-size-heading-md);
+  }
+
+  .ivc-guest-cta__actions {
+    flex-direction: column;
+    width: 100%;
   }
 }
 </style>

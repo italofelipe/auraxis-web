@@ -1,9 +1,16 @@
 import { type UseMutationReturnType, useMutation } from "@tanstack/vue-query";
 
+import type { BillingCycle } from "~/features/subscription/contracts/subscription.dto";
 import {
   useSubscriptionClient,
   type SubscriptionClient,
 } from "~/features/subscription/services/subscription.client";
+
+/** Variables accepted by the checkout mutation. */
+export type CheckoutMutationVariables = {
+  planSlug: string;
+  billingCycle: BillingCycle;
+};
 
 /**
  * Vue Query mutation hook for creating a checkout session for a given plan.
@@ -16,12 +23,12 @@ import {
  */
 export const useCreateCheckoutMutation = (
   providedClient?: SubscriptionClient,
-): UseMutationReturnType<string, Error, string, unknown> => {
+): UseMutationReturnType<string, Error, CheckoutMutationVariables, unknown> => {
   const client = providedClient ?? useSubscriptionClient();
 
   return useMutation({
-    mutationFn: (planSlug: string): Promise<string> => {
-      return client.createCheckout(planSlug);
+    mutationFn: ({ planSlug, billingCycle }: CheckoutMutationVariables): Promise<string> => {
+      return client.createCheckout(planSlug, billingCycle);
     },
   });
 };

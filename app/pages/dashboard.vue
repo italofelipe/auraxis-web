@@ -128,12 +128,19 @@ const emptyMessage = computed(() =>
       />
 
       <template v-else>
-        <section class="dashboard-main-grid">
-          <DashboardTimeseriesChart
-            :data="timeseries"
-            :is-loading="dashboardQuery.isLoading.value"
+        <!-- ── ECharts panels ──────────────────────────────────────────────── -->
+        <section class="dashboard-charts-grid">
+          <DashboardIncomeExpenseChart
+            :summary="summary"
+            :loading="dashboardQuery.isLoading.value"
           />
+          <DashboardTimelineEChart
+            :timeseries="timeseries"
+            :loading="dashboardQuery.isLoading.value"
+          />
+        </section>
 
+        <section class="dashboard-main-grid">
           <DashboardAlerts
             :alerts="alerts"
             :is-loading="dashboardQuery.isLoading.value"
@@ -239,6 +246,12 @@ const emptyMessage = computed(() =>
   color: var(--color-negative);
 }
 
+.dashboard-charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: var(--space-2);
+}
+
 .dashboard-main-grid {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
@@ -285,6 +298,7 @@ const emptyMessage = computed(() =>
 }
 
 @media (max-width: 1024px) {
+  .dashboard-charts-grid,
   .dashboard-main-grid {
     grid-template-columns: 1fr;
   }

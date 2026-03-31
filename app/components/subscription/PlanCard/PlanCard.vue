@@ -17,15 +17,26 @@ const { t } = useI18n();
 const props = defineProps<PlanCardProps>();
 const emit = defineEmits<PlanCardEmits>();
 
+/** Active cycle, defaulting to monthly. */
+const cycle = computed(() => props.billingCycle ?? "monthly");
+
 /**
- * Returns the formatted price string for a plan.
- * Returns the free label if the price is 0.
+ * Returns the formatted price string for a plan based on the active billing cycle.
+ * Returns the free label when the plan is free.
  *
  * @returns Formatted price string.
  */
 const priceLabel = computed((): string => {
-  if (props.plan.price_monthly === 0) {return t("subscription.planCard.free");}
-  return t("subscription.planCard.pricePerMonth", { price: formatCurrency(props.plan.price_monthly) });
+  if (props.plan.price_monthly === 0) { return t("subscription.planCard.free"); }
+  const price = cycle.value === "annual" ? props.plan.price_annual : props.plan.price_monthly;
+  return t("subscription.planCard.pricePerMonth", { price: formatCurrency(price) });
+});
+
+/** Shows the annual billing note when the annual cycle is active. */
+const billedAnnuallyLabel = computed((): string | null => {
+  if (cycle.value !== "annual" || props.plan.price_monthly === 0) { return null; }
+  const total = props.plan.price_annual * 12;
+  return t("subscription.planCard.billedAnnually", { total: formatCurrency(total) });
 });
 
 /** Handles the subscribe button click. */
@@ -60,7 +71,12 @@ const onSelect = (): void => {
         </NTag>
       </div>
 
-      <NText class="plan-card__price">{{ priceLabel }}</NText>
+      <div class="plan-card__pricing">
+        <NText class="plan-card__price">{{ priceLabel }}</NText>
+        <NText v-if="billedAnnuallyLabel" class="plan-card__billed-annually" depth="3">
+          {{ billedAnnuallyLabel }}
+        </NText>
+      </div>
 
       <NList class="plan-card__features" :show-divider="false">
         <NListItem
@@ -126,12 +142,23 @@ const onSelect = (): void => {
   color: var(--color-text-primary);
 }
 
+.plan-card__pricing {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: var(--space-3);
+}
+
 .plan-card__price {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
   color: var(--color-brand-600);
   display: block;
-  margin-bottom: var(--space-3);
+}
+
+.plan-card__billed-annually {
+  font-size: var(--font-size-xs);
+  display: block;
 }
 
 .plan-card__features {

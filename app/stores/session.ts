@@ -3,11 +3,13 @@ import { defineStore } from "pinia";
 interface SessionCookiePayload {
   accessToken: string;
   userEmail: string;
+  emailConfirmed?: boolean;
 }
 
 interface SessionState {
   accessToken: string | null;
   userEmail: string | null;
+  emailConfirmed: boolean | null;
 }
 
 const SESSION_COOKIE_KEY = "auraxis_session";
@@ -24,12 +26,14 @@ const applyCookiePayloadToState = (
 ): void => {
   state.accessToken = payload?.accessToken ?? null;
   state.userEmail = payload?.userEmail ?? null;
+  state.emailConfirmed = payload?.emailConfirmed ?? null;
 };
 
 export const useSessionStore = defineStore("session", {
   state: (): SessionState => ({
     accessToken: null,
     userEmail: null,
+    emailConfirmed: null,
   }),
   getters: {
     isAuthenticated: (state): boolean => state.accessToken !== null,
@@ -69,9 +73,10 @@ export const useSessionStore = defineStore("session", {
       this.restore();
       return this.accessToken;
     },
-    signIn(accessToken: string, userEmail: string): void {
+    signIn(accessToken: string, userEmail: string, emailConfirmed?: boolean): void {
       this.accessToken = accessToken;
       this.userEmail = userEmail;
+      this.emailConfirmed = emailConfirmed ?? null;
 
       // Write cookie directly via document.cookie to avoid calling useCookie()
       // outside a Nuxt app context. signIn is invoked from Vue Query mutation
@@ -82,7 +87,8 @@ export const useSessionStore = defineStore("session", {
 
       const isProduction = process.env.NODE_ENV === "production";
       const secure = isProduction ? "; Secure" : "";
-      document.cookie = `${SESSION_COOKIE_KEY}=${encodeURIComponent(JSON.stringify({ accessToken, userEmail }))}; path=/; SameSite=Lax; Max-Age=${SESSION_COOKIE_MAX_AGE}${secure}`;
+      const payload: SessionCookiePayload = { accessToken, userEmail, emailConfirmed };
+      document.cookie = `${SESSION_COOKIE_KEY}=${encodeURIComponent(JSON.stringify(payload))}; path=/; SameSite=Lax; Max-Age=${SESSION_COOKIE_MAX_AGE}${secure}`;
     },
     signOut(): void {
       applyCookiePayloadToState(this, null);

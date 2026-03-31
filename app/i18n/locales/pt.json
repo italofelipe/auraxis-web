@@ -8,7 +8,8 @@
     "sharedEntries": "Lançamentos Compartilhados",
     "tools": "Ferramentas",
     "subscription": "Assinatura",
-    "personalData": "Dados Pessoais"
+    "personalData": "Dados Pessoais",
+    "transactions": "Transações"
   },
   "user": {
     "fallbackName": "Usuário",
@@ -18,8 +19,46 @@
     "plans": {
       "meta": {
         "title": "Planos e Preços",
-        "description": "Conheça os planos da Auraxis. Comece gratuitamente ou evolua para o Premium com simulações avançadas, alertas inteligentes e planejamento financeiro completo."
-      }
+        "description": "Conheça os planos da Auraxis. Comece gratuitamente ou assine o Pro com simulações avançadas, relatórios completos e suporte prioritário."
+      },
+      "eyebrow": "Planos e Preços",
+      "title": "Invista na sua liberdade financeira",
+      "subtitle": "Escolha o plano ideal e comece a controlar suas finanças com inteligência.",
+      "mostPopular": "Mais popular",
+      "checkoutError": "Erro ao iniciar o checkout. Tente novamente.",
+      "footnote": "Preços em BRL. Cancele a qualquer momento. Cobrança mensal a partir de R$39,90.",
+      "billing": {
+        "monthly": "Mensal",
+        "annual": "Anual",
+        "toggleAriaLabel": "Alternar entre cobrança mensal e anual",
+        "annualNote": "Pagando anualmente você economiza 3 meses — sem compromisso.",
+        "footnoteAnnual": "Preços em BRL. Cobrado anualmente. Cancele a qualquer momento."
+      },
+      "plans": {
+        "free": {
+          "name": "Gratuito",
+          "features": {
+            "transactions": "Até 50 transações/mês",
+            "goals": "1 meta financeira",
+            "basicReports": "Relatórios básicos",
+            "simulations": "Simulações financeiras",
+            "sharedEntries": "Lançamentos compartilhados",
+            "support": "Suporte prioritário"
+          }
+        },
+        "premium": {
+          "name": "Premium",
+          "features": {
+            "transactions": "Transações ilimitadas",
+            "goals": "Metas ilimitadas",
+            "advancedReports": "Relatórios avançados",
+            "simulations": "Simulações financeiras",
+            "sharedEntries": "Lançamentos compartilhados",
+            "support": "Suporte prioritário"
+          }
+        }
+      },
+      "trialBadge": "7 dias grátis"
     },
     "tools": {
       "meta": {
@@ -155,10 +194,9 @@
         "none": "Sem assinatura"
       },
       "plans": {
-        "free": { "name": "Gratuito" },
-        "starter": { "name": "Starter" },
-        "pro": { "name": "Pro" },
-        "premium": { "name": "Premium" },
+        "free": {
+          "name": "Gratuito"
+        },
         "features": {
           "transactions50": "Até 50 transações/mês",
           "transactions200": "Até 200 transações/mês",
@@ -171,7 +209,15 @@
           "simulations": "Simulações financeiras",
           "sharedEntries": "Lançamentos compartilhados",
           "prioritySupport": "Suporte prioritário"
+        },
+        "premium": {
+          "name": "Premium"
         }
+      },
+      "billing": {
+        "monthly": "Mensal",
+        "annual": "Anual",
+        "toggleAriaLabel": "Alternar entre cobrança mensal e anual"
       }
     },
     "settings": {
@@ -250,6 +296,185 @@
         "remove": "Remover",
         "placeholder": "Nome do cartão"
       }
+    },
+    "checkout": {
+      "success": {
+        "meta": {
+          "title": "Assinatura ativada",
+          "description": "Sua assinatura Auraxis foi ativada com sucesso."
+        },
+        "title": "Assinatura ativada!",
+        "description": "Bem-vindo ao Auraxis. Seu plano já está ativo e você tem acesso a todos os recursos.",
+        "cta": "Ir para o Dashboard",
+        "viewSubscription": "Ver assinatura"
+      },
+      "cancel": {
+        "meta": {
+          "title": "Checkout cancelado",
+          "description": "O processo de assinatura foi cancelado."
+        },
+        "title": "Checkout cancelado",
+        "description": "Você cancelou o processo de assinatura. Nenhuma cobrança foi realizada.",
+        "cta": "Ver planos novamente",
+        "backToDashboard": "Voltar ao Dashboard"
+      }
+    },
+    "confirmEmail": {
+      "meta": {
+        "title": "Confirmar e-mail",
+        "description": "Confirme seu endereço de e-mail para ativar sua conta."
+      },
+      "confirming": "Confirmando seu e-mail…",
+      "wait": "Por favor, aguarde um instante.",
+      "successTitle": "E-mail confirmado!",
+      "successDescription": "Sua conta está ativa. Você já pode usar todos os recursos do Auraxis.",
+      "cta": "Ir para o Dashboard",
+      "errorTitle": "Link inválido ou expirado",
+      "errorDescription": "O link de confirmação é inválido ou já expirou. Solicite um novo link.",
+      "resendCta": "Reenviar e-mail de confirmação",
+      "noTokenTitle": "Link não encontrado",
+      "noTokenDescription": "Acesse o link enviado para seu e-mail para confirmar sua conta."
+    },
+    "resendConfirmation": {
+      "meta": {
+        "title": "Reenviar confirmação",
+        "description": "Solicite o reenvio do e-mail de confirmação de conta."
+      },
+      "title": "Confirme seu e-mail",
+      "description": "Ainda não confirmou seu endereço de e-mail? Clique abaixo para receber um novo link de confirmação.",
+      "cta": "Reenviar e-mail",
+      "sent": "E-mail enviado! Verifique sua caixa de entrada e a pasta de spam.",
+      "error": "Não foi possível enviar o e-mail. Tente novamente.",
+      "skip": "Fazer isso depois"
+    },
+    "confirmEmailPending": {
+      "meta": {
+        "title": "Confirme seu e-mail"
+      },
+      "title": "Verifique seu e-mail",
+      "description": "Enviamos um link de confirmação para",
+      "deadline": {
+        "heading": "Confirme em até 7 dias",
+        "body": "Após esse prazo, o acesso a alguns recursos será limitado até a confirmação."
+      },
+      "benefits": {
+        "access": "Acesso completo a todos os recursos",
+        "recovery": "Recuperação de conta por e-mail",
+        "notifications": "Notificações e alertas importantes"
+      },
+      "resent": "E-mail reenviado! Verifique sua caixa de entrada.",
+      "resendError": "Não foi possível reenviar o e-mail. Tente novamente.",
+      "resendCta": "Reenviar e-mail",
+      "resentCta": "E-mail enviado",
+      "skip": "Pular por agora",
+      "skipNote": "Você tem até 7 dias para confirmar seu e-mail. Após esse prazo, algumas funcionalidades podem ficar restritas."
+    },
+    "installmentVsCash": {
+      "seo": {
+        "title": "Parcelamento vs À Vista — Calculadora Financeira",
+        "description": "Descubra se vale a pena parcelar ou pagar à vista. Calcule o custo de oportunidade e tome a melhor decisão financeira.",
+        "ogTitle": "Parcelamento vs À Vista — Auraxis",
+        "ogDescription": "Calculadora gratuita para comparar parcelamento e pagamento à vista."
+      },
+      "faq": {
+        "q1": "Como saber se vale parcelar ou pagar à vista?",
+        "a1": "Compare o custo total do parcelamento com o rendimento que o dinheiro teria investido. Se o rendimento superar o custo dos juros, pagar à vista é mais vantajoso.",
+        "q2": "O que é custo de oportunidade?",
+        "a2": "É o valor que você deixa de ganhar ao imobilizar seu dinheiro. Ao pagar à vista, você abre mão do rendimento que aquele capital teria se investido."
+      },
+      "header": {
+        "publicTool": "Ferramenta gratuita",
+        "otherTools": "Outras ferramentas",
+        "createAccount": "Criar conta"
+      },
+      "hero": {
+        "badge": "Calculadora gratuita",
+        "title": "Parcelamento vs À Vista",
+        "subtitle": "Descubra se compensa parcelar ou usar seu dinheiro à vista considerando o custo de oportunidade.",
+        "featureBasic": "Cálculo gratuito",
+        "featureBasicDesc": "Compare cenários de parcelamento e pagamento à vista sem precisar de conta.",
+        "featureAdvanced": "Salve e planeje",
+        "featureAdvancedDesc": "Com conta gratuita, salve simulações e transforme em metas ou despesas planejadas."
+      },
+      "errors": {
+        "calculate": "Erro ao calcular. Verifique os dados e tente novamente.",
+        "validateForm": "Preencha todos os campos obrigatórios.",
+        "noSimulation": "Nenhuma simulação encontrada.",
+        "save": "Erro ao salvar a simulação. Tente novamente.",
+        "saveBeforeGoal": "Salve a simulação antes de criar a meta.",
+        "saveBeforeExpense": "Salve a simulação antes de criar a despesa.",
+        "goalPrefill": "Erro ao preencher os dados da meta.",
+        "goalSubmit": "Erro ao criar a meta. Tente novamente.",
+        "expensePrefill": "Erro ao preencher os dados da despesa.",
+        "expenseSubmit": "Erro ao criar a despesa. Tente novamente."
+      },
+      "success": {
+        "saved": "Simulação salva com sucesso!",
+        "goalCreated": "Meta criada com sucesso!",
+        "expensesCreated": "{count} transação(ões) criada(s) com sucesso!"
+      },
+      "results": {
+        "nextStep": "Próximo passo"
+      },
+      "seoSection": {
+        "considers": "O que esta calculadora considera?",
+        "considersDesc": "Juros do parcelamento, rendimento potencial do capital e custo de oportunidade real.",
+        "notReplaces": "Esta ferramenta não substitui consultoria financeira",
+        "notReplacesDesc": "Os resultados são estimativas baseadas nos dados inseridos. Consulte um profissional para decisões de alto impacto.",
+        "howToUse": "Como usar?",
+        "howToUseDesc": "Informe o valor do produto, número de parcelas, taxa de juros (se houver) e a taxa de rendimento da sua reserva. A calculadora faz o resto."
+      },
+      "goalModal": {
+        "title": "Criar meta financeira",
+        "titleLabel": "Nome da meta",
+        "defaultTitle": "Compra",
+        "descriptionLabel": "Descrição (opcional)",
+        "targetDateLabel": "Data-alvo",
+        "cancel": "Cancelar",
+        "submit": "Criar meta"
+      },
+      "expenseModal": {
+        "title": "Criar despesa planejada",
+        "titleLabel": "Nome da despesa",
+        "defaultTitle": "Compra",
+        "descriptionLabel": "Descrição (opcional)",
+        "modeLabel": "Modo de pagamento",
+        "modeAriaLabel": "Selecione o modo de pagamento",
+        "cashLabel": "À vista",
+        "installmentLabel": "Parcelado",
+        "dueDateLabel": "Data de vencimento",
+        "firstDueDateLabel": "Data da primeira parcela",
+        "upfrontDateLabel": "Data do pagamento à vista",
+        "cancel": "Cancelar",
+        "submit": "Criar despesa"
+      },
+      "guestCta": {
+        "ariaLabel": "Crie sua conta gratuita",
+        "badge": "Auraxis — Gratuito",
+        "title": "Gostou da ferramenta? Crie sua conta grátis",
+        "subtitle": "Salve simulações, crie metas financeiras e acesse o ecossistema completo de controle financeiro.",
+        "features": {
+          "portfolio": {
+            "title": "Carteira de Investimentos",
+            "desc": "Acompanhe ações, FIIs e renda fixa em um único painel."
+          },
+          "goals": {
+            "title": "Metas Financeiras",
+            "desc": "Defina objetivos e acompanhe seu progresso mês a mês."
+          },
+          "security": {
+            "title": "Segurança e Privacidade",
+            "desc": "Seus dados ficam protegidos e nunca são compartilhados."
+          },
+          "tools": {
+            "title": "Mais Ferramentas",
+            "desc": "Acesse simulações avançadas e salve seus resultados."
+          }
+        },
+        "registerCta": "Criar conta grátis",
+        "loginCta": "Já tenho conta",
+        "trust": "Gratuito para sempre · Sem cartão de crédito · Cancele quando quiser"
+      }
     }
   },
   "common": {
@@ -270,7 +495,9 @@
     }
   },
   "investorProfile": {
-    "page": { "title": "Perfil do Investidor" },
+    "page": {
+      "title": "Perfil do Investidor"
+    },
     "wizard": {
       "questionLabel": "Pergunta {current} de {total}",
       "next": "Próxima",
@@ -344,9 +571,30 @@
       "rememberPassword": "Lembrou a senha?",
       "sendLink": "Enviar link de recuperação",
       "sending": "Enviando…"
+    },
+    "emailBanner": {
+      "message": "Confirme seu e-mail para garantir acesso completo à sua conta.",
+      "cta": "Confirmar e-mail"
+    },
+    "password": {
+      "strength": {
+        "length": "Mín. 10 caracteres",
+        "uppercase": "Letra maiúscula",
+        "number": "Número",
+        "special": "Caractere especial",
+        "level": {
+          "weak": "Fraca",
+          "fair": "Razoável",
+          "good": "Boa",
+          "strong": "Forte"
+        }
+      }
     }
   },
   "transaction": {
+    "edit": {
+      "title": "Editar transação"
+    },
     "form": {
       "title": {
         "income": "Nova Receita",
@@ -363,11 +611,13 @@
       },
       "tag": {
         "label": "Categoria",
-        "placeholder": "Selecione uma categoria"
+        "placeholder": "Selecione uma categoria",
+        "createHint": "Nenhuma categoria. Criar em Configurações → Tags"
       },
       "account": {
         "label": "Conta",
-        "placeholder": "Selecione uma conta"
+        "placeholder": "Selecione uma conta",
+        "createHint": "Nenhuma conta. Criar em Configurações → Contas"
       },
       "creditCard": {
         "label": "Cartão de crédito",
@@ -661,6 +911,15 @@
     "quickAdd": {
       "income": "Nova Receita",
       "expense": "Nova Despesa"
+    },
+    "charts": {
+      "incomeExpense": "Receita vs Despesa",
+      "incomeExpenseSubtitle": "Comparativo do período",
+      "timeline": "Evolução financeira",
+      "timelineSubtitle": "Movimentações ao longo do período",
+      "income": "Receita",
+      "expense": "Despesa",
+      "balance": "Saldo"
     }
   },
   "receivable": {
@@ -723,7 +982,7 @@
     },
     "inviteForm": {
       "emailLabel": "E-mail do convidado",
-      "emailPlaceholder": "nome@exemplo.com",
+      "emailPlaceholder": "nome{'@'}exemplo.com",
       "submit": "Convidar",
       "error": "Erro ao enviar convite. Tente novamente."
     },
@@ -767,7 +1026,8 @@
       "free": "Grátis",
       "pricePerMonth": "{price}/mês",
       "currentPlan": "Plano atual",
-      "subscribe": "Assinar"
+      "subscribe": "Assinar",
+      "billedAnnually": "Cobrado {total}/ano"
     }
   },
   "paywall": {
@@ -840,6 +1100,81 @@
         "title": "Segurança primeiro",
         "description": "Seus dados protegidos com autenticação segura e criptografia."
       }
+    }
+  },
+  "billing": {
+    "banner": {
+      "pastDueMessage": "Seu pagamento está em atraso. Atualize seu método de pagamento para não perder o acesso.",
+      "canceledMessage": "Sua assinatura foi cancelada. Renove seu plano para recuperar o acesso completo.",
+      "cta": "Gerenciar assinatura",
+      "trialingMessage": "Você está no período de teste gratuito. Assine agora para não perder o acesso.",
+      "ctaUpgrade": "Ver planos"
+    }
+  },
+  "transactions": {
+    "title": "Transações",
+    "subtitle": "Receitas e despesas registradas",
+    "addIncome": "Nova Receita",
+    "addExpense": "Nova Despesa",
+    "recurring": "Recorrente",
+    "installment": "{count}x",
+    "count": "{n} transação | {n} transações",
+    "loadError": "Não foi possível carregar as transações",
+    "loadErrorMessage": "Tente recarregar a página.",
+    "filter": {
+      "all": "Todos",
+      "income": "Receitas",
+      "expense": "Despesas"
+    },
+    "sort": {
+      "date": "Data",
+      "amount": "Valor",
+      "title": "Título",
+      "status": "Status",
+      "recurring": "Recorrência",
+      "asc": "Crescente",
+      "desc": "Decrescente"
+    },
+    "summary": {
+      "income": "Total Receitas",
+      "expense": "Total Despesas"
+    },
+    "empty": {
+      "title": "Nenhuma transação encontrada",
+      "description": "Adicione sua primeira receita ou despesa para começar."
+    },
+    "table": {
+      "status": "Status",
+      "date": "Data",
+      "description": "Descrição",
+      "category": "Categoria",
+      "account": "Conta",
+      "amount": "Valor",
+      "actions": "Ações"
+    },
+    "action": {
+      "markPaid": "Marcar como pago",
+      "markPaidConfirm": "Confirmar pagamento",
+      "markPaidConfirmDesc": "Marcar \"{title}\" ({amount}) como pago?",
+      "markPaidConfirmYes": "Confirmar",
+      "markPaidConfirmNo": "Cancelar",
+      "edit": "Editar",
+      "delete": "Excluir",
+      "deleteConfirm": "Deseja excluir esta transação? Esta ação não pode ser desfeita.",
+      "deleteConfirmYes": "Excluir",
+      "deleteConfirmNo": "Cancelar"
+    },
+    "status": {
+      "nearDue": "Vence em breve"
+    },
+    "reorder": {
+      "enter": "Reordenar",
+      "exit": "Concluir",
+      "hint": "Arraste as linhas para reorganizar a visualização"
+    },
+    "swipe": {
+      "payHint": "Deslize → para pagar",
+      "deleteHint": "Deslize ← para excluir"
     }
   }
 }
