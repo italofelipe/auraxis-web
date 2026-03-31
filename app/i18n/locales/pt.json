@@ -1106,7 +1106,9 @@
     "banner": {
       "pastDueMessage": "Seu pagamento está em atraso. Atualize seu método de pagamento para não perder o acesso.",
       "canceledMessage": "Sua assinatura foi cancelada. Renove seu plano para recuperar o acesso completo.",
-      "cta": "Gerenciar assinatura"
+      "cta": "Gerenciar assinatura",
+      "trialingMessage": "Você está no período de teste gratuito. Assine agora para não perder o acesso.",
+      "ctaUpgrade": "Ver planos"
     }
   },
   "transactions": {

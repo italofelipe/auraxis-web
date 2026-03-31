@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { CheckCircle2 } from "lucide-vue-next";
 import { NButton } from "naive-ui";
+import { useQueryClient } from "@tanstack/vue-query";
 
 const { t } = useI18n();
 
@@ -11,6 +12,13 @@ definePageMeta({
 useSeoMeta({
   title: t("pages.checkout.success.meta.title"),
   description: t("pages.checkout.success.meta.description"),
+});
+
+// Invalidate the subscription cache so the UI reflects the newly activated
+// plan without requiring a manual page refresh.
+const queryClient = useQueryClient();
+onMounted(async () => {
+  await queryClient.invalidateQueries({ queryKey: ["subscription", "me"] });
 });
 </script>
 

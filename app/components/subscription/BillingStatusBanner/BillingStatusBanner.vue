@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AlertTriangle, XCircle } from "lucide-vue-next";
+import { Info, AlertTriangle, XCircle } from "lucide-vue-next";
 import { NButton } from "naive-ui";
 import { useSubscriptionQuery } from "~/features/subscription/queries/use-subscription-query";
 
@@ -7,18 +7,39 @@ const { t } = useI18n();
 
 const { data: subscription } = useSubscriptionQuery();
 
+const isTrialing = computed(() => subscription.value?.status === "trialing");
 const isPastDue = computed(() => subscription.value?.status === "past_due");
 const isCanceled = computed(() => subscription.value?.status === "canceled");
-const isVisible = computed(() => isPastDue.value || isCanceled.value);
+const isVisible = computed(() => isTrialing.value || isPastDue.value || isCanceled.value);
 
-const message = computed(() => {
+const message = computed((): string => {
+  if (isTrialing.value) { return t("billing.banner.trialingMessage"); }
   if (isPastDue.value) { return t("billing.banner.pastDueMessage"); }
   if (isCanceled.value) { return t("billing.banner.canceledMessage"); }
   return "";
 });
 
-const icon = computed(() => (isPastDue.value ? AlertTriangle : XCircle));
-const variant = computed(() => (isPastDue.value ? "warning" : "error"));
+const ctaLabel = computed((): string => {
+  if (isTrialing.value) { return t("billing.banner.ctaUpgrade"); }
+  return t("billing.banner.cta");
+});
+
+const ctaHref = computed((): string => {
+  if (isTrialing.value) { return "/plans"; }
+  return "/subscription";
+});
+
+const icon = computed(() => {
+  if (isTrialing.value) { return Info; }
+  if (isPastDue.value) { return AlertTriangle; }
+  return XCircle;
+});
+
+const variant = computed((): "info" | "warning" | "error" => {
+  if (isTrialing.value) { return "info"; }
+  if (isPastDue.value) { return "warning"; }
+  return "error";
+});
 </script>
 
 <template>
@@ -33,11 +54,11 @@ const variant = computed(() => (isPastDue.value ? "warning" : "error"));
     <p class="billing-banner__message">{{ message }}</p>
     <NButton
       size="small"
-      :type="isPastDue ? 'warning' : 'error'"
+      :type="variant === 'info' ? 'primary' : variant"
       tag="a"
-      href="/subscription"
+      :href="ctaHref"
     >
-      {{ $t('billing.banner.cta') }}
+      {{ ctaLabel }}
     </NButton>
   </div>
 </template>
@@ -49,6 +70,12 @@ const variant = computed(() => (isPastDue.value ? "warning" : "error"));
   gap: var(--space-2);
   padding: var(--space-2) var(--space-3);
   font-size: var(--font-size-xs);
+}
+
+.billing-banner--info {
+  background: color-mix(in srgb, var(--color-brand-500) 10%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-brand-500) 25%, transparent);
+  color: color-mix(in srgb, var(--color-brand-600) 90%, var(--color-text-primary));
 }
 
 .billing-banner--warning {
