@@ -104,6 +104,7 @@ export default defineNuxtConfig({
     "@nuxtjs/device",     // Detecção de device (mobile/desktop/tablet)
     "@nuxtjs/google-fonts",
     "dayjs-nuxt",
+    "@vite-pwa/nuxt",     // PWA: service worker + install prompt
     // '@nuxt/image',      // ⚠️ Removido: Depende de sharp que causa conflitos de build em ARM64
     // '@nuxtjs/apollo',   // ⚠️ Incompatível com Nuxt 4 — aguarda versão estável
     //                       Adicionar de volta quando disponível: https://github.com/nuxt-modules/apollo
@@ -137,6 +138,11 @@ export default defineNuxtConfig({
       // BRAPI public API key for ticker autocomplete and market data.
       // Register at https://brapi.dev to obtain a key.
       brapiApiKey: process.env.NUXT_PUBLIC_BRAPI_API_KEY ?? "",
+      // Cloudflare Turnstile public site key (invisible CAPTCHA).
+      // Set CLOUDFLARE_TURNSTILE_SITE_KEY in the environment. When empty
+      // (local dev without a key) useCaptcha() resolves to null — the form
+      // still submits and the backend accepts a null captchaToken in dev mode.
+      turnstileSiteKey: process.env.CLOUDFLARE_TURNSTILE_SITE_KEY ?? "",
     },
   },
 
@@ -184,6 +190,12 @@ export default defineNuxtConfig({
     // server route (used by experimental.preload during SSG) returns {} → no
     // <script data-nuxt-i18n> is injected in the HTML → client falls back to the
     // /_i18n runtime endpoint which does not exist on static S3 → _s undefined.
+    // restructureDir: "app/i18n" moves the i18n module's base directory from
+    // the default <rootDir>/i18n/ to <rootDir>/app/i18n/ (the Nuxt 4 srcDir).
+    // This makes langDir: "locales" resolve to app/i18n/locales/ and
+    // vueI18n: "i18n.config.ts" resolve to app/i18n/i18n.config.ts.
+    // Single source of truth — no more duplicate root-level i18n/locales/ files.
+    restructureDir: "app/i18n",
     langDir: "locales",
     locales: [
       {
@@ -203,9 +215,9 @@ export default defineNuxtConfig({
     baseUrl: process.env.NUXT_PUBLIC_SITE_URL ?? undefined,
     strategy: "prefix_except_default",
     skipSettingLocaleOnNavigate: false,
-    // vueI18n is resolved relative to <rootDir>/i18n/ (the module's restructureDir).
-    // File lives at i18n/i18n.config.ts — sets initialization options only (legacy,
-    // fallbackLocale, etc.). Messages are loaded via locales[].file above.
+    // vueI18n is resolved relative to restructureDir (<rootDir>/app/i18n/).
+    // File lives at app/i18n/i18n.config.ts — sets initialization options only
+    // (legacy, fallbackLocale, etc.). Messages are loaded via locales[].file above.
     vueI18n: "i18n.config.ts",
     // experimental.preload: during SSG, fetches messages from the internal
     // messages.json Nitro route (populated via localeLoaders from locales[].file)
@@ -219,6 +231,45 @@ export default defineNuxtConfig({
 
   ogImage: {
     enabled: false,
+  },
+
+  // ── PWA (@vite-pwa/nuxt) ─────────────────────────────────────────────
+  //
+  // Strategy: generateSW — Workbox generates a service worker at build time.
+  // The SW pre-caches the app shell (HTML, CSS, JS bundles) so the dashboard
+  // loads instantly on repeat visits and remains accessible offline.
+  //
+  // API routes are NEVER cached — financial data must always be fresh.
+  // The manifest is managed by the webmanifest file in /public/.
+  //
+  pwa: {
+    strategies: "generateSW",
+    registerType: "autoUpdate",
+    // Disable PWA's own manifest injection — we manage /public/manifest.webmanifest
+    manifest: false,
+    workbox: {
+      // Pre-cache the Nuxt app shell (JS, CSS, fonts).
+      globPatterns: ["**/*.{js,css,woff2}"],
+      // Network-first for HTML — always try to fetch fresh page shell.
+      runtimeCaching: [
+        {
+          urlPattern: /^https:\/\/app\.auraxis\.com\.br\/_nuxt\/.*/i,
+          handler: "CacheFirst" as const,
+          options: {
+            cacheName: "nuxt-static",
+            expiration: { maxAgeSeconds: 60 * 60 * 24 * 30 }, // 30 days
+          },
+        },
+      ],
+      // Never cache API calls — financial data must be real-time.
+      navigateFallback: null,
+    },
+    client: {
+      installPrompt: true,
+    },
+    devOptions: {
+      enabled: false, // Disable in dev to avoid SW interference
+    },
   },
 
   // ── Naive UI — SSR transpile + Vite optimisation ─────────────────────
@@ -260,12 +311,17 @@ export default defineNuxtConfig({
     "/terms-of-service":          { prerender: true },
 
     // ── Auth — SSG (noindex enforced via noindex middleware) ───────────
-    "/login":           { prerender: true },
-    "/register":        { prerender: true },
-    "/forgot-password": { prerender: true },
+    "/login":                  { prerender: true },
+    "/register":               { prerender: true },
+    "/forgot-password":        { prerender: true },
+    "/confirm-email":          { prerender: true },
+    "/confirm-email-pending":  { ssr: false },
+    "/resend-confirmation":    { prerender: true },
+    "/checkout/success":       { ssr: false },
+    "/checkout/cancel":        { prerender: true },
 
     // ── EN locale variants — SSG ───────────────────────────────────────
-    "/en":                          { prerender: true },
+    "/en":                           { prerender: true },
     "/en/plans":                     { prerender: true },
     "/en/tools":                     { prerender: true },
     "/en/tools/installment-vs-cash": { prerender: true },
@@ -274,6 +330,11 @@ export default defineNuxtConfig({
     "/en/login":                     { prerender: true },
     "/en/register":                  { prerender: true },
     "/en/forgot-password":           { prerender: true },
+    "/en/confirm-email":             { prerender: true },
+    "/en/confirm-email-pending":     { ssr: false },
+    "/en/resend-confirmation":       { prerender: true },
+    "/en/checkout/success":          { ssr: false },
+    "/en/checkout/cancel":           { prerender: true },
 
     // ── Private app — SPA (no prerender, no server HTML) ──────────────
     // Auth middleware enforces access. No financial data in static HTML.

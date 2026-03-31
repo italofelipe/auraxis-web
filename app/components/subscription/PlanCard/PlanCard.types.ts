@@ -1,9 +1,15 @@
-import type { PlanDto, PlanSlug } from "~/features/subscription/contracts/subscription.dto";
+import type {
+  BillingCycle,
+  PlanDto,
+  PlanSlug,
+} from "~/features/subscription/contracts/subscription.dto";
 
 export type PlanCardProps = {
   plan: PlanDto;
   isCurrent: boolean;
   loading?: boolean;
+  /** Active billing cycle — drives the displayed price. Defaults to "monthly". */
+  billingCycle?: BillingCycle;
 };
 
 export type PlanCardEmits = {

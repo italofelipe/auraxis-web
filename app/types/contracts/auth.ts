@@ -1,6 +1,8 @@
 export interface LoginRequest {
   readonly email: string;
   readonly password: string;
+  /** Cloudflare Turnstile token — null when the site key is not configured (dev mode). */
+  readonly captchaToken?: string | null;
 }
 
 export interface LoginResponse {
@@ -8,6 +10,8 @@ export interface LoginResponse {
   readonly user: {
     readonly email: string;
     readonly displayName: string;
+    /** Whether the user's email address has been confirmed. */
+    readonly emailConfirmed?: boolean;
   };
 }
 
@@ -15,6 +19,8 @@ export interface RegisterRequest {
   readonly name: string;
   readonly email: string;
   readonly password: string;
+  /** Cloudflare Turnstile token — null when the site key is not configured (dev mode). */
+  readonly captchaToken?: string | null;
 }
 
 export interface RegisterResponse {
@@ -22,6 +28,8 @@ export interface RegisterResponse {
   readonly user: {
     readonly email: string;
     readonly displayName: string;
+    /** Whether the user's email address has been confirmed. Always false for new registrations. */
+    readonly emailConfirmed?: boolean;
   };
 }
 

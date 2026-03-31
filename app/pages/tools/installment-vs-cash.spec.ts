@@ -165,6 +165,10 @@ vi.mock("~/features/tools/queries/use-create-planned-expense-from-installment-vs
 }));
 
 const globalStubs = {
+  NuxtLayout: {
+    props: ["name"],
+    template: "<div class='nuxt-layout'><slot /></div>",
+  },
   UiPageHeader: {
     props: ["title", "subtitle"],
     template: "<div><h1>{{ title }}</h1><p>{{ subtitle }}</p></div>",
@@ -367,6 +371,23 @@ describe("InstallmentVsCashPage", () => {
 
     expect(wrapper.text()).toContain("pages.installmentVsCash.hero.title");
     expect(wrapper.text()).toContain("pages.installmentVsCash.header.publicTool");
+  });
+
+  it("shows the guest CTA section when unauthenticated", () => {
+    const wrapper = mountPage();
+
+    expect(wrapper.find(".ivc-guest-cta").exists()).toBe(true);
+    expect(wrapper.text()).toContain("pages.installmentVsCash.guestCta.registerCta");
+  });
+
+  it("hides the standalone header and shows nuxt-layout when authenticated", () => {
+    mockIsAuthenticated.value = true;
+
+    const wrapper = mountPage();
+
+    expect(wrapper.find(".installment-vs-cash-page__header").exists()).toBe(false);
+    expect(wrapper.find(".nuxt-layout").exists()).toBe(true);
+    expect(wrapper.find(".ivc-guest-cta").exists()).toBe(false);
   });
 
   it("shows a validation warning before calling the API", async () => {

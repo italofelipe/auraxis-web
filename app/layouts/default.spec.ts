@@ -88,6 +88,8 @@ describe("DefaultLayout", () => {
             `,
           },
           ProfileCompletionModal: true,
+          BillingStatusBanner: true,
+          EmailConfirmationBanner: true,
         },
       },
     });
