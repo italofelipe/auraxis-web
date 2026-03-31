@@ -14,7 +14,7 @@ vi.mock("naive-ui", async (importOriginal) => {
   const actual = await importOriginal<any>();
   return {
     ...actual,
-    NButton: { name: "NButton", template: "<button><slot /></button>", props: ["href"] },
+    NButton: { name: "NButton", template: "<button><slot /></button>", props: ["href", "type"] },
   };
 });
 
@@ -33,6 +33,21 @@ describe("BillingStatusBanner", () => {
     expect(wrapper.find("[data-testid='billing-status-banner']").exists()).toBe(false);
   });
 
+  it("renders info banner when subscription is trialing", () => {
+    mockSubscriptionQuery.mockReturnValue({ data: { value: { status: "trialing" } } });
+    const wrapper = mount(BillingStatusBanner);
+    const banner = wrapper.find("[data-testid='billing-status-banner']");
+    expect(banner.exists()).toBe(true);
+    expect(banner.classes()).toContain("billing-banner--info");
+  });
+
+  it("trialing banner CTA links to /plans", () => {
+    mockSubscriptionQuery.mockReturnValue({ data: { value: { status: "trialing" } } });
+    const wrapper = mount(BillingStatusBanner);
+    const button = wrapper.findComponent({ name: "NButton" });
+    expect(button.props("href")).toBe("/plans");
+  });
+
   it("renders warning banner when subscription is past_due", () => {
     mockSubscriptionQuery.mockReturnValue({ data: { value: { status: "past_due" } } });
     const wrapper = mount(BillingStatusBanner);
@@ -41,12 +56,26 @@ describe("BillingStatusBanner", () => {
     expect(banner.classes()).toContain("billing-banner--warning");
   });
 
+  it("past_due banner CTA links to /subscription", () => {
+    mockSubscriptionQuery.mockReturnValue({ data: { value: { status: "past_due" } } });
+    const wrapper = mount(BillingStatusBanner);
+    const button = wrapper.findComponent({ name: "NButton" });
+    expect(button.props("href")).toBe("/subscription");
+  });
+
   it("renders error banner when subscription is canceled", () => {
     mockSubscriptionQuery.mockReturnValue({ data: { value: { status: "canceled" } } });
     const wrapper = mount(BillingStatusBanner);
     const banner = wrapper.find("[data-testid='billing-status-banner']");
     expect(banner.exists()).toBe(true);
     expect(banner.classes()).toContain("billing-banner--error");
+  });
+
+  it("canceled banner CTA links to /subscription", () => {
+    mockSubscriptionQuery.mockReturnValue({ data: { value: { status: "canceled" } } });
+    const wrapper = mount(BillingStatusBanner);
+    const button = wrapper.findComponent({ name: "NButton" });
+    expect(button.props("href")).toBe("/subscription");
   });
 
   it("has correct role attribute for accessibility", () => {

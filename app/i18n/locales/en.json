@@ -1106,7 +1106,9 @@
     "banner": {
       "pastDueMessage": "Your payment is past due. Update your payment method to keep your access.",
       "canceledMessage": "Your subscription has been cancelled. Renew your plan to restore full access.",
-      "cta": "Manage subscription"
+      "cta": "Manage subscription",
+      "trialingMessage": "You are in your free trial period. Subscribe now to keep access.",
+      "ctaUpgrade": "See plans"
     }
   },
   "transactions": {
