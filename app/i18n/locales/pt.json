@@ -26,12 +26,12 @@
       "subtitle": "Escolha o plano ideal e comece a controlar suas finanças com inteligência.",
       "mostPopular": "Mais popular",
       "checkoutError": "Erro ao iniciar o checkout. Tente novamente.",
-      "footnote": "Preços em BRL. Cancele a qualquer momento. Cobrança mensal.",
+      "footnote": "Preços em BRL. Cancele a qualquer momento. Cobrança mensal a partir de R$39,90.",
       "billing": {
         "monthly": "Mensal",
         "annual": "Anual",
         "toggleAriaLabel": "Alternar entre cobrança mensal e anual",
-        "annualNote": "Pagando anualmente você economiza 2 meses — sem compromisso.",
+        "annualNote": "Pagando anualmente você economiza 3 meses — sem compromisso.",
         "footnoteAnnual": "Preços em BRL. Cobrado anualmente. Cancele a qualquer momento."
       },
       "plans": {
@@ -46,8 +46,8 @@
             "support": "Suporte prioritário"
           }
         },
-        "pro": {
-          "name": "Pro",
+        "premium": {
+          "name": "Premium",
           "features": {
             "transactions": "Transações ilimitadas",
             "goals": "Metas ilimitadas",
@@ -57,7 +57,8 @@
             "support": "Suporte prioritário"
           }
         }
-      }
+      },
+      "trialBadge": "7 dias grátis"
     },
     "tools": {
       "meta": {
@@ -196,9 +197,6 @@
         "free": {
           "name": "Gratuito"
         },
-        "pro": {
-          "name": "Pro"
-        },
         "features": {
           "transactions50": "Até 50 transações/mês",
           "transactions200": "Até 200 transações/mês",
@@ -211,6 +209,9 @@
           "simulations": "Simulações financeiras",
           "sharedEntries": "Lançamentos compartilhados",
           "prioritySupport": "Suporte prioritário"
+        },
+        "premium": {
+          "name": "Premium"
         }
       },
       "billing": {

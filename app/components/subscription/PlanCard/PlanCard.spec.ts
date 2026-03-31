@@ -14,7 +14,7 @@ import type { BillingCycle, PlanDto } from "~/features/subscription/contracts/su
  * @returns A complete PlanDto fixture.
  */
 const makePlan = (overrides: Partial<PlanDto> = {}): PlanDto => ({
-  slug: "pro",
+  slug: "premium",
   name: "Pro",
   price_monthly: 29.9,
   price_annual: 24.9,
@@ -104,10 +104,10 @@ describe("PlanCard", () => {
   });
 
   it("emits 'select' with plan slug when subscribe button is clicked (not current)", async () => {
-    const wrapper = mountPlanCard({ plan: makePlan({ slug: "pro" }), isCurrent: false });
+    const wrapper = mountPlanCard({ plan: makePlan({ slug: "premium" }), isCurrent: false });
     await wrapper.findComponent(NButton).trigger("click");
     expect(wrapper.emitted("select")).toBeTruthy();
-    expect(wrapper.emitted("select")![0]).toEqual(["pro"]);
+    expect(wrapper.emitted("select")![0]).toEqual(["premium"]);
   });
 
   it("does not emit 'select' when button is clicked on current plan", async () => {
