@@ -337,7 +337,7 @@ jobs:
         run: test -f coverage/lcov.info
       - name: SonarCloud Scan
         if: steps.capability.outputs.enabled == 'true'
-        uses: SonarSource/sonarcloud-github-action@v3
+        uses: SonarSource/sonarcloud-github-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_AURAXIS_WEB_TOKEN }}
