@@ -26,12 +26,12 @@
       "subtitle": "Choose the right plan and start managing your finances intelligently.",
       "mostPopular": "Most popular",
       "checkoutError": "Error starting checkout. Please try again.",
-      "footnote": "Prices in BRL. Cancel anytime. Billed monthly.",
+      "footnote": "Prices in BRL. Cancel anytime. Monthly billing from R$39.90.",
       "billing": {
         "monthly": "Monthly",
         "annual": "Annual",
         "toggleAriaLabel": "Toggle between monthly and annual billing",
-        "annualNote": "Paying annually saves you 2 months — no commitment.",
+        "annualNote": "Paying annually saves you 3 months — no commitment.",
         "footnoteAnnual": "Prices in BRL. Billed annually. Cancel anytime."
       },
       "plans": {
@@ -46,8 +46,8 @@
             "support": "Priority support"
           }
         },
-        "pro": {
-          "name": "Pro",
+        "premium": {
+          "name": "Premium",
           "features": {
             "transactions": "Unlimited transactions",
             "goals": "Unlimited goals",
@@ -57,7 +57,8 @@
             "support": "Priority support"
           }
         }
-      }
+      },
+      "trialBadge": "7 days free"
     },
     "tools": {
       "meta": {
@@ -196,9 +197,6 @@
         "free": {
           "name": "Free"
         },
-        "pro": {
-          "name": "Pro"
-        },
         "features": {
           "transactions50": "Up to 50 transactions/month",
           "transactions200": "Up to 200 transactions/month",
@@ -211,6 +209,9 @@
           "simulations": "Financial simulations",
           "sharedEntries": "Shared entries",
           "prioritySupport": "Priority support"
+        },
+        "premium": {
+          "name": "Premium"
         }
       },
       "billing": {

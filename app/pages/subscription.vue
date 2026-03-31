@@ -53,10 +53,10 @@ const ALL_PLANS = computed((): PlanDto[] => [
     ],
   },
   {
-    slug: "pro",
-    name: t("pages.subscription.plans.pro.name"),
-    price_monthly: 29.90,
-    price_annual: 24.90,
+    slug: "premium",
+    name: t("pages.subscription.plans.premium.name"),
+    price_monthly: 39.90,
+    price_annual: 29.90,
     features: [
       { label: t("pages.subscription.plans.features.unlimitedTransactions"), included: true },
       { label: t("pages.subscription.plans.features.unlimitedGoals"), included: true },
