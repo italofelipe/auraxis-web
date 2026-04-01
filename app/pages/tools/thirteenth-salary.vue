@@ -35,6 +35,7 @@ import {
 } from "~/features/tools/model/thirteenth-salary";
 import CalculatorFormSection from "~/components/tool/CalculatorFormSection/CalculatorFormSection.vue";
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
+import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
 import UiStickySummaryCard from "~/components/ui/UiStickySummaryCard/UiStickySummaryCard.vue";
 import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
 import UiGlassPanel from "~/components/ui/UiGlassPanel/UiGlassPanel.vue";
@@ -714,22 +715,7 @@ const isBridging = computed(
             </UiStickySummaryCard>
 
             <!-- Guest CTA -->
-            <UiSurfaceCard class="thirteenth-salary-page__guest-cta">
-              <NSpace vertical :size="12">
-                <NThing
-                  :title="t('thirteenthSalary.guestCta.title')"
-                  :description="t('thirteenthSalary.guestCta.description')"
-                />
-                <NSpace>
-                  <NButton type="primary" @click="router.push('/register')">
-                    {{ t('thirteenthSalary.guestCta.createAccount') }}
-                  </NButton>
-                  <NButton quaternary @click="router.push('/login')">
-                    {{ t('thirteenthSalary.guestCta.login') }}
-                  </NButton>
-                </NSpace>
-              </NSpace>
-            </UiSurfaceCard>
+            <ToolGuestCta />
           </div>
         </div>
       </section>
@@ -1030,10 +1016,6 @@ const isBridging = computed(
 .thirteenth-salary-page__action-bar {
   display: flex;
   flex-direction: column;
-}
-
-.thirteenth-salary-page__guest-cta {
-  background: var(--color-bg-elevated);
 }
 
 .thirteenth-salary-page__modal-summary {
