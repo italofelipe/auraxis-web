@@ -4,7 +4,9 @@ import {
   fetchUnleashSnapshot,
   getLocalFlag,
   getProviderMode,
+  getRuntimeEnv,
   isFeatureEnabled,
+  isStatusEnabledForEnv,
   resetProviderCache,
   resolveEnvOverride,
   resolveProviderDecision,
@@ -114,5 +116,91 @@ describe("feature flag service", () => {
 
     const snapshot = await fetchUnleashSnapshot();
     expect(snapshot["web.tools.salary-raise-calculator"]).toBe(true);
+  });
+});
+
+describe("getRuntimeEnv", () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("defaults to development when no env var is set", () => {
+    expect(getRuntimeEnv()).toBe("development");
+  });
+
+  it("returns production for NUXT_PUBLIC_APP_ENV=production", () => {
+    vi.stubEnv("NUXT_PUBLIC_APP_ENV", "production");
+    expect(getRuntimeEnv()).toBe("production");
+  });
+
+  it("returns production for NUXT_PUBLIC_APP_ENV=prod (alias)", () => {
+    vi.stubEnv("NUXT_PUBLIC_APP_ENV", "prod");
+    expect(getRuntimeEnv()).toBe("production");
+  });
+
+  it("returns staging for NUXT_PUBLIC_APP_ENV=staging", () => {
+    vi.stubEnv("NUXT_PUBLIC_APP_ENV", "staging");
+    expect(getRuntimeEnv()).toBe("staging");
+  });
+
+  it("falls back to AURAXIS_RUNTIME_ENV when NUXT_PUBLIC_APP_ENV is absent", () => {
+    vi.stubEnv("AURAXIS_RUNTIME_ENV", "staging");
+    expect(getRuntimeEnv()).toBe("staging");
+  });
+});
+
+describe("isStatusEnabledForEnv", () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("enabled-prod is active in production", () => {
+    vi.stubEnv("NUXT_PUBLIC_APP_ENV", "production");
+    expect(isStatusEnabledForEnv("enabled-prod")).toBe(true);
+  });
+
+  it("enabled-prod is active in staging", () => {
+    vi.stubEnv("NUXT_PUBLIC_APP_ENV", "staging");
+    expect(isStatusEnabledForEnv("enabled-prod")).toBe(true);
+  });
+
+  it("enabled-prod is active in development", () => {
+    expect(isStatusEnabledForEnv("enabled-prod")).toBe(true);
+  });
+
+  it("enabled-staging is active in development", () => {
+    expect(isStatusEnabledForEnv("enabled-staging")).toBe(true);
+  });
+
+  it("enabled-staging is active in staging", () => {
+    vi.stubEnv("NUXT_PUBLIC_APP_ENV", "staging");
+    expect(isStatusEnabledForEnv("enabled-staging")).toBe(true);
+  });
+
+  it("enabled-staging is NOT active in production", () => {
+    vi.stubEnv("NUXT_PUBLIC_APP_ENV", "production");
+    expect(isStatusEnabledForEnv("enabled-staging")).toBe(false);
+  });
+
+  it("enabled-dev is active in development", () => {
+    expect(isStatusEnabledForEnv("enabled-dev")).toBe(true);
+  });
+
+  it("enabled-dev is NOT active in staging", () => {
+    vi.stubEnv("NUXT_PUBLIC_APP_ENV", "staging");
+    expect(isStatusEnabledForEnv("enabled-dev")).toBe(false);
+  });
+
+  it("enabled-dev is NOT active in production", () => {
+    vi.stubEnv("NUXT_PUBLIC_APP_ENV", "production");
+    expect(isStatusEnabledForEnv("enabled-dev")).toBe(false);
+  });
+
+  it("draft is never active", () => {
+    expect(isStatusEnabledForEnv("draft")).toBe(false);
+  });
+
+  it("removed is never active", () => {
+    expect(isStatusEnabledForEnv("removed")).toBe(false);
+  });
+
+  it("legacy 'active' status is still recognized", () => {
+    expect(isStatusEnabledForEnv("active")).toBe(true);
   });
 });
