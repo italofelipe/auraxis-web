@@ -1176,5 +1176,117 @@
       "payHint": "Swipe → to pay",
       "deleteHint": "Swipe ← to delete"
     }
+  },
+  "thirteenthSalary": {
+    "seo": {
+      "title": "13th Salary Simulator — Free Calculator",
+      "description": "Calculate your 13th salary net value with INSS and income tax. Simulate both installments and see the impact of deductions.",
+      "ogTitle": "13th Salary Simulator — Auraxis",
+      "ogDescription": "Free 13th salary calculator with progressive INSS and income tax."
+    },
+    "header": {
+      "publicTool": "Free tool",
+      "otherTools": "Other tools",
+      "createAccount": "Create account"
+    },
+    "hero": {
+      "badge": "Free calculator",
+      "title": "13th Salary Simulator",
+      "subtitle": "Calculate the net value of both installments, see the INSS and income tax impact and know exactly what will hit your account."
+    },
+    "form": {
+      "title": "Salary details",
+      "grossSalary": "Monthly gross salary",
+      "grossSalaryPlaceholder": "e.g. 5000.00",
+      "monthsWorked": "Months worked in the year",
+      "variablePay": "Average variable pay",
+      "variablePayTooltip": "Average monthly additions such as overtime or commissions",
+      "advancePaid": "Advances already received",
+      "advancePayTooltip": "Amount already received as a 13th salary advance (e.g. paid during vacation)",
+      "dependents": "Dependents for income tax",
+      "dependentsTooltip": "Number of declared dependents for income tax deduction",
+      "calculate": "Calculate 13th Salary",
+      "reset": "Clear"
+    },
+    "months": {
+      "1": "1 month",
+      "2": "2 months",
+      "3": "3 months",
+      "4": "4 months",
+      "5": "5 months",
+      "6": "6 months",
+      "7": "7 months",
+      "8": "8 months",
+      "9": "9 months",
+      "10": "10 months",
+      "11": "11 months",
+      "12": "12 months (full year)"
+    },
+    "results": {
+      "totalGross": "Total gross 13th",
+      "totalNet": "Total net to receive",
+      "totalNetNote": "Combined net value of both installments",
+      "totalInss": "INSS",
+      "totalIrrf": "Income tax",
+      "firstInstallment": "1st Installment",
+      "firstInstallmentDate": "by November 30",
+      "firstInstallmentGross": "Gross amount (50%)",
+      "firstInstallmentNet": "Net amount",
+      "firstInstallmentNote": "No INSS or income tax on the 1st installment",
+      "secondInstallment": "2nd Installment",
+      "secondInstallmentDate": "by December 20",
+      "secondInstallmentGross": "Gross amount (remaining)",
+      "secondInstallmentNet": "Net amount",
+      "deductionInss": "INSS deduction",
+      "deductionIrrf": "Income tax deduction"
+    },
+    "disclaimer": {
+      "tableYear": "INSS and income tax tables in effect for {year}. Check for annual updates with your HR.",
+      "notFinancialAdvice": "This simulator uses legal minimum rates. Company-specific deductions (health plan, meal vouchers, etc.) are not included."
+    },
+    "errors": {
+      "grossSalaryRequired": "Please enter the gross salary.",
+      "monthsWorkedRange": "Months worked must be between 1 and 12.",
+      "generic": "Please check your input and try again."
+    },
+    "guestCta": {
+      "title": "Save and track your simulations",
+      "description": "With a free account, save simulations and turn them into financial goals.",
+      "createAccount": "Create free account",
+      "login": "Sign in"
+    },
+    "simulation": {
+      "defaultName": "13th Salary {year}"
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Simulation saved ✓",
+      "addToGoal": "Add as a goal",
+      "addToBudget": "Add to budget"
+    },
+    "premiumCta": {
+      "title": "Integrate into your plan",
+      "description": "With Premium, add your 13th salary as a financial goal or to your monthly budget.",
+      "upgrade": "Get Premium"
+    },
+    "goalModal": {
+      "title": "Add as a goal",
+      "nameLabel": "Goal name",
+      "namePlaceholder": "e.g. 13th Salary 2025",
+      "targetDateLabel": "Target date",
+      "targetAmountLabel": "Target amount (net)",
+      "cancel": "Cancel",
+      "confirm": "Create goal"
+    },
+    "budgetModal": {
+      "title": "Add to budget",
+      "description": "The installments below will be added as planned income in your budget.",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    },
+    "budget": {
+      "firstInstallmentLabel": "1st Installment — 13th Salary",
+      "secondInstallmentLabel": "2nd Installment — 13th Salary"
+    }
   }
 }

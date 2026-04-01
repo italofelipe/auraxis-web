@@ -1176,5 +1176,117 @@
       "payHint": "Deslize → para pagar",
       "deleteHint": "Deslize ← para excluir"
     }
+  },
+  "thirteenthSalary": {
+    "seo": {
+      "title": "Simulador de 13º Salário — Calculadora Gratuita",
+      "description": "Calcule o valor líquido do seu 13º salário com INSS e IR. Simule as parcelas de novembro e dezembro e veja o impacto dos descontos.",
+      "ogTitle": "Simulador de 13º Salário — Auraxis",
+      "ogDescription": "Calculadora gratuita de 13º salário com INSS e IR progressivos."
+    },
+    "header": {
+      "publicTool": "Ferramenta gratuita",
+      "otherTools": "Outras ferramentas",
+      "createAccount": "Criar conta"
+    },
+    "hero": {
+      "badge": "Calculadora gratuita",
+      "title": "Simulador de 13º Salário",
+      "subtitle": "Calcule o valor líquido das duas parcelas, veja o impacto do INSS e IR e saiba quanto vai cair na sua conta."
+    },
+    "form": {
+      "title": "Dados do salário",
+      "grossSalary": "Salário bruto mensal",
+      "grossSalaryPlaceholder": "Ex.: 5000,00",
+      "monthsWorked": "Meses trabalhados no ano",
+      "variablePay": "Média de remuneração variável",
+      "variablePayTooltip": "Horas extras, comissões ou outros adicionais mensais médios",
+      "advancePaid": "Adiantamentos já recebidos",
+      "advancePayTooltip": "Valor recebido como adiantamento do 13º (ex.: pago nas férias)",
+      "dependents": "Dependentes para IR",
+      "dependentsTooltip": "Número de dependentes declarados para dedução do IRRF",
+      "calculate": "Calcular 13º Salário",
+      "reset": "Limpar"
+    },
+    "months": {
+      "1": "1 mês",
+      "2": "2 meses",
+      "3": "3 meses",
+      "4": "4 meses",
+      "5": "5 meses",
+      "6": "6 meses",
+      "7": "7 meses",
+      "8": "8 meses",
+      "9": "9 meses",
+      "10": "10 meses",
+      "11": "11 meses",
+      "12": "12 meses (ano completo)"
+    },
+    "results": {
+      "totalGross": "13º bruto",
+      "totalNet": "Valor líquido total",
+      "totalNetNote": "Soma das duas parcelas líquidas",
+      "totalInss": "INSS",
+      "totalIrrf": "IR",
+      "firstInstallment": "1ª Parcela",
+      "firstInstallmentDate": "até 30 de novembro",
+      "firstInstallmentGross": "Valor bruto (50%)",
+      "firstInstallmentNet": "Valor líquido",
+      "firstInstallmentNote": "Sem desconto de INSS ou IR na 1ª parcela",
+      "secondInstallment": "2ª Parcela",
+      "secondInstallmentDate": "até 20 de dezembro",
+      "secondInstallmentGross": "Valor bruto (restante)",
+      "secondInstallmentNet": "Valor líquido",
+      "deductionInss": "INSS descontado",
+      "deductionIrrf": "IR descontado"
+    },
+    "disclaimer": {
+      "tableYear": "Tabelas INSS/IR vigentes em {year}. Verifique atualizações anuais com o RH.",
+      "notFinancialAdvice": "Este simulador utiliza os percentuais mínimos legais. Descontos específicos da sua empresa (plano de saúde, VR, etc.) não estão incluídos."
+    },
+    "errors": {
+      "grossSalaryRequired": "Informe o salário bruto.",
+      "monthsWorkedRange": "Meses trabalhados deve ser entre 1 e 12.",
+      "generic": "Verifique os dados e tente novamente."
+    },
+    "guestCta": {
+      "title": "Salve e acompanhe suas simulações",
+      "description": "Com uma conta gratuita, você salva simulações e transforma em metas financeiras.",
+      "createAccount": "Criar conta gratuita",
+      "login": "Entrar"
+    },
+    "simulation": {
+      "defaultName": "13º Salário {year}"
+    },
+    "actions": {
+      "save": "Salvar simulação",
+      "saved": "Simulação salva ✓",
+      "addToGoal": "Adicionar como meta",
+      "addToBudget": "Adicionar ao orçamento"
+    },
+    "premiumCta": {
+      "title": "Integre ao seu planejamento",
+      "description": "Com o plano Premium, adicione o 13º como meta financeira ou ao orçamento mensal.",
+      "upgrade": "Assinar Premium"
+    },
+    "goalModal": {
+      "title": "Adicionar como meta",
+      "nameLabel": "Nome da meta",
+      "namePlaceholder": "Ex.: 13º Salário 2025",
+      "targetDateLabel": "Data-alvo",
+      "targetAmountLabel": "Valor alvo (líquido)",
+      "cancel": "Cancelar",
+      "confirm": "Criar meta"
+    },
+    "budgetModal": {
+      "title": "Adicionar ao orçamento",
+      "description": "As parcelas abaixo serão adicionadas como receitas planejadas no seu orçamento.",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar"
+    },
+    "budget": {
+      "firstInstallmentLabel": "1ª Parcela 13º Salário",
+      "secondInstallmentLabel": "2ª Parcela 13º Salário"
+    }
   }
 }
