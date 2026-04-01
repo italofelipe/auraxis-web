@@ -1036,6 +1036,11 @@
       "title": "Premium Feature",
       "subtitle": "Upgrade to access this feature",
       "button": "View plans"
+    },
+    "upgradePrompt": {
+      "title": "Premium Feature",
+      "description": "Upgrade your plan to unlock this feature and get the most out of the platform.",
+      "ctaLabel": "View plans"
     }
   },
   "ui": {
