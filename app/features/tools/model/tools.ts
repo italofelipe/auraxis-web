@@ -19,6 +19,12 @@ export interface Tool {
   accessLevel: ToolAccessLevel;
   /** Client-side route for navigating to the tool page. */
   route: string;
+  /**
+   * Feature flag key that gates this tool's visibility.
+   * Format: "web.tools.<slug>" (matches config/feature-flags.json).
+   * When absent, the tool relies solely on `enabled` and `accessLevel`.
+   */
+  featureFlag?: string;
 }
 
 /**

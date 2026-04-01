@@ -7,7 +7,59 @@ import type {
 
 const featureFlagsCatalog: FeatureFlagCatalog =
   featureFlagsCatalogJson as FeatureFlagCatalog;
-const enabledStatuses = new Set<string>(["active", "released", "enabled"]);
+
+/**
+ * Statuses that are unconditionally enabled regardless of runtime environment.
+ * Legacy values (active, released, enabled) are kept for backwards compatibility.
+ */
+const alwaysEnabledStatuses = new Set<string>([
+  "enabled",
+  "enabled-prod",
+  "active",
+  "released",
+]);
+
+/**
+ * Returns the current runtime environment tier.
+ * Checked via NUXT_PUBLIC_APP_ENV or AURAXIS_RUNTIME_ENV.
+ * Defaults to "development" when unset (safe fallback for local runs).
+ *
+ * @returns The resolved environment tier.
+ */
+export const getRuntimeEnv = (): "development" | "staging" | "production" => {
+  const raw = (
+    process.env.NUXT_PUBLIC_APP_ENV ??
+    process.env.AURAXIS_RUNTIME_ENV ??
+    "development"
+  )
+    .trim()
+    .toLowerCase();
+  if (raw === "production" || raw === "prod") {return "production";}
+  if (raw === "staging") {return "staging";}
+  return "development";
+};
+
+/**
+ * Determines whether a catalog status string maps to "enabled"
+ * for the current runtime environment.
+ *
+ * Promotion ladder (each level includes those below it):
+ *   enabled-dev      → development only
+ *   enabled-staging  → development + staging
+ *   enabled-prod     → all environments (same as enabled)
+ *
+ * @param status Raw status string from the flag catalog.
+ * @returns True when the flag should be considered active.
+ */
+export const isStatusEnabledForEnv = (status: string): boolean => {
+  const s = status.trim().toLowerCase();
+  if (alwaysEnabledStatuses.has(s)) {return true;}
+  const env = getRuntimeEnv();
+  if (s === "enabled-staging") {return env === "development" || env === "staging";}
+  if (s === "enabled-dev") {return env === "development";}
+  return false;
+};
+
 const overridePrefix = "NUXT_PUBLIC_FLAG_";
 const defaultUnleashAppName = "auraxis-web";
 const defaultUnleashEnvironment = "development";
@@ -281,5 +333,5 @@ export const isFeatureEnabled = (
     return false;
   }
 
-  return enabledStatuses.has(localFlag.status.trim().toLowerCase());
+  return isStatusEnabledForEnv(localFlag.status);
 };
