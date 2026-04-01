@@ -15,6 +15,15 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     accessLevel: "public",
     route: "/tools/installment-vs-cash",
   },
+  {
+    id: "thirteenth-salary",
+    name: "Simulador de 13º Salário",
+    description:
+      "Calcule o valor líquido do seu 13º salário com INSS e IR proporcionais aos meses trabalhados.",
+    enabled: true,
+    accessLevel: "public",
+    route: "/tools/thirteenth-salary",
+  },
 ];
 
 /**
