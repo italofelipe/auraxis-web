@@ -1036,6 +1036,11 @@
       "title": "Premium Feature",
       "subtitle": "Upgrade to access this feature",
       "button": "View plans"
+    },
+    "upgradePrompt": {
+      "title": "Premium Feature",
+      "description": "Upgrade your plan to unlock this feature and get the most out of the platform.",
+      "ctaLabel": "View plans"
     }
   },
   "ui": {
@@ -1288,5 +1293,33 @@
       "firstInstallmentLabel": "1st Installment — 13th Salary",
       "secondInstallmentLabel": "2nd Installment — 13th Salary"
     }
+  },
+  "toolGuestCta": {
+    "ariaLabel": "Invitation to create a free account",
+    "badge": "Free trial",
+    "title": "Save this calculation and organize your finances",
+    "subtitle": "Track your spending, simulate scenarios and make smarter financial decisions with Auraxis.",
+    "featuresAriaLabel": "Included features",
+    "features": {
+      "portfolio": {
+        "title": "Investment Portfolio",
+        "desc": "Track your assets and monitor your net worth over time"
+      },
+      "goals": {
+        "title": "Financial Goals",
+        "desc": "Set objectives and track your progress month by month"
+      },
+      "security": {
+        "title": "Security and Privacy",
+        "desc": "Your data is protected with end-to-end encryption"
+      },
+      "tools": {
+        "title": "More Calculators",
+        "desc": "Access all financial tools for free"
+      }
+    },
+    "registerCta": "Try for free",
+    "loginCta": "I already have an account",
+    "trust": "Free forever. No credit card required."
   }
 }

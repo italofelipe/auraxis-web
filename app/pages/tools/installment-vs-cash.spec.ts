@@ -1,7 +1,7 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ref, type App } from "vue";
+import { computed, ref, type App, type ComputedRef } from "vue";
 
 import InstallmentVsCashPage from "./installment-vs-cash.vue";
 import { useToolContextStore } from "~/stores/toolContext";
@@ -107,6 +107,16 @@ vi.mock("~/stores/session", () => ({
       return mockIsAuthenticated.value;
     },
     userEmail: null,
+  }),
+}));
+
+vi.mock("#app", () => ({
+  useRouter: (): { push: typeof mockPush } => ({ push: mockPush }),
+}));
+
+vi.mock("~/composables/useToolCta", () => ({
+  useToolCta: (): { showCta: ComputedRef<boolean> } => ({
+    showCta: computed(() => !mockIsAuthenticated.value),
   }),
 }));
 
@@ -376,8 +386,8 @@ describe("InstallmentVsCashPage", () => {
   it("shows the guest CTA section when unauthenticated", () => {
     const wrapper = mountPage();
 
-    expect(wrapper.find(".ivc-guest-cta").exists()).toBe(true);
-    expect(wrapper.text()).toContain("pages.installmentVsCash.guestCta.registerCta");
+    expect(wrapper.find(".tool-guest-cta").exists()).toBe(true);
+    expect(wrapper.text()).toContain("toolGuestCta.registerCta");
   });
 
   it("hides the standalone header and shows nuxt-layout when authenticated", () => {
@@ -387,7 +397,7 @@ describe("InstallmentVsCashPage", () => {
 
     expect(wrapper.find(".installment-vs-cash-page__header").exists()).toBe(false);
     expect(wrapper.find(".nuxt-layout").exists()).toBe(true);
-    expect(wrapper.find(".ivc-guest-cta").exists()).toBe(false);
+    expect(wrapper.find(".tool-guest-cta").exists()).toBe(false);
   });
 
   it("shows a validation warning before calling the API", async () => {

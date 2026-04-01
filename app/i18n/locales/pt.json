@@ -1036,6 +1036,11 @@
       "title": "Recurso Premium",
       "subtitle": "Faça upgrade para acessar este recurso",
       "button": "Ver planos"
+    },
+    "upgradePrompt": {
+      "title": "Recurso Premium",
+      "description": "Faça upgrade para desbloquear este recurso e aproveitar todo o potencial da plataforma.",
+      "ctaLabel": "Ver planos"
     }
   },
   "ui": {
@@ -1288,5 +1293,33 @@
       "firstInstallmentLabel": "1ª Parcela 13º Salário",
       "secondInstallmentLabel": "2ª Parcela 13º Salário"
     }
+  },
+  "toolGuestCta": {
+    "ariaLabel": "Convite para criar conta gratuita",
+    "badge": "Trial grátis",
+    "title": "Salve este cálculo e organize suas finanças",
+    "subtitle": "Controle seus gastos, simule cenários e tome decisões financeiras mais inteligentes com o Auraxis.",
+    "featuresAriaLabel": "Recursos inclusos",
+    "features": {
+      "portfolio": {
+        "title": "Carteira de Investimentos",
+        "desc": "Acompanhe seus ativos e veja sua evolução patrimonial"
+      },
+      "goals": {
+        "title": "Metas Financeiras",
+        "desc": "Defina objetivos e acompanhe seu progresso mês a mês"
+      },
+      "security": {
+        "title": "Segurança e Privacidade",
+        "desc": "Seus dados são protegidos com criptografia ponta a ponta"
+      },
+      "tools": {
+        "title": "Mais Calculadoras",
+        "desc": "Acesse todas as ferramentas financeiras gratuitamente"
+      }
+    },
+    "registerCta": "Experimentar grátis",
+    "loginCta": "Já tenho conta",
+    "trust": "Grátis para sempre. Sem cartão de crédito."
   }
 }
