@@ -1254,6 +1254,39 @@
       "description": "With a free account, save simulations and turn them into financial goals.",
       "createAccount": "Create free account",
       "login": "Sign in"
+    },
+    "simulation": {
+      "defaultName": "13th Salary {year}"
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Simulation saved ✓",
+      "addToGoal": "Add as a goal",
+      "addToBudget": "Add to budget"
+    },
+    "premiumCta": {
+      "title": "Integrate into your plan",
+      "description": "With Premium, add your 13th salary as a financial goal or to your monthly budget.",
+      "upgrade": "Get Premium"
+    },
+    "goalModal": {
+      "title": "Add as a goal",
+      "nameLabel": "Goal name",
+      "namePlaceholder": "e.g. 13th Salary 2025",
+      "targetDateLabel": "Target date",
+      "targetAmountLabel": "Target amount (net)",
+      "cancel": "Cancel",
+      "confirm": "Create goal"
+    },
+    "budgetModal": {
+      "title": "Add to budget",
+      "description": "The installments below will be added as planned income in your budget.",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    },
+    "budget": {
+      "firstInstallmentLabel": "1st Installment — 13th Salary",
+      "secondInstallmentLabel": "2nd Installment — 13th Salary"
     }
   }
 }

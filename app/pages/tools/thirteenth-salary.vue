@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 import {
   NAlert,
   NButton,
+  NDatePicker,
   NForm,
   NFormItem,
+  NInput,
   NInputNumber,
+  NModal,
   NSelect,
   NSpace,
   NTag,
@@ -15,8 +18,13 @@ import {
 import { Info } from "lucide-vue-next";
 import { useRouter } from "#app";
 
+import { captureException } from "~/core/observability";
 import { useCalculatorFormState } from "~/features/tools/composables/use-calculator-form-state";
 import { useSessionStore } from "~/stores/session";
+import { useEntitlementQuery } from "~/features/paywall/queries/use-entitlement-query";
+import { useSaveSimulationMutation } from "~/features/simulations/queries/use-save-simulation-mutation";
+import { useCreateGoalMutation } from "~/features/goals/queries/use-create-goal-mutation";
+import { useCreateReceivableMutation } from "~/features/receivables/queries/use-create-receivable-mutation";
 import {
   BR_TAX_TABLE_YEAR,
   calculateThirteenthSalary,
@@ -46,12 +54,28 @@ useSeoMeta({
   twitterCard: "summary_large_image",
 });
 
-const isAuthenticated = computed(() => sessionStore.isAuthenticated);
+// ─── Session & access ─────────────────────────────────────────────────────────
+
+const isAuthenticated = computed<boolean>(() => sessionStore.isAuthenticated);
+
+const premiumAccessQuery = useEntitlementQuery(
+  "advanced_simulations",
+);
+
+/**
+ * True when the authenticated user holds a premium subscription.
+ */
+const hasPremiumAccess = computed<boolean>(
+  () => premiumAccessQuery.data.value === true,
+);
+
+// ─── Calculator form state ────────────────────────────────────────────────────
 
 const { form, validationError, isDirty, patch, reset, setValidationError } =
   useCalculatorFormState<ThirteenthSalaryFormState>(createDefaultThirteenthSalaryFormState);
 
 const result = ref<ThirteenthSalaryResult | null>(null);
+const savedSimulationId = ref<string | null>(null);
 
 const monthsOptions = computed(() =>
   Array.from({ length: 12 }, (_, i) => ({
@@ -59,6 +83,27 @@ const monthsOptions = computed(() =>
     value: i + 1,
   })),
 );
+
+// ─── Mutations ────────────────────────────────────────────────────────────────
+
+const saveSimulationMutation = useSaveSimulationMutation();
+const createGoalMutation = useCreateGoalMutation();
+const createReceivableMutation = useCreateReceivableMutation();
+
+// ─── Goal modal state ─────────────────────────────────────────────────────────
+
+const showGoalModal = ref(false);
+
+const goalForm = reactive({
+  name: "",
+  targetDate: null as number | null,
+});
+
+// ─── Budget (receitas) modal state ────────────────────────────────────────────
+
+const showBudgetModal = ref(false);
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /**
  * Formats a numeric value as Brazilian Real currency string.
@@ -71,6 +116,32 @@ function formatBrl(value: number): string {
 }
 
 /**
+ * Returns the ISO date string for the current year's target month and day.
+ *
+ * @param month 1-based month number.
+ * @param day Day of month.
+ * @returns ISO date string YYYY-MM-DD.
+ */
+function isoDate(month: number, day: number): string {
+  const year = new Date().getFullYear();
+  const mm = String(month).padStart(2, "0");
+  const dd = String(day).padStart(2, "0");
+  return `${year}-${mm}-${dd}`;
+}
+
+/**
+ * Converts an ISO date string to a timestamp for NDatePicker.
+ *
+ * @param iso ISO date string YYYY-MM-DD.
+ * @returns Unix timestamp in milliseconds.
+ */
+function isoToTs(iso: string): number {
+  return new Date(iso).getTime();
+}
+
+// ─── Calculation ──────────────────────────────────────────────────────────────
+
+/**
  * Validates the form and triggers the calculation when valid.
  */
 function handleCalculate(): void {
@@ -81,6 +152,7 @@ function handleCalculate(): void {
     return;
   }
   setValidationError(null);
+  savedSimulationId.value = null;
   result.value = calculateThirteenthSalary(form.value);
 }
 
@@ -90,6 +162,7 @@ function handleCalculate(): void {
 function handleReset(): void {
   reset();
   result.value = null;
+  savedSimulationId.value = null;
 }
 
 const summaryMetrics = computed(() => {
@@ -109,13 +182,134 @@ const summaryMetrics = computed(() => {
     },
   ];
 });
+
+// ─── Save simulation (free + premium) ────────────────────────────────────────
+
+/**
+ * Saves the current simulation and returns its id.
+ * Re-uses an existing id if the simulation was already saved.
+ *
+ * @returns Simulation id or null on failure.
+ */
+async function ensureSimulationSaved(): Promise<string | null> {
+  if (savedSimulationId.value) { return savedSimulationId.value; }
+  if (!result.value) { return null; }
+
+  try {
+    const simulation = await saveSimulationMutation.mutateAsync({
+      name: t("thirteenthSalary.simulation.defaultName", { year: new Date().getFullYear() }),
+      toolSlug: "thirteenth_salary",
+      inputs: { ...form.value },
+      result: { ...result.value },
+    });
+    savedSimulationId.value = simulation.id;
+    return simulation.id;
+  } catch (err) {
+    captureException(err, { context: "thirteenth-salary/save-simulation" });
+    return null;
+  }
+}
+
+/**
+ * Saves the simulation when the user clicks the standalone Save button.
+ */
+async function handleSaveSimulation(): Promise<void> {
+  await ensureSimulationSaved();
+}
+
+// ─── Goal bridge (premium) ───────────────────────────────────────────────────
+
+/**
+ * Opens the goal modal pre-filled with sensible defaults.
+ */
+function openGoalModal(): void {
+  goalForm.name = t("thirteenthSalary.goal.defaultName", { year: new Date().getFullYear() });
+  goalForm.targetDate = isoToTs(isoDate(12, 20));
+  showGoalModal.value = true;
+}
+
+/**
+ * Saves the simulation (if needed) then creates the goal.
+ */
+async function handleCreateGoal(): Promise<void> {
+  if (!result.value) { return; }
+
+  await ensureSimulationSaved();
+
+  const targetDate = goalForm.targetDate
+    ? new Date(goalForm.targetDate).toISOString().split("T")[0]
+    : undefined;
+
+  try {
+    await createGoalMutation.mutateAsync({
+      name: goalForm.name,
+      target_amount: result.value.totalNet,
+      target_date: targetDate ?? null,
+    });
+    showGoalModal.value = false;
+  } catch (err) {
+    captureException(err, { context: "thirteenth-salary/create-goal" });
+  }
+}
+
+// ─── Budget bridge (premium) ─────────────────────────────────────────────────
+
+/**
+ * Opens the budget confirmation modal.
+ */
+function openBudgetModal(): void {
+  showBudgetModal.value = true;
+}
+
+/**
+ * Saves the simulation (if needed) then creates the two receivable entries.
+ */
+async function handleAddToBudget(): Promise<void> {
+  if (!result.value) { return; }
+
+  await ensureSimulationSaved();
+
+  const res = result.value;
+  try {
+    await Promise.all([
+      createReceivableMutation.mutateAsync({
+        description: t("thirteenthSalary.budget.firstInstallmentLabel"),
+        amount: res.firstInstallment.net,
+        expected_date: isoDate(11, 30),
+        category: "salary",
+      }),
+      createReceivableMutation.mutateAsync({
+        description: t("thirteenthSalary.budget.secondInstallmentLabel"),
+        amount: res.secondInstallment.net,
+        expected_date: isoDate(12, 20),
+        category: "salary",
+      }),
+    ]);
+    showBudgetModal.value = false;
+  } catch (err) {
+    captureException(err, { context: "thirteenth-salary/add-to-budget" });
+  }
+}
+
+// ─── Derived action states ────────────────────────────────────────────────────
+
+const isBridging = computed(
+  () =>
+    saveSimulationMutation.isPending.value ||
+    createGoalMutation.isPending.value ||
+    createReceivableMutation.isPending.value,
+);
 </script>
 
 <template>
+  <!-- Transparent root wrapper required by vue/no-multiple-template-root.
+       display:contents makes it invisible to the layout engine. -->
+  <div class="thirteenth-salary-root">
   <!-- ═══ AUTHENTICATED — app shell ══════════════════════════════════════════ -->
   <NuxtLayout v-if="isAuthenticated" name="default">
     <div class="thirteenth-salary-page thirteenth-salary-page--authenticated">
       <div class="thirteenth-salary-page__layout">
+        <!-- Form column -->
         <div class="thirteenth-salary-page__form-col">
           <UiPageHeader
             :title="t('thirteenthSalary.hero.title')"
@@ -151,7 +345,7 @@ const summaryMetrics = computed(() => {
                     {{ t('thirteenthSalary.form.variablePay') }}
                     <NTooltip>
                       <template #trigger>
-                        <Info :size="14" style="margin-left: 4px; cursor: help; vertical-align: middle;" />
+                        <Info :size="14" style="margin-left:4px;cursor:help;vertical-align:middle;" />
                       </template>
                       {{ t('thirteenthSalary.form.variablePayTooltip') }}
                     </NTooltip>
@@ -171,7 +365,7 @@ const summaryMetrics = computed(() => {
                     {{ t('thirteenthSalary.form.advancePaid') }}
                     <NTooltip>
                       <template #trigger>
-                        <Info :size="14" style="margin-left: 4px; cursor: help; vertical-align: middle;" />
+                        <Info :size="14" style="margin-left:4px;cursor:help;vertical-align:middle;" />
                       </template>
                       {{ t('thirteenthSalary.form.advancePayTooltip') }}
                     </NTooltip>
@@ -191,7 +385,7 @@ const summaryMetrics = computed(() => {
                     {{ t('thirteenthSalary.form.dependents') }}
                     <NTooltip>
                       <template #trigger>
-                        <Info :size="14" style="margin-left: 4px; cursor: help; vertical-align: middle;" />
+                        <Info :size="14" style="margin-left:4px;cursor:help;vertical-align:middle;" />
                       </template>
                       {{ t('thirteenthSalary.form.dependentsTooltip') }}
                     </NTooltip>
@@ -207,16 +401,12 @@ const summaryMetrics = computed(() => {
                 </NFormItem>
               </CalculatorFormSection>
 
-              <NAlert v-if="validationError" type="warning" style="margin-top: 12px">
+              <NAlert v-if="validationError" type="warning" style="margin-top:12px">
                 {{ validationError }}
               </NAlert>
 
               <div class="thirteenth-salary-page__form-actions">
-                <NButton
-                  v-if="isDirty"
-                  quaternary
-                  @click="handleReset"
-                >
+                <NButton v-if="isDirty" quaternary @click="handleReset">
                   {{ t('thirteenthSalary.form.reset') }}
                 </NButton>
                 <NButton type="primary" attr-type="submit" :style="{ flex: 1 }">
@@ -227,6 +417,7 @@ const summaryMetrics = computed(() => {
           </UiGlassPanel>
         </div>
 
+        <!-- Results column -->
         <div class="thirteenth-salary-page__results-col">
           <UiStickySummaryCard v-if="result">
             <CalculatorResultSummary
@@ -238,15 +429,12 @@ const summaryMetrics = computed(() => {
           </UiStickySummaryCard>
 
           <template v-if="result">
-            <UiSurfaceCard class="thirteenth-salary-page__installment-card">
+            <!-- Installment breakdown -->
+            <UiSurfaceCard>
               <div class="thirteenth-salary-page__installment">
                 <div class="thirteenth-salary-page__installment-header">
-                  <span class="thirteenth-salary-page__installment-title">
-                    {{ t('thirteenthSalary.results.firstInstallment') }}
-                  </span>
-                  <NTag size="small" type="default" round>
-                    {{ t('thirteenthSalary.results.firstInstallmentDate') }}
-                  </NTag>
+                  <span class="thirteenth-salary-page__installment-title">{{ t('thirteenthSalary.results.firstInstallment') }}</span>
+                  <NTag size="small" round>{{ t('thirteenthSalary.results.firstInstallmentDate') }}</NTag>
                 </div>
                 <div class="thirteenth-salary-page__installment-rows">
                   <div class="thirteenth-salary-page__installment-row">
@@ -258,21 +446,15 @@ const summaryMetrics = computed(() => {
                     <span class="thirteenth-salary-page__value--positive">{{ formatBrl(result.firstInstallment.net) }}</span>
                   </div>
                 </div>
-                <p class="thirteenth-salary-page__installment-note">
-                  {{ t('thirteenthSalary.results.firstInstallmentNote') }}
-                </p>
+                <p class="thirteenth-salary-page__installment-note">{{ t('thirteenthSalary.results.firstInstallmentNote') }}</p>
               </div>
             </UiSurfaceCard>
 
-            <UiSurfaceCard class="thirteenth-salary-page__installment-card">
+            <UiSurfaceCard>
               <div class="thirteenth-salary-page__installment">
                 <div class="thirteenth-salary-page__installment-header">
-                  <span class="thirteenth-salary-page__installment-title">
-                    {{ t('thirteenthSalary.results.secondInstallment') }}
-                  </span>
-                  <NTag size="small" type="default" round>
-                    {{ t('thirteenthSalary.results.secondInstallmentDate') }}
-                  </NTag>
+                  <span class="thirteenth-salary-page__installment-title">{{ t('thirteenthSalary.results.secondInstallment') }}</span>
+                  <NTag size="small" round>{{ t('thirteenthSalary.results.secondInstallmentDate') }}</NTag>
                 </div>
                 <div class="thirteenth-salary-page__installment-rows">
                   <div class="thirteenth-salary-page__installment-row">
@@ -293,6 +475,54 @@ const summaryMetrics = computed(() => {
                   </div>
                 </div>
               </div>
+            </UiSurfaceCard>
+
+            <!-- Action bar (free + premium) -->
+            <UiSurfaceCard class="thirteenth-salary-page__action-bar">
+              <NSpace vertical :size="8">
+                <!-- Save simulation — available to all authenticated users -->
+                <NButton
+                  block
+                  :loading="saveSimulationMutation.isPending.value"
+                  :disabled="!!savedSimulationId || isBridging"
+                  @click="handleSaveSimulation"
+                >
+                  {{ savedSimulationId ? t('thirteenthSalary.actions.saved') : t('thirteenthSalary.actions.save') }}
+                </NButton>
+
+                <!-- Premium bridge actions -->
+                <template v-if="hasPremiumAccess">
+                  <NButton
+                    block
+                    type="primary"
+                    :disabled="isBridging"
+                    @click="openGoalModal"
+                  >
+                    {{ t('thirteenthSalary.actions.addToGoal') }}
+                  </NButton>
+                  <NButton
+                    block
+                    type="primary"
+                    :disabled="isBridging"
+                    @click="openBudgetModal"
+                  >
+                    {{ t('thirteenthSalary.actions.addToBudget') }}
+                  </NButton>
+                </template>
+
+                <!-- Upsell when not premium -->
+                <NThing
+                  v-else
+                  :title="t('thirteenthSalary.premiumCta.title')"
+                  :description="t('thirteenthSalary.premiumCta.description')"
+                >
+                  <template #footer>
+                    <NButton size="small" type="warning" @click="router.push('/subscription')">
+                      {{ t('thirteenthSalary.premiumCta.upgrade') }}
+                    </NButton>
+                  </template>
+                </NThing>
+              </NSpace>
             </UiSurfaceCard>
 
             <UiSurfaceCard>
@@ -317,21 +547,15 @@ const summaryMetrics = computed(() => {
         <span class="thirteenth-salary-page__brand-copy">{{ t('thirteenthSalary.header.publicTool') }}</span>
       </div>
       <div class="thirteenth-salary-page__header-actions">
-        <NButton quaternary @click="router.push('/tools')">
-          {{ t('thirteenthSalary.header.otherTools') }}
-        </NButton>
-        <NButton type="primary" @click="router.push('/register')">
-          {{ t('thirteenthSalary.header.createAccount') }}
-        </NButton>
+        <NButton quaternary @click="router.push('/tools')">{{ t('thirteenthSalary.header.otherTools') }}</NButton>
+        <NButton type="primary" @click="router.push('/register')">{{ t('thirteenthSalary.header.createAccount') }}</NButton>
       </div>
     </header>
 
     <main class="thirteenth-salary-page__content">
       <section class="thirteenth-salary-page__hero">
         <div class="thirteenth-salary-page__hero-copy">
-          <NTag round type="warning">
-            {{ t('thirteenthSalary.hero.badge') }}
-          </NTag>
+          <NTag round type="warning">{{ t('thirteenthSalary.hero.badge') }}</NTag>
           <UiPageHeader
             :title="t('thirteenthSalary.hero.title')"
             :subtitle="t('thirteenthSalary.hero.subtitle')"
@@ -367,7 +591,7 @@ const summaryMetrics = computed(() => {
                   {{ t('thirteenthSalary.form.variablePay') }}
                   <NTooltip>
                     <template #trigger>
-                      <Info :size="14" style="margin-left: 4px; cursor: help; vertical-align: middle;" />
+                      <Info :size="14" style="margin-left:4px;cursor:help;vertical-align:middle;" />
                     </template>
                     {{ t('thirteenthSalary.form.variablePayTooltip') }}
                   </NTooltip>
@@ -387,7 +611,7 @@ const summaryMetrics = computed(() => {
                   {{ t('thirteenthSalary.form.dependents') }}
                   <NTooltip>
                     <template #trigger>
-                      <Info :size="14" style="margin-left: 4px; cursor: help; vertical-align: middle;" />
+                      <Info :size="14" style="margin-left:4px;cursor:help;vertical-align:middle;" />
                     </template>
                     {{ t('thirteenthSalary.form.dependentsTooltip') }}
                   </NTooltip>
@@ -403,16 +627,12 @@ const summaryMetrics = computed(() => {
               </NFormItem>
             </CalculatorFormSection>
 
-            <NAlert v-if="validationError" type="warning" style="margin-top: 12px">
+            <NAlert v-if="validationError" type="warning" style="margin-top:12px">
               {{ validationError }}
             </NAlert>
 
             <div class="thirteenth-salary-page__form-actions">
-              <NButton
-                v-if="isDirty"
-                quaternary
-                @click="handleReset"
-              >
+              <NButton v-if="isDirty" quaternary @click="handleReset">
                 {{ t('thirteenthSalary.form.reset') }}
               </NButton>
               <NButton type="primary" attr-type="submit" :style="{ flex: 1 }">
@@ -426,15 +646,11 @@ const summaryMetrics = computed(() => {
       <section v-if="result" class="thirteenth-salary-page__results-section">
         <div class="thirteenth-salary-page__layout">
           <div class="thirteenth-salary-page__results-main">
-            <UiSurfaceCard class="thirteenth-salary-page__installment-card">
+            <UiSurfaceCard>
               <div class="thirteenth-salary-page__installment">
                 <div class="thirteenth-salary-page__installment-header">
-                  <span class="thirteenth-salary-page__installment-title">
-                    {{ t('thirteenthSalary.results.firstInstallment') }}
-                  </span>
-                  <NTag size="small" type="default" round>
-                    {{ t('thirteenthSalary.results.firstInstallmentDate') }}
-                  </NTag>
+                  <span class="thirteenth-salary-page__installment-title">{{ t('thirteenthSalary.results.firstInstallment') }}</span>
+                  <NTag size="small" round>{{ t('thirteenthSalary.results.firstInstallmentDate') }}</NTag>
                 </div>
                 <div class="thirteenth-salary-page__installment-rows">
                   <div class="thirteenth-salary-page__installment-row">
@@ -446,21 +662,15 @@ const summaryMetrics = computed(() => {
                     <span class="thirteenth-salary-page__value--positive">{{ formatBrl(result.firstInstallment.net) }}</span>
                   </div>
                 </div>
-                <p class="thirteenth-salary-page__installment-note">
-                  {{ t('thirteenthSalary.results.firstInstallmentNote') }}
-                </p>
+                <p class="thirteenth-salary-page__installment-note">{{ t('thirteenthSalary.results.firstInstallmentNote') }}</p>
               </div>
             </UiSurfaceCard>
 
-            <UiSurfaceCard class="thirteenth-salary-page__installment-card">
+            <UiSurfaceCard>
               <div class="thirteenth-salary-page__installment">
                 <div class="thirteenth-salary-page__installment-header">
-                  <span class="thirteenth-salary-page__installment-title">
-                    {{ t('thirteenthSalary.results.secondInstallment') }}
-                  </span>
-                  <NTag size="small" type="default" round>
-                    {{ t('thirteenthSalary.results.secondInstallmentDate') }}
-                  </NTag>
+                  <span class="thirteenth-salary-page__installment-title">{{ t('thirteenthSalary.results.secondInstallment') }}</span>
+                  <NTag size="small" round>{{ t('thirteenthSalary.results.secondInstallmentDate') }}</NTag>
                 </div>
                 <div class="thirteenth-salary-page__installment-rows">
                   <div class="thirteenth-salary-page__installment-row">
@@ -503,6 +713,7 @@ const summaryMetrics = computed(() => {
               />
             </UiStickySummaryCard>
 
+            <!-- Guest CTA -->
             <UiSurfaceCard class="thirteenth-salary-page__guest-cta">
               <NSpace vertical :size="12">
                 <NThing
@@ -524,9 +735,110 @@ const summaryMetrics = computed(() => {
       </section>
     </main>
   </div>
+
+  <!-- ═══ GOAL MODAL ══════════════════════════════════════════════════════════ -->
+  <NModal
+    v-model:show="showGoalModal"
+    preset="card"
+    :title="t('thirteenthSalary.goalModal.title')"
+    style="max-width: 480px"
+    :mask-closable="!isBridging"
+    :closable="!isBridging"
+  >
+    <NSpace vertical :size="16">
+      <NFormItem :label="t('thirteenthSalary.goalModal.nameLabel')">
+        <NInput
+          v-model:value="goalForm.name"
+          :placeholder="t('thirteenthSalary.goalModal.namePlaceholder')"
+        />
+      </NFormItem>
+
+      <NFormItem :label="t('thirteenthSalary.goalModal.targetDateLabel')">
+        <NDatePicker
+          v-model:value="goalForm.targetDate"
+          type="date"
+          style="width: 100%"
+        />
+      </NFormItem>
+
+      <div v-if="result" class="thirteenth-salary-page__modal-summary">
+        <span>{{ t('thirteenthSalary.goalModal.targetAmountLabel') }}</span>
+        <span class="thirteenth-salary-page__value--positive">{{ formatBrl(result.totalNet) }}</span>
+      </div>
+    </NSpace>
+
+    <template #footer>
+      <NSpace justify="end">
+        <NButton :disabled="isBridging" @click="showGoalModal = false">
+          {{ t('thirteenthSalary.goalModal.cancel') }}
+        </NButton>
+        <NButton
+          type="primary"
+          :loading="createGoalMutation.isPending.value || saveSimulationMutation.isPending.value"
+          :disabled="!goalForm.name"
+          @click="handleCreateGoal"
+        >
+          {{ t('thirteenthSalary.goalModal.confirm') }}
+        </NButton>
+      </NSpace>
+    </template>
+  </NModal>
+
+  <!-- ═══ BUDGET MODAL ════════════════════════════════════════════════════════ -->
+  <NModal
+    v-model:show="showBudgetModal"
+    preset="card"
+    :title="t('thirteenthSalary.budgetModal.title')"
+    style="max-width: 480px"
+    :mask-closable="!isBridging"
+    :closable="!isBridging"
+  >
+    <NSpace v-if="result" vertical :size="12">
+      <p class="thirteenth-salary-page__modal-description">
+        {{ t('thirteenthSalary.budgetModal.description') }}
+      </p>
+
+      <div class="thirteenth-salary-page__installment-rows">
+        <div class="thirteenth-salary-page__installment-row">
+          <span>{{ t('thirteenthSalary.budget.firstInstallmentLabel') }}</span>
+          <span class="thirteenth-salary-page__value--positive">{{ formatBrl(result.firstInstallment.net) }}</span>
+        </div>
+        <div class="thirteenth-salary-page__installment-row thirteenth-salary-page__installment-row--deduction">
+          <span class="thirteenth-salary-page__installment-date">{{ t('thirteenthSalary.results.firstInstallmentDate') }}</span>
+        </div>
+        <div class="thirteenth-salary-page__installment-row" style="margin-top:8px">
+          <span>{{ t('thirteenthSalary.budget.secondInstallmentLabel') }}</span>
+          <span class="thirteenth-salary-page__value--positive">{{ formatBrl(result.secondInstallment.net) }}</span>
+        </div>
+        <div class="thirteenth-salary-page__installment-row thirteenth-salary-page__installment-row--deduction">
+          <span class="thirteenth-salary-page__installment-date">{{ t('thirteenthSalary.results.secondInstallmentDate') }}</span>
+        </div>
+      </div>
+    </NSpace>
+
+    <template #footer>
+      <NSpace justify="end">
+        <NButton :disabled="isBridging" @click="showBudgetModal = false">
+          {{ t('thirteenthSalary.budgetModal.cancel') }}
+        </NButton>
+        <NButton
+          type="primary"
+          :loading="createReceivableMutation.isPending.value || saveSimulationMutation.isPending.value"
+          @click="handleAddToBudget"
+        >
+          {{ t('thirteenthSalary.budgetModal.confirm') }}
+        </NButton>
+      </NSpace>
+    </template>
+  </NModal>
+  </div>
 </template>
 
 <style scoped>
+.thirteenth-salary-root {
+  display: contents;
+}
+
 .thirteenth-salary-page {
   min-height: 100vh;
   background: var(--color-bg-base);
@@ -646,10 +958,6 @@ const summaryMetrics = computed(() => {
   gap: var(--space-3);
 }
 
-.thirteenth-salary-page__installment-card {
-  padding: 0;
-}
-
 .thirteenth-salary-page__installment {
   display: flex;
   flex-direction: column;
@@ -699,6 +1007,11 @@ const summaryMetrics = computed(() => {
   margin: 0;
 }
 
+.thirteenth-salary-page__installment-date {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
 .thirteenth-salary-page__value--positive {
   color: var(--color-success);
   font-weight: var(--font-weight-semibold);
@@ -714,8 +1027,30 @@ const summaryMetrics = computed(() => {
   margin: 0 0 var(--space-1);
 }
 
+.thirteenth-salary-page__action-bar {
+  display: flex;
+  flex-direction: column;
+}
+
 .thirteenth-salary-page__guest-cta {
   background: var(--color-bg-elevated);
+}
+
+.thirteenth-salary-page__modal-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  padding: var(--space-2);
+  background: var(--color-bg-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.thirteenth-salary-page__modal-description {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
 }
 
 @media (max-width: 900px) {

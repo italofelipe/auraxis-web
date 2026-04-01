@@ -1254,6 +1254,39 @@
       "description": "Com uma conta gratuita, você salva simulações e transforma em metas financeiras.",
       "createAccount": "Criar conta gratuita",
       "login": "Entrar"
+    },
+    "simulation": {
+      "defaultName": "13º Salário {year}"
+    },
+    "actions": {
+      "save": "Salvar simulação",
+      "saved": "Simulação salva ✓",
+      "addToGoal": "Adicionar como meta",
+      "addToBudget": "Adicionar ao orçamento"
+    },
+    "premiumCta": {
+      "title": "Integre ao seu planejamento",
+      "description": "Com o plano Premium, adicione o 13º como meta financeira ou ao orçamento mensal.",
+      "upgrade": "Assinar Premium"
+    },
+    "goalModal": {
+      "title": "Adicionar como meta",
+      "nameLabel": "Nome da meta",
+      "namePlaceholder": "Ex.: 13º Salário 2025",
+      "targetDateLabel": "Data-alvo",
+      "targetAmountLabel": "Valor alvo (líquido)",
+      "cancel": "Cancelar",
+      "confirm": "Criar meta"
+    },
+    "budgetModal": {
+      "title": "Adicionar ao orçamento",
+      "description": "As parcelas abaixo serão adicionadas como receitas planejadas no seu orçamento.",
+      "cancel": "Cancelar",
+      "confirm": "Confirmar"
+    },
+    "budget": {
+      "firstInstallmentLabel": "1ª Parcela 13º Salário",
+      "secondInstallmentLabel": "2ª Parcela 13º Salário"
     }
   }
 }
