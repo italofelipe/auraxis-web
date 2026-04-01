@@ -1036,6 +1036,11 @@
       "title": "Recurso Premium",
       "subtitle": "Faça upgrade para acessar este recurso",
       "button": "Ver planos"
+    },
+    "upgradePrompt": {
+      "title": "Recurso Premium",
+      "description": "Faça upgrade para desbloquear este recurso e aproveitar todo o potencial da plataforma.",
+      "ctaLabel": "Ver planos"
     }
   },
   "ui": {
