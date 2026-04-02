@@ -1,0 +1,795 @@
+<script setup lang="ts">
+import { computed, ref } from "vue";
+import { use } from "echarts/core";
+import { LineChart } from "echarts/charts";
+import { GridComponent, TooltipComponent, LegendComponent } from "echarts/components";
+import { CanvasRenderer } from "echarts/renderers";
+import VChart from "vue-echarts";
+import {
+  NAlert,
+  NButton,
+  NForm,
+  NFormItem,
+  NInputNumber,
+  NSpace,
+  NTag,
+  NThing,
+} from "naive-ui";
+import { useRouter } from "#app";
+
+import { captureException } from "~/core/observability";
+import { useCalculatorFormState } from "~/features/tools/composables/use-calculator-form-state";
+import { useSessionStore } from "~/stores/session";
+import { useEntitlementQuery } from "~/features/paywall/queries/use-entitlement-query";
+import { useSaveSimulationMutation } from "~/features/simulations/queries/use-save-simulation-mutation";
+import { useCreateGoalMutation } from "~/features/goals/queries/use-create-goal-mutation";
+import {
+  calculateAluguelVsCompra,
+  createDefaultAluguelVsCompraFormState,
+  validateAluguelVsCompraForm,
+  type AluguelVsCompraFormState,
+  type AluguelVsCompraResult,
+} from "~/features/tools/model/aluguel-vs-compra";
+import CalculatorFormSection from "~/components/tool/CalculatorFormSection/CalculatorFormSection.vue";
+import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
+import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
+import UiStickySummaryCard from "~/components/ui/UiStickySummaryCard/UiStickySummaryCard.vue";
+import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
+import UiGlassPanel from "~/components/ui/UiGlassPanel/UiGlassPanel.vue";
+import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
+
+// Register ECharts components
+use([LineChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer]);
+
+definePageMeta({ layout: false });
+
+const { t, n } = useI18n();
+const router = useRouter();
+const sessionStore = useSessionStore();
+
+useSeoMeta({
+  title: t("aluguelVsCompra.seo.title"),
+  description: t("aluguelVsCompra.seo.description"),
+  ogTitle: t("aluguelVsCompra.seo.ogTitle"),
+  ogDescription: t("aluguelVsCompra.seo.ogDescription"),
+  twitterCard: "summary_large_image",
+});
+
+// ─── Session & access ─────────────────────────────────────────────────────────
+
+const isAuthenticated = computed<boolean>(() => sessionStore.isAuthenticated);
+
+const premiumAccessQuery = useEntitlementQuery("advanced_simulations");
+
+/**
+ * True when the authenticated user holds a premium subscription.
+ */
+const hasPremiumAccess = computed<boolean>(
+  () => premiumAccessQuery.data.value === true,
+);
+
+// ─── Calculator form state ────────────────────────────────────────────────────
+
+const { form, validationError, isDirty, patch, reset, setValidationError } =
+  useCalculatorFormState<AluguelVsCompraFormState>(createDefaultAluguelVsCompraFormState);
+
+const result = ref<AluguelVsCompraResult | null>(null);
+const savedSimulationId = ref<string | null>(null);
+const goalAdded = ref(false);
+
+// ─── Mutations ────────────────────────────────────────────────────────────────
+
+const saveSimulationMutation = useSaveSimulationMutation();
+const createGoalMutation = useCreateGoalMutation();
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/**
+ * Formats a numeric value as Brazilian Real currency string.
+ *
+ * @param value Number to format.
+ * @returns Formatted BRL string.
+ */
+function formatBrl(value: number): string {
+  return n(value, "currency");
+}
+
+// ─── Chart options ──────────────────────���─────────────────────────────────────
+
+const chartOption = computed(() => {
+  if (!result.value) { return {}; }
+
+  const years = result.value.chartData.map((p) => String(p.year));
+  const buyData = result.value.chartData.map((p) => p.buyNetWorth);
+  const rentData = result.value.chartData.map((p) => p.rentNetWorth);
+
+  return {
+    tooltip: {
+      trigger: "axis",
+      formatter: (params: Array<{ seriesName: string; value: number }>): string =>
+        params.map((p) => `${p.seriesName}: ${formatBrl(p.value)}`).join("<br/>"),
+    },
+    legend: {
+      data: [
+        t("aluguelVsCompra.results.chart.buy"),
+        t("aluguelVsCompra.results.chart.rent"),
+      ],
+    },
+    xAxis: {
+      type: "category",
+      data: years,
+      name: t("aluguelVsCompra.results.chart.xAxis"),
+    },
+    yAxis: {
+      type: "value",
+      axisLabel: {
+        formatter: (val: number): string => formatBrl(val),
+      },
+    },
+    series: [
+      {
+        name: t("aluguelVsCompra.results.chart.buy"),
+        type: "line",
+        data: buyData,
+        smooth: true,
+      },
+      {
+        name: t("aluguelVsCompra.results.chart.rent"),
+        type: "line",
+        data: rentData,
+        smooth: true,
+        lineStyle: { type: "dashed" },
+      },
+    ],
+  };
+});
+
+// ─── Calculation ──────────────────────────────────────────────────────────────
+
+/**
+ * Validates the form and triggers the calculation when valid.
+ */
+function handleCalculate(): void {
+  const errors = validateAluguelVsCompraForm(form.value);
+  if (errors.length > 0) {
+    const first = errors[0];
+    setValidationError(first ? t(`aluguelVsCompra.${first.messageKey}`) : null);
+    return;
+  }
+  setValidationError(null);
+  savedSimulationId.value = null;
+  goalAdded.value = false;
+  result.value = calculateAluguelVsCompra(form.value);
+}
+
+/**
+ * Resets the form to its initial state and clears the result.
+ */
+function handleReset(): void {
+  reset();
+  result.value = null;
+  savedSimulationId.value = null;
+  goalAdded.value = false;
+}
+
+// ─── Summary metrics ────────────────────────────────���─────────────────────────
+
+const summaryMetrics = computed(() => {
+  if (!result.value) { return []; }
+  return [
+    {
+      label: t("aluguelVsCompra.results.finalBuyNetWorth"),
+      value: formatBrl(result.value.finalBuyNetWorth),
+    },
+    {
+      label: t("aluguelVsCompra.results.finalRentNetWorth"),
+      value: formatBrl(result.value.finalRentNetWorth),
+    },
+    {
+      label: t("aluguelVsCompra.results.totalRentCost"),
+      value: formatBrl(result.value.totalRentCost),
+    },
+    {
+      label: t("aluguelVsCompra.results.breakEvenYear"),
+      value: result.value.breakEvenYear !== null
+        ? t("aluguelVsCompra.results.breakEvenYearValue", { year: result.value.breakEvenYear })
+        : t("aluguelVsCompra.results.breakEvenNever"),
+    },
+  ];
+});
+
+// ─── Save simulation ─────────────────────────────────��────────────────────────
+
+/**
+ * Saves the current simulation and returns its id.
+ *
+ * @returns Simulation id or null on failure.
+ */
+async function ensureSimulationSaved(): Promise<string | null> {
+  if (savedSimulationId.value) { return savedSimulationId.value; }
+  if (!result.value) { return null; }
+
+  try {
+    const simulation = await saveSimulationMutation.mutateAsync({
+      name: t("aluguelVsCompra.simulation.defaultName", { year: new Date().getFullYear() }),
+      toolSlug: "aluguel_vs_compra",
+      inputs: { ...form.value },
+      result: {
+        finalBuyNetWorth: result.value.finalBuyNetWorth,
+        finalRentNetWorth: result.value.finalRentNetWorth,
+        totalRentCost: result.value.totalRentCost,
+        totalBuyCost: result.value.totalBuyCost,
+        breakEvenYear: result.value.breakEvenYear,
+        buyIsBetter: result.value.buyIsBetter,
+        propertyValueAtEnd: result.value.propertyValueAtEnd,
+      },
+    });
+    savedSimulationId.value = simulation.id;
+    return simulation.id;
+  } catch (err) {
+    captureException(err, { context: "aluguel-vs-compra/save-simulation" });
+    return null;
+  }
+}
+
+/**
+ * Handles the Save Simulation button click.
+ */
+async function handleSaveSimulation(): Promise<void> {
+  await ensureSimulationSaved();
+}
+
+// ─── Goal bridge (premium) ────────────────────────────────────────────────────
+
+/**
+ * Saves the simulation then creates a goal from the property value at end.
+ */
+async function handleAddAsGoal(): Promise<void> {
+  if (!result.value) { return; }
+
+  await ensureSimulationSaved();
+
+  try {
+    await createGoalMutation.mutateAsync({
+      name: t("aluguelVsCompra.simulation.goalName"),
+      target_amount: result.value.propertyValueAtEnd,
+    });
+    goalAdded.value = true;
+  } catch (err) {
+    captureException(err, { context: "aluguel-vs-compra/add-as-goal" });
+  }
+}
+
+// ─── Derived states ───────────────────────────────────────────────────────────
+
+const isBridging = computed(
+  () => saveSimulationMutation.isPending.value || createGoalMutation.isPending.value,
+);
+
+const isSaved = computed(() => savedSimulationId.value !== null);
+</script>
+
+<template>
+  <!-- Transparent root wrapper required by vue/no-multiple-template-root. -->
+  <div class="avc-root">
+  <!-- ═══ AUTHENTICATED — app shell ══════════════════════════════════════════ -->
+  <NuxtLayout v-if="isAuthenticated" name="default">
+    <div class="avc-page avc-page--authenticated">
+      <div class="avc-page__layout">
+        <!-- Form column -->
+        <div class="avc-page__form-col">
+          <UiPageHeader
+            :title="t('aluguelVsCompra.hero.title')"
+            :subtitle="t('aluguelVsCompra.hero.subtitle')"
+          />
+
+          <UiGlassPanel class="avc-page__form-panel">
+            <NForm @submit.prevent="handleCalculate">
+              <CalculatorFormSection :title="t('aluguelVsCompra.form.title')">
+                <NFormItem :label="t('aluguelVsCompra.form.propertyValue')">
+                  <NInputNumber
+                    :value="form.propertyValue"
+                    :placeholder="t('aluguelVsCompra.form.propertyValuePlaceholder')"
+                    :min="0"
+                    :precision="2"
+                    prefix="R$"
+                    style="width: 100%"
+                    @update:value="(v) => patch({ propertyValue: v })"
+                  />
+                </NFormItem>
+
+                <NFormItem :label="t('aluguelVsCompra.form.monthlyRent')">
+                  <NInputNumber
+                    :value="form.monthlyRent"
+                    :placeholder="t('aluguelVsCompra.form.monthlyRentPlaceholder')"
+                    :min="0"
+                    :precision="2"
+                    prefix="R$"
+                    style="width: 100%"
+                    @update:value="(v) => patch({ monthlyRent: v })"
+                  />
+                </NFormItem>
+
+                <NFormItem :label="t('aluguelVsCompra.form.downPaymentAvailable')">
+                  <NInputNumber
+                    :value="form.downPaymentAvailable"
+                    :placeholder="t('aluguelVsCompra.form.downPaymentPlaceholder')"
+                    :min="0"
+                    :precision="2"
+                    prefix="R$"
+                    style="width: 100%"
+                    @update:value="(v) => patch({ downPaymentAvailable: v })"
+                  />
+                </NFormItem>
+
+                <NFormItem :label="t('aluguelVsCompra.form.annualInvestmentReturnPct')">
+                  <NInputNumber
+                    :value="form.annualInvestmentReturnPct"
+                    :min="0"
+                    :precision="2"
+                    style="width: 100%"
+                    @update:value="(v) => patch({ annualInvestmentReturnPct: v ?? 10 })"
+                  />
+                </NFormItem>
+
+                <NFormItem :label="t('aluguelVsCompra.form.annualPropertyValorizationPct')">
+                  <NInputNumber
+                    :value="form.annualPropertyValorizationPct"
+                    :min="0"
+                    :precision="2"
+                    style="width: 100%"
+                    @update:value="(v) => patch({ annualPropertyValorizationPct: v ?? 5 })"
+                  />
+                </NFormItem>
+
+                <NFormItem :label="t('aluguelVsCompra.form.analysisYears')">
+                  <NInputNumber
+                    :value="form.analysisYears"
+                    :min="1"
+                    :max="50"
+                    :precision="0"
+                    style="width: 100%"
+                    @update:value="(v) => patch({ analysisYears: v ?? 20 })"
+                  />
+                </NFormItem>
+
+                <NFormItem :label="t('aluguelVsCompra.form.mortgageAnnualRatePct')">
+                  <NInputNumber
+                    :value="form.mortgageAnnualRatePct"
+                    :min="0"
+                    :precision="2"
+                    style="width: 100%"
+                    @update:value="(v) => patch({ mortgageAnnualRatePct: v ?? 12 })"
+                  />
+                </NFormItem>
+
+                <NFormItem :label="t('aluguelVsCompra.form.monthlyIptuCondominio')">
+                  <NInputNumber
+                    :value="form.monthlyIptuCondominio"
+                    :min="0"
+                    :precision="2"
+                    prefix="R$"
+                    style="width: 100%"
+                    @update:value="(v) => patch({ monthlyIptuCondominio: v ?? 0 })"
+                  />
+                </NFormItem>
+              </CalculatorFormSection>
+
+              <NAlert v-if="validationError" type="warning" style="margin-top:12px">
+                {{ validationError }}
+              </NAlert>
+
+              <div class="avc-page__form-actions">
+                <NButton v-if="isDirty" quaternary @click="handleReset">
+                  {{ t('aluguelVsCompra.form.reset') }}
+                </NButton>
+                <NButton type="primary" attr-type="submit" :loading="isBridging" :style="{ flex: 1 }">
+                  {{ t('aluguelVsCompra.form.calculate') }}
+                </NButton>
+              </div>
+            </NForm>
+          </UiGlassPanel>
+        </div>
+
+        <!-- Results column -->
+        <div v-if="result" class="avc-page__results-col">
+          <UiStickySummaryCard>
+            <CalculatorResultSummary
+              :label="t('aluguelVsCompra.results.verdict')"
+              :value="result.buyIsBetter ? t('aluguelVsCompra.results.buyWins') : t('aluguelVsCompra.results.rentWins')"
+              :metrics="summaryMetrics"
+            />
+
+            <NSpace vertical style="margin-top: 16px">
+              <NButton
+                v-if="isAuthenticated"
+                :loading="saveSimulationMutation.isPending.value"
+                :disabled="isSaved"
+                block
+                @click="handleSaveSimulation"
+              >
+                {{ isSaved ? t('aluguelVsCompra.actions.saved') : t('aluguelVsCompra.actions.save') }}
+              </NButton>
+
+              <NButton
+                v-if="hasPremiumAccess"
+                type="primary"
+                :loading="createGoalMutation.isPending.value"
+                :disabled="goalAdded"
+                block
+                @click="handleAddAsGoal"
+              >
+                {{ goalAdded ? t('aluguelVsCompra.actions.goalAdded') : t('aluguelVsCompra.actions.addAsGoal') }}
+              </NButton>
+            </NSpace>
+          </UiStickySummaryCard>
+
+          <!-- Evolution chart -->
+          <UiSurfaceCard class="avc-page__chart">
+            <VChart :option="chartOption" style="height: 280px" autoresize />
+          </UiSurfaceCard>
+
+          <!-- Detail rows -->
+          <UiSurfaceCard>
+            <NThing
+              :title="t('aluguelVsCompra.results.propertyValueAtEnd')"
+              :description="formatBrl(result.propertyValueAtEnd)"
+            />
+            <NThing
+              :title="t('aluguelVsCompra.results.opportunityCost')"
+              :description="formatBrl(result.opportunityCost)"
+            />
+            <NThing
+              :title="t('aluguelVsCompra.results.totalBuyCost')"
+              :description="formatBrl(result.totalBuyCost)"
+            />
+          </UiSurfaceCard>
+
+          <!-- Disclaimer -->
+          <UiSurfaceCard>
+            <p class="avc-page__disclaimer">{{ t('aluguelVsCompra.disclaimer.note') }}</p>
+          </UiSurfaceCard>
+        </div>
+      </div>
+    </div>
+  </NuxtLayout>
+
+  <!-- ═══ GUEST — standalone public page ════════════════════════════════════ -->
+  <div v-else class="avc-page">
+    <header class="avc-page__header">
+      <div class="avc-page__brand">
+        <span class="avc-page__brand-mark">Auraxis</span>
+        <span class="avc-page__brand-copy">{{ t('aluguelVsCompra.header.publicTool') }}</span>
+      </div>
+      <div class="avc-page__header-actions">
+        <NButton quaternary @click="router.push('/tools')">{{ t('aluguelVsCompra.header.otherTools') }}</NButton>
+        <NButton type="primary" @click="router.push('/register')">{{ t('aluguelVsCompra.header.createAccount') }}</NButton>
+      </div>
+    </header>
+
+    <main class="avc-page__content">
+      <section class="avc-page__hero">
+        <div class="avc-page__hero-copy">
+          <NTag round type="success">{{ t('aluguelVsCompra.hero.badge') }}</NTag>
+          <UiPageHeader
+            :title="t('aluguelVsCompra.hero.title')"
+            :subtitle="t('aluguelVsCompra.hero.subtitle')"
+          />
+        </div>
+
+        <UiGlassPanel glow class="avc-page__form-panel">
+          <NForm @submit.prevent="handleCalculate">
+            <CalculatorFormSection :title="t('aluguelVsCompra.form.title')">
+              <NFormItem :label="t('aluguelVsCompra.form.propertyValue')">
+                <NInputNumber
+                  :value="form.propertyValue"
+                  :placeholder="t('aluguelVsCompra.form.propertyValuePlaceholder')"
+                  :min="0"
+                  :precision="2"
+                  prefix="R$"
+                  style="width: 100%"
+                  @update:value="(v) => patch({ propertyValue: v })"
+                />
+              </NFormItem>
+
+              <NFormItem :label="t('aluguelVsCompra.form.monthlyRent')">
+                <NInputNumber
+                  :value="form.monthlyRent"
+                  :placeholder="t('aluguelVsCompra.form.monthlyRentPlaceholder')"
+                  :min="0"
+                  :precision="2"
+                  prefix="R$"
+                  style="width: 100%"
+                  @update:value="(v) => patch({ monthlyRent: v })"
+                />
+              </NFormItem>
+
+              <NFormItem :label="t('aluguelVsCompra.form.downPaymentAvailable')">
+                <NInputNumber
+                  :value="form.downPaymentAvailable"
+                  :placeholder="t('aluguelVsCompra.form.downPaymentPlaceholder')"
+                  :min="0"
+                  :precision="2"
+                  prefix="R$"
+                  style="width: 100%"
+                  @update:value="(v) => patch({ downPaymentAvailable: v })"
+                />
+              </NFormItem>
+
+              <NFormItem :label="t('aluguelVsCompra.form.annualInvestmentReturnPct')">
+                <NInputNumber
+                  :value="form.annualInvestmentReturnPct"
+                  :min="0"
+                  :precision="2"
+                  style="width: 100%"
+                  @update:value="(v) => patch({ annualInvestmentReturnPct: v ?? 10 })"
+                />
+              </NFormItem>
+
+              <NFormItem :label="t('aluguelVsCompra.form.annualPropertyValorizationPct')">
+                <NInputNumber
+                  :value="form.annualPropertyValorizationPct"
+                  :min="0"
+                  :precision="2"
+                  style="width: 100%"
+                  @update:value="(v) => patch({ annualPropertyValorizationPct: v ?? 5 })"
+                />
+              </NFormItem>
+
+              <NFormItem :label="t('aluguelVsCompra.form.analysisYears')">
+                <NInputNumber
+                  :value="form.analysisYears"
+                  :min="1"
+                  :max="50"
+                  :precision="0"
+                  style="width: 100%"
+                  @update:value="(v) => patch({ analysisYears: v ?? 20 })"
+                />
+              </NFormItem>
+
+              <NFormItem :label="t('aluguelVsCompra.form.mortgageAnnualRatePct')">
+                <NInputNumber
+                  :value="form.mortgageAnnualRatePct"
+                  :min="0"
+                  :precision="2"
+                  style="width: 100%"
+                  @update:value="(v) => patch({ mortgageAnnualRatePct: v ?? 12 })"
+                />
+              </NFormItem>
+            </CalculatorFormSection>
+
+            <NAlert v-if="validationError" type="warning" style="margin-top:12px">
+              {{ validationError }}
+            </NAlert>
+
+            <div class="avc-page__form-actions">
+              <NButton v-if="isDirty" quaternary @click="handleReset">
+                {{ t('aluguelVsCompra.form.reset') }}
+              </NButton>
+              <NButton type="primary" attr-type="submit" :style="{ flex: 1 }">
+                {{ t('aluguelVsCompra.form.calculate') }}
+              </NButton>
+            </div>
+          </NForm>
+        </UiGlassPanel>
+      </section>
+
+      <section v-if="result" class="avc-page__results-section">
+        <div class="avc-page__layout">
+          <div class="avc-page__results-main">
+            <!-- Verdict banner -->
+            <UiSurfaceCard :class="result.buyIsBetter ? 'avc-page__verdict--buy' : 'avc-page__verdict--rent'">
+              <p class="avc-page__verdict-text">
+                {{ result.buyIsBetter ? t('aluguelVsCompra.results.buyWinsDetail') : t('aluguelVsCompra.results.rentWinsDetail') }}
+              </p>
+              <p v-if="result.breakEvenYear !== null" class="avc-page__verdict-sub">
+                {{ t('aluguelVsCompra.results.breakEvenNote', { year: result.breakEvenYear }) }}
+              </p>
+            </UiSurfaceCard>
+
+            <!-- Evolution chart -->
+            <UiSurfaceCard class="avc-page__chart">
+              <VChart :option="chartOption" style="height: 280px" autoresize />
+            </UiSurfaceCard>
+
+            <!-- Detail rows -->
+            <UiSurfaceCard>
+              <NThing
+                :title="t('aluguelVsCompra.results.propertyValueAtEnd')"
+                :description="formatBrl(result.propertyValueAtEnd)"
+              />
+              <NThing
+                :title="t('aluguelVsCompra.results.opportunityCost')"
+                :description="formatBrl(result.opportunityCost)"
+              />
+              <NThing
+                :title="t('aluguelVsCompra.results.totalBuyCost')"
+                :description="formatBrl(result.totalBuyCost)"
+              />
+              <NThing
+                :title="t('aluguelVsCompra.results.totalRentCost')"
+                :description="formatBrl(result.totalRentCost)"
+              />
+            </UiSurfaceCard>
+
+            <!-- Disclaimer -->
+            <UiSurfaceCard>
+              <p class="avc-page__disclaimer">{{ t('aluguelVsCompra.disclaimer.note') }}</p>
+            </UiSurfaceCard>
+          </div>
+
+          <div class="avc-page__results-aside">
+            <UiStickySummaryCard>
+              <CalculatorResultSummary
+                :label="t('aluguelVsCompra.results.verdict')"
+                :value="result.buyIsBetter ? t('aluguelVsCompra.results.buyWins') : t('aluguelVsCompra.results.rentWins')"
+                :metrics="summaryMetrics"
+              />
+            </UiStickySummaryCard>
+
+            <!-- Guest CTA -->
+            <ToolGuestCta />
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  </div>
+</template>
+
+<style scoped>
+/* ── Root & page ──────────────────────────���─────────────────��────────────────── */
+.avc-root {
+  display: contents;
+}
+
+.avc-page {
+  min-height: 100vh;
+  background: var(--color-bg-base);
+}
+
+/* ── Authenticated layout ─────────────────────────────────────────────────── */
+.avc-page--authenticated {
+  padding: var(--space-6, 24px);
+}
+
+.avc-page__layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6, 24px);
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .avc-page__layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.avc-page__form-col,
+.avc-page__results-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 16px);
+}
+
+.avc-page__form-panel {
+  width: 100%;
+}
+
+/* ── Form actions ────────────────────────────���──────────────────────────���────── */
+.avc-page__form-actions {
+  display: flex;
+  gap: var(--space-2, 8px);
+  margin-top: var(--space-4, 16px);
+}
+
+/* ── Guest header ──────────────────────────���──────────────────────────���──────── */
+.avc-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4, 16px) var(--space-6, 24px);
+  border-bottom: 1px solid var(--color-outline-subtle);
+  background: var(--color-bg-elevated);
+}
+
+.avc-page__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+}
+
+.avc-page__brand-mark {
+  font-weight: var(--font-weight-bold, 700);
+  font-size: var(--font-size-body-md, 15px);
+  color: var(--color-text-primary);
+}
+
+.avc-page__brand-copy {
+  font-size: var(--font-size-body-xs, 11px);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.avc-page__header-actions {
+  display: flex;
+  gap: var(--space-2, 8px);
+}
+
+/* ── Guest hero ────────────────────────────────────────────────────────────���─── */
+.avc-page__content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--space-8, 32px) var(--space-6, 24px);
+}
+
+.avc-page__hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-8, 32px);
+  align-items: start;
+  margin-bottom: var(--space-8, 32px);
+}
+
+@media (max-width: 768px) {
+  .avc-page__hero {
+    grid-template-columns: 1fr;
+  }
+}
+
+.avc-page__hero-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 12px);
+}
+
+/* ── Results section (guest) ─────────────────────────────���───────────────────── */
+.avc-page__results-section {
+  margin-top: var(--space-6, 24px);
+}
+
+.avc-page__results-main,
+.avc-page__results-aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 16px);
+}
+
+/* ── Verdict banner ──────────────────────────────────────────────────────────── */
+.avc-page__verdict--buy {
+  border-left: 4px solid var(--color-semantic-positive, #22c55e);
+}
+
+.avc-page__verdict--rent {
+  border-left: 4px solid var(--color-brand-600, #0284c7);
+}
+
+.avc-page__verdict-text {
+  font-size: var(--font-size-body-md, 15px);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-1, 4px) 0;
+}
+
+.avc-page__verdict-sub {
+  font-size: var(--font-size-body-sm, 13px);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* ── Chart ─────────────────────────────���────────────────────��────────────────── */
+.avc-page__chart {
+  min-height: 300px;
+}
+
+/* ── Disclaimer ──────────────────────────────────────────────────────────���───── */
+.avc-page__disclaimer {
+  font-size: var(--font-size-body-xs, 11px);
+  color: var(--color-text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+</style>
