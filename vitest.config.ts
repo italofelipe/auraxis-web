@@ -69,6 +69,10 @@ export default defineVitestConfig({
         "**/.nuxt/**",
         // Plugins require Nuxt runtime — unit-testable helpers are tested via __tests__/plugins/
         "**/app/plugins/**",
+        // Pages are covered by Playwright E2E tests, not unit tests.
+        // They are imported by spec files which causes v8 to instrument them,
+        // but the resulting low coverage is expected and tracked at the E2E level.
+        "**/app/pages/**",
       ],
     },
   },
