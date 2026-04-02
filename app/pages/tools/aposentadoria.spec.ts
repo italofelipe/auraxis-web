@@ -166,6 +166,10 @@ const globalStubs = {
     template: "<div class='calculator-result-summary'>{{ label }}: {{ value }}</div>",
   },
   ToolGuestCta: { template: "<div class='tool-guest-cta'>guest-cta</div>" },
+  UiChart: {
+    props: ["option", "height", "width", "autoresize", "updateKey"],
+    template: "<div class='v-chart'></div>",
+  },
 };
 
 /**

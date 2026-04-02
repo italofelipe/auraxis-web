@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { use } from "echarts/core";
-import { BarChart } from "echarts/charts";
-import { GridComponent, TooltipComponent } from "echarts/components";
-import { CanvasRenderer } from "echarts/renderers";
-import VChart from "vue-echarts";
+import type { EChartsOption } from "echarts";
 import {
   NAlert,
   NButton,
@@ -40,9 +36,7 @@ import UiStickySummaryCard from "~/components/ui/UiStickySummaryCard/UiStickySum
 import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
 import UiGlassPanel from "~/components/ui/UiGlassPanel/UiGlassPanel.vue";
 import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
-
-// Register ECharts components
-use([BarChart, GridComponent, TooltipComponent, CanvasRenderer]);
+import UiChart from "~/components/ui/UiChart.vue";
 
 definePageMeta({ layout: false });
 
@@ -118,8 +112,8 @@ function formatPct(value: number): string {
 
 // ─── Chart options ────────────────────────────────────────────────────────────
 
-const chartOption = computed(() => {
-  if (!result.value || !form.value.amount) { return {}; }
+const chartOption = computed<EChartsOption>(() => {
+  if (!result.value || !form.value.amount) { return {} as EChartsOption; }
 
   const amount = form.value.amount;
   return {
@@ -155,7 +149,7 @@ const chartOption = computed(() => {
         ],
       },
     ],
-  };
+  } as unknown as EChartsOption;
 });
 
 // ─── Calculation ──────────────────────────────────────────────────────────────
@@ -437,7 +431,7 @@ const isSaved = computed(() => savedSimulationId.value !== null);
             <!-- Chart -->
             <UiSurfaceCard>
               <p class="tesouro-page__section-title">{{ t('tesouroDireto.results.chart.title') }}</p>
-              <VChart :option="chartOption" style="height: 220px" autoresize />
+              <UiChart :option="chartOption" height="220px" />
             </UiSurfaceCard>
 
             <!-- Disclaimer -->

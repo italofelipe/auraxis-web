@@ -234,8 +234,8 @@ const globalStubs = {
   ToolGuestCta: {
     template: "<div class='tool-guest-cta'>toolGuestCta.registerCta</div>",
   },
-  VChart: {
-    props: ["option", "autoresize"],
+  UiChart: {
+    props: ["option", "height", "width", "autoresize", "updateKey"],
     template: "<div class='v-chart' />",
   },
 };
