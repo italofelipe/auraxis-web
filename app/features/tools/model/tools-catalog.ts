@@ -44,6 +44,16 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/inss-ir-folha",
     featureFlag: "web.tools.inss-ir-folha",
   },
+  {
+    id: "hora-extra",
+    name: "Hora Extra CLT",
+    description:
+      "Calcule o valor bruto e líquido das suas horas extras CLT (50%, 75%, 100%) e o impacto no INSS.",
+    enabled: true,
+    accessLevel: "public",
+    route: "/tools/hora-extra",
+    featureFlag: "web.tools.hora-extra",
+  },
 ];
 
 /**
