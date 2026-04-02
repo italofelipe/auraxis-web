@@ -2501,5 +2501,132 @@
     "disclaimer": {
       "note": "Simulação educacional com premissas simplificadas. Não constitui recomendação de investimento ou compra."
     }
+  },
+  "conversorMoeda": {
+    "seo": {
+      "title": "Conversor de Moeda com Cotação em Tempo Real | Auraxis",
+      "description": "Converta entre Real e moedas estrangeiras com cotação ao vivo via BRAPI.",
+      "ogTitle": "Conversor de Moeda — Auraxis",
+      "ogDescription": "Cotação em tempo real para USD, EUR, GBP, BTC e mais."
+    },
+    "hero": {
+      "badge": "Câmbio ao vivo",
+      "title": "Conversor de Moeda",
+      "subtitle": "Cotações em tempo real via BRAPI para USD, EUR, GBP, BTC e outras moedas."
+    },
+    "header": {
+      "publicTool": "Ferramenta gratuita",
+      "otherTools": "Outras ferramentas",
+      "createAccount": "Criar conta"
+    },
+    "form": {
+      "title": "Dados da conversão",
+      "pair": "Par de moedas",
+      "direction": "Direção",
+      "directionBuy": "Comprar moeda estrangeira (pago em BRL)",
+      "directionSell": "Vender moeda estrangeira (recebo em BRL)",
+      "amount": "Valor",
+      "amountPlaceholder": "Ex: 1.000,00",
+      "manualRate": "Taxa manual (fallback)",
+      "manualRatePlaceholder": "Ex: 5,05",
+      "calculate": "Converter",
+      "reset": "Limpar"
+    },
+    "alerts": {
+      "brapiUnavailable": "Cotação em tempo real indisponível. Use a taxa manual abaixo."
+    },
+    "results": {
+      "title": "Resultado da conversão",
+      "rate": "Taxa utilizada",
+      "bid": "Compra (bid)",
+      "ask": "Venda (ask)",
+      "pctChange": "Variação (%)",
+      "source": "Fonte",
+      "source_brapi": "BRAPI (tempo real)",
+      "source_manual": "Manual"
+    },
+    "actions": {
+      "save": "Salvar simulação",
+      "saved": "Simulação salva!",
+      "addAsGoal": "Adicionar como meta",
+      "goalAdded": "Meta criada!"
+    },
+    "simulation": {
+      "defaultName": "Conversor {pair} — {year}",
+      "goalName": "Meta — Conversão {pair}"
+    },
+    "errors": {
+      "amountRequired": "Informe um valor positivo para converter.",
+      "rateRequired": "Informe a taxa manual de câmbio."
+    },
+    "disclaimer": {
+      "indicativeRate": "Cotação indicativa. A taxa real pode variar conforme a instituição financeira."
+    },
+    "loading": "Carregando cotação…"
+  },
+  "fii": {
+    "seo": {
+      "title": "Calculadora de FII — Dividend Yield e Renda Passiva | Auraxis",
+      "description": "Calcule o Dividend Yield, Yield on Cost e renda passiva de Fundos Imobiliários com dados reais via BRAPI.",
+      "ogTitle": "Calculadora de FII — Auraxis",
+      "ogDescription": "DY, YoC e renda mensal de FIIs com cotação ao vivo."
+    },
+    "hero": {
+      "badge": "Fundos Imobiliários",
+      "title": "Calculadora de FII",
+      "subtitle": "Calcule Dividend Yield, Yield on Cost e renda passiva com dados reais de dividendos via BRAPI."
+    },
+    "header": {
+      "publicTool": "Ferramenta gratuita",
+      "otherTools": "Outras ferramentas",
+      "createAccount": "Criar conta"
+    },
+    "form": {
+      "title": "Dados do FII",
+      "ticker": "Ticker do FII",
+      "tickerPlaceholder": "Ex: MXRF11",
+      "shares": "Quantidade de cotas (opcional)",
+      "sharesPlaceholder": "Ex: 100",
+      "avgPurchasePrice": "Preço médio de compra (opcional)",
+      "avgPurchasePricePlaceholder": "Ex: 10,50",
+      "cdiRate": "Taxa CDI (% a.a.)",
+      "historyMonths": "Histórico de dividendos",
+      "historyMonthsOption": "{months} meses",
+      "calculate": "Calcular",
+      "reset": "Limpar"
+    },
+    "alerts": {
+      "brapiUnavailable": "Cotação do FII indisponível no momento. Tente novamente em instantes."
+    },
+    "results": {
+      "title": "Análise do FII",
+      "currentPrice": "Preço atual",
+      "lastDividend": "Último dividendo",
+      "avgDividend": "Dividendo médio",
+      "dividendYield": "Dividend Yield anualizado",
+      "yieldOnCost": "Yield on Cost (YoC)",
+      "monthlyIncome": "Renda mensal estimada",
+      "annualIncome": "Renda anual estimada",
+      "vsCdi": "Prêmio sobre CDI"
+    },
+    "actions": {
+      "save": "Salvar simulação",
+      "saved": "Simulação salva!",
+      "addAsGoal": "Adicionar como meta",
+      "goalAdded": "Meta criada!"
+    },
+    "simulation": {
+      "defaultName": "FII {ticker} — {year}",
+      "goalName": "Meta — Renda FII {ticker}"
+    },
+    "errors": {
+      "tickerRequired": "Informe um ticker válido (mínimo 4 caracteres).",
+      "historyMonthsOutOfRange": "O histórico deve ser entre 1 e 24 meses.",
+      "noQuoteAvailable": "Cotação não disponível. Aguarde o carregamento do ticker."
+    },
+    "disclaimer": {
+      "cvm": "Rentabilidade passada não garante rentabilidade futura. Não constitui recomendação de investimento. Fundos Imobiliários são investimentos de renda variável e estão sujeitos a riscos de mercado."
+    },
+    "loading": "Carregando dados do FII…"
   }
 }

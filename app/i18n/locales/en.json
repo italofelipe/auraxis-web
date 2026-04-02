@@ -2501,5 +2501,132 @@
     "disclaimer": {
       "note": "Educational simulation with simplified assumptions. Not a financial or purchase recommendation."
     }
+  },
+  "conversorMoeda": {
+    "seo": {
+      "title": "Currency Converter with Live Rates | Auraxis",
+      "description": "Convert between BRL and foreign currencies with live rates via BRAPI.",
+      "ogTitle": "Currency Converter — Auraxis",
+      "ogDescription": "Live exchange rates for USD, EUR, GBP, BTC and more."
+    },
+    "hero": {
+      "badge": "Live exchange",
+      "title": "Currency Converter",
+      "subtitle": "Real-time rates via BRAPI for USD, EUR, GBP, BTC and other currencies."
+    },
+    "header": {
+      "publicTool": "Free tool",
+      "otherTools": "Other tools",
+      "createAccount": "Create account"
+    },
+    "form": {
+      "title": "Conversion details",
+      "pair": "Currency pair",
+      "direction": "Direction",
+      "directionBuy": "Buy foreign currency (pay in BRL)",
+      "directionSell": "Sell foreign currency (receive BRL)",
+      "amount": "Amount",
+      "amountPlaceholder": "e.g. 1,000.00",
+      "manualRate": "Manual rate (fallback)",
+      "manualRatePlaceholder": "e.g. 5.05",
+      "calculate": "Convert",
+      "reset": "Reset"
+    },
+    "alerts": {
+      "brapiUnavailable": "Live rate unavailable. Enter the exchange rate manually below."
+    },
+    "results": {
+      "title": "Conversion result",
+      "rate": "Rate used",
+      "bid": "Bid (buy)",
+      "ask": "Ask (sell)",
+      "pctChange": "Change (%)",
+      "source": "Source",
+      "source_brapi": "BRAPI (live)",
+      "source_manual": "Manual"
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Simulation saved!",
+      "addAsGoal": "Add as goal",
+      "goalAdded": "Goal created!"
+    },
+    "simulation": {
+      "defaultName": "Converter {pair} — {year}",
+      "goalName": "Goal — Conversion {pair}"
+    },
+    "errors": {
+      "amountRequired": "Enter a positive amount to convert.",
+      "rateRequired": "Enter the manual exchange rate."
+    },
+    "disclaimer": {
+      "indicativeRate": "Indicative rate. The actual rate may vary depending on your financial institution."
+    },
+    "loading": "Loading rates…"
+  },
+  "fii": {
+    "seo": {
+      "title": "FII Calculator — Dividend Yield and Passive Income | Auraxis",
+      "description": "Calculate Dividend Yield, Yield on Cost and passive income from Real Estate Investment Trusts using live BRAPI data.",
+      "ogTitle": "FII Calculator — Auraxis",
+      "ogDescription": "DY, YoC and monthly income from FIIs with live quotes."
+    },
+    "hero": {
+      "badge": "Real Estate Funds",
+      "title": "FII Calculator",
+      "subtitle": "Calculate Dividend Yield, Yield on Cost and passive income with real dividend data via BRAPI."
+    },
+    "header": {
+      "publicTool": "Free tool",
+      "otherTools": "Other tools",
+      "createAccount": "Create account"
+    },
+    "form": {
+      "title": "FII details",
+      "ticker": "FII ticker",
+      "tickerPlaceholder": "e.g. MXRF11",
+      "shares": "Number of shares (optional)",
+      "sharesPlaceholder": "e.g. 100",
+      "avgPurchasePrice": "Average purchase price (optional)",
+      "avgPurchasePricePlaceholder": "e.g. 10.50",
+      "cdiRate": "CDI rate (% p.a.)",
+      "historyMonths": "Dividend history",
+      "historyMonthsOption": "{months} months",
+      "calculate": "Calculate",
+      "reset": "Reset"
+    },
+    "alerts": {
+      "brapiUnavailable": "FII quote currently unavailable. Please try again shortly."
+    },
+    "results": {
+      "title": "FII analysis",
+      "currentPrice": "Current price",
+      "lastDividend": "Last dividend",
+      "avgDividend": "Average dividend",
+      "dividendYield": "Annualized Dividend Yield",
+      "yieldOnCost": "Yield on Cost (YoC)",
+      "monthlyIncome": "Estimated monthly income",
+      "annualIncome": "Estimated annual income",
+      "vsCdi": "CDI premium"
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Simulation saved!",
+      "addAsGoal": "Add as goal",
+      "goalAdded": "Goal created!"
+    },
+    "simulation": {
+      "defaultName": "FII {ticker} — {year}",
+      "goalName": "Goal — FII income {ticker}"
+    },
+    "errors": {
+      "tickerRequired": "Enter a valid ticker (minimum 4 characters).",
+      "historyMonthsOutOfRange": "History must be between 1 and 24 months.",
+      "noQuoteAvailable": "Quote not available. Wait for the ticker to load."
+    },
+    "disclaimer": {
+      "cvm": "Past performance does not guarantee future results. This does not constitute investment advice. Real Estate Investment Trusts are variable income investments subject to market risk."
+    },
+    "loading": "Loading FII data…"
   }
 }
