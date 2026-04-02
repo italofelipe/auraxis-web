@@ -64,6 +64,16 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/ferias",
     featureFlag: "web.tools.ferias",
   },
+  {
+    id: "rescisao",
+    name: "Rescisão Contratual CLT",
+    description:
+      "Calcule o valor bruto e líquido da rescisão: aviso prévio, 13º, férias, FGTS e descontos de INSS/IR.",
+    enabled: true,
+    accessLevel: "public",
+    route: "/tools/rescisao",
+    featureFlag: "web.tools.rescisao",
+  },
 ];
 
 /**
