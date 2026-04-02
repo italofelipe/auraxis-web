@@ -108,6 +108,85 @@ export function calcIrrfFromGross(
   return calcIrrf(taxableBase);
 }
 
+// ─── INSS bracket breakdown ───────────────────────────────────────────────────
+
+/** Per-bracket result of the progressive INSS calculation. */
+export interface InssBracketBreakdown {
+  /** Lower bound (exclusive) of this bracket — 0 for the first bracket. */
+  from: number;
+  /** Upper bound (inclusive) of this bracket. */
+  to: number;
+  /** Rate applied to the salary slice within this bracket. */
+  rate: number;
+  /** Portion of the salary falling in this bracket (0 when salary doesn't reach it). */
+  sliceAmount: number;
+  /** INSS contribution from this bracket alone. */
+  contribution: number;
+  /** True when the gross salary exceeds this bracket's lower bound. */
+  isActive: boolean;
+}
+
+/**
+ * Returns the full INSS bracket table with per-bracket contribution amounts.
+ * Always returns one entry per bracket (all four), even for low salaries.
+ *
+ * @param grossSalary Monthly gross salary in BRL.
+ * @returns One entry per INSS bracket.
+ */
+export function calcInssBracketBreakdown(grossSalary: number): InssBracketBreakdown[] {
+  const result: InssBracketBreakdown[] = [];
+  let prevLimit = 0;
+
+  for (const { upTo, rate } of INSS_BRACKETS) {
+    const isActive = grossSalary > prevLimit;
+    const sliceAmount = isActive
+      ? round2(Math.min(grossSalary, upTo) - prevLimit)
+      : 0;
+    const contribution = round2(sliceAmount * rate);
+
+    result.push({ from: prevLimit, to: upTo, rate, sliceAmount, contribution, isActive });
+    prevLimit = upTo;
+  }
+
+  return result;
+}
+
+// ─── IRRF bracket breakdown ───────────────────────────────────────────────────
+
+/** Status of a single IRRF bracket against a given taxable base. */
+export interface IrrfBracketBreakdown {
+  /** Lower bound (exclusive) — 0 for the first bracket. */
+  from: number;
+  /** Upper bound (inclusive). `null` means no upper limit (last bracket). */
+  to: number | null;
+  /** Tax rate for this bracket. */
+  rate: number;
+  /** "Parcela a deduzir" (fixed deduction subtracted from rate × base). */
+  parcela: number;
+  /** True when the taxable base falls inside this bracket. */
+  isApplicable: boolean;
+}
+
+/**
+ * Returns the full IRRF bracket table annotated with applicability flags.
+ *
+ * @param taxableBase Taxable base after INSS and all deductions (BRL).
+ * @returns All five IRRF brackets, each flagged as applicable or not.
+ */
+export function calcIrrfBracketBreakdown(taxableBase: number): IrrfBracketBreakdown[] {
+  let prevLimit = 0;
+
+  return IRRF_BRACKETS.map(({ upTo, rate, deduction }) => {
+    const from = prevLimit;
+    const to = upTo === Infinity ? null : upTo;
+    const isApplicable =
+      taxableBase > 0 && taxableBase > prevLimit && taxableBase <= upTo;
+    prevLimit = upTo;
+
+    return { from, to, rate, parcela: deduction, isApplicable };
+  });
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /**
