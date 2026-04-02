@@ -1645,5 +1645,192 @@
       "save": "Save simulation",
       "saved": "Simulation saved ✓"
     }
+  },
+  "dividirConta": {
+    "seo": {
+      "title": "Split the Bill — Auraxis",
+      "description": "Calculate how much each person owes at a restaurant, including service charge, tip and individual consumption.",
+      "ogTitle": "Split the Bill | Auraxis",
+      "ogDescription": "Easily split restaurant bills — service charge, tip and individual mode."
+    },
+    "header": {
+      "publicTool": "Public tool",
+      "otherTools": "Other tools",
+      "createAccount": "Create account"
+    },
+    "hero": {
+      "badge": "Free",
+      "title": "Split the Bill",
+      "subtitle": "Calculate how much each person owes, with service charge, tip and individual consumption split."
+    },
+    "form": {
+      "title": "Bill information",
+      "total": "Total bill amount (R$)",
+      "totalPlaceholder": "e.g. 200.00",
+      "serviceFeePct": "Service charge (%)",
+      "tipPct": "Tip (%)",
+      "people": "Number of people",
+      "mode": "Split mode",
+      "modeEqual": "Equal for everyone",
+      "modeIndividual": "By individual consumption",
+      "individualAmountLabel": "Person {n} consumption (R$)",
+      "calculate": "Calculate",
+      "reset": "Clear",
+      "addPerson": "Add person",
+      "removePerson": "Remove person"
+    },
+    "results": {
+      "perPersonEqual": "Per person (equal split)",
+      "totalWithFees": "Total with charges",
+      "serviceFee": "Service charge",
+      "tip": "Tip",
+      "individualBreakdown": "Split by consumption",
+      "person": "Person {n}",
+      "originalBill": "Original bill"
+    },
+    "premiumCta": {
+      "title": "Save your simulations",
+      "description": "With a premium account, save and compare bill splits.",
+      "upgrade": "Upgrade"
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Simulation saved ✓",
+      "addAsGoal": "Add as goal",
+      "goalAdded": "Goal created!"
+    },
+    "simulation": {
+      "defaultName": "Split bill — {people} people",
+      "goalName": "Goal: split bill ({people} people)"
+    },
+    "errors": {
+      "totalRequired": "Enter the total bill amount.",
+      "minPeople": "Minimum of 2 people.",
+      "invalidFee": "Service charge must be between 0% and 100%.",
+      "invalidTip": "Tip must be between 0% and 100%.",
+      "allAmountsRequired": "Fill in the consumption for all people."
+    },
+    "disclaimer": {
+      "note": "Estimated calculation. Values may vary."
+    }
+  },
+  "descontoMarkup": {
+    "seo": {
+      "title": "Discount, Markup and Margin — Auraxis",
+      "description": "Calculate discounts, price markup and profit margin in 4 modes: discount, markup, margin and reverse.",
+      "ogTitle": "Discount, Markup and Margin | Auraxis",
+      "ogDescription": "Calculate discounts, markup and profit margin easily."
+    },
+    "header": {
+      "publicTool": "Public tool",
+      "otherTools": "Other tools",
+      "createAccount": "Create account"
+    },
+    "hero": {
+      "badge": "Free",
+      "title": "Discount, Markup and Margin",
+      "subtitle": "Calculate applied discounts, pricing markup and profit margin in 4 different modes."
+    },
+    "form": {
+      "mode": "Calculation mode",
+      "modeDesconto": "Discount",
+      "modeMarkup": "Markup",
+      "modeMargem": "Margin",
+      "modeReverso": "Reverse discount",
+      "price": "Original price (R$)",
+      "priceSale": "Sale price (R$)",
+      "priceFinal": "Final price (R$)",
+      "cost": "Cost (R$)",
+      "pctDesconto": "Discount (%)",
+      "pctMarkup": "Markup (%)",
+      "calculate": "Calculate",
+      "reset": "Clear"
+    },
+    "results": {
+      "finalPrice": "Final price",
+      "salePrice": "Sale price",
+      "originalPrice": "Original price",
+      "discount": "Applied discount",
+      "profit": "Profit",
+      "marginPct": "Profit margin",
+      "savings": "Savings"
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Simulation saved ✓",
+      "addAsGoal": "Add as goal",
+      "goalAdded": "Goal created!"
+    },
+    "simulation": {
+      "defaultName": "{mode} calculation",
+      "goalName": "Buy/sell goal"
+    },
+    "errors": {
+      "priceRequired": "Enter the price.",
+      "pctRequired": "Enter the percentage (0–100%).",
+      "costRequired": "Enter the cost."
+    }
+  },
+  "jurosCompostos": {
+    "seo": {
+      "title": "Compound Interest and Real Rate — Auraxis",
+      "description": "Simulate your capital growth with monthly contributions and see the real rate discounted for inflation (Fisher formula).",
+      "ogTitle": "Compound Interest and Real Rate | Auraxis",
+      "ogDescription": "Simulate compound interest with monthly contributions and calculate the real rate via Fisher formula."
+    },
+    "header": {
+      "publicTool": "Public tool",
+      "otherTools": "Other tools",
+      "createAccount": "Create account"
+    },
+    "hero": {
+      "badge": "Free",
+      "title": "Compound Interest and Real Rate",
+      "subtitle": "Simulate your capital growth with monthly contributions and see how much it really earns after inflation."
+    },
+    "form": {
+      "title": "Investment parameters",
+      "initialCapital": "Initial capital (R$)",
+      "monthlyContribution": "Monthly contribution (R$)",
+      "nominalRatePct": "Nominal rate (% p.a.)",
+      "period": "Period",
+      "periodUnit": "Unit",
+      "periodMonths": "Months",
+      "periodYears": "Years",
+      "inflationPct": "Estimated inflation (% p.a.)",
+      "inflationHint": "Historical average IPCA: ~4.5%",
+      "calculate": "Calculate",
+      "reset": "Clear"
+    },
+    "results": {
+      "finalAmountNominal": "Final nominal amount",
+      "finalAmountReal": "Real amount (inflation-adjusted)",
+      "totalContributed": "Total contributed",
+      "totalInterest": "Accumulated interest",
+      "realRate": "Effective real rate (p.a.)",
+      "chart": {
+        "nominal": "Nominal amount",
+        "contributed": "Total contributed",
+        "xAxis": "Months"
+      }
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Simulation saved ✓",
+      "addAsGoal": "Add as goal",
+      "goalAdded": "Goal created!"
+    },
+    "simulation": {
+      "defaultName": "Compound interest — {period} {unit}",
+      "goalName": "Goal: accumulate in {period} {unit}"
+    },
+    "errors": {
+      "capitalOrContributionRequired": "Enter the initial capital or monthly contribution.",
+      "rateRequired": "Enter the interest rate.",
+      "periodRequired": "Enter the period (minimum 1)."
+    },
+    "disclaimer": {
+      "note": "Educational simulation. Past results do not guarantee future returns."
+    }
   }
 }
