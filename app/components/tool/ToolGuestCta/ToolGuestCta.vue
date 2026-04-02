@@ -51,6 +51,9 @@ const goToLogin = (): void => {
     :aria-label="t('toolGuestCta.ariaLabel')"
   >
     <div class="tool-guest-cta__inner">
+      <!-- ── Illustration ───────────────────────────────────────────────── -->
+      <IllustrationFinanceGrowth class="tool-guest-cta__illustration" />
+
       <!-- ── Headline ─────────────────────────────────────────────────────── -->
       <div class="tool-guest-cta__headline">
         <div class="tool-guest-cta__badge">
@@ -118,6 +121,13 @@ const goToLogin = (): void => {
 </template>
 
 <style scoped>
+/* ── Illustration ──────────────────────────────────────────────────────────── */
+.tool-guest-cta__illustration {
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+}
+
 /* ── Root ──────────────────────────────────────────────────────────────────── */
 .tool-guest-cta {
   background: linear-gradient(

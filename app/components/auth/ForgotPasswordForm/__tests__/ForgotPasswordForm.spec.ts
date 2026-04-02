@@ -7,8 +7,15 @@ const NuxtLinkStub = {
   props: ["to"],
 };
 
+const IllustrationMailSentStub = {
+  template: "<svg class='illustration-mail-sent' aria-hidden='true' />",
+};
+
 const globalConfig = {
-  stubs: { NuxtLink: NuxtLinkStub },
+  stubs: {
+    NuxtLink: NuxtLinkStub,
+    IllustrationMailSent: IllustrationMailSentStub,
+  },
 };
 
 describe("ForgotPasswordForm", () => {

@@ -26,7 +26,7 @@ const isPending = computed(() => props.loading || isSubmitting.value);
     <!-- Success state -->
     <template v-if="props.success">
       <div class="forgot-form__success">
-        <span class="forgot-form__success-icon" aria-hidden="true">📬</span>
+        <IllustrationMailSent class="forgot-form__success-illustration" />
         <h1 class="forgot-form__title">{{ $t('auth.forgotPassword.successTitle') }}</h1>
         <p class="forgot-form__subtitle">
           {{ $t('auth.forgotPassword.successMessage') }}
@@ -227,9 +227,11 @@ const isPending = computed(() => props.loading || isSubmitting.value);
   padding: var(--space-4) 0;
 }
 
-.forgot-form__success-icon {
-  font-size: var(--font-size-4xl);
-  line-height: 1;
+.forgot-form__success-illustration {
+  width: 100%;
+  max-width: 260px;
+  height: auto;
+  margin-bottom: var(--space-2);
 }
 
 .forgot-form__back-link {
