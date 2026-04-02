@@ -15,6 +15,9 @@ const allowedIds = new Set([
   // within the current nuxt major. Tracked for resolution on nuxt upgrade.
   "GHSA-3vj8-jmxq-cgj5",
   "GHSA-22cc-p3c6-wpvm",
+  // lodash / lodash-es — affects all 4.x; 4.17.23 is the latest patch available.
+  // No 5.x release exists. Tracked for resolution when a patched version ships.
+  "GHSA-r5fr-rjxr-66jc",
 ]);
 const isBlockingSeverity = (severity) => severity === "high" || severity === "critical";
 const isAllowlisted = (ghsa, source) => allowedIds.has(ghsa) || allowedIds.has(source);
