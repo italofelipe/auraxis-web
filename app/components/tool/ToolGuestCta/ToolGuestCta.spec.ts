@@ -38,6 +38,9 @@ const stubs = {
     template: "<button class='n-button' @click=\"$emit('click')\"><slot /></button>",
     emits: ["click"],
   },
+  IllustrationFinanceGrowth: {
+    template: "<svg class='illustration-finance-growth' aria-hidden='true' />",
+  },
 };
 
 /* ── Helpers ───────────────────────────────────────────────────────────────── */
