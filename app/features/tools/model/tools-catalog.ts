@@ -134,6 +134,46 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/mei",
     featureFlag: "web.tools.mei",
   },
+  {
+    id: "cdb-lci-lca",
+    name: "CDB / LCI / LCA vs Poupança",
+    description:
+      "Compare a rentabilidade líquida real de CDB, LCI/LCA e Poupança, com IR regressivo e ranking automático.",
+    enabled: isFeatureEnabled("web.tools.cdb-lci-lca"),
+    accessLevel: "public",
+    route: "/tools/cdb-lci-lca",
+    featureFlag: "web.tools.cdb-lci-lca",
+  },
+  {
+    id: "tesouro-direto",
+    name: "Tesouro Direto",
+    description:
+      "Simule títulos do Tesouro Direto até o vencimento (Selic, IPCA+, Prefixado) com taxa de custódia B3 e IR.",
+    enabled: isFeatureEnabled("web.tools.tesouro-direto"),
+    accessLevel: "public",
+    route: "/tools/tesouro-direto",
+    featureFlag: "web.tools.tesouro-direto",
+  },
+  {
+    id: "aposentadoria",
+    name: "Simulador de Aposentadoria",
+    description:
+      "Descubra quanto guardar por mês para se aposentar com a renda desejada usando a Regra dos 25x.",
+    enabled: isFeatureEnabled("web.tools.aposentadoria"),
+    accessLevel: "public",
+    route: "/tools/aposentadoria",
+    featureFlag: "web.tools.aposentadoria",
+  },
+  {
+    id: "fire",
+    name: "Calculadora FIRE",
+    description:
+      "Planeje sua independência financeira com as variantes FIRE, Lean FIRE, Fat FIRE e Coast FIRE.",
+    enabled: isFeatureEnabled("web.tools.fire"),
+    accessLevel: "public",
+    route: "/tools/fire",
+    featureFlag: "web.tools.fire",
+  },
 ];
 
 /**

@@ -2057,5 +2057,300 @@
       "note": "Simulation based on current MEI legislation. Educational values — visit the official portal for registrations.",
       "portalLink": "Entrepreneur Portal (gov.br)"
     }
+  },
+  "cdbLciLca": {
+    "seo": {
+      "title": "CDB / LCI / LCA vs Savings — Auraxis",
+      "description": "Compare the real net return of CDB, LCI/LCA and Poupança with regressive IR and automatic ranking.",
+      "ogTitle": "CDB / LCI / LCA vs Savings",
+      "ogDescription": "See which fixed income pays the most for your term and amount."
+    },
+    "header": {
+      "publicTool": "Free tool",
+      "otherTools": "All tools",
+      "createAccount": "Create account"
+    },
+    "hero": {
+      "badge": "Fixed Income",
+      "title": "CDB / LCI / LCA vs Savings",
+      "subtitle": "Compare net real returns with regressive income tax and real rate above inflation."
+    },
+    "form": {
+      "title": "Simulation data",
+      "amount": "Investment amount (R$)",
+      "amountPlaceholder": "e.g. 10,000.00",
+      "termDays": "Term (calendar days)",
+      "cdiPct": "Annual CDI (%)",
+      "cdiHint": "Enter the current CDI rate (reference: SELIC Over rate).",
+      "selicPct": "Annual SELIC (%)",
+      "ipcaPct": "Annual IPCA (%)",
+      "ipcaHint": "Enter the current IPCA target.",
+      "calculate": "Calculate",
+      "reset": "Reset",
+      "productsTitle": "Products to compare",
+      "cdbRatePct": "CDB — % of CDI",
+      "lciRatePct": "LCI — % of CDI",
+      "lcaRatePct": "LCA — % of CDI"
+    },
+    "results": {
+      "rankingTitle": "Return ranking",
+      "netAmount": "Net amount",
+      "netReturn": "Net return",
+      "realReturn": "Real return",
+      "grossReturn": "Gross return",
+      "irAmount": "Income tax",
+      "irRate": "IR rate",
+      "breakdownCdb": "CDB breakdown",
+      "breakdownLci": "LCI breakdown",
+      "breakdownLca": "LCA breakdown",
+      "breakdownPoupanca": "Savings breakdown",
+      "grossAmount": "Gross amount",
+      "rank": "Rank"
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Simulation saved!",
+      "addAsGoal": "Add as goal",
+      "goalAdded": "Goal created!"
+    },
+    "premiumCta": {
+      "title": "Track your fixed income investments",
+      "description": "Set return goals and monitor your portfolio with the Premium plan.",
+      "upgrade": "View plans"
+    },
+    "simulation": {
+      "defaultName": "CDB/LCI/LCA — {termDays} days — {year}",
+      "goalName": "Goal: CDB/LCI/LCA {termDays} days"
+    },
+    "errors": {
+      "amountRequired": "Enter the investment amount.",
+      "termRequired": "Enter the term in days.",
+      "cdiRequired": "Enter the current CDI rate.",
+      "cdbRateRequired": "Enter the CDI percentage for the CDB."
+    },
+    "disclaimer": {
+      "note": "Simulation based on regressive IR rates in effect in {year}. Educational values — not a financial recommendation."
+    }
+  },
+  "tesouroDireto": {
+    "seo": {
+      "title": "Tesouro Direto — Auraxis",
+      "description": "Simulate Tesouro Selic, IPCA+ and Prefixado bonds with B3 custody fee and regressive IR.",
+      "ogTitle": "Tesouro Direto Simulator",
+      "ogDescription": "Calculate the net return on government bonds for your term."
+    },
+    "header": {
+      "publicTool": "Free tool",
+      "otherTools": "All tools",
+      "createAccount": "Create account"
+    },
+    "hero": {
+      "badge": "Tesouro Direto",
+      "title": "Tesouro Direto Simulator",
+      "subtitle": "Simulate the net return on government bonds with B3 custody fee (0.20% p.a.) and regressive income tax."
+    },
+    "form": {
+      "title": "Bond details",
+      "type": "Bond type",
+      "amount": "Investment amount (R$)",
+      "amountPlaceholder": "e.g. 1,000.00",
+      "termDays": "Term (calendar days)",
+      "taxaIndicativaPct": "Indicative rate (% p.a.)",
+      "taxaIndicativaPlaceholder": "e.g. 11.25",
+      "selicPct": "Annual SELIC (%)",
+      "selicHint": "Enter the current SELIC Over rate.",
+      "ipcaPct": "Annual IPCA (%)",
+      "ipcaHint": "Enter the current IPCA target.",
+      "calculate": "Calculate",
+      "reset": "Reset",
+      "types": {
+        "selic": "Tesouro Selic",
+        "ipca_plus": "Tesouro IPCA+",
+        "prefixado": "Tesouro Prefixado"
+      }
+    },
+    "results": {
+      "netAmount": "Net amount",
+      "grossAmount": "Gross amount",
+      "grossReturn": "Gross return",
+      "custodyFee": "B3 custody fee",
+      "irAmount": "Income tax deducted",
+      "irRate": "IR rate",
+      "netReturn": "Net return",
+      "annualizedNetReturn": "Annualized net return",
+      "realReturn": "Real return (after IPCA)",
+      "chart": {
+        "title": "Result breakdown"
+      }
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Simulation saved!",
+      "addAsGoal": "Add as goal",
+      "goalAdded": "Goal created!"
+    },
+    "premiumCta": {
+      "title": "Monitor your Tesouro Direto bonds",
+      "description": "Set return goals and track your bonds with the Premium plan.",
+      "upgrade": "View plans"
+    },
+    "simulation": {
+      "defaultName": "Tesouro Direto — {type} — {year}",
+      "goalName": "Goal: Tesouro {type}"
+    },
+    "errors": {
+      "amountRequired": "Enter the investment amount.",
+      "termRequired": "Enter the term in days.",
+      "taxaIndicativaRequired": "Enter the bond's indicative rate."
+    },
+    "disclaimer": {
+      "note": "Simulation based on regressive IR rates and B3 custody fee in effect in {year}. Educational values — not a financial recommendation."
+    }
+  },
+  "aposentadoria": {
+    "seo": {
+      "title": "Retirement Simulator — Auraxis",
+      "description": "Discover how much to save monthly to retire with your desired income using the Rule of 25x.",
+      "ogTitle": "Retirement Simulator",
+      "ogDescription": "Calculate your required patrimony and monthly contribution for retirement."
+    },
+    "header": {
+      "publicTool": "Free tool",
+      "otherTools": "All tools",
+      "createAccount": "Create account"
+    },
+    "hero": {
+      "badge": "Retirement",
+      "title": "Retirement Simulator",
+      "subtitle": "Use the Rule of 25x (4% SWR) to discover how much patrimony to accumulate and how much to save monthly."
+    },
+    "form": {
+      "title": "Your details",
+      "currentAge": "Current age",
+      "retirementAge": "Retirement age",
+      "desiredMonthlyIncome": "Desired monthly income (today's R$)",
+      "incomePlaceholder": "e.g. 5,000.00",
+      "currentPatrimony": "Current patrimony (R$)",
+      "expectedReturnPct": "Nominal annual return (%)",
+      "ipcaPct": "Annual IPCA (%)",
+      "ipcaHint": "Enter the current IPCA target.",
+      "lifeExpectancy": "Life expectancy (years)",
+      "calculate": "Calculate",
+      "reset": "Reset"
+    },
+    "results": {
+      "requiredPatrimony": "Required patrimony",
+      "monthlyContribution": "Required monthly contribution",
+      "monthsToRetirement": "Months to retirement",
+      "realReturn": "Real return (Fisher)",
+      "sensitivity": "Sensitivity analysis",
+      "baseline": "Base scenario",
+      "retire5YearsLater": "Retire 5 years later",
+      "retire5YearsEarlier": "Retire 5 years earlier",
+      "chart": {
+        "title": "Patrimony evolution",
+        "patrimony": "Projected patrimony",
+        "target": "Target patrimony",
+        "xAxis": "Age"
+      }
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Simulation saved!",
+      "addAsGoal": "Add as goal",
+      "goalAdded": "Goal created!"
+    },
+    "premiumCta": {
+      "title": "Track your retirement journey",
+      "description": "Set patrimony goals and monitor your progress with the Premium plan.",
+      "upgrade": "View plans"
+    },
+    "simulation": {
+      "defaultName": "Retirement at {retirementAge} — {year}",
+      "goalName": "Goal: retire at {retirementAge}"
+    },
+    "errors": {
+      "retirementAgeAfterCurrent": "Retirement age must be greater than current age.",
+      "incomeRequired": "Enter your desired monthly income.",
+      "returnRequired": "Enter the expected annual return.",
+      "lifeExpectancyAfterRetirement": "Life expectancy must be greater than retirement age."
+    },
+    "disclaimer": {
+      "note": "Educational simulation based on the Rule of 25x (2025). Does not consider Social Security benefits or tax adjustments. Not a financial recommendation."
+    }
+  },
+  "fire": {
+    "seo": {
+      "title": "FIRE Calculator — Auraxis",
+      "description": "Plan your financial independence with FIRE, Lean FIRE, Fat FIRE and Coast FIRE variants.",
+      "ogTitle": "FIRE Calculator",
+      "ogDescription": "Find your FIRE number and how much to invest monthly to retire early."
+    },
+    "header": {
+      "publicTool": "Free tool",
+      "otherTools": "All tools",
+      "createAccount": "Create account"
+    },
+    "hero": {
+      "badge": "FIRE",
+      "title": "FIRE Calculator",
+      "subtitle": "Find your FIRE number and the monthly contribution needed to achieve financial independence."
+    },
+    "form": {
+      "title": "Your details",
+      "variant": "FIRE variant",
+      "currentAge": "Current age",
+      "retirementAge": "Target age (FIRE)",
+      "monthlyExpenses": "Current monthly expenses (R$)",
+      "expensesPlaceholder": "e.g. 5,000.00",
+      "currentPatrimony": "Current patrimony (R$)",
+      "expectedReturnPct": "Nominal annual return (%)",
+      "ipcaPct": "Annual IPCA (%)",
+      "ipcaHint": "Enter the current IPCA target.",
+      "calculate": "Calculate",
+      "reset": "Reset"
+    },
+    "variants": {
+      "fire": "FIRE (standard)",
+      "lean_fire": "Lean FIRE (frugal)",
+      "fat_fire": "Fat FIRE (comfortable)",
+      "coast_fire": "Coast FIRE (no contributions)"
+    },
+    "results": {
+      "requiredPatrimony": "Required patrimony",
+      "monthlyContribution": "Required monthly contribution",
+      "coastNumber": "Coast FIRE number",
+      "realReturn": "Real return (Fisher)",
+      "variantsTitle": "Variant comparison",
+      "chart": {
+        "title": "Patrimony evolution",
+        "patrimony": "Projected patrimony",
+        "target": "FIRE target",
+        "xAxis": "Age"
+      }
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Simulation saved!",
+      "addAsGoal": "Add as goal",
+      "goalAdded": "Goal created!"
+    },
+    "premiumCta": {
+      "title": "Track your FIRE journey",
+      "description": "Set patrimony goals and track your progress with the Premium plan.",
+      "upgrade": "View plans"
+    },
+    "simulation": {
+      "defaultName": "FIRE — {variant} — {retirementAge} years",
+      "goalName": "FIRE Goal — {variant} at {retirementAge}"
+    },
+    "errors": {
+      "retirementAgeAfterCurrent": "Target age must be greater than current age.",
+      "expensesRequired": "Enter your monthly expenses.",
+      "returnRequired": "Enter the expected annual return."
+    },
+    "disclaimer": {
+      "note": "Educational simulation based on the Rule of 25x ({year}). Not a financial recommendation."
+    }
   }
 }
