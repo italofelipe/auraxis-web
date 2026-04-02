@@ -2352,5 +2352,154 @@
     "disclaimer": {
       "note": "Educational simulation based on the Rule of 25x ({year}). Not a financial recommendation."
     }
+  },
+  "financiamentoImobiliario": {
+    "seo": {
+      "title": "Mortgage Calculator — SAC vs PRICE | Auraxis",
+      "description": "Compare SAC and PRICE side by side: first and last payment, total interest and estimated CET for your mortgage.",
+      "ogTitle": "Mortgage Calculator — SAC vs PRICE | Auraxis",
+      "ogDescription": "Calculate and compare SAC and PRICE amortization systems for your home loan."
+    },
+    "hero": {
+      "badge": "Real Estate",
+      "title": "Mortgage Calculator",
+      "subtitle": "Compare SAC and PRICE: payments, total interest and estimated CET side by side."
+    },
+    "header": {
+      "publicTool": "Free tool",
+      "otherTools": "Other tools",
+      "createAccount": "Create account"
+    },
+    "form": {
+      "title": "Loan details",
+      "propertyValue": "Property value (R$)",
+      "propertyValuePlaceholder": "e.g. 500,000.00",
+      "downPaymentPct": "Down payment (%)",
+      "termMonths": "Term (months)",
+      "annualRatePct": "Annual interest rate (%)",
+      "annualRatePlaceholder": "e.g. 10.50",
+      "insuranceMonthly": "Monthly insurance (R$)",
+      "adminFeeMonthly": "Monthly administration fee (R$)",
+      "calculate": "Calculate",
+      "reset": "Reset"
+    },
+    "results": {
+      "loanAmount": "Financed amount",
+      "downPayment": "Down payment",
+      "comparisonTitle": "SAC vs PRICE",
+      "sacLabel": "SAC",
+      "priceLabel": "PRICE",
+      "firstPayment": "1st payment",
+      "lastPayment": "Last payment",
+      "totalInterest": "Total interest",
+      "totalPaid": "Total paid",
+      "savingsVsPrice": "Savings vs PRICE",
+      "cetEstimated": "Estimated CET",
+      "sacFirstPayment": "SAC — 1st payment",
+      "pricePayment": "PRICE — fixed payment"
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Simulation saved!",
+      "addAsGoal": "Add as goal",
+      "goalAdded": "Goal created!"
+    },
+    "premiumCta": {
+      "title": "Track your mortgage",
+      "description": "Save simulations and set early payoff goals with the Premium plan.",
+      "upgrade": "View plans"
+    },
+    "simulation": {
+      "defaultName": "Mortgage — {year}",
+      "goalName": "Goal — Mortgage"
+    },
+    "errors": {
+      "propertyValueRequired": "Enter the property value.",
+      "annualRateRequired": "Enter the annual interest rate.",
+      "termMonthsRange": "Term must be between 12 and 360 months.",
+      "downPaymentPctRange": "Down payment must be between 0% and 99%."
+    },
+    "disclaimer": {
+      "cet": "The actual CET may vary depending on the financial institution. Review the CET table before signing."
+    }
+  },
+  "aluguelVsCompra": {
+    "seo": {
+      "title": "Rent vs Buy — Wealth Projection | Auraxis",
+      "description": "Compare the total cost of renting or buying a property with opportunity cost and net worth projection.",
+      "ogTitle": "Rent vs Buy | Auraxis",
+      "ogDescription": "Find out whether renting or buying is better with net worth projection and break-even analysis."
+    },
+    "hero": {
+      "badge": "Real Estate",
+      "title": "Rent vs Buy",
+      "subtitle": "Compare the total cost of renting or buying with opportunity cost and net worth projection."
+    },
+    "header": {
+      "publicTool": "Free tool",
+      "otherTools": "Other tools",
+      "createAccount": "Create account"
+    },
+    "form": {
+      "title": "Analysis parameters",
+      "propertyValue": "Property value (R$)",
+      "propertyValuePlaceholder": "e.g. 500,000.00",
+      "monthlyRent": "Monthly rent (R$)",
+      "monthlyRentPlaceholder": "e.g. 2,500.00",
+      "downPaymentAvailable": "Available down payment (R$)",
+      "downPaymentPlaceholder": "e.g. 100,000.00",
+      "annualInvestmentReturnPct": "Annual investment return (%)",
+      "annualPropertyValorizationPct": "Annual property appreciation (%)",
+      "analysisYears": "Analysis horizon (years)",
+      "mortgageAnnualRatePct": "Mortgage annual interest rate (%)",
+      "monthlyIptuCondominio": "Monthly IPTU + condo fees (R$)",
+      "calculate": "Calculate",
+      "reset": "Reset"
+    },
+    "results": {
+      "verdict": "Conclusion",
+      "buyWins": "Buying is better",
+      "rentWins": "Renting is better",
+      "buyWinsDetail": "With the given assumptions, buying the property generates greater net worth at the end of the period.",
+      "rentWinsDetail": "With the given assumptions, renting and investing the down payment generates greater net worth at the end of the period.",
+      "breakEvenNote": "Break-even at year {year}.",
+      "breakEvenYear": "Break-even",
+      "breakEvenYearValue": "Year {year}",
+      "breakEvenNever": "Never",
+      "finalBuyNetWorth": "Net worth (buy)",
+      "finalRentNetWorth": "Net worth (rent)",
+      "totalRentCost": "Total rent paid",
+      "totalBuyCost": "Total buy cost",
+      "propertyValueAtEnd": "Property value at end",
+      "opportunityCost": "Opportunity cost of down payment",
+      "chart": {
+        "buy": "Buy",
+        "rent": "Rent",
+        "xAxis": "Year"
+      }
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Simulation saved!",
+      "addAsGoal": "Add as goal",
+      "goalAdded": "Goal created!"
+    },
+    "premiumCta": {
+      "title": "Track your real estate wealth",
+      "description": "Set patrimony goals and track your progress with the Premium plan.",
+      "upgrade": "View plans"
+    },
+    "simulation": {
+      "defaultName": "Rent vs Buy — {year}",
+      "goalName": "Goal — Real Estate Wealth"
+    },
+    "errors": {
+      "propertyValueRequired": "Enter the property value.",
+      "monthlyRentRequired": "Enter the monthly rent amount.",
+      "downPaymentRequired": "Enter the available down payment (can be 0)."
+    },
+    "disclaimer": {
+      "note": "Educational simulation with simplified assumptions. Not a financial or purchase recommendation."
+    }
   }
 }

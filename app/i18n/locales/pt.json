@@ -2352,5 +2352,154 @@
     "disclaimer": {
       "note": "Simulação educacional baseada na Regra dos 25x ({year}). Não constitui recomendação de investimento."
     }
+  },
+  "financiamentoImobiliario": {
+    "seo": {
+      "title": "Financiamento Imobiliário — SAC vs PRICE | Auraxis",
+      "description": "Compare SAC e PRICE lado a lado: primeira e última parcela, total de juros e CET estimado para o seu financiamento.",
+      "ogTitle": "Financiamento Imobiliário — SAC vs PRICE | Auraxis",
+      "ogDescription": "Calcule e compare os sistemas SAC e PRICE para o seu financiamento imobiliário."
+    },
+    "hero": {
+      "badge": "Imóveis",
+      "title": "Financiamento Imobiliário",
+      "subtitle": "Compare SAC e PRICE: parcelas, juros totais e CET estimado lado a lado."
+    },
+    "header": {
+      "publicTool": "Ferramenta gratuita",
+      "otherTools": "Outras ferramentas",
+      "createAccount": "Criar conta"
+    },
+    "form": {
+      "title": "Dados do financiamento",
+      "propertyValue": "Valor do imóvel (R$)",
+      "propertyValuePlaceholder": "Ex: 500.000,00",
+      "downPaymentPct": "Entrada (%)",
+      "termMonths": "Prazo (meses)",
+      "annualRatePct": "Taxa de juros anual (%)",
+      "annualRatePlaceholder": "Ex: 10,50",
+      "insuranceMonthly": "Seguro mensal (R$)",
+      "adminFeeMonthly": "Taxa de administração mensal (R$)",
+      "calculate": "Calcular",
+      "reset": "Limpar"
+    },
+    "results": {
+      "loanAmount": "Valor financiado",
+      "downPayment": "Entrada",
+      "comparisonTitle": "SAC vs PRICE",
+      "sacLabel": "SAC",
+      "priceLabel": "PRICE",
+      "firstPayment": "1ª parcela",
+      "lastPayment": "Última parcela",
+      "totalInterest": "Total de juros",
+      "totalPaid": "Total pago",
+      "savingsVsPrice": "Economia vs PRICE",
+      "cetEstimated": "CET estimado",
+      "sacFirstPayment": "SAC — 1ª parcela",
+      "pricePayment": "PRICE — parcela fixa"
+    },
+    "actions": {
+      "save": "Salvar simulação",
+      "saved": "Simulação salva!",
+      "addAsGoal": "Adicionar como meta",
+      "goalAdded": "Meta criada!"
+    },
+    "premiumCta": {
+      "title": "Acompanhe seu financiamento",
+      "description": "Salve simulações e defina metas de quitação antecipada com o plano Premium.",
+      "upgrade": "Ver planos"
+    },
+    "simulation": {
+      "defaultName": "Financiamento Imobiliário — {year}",
+      "goalName": "Meta — Financiamento Imobiliário"
+    },
+    "errors": {
+      "propertyValueRequired": "Informe o valor do imóvel.",
+      "annualRateRequired": "Informe a taxa de juros anual.",
+      "termMonthsRange": "O prazo deve estar entre 12 e 360 meses.",
+      "downPaymentPctRange": "A entrada deve estar entre 0% e 99%."
+    },
+    "disclaimer": {
+      "cet": "O CET real pode variar conforme a instituição financeira. Consulte a tabela de CET antes de contratar."
+    }
+  },
+  "aluguelVsCompra": {
+    "seo": {
+      "title": "Aluguel vs Compra — Análise Patrimonial | Auraxis",
+      "description": "Compare o custo total de alugar ou comprar um imóvel com custo de oportunidade e projeção patrimonial.",
+      "ogTitle": "Aluguel vs Compra | Auraxis",
+      "ogDescription": "Descubra se vale mais a pena alugar ou comprar com projeção patrimonial e break-even."
+    },
+    "hero": {
+      "badge": "Imóveis",
+      "title": "Aluguel vs Compra",
+      "subtitle": "Compare o custo total de alugar ou comprar com custo de oportunidade e projeção patrimonial."
+    },
+    "header": {
+      "publicTool": "Ferramenta gratuita",
+      "otherTools": "Outras ferramentas",
+      "createAccount": "Criar conta"
+    },
+    "form": {
+      "title": "Parâmetros da análise",
+      "propertyValue": "Valor do imóvel (R$)",
+      "propertyValuePlaceholder": "Ex: 500.000,00",
+      "monthlyRent": "Aluguel mensal (R$)",
+      "monthlyRentPlaceholder": "Ex: 2.500,00",
+      "downPaymentAvailable": "Entrada disponível (R$)",
+      "downPaymentPlaceholder": "Ex: 100.000,00",
+      "annualInvestmentReturnPct": "Retorno do investimento anual (%)",
+      "annualPropertyValorizationPct": "Valorização anual do imóvel (%)",
+      "analysisYears": "Horizonte de análise (anos)",
+      "mortgageAnnualRatePct": "Taxa de juros do financiamento (% a.a.)",
+      "monthlyIptuCondominio": "IPTU + condomínio mensal (R$)",
+      "calculate": "Calcular",
+      "reset": "Limpar"
+    },
+    "results": {
+      "verdict": "Conclusão",
+      "buyWins": "Comprar é melhor",
+      "rentWins": "Alugar é melhor",
+      "buyWinsDetail": "Com as premissas informadas, comprar o imóvel gera maior patrimônio ao final do período.",
+      "rentWinsDetail": "Com as premissas informadas, alugar e investir a entrada gera maior patrimônio ao final do período.",
+      "breakEvenNote": "Ponto de equilíbrio no ano {year}.",
+      "breakEvenYear": "Break-even",
+      "breakEvenYearValue": "Ano {year}",
+      "breakEvenNever": "Nunca",
+      "finalBuyNetWorth": "Patrimônio líquido (compra)",
+      "finalRentNetWorth": "Patrimônio líquido (aluguel)",
+      "totalRentCost": "Total pago em aluguel",
+      "totalBuyCost": "Custo total da compra",
+      "propertyValueAtEnd": "Valor do imóvel ao final",
+      "opportunityCost": "Custo de oportunidade da entrada",
+      "chart": {
+        "buy": "Comprar",
+        "rent": "Alugar",
+        "xAxis": "Ano"
+      }
+    },
+    "actions": {
+      "save": "Salvar simulação",
+      "saved": "Simulação salva!",
+      "addAsGoal": "Adicionar como meta",
+      "goalAdded": "Meta criada!"
+    },
+    "premiumCta": {
+      "title": "Monitore seu patrimônio imobiliário",
+      "description": "Defina metas de patrimônio e acompanhe seu progresso com o plano Premium.",
+      "upgrade": "Ver planos"
+    },
+    "simulation": {
+      "defaultName": "Aluguel vs Compra — {year}",
+      "goalName": "Meta — Patrimônio Imobiliário"
+    },
+    "errors": {
+      "propertyValueRequired": "Informe o valor do imóvel.",
+      "monthlyRentRequired": "Informe o valor do aluguel mensal.",
+      "downPaymentRequired": "Informe o valor da entrada disponível (pode ser 0)."
+    },
+    "disclaimer": {
+      "note": "Simulação educacional com premissas simplificadas. Não constitui recomendação de investimento ou compra."
+    }
   }
 }

@@ -206,7 +206,7 @@
       "createdAt": "2026-04-01",
       "removeBy": "2027-12-31",
       "type": "release",
-      "status": "draft",
+      "status": "enabled-prod",
       "description": "Financiamento imobiliário: SAC vs PRICE, custo total.",
       "repositories": ["auraxis-web"]
     },
@@ -216,7 +216,7 @@
       "createdAt": "2026-04-01",
       "removeBy": "2027-12-31",
       "type": "release",
-      "status": "draft",
+      "status": "enabled-prod",
       "description": "Aluguel vs compra: custo de oportunidade do capital imobilizado.",
       "repositories": ["auraxis-web"]
     },

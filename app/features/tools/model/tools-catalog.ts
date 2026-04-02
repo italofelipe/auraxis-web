@@ -174,6 +174,26 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/fire",
     featureFlag: "web.tools.fire",
   },
+  {
+    id: "financiamento-imobiliario",
+    name: "Financiamento Imobiliário",
+    description:
+      "Compare SAC e PRICE lado a lado: primeira e última parcela, total de juros e CET estimado.",
+    enabled: isFeatureEnabled("web.tools.financiamento-imobiliario"),
+    accessLevel: "public",
+    route: "/tools/financiamento-imobiliario",
+    featureFlag: "web.tools.financiamento-imobiliario",
+  },
+  {
+    id: "aluguel-vs-compra",
+    name: "Aluguel vs Compra",
+    description:
+      "Compare o custo total de alugar ou comprar um imóvel com custo de oportunidade e projeção patrimonial.",
+    enabled: isFeatureEnabled("web.tools.aluguel-vs-compra"),
+    accessLevel: "public",
+    route: "/tools/aluguel-vs-compra",
+    featureFlag: "web.tools.aluguel-vs-compra",
+  },
 ];
 
 /**
