@@ -1645,5 +1645,192 @@
       "save": "Salvar simulação",
       "saved": "Simulação salva ✓"
     }
+  },
+  "dividirConta": {
+    "seo": {
+      "title": "Dividir Conta — Auraxis",
+      "description": "Calcule quanto cada pessoa deve pagar na conta do restaurante, com taxa da casa, gorjeta e consumo individual.",
+      "ogTitle": "Dividir Conta | Auraxis",
+      "ogDescription": "Divida contas de restaurante com facilidade — taxa de serviço, gorjeta e modo individual."
+    },
+    "header": {
+      "publicTool": "Ferramenta pública",
+      "otherTools": "Outras ferramentas",
+      "createAccount": "Criar conta"
+    },
+    "hero": {
+      "badge": "Grátis",
+      "title": "Dividir Conta",
+      "subtitle": "Calcule quanto cada pessoa deve pagar, com taxa da casa, gorjeta e divisão individual por consumo."
+    },
+    "form": {
+      "title": "Informações da conta",
+      "total": "Valor total da conta (R$)",
+      "totalPlaceholder": "Ex: 200,00",
+      "serviceFeePct": "Taxa de serviço (%)",
+      "tipPct": "Gorjeta (%)",
+      "people": "Número de pessoas",
+      "mode": "Modo de divisão",
+      "modeEqual": "Igual para todos",
+      "modeIndividual": "Por consumo individual",
+      "individualAmountLabel": "Consumo da pessoa {n} (R$)",
+      "calculate": "Calcular",
+      "reset": "Limpar",
+      "addPerson": "Adicionar pessoa",
+      "removePerson": "Remover pessoa"
+    },
+    "results": {
+      "perPersonEqual": "Por pessoa (divisão igual)",
+      "totalWithFees": "Total com encargos",
+      "serviceFee": "Taxa de serviço",
+      "tip": "Gorjeta",
+      "individualBreakdown": "Divisão por consumo",
+      "person": "Pessoa {n}",
+      "originalBill": "Conta original"
+    },
+    "premiumCta": {
+      "title": "Salve suas simulações",
+      "description": "Com uma conta premium, salve e compare divisões de conta.",
+      "upgrade": "Fazer upgrade"
+    },
+    "actions": {
+      "save": "Salvar simulação",
+      "saved": "Simulação salva ✓",
+      "addAsGoal": "Adicionar como meta",
+      "goalAdded": "Meta criada!"
+    },
+    "simulation": {
+      "defaultName": "Dividir conta — {people} pessoas",
+      "goalName": "Meta: dividir conta ({people} pessoas)"
+    },
+    "errors": {
+      "totalRequired": "Informe o valor total da conta.",
+      "minPeople": "Mínimo de 2 pessoas.",
+      "invalidFee": "Taxa de serviço deve ser entre 0% e 100%.",
+      "invalidTip": "Gorjeta deve ser entre 0% e 100%.",
+      "allAmountsRequired": "Preencha o consumo de todas as pessoas."
+    },
+    "disclaimer": {
+      "note": "Cálculo estimado. Valores podem variar."
+    }
+  },
+  "descontoMarkup": {
+    "seo": {
+      "title": "Desconto, Markup e Margem — Auraxis",
+      "description": "Calcule descontos, markup de preço e margem de lucro em 4 modos: desconto, markup, margem e reverso.",
+      "ogTitle": "Desconto, Markup e Margem | Auraxis",
+      "ogDescription": "Calcule descontos, markup e margem de lucro com facilidade."
+    },
+    "header": {
+      "publicTool": "Ferramenta pública",
+      "otherTools": "Outras ferramentas",
+      "createAccount": "Criar conta"
+    },
+    "hero": {
+      "badge": "Grátis",
+      "title": "Desconto, Markup e Margem",
+      "subtitle": "Calcule descontos aplicados, markup de precificação e margem de lucro em 4 modos diferentes."
+    },
+    "form": {
+      "mode": "Modo de cálculo",
+      "modeDesconto": "Desconto",
+      "modeMarkup": "Markup",
+      "modeMargem": "Margem",
+      "modeReverso": "Desconto reverso",
+      "price": "Preço original (R$)",
+      "priceSale": "Preço de venda (R$)",
+      "priceFinal": "Preço final (R$)",
+      "cost": "Custo (R$)",
+      "pctDesconto": "Desconto (%)",
+      "pctMarkup": "Markup (%)",
+      "calculate": "Calcular",
+      "reset": "Limpar"
+    },
+    "results": {
+      "finalPrice": "Preço final",
+      "salePrice": "Preço de venda",
+      "originalPrice": "Preço original",
+      "discount": "Desconto aplicado",
+      "profit": "Lucro",
+      "marginPct": "Margem de lucro",
+      "savings": "Economia"
+    },
+    "actions": {
+      "save": "Salvar simulação",
+      "saved": "Simulação salva ✓",
+      "addAsGoal": "Adicionar como meta",
+      "goalAdded": "Meta criada!"
+    },
+    "simulation": {
+      "defaultName": "Cálculo de {mode}",
+      "goalName": "Meta de compra/venda"
+    },
+    "errors": {
+      "priceRequired": "Informe o preço.",
+      "pctRequired": "Informe o percentual (0–100%).",
+      "costRequired": "Informe o custo."
+    }
+  },
+  "jurosCompostos": {
+    "seo": {
+      "title": "Juros Compostos e Taxa Real — Auraxis",
+      "description": "Simule o crescimento do seu capital com aportes mensais e veja a taxa real descontada a inflação (fórmula de Fisher).",
+      "ogTitle": "Juros Compostos e Taxa Real | Auraxis",
+      "ogDescription": "Simule juros compostos com aportes mensais e calcule a taxa real via fórmula de Fisher."
+    },
+    "header": {
+      "publicTool": "Ferramenta pública",
+      "otherTools": "Outras ferramentas",
+      "createAccount": "Criar conta"
+    },
+    "hero": {
+      "badge": "Grátis",
+      "title": "Juros Compostos e Taxa Real",
+      "subtitle": "Simule o crescimento do seu capital com aportes mensais e veja quanto de fato rende após a inflação."
+    },
+    "form": {
+      "title": "Parâmetros do investimento",
+      "initialCapital": "Capital inicial (R$)",
+      "monthlyContribution": "Aporte mensal (R$)",
+      "nominalRatePct": "Taxa nominal (% a.a.)",
+      "period": "Período",
+      "periodUnit": "Unidade",
+      "periodMonths": "Meses",
+      "periodYears": "Anos",
+      "inflationPct": "Inflação estimada (% a.a.)",
+      "inflationHint": "IPCA histórico médio: ~4,5%",
+      "calculate": "Calcular",
+      "reset": "Limpar"
+    },
+    "results": {
+      "finalAmountNominal": "Montante nominal final",
+      "finalAmountReal": "Montante real (descontada inflação)",
+      "totalContributed": "Total aportado",
+      "totalInterest": "Juros acumulados",
+      "realRate": "Taxa real efetiva (a.a.)",
+      "chart": {
+        "nominal": "Montante nominal",
+        "contributed": "Total aportado",
+        "xAxis": "Meses"
+      }
+    },
+    "actions": {
+      "save": "Salvar simulação",
+      "saved": "Simulação salva ✓",
+      "addAsGoal": "Adicionar como meta",
+      "goalAdded": "Meta criada!"
+    },
+    "simulation": {
+      "defaultName": "Juros compostos — {period} {unit}",
+      "goalName": "Meta: acumular em {period} {unit}"
+    },
+    "errors": {
+      "capitalOrContributionRequired": "Informe o capital inicial ou o aporte mensal.",
+      "rateRequired": "Informe a taxa de juros.",
+      "periodRequired": "Informe o período (mínimo 1)."
+    },
+    "disclaimer": {
+      "note": "Simulação educacional. Resultados passados não garantem rendimentos futuros."
+    }
   }
 }

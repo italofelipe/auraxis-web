@@ -74,6 +74,36 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/rescisao",
     featureFlag: "web.tools.rescisao",
   },
+  {
+    id: "dividir-conta",
+    name: "Dividir Conta",
+    description:
+      "Calcule quanto cada pessoa deve pagar na conta do restaurante, com taxa da casa, gorjeta e consumo individual.",
+    enabled: true,
+    accessLevel: "public",
+    route: "/tools/dividir-conta",
+    featureFlag: "web.tools.dividir-conta",
+  },
+  {
+    id: "desconto-markup",
+    name: "Desconto, Markup e Margem",
+    description:
+      "Calcule descontos, markup de preço e margem de lucro em 4 modos: desconto, markup, margem e reverso.",
+    enabled: true,
+    accessLevel: "public",
+    route: "/tools/desconto-markup",
+    featureFlag: "web.tools.desconto-markup",
+  },
+  {
+    id: "juros-compostos",
+    name: "Juros Compostos e Taxa Real",
+    description:
+      "Simule o crescimento do seu capital com aportes mensais e veja a taxa real descontada a inflação (fórmula de Fisher).",
+    enabled: true,
+    accessLevel: "public",
+    route: "/tools/juros-compostos",
+    featureFlag: "web.tools.juros-compostos",
+  },
 ];
 
 /**
