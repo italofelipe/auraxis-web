@@ -1,26 +1,18 @@
 import { ref } from "vue";
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { useQuery } from "@tanstack/vue-query";
 
 import { useBrapiCurrencyQuery } from "./use-brapi-currency-query";
 import type { BrapiCurrencyResult, BrapiToolsClient } from "~/features/tools/services/brapi-tools.client";
 
 // ─── Mock @tanstack/vue-query ─────────────────────────────────────────────────
 
-vi.mock("@tanstack/vue-query", () => ({
-  useQuery: vi.fn(),
-}));
-
-const mockUseQuery = vi.mocked(useQuery);
-
-/** Options passed to the useQuery mock. */
-type CapturedOptions = {
-  queryKey?: unknown;
-  queryFn?: () => Promise<unknown>;
-  enabled?: unknown;
-  staleTime?: number;
-  retry?: number;
-};
+vi.mock("@tanstack/vue-query", async () => {
+  const actual = await vi.importActual("@tanstack/vue-query");
+  return {
+    ...actual,
+    useQuery: vi.fn((opts: unknown) => opts),
+  };
+});
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -52,177 +44,107 @@ function buildMockClient(data: BrapiCurrencyResult[] = mockCurrencyData): BrapiT
 }
 
 beforeEach(() => {
-  mockUseQuery.mockReset();
-  mockUseQuery.mockReturnValue({
-    data: ref(mockCurrencyData),
-    isLoading: ref(false),
-    isPending: ref(false),
-    isError: ref(false),
-    error: ref(null),
-  } as ReturnType<typeof useQuery>);
+  vi.clearAllMocks();
 });
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 describe("useBrapiCurrencyQuery", () => {
-  it("calls useQuery once when hook is invoked", () => {
+  it("passes enabled=true when pairs is non-empty", () => {
     const pairs = ref(["USD-BRL"]);
     const client = buildMockClient();
-    useBrapiCurrencyQuery(pairs, client);
 
-    expect(mockUseQuery).toHaveBeenCalledOnce();
+    const result = useBrapiCurrencyQuery(pairs, client) as unknown as Record<string, unknown>;
+    const enabled = result["enabled"];
+    const value = typeof enabled === "object" && enabled !== null
+      ? (enabled as { value: boolean }).value
+      : enabled;
+    expect(value).toBe(true);
   });
 
-  it("returns data from useQuery", () => {
-    const pairs = ref(["USD-BRL"]);
-    const client = buildMockClient();
-    const result = useBrapiCurrencyQuery(pairs, client);
-
-    expect(result.data.value).toEqual(mockCurrencyData);
-  });
-
-  it("is disabled when pairs array is empty", () => {
+  it("passes enabled=false when pairs is empty", () => {
     const pairs = ref<string[]>([]);
     const client = buildMockClient([]);
 
-    let capturedOpts: CapturedOptions = {};
-    mockUseQuery.mockImplementation((opts: CapturedOptions) => {
-      capturedOpts = opts;
-      return {
-        data: ref(undefined),
-        isLoading: ref(false),
-        isPending: ref(false),
-        isError: ref(false),
-        error: ref(null),
-      } as ReturnType<typeof useQuery>;
-    });
-
-    useBrapiCurrencyQuery(pairs, client);
-
-    const enabled = typeof capturedOpts.enabled === "object" && capturedOpts.enabled !== null
-      ? (capturedOpts.enabled as { value: boolean }).value
-      : capturedOpts.enabled;
-    expect(enabled).toBe(false);
-  });
-
-  it("is enabled when pairs has at least one entry", () => {
-    const pairs = ref(["USD-BRL"]);
-    const client = buildMockClient();
-
-    let capturedOpts: CapturedOptions = {};
-    mockUseQuery.mockImplementation((opts: CapturedOptions) => {
-      capturedOpts = opts;
-      return {
-        data: ref(mockCurrencyData),
-        isLoading: ref(false),
-        isPending: ref(false),
-        isError: ref(false),
-        error: ref(null),
-      } as ReturnType<typeof useQuery>;
-    });
-
-    useBrapiCurrencyQuery(pairs, client);
-
-    const enabled = typeof capturedOpts.enabled === "object" && capturedOpts.enabled !== null
-      ? (capturedOpts.enabled as { value: boolean }).value
-      : capturedOpts.enabled;
-    expect(enabled).toBe(true);
+    const result = useBrapiCurrencyQuery(pairs, client) as unknown as Record<string, unknown>;
+    const enabled = result["enabled"];
+    const value = typeof enabled === "object" && enabled !== null
+      ? (enabled as { value: boolean }).value
+      : enabled;
+    expect(value).toBe(false);
   });
 
   it("sets staleTime to 5 minutes", () => {
     const pairs = ref(["USD-BRL"]);
     const client = buildMockClient();
 
-    let capturedOpts: CapturedOptions = {};
-    mockUseQuery.mockImplementation((opts: CapturedOptions) => {
-      capturedOpts = opts;
-      return {
-        data: ref(mockCurrencyData),
-        isLoading: ref(false),
-        isPending: ref(false),
-        isError: ref(false),
-        error: ref(null),
-      } as ReturnType<typeof useQuery>;
-    });
-
-    useBrapiCurrencyQuery(pairs, client);
-
-    expect(capturedOpts.staleTime).toBe(5 * 60 * 1000);
+    const result = useBrapiCurrencyQuery(pairs, client) as unknown as Record<string, unknown>;
+    expect(result["staleTime"]).toBe(5 * 60 * 1000);
   });
 
   it("sets retry to 1", () => {
     const pairs = ref(["USD-BRL"]);
     const client = buildMockClient();
 
-    let capturedOpts: CapturedOptions = {};
-    mockUseQuery.mockImplementation((opts: CapturedOptions) => {
-      capturedOpts = opts;
-      return {
-        data: ref(mockCurrencyData),
-        isLoading: ref(false),
-        isPending: ref(false),
-        isError: ref(false),
-        error: ref(null),
-      } as ReturnType<typeof useQuery>;
-    });
-
-    useBrapiCurrencyQuery(pairs, client);
-
-    expect(capturedOpts.retry).toBe(1);
+    const result = useBrapiCurrencyQuery(pairs, client) as unknown as Record<string, unknown>;
+    expect(result["retry"]).toBe(1);
   });
 
-  it("calls client.getCurrencyQuotes via queryFn", async () => {
+  it("includes brapi and currency in the query key", () => {
+    const pairs = ref(["USD-BRL"]);
+    const client = buildMockClient();
+
+    const result = useBrapiCurrencyQuery(pairs, client) as unknown as Record<string, unknown>;
+    const key = result["queryKey"];
+    const keyValue = typeof key === "object" && key !== null && "value" in (key as object)
+      ? (key as { value: unknown[] }).value
+      : key;
+    expect(JSON.stringify(keyValue)).toContain("brapi");
+    expect(JSON.stringify(keyValue)).toContain("currency");
+  });
+
+  it("queryFn calls client.getCurrencyQuotes with pairs", async () => {
     const pairs = ref(["USD-BRL", "EUR-BRL"]);
     const client = buildMockClient();
 
-    let capturedOpts: CapturedOptions = {};
-    mockUseQuery.mockImplementation((opts: CapturedOptions) => {
-      capturedOpts = opts;
-      return {
-        data: ref(mockCurrencyData),
-        isLoading: ref(false),
-        isPending: ref(false),
-        isError: ref(false),
-        error: ref(null),
-      } as ReturnType<typeof useQuery>;
-    });
-
-    useBrapiCurrencyQuery(pairs, client);
-
-    await capturedOpts.queryFn?.();
+    const result = useBrapiCurrencyQuery(pairs, client) as unknown as Record<string, unknown>;
+    const queryFn = result["queryFn"] as () => Promise<BrapiCurrencyResult[]>;
+    await queryFn();
 
     expect(client.getCurrencyQuotes).toHaveBeenCalledWith(["USD-BRL", "EUR-BRL"]);
   });
 
-  it("returns isError false on successful query", () => {
+  it("queryFn returns data from the client", async () => {
     const pairs = ref(["USD-BRL"]);
-    const client = buildMockClient();
-    const result = useBrapiCurrencyQuery(pairs, client);
+    const client = buildMockClient(mockCurrencyData);
 
-    expect(result.isError.value).toBe(false);
+    const result = useBrapiCurrencyQuery(pairs, client) as unknown as Record<string, unknown>;
+    const queryFn = result["queryFn"] as () => Promise<BrapiCurrencyResult[]>;
+    const data = await queryFn();
+
+    expect(data).toEqual(mockCurrencyData);
   });
 
-  it("includes the pairs in the query key", () => {
-    const pairs = ref(["USD-BRL"]);
+  it("includes the pair values in the query key", () => {
+    const pairs = ref(["EUR-BRL"]);
     const client = buildMockClient();
 
-    let capturedOpts: CapturedOptions = {};
-    mockUseQuery.mockImplementation((opts: CapturedOptions) => {
-      capturedOpts = opts;
-      return {
-        data: ref(mockCurrencyData),
-        isLoading: ref(false),
-        isPending: ref(false),
-        isError: ref(false),
-        error: ref(null),
-      } as ReturnType<typeof useQuery>;
-    });
+    const result = useBrapiCurrencyQuery(pairs, client) as unknown as Record<string, unknown>;
+    const key = result["queryKey"];
+    const keyValue = typeof key === "object" && key !== null && "value" in (key as object)
+      ? (key as { value: unknown[] }).value
+      : key;
+    expect(JSON.stringify(keyValue)).toContain("EUR-BRL");
+  });
 
-    useBrapiCurrencyQuery(pairs, client);
+  it("passes pairs correctly to client when multiple pairs provided", async () => {
+    const pairs = ref(["USD-BRL", "BTC-BRL"]);
+    const client = buildMockClient();
 
-    const key = typeof capturedOpts.queryKey === "object" && capturedOpts.queryKey !== null
-      ? (capturedOpts.queryKey as { value: unknown[] }).value
-      : capturedOpts.queryKey;
-    expect(JSON.stringify(key)).toContain("USD-BRL");
+    const result = useBrapiCurrencyQuery(pairs, client) as unknown as Record<string, unknown>;
+    const queryFn = result["queryFn"] as () => Promise<BrapiCurrencyResult[]>;
+    await queryFn();
+
+    expect(client.getCurrencyQuotes).toHaveBeenCalledWith(["USD-BRL", "BTC-BRL"]);
   });
 });
