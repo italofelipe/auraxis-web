@@ -1832,5 +1832,230 @@
     "disclaimer": {
       "note": "Educational simulation. Past results do not guarantee future returns."
     }
+  },
+  "fgts": {
+    "seo": {
+      "title": "FGTS Simulator — Auraxis",
+      "description": "Calculate your projected FGTS balance, severance fine, and withdrawable amount based on your termination type.",
+      "ogTitle": "FGTS Simulator — Auraxis",
+      "ogDescription": "Project your FGTS balance, calculate the fine, and see your net withdrawable amount."
+    },
+    "header": {
+      "publicTool": "Free tool",
+      "otherTools": "Other tools",
+      "createAccount": "Create account"
+    },
+    "hero": {
+      "badge": "CLT Worker",
+      "title": "FGTS Simulator",
+      "subtitle": "Project your balance, calculate the fine by termination type, and see how much you can withdraw."
+    },
+    "form": {
+      "title": "Simulation data",
+      "grossSalary": "Gross salary",
+      "grossSalaryPlaceholder": "e.g. 3,000.00",
+      "yearsOfService": "Years of service",
+      "monthsOfService": "Additional months",
+      "currentBalance": "Current FGTS balance",
+      "currentBalanceTooltip": "If you already have an accumulated balance, enter the current amount for a more accurate result.",
+      "trRatePct": "Accumulated TR rate (%)",
+      "trRatePctTooltip": "The TR (Reference Rate) is used to adjust the FGTS balance. In 2025 it is approximately 1.5% per year. Use 0 for a conservative estimate.",
+      "terminationType": "Termination type",
+      "terminationTypes": {
+        "sem_justa_causa": "Without just cause (layoff)",
+        "acordo": "Mutual agreement",
+        "pedido_demissao": "Voluntary resignation",
+        "justa_causa": "With just cause (dismissal)"
+      },
+      "calculate": "Calculate",
+      "reset": "Reset"
+    },
+    "results": {
+      "title": "Simulation result",
+      "projectedBalance": "Projected FGTS balance",
+      "monthlyDeposit": "Monthly deposit (8%)",
+      "totalDeposited": "Total deposited",
+      "correctionAmount": "Correction (TR + 3% p.a.)",
+      "fineAmount": "Fine on FGTS",
+      "governmentFineAmount": "Fine reversed to government",
+      "withdrawableAmount": "Withdrawable amount",
+      "cannotWithdraw": "Not available for withdrawal"
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Simulation saved!",
+      "addAsGoal": "Add as goal",
+      "goalAdded": "Goal created!"
+    },
+    "premiumCta": {
+      "title": "Unlock financial goals",
+      "description": "Convert simulations into trackable goals with the Premium plan.",
+      "upgrade": "View plans"
+    },
+    "simulation": {
+      "defaultName": "FGTS — {year}",
+      "goalName": "Goal: projected FGTS balance"
+    },
+    "errors": {
+      "grossSalaryRequired": "Enter the gross salary to calculate."
+    },
+    "disclaimer": {
+      "legal": "Simulation based on the FGTS table {year}. Educational values — check your official statement at Caixa Econômica Federal."
+    }
+  },
+  "cltVsPj": {
+    "seo": {
+      "title": "CLT vs PJ — Income Comparison — Auraxis",
+      "description": "Compare CLT and PJ considering INSS, income tax, benefits, and tax regime. Find out which pays more.",
+      "ogTitle": "CLT vs PJ — Income Comparison — Auraxis",
+      "ogDescription": "Simulate CLT and PJ side by side and see which regime is more advantageous for your profile."
+    },
+    "header": {
+      "publicTool": "Free tool",
+      "otherTools": "Other tools",
+      "createAccount": "Create account"
+    },
+    "hero": {
+      "badge": "Income comparison",
+      "title": "CLT vs PJ",
+      "subtitle": "Compare the real net income between CLT and PJ, considering taxes, benefits, and operating costs."
+    },
+    "form": {
+      "cltTitle": "CLT data",
+      "pjTitle": "PJ data",
+      "cltGrossSalary": "Gross CLT salary",
+      "grossSalaryPlaceholder": "e.g. 5,000.00",
+      "cltVT": "Monthly transportation allowance",
+      "cltVTTooltip": "Monthly transportation allowance received. 6% of your salary will be deducted (capped at R$ 350).",
+      "cltVR": "Meal / food allowance",
+      "dependents": "Dependents for income tax",
+      "pjMonthlyInvoice": "Monthly PJ revenue",
+      "invoicePlaceholder": "e.g. 8,000.00",
+      "pjRegime": "PJ tax regime",
+      "pjFixedCosts": "Monthly PJ fixed costs",
+      "pjFixedCostsTooltip": "Include accountant, internet, PJ health plan, tools and other fixed operating costs.",
+      "regimes": {
+        "mei": "MEI",
+        "simples": "Simples Nacional",
+        "lucro_presumido": "Lucro Presumido"
+      },
+      "calculate": "Calculate",
+      "reset": "Reset"
+    },
+    "results": {
+      "title": "Comparison result",
+      "cltColumn": "CLT",
+      "pjColumn": "PJ",
+      "cltNet": "CLT net income",
+      "pjNet": "PJ net income",
+      "breakEven": "Break-even point",
+      "breakEvenLabel": "Minimum PJ revenue to match CLT",
+      "breakEvenNote": "Below this amount, CLT pays more",
+      "employerCost": "Total employer cost: {value}",
+      "taxAmount": "PJ taxes: {value}"
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Simulation saved!",
+      "addAsGoal": "Add as goal",
+      "goalAdded": "Goal created!"
+    },
+    "premiumCta": {
+      "title": "Track your income evolution",
+      "description": "Set goals and track your CLT vs PJ evolution with the Premium plan.",
+      "upgrade": "View plans"
+    },
+    "simulation": {
+      "defaultName": "CLT vs PJ — {year}",
+      "goalName": "Goal: monthly net income"
+    },
+    "errors": {
+      "cltGrossSalaryRequired": "Enter the gross CLT salary.",
+      "pjInvoiceRequired": "Enter the monthly PJ revenue.",
+      "meiLimitExceeded": "The monthly revenue entered exceeds the MEI annual limit (R$ 6,750/month). Choose another regime."
+    },
+    "disclaimer": {
+      "note": "Simulation based on {year} tax legislation. Educational values — consult an accountant for final decisions."
+    }
+  },
+  "mei": {
+    "seo": {
+      "title": "MEI Calculator — DAS and Benefits — Auraxis",
+      "description": "Calculate the monthly MEI DAS by activity, see social security benefits, and compare with sole proprietor.",
+      "ogTitle": "MEI Calculator — Auraxis",
+      "ogDescription": "Simulate the monthly MEI cost, its benefits and compare with the sole proprietor regime."
+    },
+    "header": {
+      "publicTool": "Free tool",
+      "otherTools": "Other tools",
+      "createAccount": "Create account"
+    },
+    "hero": {
+      "badge": "MEI Entrepreneur",
+      "title": "MEI Calculator",
+      "subtitle": "Calculate the monthly DAS, see social security benefits, and compare with the sole proprietor regime."
+    },
+    "form": {
+      "title": "Simulation data",
+      "activity": "Activity type",
+      "activities": {
+        "comercio": "Commerce (ICMS)",
+        "servicos": "Services (ISS)",
+        "ambos": "Commerce and services"
+      },
+      "monthlyRevenue": "Monthly revenue",
+      "revenuePlaceholder": "e.g. 4,000.00",
+      "currentSituation": "Current situation",
+      "situations": {
+        "pf_autonomo_sem_registro": "Self-employed without registration",
+        "pf_carne_leao": "Self-employed with carnê-leão",
+        "already_mei": "Already a MEI"
+      },
+      "calculate": "Calculate",
+      "reset": "Reset"
+    },
+    "results": {
+      "title": "Simulation result",
+      "dasMontly": "Monthly DAS",
+      "dasAnnual": "Annual DAS",
+      "annualRevenue": "Annual revenue projection",
+      "limitWarning": "Warning: your projected revenue is at or above the MEI annual limit (R$ 81,000).",
+      "comparisonTitle": "Comparison with Sole Proprietor",
+      "pfInss": "INSS self-employed (sole proprietor)",
+      "pfIrpf": "Estimated income tax (sole proprietor)",
+      "pfTotalTax": "Total taxes (sole proprietor)",
+      "savingsVsPF": "Savings as MEI",
+      "benefitsTitle": "Social security benefits included",
+      "benefitsNote": "All benefits above require a minimum contribution period.",
+      "benefits": {
+        "aposentadoria_por_idade": "Retirement by age",
+        "auxilio_doenca": "Sickness benefit",
+        "salario_maternidade": "Maternity benefit",
+        "pensao_por_morte": "Death pension (family)",
+        "auxilio_reclusao": "Incarceration allowance (family)"
+      }
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Simulation saved!",
+      "addAsGoal": "Add as goal",
+      "goalAdded": "Goal created!"
+    },
+    "premiumCta": {
+      "title": "Plan your MEI growth",
+      "description": "Set revenue goals and track your evolution with the Premium plan.",
+      "upgrade": "View plans"
+    },
+    "simulation": {
+      "defaultName": "MEI — {year}",
+      "goalName": "Goal: annual MEI revenue"
+    },
+    "errors": {
+      "revenueRequired": "Enter the monthly revenue to calculate."
+    },
+    "disclaimer": {
+      "note": "Simulation based on current MEI legislation. Educational values — visit the official portal for registrations.",
+      "portalLink": "Entrepreneur Portal (gov.br)"
+    }
   }
 }

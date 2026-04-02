@@ -1832,5 +1832,230 @@
     "disclaimer": {
       "note": "Simulação educacional. Resultados passados não garantem rendimentos futuros."
     }
+  },
+  "fgts": {
+    "seo": {
+      "title": "Simulador de FGTS — Auraxis",
+      "description": "Calcule seu saldo projetado de FGTS, multa rescisória e valor a sacar conforme o tipo de desligamento.",
+      "ogTitle": "Simulador de FGTS — Auraxis",
+      "ogDescription": "Projete seu FGTS, veja a multa e o valor líquido disponível para saque."
+    },
+    "header": {
+      "publicTool": "Ferramenta gratuita",
+      "otherTools": "Outras ferramentas",
+      "createAccount": "Criar conta"
+    },
+    "hero": {
+      "badge": "Trabalhador CLT",
+      "title": "Simulador de FGTS",
+      "subtitle": "Projete seu saldo, calcule a multa por tipo de desligamento e veja o quanto você pode sacar."
+    },
+    "form": {
+      "title": "Dados da simulação",
+      "grossSalary": "Salário bruto",
+      "grossSalaryPlaceholder": "Ex: 3.000,00",
+      "yearsOfService": "Anos de serviço",
+      "monthsOfService": "Meses adicionais",
+      "currentBalance": "Saldo atual na conta FGTS",
+      "currentBalanceTooltip": "Se você já tem saldo acumulado no FGTS, informe o valor atual para um resultado mais preciso.",
+      "trRatePct": "Taxa TR acumulada (%)",
+      "trRatePctTooltip": "A TR (Taxa Referencial) é utilizada para corrigir o saldo do FGTS. Em 2025 está próxima de 1,5% ao ano. Use 0 para uma estimativa conservadora.",
+      "terminationType": "Tipo de desligamento",
+      "terminationTypes": {
+        "sem_justa_causa": "Sem justa causa (demissão)",
+        "acordo": "Acordo entre as partes",
+        "pedido_demissao": "Pedido de demissão",
+        "justa_causa": "Justa causa"
+      },
+      "calculate": "Calcular",
+      "reset": "Limpar"
+    },
+    "results": {
+      "title": "Resultado da simulação",
+      "projectedBalance": "Saldo projetado do FGTS",
+      "monthlyDeposit": "Depósito mensal (8%)",
+      "totalDeposited": "Total depositado",
+      "correctionAmount": "Correção (TR + 3% a.a.)",
+      "fineAmount": "Multa sobre o FGTS",
+      "governmentFineAmount": "Multa revertida ao governo",
+      "withdrawableAmount": "Valor a sacar",
+      "cannotWithdraw": "Não disponível para saque"
+    },
+    "actions": {
+      "save": "Salvar simulação",
+      "saved": "Simulação salva!",
+      "addAsGoal": "Adicionar como meta",
+      "goalAdded": "Meta criada!"
+    },
+    "premiumCta": {
+      "title": "Desbloqueie metas financeiras",
+      "description": "Converta simulações em metas rastreáveis com o plano Premium.",
+      "upgrade": "Ver planos"
+    },
+    "simulation": {
+      "defaultName": "FGTS — {year}",
+      "goalName": "Meta: saldo FGTS projetado"
+    },
+    "errors": {
+      "grossSalaryRequired": "Informe o salário bruto para calcular."
+    },
+    "disclaimer": {
+      "legal": "Simulação com base na tabela FGTS {year}. Valores educacionais — consulte seu extrato oficial na Caixa Econômica Federal."
+    }
+  },
+  "cltVsPj": {
+    "seo": {
+      "title": "CLT vs PJ — Comparativo de Renda — Auraxis",
+      "description": "Compare CLT e PJ considerando INSS, IR, benefícios e regime tributário. Descubra qual compensa mais.",
+      "ogTitle": "CLT vs PJ — Comparativo de Renda — Auraxis",
+      "ogDescription": "Simule CLT e PJ lado a lado e veja qual regime é mais vantajoso para o seu perfil."
+    },
+    "header": {
+      "publicTool": "Ferramenta gratuita",
+      "otherTools": "Outras ferramentas",
+      "createAccount": "Criar conta"
+    },
+    "hero": {
+      "badge": "Comparativo de renda",
+      "title": "CLT vs PJ",
+      "subtitle": "Compare o rendimento líquido real entre CLT e PJ, considerando impostos, benefícios e custos operacionais."
+    },
+    "form": {
+      "cltTitle": "Dados CLT",
+      "pjTitle": "Dados PJ",
+      "cltGrossSalary": "Salário bruto CLT",
+      "grossSalaryPlaceholder": "Ex: 5.000,00",
+      "cltVT": "Vale-transporte mensal",
+      "cltVTTooltip": "Valor do vale-transporte recebido mensalmente. Será descontado 6% do seu salário (com teto de R$ 350).",
+      "cltVR": "Vale-refeição / alimentação",
+      "dependents": "Dependentes para IR",
+      "pjMonthlyInvoice": "Faturamento mensal PJ",
+      "invoicePlaceholder": "Ex: 8.000,00",
+      "pjRegime": "Regime tributário PJ",
+      "pjFixedCosts": "Custos fixos mensais PJ",
+      "pjFixedCostsTooltip": "Inclua contador, internet, plano de saúde PJ, ferramentas e outros custos fixos operacionais.",
+      "regimes": {
+        "mei": "MEI",
+        "simples": "Simples Nacional",
+        "lucro_presumido": "Lucro Presumido"
+      },
+      "calculate": "Calcular",
+      "reset": "Limpar"
+    },
+    "results": {
+      "title": "Resultado comparativo",
+      "cltColumn": "CLT",
+      "pjColumn": "PJ",
+      "cltNet": "Renda líquida CLT",
+      "pjNet": "Renda líquida PJ",
+      "breakEven": "Ponto de equilíbrio",
+      "breakEvenLabel": "Faturamento mínimo PJ para empatar com CLT",
+      "breakEvenNote": "Abaixo desse valor, CLT compensa mais",
+      "employerCost": "Custo total para o empregador: {value}",
+      "taxAmount": "Impostos PJ: {value}"
+    },
+    "actions": {
+      "save": "Salvar simulação",
+      "saved": "Simulação salva!",
+      "addAsGoal": "Adicionar como meta",
+      "goalAdded": "Meta criada!"
+    },
+    "premiumCta": {
+      "title": "Acompanhe sua evolução de renda",
+      "description": "Defina metas e rastreie sua evolução entre CLT e PJ com o plano Premium.",
+      "upgrade": "Ver planos"
+    },
+    "simulation": {
+      "defaultName": "CLT vs PJ — {year}",
+      "goalName": "Meta: renda líquida mensal"
+    },
+    "errors": {
+      "cltGrossSalaryRequired": "Informe o salário bruto CLT.",
+      "pjInvoiceRequired": "Informe o faturamento mensal PJ.",
+      "meiLimitExceeded": "O faturamento mensal informado excede o limite do MEI (R$ 6.750). Escolha outro regime."
+    },
+    "disclaimer": {
+      "note": "Simulação com base na legislação tributária {year}. Valores educacionais — consulte um contador para decisões definitivas."
+    }
+  },
+  "mei": {
+    "seo": {
+      "title": "Calculadora MEI — DAS e Benefícios — Auraxis",
+      "description": "Calcule o DAS mensal do MEI por atividade, veja os benefícios previdenciários e compare com o PF autônomo.",
+      "ogTitle": "Calculadora MEI — Auraxis",
+      "ogDescription": "Simule o custo mensal do MEI, seus benefícios e compare com o regime PF autônomo."
+    },
+    "header": {
+      "publicTool": "Ferramenta gratuita",
+      "otherTools": "Outras ferramentas",
+      "createAccount": "Criar conta"
+    },
+    "hero": {
+      "badge": "Empreendedor MEI",
+      "title": "Calculadora MEI",
+      "subtitle": "Calcule o DAS mensal, veja os benefícios previdenciários e compare com o regime PF autônomo."
+    },
+    "form": {
+      "title": "Dados da simulação",
+      "activity": "Tipo de atividade",
+      "activities": {
+        "comercio": "Comércio (ICMS)",
+        "servicos": "Serviços (ISS)",
+        "ambos": "Comércio e serviços"
+      },
+      "monthlyRevenue": "Faturamento mensal",
+      "revenuePlaceholder": "Ex: 4.000,00",
+      "currentSituation": "Situação atual",
+      "situations": {
+        "pf_autonomo_sem_registro": "Autônomo sem registro",
+        "pf_carne_leao": "Autônomo com carnê-leão",
+        "already_mei": "Já sou MEI"
+      },
+      "calculate": "Calcular",
+      "reset": "Limpar"
+    },
+    "results": {
+      "title": "Resultado da simulação",
+      "dasMontly": "DAS mensal",
+      "dasAnnual": "DAS anual",
+      "annualRevenue": "Projeção anual de faturamento",
+      "limitWarning": "Atenção: seu faturamento projetado está próximo ou acima do limite anual do MEI (R$ 81.000).",
+      "comparisonTitle": "Comparação com PF Autônomo",
+      "pfInss": "INSS autônomo (PF)",
+      "pfIrpf": "IRPF estimado (PF)",
+      "pfTotalTax": "Total de impostos (PF)",
+      "savingsVsPF": "Economia como MEI",
+      "benefitsTitle": "Benefícios previdenciários incluídos",
+      "benefitsNote": "Todos os benefícios acima exigem carência mínima de contribuições.",
+      "benefits": {
+        "aposentadoria_por_idade": "Aposentadoria por idade",
+        "auxilio_doenca": "Auxílio-doença",
+        "salario_maternidade": "Salário-maternidade",
+        "pensao_por_morte": "Pensão por morte (família)",
+        "auxilio_reclusao": "Auxílio-reclusão (família)"
+      }
+    },
+    "actions": {
+      "save": "Salvar simulação",
+      "saved": "Simulação salva!",
+      "addAsGoal": "Adicionar como meta",
+      "goalAdded": "Meta criada!"
+    },
+    "premiumCta": {
+      "title": "Planeje seu crescimento como MEI",
+      "description": "Defina metas de faturamento e acompanhe sua evolução com o plano Premium.",
+      "upgrade": "Ver planos"
+    },
+    "simulation": {
+      "defaultName": "MEI — {year}",
+      "goalName": "Meta: faturamento anual MEI"
+    },
+    "errors": {
+      "revenueRequired": "Informe o faturamento mensal para calcular."
+    },
+    "disclaimer": {
+      "note": "Simulação com base na legislação MEI vigente. Valores educacionais — acesse o portal oficial para regularizações.",
+      "portalLink": "Portal do Empreendedor (gov.br)"
+    }
   }
 }

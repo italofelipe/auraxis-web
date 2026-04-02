@@ -36,7 +36,7 @@
       "createdAt": "2026-04-01",
       "removeBy": "2027-12-31",
       "type": "release",
-      "status": "draft",
+      "status": "enabled-prod",
       "description": "Simulador de FGTS: saldo ao longo do tempo e multa rescisória.",
       "repositories": ["auraxis-web"]
     },
@@ -86,7 +86,7 @@
       "createdAt": "2026-04-01",
       "removeBy": "2027-12-31",
       "type": "release",
-      "status": "draft",
+      "status": "enabled-prod",
       "description": "CLT vs PJ: comparativo de custo-benefício real.",
       "repositories": ["auraxis-web"]
     },
@@ -106,7 +106,7 @@
       "createdAt": "2026-04-01",
       "removeBy": "2027-12-31",
       "type": "release",
-      "status": "draft",
+      "status": "enabled-prod",
       "description": "Calculadora MEI: DAS, benefícios e limite de faturamento.",
       "repositories": ["auraxis-web"]
     },
