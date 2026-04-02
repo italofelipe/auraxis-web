@@ -1,26 +1,30 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { computed, ref, type App, type ComputedRef } from "vue";
+import { ref, type App } from "vue";
 
-import AluguelVsCompraPage from "./aluguel-vs-compra.vue";
-import type { AluguelVsCompraResult } from "~/features/tools/model/aluguel-vs-compra";
+import ConversorMoedaPage from "./conversor-moeda.vue";
+import type { ConversorMoedaResult } from "~/features/tools/model/conversor-moeda";
+import type { BrapiCurrencyResult } from "~/features/tools/services/brapi-tools.client";
 
 // ─── Hoisted mocks ────────────────────────────────────────────────────────────
 
 const mockPush = vi.hoisted(() => vi.fn());
 const mockSaveMutateAsync = vi.hoisted(() => vi.fn());
-const mockGoalMutateAsync = vi.hoisted(() => vi.fn());
+const mockCreateGoalMutateAsync = vi.hoisted(() => vi.fn());
 const mockCaptureException = vi.hoisted(() => vi.fn());
 const mockValidate = vi.hoisted(() => vi.fn().mockReturnValue([]));
 const mockCalculate = vi.hoisted(() => vi.fn());
 const mockIsAuthenticated = ref(false);
 const mockHasPremiumAccess = ref(false);
+const mockCurrencyData = ref<BrapiCurrencyResult[] | undefined>(undefined);
+const mockCurrencyIsPending = ref(false);
+const mockCurrencyIsError = ref(false);
 
 // ─── Module mocks ─────────────────────────────────────────────────────────────
 
 vi.mock("vue-i18n", () => ({
-  useI18n: (): { t: (key: string, params?: Record<string, unknown>) => string; n: (v: number) => string } => ({
+  useI18n: (): { t: (key: string, params?: Record<string, unknown>) => string; n: (v: number, opts?: unknown) => string } => ({
     t: (key: string) => key,
     n: (v: number) => String(v),
   }),
@@ -30,7 +34,7 @@ vi.mock("#imports", () => ({
   definePageMeta: vi.fn(),
   useHead: vi.fn(),
   useSeoMeta: vi.fn(),
-  useI18n: (): { t: (key: string, params?: Record<string, unknown>) => string; n: (v: number) => string } => ({
+  useI18n: (): { t: (key: string, params?: Record<string, unknown>) => string; n: (v: number, opts?: unknown) => string } => ({
     t: (key: string) => key,
     n: (v: number) => String(v),
   }),
@@ -41,22 +45,10 @@ vi.mock("#app", () => ({
   useRouter: (): { push: typeof mockPush } => ({ push: mockPush }),
 }));
 
-vi.mock("echarts/core", () => ({
-  use: vi.fn(),
-}));
-
-vi.mock("echarts/charts", () => ({ LineChart: {} }));
-vi.mock("echarts/components", () => ({
-  GridComponent: {},
-  TooltipComponent: {},
-  LegendComponent: {},
-}));
-vi.mock("echarts/renderers", () => ({ CanvasRenderer: {} }));
-
 vi.mock("naive-ui", () => ({
   NAlert: {
     props: ["type"],
-    template: "<div class='n-alert'><slot /></div>",
+    template: "<div class='n-alert' :data-type='type'><slot /></div>",
   },
   NButton: {
     props: ["type", "size", "loading", "disabled", "quaternary", "block", "attrType"],
@@ -76,24 +68,21 @@ vi.mock("naive-ui", () => ({
     emits: ["update:value"],
     template: "<input class='n-input-number' :value='value' @change='$emit(\"update:value\", $event.target.value ? parseFloat($event.target.value) : null)' />",
   },
+  NSelect: {
+    props: ["value", "options"],
+    emits: ["update:value"],
+    template: "<select class='n-select' :value='value' @change='$emit(\"update:value\", $event.target.value)'><option v-for='opt in options' :key='opt.value' :value='opt.value'>{{ opt.label }}</option></select>",
+  },
   NSpace: {
     props: ["vertical", "size"],
     template: "<div><slot /></div>",
   },
   NTag: {
-    props: ["round", "type", "size"],
+    props: ["round", "type"],
     template: "<span class='n-tag'><slot /></span>",
   },
-  NThing: {
-    props: ["title", "description"],
-    template: "<div><strong>{{ title }}</strong><span>{{ description }}</span></div>",
-  },
-}));
-
-vi.mock("vue-echarts", () => ({
-  default: {
-    props: ["option", "autoresize"],
-    template: "<div class='v-chart' />",
+  NSpin: {
+    template: "<div class='n-spin' data-testid='n-spin'></div>",
   },
 }));
 
@@ -104,6 +93,7 @@ vi.mock("@tanstack/vue-query", async () => {
     useQuery: vi.fn(() => ({
       data: mockHasPremiumAccess,
       isLoading: ref(false),
+      isPending: ref(false),
       isError: ref(false),
     })),
     useMutation: vi.fn(() => ({
@@ -122,42 +112,29 @@ vi.mock("~/stores/session", () => ({
   }),
 }));
 
-vi.mock("~/composables/useToolCta", () => ({
-  useToolCta: (): { showCta: ComputedRef<boolean> } => ({
-    showCta: computed(() => !mockIsAuthenticated.value),
-  }),
-}));
-
 vi.mock("~/core/observability", () => ({
   captureException: mockCaptureException,
 }));
 
-vi.mock("~/features/tools/model/aluguel-vs-compra", () => ({
-  createDefaultAluguelVsCompraFormState: (): {
-    propertyValue: null;
-    monthlyRent: null;
-    downPaymentAvailable: null;
-    annualInvestmentReturnPct: number;
-    annualPropertyValorizationPct: number;
-    analysisYears: number;
-    transactionCostsPct: number;
-    monthlyIptuCondominio: number;
-    annualIpcaPct: number;
-    mortgageAnnualRatePct: number;
+vi.mock("~/features/tools/model/conversor-moeda", async () => {
+  const actual = await vi.importActual("~/features/tools/model/conversor-moeda");
+  return {
+    ...(actual as object),
+    validateConversorMoedaForm: mockValidate,
+    calculateConversorMoeda: mockCalculate,
+  };
+});
+
+vi.mock("~/features/tools/queries/use-brapi-currency-query", () => ({
+  useBrapiCurrencyQuery: (): {
+    data: typeof mockCurrencyData;
+    isPending: typeof mockCurrencyIsPending;
+    isError: typeof mockCurrencyIsError;
   } => ({
-    propertyValue: null,
-    monthlyRent: null,
-    downPaymentAvailable: null,
-    annualInvestmentReturnPct: 10,
-    annualPropertyValorizationPct: 5,
-    analysisYears: 20,
-    transactionCostsPct: 9,
-    monthlyIptuCondominio: 0,
-    annualIpcaPct: 4.5,
-    mortgageAnnualRatePct: 12,
+    data: mockCurrencyData,
+    isPending: mockCurrencyIsPending,
+    isError: mockCurrencyIsError,
   }),
-  validateAluguelVsCompraForm: mockValidate,
-  calculateAluguelVsCompra: mockCalculate,
 }));
 
 vi.mock("~/features/simulations/queries/use-save-simulation-mutation", () => ({
@@ -172,10 +149,10 @@ vi.mock("~/features/simulations/queries/use-save-simulation-mutation", () => ({
 
 vi.mock("~/features/goals/queries/use-create-goal-mutation", () => ({
   useCreateGoalMutation: (): {
-    mutateAsync: typeof mockGoalMutateAsync;
+    mutateAsync: typeof mockCreateGoalMutateAsync;
     isPending: ReturnType<typeof ref<boolean>>;
   } => ({
-    mutateAsync: mockGoalMutateAsync,
+    mutateAsync: mockCreateGoalMutateAsync,
     isPending: ref(false),
   }),
 }));
@@ -192,20 +169,15 @@ vi.mock("~/features/paywall/queries/use-entitlement-query", () => ({
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const mockResult: AluguelVsCompraResult = {
-  totalRentCost: 480000,
-  totalBuyCost: 920000,
-  opportunityCost: 672750,
-  breakEvenYear: 12,
-  buyIsBetter: true,
-  finalBuyNetWorth: 950000,
-  finalRentNetWorth: 720000,
-  chartData: [
-    { year: 1, buyNetWorth: 450000, rentNetWorth: 120000 },
-    { year: 20, buyNetWorth: 950000, rentNetWorth: 720000 },
-  ],
-  propertyValueAtEnd: 1326500,
-  downPaymentInvested: 672750,
+const mockResult: ConversorMoedaResult = {
+  convertedAmount: 198.02,
+  rate: 5.05,
+  bid: 5.00,
+  ask: 5.05,
+  pctChange: 0.5,
+  source: "brapi",
+  fromCurrency: "BRL",
+  toCurrency: "USD",
 };
 
 const globalStubs = {
@@ -215,7 +187,7 @@ const globalStubs = {
   },
   UiPageHeader: {
     props: ["title", "subtitle"],
-    template: "<div class='ui-page-header'><h1>{{ title }}</h1><p>{{ subtitle }}</p></div>",
+    template: "<div class='ui-page-header'><h1>{{ title }}</h1></div>",
   },
   UiGlassPanel: {
     props: ["glow"],
@@ -232,29 +204,23 @@ const globalStubs = {
     template: "<div class='calculator-result-summary'>{{ label }}: {{ value }}</div>",
   },
   ToolGuestCta: {
-    template: "<div class='tool-guest-cta'>toolGuestCta.registerCta</div>",
-  },
-  UiChart: {
-    props: ["option", "height", "width", "autoresize", "updateKey"],
-    template: "<div class='v-chart' />",
+    template: "<div class='tool-guest-cta'>toolGuestCta</div>",
   },
 };
 
 /**
- * Installs a minimal Nuxt context so composables can resolve.
+ * Builds a minimal fake Nuxt app for test context.
  *
- * @param app Vue app instance under test.
+ * @returns Fake Nuxt app object.
  */
-function nuxtContextPlugin(app: App): void {
-  const fakeNuxtApp = {
-    _route: { path: "/tools/aluguel-vs-compra", meta: {}, params: {}, query: {} },
+function buildFakeNuxtApp(): Record<string, unknown> {
+  return {
+    _route: { path: "/tools/conversor-moeda", meta: {}, params: {}, query: {} },
     $router: { push: mockPush, replace: vi.fn() },
     $config: { public: {} },
     payload: { serverRendered: false },
     ssrContext: {
-      head: {
-        push: vi.fn(() => ({ patch: vi.fn(), dispose: vi.fn() })),
-      },
+      head: { push: vi.fn(() => ({ patch: vi.fn(), dispose: vi.fn() })) },
     },
     static: { data: {} },
     isHydrating: false,
@@ -264,16 +230,24 @@ function nuxtContextPlugin(app: App): void {
     _asyncDataPromises: {},
     _asyncData: {},
   };
-  Reflect.set(app, "$nuxt", fakeNuxtApp);
 }
 
 /**
- * Mounts the page with minimal Nuxt test context.
+ * Installs a minimal Nuxt context for composable resolution.
+ *
+ * @param app - Vue app instance under test.
+ */
+function nuxtContextPlugin(app: App): void {
+  Reflect.set(app, "$nuxt", buildFakeNuxtApp());
+}
+
+/**
+ * Mounts the ConversorMoeda page with minimal Nuxt test context.
  *
  * @returns Mounted wrapper.
  */
 function mountPage(): ReturnType<typeof mount> {
-  return mount(AluguelVsCompraPage, {
+  return mount(ConversorMoedaPage, {
     global: {
       plugins: [{ install: nuxtContextPlugin }],
       stubs: globalStubs,
@@ -282,159 +256,165 @@ function mountPage(): ReturnType<typeof mount> {
 }
 
 /**
- * Resets all hoisted mocks between tests.
+ * Resets all mocks and local state between tests.
  */
 function resetPageState(): void {
   setActivePinia(createPinia());
   mockPush.mockClear();
   mockSaveMutateAsync.mockReset();
-  mockGoalMutateAsync.mockReset();
+  mockCreateGoalMutateAsync.mockReset();
   mockCaptureException.mockClear();
   mockValidate.mockReturnValue([]);
   mockCalculate.mockReset();
   mockIsAuthenticated.value = false;
   mockHasPremiumAccess.value = false;
+  mockCurrencyData.value = undefined;
+  mockCurrencyIsPending.value = false;
+  mockCurrencyIsError.value = false;
 }
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
-describe("AluguelVsCompraPage — layout", () => {
-  beforeEach(() => { resetPageState(); });
-
-  it("renders public hero and brand header when unauthenticated", () => {
-    const wrapper = mountPage();
-    expect(wrapper.find(".avc-page__header").exists()).toBe(true);
-    expect(wrapper.text()).toContain("aluguelVsCompra.hero.title");
+describe("ConversorMoedaPage — layout", () => {
+  beforeEach(() => {
+    resetPageState();
   });
 
-  it("shows ToolGuestCta after calculation (guest)", async () => {
+  it("renders the public hero and brand header when unauthenticated", () => {
+    const wrapper = mountPage();
+
+    expect(wrapper.find(".conversor-page__header").exists()).toBe(true);
+    expect(wrapper.text()).toContain("conversorMoeda.hero.title");
+    expect(wrapper.text()).toContain("conversorMoeda.header.publicTool");
+  });
+
+  it("shows the guest CTA after calculation", async () => {
     mockCalculate.mockReturnValue(mockResult);
     const wrapper = mountPage();
+
     await wrapper.find("form").trigger("submit");
     await flushPromises();
+
     expect(wrapper.find(".tool-guest-cta").exists()).toBe(true);
   });
 
   it("shows NuxtLayout and no standalone header when authenticated", () => {
     mockIsAuthenticated.value = true;
     const wrapper = mountPage();
+
     expect(wrapper.find(".nuxt-layout").exists()).toBe(true);
-    expect(wrapper.find(".avc-page__header").exists()).toBe(false);
+    expect(wrapper.find(".conversor-page__header").exists()).toBe(false);
     expect(wrapper.find(".tool-guest-cta").exists()).toBe(false);
   });
 });
 
-describe("AluguelVsCompraPage — form validation", () => {
-  beforeEach(() => { resetPageState(); });
-
-  it("shows a validation error when propertyValue is missing", async () => {
-    mockValidate.mockReturnValue([
-      { field: "propertyValue", messageKey: "errors.propertyValueRequired" },
-    ]);
-    const wrapper = mountPage();
-    await wrapper.find("form").trigger("submit");
-    await flushPromises();
-    expect(wrapper.find(".n-alert").exists()).toBe(true);
-    expect(wrapper.text()).toContain("aluguelVsCompra.errors.propertyValueRequired");
-    expect(mockCalculate).not.toHaveBeenCalled();
+describe("ConversorMoedaPage — BRAPI states", () => {
+  beforeEach(() => {
+    resetPageState();
   });
 
-  it("shows a validation error when monthlyRent is missing", async () => {
-    mockValidate.mockReturnValue([
-      { field: "monthlyRent", messageKey: "errors.monthlyRentRequired" },
-    ]);
+  it("shows loading spinner when BRAPI query is pending", async () => {
+    mockIsAuthenticated.value = true;
+    mockCurrencyIsPending.value = true;
     const wrapper = mountPage();
-    await wrapper.find("form").trigger("submit");
     await flushPromises();
-    expect(wrapper.text()).toContain("aluguelVsCompra.errors.monthlyRentRequired");
+
+    expect(wrapper.find("[data-testid='loading-spinner']").exists()).toBe(true);
   });
 
-  it("clears the validation error on a valid submit", async () => {
-    mockValidate
-      .mockReturnValueOnce([{ field: "propertyValue", messageKey: "errors.propertyValueRequired" }])
-      .mockReturnValue([]);
-    mockCalculate.mockReturnValue(mockResult);
+  it("does not show loading spinner when query is not pending", () => {
+    mockIsAuthenticated.value = true;
+    mockCurrencyIsPending.value = false;
     const wrapper = mountPage();
-    await wrapper.find("form").trigger("submit");
+
+    expect(wrapper.find("[data-testid='loading-spinner']").exists()).toBe(false);
+  });
+
+  it("shows BRAPI unavailable alert when query has error", async () => {
+    mockCurrencyIsError.value = true;
+    const wrapper = mountPage();
     await flushPromises();
-    expect(wrapper.text()).toContain("aluguelVsCompra.errors.propertyValueRequired");
-    await wrapper.find("form").trigger("submit");
-    await flushPromises();
-    expect(wrapper.text()).not.toContain("aluguelVsCompra.errors.propertyValueRequired");
+
+    expect(wrapper.find("[data-testid='brapi-error-alert']").exists()).toBe(true);
+  });
+
+  it("does not show BRAPI error alert when query succeeds", () => {
+    mockCurrencyIsError.value = false;
+    const wrapper = mountPage();
+
+    expect(wrapper.find("[data-testid='brapi-error-alert']").exists()).toBe(false);
   });
 });
 
-describe("AluguelVsCompraPage — calculation result", () => {
-  beforeEach(() => { resetPageState(); });
-
-  it("shows CalculatorResultSummary with verdict after valid calculation", async () => {
-    mockCalculate.mockReturnValue(mockResult);
-    const wrapper = mountPage();
-    await wrapper.find("form").trigger("submit");
-    await flushPromises();
-    const summary = wrapper.find(".calculator-result-summary");
-    expect(summary.exists()).toBe(true);
-    expect(summary.text()).toContain("aluguelVsCompra.results.verdict");
+describe("ConversorMoedaPage — calculation result", () => {
+  beforeEach(() => {
+    resetPageState();
   });
 
-  it("shows buy wins text when buyIsBetter is true", async () => {
+  it("shows CalculatorResultSummary after valid calculation", async () => {
     mockCalculate.mockReturnValue(mockResult);
     const wrapper = mountPage();
+
     await wrapper.find("form").trigger("submit");
     await flushPromises();
-    expect(wrapper.text()).toContain("aluguelVsCompra.results.buyWins");
+
+    expect(wrapper.find(".calculator-result-summary").exists()).toBe(true);
   });
 
-  it("shows rent wins text when buyIsBetter is false", async () => {
-    mockCalculate.mockReturnValue({ ...mockResult, buyIsBetter: false });
-    const wrapper = mountPage();
-    await wrapper.find("form").trigger("submit");
-    await flushPromises();
-    expect(wrapper.text()).toContain("aluguelVsCompra.results.rentWins");
-  });
-
-  it("shows chart component after calculation", async () => {
+  it("shows disclaimer alert after calculation", async () => {
     mockCalculate.mockReturnValue(mockResult);
     const wrapper = mountPage();
-    await wrapper.find("form").trigger("submit");
-    await flushPromises();
-    expect(wrapper.find(".v-chart").exists()).toBe(true);
-  });
 
-  it("shows disclaimer note", async () => {
-    mockCalculate.mockReturnValue(mockResult);
-    const wrapper = mountPage();
     await wrapper.find("form").trigger("submit");
     await flushPromises();
-    expect(wrapper.text()).toContain("aluguelVsCompra.disclaimer.note");
+
+    expect(wrapper.find("[data-testid='disclaimer-alert']").exists()).toBe(true);
   });
 
   it("does not show results before calculation", () => {
     const wrapper = mountPage();
     expect(wrapper.find(".calculator-result-summary").exists()).toBe(false);
-    expect(wrapper.find(".v-chart").exists()).toBe(false);
+  });
+
+  it("shows validation error alert when form is invalid", async () => {
+    mockValidate.mockReturnValue([
+      { field: "amount", messageKey: "errors.amountRequired" },
+    ]);
+    const wrapper = mountPage();
+
+    await wrapper.find("form").trigger("submit");
+    await flushPromises();
+
+    expect(wrapper.find(".n-alert").exists()).toBe(true);
+    expect(wrapper.text()).toContain("conversorMoeda.errors.amountRequired");
   });
 });
 
-describe("AluguelVsCompraPage — save simulation", () => {
-  beforeEach(() => { resetPageState(); });
+describe("ConversorMoedaPage — save simulation", () => {
+  beforeEach(() => {
+    resetPageState();
+  });
 
-  it("calls saveSimulationMutation with aluguel_vs_compra slug", async () => {
+  it("calls saveSimulationMutation with conversor_moeda slug when authenticated user clicks save", async () => {
     mockIsAuthenticated.value = true;
     mockCalculate.mockReturnValue(mockResult);
-    mockSaveMutateAsync.mockResolvedValue({ id: "sim-avc-001" });
+    mockSaveMutateAsync.mockResolvedValue({ id: "sim-001" });
+
     const wrapper = mountPage();
+
     await wrapper.find("form").trigger("submit");
     await flushPromises();
+
     const saveButton = wrapper.findAll(".n-button").find(
-      (b) => b.text().includes("aluguelVsCompra.actions.save"),
+      (b) => b.text().includes("conversorMoeda.actions.save"),
     );
     expect(saveButton).toBeDefined();
     await saveButton!.trigger("click");
     await flushPromises();
+
     expect(mockSaveMutateAsync).toHaveBeenCalledOnce();
     expect(mockSaveMutateAsync).toHaveBeenCalledWith(
-      expect.objectContaining({ toolSlug: "aluguel_vs_compra" }),
+      expect.objectContaining({ toolSlug: "conversor_moeda" }),
     );
   });
 
@@ -442,50 +422,70 @@ describe("AluguelVsCompraPage — save simulation", () => {
     mockIsAuthenticated.value = true;
     mockCalculate.mockReturnValue(mockResult);
     mockSaveMutateAsync.mockRejectedValue(new Error("network error"));
+
     const wrapper = mountPage();
+
     await wrapper.find("form").trigger("submit");
     await flushPromises();
+
     const saveButton = wrapper.findAll(".n-button").find(
-      (b) => b.text().includes("aluguelVsCompra.actions.save"),
+      (b) => b.text().includes("conversorMoeda.actions.save"),
     );
     await saveButton!.trigger("click");
     await flushPromises();
+
     expect(mockCaptureException).toHaveBeenCalledOnce();
   });
 });
 
-describe("AluguelVsCompraPage — premium goal", () => {
-  beforeEach(() => { resetPageState(); });
-
-  it("shows add-as-goal button only for premium users", async () => {
-    mockIsAuthenticated.value = true;
-    mockHasPremiumAccess.value = true;
-    mockCalculate.mockReturnValue(mockResult);
-    const wrapper = mountPage();
-    await wrapper.find("form").trigger("submit");
-    await flushPromises();
-    const goalButton = wrapper.findAll(".n-button").find(
-      (b) => b.text().includes("aluguelVsCompra.actions.addAsGoal"),
-    );
-    expect(goalButton).toBeDefined();
+describe("ConversorMoedaPage — add as goal (premium)", () => {
+  beforeEach(() => {
+    resetPageState();
   });
 
-  it("calls createGoalMutation with propertyValueAtEnd as target_amount", async () => {
+  it("shows add-as-goal button for premium users after calculation", async () => {
     mockIsAuthenticated.value = true;
     mockHasPremiumAccess.value = true;
     mockCalculate.mockReturnValue(mockResult);
-    mockSaveMutateAsync.mockResolvedValue({ id: "sim-avc-002" });
-    mockGoalMutateAsync.mockResolvedValue({ id: "goal-001" });
+
     const wrapper = mountPage();
+
     await wrapper.find("form").trigger("submit");
     await flushPromises();
-    const goalButton = wrapper.findAll(".n-button").find(
-      (b) => b.text().includes("aluguelVsCompra.actions.addAsGoal"),
-    );
-    await goalButton!.trigger("click");
+
+    expect(wrapper.find("[data-testid='add-as-goal-btn']").exists()).toBe(true);
+  });
+
+  it("calls createGoalMutation with convertedAmount as target_amount", async () => {
+    mockIsAuthenticated.value = true;
+    mockHasPremiumAccess.value = true;
+    mockCalculate.mockReturnValue(mockResult);
+    mockCreateGoalMutateAsync.mockResolvedValue({ id: "goal-001" });
+
+    const wrapper = mountPage();
+
+    await wrapper.find("form").trigger("submit");
     await flushPromises();
-    expect(mockGoalMutateAsync).toHaveBeenCalledWith(
-      expect.objectContaining({ target_amount: mockResult.propertyValueAtEnd }),
+
+    await wrapper.find("[data-testid='add-as-goal-btn']").trigger("click");
+    await flushPromises();
+
+    expect(mockCreateGoalMutateAsync).toHaveBeenCalledOnce();
+    expect(mockCreateGoalMutateAsync).toHaveBeenCalledWith(
+      expect.objectContaining({ target_amount: mockResult.convertedAmount }),
     );
+  });
+
+  it("does not show add-as-goal button for free users", async () => {
+    mockIsAuthenticated.value = true;
+    mockHasPremiumAccess.value = false;
+    mockCalculate.mockReturnValue(mockResult);
+
+    const wrapper = mountPage();
+
+    await wrapper.find("form").trigger("submit");
+    await flushPromises();
+
+    expect(wrapper.find("[data-testid='add-as-goal-btn']").exists()).toBe(false);
   });
 });

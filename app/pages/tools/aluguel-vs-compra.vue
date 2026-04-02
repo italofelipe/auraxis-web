@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { use } from "echarts/core";
-import { LineChart } from "echarts/charts";
-import { GridComponent, TooltipComponent, LegendComponent } from "echarts/components";
-import { CanvasRenderer } from "echarts/renderers";
-import VChart from "vue-echarts";
+import type { EChartsOption } from "echarts";
 import {
   NAlert,
   NButton,
@@ -37,9 +33,7 @@ import UiStickySummaryCard from "~/components/ui/UiStickySummaryCard/UiStickySum
 import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
 import UiGlassPanel from "~/components/ui/UiGlassPanel/UiGlassPanel.vue";
 import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
-
-// Register ECharts components
-use([LineChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer]);
+import UiChart from "~/components/ui/UiChart.vue";
 
 definePageMeta({ layout: false });
 
@@ -96,8 +90,8 @@ function formatBrl(value: number): string {
 
 // ─── Chart options ──────────────────────���─────────────────────────────────────
 
-const chartOption = computed(() => {
-  if (!result.value) { return {}; }
+const chartOption = computed<EChartsOption>(() => {
+  if (!result.value) { return {} as EChartsOption; }
 
   const years = result.value.chartData.map((p) => String(p.year));
   const buyData = result.value.chartData.map((p) => p.buyNetWorth);
@@ -141,7 +135,7 @@ const chartOption = computed(() => {
         lineStyle: { type: "dashed" },
       },
     ],
-  };
+  } as unknown as EChartsOption;
 });
 
 // ─── Calculation ──────────────────────────────────────────────────────────────
@@ -426,7 +420,7 @@ const isSaved = computed(() => savedSimulationId.value !== null);
 
           <!-- Evolution chart -->
           <UiSurfaceCard class="avc-page__chart">
-            <VChart :option="chartOption" style="height: 280px" autoresize />
+            <UiChart :option="chartOption" height="280px" />
           </UiSurfaceCard>
 
           <!-- Detail rows -->
@@ -589,7 +583,7 @@ const isSaved = computed(() => savedSimulationId.value !== null);
 
             <!-- Evolution chart -->
             <UiSurfaceCard class="avc-page__chart">
-              <VChart :option="chartOption" style="height: 280px" autoresize />
+              <UiChart :option="chartOption" height="280px" />
             </UiSurfaceCard>
 
             <!-- Detail rows -->

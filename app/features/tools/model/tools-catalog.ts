@@ -194,6 +194,26 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/aluguel-vs-compra",
     featureFlag: "web.tools.aluguel-vs-compra",
   },
+  {
+    id: "conversor-moeda",
+    name: "Conversor de Moeda",
+    description:
+      "Converta entre Real e moedas estrangeiras com cotação em tempo real via BRAPI.",
+    enabled: isFeatureEnabled("web.tools.conversor-moeda"),
+    accessLevel: "public",
+    route: "/tools/conversor-moeda",
+    featureFlag: "web.tools.conversor-moeda",
+  },
+  {
+    id: "fii",
+    name: "Calculadora de FII",
+    description:
+      "Calcule Dividend Yield, Yield on Cost e renda passiva de Fundos Imobiliários.",
+    enabled: isFeatureEnabled("web.tools.fii"),
+    accessLevel: "public",
+    route: "/tools/fii",
+    featureFlag: "web.tools.fii",
+  },
 ];
 
 /**
