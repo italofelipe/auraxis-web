@@ -1474,5 +1474,78 @@
       "save": "Save simulation",
       "saved": "Simulation saved ✓"
     }
+  },
+  "ferias": {
+    "seo": {
+      "title": "CLT Vacation Calculator — Gross, Bonus and Net Value",
+      "description": "Calculate your CLT vacation pay with the 1/3 constitutional bonus, cash conversion (abono), INSS and income tax.",
+      "ogTitle": "CLT Vacation — Auraxis",
+      "ogDescription": "Free CLT vacation simulator with abono, INSS and income tax."
+    },
+    "header": {
+      "publicTool": "Free tool",
+      "otherTools": "Other tools",
+      "createAccount": "Create account"
+    },
+    "hero": {
+      "badge": "Free calculator",
+      "title": "CLT Vacation Simulator",
+      "subtitle": "Calculate the gross and net value of your vacation pay, including the 1/3 constitutional bonus, abono pecuniário, INSS and income tax."
+    },
+    "form": {
+      "title": "Vacation details",
+      "grossSalary": "Monthly gross salary",
+      "grossSalaryPlaceholder": "e.g. 5,000.00",
+      "vacationDays": "Rest days",
+      "vacationDaysTooltip": "Number of days you will rest. CLT requires at least 20 days if selling the abono, or 10 days in special situations.",
+      "abonoEnabled": "Sell 10 days as abono pecuniário",
+      "abonoEnabledTooltip": "Converts 1/3 of your vacation (10 days) to cash. Abono is INSS-exempt (STF RE 593.068). Requires at least 20 rest days.",
+      "overtimeAverage": "Monthly overtime/commission average",
+      "overtimeAverageTooltip": "Regular payments (overtime, commissions) are included in the vacation base per CLT art. 142.",
+      "dependents": "Declared IR dependents",
+      "dependentsTooltip": "Each dependent reduces the IR base by R$ 189.59.",
+      "calculate": "Calculate vacation",
+      "reset": "Clear",
+      "vacationDaysOptions": {
+        "30": "30 days",
+        "20": "20 days",
+        "15": "15 days",
+        "10": "10 days"
+      }
+    },
+    "results": {
+      "title": "Result",
+      "netTotal": "Net vacation pay",
+      "totalGross": "Total gross",
+      "vacationBasePay": "Proportional vacation pay",
+      "constitutionalThird": "1/3 constitutional bonus",
+      "vacationGross": "Vacation subtotal",
+      "abonoValue": "Abono pecuniário",
+      "inss": "INSS deducted",
+      "irrf": "Income tax deducted",
+      "effectiveRate": "Effective rate",
+      "irBase": "IR taxable base",
+      "dailyRate": "Daily rate",
+      "bestMonthNote": "Tip: take vacation outside November and December to avoid stacking with 13th-salary advances and moving into a higher IR bracket."
+    },
+    "disclaimer": {
+      "tableYear": "INSS/IR tables in effect for {year}. Updated every January.",
+      "abonoExempt": "Abono pecuniário is INSS-exempt (STF RE 593.068). Income tax is calculated on total gross minus INSS and deductions.",
+      "notLegal": "This calculator is for informational purposes. Confirm values with HR or an accountant before your vacation slip is issued."
+    },
+    "errors": {
+      "grossSalaryRequired": "Please enter your gross salary.",
+      "overtimeAverageNegative": "Overtime average cannot be negative.",
+      "dependentsInvalid": "Invalid number of dependents.",
+      "abonoRequiresMinRestDays": "Abono pecuniário requires at least 20 rest days. Select 20 or 30 days.",
+      "generic": "Please check the data and try again."
+    },
+    "simulation": {
+      "defaultName": "CLT Vacation {year}"
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Simulation saved ✓"
+    }
   }
 }

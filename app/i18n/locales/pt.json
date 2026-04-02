@@ -1474,5 +1474,78 @@
       "save": "Salvar simulação",
       "saved": "Simulação salva ✓"
     }
+  },
+  "ferias": {
+    "seo": {
+      "title": "Simulador de Férias CLT — Valor Bruto, Abono e Líquido",
+      "description": "Calcule o valor das suas férias CLT com 1/3 constitucional, abono pecuniário, INSS e IR. Saiba exatamente o que vai receber.",
+      "ogTitle": "Férias CLT — Auraxis",
+      "ogDescription": "Simulador gratuito de férias CLT com abono, INSS e IR."
+    },
+    "header": {
+      "publicTool": "Ferramenta gratuita",
+      "otherTools": "Outras ferramentas",
+      "createAccount": "Criar conta"
+    },
+    "hero": {
+      "badge": "Calculadora gratuita",
+      "title": "Simulador de Férias CLT",
+      "subtitle": "Calcule o valor bruto e líquido das suas férias com 1/3 constitucional, abono pecuniário, INSS e IR."
+    },
+    "form": {
+      "title": "Dados das férias",
+      "grossSalary": "Salário bruto mensal",
+      "grossSalaryPlaceholder": "Ex.: 5.000,00",
+      "vacationDays": "Dias de descanso",
+      "vacationDaysTooltip": "Número de dias que você vai descansar. CLT exige no mínimo 20 dias se vender o abono, ou 10 dias em situações especiais.",
+      "abonoEnabled": "Vender 10 dias como abono pecuniário",
+      "abonoEnabledTooltip": "Converte 1/3 das férias (10 dias) em dinheiro. O abono é isento de INSS (STF RE 593.068). Exige mínimo de 20 dias de descanso.",
+      "overtimeAverage": "Média de horas extras/comissões (mensal)",
+      "overtimeAverageTooltip": "Pagamentos habituais (horas extras, comissões) integram a base das férias conforme CLT art. 142.",
+      "dependents": "Dependentes declarados (IR)",
+      "dependentsTooltip": "Cada dependente reduz a base do IR em R$ 189,59.",
+      "calculate": "Calcular férias",
+      "reset": "Limpar",
+      "vacationDaysOptions": {
+        "30": "30 dias",
+        "20": "20 dias",
+        "15": "15 dias",
+        "10": "10 dias"
+      }
+    },
+    "results": {
+      "title": "Resultado",
+      "netTotal": "Férias líquidas",
+      "totalGross": "Total bruto",
+      "vacationBasePay": "Férias proporcionais",
+      "constitutionalThird": "1/3 constitucional",
+      "vacationGross": "Subtotal férias",
+      "abonoValue": "Abono pecuniário",
+      "inss": "INSS descontado",
+      "irrf": "IR descontado",
+      "effectiveRate": "Alíquota efetiva",
+      "irBase": "Base de cálculo do IR",
+      "dailyRate": "Valor da diária",
+      "bestMonthNote": "Dica: prefira tirar férias fora de novembro e dezembro para não acumular com a antecipação do 13° e subir na tabela do IR."
+    },
+    "disclaimer": {
+      "tableYear": "Tabelas INSS/IR vigentes em {year}. Atualizadas anualmente em janeiro.",
+      "abonoExempt": "Abono pecuniário isento de INSS (STF RE 593.068). IRRF incide sobre o total bruto menos INSS e deduções.",
+      "notLegal": "Esta calculadora é informativa. Consulte o RH ou contador para confirmar os valores antes do recibo de férias."
+    },
+    "errors": {
+      "grossSalaryRequired": "Informe o salário bruto.",
+      "overtimeAverageNegative": "A média de horas extras não pode ser negativa.",
+      "dependentsInvalid": "Número de dependentes inválido.",
+      "abonoRequiresMinRestDays": "O abono pecuniário exige no mínimo 20 dias de descanso. Selecione 20 ou 30 dias.",
+      "generic": "Verifique os dados e tente novamente."
+    },
+    "simulation": {
+      "defaultName": "Férias CLT {year}"
+    },
+    "actions": {
+      "save": "Salvar simulação",
+      "saved": "Simulação salva ✓"
+    }
   }
 }
