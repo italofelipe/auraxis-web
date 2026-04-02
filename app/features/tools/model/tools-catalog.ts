@@ -54,6 +54,16 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/hora-extra",
     featureFlag: "web.tools.hora-extra",
   },
+  {
+    id: "ferias",
+    name: "Simulador de Férias CLT",
+    description:
+      "Calcule o valor bruto e líquido das suas férias, com 1/3 constitucional, abono pecuniário e impacto no INSS e IR.",
+    enabled: true,
+    accessLevel: "public",
+    route: "/tools/ferias",
+    featureFlag: "web.tools.ferias",
+  },
 ];
 
 /**
