@@ -104,6 +104,36 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/juros-compostos",
     featureFlag: "web.tools.juros-compostos",
   },
+  {
+    id: "fgts",
+    name: "Simulador de FGTS",
+    description:
+      "Calcule seu saldo projetado de FGTS, a multa rescisória por tipo de desligamento e o valor total disponível para saque.",
+    enabled: true,
+    accessLevel: "public",
+    route: "/tools/fgts",
+    featureFlag: "web.tools.fgts",
+  },
+  {
+    id: "clt-vs-pj",
+    name: "CLT vs PJ",
+    description:
+      "Compare o rendimento líquido real entre CLT e PJ considerando INSS, IR, benefícios e regime tributário.",
+    enabled: true,
+    accessLevel: "public",
+    route: "/tools/clt-vs-pj",
+    featureFlag: "web.tools.clt-vs-pj",
+  },
+  {
+    id: "mei",
+    name: "Calculadora MEI",
+    description:
+      "Calcule o DAS mensal por atividade, veja os benefícios previdenciários e compare com o regime PF autônomo.",
+    enabled: true,
+    accessLevel: "public",
+    route: "/tools/mei",
+    featureFlag: "web.tools.mei",
+  },
 ];
 
 /**
