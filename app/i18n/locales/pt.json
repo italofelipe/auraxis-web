@@ -2057,5 +2057,300 @@
       "note": "Simulação com base na legislação MEI vigente. Valores educacionais — acesse o portal oficial para regularizações.",
       "portalLink": "Portal do Empreendedor (gov.br)"
     }
+  },
+  "cdbLciLca": {
+    "seo": {
+      "title": "CDB / LCI / LCA vs Poupança — Auraxis",
+      "description": "Compare a rentabilidade líquida real de CDB, LCI/LCA e Poupança com IR regressivo e ranking automático.",
+      "ogTitle": "CDB / LCI / LCA vs Poupança",
+      "ogDescription": "Veja qual renda fixa rende mais no seu prazo e valor."
+    },
+    "header": {
+      "publicTool": "Ferramenta gratuita",
+      "otherTools": "Ver todas as ferramentas",
+      "createAccount": "Criar conta"
+    },
+    "hero": {
+      "badge": "Renda Fixa",
+      "title": "CDB / LCI / LCA vs Poupança",
+      "subtitle": "Compare a rentabilidade líquida real considerando IR regressivo e taxa real acima da inflação."
+    },
+    "form": {
+      "title": "Dados da simulação",
+      "amount": "Valor investido (R$)",
+      "amountPlaceholder": "Ex: 10.000,00",
+      "termDays": "Prazo (dias corridos)",
+      "cdiPct": "CDI anual (%)",
+      "cdiHint": "Informe a taxa CDI atual (referência: taxa SELIC Over).",
+      "selicPct": "SELIC anual (%)",
+      "ipcaPct": "IPCA anual (%)",
+      "ipcaHint": "Informe a meta IPCA vigente.",
+      "calculate": "Calcular",
+      "reset": "Limpar",
+      "productsTitle": "Produtos a comparar",
+      "cdbRatePct": "CDB — % do CDI",
+      "lciRatePct": "LCI — % do CDI",
+      "lcaRatePct": "LCA — % do CDI"
+    },
+    "results": {
+      "rankingTitle": "Ranking de rentabilidade",
+      "netAmount": "Montante líquido",
+      "netReturn": "Rentabilidade líquida",
+      "realReturn": "Rentabilidade real",
+      "grossReturn": "Rentabilidade bruta",
+      "irAmount": "IR",
+      "irRate": "Alíquota IR",
+      "breakdownCdb": "Detalhamento CDB",
+      "breakdownLci": "Detalhamento LCI",
+      "breakdownLca": "Detalhamento LCA",
+      "breakdownPoupanca": "Detalhamento Poupança",
+      "grossAmount": "Montante bruto",
+      "rank": "Posição"
+    },
+    "actions": {
+      "save": "Salvar simulação",
+      "saved": "Simulação salva!",
+      "addAsGoal": "Adicionar como meta",
+      "goalAdded": "Meta criada!"
+    },
+    "premiumCta": {
+      "title": "Acompanhe seus investimentos em renda fixa",
+      "description": "Crie metas de retorno e monitore sua carteira com o plano Premium.",
+      "upgrade": "Ver planos"
+    },
+    "simulation": {
+      "defaultName": "CDB/LCI/LCA — {termDays} dias — {year}",
+      "goalName": "Meta: CDB/LCI/LCA {termDays} dias"
+    },
+    "errors": {
+      "amountRequired": "Informe o valor a investir.",
+      "termRequired": "Informe o prazo em dias.",
+      "cdiRequired": "Informe a taxa CDI atual.",
+      "cdbRateRequired": "Informe o percentual do CDI para o CDB."
+    },
+    "disclaimer": {
+      "note": "Simulação com base nas alíquotas do IR regressivo vigentes em {year}. Valores educacionais — não constitui recomendação de investimento."
+    }
+  },
+  "tesouroDireto": {
+    "seo": {
+      "title": "Tesouro Direto — Auraxis",
+      "description": "Simule títulos Tesouro Selic, IPCA+ e Prefixado com taxa de custódia B3 e IR regressivo.",
+      "ogTitle": "Simulador Tesouro Direto",
+      "ogDescription": "Calcule o retorno líquido dos títulos públicos no seu prazo."
+    },
+    "header": {
+      "publicTool": "Ferramenta gratuita",
+      "otherTools": "Ver todas as ferramentas",
+      "createAccount": "Criar conta"
+    },
+    "hero": {
+      "badge": "Tesouro Direto",
+      "title": "Simulador Tesouro Direto",
+      "subtitle": "Simule o retorno líquido de títulos públicos com taxa de custódia B3 (0,20% a.a.) e IR regressivo."
+    },
+    "form": {
+      "title": "Dados do título",
+      "type": "Tipo de título",
+      "amount": "Valor investido (R$)",
+      "amountPlaceholder": "Ex: 1.000,00",
+      "termDays": "Prazo (dias corridos)",
+      "taxaIndicativaPct": "Taxa indicativa (% a.a.)",
+      "taxaIndicativaPlaceholder": "Ex: 11,25",
+      "selicPct": "SELIC anual (%)",
+      "selicHint": "Informe a SELIC Over vigente.",
+      "ipcaPct": "IPCA anual (%)",
+      "ipcaHint": "Informe a meta IPCA vigente.",
+      "calculate": "Calcular",
+      "reset": "Limpar",
+      "types": {
+        "selic": "Tesouro Selic",
+        "ipca_plus": "Tesouro IPCA+",
+        "prefixado": "Tesouro Prefixado"
+      }
+    },
+    "results": {
+      "netAmount": "Montante líquido",
+      "grossAmount": "Montante bruto",
+      "grossReturn": "Rentabilidade bruta",
+      "custodyFee": "Taxa de custódia B3",
+      "irAmount": "IR descontado",
+      "irRate": "Alíquota IR",
+      "netReturn": "Rentabilidade líquida",
+      "annualizedNetReturn": "Retorno líquido anualizado",
+      "realReturn": "Retorno real (após IPCA)",
+      "chart": {
+        "title": "Composição do resultado"
+      }
+    },
+    "actions": {
+      "save": "Salvar simulação",
+      "saved": "Simulação salva!",
+      "addAsGoal": "Adicionar como meta",
+      "goalAdded": "Meta criada!"
+    },
+    "premiumCta": {
+      "title": "Monitore seus títulos do Tesouro",
+      "description": "Defina metas de rentabilidade e acompanhe seus títulos com o plano Premium.",
+      "upgrade": "Ver planos"
+    },
+    "simulation": {
+      "defaultName": "Tesouro Direto — {type} — {year}",
+      "goalName": "Meta: Tesouro {type}"
+    },
+    "errors": {
+      "amountRequired": "Informe o valor a investir.",
+      "termRequired": "Informe o prazo em dias.",
+      "taxaIndicativaRequired": "Informe a taxa indicativa do título."
+    },
+    "disclaimer": {
+      "note": "Simulação baseada nas alíquotas do IR regressivo e taxa de custódia B3 vigentes em {year}. Valores educacionais — não constitui recomendação de investimento."
+    }
+  },
+  "aposentadoria": {
+    "seo": {
+      "title": "Simulador de Aposentadoria — Auraxis",
+      "description": "Descubra quanto poupar por mês para se aposentar com a renda desejada usando a Regra dos 25x.",
+      "ogTitle": "Simulador de Aposentadoria",
+      "ogDescription": "Calcule seu patrimônio necessário e aporte mensal para a aposentadoria."
+    },
+    "header": {
+      "publicTool": "Ferramenta gratuita",
+      "otherTools": "Ver todas as ferramentas",
+      "createAccount": "Criar conta"
+    },
+    "hero": {
+      "badge": "Aposentadoria",
+      "title": "Simulador de Aposentadoria",
+      "subtitle": "Use a Regra dos 25x (4% SWR) para descobrir quanto patrimônio acumular e quanto poupar por mês."
+    },
+    "form": {
+      "title": "Seus dados",
+      "currentAge": "Idade atual",
+      "retirementAge": "Idade de aposentadoria",
+      "desiredMonthlyIncome": "Renda mensal desejada (hoje R$)",
+      "incomePlaceholder": "Ex: 5.000,00",
+      "currentPatrimony": "Patrimônio atual (R$)",
+      "expectedReturnPct": "Retorno nominal anual (%)",
+      "ipcaPct": "IPCA anual (%)",
+      "ipcaHint": "Informe a meta IPCA vigente.",
+      "lifeExpectancy": "Expectativa de vida (anos)",
+      "calculate": "Calcular",
+      "reset": "Limpar"
+    },
+    "results": {
+      "requiredPatrimony": "Patrimônio necessário",
+      "monthlyContribution": "Aporte mensal necessário",
+      "monthsToRetirement": "Meses até a aposentadoria",
+      "realReturn": "Retorno real (Fisher)",
+      "sensitivity": "Análise de sensibilidade",
+      "baseline": "Cenário base",
+      "retire5YearsLater": "Aposentar 5 anos depois",
+      "retire5YearsEarlier": "Aposentar 5 anos antes",
+      "chart": {
+        "title": "Evolução do patrimônio",
+        "patrimony": "Patrimônio projetado",
+        "target": "Meta de patrimônio",
+        "xAxis": "Idade"
+      }
+    },
+    "actions": {
+      "save": "Salvar simulação",
+      "saved": "Simulação salva!",
+      "addAsGoal": "Adicionar como meta",
+      "goalAdded": "Meta criada!"
+    },
+    "premiumCta": {
+      "title": "Acompanhe sua jornada para a aposentadoria",
+      "description": "Defina metas de patrimônio e monitore seu progresso com o plano Premium.",
+      "upgrade": "Ver planos"
+    },
+    "simulation": {
+      "defaultName": "Aposentadoria aos {retirementAge} anos — {year}",
+      "goalName": "Meta: aposentar aos {retirementAge} anos"
+    },
+    "errors": {
+      "retirementAgeAfterCurrent": "A idade de aposentadoria deve ser maior que a idade atual.",
+      "incomeRequired": "Informe a renda mensal desejada.",
+      "returnRequired": "Informe o retorno anual esperado.",
+      "lifeExpectancyAfterRetirement": "A expectativa de vida deve ser maior que a idade de aposentadoria."
+    },
+    "disclaimer": {
+      "note": "Simulação educacional baseada na Regra dos 25x (2025). Não considera benefícios do INSS ou ajustes tributários. Não constitui recomendação de investimento."
+    }
+  },
+  "fire": {
+    "seo": {
+      "title": "Calculadora FIRE — Auraxis",
+      "description": "Planeje sua independência financeira com as variantes FIRE, Lean FIRE, Fat FIRE e Coast FIRE.",
+      "ogTitle": "Calculadora FIRE",
+      "ogDescription": "Descubra seu número FIRE e quanto investir por mês para se aposentar cedo."
+    },
+    "header": {
+      "publicTool": "Ferramenta gratuita",
+      "otherTools": "Ver todas as ferramentas",
+      "createAccount": "Criar conta"
+    },
+    "hero": {
+      "badge": "FIRE",
+      "title": "Calculadora FIRE",
+      "subtitle": "Descubra seu número FIRE e o aporte mensal necessário para alcançar a independência financeira."
+    },
+    "form": {
+      "title": "Seus dados",
+      "variant": "Variante FIRE",
+      "currentAge": "Idade atual",
+      "retirementAge": "Idade alvo (FIRE)",
+      "monthlyExpenses": "Gastos mensais atuais (R$)",
+      "expensesPlaceholder": "Ex: 5.000,00",
+      "currentPatrimony": "Patrimônio atual (R$)",
+      "expectedReturnPct": "Retorno nominal anual (%)",
+      "ipcaPct": "IPCA anual (%)",
+      "ipcaHint": "Informe a meta IPCA vigente.",
+      "calculate": "Calcular",
+      "reset": "Limpar"
+    },
+    "variants": {
+      "fire": "FIRE (padrão)",
+      "lean_fire": "Lean FIRE (frugal)",
+      "fat_fire": "Fat FIRE (confortável)",
+      "coast_fire": "Coast FIRE (sem aportes)"
+    },
+    "results": {
+      "requiredPatrimony": "Patrimônio necessário",
+      "monthlyContribution": "Aporte mensal necessário",
+      "coastNumber": "Coast FIRE number",
+      "realReturn": "Retorno real (Fisher)",
+      "variantsTitle": "Comparativo de variantes",
+      "chart": {
+        "title": "Evolução do patrimônio",
+        "patrimony": "Patrimônio projetado",
+        "target": "Meta FIRE",
+        "xAxis": "Idade"
+      }
+    },
+    "actions": {
+      "save": "Salvar simulação",
+      "saved": "Simulação salva!",
+      "addAsGoal": "Adicionar como meta",
+      "goalAdded": "Meta criada!"
+    },
+    "premiumCta": {
+      "title": "Monitore sua jornada FIRE",
+      "description": "Defina metas de patrimônio e acompanhe seu progresso com o plano Premium.",
+      "upgrade": "Ver planos"
+    },
+    "simulation": {
+      "defaultName": "FIRE — {variant} — {retirementAge} anos",
+      "goalName": "Meta FIRE — {variant} aos {retirementAge} anos"
+    },
+    "errors": {
+      "retirementAgeAfterCurrent": "A idade alvo deve ser maior que a idade atual.",
+      "expensesRequired": "Informe os gastos mensais.",
+      "returnRequired": "Informe o retorno anual esperado."
+    },
+    "disclaimer": {
+      "note": "Simulação educacional baseada na Regra dos 25x ({year}). Não constitui recomendação de investimento."
+    }
   }
 }
