@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { type AxiosInstance } from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { BrapiToolsClient } from "./brapi-tools.client";
@@ -12,7 +12,7 @@ const mockAxiosCreate = vi.mocked(axios.create);
 
 beforeEach(() => {
   mockGet.mockReset();
-  mockAxiosCreate.mockReturnValue({ get: mockGet } as ReturnType<typeof axios.create>);
+  mockAxiosCreate.mockReturnValue({ get: mockGet } as unknown as AxiosInstance);
 });
 
 // ─── getCurrencyQuotes ────────────────────────────────────────────────────────

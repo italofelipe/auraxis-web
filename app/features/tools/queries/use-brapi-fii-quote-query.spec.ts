@@ -13,6 +13,15 @@ vi.mock("@tanstack/vue-query", () => ({
 
 const mockUseQuery = vi.mocked(useQuery);
 
+/** Options passed to the useQuery mock. */
+type CapturedOptions = {
+  queryKey?: unknown;
+  queryFn?: () => Promise<unknown>;
+  enabled?: unknown;
+  staleTime?: number;
+  retry?: number;
+};
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const mockFiiData: BrapiFiiQuoteResult = {
@@ -37,6 +46,32 @@ function buildMockClient(data: BrapiFiiQuoteResult | null = mockFiiData): BrapiT
     getCurrencyQuotes: vi.fn(),
     getFiiQuote: vi.fn().mockResolvedValue(data),
   } as unknown as BrapiToolsClient;
+}
+
+/**
+ * Sets up a capturing mock implementation for useQuery and runs the hook.
+ *
+ * @param ticker - Ticker ref to pass to the hook.
+ * @param client - Mock client to inject.
+ * @returns Captured options object.
+ */
+function captureQueryOpts(
+  ticker: ReturnType<typeof ref<string>>,
+  client: BrapiToolsClient,
+): CapturedOptions {
+  let opts: CapturedOptions = {};
+  mockUseQuery.mockImplementation((o: CapturedOptions) => {
+    opts = o;
+    return {
+      data: ref(mockFiiData),
+      isLoading: ref(false),
+      isPending: ref(false),
+      isError: ref(false),
+      error: ref(null),
+    } as ReturnType<typeof useQuery>;
+  });
+  useBrapiFiiQuoteQuery(ticker, client);
+  return opts;
 }
 
 beforeEach(() => {
@@ -64,91 +99,69 @@ describe("useBrapiFiiQuoteQuery", () => {
   it("is disabled when ticker is empty string", () => {
     const ticker = ref("");
     const client = buildMockClient(null);
+    const opts = captureQueryOpts(ticker, client);
 
-    mockUseQuery.mockReturnValueOnce({
-      data: ref(null),
-      isLoading: ref(false),
-      isPending: ref(false),
-      isError: ref(false),
-      error: ref(null),
-    } as ReturnType<typeof useQuery>);
-
-    useBrapiFiiQuoteQuery(ticker, client);
-
-    const callArgs = mockUseQuery.mock.calls[0]?.[0];
-    const enabled = typeof callArgs?.enabled === "object"
-      ? (callArgs.enabled as { value: boolean }).value
-      : callArgs?.enabled;
+    const enabled = typeof opts.enabled === "object" && opts.enabled !== null
+      ? (opts.enabled as { value: boolean }).value
+      : opts.enabled;
     expect(enabled).toBe(false);
   });
 
   it("is disabled when ticker has fewer than 4 characters", () => {
     const ticker = ref("MXR");
     const client = buildMockClient();
+    const opts = captureQueryOpts(ticker, client);
 
-    useBrapiFiiQuoteQuery(ticker, client);
-
-    const callArgs = mockUseQuery.mock.calls[0]?.[0];
-    const enabled = typeof callArgs?.enabled === "object"
-      ? (callArgs.enabled as { value: boolean }).value
-      : callArgs?.enabled;
+    const enabled = typeof opts.enabled === "object" && opts.enabled !== null
+      ? (opts.enabled as { value: boolean }).value
+      : opts.enabled;
     expect(enabled).toBe(false);
   });
 
   it("is enabled when ticker has at least 4 characters", () => {
     const ticker = ref("MXRF");
     const client = buildMockClient();
+    const opts = captureQueryOpts(ticker, client);
 
-    useBrapiFiiQuoteQuery(ticker, client);
-
-    const callArgs = mockUseQuery.mock.calls[0]?.[0];
-    const enabled = typeof callArgs?.enabled === "object"
-      ? (callArgs.enabled as { value: boolean }).value
-      : callArgs?.enabled;
+    const enabled = typeof opts.enabled === "object" && opts.enabled !== null
+      ? (opts.enabled as { value: boolean }).value
+      : opts.enabled;
     expect(enabled).toBe(true);
   });
 
   it("is disabled for ticker with only whitespace", () => {
     const ticker = ref("    ");
     const client = buildMockClient(null);
+    const opts = captureQueryOpts(ticker, client);
 
-    useBrapiFiiQuoteQuery(ticker, client);
-
-    const callArgs = mockUseQuery.mock.calls[0]?.[0];
-    const enabled = typeof callArgs?.enabled === "object"
-      ? (callArgs.enabled as { value: boolean }).value
-      : callArgs?.enabled;
+    const enabled = typeof opts.enabled === "object" && opts.enabled !== null
+      ? (opts.enabled as { value: boolean }).value
+      : opts.enabled;
     expect(enabled).toBe(false);
   });
 
   it("sets staleTime to 5 minutes", () => {
     const ticker = ref("MXRF11");
     const client = buildMockClient();
+    const opts = captureQueryOpts(ticker, client);
 
-    useBrapiFiiQuoteQuery(ticker, client);
-
-    const callArgs = mockUseQuery.mock.calls[0]?.[0];
-    expect(callArgs?.staleTime).toBe(5 * 60 * 1000);
+    expect(opts.staleTime).toBe(5 * 60 * 1000);
   });
 
   it("sets retry to 1", () => {
     const ticker = ref("MXRF11");
     const client = buildMockClient();
+    const opts = captureQueryOpts(ticker, client);
 
-    useBrapiFiiQuoteQuery(ticker, client);
-
-    const callArgs = mockUseQuery.mock.calls[0]?.[0];
-    expect(callArgs?.retry).toBe(1);
+    expect(opts.retry).toBe(1);
   });
 
   it("calls client.getFiiQuote via queryFn with the ticker value", async () => {
     const ticker = ref("MXRF11");
     const client = buildMockClient();
+    const opts = captureQueryOpts(ticker, client);
 
-    useBrapiFiiQuoteQuery(ticker, client);
-
-    const callArgs = mockUseQuery.mock.calls[0]?.[0];
-    await callArgs?.queryFn?.({} as Parameters<NonNullable<typeof callArgs.queryFn>>[0]);
+    await opts.queryFn?.();
 
     expect(client.getFiiQuote).toHaveBeenCalledWith("MXRF11");
   });
@@ -156,13 +169,11 @@ describe("useBrapiFiiQuoteQuery", () => {
   it("includes the ticker value in the query key", () => {
     const ticker = ref("KNRI11");
     const client = buildMockClient();
+    const opts = captureQueryOpts(ticker, client);
 
-    useBrapiFiiQuoteQuery(ticker, client);
-
-    const callArgs = mockUseQuery.mock.calls[0]?.[0];
-    const key = typeof callArgs?.queryKey === "object" && "value" in (callArgs.queryKey as object)
-      ? (callArgs.queryKey as { value: unknown[] }).value
-      : callArgs?.queryKey;
+    const key = typeof opts.queryKey === "object" && opts.queryKey !== null
+      ? (opts.queryKey as { value: unknown[] }).value
+      : opts.queryKey;
     expect(JSON.stringify(key)).toContain("KNRI11");
   });
 });
