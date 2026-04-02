@@ -1403,5 +1403,76 @@
       "save": "Salvar simulação",
       "saved": "Simulação salva ✓"
     }
+  },
+  "horaExtra": {
+    "seo": {
+      "title": "Calculadora de Hora Extra CLT — Valor Bruto e Líquido",
+      "description": "Calcule o valor das suas horas extras CLT (50%, 75% e 100%), o impacto no INSS e o valor líquido estimado.",
+      "ogTitle": "Hora Extra CLT — Auraxis",
+      "ogDescription": "Calculadora gratuita de hora extra CLT com impacto no INSS."
+    },
+    "header": {
+      "publicTool": "Ferramenta gratuita",
+      "otherTools": "Outras ferramentas",
+      "createAccount": "Criar conta"
+    },
+    "hero": {
+      "badge": "Calculadora gratuita",
+      "title": "Calculadora de Hora Extra CLT",
+      "subtitle": "Veja quanto valem suas horas extras em bruto e o impacto real no INSS, por modalidade (50%, 75%, 100%)."
+    },
+    "form": {
+      "title": "Dados para cálculo",
+      "grossSalary": "Salário bruto mensal",
+      "grossSalaryPlaceholder": "Ex.: 5.000,00",
+      "hoursPerMonth": "Horas mensais (divisor)",
+      "hoursPerMonthTooltip": "Divisor padrão CLT: 220 h/mês (8 h/dia × 44 h/sem). Use 240 para jornada noturna.",
+      "hours50": "Horas extras a 50%",
+      "hours50Tooltip": "Horas extras comuns em dias úteis. Mínimo legal: 50% sobre o valor normal.",
+      "hours75": "Horas extras a 75%",
+      "hours75Tooltip": "Aplicável quando previsto em acordo ou convenção coletiva (ex.: domingos).",
+      "hours100": "Horas extras a 100%",
+      "hours100Tooltip": "Feriados e casos previstos em convenção coletiva ou contrato de trabalho.",
+      "calculate": "Calcular",
+      "reset": "Limpar"
+    },
+    "results": {
+      "title": "Resultado",
+      "netOvertimeEstimate": "Hora extra líquida estimada",
+      "totalOvertimeGross": "Total bruto de horas extras",
+      "inssOvertimeImpact": "Impacto no INSS",
+      "totalOvertimeHours": "Total de horas extras",
+      "hourlyRate": "Valor da hora normal",
+      "breakdown50": "Extras a 50%",
+      "breakdown75": "Extras a 75%",
+      "breakdown100": "Extras a 100%",
+      "hoursLabel": "{n}h",
+      "noHours": "Não informado"
+    },
+    "table": {
+      "modality": "Modalidade",
+      "hours": "Horas",
+      "hourlyRateExtra": "Valor da hora extra",
+      "grossAmount": "Bruto",
+      "total": "Total"
+    },
+    "disclaimer": {
+      "tableYear": "Tabela INSS vigente em {year}. IRRF não incluído — use a calculadora INSS+IR para deduções completas.",
+      "irNotIncluded": "O IRRF não está incluído neste cálculo pois depende de deduções pessoais (dependentes, previdência privada, etc.)."
+    },
+    "errors": {
+      "grossSalaryRequired": "Informe o salário bruto.",
+      "hoursPerMonthInvalid": "O divisor de horas deve ser maior que zero.",
+      "hoursNegative": "O número de horas não pode ser negativo.",
+      "noOvertimeHours": "Informe ao menos uma hora extra em qualquer modalidade.",
+      "generic": "Verifique os dados e tente novamente."
+    },
+    "simulation": {
+      "defaultName": "Hora Extra CLT {year}"
+    },
+    "actions": {
+      "save": "Salvar simulação",
+      "saved": "Simulação salva ✓"
+    }
   }
 }

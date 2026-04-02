@@ -46,8 +46,8 @@
       "createdAt": "2026-04-01",
       "removeBy": "2027-12-31",
       "type": "release",
-      "status": "draft",
-      "description": "Calculadora de hora extra CLT (50%, 75%, 100%).",
+      "status": "enabled-prod",
+      "description": "Calculadora de hora extra CLT (50%, 75%, 100%) com impacto no INSS.",
       "repositories": ["auraxis-web"]
     },
     {

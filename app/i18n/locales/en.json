@@ -1403,5 +1403,76 @@
       "save": "Save simulation",
       "saved": "Simulation saved ✓"
     }
+  },
+  "horaExtra": {
+    "seo": {
+      "title": "CLT Overtime Calculator — Gross and Net Value",
+      "description": "Calculate your CLT overtime pay (50%, 75%, 100%), the INSS impact, and estimated net value.",
+      "ogTitle": "CLT Overtime — Auraxis",
+      "ogDescription": "Free CLT overtime calculator with INSS impact."
+    },
+    "header": {
+      "publicTool": "Free tool",
+      "otherTools": "Other tools",
+      "createAccount": "Create account"
+    },
+    "hero": {
+      "badge": "Free calculator",
+      "title": "CLT Overtime Calculator",
+      "subtitle": "See how much your overtime hours are worth gross and the real INSS impact, per modality (50%, 75%, 100%)."
+    },
+    "form": {
+      "title": "Calculation data",
+      "grossSalary": "Monthly gross salary",
+      "grossSalaryPlaceholder": "e.g. 5,000.00",
+      "hoursPerMonth": "Monthly hours (divisor)",
+      "hoursPerMonthTooltip": "Standard CLT divisor: 220 h/month (8 h/day × 44 h/week). Use 240 for night shift.",
+      "hours50": "Overtime hours at 50%",
+      "hours50Tooltip": "Common overtime on weekdays. Legal minimum: 50% over regular rate.",
+      "hours75": "Overtime hours at 75%",
+      "hours75Tooltip": "Applicable when set by collective agreement (e.g. Sundays).",
+      "hours100": "Overtime hours at 100%",
+      "hours100Tooltip": "Holidays and cases set by collective agreement or employment contract.",
+      "calculate": "Calculate",
+      "reset": "Clear"
+    },
+    "results": {
+      "title": "Result",
+      "netOvertimeEstimate": "Estimated net overtime",
+      "totalOvertimeGross": "Total gross overtime",
+      "inssOvertimeImpact": "INSS impact",
+      "totalOvertimeHours": "Total overtime hours",
+      "hourlyRate": "Regular hourly rate",
+      "breakdown50": "50% overtime",
+      "breakdown75": "75% overtime",
+      "breakdown100": "100% overtime",
+      "hoursLabel": "{n}h",
+      "noHours": "Not entered"
+    },
+    "table": {
+      "modality": "Modality",
+      "hours": "Hours",
+      "hourlyRateExtra": "Overtime hourly rate",
+      "grossAmount": "Gross",
+      "total": "Total"
+    },
+    "disclaimer": {
+      "tableYear": "INSS table in effect for {year}. Income tax not included — use the INSS+IR calculator for full deductions.",
+      "irNotIncluded": "Income tax is not included in this calculation as it depends on personal deductions (dependents, private pension, etc.)."
+    },
+    "errors": {
+      "grossSalaryRequired": "Please enter your gross salary.",
+      "hoursPerMonthInvalid": "Monthly hours divisor must be greater than zero.",
+      "hoursNegative": "Number of hours cannot be negative.",
+      "noOvertimeHours": "Please enter at least one overtime hour in any modality.",
+      "generic": "Please check the data and try again."
+    },
+    "simulation": {
+      "defaultName": "CLT Overtime {year}"
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Simulation saved ✓"
+    }
   }
 }
