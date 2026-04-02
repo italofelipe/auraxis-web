@@ -1321,5 +1321,87 @@
     "registerCta": "Experimentar grátis",
     "loginCta": "Já tenho conta",
     "trust": "Grátis para sempre. Sem cartão de crédito."
+  },
+  "inssIrFolha": {
+    "seo": {
+      "title": "Calculadora de INSS e IR na Folha — Desconto Real por Faixa",
+      "description": "Calcule exatamente quanto o INSS e o Imposto de Renda descontam do seu salário, faixa a faixa. Inclui deduções de dependentes, pensão alimentícia e previdência privada.",
+      "ogTitle": "INSS + IR na Folha — Auraxis",
+      "ogDescription": "Calculadora gratuita de INSS e IR progressivo com deduções de dependentes e previdência privada."
+    },
+    "header": {
+      "publicTool": "Ferramenta gratuita",
+      "otherTools": "Outras ferramentas",
+      "createAccount": "Criar conta"
+    },
+    "hero": {
+      "badge": "Calculadora gratuita",
+      "title": "INSS + IR na Folha de Pagamento",
+      "subtitle": "Veja exatamente quanto é descontado do seu salário bruto, faixa a faixa, com todas as deduções do IR."
+    },
+    "form": {
+      "title": "Dados do salário",
+      "grossSalary": "Salário bruto mensal",
+      "grossSalaryPlaceholder": "Ex.: 5.000,00",
+      "dependents": "Dependentes declarados (IR)",
+      "dependentsTooltip": "Cada dependente reduz a base do IR em R$ 189,59 por mês",
+      "alimentPension": "Pensão alimentícia (mensal)",
+      "alimentPensionTooltip": "Valor total dedutível da base do IR — exige comprovante judicial ou formal",
+      "privatePension": "Previdência privada PGBL (mensal)",
+      "privatePensionTooltip": "Dedutível até 12% da renda bruta anual. Informe o valor mensal contribuído.",
+      "calculate": "Calcular descontos",
+      "reset": "Limpar"
+    },
+    "results": {
+      "title": "Resultado do cálculo",
+      "netSalary": "Salário líquido",
+      "grossSalary": "Salário bruto",
+      "totalInss": "INSS total",
+      "totalIrrf": "IR total",
+      "effectiveRate": "Alíquota efetiva",
+      "irBase": "Base de cálculo do IR",
+      "inssBreakdown": "Detalhamento do INSS por faixa",
+      "irDeductions": "Deduções aplicadas ao IR",
+      "irrfBreakdown": "Faixas do Imposto de Renda"
+    },
+    "table": {
+      "bracketRange": "Faixa salarial",
+      "rate": "Alíquota",
+      "sliceAmount": "Parcela incidente",
+      "contribution": "Desconto",
+      "total": "Total",
+      "upTo": "Até {value}",
+      "above": "Acima de {value}",
+      "inactive": "Não incide",
+      "irrfBracketRange": "Faixa (renda tributável)",
+      "irrfParcela": "Parcela a deduzir",
+      "irrfApplicable": "✓ Sua faixa",
+      "exempt": "Isento"
+    },
+    "deductions": {
+      "inss": "INSS descontado",
+      "dependents": "Dedução dependentes ({count}x)",
+      "alimentPension": "Pensão alimentícia",
+      "privatePension": "Previdência privada (PGBL)",
+      "totalDeductions": "Total de deduções do IR"
+    },
+    "disclaimer": {
+      "tableYear": "Tabelas INSS/IR vigentes em {year}. Atualizadas anualmente em janeiro.",
+      "privatePensionCapped": "Dedução de previdência privada limitada a 12% do salário bruto."
+    },
+    "errors": {
+      "grossSalaryRequired": "Informe o salário bruto.",
+      "dependentsInvalid": "Número de dependentes inválido.",
+      "alimentPensionNegative": "Pensão alimentícia não pode ser negativa.",
+      "privatePensionNegative": "Previdência privada não pode ser negativa.",
+      "generic": "Verifique os dados e tente novamente."
+    },
+    "simulation": {
+      "defaultName": "INSS + IR na Folha {year}"
+    },
+    "actions": {
+      "save": "Salvar simulação",
+      "saved": "Simulação salva ✓"
+    }
   }
 }

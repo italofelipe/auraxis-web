@@ -35,13 +35,14 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     featureFlag: "web.tools.thirteenth-salary",
   },
   {
-    id: "thirteenth-salary",
-    name: "Simulador de 13º Salário",
+    id: "inss-ir-folha",
+    name: "INSS + IR na Folha",
     description:
-      "Calcule o valor líquido do seu 13º salário com INSS e IR proporcionais aos meses trabalhados.",
+      "Veja exatamente quanto INSS e IR descontam do salário, faixa a faixa, com todas as deduções do IR.",
     enabled: true,
     accessLevel: "public",
-    route: "/tools/thirteenth-salary",
+    route: "/tools/inss-ir-folha",
+    featureFlag: "web.tools.inss-ir-folha",
   },
 ];
 

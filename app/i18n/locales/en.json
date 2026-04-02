@@ -1321,5 +1321,87 @@
     "registerCta": "Try for free",
     "loginCta": "I already have an account",
     "trust": "Free forever. No credit card required."
+  },
+  "inssIrFolha": {
+    "seo": {
+      "title": "INSS + Income Tax Calculator — Real Deductions by Bracket",
+      "description": "Calculate exactly how much INSS and Income Tax are deducted from your salary, bracket by bracket. Includes dependent, alimony and private pension deductions.",
+      "ogTitle": "INSS + Income Tax — Auraxis",
+      "ogDescription": "Free progressive INSS and income tax calculator with dependent and private pension deductions."
+    },
+    "header": {
+      "publicTool": "Free tool",
+      "otherTools": "Other tools",
+      "createAccount": "Create account"
+    },
+    "hero": {
+      "badge": "Free calculator",
+      "title": "INSS + Income Tax on Your Payslip",
+      "subtitle": "See exactly how much is deducted from your gross salary, bracket by bracket, with all income tax deductions applied."
+    },
+    "form": {
+      "title": "Salary details",
+      "grossSalary": "Monthly gross salary",
+      "grossSalaryPlaceholder": "e.g. 5,000.00",
+      "dependents": "Declared dependents (IT)",
+      "dependentsTooltip": "Each dependent reduces the income tax base by R$ 189.59 per month",
+      "alimentPension": "Alimony payment (monthly)",
+      "alimentPensionTooltip": "Fully deductible from income tax base — requires court or formal document",
+      "privatePension": "Private pension PGBL (monthly)",
+      "privatePensionTooltip": "Deductible up to 12% of annual gross income. Enter your monthly contribution.",
+      "calculate": "Calculate deductions",
+      "reset": "Clear"
+    },
+    "results": {
+      "title": "Calculation result",
+      "netSalary": "Net salary",
+      "grossSalary": "Gross salary",
+      "totalInss": "Total INSS",
+      "totalIrrf": "Total income tax",
+      "effectiveRate": "Effective rate",
+      "irBase": "Income tax base",
+      "inssBreakdown": "INSS bracket breakdown",
+      "irDeductions": "Income tax deductions applied",
+      "irrfBreakdown": "Income tax brackets"
+    },
+    "table": {
+      "bracketRange": "Salary bracket",
+      "rate": "Rate",
+      "sliceAmount": "Applicable slice",
+      "contribution": "Deduction",
+      "total": "Total",
+      "upTo": "Up to {value}",
+      "above": "Above {value}",
+      "inactive": "Not applicable",
+      "irrfBracketRange": "Bracket (taxable income)",
+      "irrfParcela": "Fixed deduction",
+      "irrfApplicable": "✓ Your bracket",
+      "exempt": "Exempt"
+    },
+    "deductions": {
+      "inss": "INSS deducted",
+      "dependents": "Dependent deduction ({count}x)",
+      "alimentPension": "Alimony payment",
+      "privatePension": "Private pension (PGBL)",
+      "totalDeductions": "Total income tax deductions"
+    },
+    "disclaimer": {
+      "tableYear": "INSS/IT tables in effect for {year}. Updated annually each January.",
+      "privatePensionCapped": "Private pension deduction capped at 12% of gross salary."
+    },
+    "errors": {
+      "grossSalaryRequired": "Please enter your gross salary.",
+      "dependentsInvalid": "Invalid number of dependents.",
+      "alimentPensionNegative": "Alimony cannot be negative.",
+      "privatePensionNegative": "Private pension cannot be negative.",
+      "generic": "Please check the values and try again."
+    },
+    "simulation": {
+      "defaultName": "INSS + IT on Payslip {year}"
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Simulation saved ✓"
+    }
   }
 }
