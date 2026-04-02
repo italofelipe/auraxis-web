@@ -8,7 +8,9 @@
       "type": "release",
       "status": "draft",
       "description": "Calculadora de pedir aumento (legacy, substituída pela suite CLT).",
-      "repositories": ["auraxis-web"]
+      "repositories": [
+        "auraxis-web"
+      ]
     },
     {
       "key": "web.tools.installment-vs-cash",
@@ -18,7 +20,9 @@
       "type": "release",
       "status": "enabled-prod",
       "description": "Calculadora parcelado vs à vista com custo de oportunidade.",
-      "repositories": ["auraxis-web"]
+      "repositories": [
+        "auraxis-web"
+      ]
     },
     {
       "key": "web.tools.thirteenth-salary",
@@ -28,7 +32,9 @@
       "type": "release",
       "status": "enabled-prod",
       "description": "Simulador de 13º salário com INSS e IR proporcionais.",
-      "repositories": ["auraxis-web"]
+      "repositories": [
+        "auraxis-web"
+      ]
     },
     {
       "key": "web.tools.fgts",
@@ -38,7 +44,9 @@
       "type": "release",
       "status": "draft",
       "description": "Simulador de FGTS: saldo ao longo do tempo e multa rescisória.",
-      "repositories": ["auraxis-web"]
+      "repositories": [
+        "auraxis-web"
+      ]
     },
     {
       "key": "web.tools.hora-extra",
@@ -48,7 +56,9 @@
       "type": "release",
       "status": "enabled-prod",
       "description": "Calculadora de hora extra CLT (50%, 75%, 100%) com impacto no INSS.",
-      "repositories": ["auraxis-web"]
+      "repositories": [
+        "auraxis-web"
+      ]
     },
     {
       "key": "web.tools.rescisao",
@@ -58,7 +68,9 @@
       "type": "release",
       "status": "draft",
       "description": "Rescisão contratual CLT por tipo de desligamento.",
-      "repositories": ["auraxis-web"]
+      "repositories": [
+        "auraxis-web"
+      ]
     },
     {
       "key": "web.tools.ferias",
@@ -68,7 +80,9 @@
       "type": "release",
       "status": "enabled-prod",
       "description": "Simulador de férias CLT: abono pecuniário, 1/3 constitucional, INSS e IR.",
-      "repositories": ["auraxis-web"]
+      "repositories": [
+        "auraxis-web"
+      ]
     },
     {
       "key": "web.tools.inss-ir-folha",
@@ -78,7 +92,9 @@
       "type": "release",
       "status": "draft",
       "description": "INSS + IR na folha: desconto real por faixa salarial.",
-      "repositories": ["auraxis-web"]
+      "repositories": [
+        "auraxis-web"
+      ]
     },
     {
       "key": "web.tools.clt-vs-pj",
@@ -88,7 +104,9 @@
       "type": "release",
       "status": "draft",
       "description": "CLT vs PJ: comparativo de custo-benefício real.",
-      "repositories": ["auraxis-web"]
+      "repositories": [
+        "auraxis-web"
+      ]
     },
     {
       "key": "web.tools.salario-internacional",
@@ -98,7 +116,9 @@
       "type": "release",
       "status": "draft",
       "description": "Salário internacional líquido para trabalho remoto para o exterior.",
-      "repositories": ["auraxis-web"]
+      "repositories": [
+        "auraxis-web"
+      ]
     },
     {
       "key": "web.tools.mei",
@@ -108,7 +128,9 @@
       "type": "release",
       "status": "draft",
       "description": "Calculadora MEI: DAS, benefícios e limite de faturamento.",
-      "repositories": ["auraxis-web"]
+      "repositories": [
+        "auraxis-web"
+      ]
     },
     {
       "key": "web.tools.dividir-conta",
@@ -118,7 +140,9 @@
       "type": "release",
       "status": "draft",
       "description": "Dividir conta de restaurante com taxa da casa e múltiplas pessoas.",
-      "repositories": ["auraxis-web"]
+      "repositories": [
+        "auraxis-web"
+      ]
     },
     {
       "key": "web.tools.juros-compostos",
@@ -128,7 +152,9 @@
       "type": "release",
       "status": "draft",
       "description": "Juros compostos e taxa real com inflação.",
-      "repositories": ["auraxis-web"]
+      "repositories": [
+        "auraxis-web"
+      ]
     },
     {
       "key": "web.tools.desconto-markup",
@@ -138,7 +164,9 @@
       "type": "release",
       "status": "draft",
       "description": "Calculadora de desconto, markup e margem de lucro.",
-      "repositories": ["auraxis-web"]
+      "repositories": [
+        "auraxis-web"
+      ]
     },
     {
       "key": "web.tools.cdb-lci-lca",
@@ -148,7 +176,9 @@
       "type": "release",
       "status": "draft",
       "description": "CDB/LCI/LCA vs poupança: rentabilidade líquida real com IR regressivo.",
-      "repositories": ["auraxis-web"]
+      "repositories": [
+        "auraxis-web"
+      ]
     },
     {
       "key": "web.tools.tesouro-direto",
@@ -158,7 +188,9 @@
       "type": "release",
       "status": "draft",
       "description": "Tesouro Direto: simulação até vencimento (Selic, IPCA+, Prefixado).",
-      "repositories": ["auraxis-web"]
+      "repositories": [
+        "auraxis-web"
+      ]
     },
     {
       "key": "web.tools.ir-investimentos",
@@ -168,7 +200,9 @@
       "type": "release",
       "status": "draft",
       "description": "IR sobre investimentos: ganho de capital e DARF.",
-      "repositories": ["auraxis-web"]
+      "repositories": [
+        "auraxis-web"
+      ]
     },
     {
       "key": "web.tools.fii",
@@ -178,7 +212,9 @@
       "type": "release",
       "status": "draft",
       "description": "FII: Dividend Yield e Yield on Cost.",
-      "repositories": ["auraxis-web"]
+      "repositories": [
+        "auraxis-web"
+      ]
     },
     {
       "key": "web.tools.aposentadoria",
@@ -188,7 +224,9 @@
       "type": "release",
       "status": "draft",
       "description": "Simulador de aposentadoria: quanto guardar por mês para aposentar com X.",
-      "repositories": ["auraxis-web"]
+      "repositories": [
+        "auraxis-web"
+      ]
     },
     {
       "key": "web.tools.fire",
@@ -198,7 +236,9 @@
       "type": "release",
       "status": "draft",
       "description": "FIRE: calculadora de independência financeira.",
-      "repositories": ["auraxis-web"]
+      "repositories": [
+        "auraxis-web"
+      ]
     },
     {
       "key": "web.tools.financiamento-imobiliario",
@@ -208,7 +248,9 @@
       "type": "release",
       "status": "draft",
       "description": "Financiamento imobiliário: SAC vs PRICE, custo total.",
-      "repositories": ["auraxis-web"]
+      "repositories": [
+        "auraxis-web"
+      ]
     },
     {
       "key": "web.tools.aluguel-vs-compra",
@@ -218,7 +260,9 @@
       "type": "release",
       "status": "draft",
       "description": "Aluguel vs compra: custo de oportunidade do capital imobilizado.",
-      "repositories": ["auraxis-web"]
+      "repositories": [
+        "auraxis-web"
+      ]
     },
     {
       "key": "web.tools.conversor-moeda",
@@ -228,7 +272,9 @@
       "type": "release",
       "status": "draft",
       "description": "Conversor de moeda com cotação em tempo real via BRAPI.",
-      "repositories": ["auraxis-web"]
+      "repositories": [
+        "auraxis-web"
+      ]
     }
   ]
 }

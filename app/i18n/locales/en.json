@@ -1547,5 +1547,103 @@
       "save": "Save simulation",
       "saved": "Simulation saved ✓"
     }
+  },
+  "rescisao": {
+    "seo": {
+      "title": "CLT Severance Pay Calculator — Free Simulator",
+      "description": "Calculate the gross and net value of your CLT severance: notice period, 13th salary, vacation, FGTS penalty, INSS and income tax.",
+      "ogTitle": "CLT Severance Pay Calculator — Auraxis",
+      "ogDescription": "Simulate your CLT severance pay by termination type, including all components."
+    },
+    "header": {
+      "publicTool": "Free tool",
+      "otherTools": "Other tools",
+      "createAccount": "Create account"
+    },
+    "hero": {
+      "badge": "CLT Severance",
+      "title": "CLT Severance Pay Calculator",
+      "subtitle": "Simulate your net severance pay by termination type, including notice period, 13th salary, vacation, FGTS penalty, and INSS/IR deductions."
+    },
+    "form": {
+      "title": "Termination details",
+      "grossSalary": "Monthly gross salary",
+      "grossSalaryPlaceholder": "e.g. 5000.00",
+      "terminationType": "Termination type",
+      "terminationTypes": {
+        "sem_justa_causa": "Without just cause (employer-initiated)",
+        "com_justa_causa": "With just cause (for cause dismissal)",
+        "pedido_de_demissao": "Resignation (employee-initiated)",
+        "acordo": "Mutual agreement (distrato — Law 13.467/2017)"
+      },
+      "yearsOfService": "Years of service (for notice period)",
+      "yearsOfServiceTooltip": "Full years of service. Determines the proportional notice period (Law 12.506/2011): 30 days + 3 per year, max 90.",
+      "daysWorkedInLastMonth": "Days worked in last month (balance)",
+      "monthsFor13": "Months worked this year (13th salary)",
+      "monthsForVacation": "Months since last vacation anniversary",
+      "monthsForVacationTooltip": "Months since last vacation anniversary (for proportional vacation). Zero means less than one full month in the new period.",
+      "vacationMonths": {
+        "0": "Less than 1 month (no proportional)"
+      },
+      "months": {
+        "1": "1 month",
+        "2": "2 months",
+        "3": "3 months",
+        "4": "4 months",
+        "5": "5 months",
+        "6": "6 months",
+        "7": "7 months",
+        "8": "8 months",
+        "9": "9 months",
+        "10": "10 months",
+        "11": "11 months",
+        "12": "12 months (full year)"
+      },
+      "hasExpiredVacation": "Has expired vacation (unused previous period)",
+      "hasExpiredVacationTooltip": "Check if the employee has a full acquisition period of unused vacation. Corresponds to 30 days + 1/3.",
+      "fgtsBalance": "Current FGTS balance",
+      "fgtsBalanceTooltip": "Total FGTS account balance. Check via the FGTS app or CAIXA statement.",
+      "overtimeAverage": "Monthly average overtime/commissions",
+      "overtimeAverageTooltip": "Average monthly variable pay (overtime, commissions, etc.) included in the severance calculation base.",
+      "dependents": "Income tax dependents",
+      "dependentsTooltip": "Number of declared dependents for IRRF deduction",
+      "calculate": "Calculate Severance",
+      "reset": "Reset"
+    },
+    "results": {
+      "title": "Severance breakdown",
+      "saldoSalario": "Salary balance",
+      "avisoPrevio": "Paid notice period ({days} days)",
+      "decimoTerceiro": "Prorated 13th salary",
+      "feriasProporcionais": "Proportional vacation + 1/3",
+      "feriasVencidas": "Expired vacation + 1/3",
+      "fgtsMulta": "FGTS penalty",
+      "totalGross": "Total gross",
+      "inss": "INSS",
+      "irrf": "Income tax withheld",
+      "netTotal": "Net total to receive"
+    },
+    "disclaimer": {
+      "tableYear": "INSS/IR tables for {year}. Check for annual updates.",
+      "avisoPrevioNote": "Paid notice period (indenizado) is exempt from INSS (Law 9.528/97) but subject to income tax.",
+      "notLegal": "This simulator is an estimate. Consult your HR department or a labor attorney for exact amounts."
+    },
+    "errors": {
+      "grossSalaryRequired": "Please enter the gross salary.",
+      "yearsOfServiceInvalid": "Years of service must be a non-negative integer.",
+      "daysWorkedInLastMonthInvalid": "Days worked must be between 1 and 31.",
+      "monthsFor13Invalid": "Months worked must be between 1 and 12.",
+      "monthsForVacationInvalid": "Vacation months must be between 0 and 11.",
+      "dependentsInvalid": "Invalid number of dependents.",
+      "overtimeAverageNegative": "Overtime average cannot be negative.",
+      "fgtsBalanceNegative": "FGTS balance cannot be negative."
+    },
+    "simulation": {
+      "defaultName": "CLT Severance {year}"
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Simulation saved ✓"
+    }
   }
 }
