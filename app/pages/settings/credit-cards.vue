@@ -21,7 +21,7 @@ import { useDeleteCreditCardMutation } from "~/features/credit-cards/queries/use
 const { t } = useI18n();
 
 definePageMeta({
-  middleware: ["authenticated"],
+  middleware: ["authenticated", "coming-soon"],
   pageTitle: "Cartões de Crédito",
   pageSubtitle: "Gerencie seus cartões de crédito",
 });

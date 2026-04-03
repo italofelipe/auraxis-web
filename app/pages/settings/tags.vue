@@ -21,7 +21,7 @@ import { useDeleteTagMutation } from "~/features/tags/queries/use-delete-tag-mut
 const { t } = useI18n();
 
 definePageMeta({
-  middleware: ["authenticated"],
+  middleware: ["authenticated", "coming-soon"],
   pageTitle: "Tags",
   pageSubtitle: "Gerencie suas tags de categorização",
 });
