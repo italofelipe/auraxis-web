@@ -15,12 +15,13 @@ import {
 import type { AppShellNavItem, AppShellUser } from "~/components/ui/UiAppShell/UiAppShell.types";
 import { useUserProfileQuery } from "~/features/profile/composables/use-user-profile-query";
 import { useUserStore } from "~/stores/user";
+import { useLogout } from "~/composables/useLogout";
 
 const { t } = useI18n();
 const route = useRoute();
-const router = useRouter();
 const sessionStore = useSessionStore();
 const userStore = useUserStore();
+const { logout } = useLogout();
 
 useUserProfileQuery();
 
@@ -82,10 +83,9 @@ function onProfileModalClose(): void {
   showProfileModal.value = false;
 }
 
-/** Signs out the current user and redirects to login. */
+/** Signs out the current user, clears all state, and redirects to login. */
 function onLogout(): void {
-  sessionStore.signOut();
-  router.push("/login");
+  logout();
 }
 </script>
 

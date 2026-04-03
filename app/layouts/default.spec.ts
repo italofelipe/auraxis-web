@@ -11,9 +11,12 @@ vi.mock("vue-i18n", () => ({
 vi.mock("~/stores/session", () => ({
   useSessionStore: vi.fn(() => ({
     userEmail: "test@auraxis.com",
-    signOut: vi.fn(),
     isAuthenticated: true,
   })),
+}));
+
+vi.mock("~/composables/useLogout", () => ({
+  useLogout: vi.fn(() => ({ logout: vi.fn() })),
 }));
 
 vi.mock("#imports", async (importOriginal) => {
