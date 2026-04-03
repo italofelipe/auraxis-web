@@ -7,6 +7,8 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   readonly accessToken: string;
+  /** Opaque token used to obtain new access tokens without re-authenticating. */
+  readonly refreshToken?: string;
   readonly user: {
     readonly email: string;
     readonly displayName: string;
@@ -25,6 +27,8 @@ export interface RegisterRequest {
 
 export interface RegisterResponse {
   readonly accessToken: string;
+  /** Opaque token used to obtain new access tokens without re-authenticating. */
+  readonly refreshToken?: string;
   readonly user: {
     readonly email: string;
     readonly displayName: string;

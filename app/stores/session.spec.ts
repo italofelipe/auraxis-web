@@ -5,6 +5,7 @@ import { useSessionStore } from "./session";
 
 interface SessionCookiePayload {
   accessToken: string;
+  refreshToken: string | null;
   userEmail: string;
 }
 
@@ -52,16 +53,32 @@ describe("session store", () => {
     it("sets accessToken and userEmail on store state", () => {
       const store = useSessionStore();
 
-      store.signIn("tok-123", "user@auraxis.com");
+      store.signIn({ accessToken: "tok-123", refreshToken: null, userEmail: "user@auraxis.com" });
 
       expect(store.accessToken).toBe("tok-123");
       expect(store.userEmail).toBe("user@auraxis.com");
     });
 
+    it("stores refreshToken when provided", () => {
+      const store = useSessionStore();
+
+      store.signIn({ accessToken: "tok-123", refreshToken: "ref-xyz", userEmail: "user@auraxis.com" });
+
+      expect(store.refreshToken).toBe("ref-xyz");
+    });
+
+    it("stores null refreshToken when omitted", () => {
+      const store = useSessionStore();
+
+      store.signIn({ accessToken: "tok-123", refreshToken: null, userEmail: "user@auraxis.com" });
+
+      expect(store.refreshToken).toBeNull();
+    });
+
     it("marks isAuthenticated as true after sign-in", () => {
       const store = useSessionStore();
 
-      store.signIn("tok-123", "user@auraxis.com");
+      store.signIn({ accessToken: "tok-123", refreshToken: null, userEmail: "user@auraxis.com" });
 
       expect(store.isAuthenticated).toBe(true);
     });
@@ -69,19 +86,20 @@ describe("session store", () => {
     it("writes the session cookie to document.cookie", () => {
       const store = useSessionStore();
 
-      store.signIn("tok-abc", "a@b.com");
+      store.signIn({ accessToken: "tok-abc", refreshToken: "ref-abc", userEmail: "a@b.com" });
 
       const cookie = readDocumentCookie();
       expect(cookie).not.toBeNull();
       expect(cookie?.accessToken).toBe("tok-abc");
+      expect(cookie?.refreshToken).toBe("ref-abc");
       expect(cookie?.userEmail).toBe("a@b.com");
     });
 
     it("overwrites a previous cookie when called twice", () => {
       const store = useSessionStore();
 
-      store.signIn("tok-first", "first@auraxis.com");
-      store.signIn("tok-second", "second@auraxis.com");
+      store.signIn({ accessToken: "tok-first", refreshToken: null, userEmail: "first@auraxis.com" });
+      store.signIn({ accessToken: "tok-second", refreshToken: null, userEmail: "second@auraxis.com" });
 
       const cookie = readDocumentCookie();
       expect(cookie?.accessToken).toBe("tok-second");
@@ -92,7 +110,7 @@ describe("session store", () => {
   describe("signOut", () => {
     it("clears accessToken and userEmail from store state", () => {
       const store = useSessionStore();
-      store.signIn("tok-123", "user@auraxis.com");
+      store.signIn({ accessToken: "tok-123", refreshToken: null, userEmail: "user@auraxis.com" });
 
       store.signOut();
 
@@ -100,9 +118,18 @@ describe("session store", () => {
       expect(store.userEmail).toBeNull();
     });
 
+    it("clears refreshToken from store state", () => {
+      const store = useSessionStore();
+      store.signIn("tok-123", "ref-123", "user@auraxis.com");
+
+      store.signOut();
+
+      expect(store.refreshToken).toBeNull();
+    });
+
     it("marks isAuthenticated as false after sign-out", () => {
       const store = useSessionStore();
-      store.signIn("tok-123", "user@auraxis.com");
+      store.signIn({ accessToken: "tok-123", refreshToken: null, userEmail: "user@auraxis.com" });
 
       store.signOut();
 
@@ -111,7 +138,7 @@ describe("session store", () => {
 
     it("removes the session cookie from document.cookie", () => {
       const store = useSessionStore();
-      store.signIn("tok-123", "user@auraxis.com");
+      store.signIn({ accessToken: "tok-123", refreshToken: null, userEmail: "user@auraxis.com" });
 
       store.signOut();
 
@@ -124,6 +151,7 @@ describe("session store", () => {
     it("restores session from document.cookie", () => {
       setDocumentCookie({
         accessToken: "cookie-token",
+        refreshToken: "cookie-refresh",
         userEmail: "cookie@auraxis.com",
       });
 
@@ -132,6 +160,7 @@ describe("session store", () => {
 
       expect(store.isAuthenticated).toBe(true);
       expect(store.accessToken).toBe("cookie-token");
+      expect(store.refreshToken).toBe("cookie-refresh");
       expect(store.userEmail).toBe("cookie@auraxis.com");
     });
 
@@ -157,7 +186,7 @@ describe("session store", () => {
   describe("getAccessToken", () => {
     it("returns the access token when store already has one", () => {
       const store = useSessionStore();
-      store.signIn("tok-direct", "u@auraxis.com");
+      store.signIn({ accessToken: "tok-direct", refreshToken: null, userEmail: "u@auraxis.com" });
 
       expect(store.getAccessToken()).toBe("tok-direct");
     });
@@ -165,6 +194,7 @@ describe("session store", () => {
     it("rehydrates token from cookie when store is empty", () => {
       setDocumentCookie({
         accessToken: "cookie-token",
+        refreshToken: null,
         userEmail: "cookie@auraxis.com",
       });
 
@@ -182,6 +212,54 @@ describe("session store", () => {
     });
   });
 
+  describe("getRefreshToken", () => {
+    it("returns the refresh token when store has one", () => {
+      const store = useSessionStore();
+      store.signIn({ accessToken: "tok", refreshToken: "ref-tok", userEmail: "u@auraxis.com" });
+
+      expect(store.getRefreshToken()).toBe("ref-tok");
+    });
+
+    it("rehydrates refresh token from cookie", () => {
+      setDocumentCookie({
+        accessToken: "at",
+        refreshToken: "rt-from-cookie",
+        userEmail: "u@auraxis.com",
+      });
+
+      const store = useSessionStore();
+      expect(store.getRefreshToken()).toBe("rt-from-cookie");
+    });
+
+    it("returns null when no refresh token exists", () => {
+      const store = useSessionStore();
+      expect(store.getRefreshToken()).toBeNull();
+    });
+  });
+
+  describe("updateTokens", () => {
+    it("updates access and refresh tokens without touching userEmail", () => {
+      const store = useSessionStore();
+      store.signIn({ accessToken: "old-at", refreshToken: "old-rt", userEmail: "u@auraxis.com" });
+
+      store.updateTokens("new-at", "new-rt");
+
+      expect(store.accessToken).toBe("new-at");
+      expect(store.refreshToken).toBe("new-rt");
+      expect(store.userEmail).toBe("u@auraxis.com");
+    });
+
+    it("persists updated tokens to cookie", () => {
+      const store = useSessionStore();
+      store.signIn({ accessToken: "old-at", refreshToken: "old-rt", userEmail: "u@auraxis.com" });
+      store.updateTokens("new-at", "new-rt");
+
+      const cookie = readDocumentCookie();
+      expect(cookie?.accessToken).toBe("new-at");
+      expect(cookie?.refreshToken).toBe("new-rt");
+    });
+  });
+
   describe("isAuthenticated", () => {
     it("is false on initial state", () => {
       const store = useSessionStore();
@@ -191,14 +269,14 @@ describe("session store", () => {
 
     it("is true after signIn", () => {
       const store = useSessionStore();
-      store.signIn("tok", "u@test.com");
+      store.signIn({ accessToken: "tok", refreshToken: null, userEmail: "u@test.com" });
 
       expect(store.isAuthenticated).toBe(true);
     });
 
     it("is false after signOut following signIn", () => {
       const store = useSessionStore();
-      store.signIn("tok", "u@test.com");
+      store.signIn({ accessToken: "tok", refreshToken: null, userEmail: "u@test.com" });
       store.signOut();
 
       expect(store.isAuthenticated).toBe(false);
@@ -209,7 +287,7 @@ describe("session store", () => {
     it("persists session across store reset (simulated F5)", () => {
       // Step 1: Sign in (writes cookie)
       const store1 = useSessionStore();
-      store1.signIn("persistent-token", "persist@auraxis.com");
+      store1.signIn({ accessToken: "persistent-token", refreshToken: "persistent-refresh", userEmail: "persist@auraxis.com" });
 
       // Step 2: Simulate F5 — create a fresh Pinia store (state resets)
       setActivePinia(createPinia());
@@ -223,6 +301,7 @@ describe("session store", () => {
 
       expect(store2.isAuthenticated).toBe(true);
       expect(store2.accessToken).toBe("persistent-token");
+      expect(store2.refreshToken).toBe("persistent-refresh");
       expect(store2.userEmail).toBe("persist@auraxis.com");
     });
   });

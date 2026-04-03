@@ -2,14 +2,28 @@ import { defineStore } from "pinia";
 
 interface SessionCookiePayload {
   accessToken: string;
+  refreshToken: string | null;
   userEmail: string;
   emailConfirmed?: boolean;
 }
 
 interface SessionState {
   accessToken: string | null;
+  refreshToken: string | null;
   userEmail: string | null;
   emailConfirmed: boolean | null;
+}
+
+/** Parameters for the signIn action. */
+export interface SignInParams {
+  /** JWT access token issued after authentication. */
+  readonly accessToken: string;
+  /** Opaque refresh token, or null when the server does not issue one. */
+  readonly refreshToken: string | null;
+  /** User's email address. */
+  readonly userEmail: string;
+  /** Whether the user's email has been verified. */
+  readonly emailConfirmed?: boolean;
 }
 
 const SESSION_COOKIE_KEY = "auraxis_session";
@@ -25,13 +39,29 @@ const applyCookiePayloadToState = (
   payload: SessionCookiePayload | null,
 ): void => {
   state.accessToken = payload?.accessToken ?? null;
+  state.refreshToken = payload?.refreshToken ?? null;
   state.userEmail = payload?.userEmail ?? null;
   state.emailConfirmed = payload?.emailConfirmed ?? null;
+};
+
+/**
+ * Builds the cookie string and writes it to document.cookie.
+ * @param payload Cookie payload to persist.
+ */
+const writeCookie = (payload: SessionCookiePayload): void => {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  const isProduction = process.env.NODE_ENV === "production";
+  const secure = isProduction ? "; Secure" : "";
+  document.cookie = `${SESSION_COOKIE_KEY}=${encodeURIComponent(JSON.stringify(payload))}; path=/; SameSite=Lax; Max-Age=${SESSION_COOKIE_MAX_AGE}${secure}`;
 };
 
 export const useSessionStore = defineStore("session", {
   state: (): SessionState => ({
     accessToken: null,
+    refreshToken: null,
     userEmail: null,
     emailConfirmed: null,
   }),
@@ -73,22 +103,43 @@ export const useSessionStore = defineStore("session", {
       this.restore();
       return this.accessToken;
     },
-    signIn(accessToken: string, userEmail: string, emailConfirmed?: boolean): void {
-      this.accessToken = accessToken;
-      this.userEmail = userEmail;
-      this.emailConfirmed = emailConfirmed ?? null;
-
-      // Write cookie directly via document.cookie to avoid calling useCookie()
-      // outside a Nuxt app context. signIn is invoked from Vue Query mutation
-      // onSuccess callbacks which run outside the Nuxt composable context.
-      if (typeof document === "undefined") {
-        return;
+    getRefreshToken(): string | null {
+      if (this.refreshToken) {
+        return this.refreshToken;
       }
 
-      const isProduction = process.env.NODE_ENV === "production";
-      const secure = isProduction ? "; Secure" : "";
-      const payload: SessionCookiePayload = { accessToken, userEmail, emailConfirmed };
-      document.cookie = `${SESSION_COOKIE_KEY}=${encodeURIComponent(JSON.stringify(payload))}; path=/; SameSite=Lax; Max-Age=${SESSION_COOKIE_MAX_AGE}${secure}`;
+      this.restore();
+      return this.refreshToken;
+    },
+    signIn(params: SignInParams): void {
+      this.accessToken = params.accessToken;
+      this.refreshToken = params.refreshToken;
+      this.userEmail = params.userEmail;
+      this.emailConfirmed = params.emailConfirmed ?? null;
+
+      writeCookie({
+        accessToken: params.accessToken,
+        refreshToken: params.refreshToken,
+        userEmail: params.userEmail,
+        emailConfirmed: params.emailConfirmed,
+      });
+    },
+    /**
+     * Updates stored tokens after a successful token refresh, without altering
+     * the user identity fields. The cookie is rewritten with the new token pair.
+     * @param accessToken New access token.
+     * @param refreshToken New refresh token.
+     */
+    updateTokens(accessToken: string, refreshToken: string): void {
+      this.accessToken = accessToken;
+      this.refreshToken = refreshToken;
+
+      writeCookie({
+        accessToken,
+        refreshToken,
+        userEmail: this.userEmail ?? "",
+        emailConfirmed: this.emailConfirmed ?? undefined,
+      });
     },
     signOut(): void {
       applyCookiePayloadToState(this, null);
