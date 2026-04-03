@@ -122,8 +122,6 @@ const onDeleteGoal = (id: string): void => {
     },
   });
 };
-
-void onDeleteGoal;
 </script>
 
 <template>
@@ -171,6 +169,15 @@ void onDeleteGoal;
           <span class="goals-page__empty-text">
             {{ $t('pages.goals.empty') }}
           </span>
+          <NButton
+            v-if="activeFilter === 'all'"
+            type="primary"
+            size="medium"
+            class="goals-page__empty-cta"
+            @click="onNewGoal"
+          >
+            {{ $t('pages.goals.emptyCreate') }}
+          </NButton>
         </div>
 
         <div v-else class="goals-page__grid">
@@ -180,6 +187,7 @@ void onDeleteGoal;
             :goal="goal"
             @edit="onEditGoal(goal)"
             @show-plan="onShowPlan(goal)"
+            @delete="onDeleteGoal(goal.id)"
           />
         </div>
       </template>
@@ -247,11 +255,19 @@ void onDeleteGoal;
 .goals-page__empty-state {
   padding: var(--space-4) 0;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
 }
 
 .goals-page__empty-text {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
+}
+
+.goals-page__empty-cta {
+  margin-top: var(--space-1);
 }
 
 .goals-page__grid {

@@ -101,8 +101,9 @@ describe("DefaultLayout", () => {
     expect(wrapper.text()).toContain("nav.transactions");
     expect(wrapper.text()).toContain("nav.tools");
     expect(wrapper.text()).toContain("Conteudo");
-    // Non-core nav items (portfolio, goals, alerts, simulations, sharedEntries)
-    // are hidden when their feature flags are disabled (MVP hardening).
-    expect(wrapper.text()).not.toContain("nav.portfolio");
+    // Items with enabled-prod flags (portfolio, goals) are visible in the nav.
+    // Items still in draft (alerts, simulations, sharedEntries) remain hidden.
+    expect(wrapper.text()).toContain("nav.portfolio");
+    expect(wrapper.text()).toContain("nav.goals");
   });
 });
