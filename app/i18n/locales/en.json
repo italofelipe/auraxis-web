@@ -122,14 +122,18 @@
         "completed": "Completed",
         "paused": "Paused"
       },
-      "empty": "No goals found for the selected filter."
+      "empty": "No goals found for the selected filter.",
+      "emptyCreate": "Create first goal"
     },
     "portfolio": {
       "title": "Portfolio",
       "subtitle": "Overview of your investments",
       "addAsset": "Add asset",
       "loadError": "Could not load portfolio",
-      "loadErrorMessage": "Please reload the page."
+      "loadErrorMessage": "Please reload the page.",
+      "emptyTitle": "No assets in portfolio",
+      "emptyBody": "Add your first investment to start tracking your net worth.",
+      "emptyAction": "Add first asset"
     },
     "alerts": {
       "title": "Alerts",
@@ -663,6 +667,8 @@
   "wallet": {
     "form": {
       "title": "Add asset",
+      "titleEdit": "Edit asset",
+      "saveEdit": "Save changes",
       "assetClass": {
         "label": "Asset type",
         "placeholder": "Select type"
@@ -770,6 +776,10 @@
         "cost": "Cost",
         "variation": "Variation",
         "quantity": "Quantity"
+      },
+      "actions": {
+        "edit": "Edit",
+        "delete": "Remove"
       }
     }
   },
@@ -785,7 +795,11 @@
       "accumulated": "Accumulated",
       "target": "Target",
       "targetDate": "Target:",
-      "viewDetails": "View details"
+      "viewDetails": "View details",
+      "edit": "Edit goal",
+      "showPlan": "View plan",
+      "delete": "Delete goal",
+      "deleteConfirm": "Are you sure you want to delete this goal?"
     },
     "form": {
       "titleCreate": "New Goal",

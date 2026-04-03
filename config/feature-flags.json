@@ -236,8 +236,8 @@
       "createdAt": "2026-04-03",
       "removeBy": "2027-12-31",
       "type": "release",
-      "status": "draft",
-      "description": "Página de carteira de investimentos. Freezada para MVP — habilitar após validação da feature.",
+      "status": "enabled-prod",
+      "description": "Página de carteira de investimentos. Habilitada após polish do MVP (H-P2.4).",
       "repositories": ["auraxis-web"]
     },
     {
@@ -246,8 +246,8 @@
       "createdAt": "2026-04-03",
       "removeBy": "2027-12-31",
       "type": "release",
-      "status": "draft",
-      "description": "Página de metas financeiras. Freezada para MVP — habilitar após validação da feature.",
+      "status": "enabled-prod",
+      "description": "Página de metas financeiras. Habilitada após polish H-P2.3.",
       "repositories": ["auraxis-web"]
     },
     {

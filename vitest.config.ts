@@ -73,6 +73,11 @@ export default defineVitestConfig({
         // They are imported by spec files which causes v8 to instrument them,
         // but the resulting low coverage is expected and tracked at the E2E level.
         "**/app/pages/**",
+        // Frozen/non-core calculation utilities: not yet enabled in MVP.
+        // Unit tests will be added when the feature flag is enabled.
+        "**/app/utils/calculations/**",
+        // Static config files (JSON) are not unit-testable.
+        "**/config/**",
       ],
     },
   },

@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { describe, it, expect } from "vitest";
-import { NDataTable } from "naive-ui";
+import { NDataTable, NButton } from "naive-ui";
 
 import PortfolioTable from "./PortfolioTable.vue";
 import type { WalletEntryDto } from "~/features/portfolio/contracts/portfolio.dto";
@@ -102,5 +102,31 @@ describe("PortfolioTable", () => {
       makeEntry({ cost_basis: null, change_percent: null, quantity: null }),
     ]);
     expect(wrapper.text()).toContain("—");
+  });
+
+  it("emits delete event with the entry id when delete button is clicked", async () => {
+    const entry = makeEntry({ id: "e-del" });
+    const wrapper = mountTable([entry]);
+    // Find all NButton instances and click the delete one (second in each row)
+    const buttons = wrapper.findAllComponents(NButton);
+    const deleteBtn = buttons.find((b) => b.text() === "Remover");
+    expect(deleteBtn).toBeDefined();
+    await deleteBtn!.trigger("click");
+    expect(wrapper.emitted("delete")).toBeTruthy();
+    expect(wrapper.emitted("delete")![0]).toEqual(["e-del"]);
+  });
+
+  it("emits edit event with the full entry when edit button is clicked", async () => {
+    const entry = makeEntry({ id: "e-edit", name: "Test Asset" });
+    const wrapper = mountTable([entry]);
+    const buttons = wrapper.findAllComponents(NButton);
+    const editBtn = buttons.find((b) => b.text() === "Editar");
+    expect(editBtn).toBeDefined();
+    await editBtn!.trigger("click");
+    expect(wrapper.emitted("edit")).toBeTruthy();
+    expect((wrapper.emitted("edit")![0] as WalletEntryDto[])[0]).toMatchObject({
+      id: "e-edit",
+      name: "Test Asset",
+    });
   });
 });
