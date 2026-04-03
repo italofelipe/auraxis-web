@@ -120,7 +120,7 @@ describe("session store", () => {
 
     it("clears refreshToken from store state", () => {
       const store = useSessionStore();
-      store.signIn("tok-123", "ref-123", "user@auraxis.com");
+      store.signIn({ accessToken: "tok-123", refreshToken: "ref-123", userEmail: "user@auraxis.com" });
 
       store.signOut();
 
