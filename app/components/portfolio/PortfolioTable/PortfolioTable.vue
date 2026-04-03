@@ -6,6 +6,7 @@ import {
   NTag,
   NButton,
   NEmpty,
+  NSpace,
   type DataTableColumns,
 } from "naive-ui";
 import { formatCurrency } from "~/utils/currency";
@@ -15,6 +16,11 @@ import type { WalletEntryDto } from "~/features/portfolio/contracts/portfolio.dt
 const { t } = useI18n();
 
 const props = defineProps<PortfolioTableProps>();
+
+const emit = defineEmits<{
+  delete: [id: string];
+  edit: [entry: WalletEntryDto];
+}>();
 
 /**
  * Resolves the NaiveUI tag type for a given asset type.
@@ -77,6 +83,28 @@ const changePercentTagType = (changePercent: number): "success" | "error" | "def
   return "default";
 };
 
+/**
+ * Renders the action buttons (Edit / Delete) for a portfolio table row.
+ *
+ * @param row - The wallet entry for the current row.
+ * @returns VNode containing the action button group.
+ */
+const renderActions = (row: WalletEntryDto): VNodeChild =>
+  h(NSpace, { size: "small", wrap: false }, {
+    default: () => [
+      h(
+        NButton,
+        { size: "tiny", quaternary: true, onClick: () => emit("edit", row) },
+        { default: () => t("portfolio.table.actions.edit") },
+      ),
+      h(
+        NButton,
+        { size: "tiny", quaternary: true, type: "error", onClick: () => emit("delete", row.id) },
+        { default: () => t("portfolio.table.actions.delete") },
+      ),
+    ],
+  });
+
 const columns = computed((): DataTableColumns<WalletEntryDto> => [
   {
     title: t("portfolio.table.columns.asset"),
@@ -85,11 +113,7 @@ const columns = computed((): DataTableColumns<WalletEntryDto> => [
       return h("div", { class: "pt-name-cell" }, [
         h("span", { class: "pt-name-cell__name" }, row.name),
         row.ticker !== null
-          ? h(
-              NTag,
-              { size: "small", bordered: false, class: "pt-name-cell__ticker" },
-              { default: () => row.ticker },
-            )
+          ? h(NTag, { size: "small", bordered: false, class: "pt-name-cell__ticker" }, { default: () => row.ticker })
           : null,
       ]);
     },
@@ -109,35 +133,24 @@ const columns = computed((): DataTableColumns<WalletEntryDto> => [
     title: t("portfolio.table.columns.currentValue"),
     key: "current_value",
     render(row): VNodeChild {
-      return h(
-        "span",
-        { class: "pt-value-cell" },
-        formatCurrency(row.current_value),
-      );
+      return h("span", { class: "pt-value-cell" }, formatCurrency(row.current_value));
     },
   },
   {
     title: t("portfolio.table.columns.cost"),
     key: "cost_basis",
     render(row): VNodeChild {
-      return h(
-        "span",
-        {},
-        row.cost_basis !== null ? formatCurrency(row.cost_basis) : "—",
-      );
+      return h("span", {}, row.cost_basis !== null ? formatCurrency(row.cost_basis) : "—");
     },
   },
   {
     title: t("portfolio.table.columns.variation"),
     key: "change_percent",
     render(row): VNodeChild {
-      if (row.change_percent === null) {
-        return h("span", {}, "—");
-      }
-      const tagType = changePercentTagType(row.change_percent);
+      if (row.change_percent === null) { return h("span", {}, "—"); }
       return h(
         NTag,
-        { type: tagType, size: "small", bordered: false },
+        { type: changePercentTagType(row.change_percent), size: "small", bordered: false },
         { default: () => formatPercent(row.change_percent!) },
       );
     },
@@ -149,6 +162,12 @@ const columns = computed((): DataTableColumns<WalletEntryDto> => [
       if (row.quantity === null) { return h("span", {}, "—"); }
       return h("span", {}, String(row.quantity));
     },
+  },
+  {
+    title: "",
+    key: "actions",
+    width: 100,
+    render: renderActions,
   },
 ]);
 

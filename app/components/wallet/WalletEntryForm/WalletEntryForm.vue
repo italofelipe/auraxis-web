@@ -29,7 +29,11 @@ const props = defineProps<WalletEntryFormProps>();
 const emit = defineEmits<{
   "update:visible": [value: boolean];
   submit: [payload: CreateWalletEntryPayload];
+  edit: [id: string, payload: CreateWalletEntryPayload];
 }>();
+
+/** True when editing an existing entry (initialEntry prop is set). */
+const isEditMode = computed((): boolean => !!props.initialEntry);
 
 const formRef = ref<FormInst | null>(null);
 
@@ -251,23 +255,20 @@ const tsToDateString = (ts: number): string => {
 };
 
 /**
- * Validates the form and emits the submit event with the typed payload.
+ * Builds the create-entry payload from the current form state.
+ *
  * For ticker-based assets the total cost basis (`value`) is computed as
  * `quantity × unit_price` when the BRAPI estimate (or user override) is available.
+ *
+ * @returns Typed CreateWalletEntryPayload ready to be submitted.
  */
-const handleSubmit = async (): Promise<void> => {
-  try {
-    await formRef.value?.validate();
-  } catch {
-    return;
-  }
-
+const buildPayload = (): CreateWalletEntryPayload => {
   const computedValue =
     showQuantity.value && form.quantity !== null && form.unit_price !== null
       ? form.quantity * form.unit_price
       : null;
 
-  const payload: CreateWalletEntryPayload = {
+  return {
     name: form.name,
     asset_class: (form.asset_class as CreateWalletEntryPayload["asset_class"]) ?? undefined,
     ticker: hasTicker.value ? form.ticker || null : null,
@@ -276,8 +277,25 @@ const handleSubmit = async (): Promise<void> => {
     register_date: form.register_date ? tsToDateString(form.register_date) : "",
     should_be_on_wallet: form.should_be_on_wallet,
   };
+};
 
-  emit("submit", payload);
+/**
+ * Validates the form then emits the appropriate submit or edit event.
+ */
+const handleSubmit = async (): Promise<void> => {
+  try {
+    await formRef.value?.validate();
+  } catch {
+    return;
+  }
+
+  const payload = buildPayload();
+
+  if (isEditMode.value && props.initialEntry) {
+    emit("edit", props.initialEntry.id, payload);
+  } else {
+    emit("submit", payload);
+  }
   emit("update:visible", false);
   resetForm();
 };
@@ -296,6 +314,41 @@ const resetForm = (): void => {
   lastBrapiUnitPrice.value = null;
 };
 
+/**
+ * Pre-fills the form with data from `initialEntry` when the prop changes.
+ *
+ * This enables the edit-mode UX: the consumer sets `initialEntry` before
+ * opening the modal and the form is ready with the existing values.
+ */
+watch(
+  () => props.initialEntry,
+  (entry) => {
+    if (!entry) { return; }
+    form.name = entry.name;
+    // Map WalletEntryDto asset_type back to asset_class for the select
+    const assetTypeToClass: Record<string, string> = {
+      stock: "stock",
+      fii: "fii",
+      crypto: "crypto",
+      fixed_income: "cdb",
+      other: "custom",
+    };
+    form.asset_class = assetTypeToClass[entry.asset_type] ?? null;
+    form.ticker = entry.ticker ?? "";
+    form.quantity = entry.quantity;
+    form.unit_price = entry.cost_basis !== null && entry.quantity !== null && entry.quantity > 0
+      ? entry.cost_basis / entry.quantity
+      : null;
+    form.value = entry.cost_basis;
+    form.register_date = entry.register_date
+      ? new Date(entry.register_date).getTime()
+      : null;
+    form.should_be_on_wallet = true;
+    lastBrapiUnitPrice.value = null;
+  },
+  { immediate: false },
+);
+
 /** Closes the modal and resets form state. */
 const handleClose = (): void => {
   emit("update:visible", false);
@@ -307,7 +360,7 @@ const handleClose = (): void => {
   <NModal
     :show="props.visible"
     preset="card"
-    :title="$t('wallet.form.title')"
+    :title="isEditMode ? $t('wallet.form.titleEdit') : $t('wallet.form.title')"
     class="wallet-entry-form-modal"
     :style="{ maxWidth: '500px', width: '100%' }"
     @update:show="handleClose"
@@ -425,7 +478,9 @@ const handleClose = (): void => {
     <template #footer>
       <NSpace justify="end">
         <NButton @click="handleClose">{{ $t('common.cancel') }}</NButton>
-        <NButton type="primary" @click="handleSubmit">{{ $t('common.save') }}</NButton>
+        <NButton type="primary" @click="handleSubmit">
+          {{ isEditMode ? $t('wallet.form.saveEdit') : $t('common.save') }}
+        </NButton>
       </NSpace>
     </template>
   </NModal>

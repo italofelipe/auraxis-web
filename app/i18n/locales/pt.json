@@ -122,14 +122,18 @@
         "completed": "Concluídas",
         "paused": "Pausadas"
       },
-      "empty": "Nenhuma meta encontrada para o filtro selecionado."
+      "empty": "Nenhuma meta encontrada para o filtro selecionado.",
+      "emptyCreate": "Criar primeira meta"
     },
     "portfolio": {
       "title": "Carteira",
       "subtitle": "Visão geral dos seus investimentos",
       "addAsset": "Adicionar ativo",
       "loadError": "Não foi possível carregar a carteira",
-      "loadErrorMessage": "Tente recarregar a página."
+      "loadErrorMessage": "Tente recarregar a página.",
+      "emptyTitle": "Nenhum ativo na carteira",
+      "emptyBody": "Adicione seu primeiro investimento para começar a acompanhar seu patrimônio.",
+      "emptyAction": "Adicionar primeiro ativo"
     },
     "alerts": {
       "title": "Alertas",
@@ -663,6 +667,8 @@
   "wallet": {
     "form": {
       "title": "Adicionar ativo",
+      "titleEdit": "Editar ativo",
+      "saveEdit": "Salvar alterações",
       "assetClass": {
         "label": "Tipo de ativo",
         "placeholder": "Selecione o tipo"
@@ -770,6 +776,10 @@
         "cost": "Custo",
         "variation": "Variação",
         "quantity": "Quantidade"
+      },
+      "actions": {
+        "edit": "Editar",
+        "delete": "Remover"
       }
     }
   },
@@ -785,7 +795,11 @@
       "accumulated": "Acumulado",
       "target": "Meta",
       "targetDate": "Meta:",
-      "viewDetails": "Ver detalhes"
+      "viewDetails": "Ver detalhes",
+      "edit": "Editar meta",
+      "showPlan": "Ver planejamento",
+      "delete": "Excluir meta",
+      "deleteConfirm": "Tem certeza que deseja excluir esta meta?"
     },
     "form": {
       "titleCreate": "Nova Meta",
