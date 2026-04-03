@@ -9,7 +9,7 @@ import QuestionnaireResult from "~/features/investor-profile/components/Question
 import type { QuestionnaireResultDto } from "~/features/investor-profile/contracts/investor-profile.dto";
 
 definePageMeta({
-  middleware: ["authenticated"],
+  middleware: ["authenticated", "coming-soon"],
   pageTitle: "Perfil do Investidor",
 });
 

@@ -13,7 +13,7 @@ import { useRevokeSharedEntryMutation } from "~/features/shared-entries/queries/
 
 definePageMeta({
   layout: "default",
-  middleware: ["authenticated"],
+  middleware: ["authenticated", "coming-soon"],
   pageTitle: "Entradas Compartilhadas",
   pageSubtitle: "Gerencie divisões de transações",
 });

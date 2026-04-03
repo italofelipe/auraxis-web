@@ -13,7 +13,7 @@ const { t } = useI18n();
 
 definePageMeta({
   layout: "default",
-  middleware: ["authenticated"],
+  middleware: ["authenticated", "coming-soon"],
   pageTitle: "Simulações",
   pageSubtitle: "Simule cenários financeiros",
 });

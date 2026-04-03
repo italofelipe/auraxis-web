@@ -21,7 +21,7 @@ import { useDeleteAccountMutation } from "~/features/accounts/queries/use-delete
 const { t } = useI18n();
 
 definePageMeta({
-  middleware: ["authenticated"],
+  middleware: ["authenticated", "coming-soon"],
   pageTitle: "Contas",
   pageSubtitle: "Gerencie suas contas bancárias",
 });

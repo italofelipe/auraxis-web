@@ -229,6 +229,106 @@
       "status": "enabled-prod",
       "description": "Conversor de moeda com cotação em tempo real via BRAPI.",
       "repositories": ["auraxis-web"]
+    },
+    {
+      "key": "web.pages.portfolio",
+      "owner": "platform",
+      "createdAt": "2026-04-03",
+      "removeBy": "2027-12-31",
+      "type": "release",
+      "status": "draft",
+      "description": "Página de carteira de investimentos. Freezada para MVP — habilitar após validação da feature.",
+      "repositories": ["auraxis-web"]
+    },
+    {
+      "key": "web.pages.goals",
+      "owner": "platform",
+      "createdAt": "2026-04-03",
+      "removeBy": "2027-12-31",
+      "type": "release",
+      "status": "draft",
+      "description": "Página de metas financeiras. Freezada para MVP — habilitar após validação da feature.",
+      "repositories": ["auraxis-web"]
+    },
+    {
+      "key": "web.pages.alerts",
+      "owner": "platform",
+      "createdAt": "2026-04-03",
+      "removeBy": "2027-12-31",
+      "type": "release",
+      "status": "draft",
+      "description": "Página de alertas personalizados. Freezada para MVP — habilitar após validação da feature.",
+      "repositories": ["auraxis-web"]
+    },
+    {
+      "key": "web.pages.simulations",
+      "owner": "platform",
+      "createdAt": "2026-04-03",
+      "removeBy": "2027-12-31",
+      "type": "release",
+      "status": "draft",
+      "description": "Página de simulações salvas. Freezada para MVP — habilitar após validação da feature.",
+      "repositories": ["auraxis-web"]
+    },
+    {
+      "key": "web.pages.shared-entries",
+      "owner": "platform",
+      "createdAt": "2026-04-03",
+      "removeBy": "2027-12-31",
+      "type": "release",
+      "status": "draft",
+      "description": "Página de entradas compartilhadas (divisão de contas). Freezada para MVP.",
+      "repositories": ["auraxis-web"]
+    },
+    {
+      "key": "web.pages.income",
+      "owner": "platform",
+      "createdAt": "2026-04-03",
+      "removeBy": "2027-12-31",
+      "type": "release",
+      "status": "draft",
+      "description": "Página de receitas e importação de extratos. Freezada para MVP.",
+      "repositories": ["auraxis-web"]
+    },
+    {
+      "key": "web.pages.investor-profile",
+      "owner": "platform",
+      "createdAt": "2026-04-03",
+      "removeBy": "2027-12-31",
+      "type": "release",
+      "status": "draft",
+      "description": "Página de perfil do investidor (questionário). Freezada para MVP.",
+      "repositories": ["auraxis-web"]
+    },
+    {
+      "key": "web.pages.settings.accounts",
+      "owner": "platform",
+      "createdAt": "2026-04-03",
+      "removeBy": "2027-12-31",
+      "type": "release",
+      "status": "draft",
+      "description": "Sub-página de contas bancárias nas configurações. Freezada para MVP.",
+      "repositories": ["auraxis-web"]
+    },
+    {
+      "key": "web.pages.settings.credit-cards",
+      "owner": "platform",
+      "createdAt": "2026-04-03",
+      "removeBy": "2027-12-31",
+      "type": "release",
+      "status": "draft",
+      "description": "Sub-página de cartões de crédito nas configurações. Freezada para MVP.",
+      "repositories": ["auraxis-web"]
+    },
+    {
+      "key": "web.pages.settings.tags",
+      "owner": "platform",
+      "createdAt": "2026-04-03",
+      "removeBy": "2027-12-31",
+      "type": "release",
+      "status": "draft",
+      "description": "Sub-página de tags personalizadas nas configurações. Freezada para MVP.",
+      "repositories": ["auraxis-web"]
     }
   ]
 }
