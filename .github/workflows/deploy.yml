@@ -157,7 +157,7 @@ jobs:
             --id "$DIST_ID" \
             --query 'Distribution.DistributionConfig.Origins.Items[0].DomainName' \
             --output text)
-          EXPECTED="${{ env.S3_BUCKET }}.s3-website-${{ env.AWS_REGION }}.amazonaws.com"
+          EXPECTED="${{ env.S3_BUCKET }}.s3.amazonaws.com"
           echo "CloudFront origin : $CF_ORIGIN"
           echo "S3_BUCKET expected: $EXPECTED"
           if [ "$CF_ORIGIN" != "$EXPECTED" ]; then
