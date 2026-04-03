@@ -1,4 +1,25 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { TOOL_SLUGS } from "./app/data/tools";
+
+/**
+ * Generates routeRules entries for all tool slugs (PT + EN locales).
+ * Each tool gets `prerender: true` so it is generated as a static HTML file.
+ */
+const toolRouteRules = Object.fromEntries(
+  TOOL_SLUGS.flatMap((slug) => [
+    [`/tools/${slug}`, { prerender: true }],
+    [`/en/tools/${slug}`, { prerender: true }],
+  ]),
+) as Record<string, { prerender: boolean }>;
+
+/**
+ * Generates nitro.prerender.routes seed entries for all tool slugs.
+ */
+const toolPrerenderRoutes: string[] = TOOL_SLUGS.flatMap((slug) => [
+  `/tools/${slug}`,
+  `/en/tools/${slug}`,
+]);
+
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
 
@@ -306,26 +327,9 @@ export default defineNuxtConfig({
     "/":                          { prerender: true },
     "/plans":                     { prerender: true },
     "/tools":                     { prerender: true },
-    "/tools/installment-vs-cash":         { prerender: true },
-    "/tools/thirteenth-salary":           { prerender: true },
-    "/tools/hora-extra":                  { prerender: true },
-    "/tools/ferias":                      { prerender: true },
-    "/tools/rescisao":                    { prerender: true },
-    "/tools/dividir-conta":               { prerender: true },
-    "/tools/desconto-markup":             { prerender: true },
-    "/tools/juros-compostos":             { prerender: true },
-    "/tools/fgts":                        { prerender: true },
-    "/tools/clt-vs-pj":                   { prerender: true },
-    "/tools/mei":                         { prerender: true },
-    "/tools/cdb-lci-lca":                 { prerender: true },
-    "/tools/tesouro-direto":              { prerender: true },
-    "/tools/aposentadoria":               { prerender: true },
-    "/tools/fire":                        { prerender: true },
-    "/tools/financiamento-imobiliario":   { prerender: true },
-    "/tools/aluguel-vs-compra":           { prerender: true },
-    "/tools/conversor-moeda":             { prerender: true },
-    "/tools/fii":                         { prerender: true },
-    "/tools/inss-ir-folha":               { prerender: true },
+    // Tool routes are generated automatically from app/data/tools.ts
+    // DO NOT add individual tool routes here — edit app/data/tools.ts instead.
+    ...toolRouteRules,
     "/privacy-policy":            { prerender: true },
     "/terms-of-service":          { prerender: true },
 
@@ -343,26 +347,7 @@ export default defineNuxtConfig({
     "/en":                           { prerender: true },
     "/en/plans":                     { prerender: true },
     "/en/tools":                     { prerender: true },
-    "/en/tools/installment-vs-cash":         { prerender: true },
-    "/en/tools/thirteenth-salary":           { prerender: true },
-    "/en/tools/hora-extra":                  { prerender: true },
-    "/en/tools/ferias":                      { prerender: true },
-    "/en/tools/rescisao":                    { prerender: true },
-    "/en/tools/dividir-conta":               { prerender: true },
-    "/en/tools/desconto-markup":             { prerender: true },
-    "/en/tools/juros-compostos":             { prerender: true },
-    "/en/tools/fgts":                        { prerender: true },
-    "/en/tools/clt-vs-pj":                   { prerender: true },
-    "/en/tools/mei":                         { prerender: true },
-    "/en/tools/cdb-lci-lca":                 { prerender: true },
-    "/en/tools/tesouro-direto":              { prerender: true },
-    "/en/tools/aposentadoria":               { prerender: true },
-    "/en/tools/fire":                        { prerender: true },
-    "/en/tools/financiamento-imobiliario":   { prerender: true },
-    "/en/tools/aluguel-vs-compra":           { prerender: true },
-    "/en/tools/conversor-moeda":             { prerender: true },
-    "/en/tools/fii":                         { prerender: true },
-    "/en/tools/inss-ir-folha":               { prerender: true },
+    // EN tool routes are included in toolRouteRules above (spread into routeRules).
     "/en/privacy-policy":            { prerender: true },
     "/en/terms-of-service":          { prerender: true },
     "/en/login":                     { prerender: true },
@@ -401,62 +386,27 @@ export default defineNuxtConfig({
       // The crawler will follow internal links and generate locale variants.
       crawlLinks: true,
       routes: [
+        // ── Static public pages ────────────────────────────────────────
         "/",
         "/plans",
         "/tools",
-        "/tools/installment-vs-cash",
-        "/tools/thirteenth-salary",
-        "/tools/hora-extra",
-        "/tools/ferias",
-        "/tools/rescisao",
-        "/tools/dividir-conta",
-        "/tools/desconto-markup",
-        "/tools/juros-compostos",
-        "/tools/fgts",
-        "/tools/clt-vs-pj",
-        "/tools/mei",
-        "/tools/cdb-lci-lca",
-        "/tools/tesouro-direto",
-        "/tools/aposentadoria",
-        "/tools/fire",
-        "/tools/financiamento-imobiliario",
-        "/tools/aluguel-vs-compra",
-        "/tools/conversor-moeda",
-        "/tools/fii",
-        "/tools/inss-ir-folha",
         "/privacy-policy",
         "/terms-of-service",
         "/login",
         "/register",
         "/forgot-password",
+        // ── EN locale variants ─────────────────────────────────────────
         "/en",
         "/en/plans",
         "/en/tools",
-        "/en/tools/installment-vs-cash",
-        "/en/tools/thirteenth-salary",
-        "/en/tools/hora-extra",
-        "/en/tools/ferias",
-        "/en/tools/rescisao",
-        "/en/tools/dividir-conta",
-        "/en/tools/desconto-markup",
-        "/en/tools/juros-compostos",
-        "/en/tools/fgts",
-        "/en/tools/clt-vs-pj",
-        "/en/tools/mei",
-        "/en/tools/cdb-lci-lca",
-        "/en/tools/tesouro-direto",
-        "/en/tools/aposentadoria",
-        "/en/tools/fire",
-        "/en/tools/financiamento-imobiliario",
-        "/en/tools/aluguel-vs-compra",
-        "/en/tools/conversor-moeda",
-        "/en/tools/fii",
-        "/en/tools/inss-ir-folha",
         "/en/privacy-policy",
         "/en/terms-of-service",
         "/en/login",
         "/en/register",
         "/en/forgot-password",
+        // ── Tool routes — auto-generated from app/data/tools.ts ────────
+        // DO NOT add individual tool routes here. Edit app/data/tools.ts.
+        ...toolPrerenderRoutes,
       ],
       ignore: ["/sitemap.xml", "/__nuxt_content"],
     },
