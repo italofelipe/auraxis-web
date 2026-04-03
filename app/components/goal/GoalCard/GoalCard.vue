@@ -6,6 +6,8 @@ import {
   NStatistic,
   NButton,
   NSkeleton,
+  NPopconfirm,
+  NSpace,
 } from "naive-ui";
 import { formatCurrency } from "~/utils/currency";
 import type { GoalCardProps } from "./GoalCard.types";
@@ -14,6 +16,12 @@ import type { GoalStatus } from "~/features/goals/contracts/goal.dto";
 const { t } = useI18n();
 
 const props = defineProps<GoalCardProps>();
+
+const emit = defineEmits<{
+  edit: [];
+  "show-plan": [];
+  delete: [];
+}>();
 
 /**
  * Resolves the NaiveUI tag type for a given goal status.
@@ -144,7 +152,22 @@ const progressPercent = computed(() => {
         <span class="goal-card__target-date">
           {{ $t('goal.card.targetDate') }} {{ formatDate(props.goal.target_date) }}
         </span>
-        <NButton size="small" quaternary>{{ $t('goal.card.viewDetails') }}</NButton>
+        <NSpace size="small">
+          <NButton size="small" quaternary @click="emit('show-plan')">
+            {{ $t('goal.card.showPlan') }}
+          </NButton>
+          <NButton size="small" quaternary @click="emit('edit')">
+            {{ $t('goal.card.edit') }}
+          </NButton>
+          <NPopconfirm @positive-click="emit('delete')">
+            <template #trigger>
+              <NButton size="small" quaternary type="error">
+                {{ $t('goal.card.delete') }}
+              </NButton>
+            </template>
+            {{ $t('goal.card.deleteConfirm') }}
+          </NPopconfirm>
+        </NSpace>
       </div>
     </template>
   </NCard>

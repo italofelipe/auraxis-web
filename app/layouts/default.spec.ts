@@ -101,7 +101,9 @@ describe("DefaultLayout", () => {
     expect(wrapper.text()).toContain("nav.transactions");
     expect(wrapper.text()).toContain("nav.tools");
     expect(wrapper.text()).toContain("Conteudo");
-    // portfolio is enabled-prod since H-P2.4 — nav item must be visible.
+    // Items with enabled-prod flags (portfolio, goals) are visible in the nav.
+    // Items still in draft (alerts, simulations, sharedEntries) remain hidden.
     expect(wrapper.text()).toContain("nav.portfolio");
+    expect(wrapper.text()).toContain("nav.goals");
   });
 });

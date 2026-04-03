@@ -117,4 +117,22 @@ describe("GoalCard", () => {
     expect(wrapper.findAllComponents(NSkeleton).length).toBeGreaterThan(0);
     expect(wrapper.findComponent(NProgress).exists()).toBe(false);
   });
+
+  it("emits edit when the edit button is clicked", async () => {
+    const wrapper = mountGoalCard(makeGoal());
+    const buttons = wrapper.findAll("button");
+    const editButton = buttons.find((b) => b.text().includes("Editar"));
+    expect(editButton).toBeTruthy();
+    await editButton!.trigger("click");
+    expect(wrapper.emitted("edit")).toBeTruthy();
+  });
+
+  it("emits show-plan when the plan button is clicked", async () => {
+    const wrapper = mountGoalCard(makeGoal());
+    const buttons = wrapper.findAll("button");
+    const planButton = buttons.find((b) => b.text().includes("planejamento"));
+    expect(planButton).toBeTruthy();
+    await planButton!.trigger("click");
+    expect(wrapper.emitted("show-plan")).toBeTruthy();
+  });
 });
