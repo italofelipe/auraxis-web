@@ -1,6 +1,8 @@
 // @ts-check
 import withNuxt from "./.nuxt/eslint.config.mjs";
 import jsdoc from "eslint-plugin-jsdoc";
+import sonarjs from "eslint-plugin-sonarjs";
+import security from "eslint-plugin-security";
 
 export default withNuxt(
   {
@@ -13,7 +15,44 @@ export default withNuxt(
       // Duplicate artefact files with spaces in their names left by automated
       // tooling. They are not tracked by git and should not be linted.
       "**/* 2.*",
+      // Auto-generated OpenAPI types — name conventions enforced by the generator.
+      "app/shared/types/generated/**",
+      // Platform tooling scripts — not product code, follow their own conventions.
+      "scripts/**",
     ],
+  },
+  // ── SonarJS: code-smell and reliability rules ────────────────────────────
+  sonarjs.configs.recommended,
+  {
+    rules: {
+      // Nested functions are idiomatic in Vue composables — disable globally.
+      "sonarjs/no-nested-functions": "off",
+      // Raise threshold: Vue components tend to have higher cognitive complexity.
+      "sonarjs/cognitive-complexity": ["error", 20],
+      // TODO/FIXME comments are used intentionally during development.
+      "sonarjs/todo-tag": "off",
+      "sonarjs/fixme-tag": "off",
+      // Commented-out code occurs during refactoring; kept off to reduce noise.
+      "sonarjs/no-commented-code": "off",
+      // `void expr` is idiomatic in Vue event handlers to discard Promises
+      // without await while keeping explicit return types.
+      "sonarjs/void-use": "off",
+      // sonarjs has its own unused-vars rule; defer to @typescript-eslint which
+      // is type-aware and respects the _prefix ignore pattern already configured.
+      "sonarjs/no-unused-vars": "off",
+    },
+  },
+  // ── Security: frontend-relevant vulnerability checks ─────────────────────
+  {
+    plugins: { security },
+    rules: {
+      // ReDoS — unsafe regular expressions that can stall the engine.
+      "security/detect-unsafe-regex": "error",
+      // eval() with a non-literal expression is always a security risk.
+      "security/detect-eval-with-expression": "error",
+      // Bidirectional Unicode characters (Trojan Source attack vector).
+      "security/detect-bidi-characters": "error",
+    },
   },
   {
     files: ["**/*.{js,mjs,cjs,ts,tsx,vue}"],
@@ -101,20 +140,23 @@ export default withNuxt(
     },
   },
   {
-    files: ["**/*.{test,spec}.{js,ts,tsx}", "**/__tests__/**/*.{js,ts,tsx}"],
+    files: ["**/*.{test,spec,e2e}.{js,ts,tsx}", "**/__tests__/**/*.{js,ts,tsx}"],
     rules: {
       complexity: ["error", 20],
       "max-lines-per-function": [
         "error",
         {
-          max: 140,
+          max: 250,
           skipBlankLines: true,
           skipComments: true,
           IIFEs: true,
         },
       ],
       "max-statements": ["error", 30],
+      "max-params": ["error", 5],
       "no-console": "off",
+      // http://localhost URLs are expected in test fixtures.
+      "sonarjs/no-clear-text-protocols": "off",
     },
   },
 );
