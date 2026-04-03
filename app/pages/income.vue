@@ -14,7 +14,7 @@ import type { ParsedRow } from "~/features/receivables/model/receivables";
 const { t } = useI18n();
 
 definePageMeta({
-  middleware: ["authenticated"],
+  middleware: ["authenticated", "coming-soon"],
   pageTitle: "Receitas",
   pageSubtitle: "Receitas e importação de extratos",
 });

@@ -7,7 +7,7 @@ import { useDeleteWalletEntryMutation } from "~/features/wallet/queries/use-dele
 import type { CreateWalletEntryPayload } from "~/features/wallet/services/wallet.client";
 
 definePageMeta({
-  middleware: ["authenticated"],
+  middleware: ["authenticated", "coming-soon"],
   pageTitle: "Carteira",
   pageSubtitle: "Seus ativos e posições",
 });

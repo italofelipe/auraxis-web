@@ -15,7 +15,7 @@ import type { GoalDto, GoalStatus, CreateGoalPayload } from "~/features/goals/co
 const { t } = useI18n();
 
 definePageMeta({
-  middleware: ["authenticated"],
+  middleware: ["authenticated", "coming-soon"],
   pageTitle: "Metas",
   pageSubtitle: "Acompanhe suas metas financeiras",
 });
