@@ -379,13 +379,15 @@ jobs:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
 
   # ── 11. E2E Tests (Playwright) ─────────────────────────────────────────
-  # Temporariamente protegido por flag de repo variable:
-  #   ENABLE_WEB_E2E=true
+  # Mandatory — runs on every PR. Authenticated tests are skipped when
+  # E2E_TEST_EMAIL / E2E_TEST_PASSWORD secrets are absent (public-fork PRs).
+  # Required secrets:
+  #   E2E_TEST_EMAIL    — email of the CI test user
+  #   E2E_TEST_PASSWORD — password of the CI test user
   e2e:
     name: E2E Tests (Playwright)
     runs-on: ubuntu-latest
     needs: [build]
-    if: vars.ENABLE_WEB_E2E == 'true'
     permissions:
       contents: read
     steps:
@@ -401,13 +403,15 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
       - name: Build app
-        run: pnpm build
+        run: pnpm generate
         env:
           NODE_ENV: production
       - name: Run Playwright tests
         run: pnpm test:e2e
         env:
           CI: true
+          E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
+          E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
         if: always()
