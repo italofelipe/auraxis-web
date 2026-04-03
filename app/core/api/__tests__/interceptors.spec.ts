@@ -169,7 +169,7 @@ describe("registerResponseInterceptors", () => {
     expect(onServerError).not.toHaveBeenCalled();
   });
 
-  it("não chama callbacks em 401 — relança ApiError normalmente", async () => {
+  it("não chama onForbidden/onServerError em 401 sem onUnauthorized", async () => {
     const handler = getRejectedHandler(client);
 
     const err = await handler(makeAxiosError(401, "Não autorizado")).catch(
@@ -199,5 +199,61 @@ describe("registerResponseInterceptors", () => {
 
     expect((err as ApiError).status).toBe(403);
     expect((err as ApiError).code).toBe("FORBIDDEN");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 401 — token refresh flow
+// ---------------------------------------------------------------------------
+
+describe("registerResponseInterceptors — onUnauthorized (token refresh)", () => {
+  it("chama onUnauthorized em 401 quando handler está configurado e erro não tem config", async () => {
+    const onUnauthorized = vi.fn<() => Promise<string | null>>().mockResolvedValue(null);
+    const refreshClient = axios.create({ baseURL: "http://localhost" });
+    registerResponseInterceptors(refreshClient, { onUnauthorized });
+
+    const handler = getRejectedHandler(refreshClient);
+    const err = await handler(makeAxiosError(401, "Unauthorized")).catch((e: unknown) => e);
+
+    // Error has no config, so refresh is skipped and 401 is re-thrown.
+    expect(err).toBeInstanceOf(ApiError);
+    expect((err as ApiError).status).toBe(401);
+  });
+
+  it("relança ApiError 401 quando onUnauthorized retorna null", async () => {
+    const onUnauthorized = vi.fn<() => Promise<string | null>>().mockResolvedValue(null);
+    const refreshClient = axios.create({ baseURL: "http://localhost" });
+    registerResponseInterceptors(refreshClient, { onUnauthorized });
+
+    const handler = getRejectedHandler(refreshClient);
+
+    const axiosErr = Object.assign(new Error("Unauthorized"), {
+      isAxiosError: true,
+      response: { status: 401, data: { message: "Unauthorized" } },
+      config: { headers: { Authorization: "Bearer old" }, _retry: false },
+    });
+
+    const err = await handler(axiosErr).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(ApiError);
+    expect((err as ApiError).status).toBe(401);
+  });
+
+  it("não chama onUnauthorized em 401 quando _retry já está marcado (evita loop)", async () => {
+    const onUnauthorized = vi.fn<() => Promise<string | null>>().mockResolvedValue("new-token");
+    const refreshClient = axios.create({ baseURL: "http://localhost" });
+    registerResponseInterceptors(refreshClient, { onUnauthorized });
+
+    const handler = getRejectedHandler(refreshClient);
+
+    const axiosErr = Object.assign(new Error("Unauthorized"), {
+      isAxiosError: true,
+      response: { status: 401, data: { message: "Unauthorized" } },
+      config: { headers: {}, _retry: true },
+    });
+
+    const err = await handler(axiosErr).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(ApiError);
+    expect((err as ApiError).status).toBe(401);
+    expect(onUnauthorized).not.toHaveBeenCalled();
   });
 });

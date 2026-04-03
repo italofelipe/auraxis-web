@@ -21,6 +21,8 @@ type V2AuthUser = {
 /** v2 envelope data payload for login and register. */
 type V2AuthData = {
   readonly token: string;
+  /** Refresh token returned since B18. Absent on older API versions. */
+  readonly refresh_token?: string;
   readonly user: V2AuthUser;
 };
 
@@ -47,6 +49,7 @@ type ForgotPasswordWireResponse =
  */
 const normalizeAuthEnvelope = (envelope: V2AuthEnvelope): LoginResponse => ({
   accessToken: envelope.data.token,
+  refreshToken: envelope.data.refresh_token,
   user: {
     email: envelope.data.user.email,
     displayName: envelope.data.user.name,

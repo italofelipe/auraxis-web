@@ -8,18 +8,20 @@ import { createAuthApi } from "./api";
  * @param email User email.
  * @param name User display name.
  * @param token Access token.
+ * @param refreshToken Refresh token.
  * @returns Mock resolved Axios-like response with v2 envelope.
  */
 function makeV2AuthResponse(
   email: string,
   name: string,
   token = "mock-token",
+  refreshToken = "mock-refresh",
 ): { data: unknown } {
   return {
     data: {
       success: true,
       message: "OK",
-      data: { token, user: { id: "uuid-1", name, email } },
+      data: { token, refresh_token: refreshToken, user: { id: "uuid-1", name, email } },
     },
   };
 }
@@ -39,6 +41,7 @@ describe("createAuthApi", () => {
       password: "12345678",
     });
     expect(response.accessToken).toBe("mock-token");
+    expect(response.refreshToken).toBe("mock-refresh");
     expect(response.user.email).toBe("user@auraxis.com");
     expect(response.user.displayName).toBe("Auraxis User");
   });
@@ -59,6 +62,7 @@ describe("createAuthApi", () => {
       password: "Senha@12345",
     });
     expect(response.accessToken).toBe("register-token");
+    expect(response.refreshToken).toBe("mock-refresh");
     expect(response.user.email).toBe("new@auraxis.com");
     expect(response.user.displayName).toBe("New User");
   });

@@ -9,6 +9,12 @@ const { t } = useI18n();
 const props = defineProps<SharedEntryRowProps>();
 const emit = defineEmits<SharedEntryRowEmits>();
 
+/** Possible lifecycle states for a shared entry. */
+type EntryStatus = "pending" | "accepted" | "declined";
+
+/** NaiveUI semantic tag type for shared-entry status display. */
+type EntryTagType = "warning" | "success" | "error";
+
 /**
  * Resolves the NaiveUI tag type for a given entry status.
  *
@@ -16,9 +22,9 @@ const emit = defineEmits<SharedEntryRowEmits>();
  * @returns NaiveUI tag type string.
  */
 const statusTagType = (
-  status: "pending" | "accepted" | "declined",
-): "warning" | "success" | "error" => {
-  const map: Record<"pending" | "accepted" | "declined", "warning" | "success" | "error"> = {
+  status: EntryStatus,
+): EntryTagType => {
+  const map: Record<EntryStatus, EntryTagType> = {
     pending: "warning",
     accepted: "success",
     declined: "error",

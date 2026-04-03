@@ -67,4 +67,19 @@ export interface ResponseInterceptorOptions {
    * @param message Localised message to display.
    */
   readonly onServerError?: (message: string) => void;
+
+  /**
+   * Called when a response returns HTTP 401 and a refresh strategy is available.
+   *
+   * The implementation should exchange the current refresh token for a new
+   * access token and persist both to the session store.
+   *
+   * Returning the new access token causes the interceptor to automatically
+   * retry the original failed request with the refreshed credentials.
+   * Returning `null` signals that the refresh failed (e.g. the refresh token
+   * is expired or missing) — the original 401 error is then re-thrown.
+   *
+   * @returns New access token, or `null` if the refresh was unsuccessful.
+   */
+  readonly onUnauthorized?: () => Promise<string | null>;
 }

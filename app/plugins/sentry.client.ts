@@ -1,3 +1,4 @@
+import type { ErrorEvent, EventHint } from "@sentry/nuxt";
 import * as Sentry from "@sentry/nuxt";
 
 /**
@@ -8,6 +9,51 @@ import * as Sentry from "@sentry/nuxt";
  */
 export function normalizeDsn(raw: unknown): string {
   return String(raw ?? "").trim();
+}
+
+/** HTTP header names that carry credentials and must be stripped. */
+const REDACTED_HEADERS = new Set(["authorization", "cookie"]);
+
+/**
+ * Returns a copy of the header map with credential headers removed.
+ *
+ * @param headers - Original header map from the Sentry request context.
+ * @returns Header map without credential headers.
+ */
+const redactHeaders = (
+  headers: Record<string, string>,
+): Record<string, string> =>
+  Object.fromEntries(
+    Object.entries(headers).filter(([key]) => !REDACTED_HEADERS.has(key.toLowerCase())),
+  );
+
+/**
+ * Strips personally identifiable information from a Sentry event before it is
+ * transmitted to Sentry servers.
+ *
+ * Redacts:
+ * - `user` object (keeps only the opaque `id`, drops email/username/ip)
+ * - `request.cookies` (session tokens)
+ * - `request.headers.authorization` and `request.headers.cookie`
+ *
+ * @param event - Sentry error event to sanitize.
+ * @param _hint - Event hint (unused but required by the interface).
+ * @returns Sanitized event ready for transmission.
+ */
+export function scrubPiiFromEvent(event: ErrorEvent, _hint: EventHint): ErrorEvent {
+  const user = event.user ? { id: event.user.id } : undefined;
+
+  const request = event.request
+    ? {
+        ...event.request,
+        cookies: undefined,
+        headers: event.request.headers
+          ? redactHeaders(event.request.headers as Record<string, string>)
+          : undefined,
+      }
+    : undefined;
+
+  return { ...event, user, request };
 }
 
 /**
@@ -24,6 +70,7 @@ export function initSentry(dsn: string, environment: string): void {
     enabled: true,
     tracesSampleRate: 0.1,
     sendDefaultPii: false,
+    beforeSend: scrubPiiFromEvent,
   });
 }
 

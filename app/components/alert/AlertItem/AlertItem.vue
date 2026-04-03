@@ -12,6 +12,9 @@ const emit = defineEmits<AlertItemEmits>();
 /** True when the alert has not been read yet. */
 const isUnread = computed<boolean>(() => props.alert.readAt === null);
 
+/** NaiveUI semantic tag type used for alert type badges. */
+type AlertTagType = "success" | "error" | "warning" | "info" | "default";
+
 /**
  * Resolves the NaiveUI tag type for a given alert type string.
  * Falls back to "default" for unrecognised types.
@@ -21,15 +24,15 @@ const isUnread = computed<boolean>(() => props.alert.readAt === null);
  */
 const alertTagType = (
   type: string,
-): "success" | "error" | "warning" | "info" | "default" => {
-  const map: Record<AlertType, "success" | "error" | "warning" | "info" | "default"> = {
+): AlertTagType => {
+  const map: Record<AlertType, AlertTagType> = {
     goal_achieved: "success",
     overdue_payment: "error",
     budget_exceeded: "warning",
     investment_opportunity: "info",
     system: "default",
   };
-  return (map as Record<string, "success" | "error" | "warning" | "info" | "default">)[type] ?? "default";
+  return (map as Record<string, AlertTagType>)[type] ?? "default";
 };
 
 /**

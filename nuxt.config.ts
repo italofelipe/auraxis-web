@@ -1,4 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { visualizer } from "rollup-plugin-visualizer";
 import { TOOL_SLUGS } from "./app/data/tools";
 
 /**
@@ -305,6 +306,11 @@ export default defineNuxtConfig({
     optimizeDeps: {
       include: ["naive-ui", "vueuc"],
     },
+    // Bundle visualizer — active only when ANALYZE=true (set by CI bundle-analysis job).
+    // Generates stats.html at the project root for upload as a CI artifact.
+    plugins: process.env.ANALYZE === "true"
+      ? [visualizer({ open: false, filename: "stats.html", gzipSize: true, brotliSize: true })]
+      : [],
   },
 
   // ── Route Rules ───────────────────────────────────────────────────────
