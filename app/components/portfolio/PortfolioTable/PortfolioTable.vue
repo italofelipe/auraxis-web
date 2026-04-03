@@ -66,6 +66,17 @@ const formatPercent = (value: number): string => {
   return `${sign}${value.toFixed(2)}%`;
 };
 
+/**
+ * Returns the NaiveUI tag type for a portfolio change-percent value.
+ * @param changePercent Signed percentage; positive = gain, negative = loss.
+ * @returns NaiveUI semantic color tag type.
+ */
+const changePercentTagType = (changePercent: number): "success" | "error" | "default" => {
+  if (changePercent > 0) { return "success"; }
+  if (changePercent < 0) { return "error"; }
+  return "default";
+};
+
 const columns = computed((): DataTableColumns<WalletEntryDto> => [
   {
     title: t("portfolio.table.columns.asset"),
@@ -123,7 +134,7 @@ const columns = computed((): DataTableColumns<WalletEntryDto> => [
       if (row.change_percent === null) {
         return h("span", {}, "—");
       }
-      const tagType = row.change_percent > 0 ? "success" : row.change_percent < 0 ? "error" : "default";
+      const tagType = changePercentTagType(row.change_percent);
       return h(
         NTag,
         { type: tagType, size: "small", bordered: false },

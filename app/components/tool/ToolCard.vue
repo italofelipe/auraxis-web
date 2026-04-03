@@ -61,7 +61,6 @@ const handleCtaClick = (): void => {
 
   if (props.tool.accessLevel === "authenticated" && !props.isAuthenticated) {
     void router.push(`/login?redirect=/tools&tool=${props.tool.id}`);
-    return;
   }
 
   // Tool is public or user meets auth requirements — nothing to navigate for now
