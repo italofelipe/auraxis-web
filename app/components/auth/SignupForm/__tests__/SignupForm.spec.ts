@@ -4,7 +4,7 @@ import { mount } from "@vue/test-utils";
 import SignupForm from "../SignupForm.vue";
 import { NuxtLinkStub } from "~/test-utils";
 
-vi.mock("vue-i18n", () => ({ useI18n: (): { t: (key: string) => string } => ({ t: (key: string) => key }) }));
+vi.mock("vue-i18n");
 
 const globalConfig = {
   stubs: { NuxtLink: NuxtLinkStub },

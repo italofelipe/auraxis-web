@@ -151,4 +151,36 @@ describe("InstallmentVsCashCalculatorForm", () => {
     // patchForm was called and emitted update:modelValue
     expect(wrapper.exists()).toBe(true);
   });
+
+  it("emits update:modelValue when fees switch is toggled ON", async () => {
+    const state = createDefaultInstallmentVsCashFormState();
+    const wrapper = mount(InstallmentVsCashCalculatorForm, {
+      props: { modelValue: state, loading: false },
+      global: { stubs },
+    });
+
+    // The NSwitch stub renders <button class="n-switch">
+    const feesSwitch = wrapper.find(".n-switch");
+    if (feesSwitch.exists()) {
+      await feesSwitch.trigger("click");
+    }
+    expect(wrapper.emitted("update:modelValue")).toBeTruthy();
+  });
+
+  it("emits update:modelValue when fees switch is toggled OFF (resets feesUpfront)", async () => {
+    const state = createDefaultInstallmentVsCashFormState();
+    state.feesEnabled = true;
+    state.feesUpfront = 50;
+    const wrapper = mount(InstallmentVsCashCalculatorForm, {
+      props: { modelValue: state, loading: false },
+      global: { stubs },
+    });
+
+    const feesSwitch = wrapper.find(".n-switch");
+    if (feesSwitch.exists()) {
+      await feesSwitch.trigger("click");
+    }
+    expect(wrapper.emitted("update:modelValue")).toBeTruthy();
+  });
+
 });

@@ -3,7 +3,7 @@ import { mount } from "@vue/test-utils";
 import { defineComponent, h } from "vue";
 import UiTopbar from "../UiTopbar.vue";
 
-vi.mock("vue-i18n", () => ({ useI18n: (): { t: (key: string) => string } => ({ t: (key: string) => key }) }));
+vi.mock("vue-i18n");
 
 const MockIcon = defineComponent({ render: () => h("span", "icon") });
 
