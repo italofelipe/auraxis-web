@@ -90,8 +90,15 @@ export const useHttp = (): AxiosInstance => {
     apiBase,
     () => sessionStore.getAccessToken(),
     {
-      onUnauthorized: (): Promise<string | null> =>
-        refreshAccessToken(apiBase, sessionStore),
+      onUnauthorized: async (): Promise<string | null> => {
+        const newToken = await refreshAccessToken(apiBase, sessionStore);
+        if (!newToken) {
+          // Both the access token and the refresh token are expired — the
+          // session is fully invalid. Sign the user out and send them home.
+          await navigateTo("/");
+        }
+        return newToken;
+      },
       onForbidden: (msg: string): void => {
         message.error(msg, { duration: 5_000 });
       },
