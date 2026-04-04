@@ -117,6 +117,10 @@ export class BrapiClient {
    * @returns Resolved historical price, or `null` if unavailable.
    */
   async getHistoricalPrice(ticker: string, date: string): Promise<BrapiHistoricalPrice | null> {
+    if (!this.#apiKey) {
+      throw new Error("BRAPI_API_KEY_NOT_CONFIGURED");
+    }
+
     const response = await this.#http.get<{ results: BrapiQuoteApiResult[] }>(
       `/quote/${ticker}`,
       {

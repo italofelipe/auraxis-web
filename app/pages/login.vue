@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import axios from "axios";
 import { useMessage } from "naive-ui";
 import { useLoginMutation } from "~/composables/useAuth";
 import { useAuthRedirectContext } from "~/composables/useAuthRedirectContext";
 import { useCaptcha } from "~/composables/useCaptcha";
+import { useApiError } from "~/composables/useApiError";
 import type { LoginSchema } from "~/schemas/auth";
 
 definePageMeta({ layout: "auth", middleware: ["guest-only"] });
@@ -19,6 +19,7 @@ const message = useMessage();
 const loginMutation = useLoginMutation();
 const { consumeRedirect } = useAuthRedirectContext();
 const captcha = useCaptcha();
+const { getErrorMessage } = useApiError();
 
 /**
  * Submete as credenciais de login e redireciona ao destino pós-auth.
@@ -39,10 +40,7 @@ const onSubmit = async (values: LoginSchema): Promise<void> => {
     const redirect = consumeRedirect();
     await navigateTo(redirect || "/dashboard");
   } catch (err) {
-    const msg = axios.isAxiosError(err)
-      ? (err.response?.data?.message ?? "Credenciais inválidas. Verifique seu e-mail e senha.")
-      : "Ocorreu um erro inesperado. Tente novamente.";
-    message.error(msg, { duration: 5000 });
+    message.error(getErrorMessage(err), { duration: 5000 });
   }
 };
 </script>

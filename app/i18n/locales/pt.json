@@ -692,7 +692,8 @@
         "label": "Preço unitário na data (R$)",
         "placeholder": "Aguardando ticker e data…",
         "tooltip": "Valor estimado com base no fechamento da bolsa em {date} ({currency}). A data pode diferir do registro se cair em fim de semana ou feriado. Você pode editar este valor se necessário.",
-        "tooltipNoDate": "Valor estimado com base no fechamento da bolsa em ... ({currency}). Você pode editar este valor se necessário."
+        "tooltipNoDate": "Valor estimado com base no fechamento da bolsa em ... ({currency}). Você pode editar este valor se necessário.",
+        "brapiUnavailable": "Cotação histórica não disponível. Informe o preço manualmente."
       },
       "value": {
         "label": "Valor atual (R$)",
@@ -2642,5 +2643,24 @@
       "cvm": "Rentabilidade passada não garante rentabilidade futura. Não constitui recomendação de investimento. Fundos Imobiliários são investimentos de renda variável e estão sujeitos a riscos de mercado."
     },
     "loading": "Carregando dados do FII…"
+  },
+  "dirtyGuard": {
+    "title": "Alterações não salvas",
+    "content": "Você tem alterações não salvas. Deseja sair mesmo assim?",
+    "positiveText": "Sair sem salvar",
+    "negativeText": "Continuar editando"
+  },
+  "errors": {
+    "VALIDATION_ERROR": "Verifique os campos e tente novamente",
+    "MISSING_TOKEN": "Sessão expirada. Faça login novamente",
+    "UNAUTHORIZED": "Você não tem permissão para realizar esta ação",
+    "NOT_FOUND": "O recurso solicitado não foi encontrado",
+    "SERVER_ERROR": "Erro interno. Tente novamente em alguns instantes",
+    "NETWORK_ERROR": "Não foi possível conectar. Verifique sua conexão",
+    "UNKNOWN": "Algo deu errado. Tente novamente",
+    "fieldMayNotBeNull": "Este campo não pode estar vazio",
+    "fieldRequired": "Este campo é obrigatório",
+    "invalidEmail": "E-mail inválido",
+    "invalidDate": "Data inválida"
   }
 }
