@@ -23,6 +23,9 @@ vi.mock("~/composables/useSidebarState", () => ({
   }),
 }));
 
+const closeDrawerMock = vi.fn();
+const openDrawerMock = vi.fn();
+
 vi.mock("~/composables/useResponsiveShell", () => ({
   useResponsiveShell: (): {
     isMobile: Ref<boolean>;
@@ -33,8 +36,8 @@ vi.mock("~/composables/useResponsiveShell", () => ({
   } => ({
     isMobile: ref(false),
     isDrawerOpen: ref(false),
-    openDrawer: vi.fn(),
-    closeDrawer: vi.fn(),
+    openDrawer: openDrawerMock,
+    closeDrawer: closeDrawerMock,
     toggleDrawer: vi.fn(),
   }),
 }));
@@ -54,12 +57,20 @@ const defaultProps = {
   pageSubtitle: "Dezembro 2025",
 };
 
+const UiTopbarStub = {
+  template: `<header
+    @click.self="$emit('menu-toggle')"
+    data-testid="topbar"
+  />`,
+  emits: ["action", "user-settings", "user-logout", "menu-toggle"],
+};
+
 const globalConfig = {
   plugins: [createPinia()],
   stubs: {
     NuxtLink: { template: "<a :href=\"to\"><slot /></a>", props: ["to"] },
     UiSidebarNav: { template: "<nav />" },
-    UiTopbar: { template: "<header />" },
+    UiTopbar: UiTopbarStub,
     Transition: { template: "<slot />" },
   },
 };
@@ -107,6 +118,68 @@ describe("UiAppShell", () => {
     });
     const sidebar = wrapper.find(".ui-app-shell__sidebar");
     expect(sidebar.attributes("aria-label")).toBe("Navegação principal");
+  });
+
+  it("emits topbar-action when topbar emits action event", async () => {
+    const wrapper = mount(UiAppShell, {
+      props: defaultProps,
+      global: {
+        ...globalConfig,
+        stubs: {
+          ...globalConfig.stubs,
+          UiTopbar: {
+            template: "<header />",
+            emits: ["action", "user-settings", "user-logout", "menu-toggle"],
+            mounted() {
+              (this as unknown as { $emit: (e: string, v?: unknown) => void }).$emit("action", "my-action");
+            },
+          },
+        },
+      },
+    });
+    const emitted = wrapper.emitted("topbar-action");
+    expect(emitted).toBeTruthy();
+    expect(emitted?.[0]).toEqual(["my-action"]);
+  });
+
+  it("emits user-settings when topbar emits user-settings", async () => {
+    const wrapper = mount(UiAppShell, {
+      props: defaultProps,
+      global: {
+        ...globalConfig,
+        stubs: {
+          ...globalConfig.stubs,
+          UiTopbar: {
+            template: "<header />",
+            emits: ["action", "user-settings", "user-logout", "menu-toggle"],
+            mounted() {
+              (this as unknown as { $emit: (e: string) => void }).$emit("user-settings");
+            },
+          },
+        },
+      },
+    });
+    expect(wrapper.emitted("user-settings")).toBeTruthy();
+  });
+
+  it("emits user-logout when topbar emits user-logout", async () => {
+    const wrapper = mount(UiAppShell, {
+      props: defaultProps,
+      global: {
+        ...globalConfig,
+        stubs: {
+          ...globalConfig.stubs,
+          UiTopbar: {
+            template: "<header />",
+            emits: ["action", "user-settings", "user-logout", "menu-toggle"],
+            mounted() {
+              (this as unknown as { $emit: (e: string) => void }).$emit("user-logout");
+            },
+          },
+        },
+      },
+    });
+    expect(wrapper.emitted("user-logout")).toBeTruthy();
   });
 
   it("snapshot default state", () => {

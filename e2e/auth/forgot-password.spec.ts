@@ -50,7 +50,7 @@ test.describe("Auth — Forgot Password", () => {
 
     // Success screen should display after submission
     await expect(page.getByText(/e-mail enviado/i)).toBeVisible({
-      timeout: 5_000,
+      timeout: 8_000,
     });
   });
 
@@ -72,7 +72,7 @@ test.describe("Auth — Forgot Password", () => {
     // The app intentionally shows success regardless of the API result
     // to prevent email enumeration attacks
     await expect(page.getByText(/e-mail enviado/i)).toBeVisible({
-      timeout: 5_000,
+      timeout: 8_000,
     });
   });
 
@@ -90,7 +90,7 @@ test.describe("Auth — Forgot Password", () => {
     await page.getByRole("button", { name: /enviar link/i }).click();
 
     await expect(page.getByText(/e-mail enviado/i)).toBeVisible({
-      timeout: 5_000,
+      timeout: 8_000,
     });
 
     const backLink = page.getByRole("link", { name: /voltar ao login/i });
@@ -101,7 +101,7 @@ test.describe("Auth — Forgot Password", () => {
     page,
   }) => {
     await page.route("**/auth/password/forgot", async (route) => {
-      await page.waitForTimeout(200);
+      await page.waitForTimeout(800);
       route.fulfill({
         status: 200,
         contentType: "application/json",

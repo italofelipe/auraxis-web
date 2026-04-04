@@ -1,7 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { mount } from "@vue/test-utils";
 import { defineComponent, h } from "vue";
 import UiTopbar from "../UiTopbar.vue";
+
+vi.mock("vue-i18n", () => ({
+  useI18n: (): { t: (key: string) => string } => ({ t: (key: string) => key }),
+}));
 
 const MockIcon = defineComponent({ render: () => h("span", "icon") });
 
@@ -129,5 +133,47 @@ describe("UiTopbar", () => {
       },
     });
     expect(wrapper.find(".ui-topbar__action span").text()).toBe("icon");
+  });
+
+  it("emits user-settings when UiUserMenu emits settings", async () => {
+    const wrapper = mount(UiTopbar, {
+      props: { title: "Dashboard", userName: "João Silva" },
+    });
+    // Trigger directly from the UiUserMenu's settings button
+    wrapper.findComponent({ name: "UiUserMenu" }).vm.$emit("settings");
+    await wrapper.vm.$nextTick();
+    expect(wrapper.emitted("user-settings")).toBeTruthy();
+  });
+
+  it("emits user-logout when UiUserMenu emits logout", async () => {
+    const wrapper = mount(UiTopbar, {
+      props: { title: "Dashboard", userName: "João Silva" },
+    });
+    wrapper.findComponent({ name: "UiUserMenu" }).vm.$emit("logout");
+    await wrapper.vm.$nextTick();
+    expect(wrapper.emitted("user-logout")).toBeTruthy();
+  });
+
+  it("renders action without icon when icon not provided", () => {
+    const wrapper = mount(UiTopbar, {
+      props: {
+        title: "Dashboard",
+        userName: "João Silva",
+        actions: [{ key: "noop", label: "Sem ícone", variant: "default" }],
+      },
+    });
+    expect(wrapper.find(".ui-topbar__action").text()).toContain("Sem ícone");
+  });
+
+  it("renders with userDescription and userAvatarUrl", () => {
+    const wrapper = mount(UiTopbar, {
+      props: {
+        title: "Dashboard",
+        userName: "João Silva",
+        userDescription: "Investidor Moderado",
+        userAvatarUrl: "https://example.com/avatar.jpg",
+      },
+    });
+    expect(wrapper.find(".ui-user-menu").exists()).toBe(true);
   });
 });

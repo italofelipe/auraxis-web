@@ -13,7 +13,7 @@
     "typecheck": "nuxt typecheck",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage --coverage.reporter=text --coverage.reporter=json --coverage.reporter=json-summary --coverage.reporter=html --coverage.reporter=lcovonly",
+    "test:coverage": "vitest run --coverage",
     "flags:check": "node scripts/check-feature-flags.cjs",
     "contracts:sync": "node scripts/contracts-sync.cjs",
     "contracts:check": "node scripts/contracts-check.cjs",

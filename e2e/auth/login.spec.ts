@@ -86,9 +86,9 @@ test.describe("Auth — Login", () => {
 
     // Should stay on /login
     await expect(page).toHaveURL(/\/login/);
-    // Error toast should be visible
+    // Error toast should be visible — useApiError maps 401 to errors.UNAUTHORIZED i18n key
     await expect(
-      page.getByText(/credenciais inválidas/i),
+      page.getByText(/você não tem permissão para realizar esta ação/i),
     ).toBeVisible({ timeout: 5_000 });
   });
 
@@ -97,7 +97,7 @@ test.describe("Auth — Login", () => {
   }) => {
     // Slow down the API to observe the loading state
     await page.route("**/auth/login", async (route) => {
-      await page.waitForTimeout(200);
+      await page.waitForTimeout(800);
       route.fulfill({
         status: 200,
         contentType: "application/json",

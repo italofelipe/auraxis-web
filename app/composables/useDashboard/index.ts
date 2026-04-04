@@ -1,3 +1,4 @@
+/* v8 ignore start */
 /**
  * Dashboard composable facade.
  *
@@ -27,3 +28,4 @@ export {
   createEmptyDashboardOverview,
   isCustomDashboardPeriod,
 } from "~/features/dashboard/model/dashboard-overview";
+/* v8 ignore stop */

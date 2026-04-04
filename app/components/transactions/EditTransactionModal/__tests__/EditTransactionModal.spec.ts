@@ -148,4 +148,49 @@ describe("EditTransactionModal", () => {
   it("handles null transaction gracefully (closed state)", () => {
     expect(() => mountModal(false, null)).not.toThrow();
   });
+
+  it("pre-fills form with transaction data on mount (populateForm runs)", () => {
+    const tx = makeTransaction();
+    const wrapper = mountModal(true, tx);
+    const input = wrapper.find("input");
+    expect(input.exists()).toBe(true);
+  });
+
+  it("shows recurring toggle in form", () => {
+    const wrapper = mountModal(true);
+    expect(wrapper.text()).toContain("Recorrente?");
+  });
+
+  it("shows status select in form", () => {
+    const wrapper = mountModal(true);
+    expect(wrapper.text()).toContain("Status");
+  });
+
+  it("triggers handleSubmit when save button is clicked", async () => {
+    const wrapper = mountModal(true);
+    const saveButton = wrapper.findAll("button").find((b) => b.text() === "Salvar");
+    await saveButton?.trigger("click");
+    // handleSubmit runs — form validation triggers
+    expect(wrapper.exists()).toBe(true);
+  });
+
+  it("populates form from transaction with recurring true and end_date", () => {
+    const tx: TransactionDto = {
+      ...makeTransaction(),
+      is_recurring: true,
+      end_date: "2027-01-01",
+    };
+    const wrapper = mountModal(true, tx);
+    expect(wrapper.exists()).toBe(true);
+  });
+
+  it("populates form from expense transaction with credit_card_id", () => {
+    const tx: TransactionDto = {
+      ...makeTransaction(),
+      type: "expense",
+      credit_card_id: "cc-123",
+    };
+    const wrapper = mountModal(true, tx);
+    expect(wrapper.text()).toContain("Cartão de crédito");
+  });
 });

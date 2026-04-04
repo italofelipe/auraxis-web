@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createHttpClientMethods, type HttpClientDeps } from "./useHttpClient";
+import { createHttpClientMethods, normalizeHttpClientBaseUrl, type HttpClientDeps } from "./useHttpClient";
 import { ApiError } from "~/utils/apiError";
 
 const BASE = "http://api.test";
@@ -195,5 +195,57 @@ describe("useHttpClient — HTTP method wiring", () => {
       `${BASE}/items/1`,
       expect.objectContaining({ method: "DELETE" }),
     );
+  });
+});
+
+describe("normalizeHttpClientBaseUrl", () => {
+  it("removes single trailing slash", (): void => {
+    expect(normalizeHttpClientBaseUrl("http://api.test/")).toBe("http://api.test");
+  });
+
+  it("removes multiple trailing slashes", (): void => {
+    expect(normalizeHttpClientBaseUrl("http://api.test///")).toBe("http://api.test");
+  });
+
+  it("returns URL unchanged when no trailing slash", (): void => {
+    expect(normalizeHttpClientBaseUrl("http://api.test")).toBe("http://api.test");
+  });
+
+  it("handles empty string", (): void => {
+    expect(normalizeHttpClientBaseUrl("")).toBe("");
+  });
+
+  it("handles URL with path and trailing slash", (): void => {
+    expect(normalizeHttpClientBaseUrl("http://api.test/v1/")).toBe("http://api.test/v1");
+  });
+});
+
+describe("useHttpClient — error normalisation (edge cases)", () => {
+  it("re-throws existing ApiError instances unchanged", async (): Promise<void> => {
+    const existing = new ApiError(403, "Forbidden");
+    fetcher.mockRejectedValue(existing);
+    getToken.mockReturnValue(null);
+
+    const error = await buildClient().get("/secure").catch((e: unknown) => e);
+    expect(error).toBe(existing);
+    expect((error as ApiError).status).toBe(403);
+  });
+
+  it("wraps error objects with non-numeric status as 500", async (): Promise<void> => {
+    getToken.mockReturnValue(null);
+    fetcher.mockRejectedValue({ status: "bad", message: "weird error" });
+
+    const error = await buildClient().get("/weird").catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(ApiError);
+    expect((error as ApiError).status).toBe(500);
+  });
+
+  it("handles error without message property", async (): Promise<void> => {
+    getToken.mockReturnValue(null);
+    fetcher.mockRejectedValue({ status: 422 });
+
+    const error = await buildClient().post("/submit", {}).catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(ApiError);
+    expect((error as ApiError).message).toBe("Unexpected error");
   });
 });

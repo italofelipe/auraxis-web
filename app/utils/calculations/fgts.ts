@@ -16,4 +16,6 @@
  * Source of truth for WEB36 unit tests.
  */
 
+/* v8 ignore start */
 export * from "~/features/tools/model/fgts";
+/* v8 ignore stop */

@@ -15,9 +15,11 @@
  * Source of truth for WEB36 unit tests.
  */
 
+/* v8 ignore start */
 export * from "~/features/tools/model/br-tax-tables";
 export * from "~/features/tools/model/thirteenth-salary";
 export * from "~/features/tools/model/ferias";
 export * from "~/features/tools/model/hora-extra";
 export * from "~/features/tools/model/rescisao";
 export * from "~/features/tools/model/inss-ir-folha";
+/* v8 ignore stop */

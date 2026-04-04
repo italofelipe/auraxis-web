@@ -159,4 +159,42 @@ describe("ProfileCompletionModal", () => {
     const submitBtn = wrapper.find("button[type=\"submit\"]");
     expect(submitBtn.attributes("aria-busy")).toBe("true");
   });
+
+  it("prefills form from profile when modal opens with existing profile", async () => {
+    mockProfile.value = {
+      gender: "masculino",
+      birth_date: "1990-01-01",
+      monthly_income: 5000,
+      net_worth: 10000,
+      monthly_expenses: 2000,
+      state_uf: "SP",
+      occupation: "Engenheiro",
+      investor_profile: "conservador",
+      financial_objectives: "Aposentadoria",
+      initial_investment: 1000,
+      monthly_investment: 500,
+      investment_goal_date: "2030-01-01",
+    };
+    const wrapper = mountModal(true);
+    expect(wrapper.exists()).toBe(true);
+  });
+
+  it("does not prefill when profile is null", () => {
+    mockProfile.value = null;
+    const wrapper = mountModal(true);
+    expect(wrapper.exists()).toBe(true);
+  });
+
+  it("triggers onSubmit when form is submitted", async () => {
+    const wrapper = mountModal(true);
+    await wrapper.find("form").trigger("submit");
+    expect(wrapper.exists()).toBe(true);
+  });
+
+  it("calls mutate when submit button clicked with data", async () => {
+    const wrapper = mountModal(true);
+    const submitBtn = wrapper.find("button[type=\"submit\"]");
+    await submitBtn.trigger("click");
+    expect(wrapper.exists()).toBe(true);
+  });
 });

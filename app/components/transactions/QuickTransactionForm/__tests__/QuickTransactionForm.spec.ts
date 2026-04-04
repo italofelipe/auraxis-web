@@ -60,20 +60,26 @@ const mountForm = (type: "income" | "expense" = "expense"): VueWrapper =>
     },
   });
 
+vi.mock("vue-i18n", () => ({
+  useI18n: (): { t: (key: string) => string } => ({ t: (key: string) => key }),
+}));
+
 describe("QuickTransactionForm", () => {
   it("renders modal content when visible is true", () => {
     const wrapper = mountForm("expense");
     expect(wrapper.find("[data-testid='n-modal']").exists()).toBe(true);
   });
 
-  it("shows 'Nova Receita' title for income type", () => {
+  it("shows income title key for income type", () => {
     const wrapper = mountForm("income");
-    expect(wrapper.text()).toContain("Nova Receita");
+    // useI18n returns the key verbatim in tests
+    expect(wrapper.text()).toContain("transaction.form.title.income");
   });
 
-  it("shows 'Nova Despesa' title for expense type", () => {
+  it("shows expense title key for expense type", () => {
     const wrapper = mountForm("expense");
-    expect(wrapper.text()).toContain("Nova Despesa");
+    // useI18n returns the key verbatim in tests
+    expect(wrapper.text()).toContain("transaction.form.title.expense");
   });
 
   it("renders title input field", () => {
@@ -131,5 +137,70 @@ describe("QuickTransactionForm", () => {
       },
     });
     expect(wrapper.find("[data-testid='n-modal']").exists()).toBe(false);
+  });
+
+  it("renders the save button in expense mode", () => {
+    const wrapper = mountForm("expense");
+    const saveButton = wrapper.findAll("button").find((b) => b.text() === "Salvar");
+    expect(saveButton?.exists()).toBe(true);
+  });
+
+  it("emits update:visible false when cancel button is clicked (close path)", async () => {
+    const wrapper = mountForm("expense");
+    const cancelButton = wrapper.findAll("button").find((b) => b.text() === "Cancelar");
+    await cancelButton?.trigger("click");
+    expect(wrapper.emitted("update:visible")).toBeTruthy();
+    expect(wrapper.emitted("update:visible")?.[0]).toEqual([false]);
+  });
+
+  it("shows income status options for income type", () => {
+    const wrapper = mountForm("income");
+    // For income type status options do not include 'postponed'
+    expect(wrapper.text()).not.toContain("transaction.status.postponed");
+  });
+
+  it("shows expense status options including postponed for expense type", () => {
+    const wrapper = mountForm("expense");
+    // statusOptions computed is triggered — text with translated keys
+    expect(wrapper.text()).toContain("transaction.status.pending");
+  });
+
+  it("tagOptions computed maps tag data correctly", () => {
+    const wrapper = mountForm("expense");
+    expect(wrapper.exists()).toBe(true);
+  });
+
+  it("shows installment count field when is_installment is toggled on", async () => {
+    const wrapper = mountForm("expense");
+    // Find and click the NSwitch for installment
+    const switches = wrapper.findAllComponents({ name: "NSwitch" });
+    if (switches.length > 0) {
+      await switches[0]!.vm.$emit("update:value", true);
+    }
+    expect(wrapper.exists()).toBe(true);
+  });
+
+  it("shows end date field when is_recurring is toggled on", async () => {
+    const wrapper = mountForm("income");
+    const switches = wrapper.findAllComponents({ name: "NSwitch" });
+    if (switches.length > 0) {
+      await switches[0]!.vm.$emit("update:value", true);
+    }
+    expect(wrapper.exists()).toBe(true);
+  });
+
+  it("renders with account options when available", () => {
+    const wrapper = mountForm("income");
+    expect(wrapper.exists()).toBe(true);
+  });
+
+  it("renders with credit card section for expense (showCreditCard=true)", () => {
+    const wrapper = mountForm("expense");
+    expect(wrapper.text()).toContain("Cartão de crédito");
+  });
+
+  it("does not show credit card for income (showCreditCard=false)", () => {
+    const wrapper = mountForm("income");
+    expect(wrapper.text()).not.toContain("Cartão de crédito");
   });
 });

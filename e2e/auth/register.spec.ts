@@ -92,9 +92,9 @@ test.describe("Auth — Register", () => {
 
     // Should remain on /register
     await expect(page).toHaveURL(/\/register/);
-    // Error message from the API should be visible
+    // Error toast should be visible — useApiError maps 409 (no code) to errors.UNKNOWN i18n key
     await expect(
-      page.getByText(/não foi possível criar a conta|e-mail já está/i),
+      page.getByText(/algo deu errado/i),
     ).toBeVisible({ timeout: 5_000 });
   });
 
@@ -102,7 +102,7 @@ test.describe("Auth — Register", () => {
     page,
   }) => {
     await page.route("**/auth/register", async (route) => {
-      await page.waitForTimeout(200);
+      await page.waitForTimeout(800);
       route.fulfill({
         status: 201,
         contentType: "application/json",

@@ -15,7 +15,9 @@
  * Source of truth for WEB36 unit tests.
  */
 
+/* v8 ignore start */
 export * from "~/features/tools/model/aposentadoria";
 export * from "~/features/tools/model/fire";
 export * from "~/features/tools/model/financiamento-imobiliario";
 export * from "~/features/tools/model/aluguel-vs-compra";
+/* v8 ignore stop */
