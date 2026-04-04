@@ -21,10 +21,13 @@ import type { WalletEntryFormProps } from "./WalletEntryForm.types";
 import { useBrapiTickerSearchQuery } from "~/features/wallet/queries/use-brapi-ticker-search-query";
 import { useBrapiHistoricalPriceQuery } from "~/features/wallet/queries/use-brapi-historical-price-query";
 import { useBrapiCurrentQuoteQuery } from "~/features/wallet/queries/use-brapi-current-quote-query";
+import { useDirtyGuard } from "~/composables/useDirtyGuard";
 
 const { t } = useI18n();
 
 const props = defineProps<WalletEntryFormProps>();
+
+const { markDirty, reset: resetDirty, guard } = useDirtyGuard();
 
 const emit = defineEmits<{
   "update:visible": [value: boolean];
@@ -111,7 +114,15 @@ const {
 const {
   data: historicalPrice,
   isFetching: isFetchingHistorical,
+  isError: isHistoricalPriceError,
 } = useBrapiHistoricalPriceQuery(selectedTicker, registerDateStr);
+
+const runtimeConfig = useRuntimeConfig();
+
+/** True when the BRAPI API key is not configured — historical price lookup unavailable. */
+const isBrapiKeyMissing = computed(
+  (): boolean => String(runtimeConfig.public.brapiApiKey ?? "").length === 0,
+);
 
 const { data: currentQuote } = useBrapiCurrentQuoteQuery(selectedTicker);
 
@@ -312,6 +323,7 @@ const resetForm = (): void => {
   form.should_be_on_wallet = true;
   tickerSearchQuery.value = "";
   lastBrapiUnitPrice.value = null;
+  resetDirty();
 };
 
 /**
@@ -349,10 +361,12 @@ watch(
   { immediate: false },
 );
 
-/** Closes the modal and resets form state. */
+/** Closes the modal, asking for confirmation when there are unsaved changes. */
 const handleClose = (): void => {
-  emit("update:visible", false);
-  resetForm();
+  guard(() => {
+    emit("update:visible", false);
+    resetForm();
+  });
 };
 </script>
 
@@ -372,6 +386,7 @@ const handleClose = (): void => {
           v-model:value="form.asset_class"
           :options="assetClassOptions"
           :placeholder="$t('wallet.form.assetClass.placeholder')"
+          @update:value="markDirty"
         />
       </NFormItem>
 
@@ -397,7 +412,7 @@ const handleClose = (): void => {
 
       <!-- Asset name — auto-filled from BRAPI on ticker selection -->
       <NFormItem :label="$t('wallet.form.name.label')" path="name">
-        <NInput v-model:value="form.name" :placeholder="$t('wallet.form.name.placeholder')" />
+        <NInput v-model:value="form.name" :placeholder="$t('wallet.form.name.placeholder')" @update:value="markDirty" />
       </NFormItem>
 
       <!-- Date of purchase — drives the BRAPI historical price lookup -->
@@ -406,6 +421,7 @@ const handleClose = (): void => {
           v-model:value="form.register_date"
           type="date"
           style="width: 100%"
+          @update:value="markDirty"
         />
       </NFormItem>
 
@@ -416,6 +432,7 @@ const handleClose = (): void => {
           :placeholder="$t('wallet.form.quantity.placeholder')"
           :min="0"
           style="width: 100%"
+          @update:value="markDirty"
         />
       </NFormItem>
 
@@ -440,6 +457,7 @@ const handleClose = (): void => {
             :precision="2"
             style="width: 100%"
             :disabled="isFetchingHistorical"
+            @update:value="markDirty"
           />
           <NSpin v-if="isFetchingHistorical" :size="16" class="wallet-entry-form__price-spin" />
         </div>
@@ -457,6 +475,13 @@ const handleClose = (): void => {
             {{ currentQuoteLabel }}
           </NText>
         </template>
+
+        <!-- Fallback when BRAPI key is missing or historical price failed -->
+        <template v-if="(isBrapiKeyMissing || isHistoricalPriceError) && !isFetchingHistorical">
+          <NText depth="3" class="wallet-entry-form__hint wallet-entry-form__hint--warning">
+            {{ $t('wallet.form.unitPrice.brapiUnavailable') }}
+          </NText>
+        </template>
       </NFormItem>
 
       <!-- Total value — only for non-ticker asset classes -->
@@ -467,11 +492,12 @@ const handleClose = (): void => {
           :min="0"
           :precision="2"
           style="width: 100%"
+          @update:value="markDirty"
         />
       </NFormItem>
 
       <NFormItem :label="$t('wallet.form.shouldBeOnWallet.label')" path="should_be_on_wallet">
-        <NSwitch v-model:value="form.should_be_on_wallet" />
+        <NSwitch v-model:value="form.should_be_on_wallet" @update:value="markDirty" />
       </NFormItem>
     </NForm>
 
@@ -513,5 +539,9 @@ const handleClose = (): void => {
   margin-top: 4px;
   font-size: var(--font-size-xs, 11px);
   line-height: 1.4;
+}
+
+.wallet-entry-form__hint--warning {
+  color: var(--warning-color, #f0a020);
 }
 </style>
