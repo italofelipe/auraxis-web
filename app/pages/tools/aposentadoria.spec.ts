@@ -76,6 +76,7 @@ vi.mock("naive-ui", () => ({
     props: ["title", "description"],
     template: "<div class='n-thing'><strong>{{ title }}</strong><slot name='footer' /></div>",
   },
+  useMessage: vi.fn(() => ({ error: vi.fn(), success: vi.fn(), warning: vi.fn(), info: vi.fn() })),
 }));
 
 vi.mock("@tanstack/vue-query", async () => {
@@ -99,6 +100,9 @@ vi.mock("~/composables/useToolCta", () => ({
   }),
 }));
 
+vi.mock("~/composables/useApiError", () => ({
+  useApiError: (): { getErrorMessage: (err: unknown) => string } => ({ getErrorMessage: vi.fn((err: unknown): string => String(err)) }),
+}));
 vi.mock("~/core/observability", () => ({ captureException: mockCaptureException }));
 
 vi.mock("~/features/tools/model/aposentadoria", () => ({

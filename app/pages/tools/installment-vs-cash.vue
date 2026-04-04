@@ -17,6 +17,7 @@ import {
 } from "naive-ui";
 
 import { captureException } from "~/core/observability";
+import { useApiError } from "~/composables/useApiError";
 import { useAuthRedirectContext } from "~/composables/useAuthRedirectContext";
 import { useSessionStore } from "~/stores/session";
 import { useToolContextStore } from "~/stores/toolContext";
@@ -87,6 +88,7 @@ useHead({
   ],
 });
 const message = useMessage();
+const { getErrorMessage } = useApiError();
 const router = useRouter();
 const sessionStore = useSessionStore();
 const toolContextStore = useToolContextStore();
@@ -180,12 +182,10 @@ const isBridging = computed<boolean>(() => {
  *
  * @param error The original runtime error.
  * @param context Stable context label for observability.
- * @param fallbackMessage Human-readable message shown in the UI.
  */
 const handleOperationalError = (
   error: unknown,
   context: string,
-  fallbackMessage: string,
 ): void => {
   captureException(error, {
     context,
@@ -193,7 +193,7 @@ const handleOperationalError = (
       toolId: INSTALLMENT_VS_CASH_TOOL_ID,
     },
   });
-  message.error(fallbackMessage);
+  message.error(getErrorMessage(error));
 };
 
 /**
@@ -273,7 +273,6 @@ const handleCalculate = async (): Promise<void> => {
     handleOperationalError(
       error,
       "tools.installment_vs_cash.calculate",
-      t("pages.installmentVsCash.errors.calculate"),
     );
   }
 };
@@ -301,7 +300,6 @@ const handleSave = async (): Promise<void> => {
     handleOperationalError(
       error,
       "tools.installment_vs_cash.save",
-      t("pages.installmentVsCash.errors.save"),
     );
   }
 };
@@ -335,7 +333,6 @@ const handleGoalAction = async (): Promise<void> => {
     handleOperationalError(
       error,
       "tools.installment_vs_cash.goal.prefill",
-      t("pages.installmentVsCash.errors.goalPrefill"),
     );
   }
 };
@@ -368,7 +365,6 @@ const handleExpenseAction = async (): Promise<void> => {
     handleOperationalError(
       error,
       "tools.installment_vs_cash.expense.prefill",
-      t("pages.installmentVsCash.errors.expensePrefill"),
     );
   }
 };
@@ -403,7 +399,6 @@ const submitGoalBridge = async (): Promise<void> => {
     handleOperationalError(
       error,
       "tools.installment_vs_cash.goal.submit",
-      t("pages.installmentVsCash.errors.goalSubmit"),
     );
   }
 };
@@ -446,7 +441,6 @@ const submitExpenseBridge = async (): Promise<void> => {
     handleOperationalError(
       error,
       "tools.installment_vs_cash.expense.submit",
-      t("pages.installmentVsCash.errors.expenseSubmit"),
     );
   }
 };

@@ -14,11 +14,13 @@ import {
   NTag,
   NThing,
   NTooltip,
+  useMessage,
 } from "naive-ui";
 import { Info } from "lucide-vue-next";
 import { useRouter } from "#app";
 
 import { captureException } from "~/core/observability";
+import { useApiError } from "~/composables/useApiError";
 import { useCalculatorFormState } from "~/features/tools/composables/use-calculator-form-state";
 import { useSessionStore } from "~/stores/session";
 import { useEntitlementQuery } from "~/features/paywall/queries/use-entitlement-query";
@@ -44,6 +46,8 @@ import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
 definePageMeta({ layout: false });
 
 const { t, n } = useI18n();
+const toast = useMessage();
+const { getErrorMessage } = useApiError();
 const router = useRouter();
 const sessionStore = useSessionStore();
 
@@ -207,6 +211,7 @@ async function ensureSimulationSaved(): Promise<string | null> {
     return simulation.id;
   } catch (err) {
     captureException(err, { context: "thirteenth-salary/save-simulation" });
+    toast.error(getErrorMessage(err));
     return null;
   }
 }
@@ -250,6 +255,7 @@ async function handleCreateGoal(): Promise<void> {
     showGoalModal.value = false;
   } catch (err) {
     captureException(err, { context: "thirteenth-salary/create-goal" });
+    toast.error(getErrorMessage(err));
   }
 }
 
@@ -289,6 +295,7 @@ async function handleAddToBudget(): Promise<void> {
     showBudgetModal.value = false;
   } catch (err) {
     captureException(err, { context: "thirteenth-salary/add-to-budget" });
+    toast.error(getErrorMessage(err));
   }
 }
 

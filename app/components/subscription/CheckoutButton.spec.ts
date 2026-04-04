@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import CheckoutButton from "./CheckoutButton.vue";
 
 const createCheckoutMock = vi.hoisted(() => vi.fn());
+const mockMessageError = vi.hoisted(() => vi.fn());
 
 vi.mock("~/features/subscription/services/subscription.client", () => ({
   useSubscriptionClient: (): { createCheckout: typeof createCheckoutMock } => ({
@@ -11,14 +12,21 @@ vi.mock("~/features/subscription/services/subscription.client", () => ({
   }),
 }));
 
-const stubs = {
+vi.mock("naive-ui", () => ({
   NButton: {
     props: ["type", "loading", "disabled", "block"],
     template:
       "<button class='n-button' :data-loading='loading' :disabled='disabled' @click='$emit(\"click\")'><slot /></button>",
     emits: ["click"],
   },
-};
+  useMessage: (): { error: typeof mockMessageError; success: ReturnType<typeof vi.fn>; warning: ReturnType<typeof vi.fn>; info: ReturnType<typeof vi.fn> } => ({ error: mockMessageError, success: vi.fn(), warning: vi.fn(), info: vi.fn() }),
+}));
+
+vi.mock("~/composables/useApiError", () => ({
+  useApiError: (): { getErrorMessage: (err: unknown) => string } => ({ getErrorMessage: vi.fn((err: unknown): string => (err instanceof Error ? err.message : String(err))) }),
+}));
+
+const stubs = {};
 
 describe("CheckoutButton", () => {
   beforeEach(() => {
@@ -82,7 +90,7 @@ describe("CheckoutButton", () => {
     expect(window.location.href).toBe(checkoutUrl);
   });
 
-  it("shows error message when createCheckout throws", async () => {
+  it("shows error toast when createCheckout throws", async () => {
     createCheckoutMock.mockRejectedValue(new Error("payment provider unavailable"));
 
     const wrapper = mount(CheckoutButton, {
@@ -93,6 +101,6 @@ describe("CheckoutButton", () => {
     await wrapper.find(".n-button").trigger("click");
     await new Promise<void>((resolve) => setTimeout(resolve, 0));
 
-    expect(wrapper.text()).toContain("payment provider unavailable");
+    expect(mockMessageError).toHaveBeenCalledWith("payment provider unavailable");
   });
 });

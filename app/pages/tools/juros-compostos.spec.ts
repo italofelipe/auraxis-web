@@ -81,6 +81,7 @@ vi.mock("naive-ui", () => ({
     props: ["title", "description"],
     template: "<div><strong>{{ title }}</strong><span>{{ description }}</span></div>",
   },
+  useMessage: vi.fn(() => ({ error: vi.fn(), success: vi.fn(), warning: vi.fn(), info: vi.fn() })),
 }));
 
 vi.mock("echarts/core", () => ({ use: vi.fn() }));
@@ -129,6 +130,9 @@ vi.mock("~/composables/useToolCta", () => ({
   }),
 }));
 
+vi.mock("~/composables/useApiError", () => ({
+  useApiError: (): { getErrorMessage: (err: unknown) => string } => ({ getErrorMessage: vi.fn((err: unknown): string => String(err)) }),
+}));
 vi.mock("~/core/observability", () => ({
   captureException: mockCaptureException,
 }));

@@ -84,6 +84,7 @@ vi.mock("naive-ui", () => ({
   NSpin: {
     template: "<div class='n-spin' data-testid='n-spin'></div>",
   },
+  useMessage: vi.fn(() => ({ error: vi.fn(), success: vi.fn(), warning: vi.fn(), info: vi.fn() })),
 }));
 
 vi.mock("@tanstack/vue-query", async () => {
@@ -112,6 +113,9 @@ vi.mock("~/stores/session", () => ({
   }),
 }));
 
+vi.mock("~/composables/useApiError", () => ({
+  useApiError: (): { getErrorMessage: (err: unknown) => string } => ({ getErrorMessage: vi.fn((err: unknown): string => String(err)) }),
+}));
 vi.mock("~/core/observability", () => ({
   captureException: mockCaptureException,
 }));
