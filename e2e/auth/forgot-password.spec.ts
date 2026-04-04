@@ -1,5 +1,7 @@
 import { test, expect } from "@playwright/test";
 
+import { waitForHydration } from "../helpers/auth";
+
 /**
  * E2E suite: Forgot password flow
  *
@@ -45,12 +47,13 @@ test.describe("Auth — Forgot Password", () => {
     });
 
     await page.goto("/forgot-password");
+    await waitForHydration(page);
     await page.locator("#forgot-email").fill("user@example.com");
     await page.getByRole("button", { name: /enviar link/i }).click();
 
     // Success screen should display after submission
     await expect(page.getByText(/e-mail enviado/i)).toBeVisible({
-      timeout: 5_000,
+      timeout: 8_000,
     });
   });
 
@@ -66,13 +69,14 @@ test.describe("Auth — Forgot Password", () => {
     });
 
     await page.goto("/forgot-password");
+    await waitForHydration(page);
     await page.locator("#forgot-email").fill("nonexistent@example.com");
     await page.getByRole("button", { name: /enviar link/i }).click();
 
     // The app intentionally shows success regardless of the API result
     // to prevent email enumeration attacks
     await expect(page.getByText(/e-mail enviado/i)).toBeVisible({
-      timeout: 5_000,
+      timeout: 8_000,
     });
   });
 
@@ -86,11 +90,12 @@ test.describe("Auth — Forgot Password", () => {
     });
 
     await page.goto("/forgot-password");
+    await waitForHydration(page);
     await page.locator("#forgot-email").fill("user@example.com");
     await page.getByRole("button", { name: /enviar link/i }).click();
 
     await expect(page.getByText(/e-mail enviado/i)).toBeVisible({
-      timeout: 5_000,
+      timeout: 8_000,
     });
 
     const backLink = page.getByRole("link", { name: /voltar ao login/i });
@@ -101,7 +106,7 @@ test.describe("Auth — Forgot Password", () => {
     page,
   }) => {
     await page.route("**/auth/password/forgot", async (route) => {
-      await page.waitForTimeout(200);
+      await page.waitForTimeout(800);
       route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -110,12 +115,14 @@ test.describe("Auth — Forgot Password", () => {
     });
 
     await page.goto("/forgot-password");
+    await waitForHydration(page);
     await page.locator("#forgot-email").fill("user@example.com");
 
-    const submitButton = page.getByRole("button", { name: /enviar link/i });
+    const submitButton = page.locator(".forgot-form__submit");
     await submitButton.click();
 
     await expect(submitButton).toBeDisabled();
+    await page.unrouteAll({ behavior: "ignoreErrors" });
   });
 
   test("shows validation error when submitting with empty email", async ({

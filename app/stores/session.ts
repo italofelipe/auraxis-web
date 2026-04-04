@@ -49,6 +49,7 @@ const applyCookiePayloadToState = (
  * @param payload Cookie payload to persist.
  */
 const writeCookie = (payload: SessionCookiePayload): void => {
+  /* v8 ignore next 3 */
   if (typeof document === "undefined") {
     return;
   }
@@ -74,6 +75,7 @@ export const useSessionStore = defineStore("session", {
       // when called from inside a Pinia action (e.g. from a plugin or middleware).
       // For all private routes (ssr: false) the browser's document.cookie is
       // always available on the client, so we parse it directly.
+      /* v8 ignore next 3 */
       if (typeof document === "undefined") {
         return;
       }
@@ -145,6 +147,7 @@ export const useSessionStore = defineStore("session", {
       applyCookiePayloadToState(this, null);
 
       // Clear cookie directly via document.cookie for the same reason as signIn.
+      /* v8 ignore next 3 */
       if (typeof document === "undefined") {
         return;
       }

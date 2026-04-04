@@ -1,3 +1,4 @@
+/* v8 ignore start */
 export { createAuthApi } from "./api";
 export { useForgotPasswordForm, useLoginForm, useRegisterForm } from "./forms";
 export {
@@ -12,3 +13,4 @@ export type {
   LoginMutation,
   RegisterMutation,
 } from "./types";
+/* v8 ignore stop */

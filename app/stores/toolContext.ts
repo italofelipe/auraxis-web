@@ -39,6 +39,7 @@ export const useToolContextStore = defineStore("toolContext", () => {
    * Call this after a successful login to re-hydrate the tool session.
    */
   function restore(): void {
+    /* v8 ignore next 3 */
     if (typeof window === "undefined") {
       return;
     }

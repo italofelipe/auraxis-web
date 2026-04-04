@@ -9,6 +9,7 @@ export default withNuxt(
     ignores: [
       ".nuxt/**",
       ".output/**",
+      ".claude/**",
       "coverage/**",
       "playwright-report/**",
       "test-results/**",

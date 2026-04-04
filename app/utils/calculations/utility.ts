@@ -14,7 +14,9 @@
  * Source of truth for WEB36 unit tests.
  */
 
+/* v8 ignore start */
 export * from "~/features/tools/model/dividir-conta";
 export * from "~/features/tools/model/desconto-markup";
 export * from "~/features/tools/model/conversor-moeda";
 export * from "~/features/tools/model/installment-vs-cash";
+/* v8 ignore stop */

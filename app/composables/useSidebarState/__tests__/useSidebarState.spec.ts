@@ -54,4 +54,27 @@ describe("useSidebarState", () => {
     collapse();
     expect(localStorage.getItem(STORAGE_KEY)).toBe("true");
   });
+
+  it("restores collapsed=true from localStorage on module load", async () => {
+    store[STORAGE_KEY] = "true";
+    const { useSidebarState } = await import("../useSidebarState");
+    const { isCollapsed } = useSidebarState();
+    expect(isCollapsed.value).toBe(true);
+  });
+
+  it("persist updates isCollapsed even when localStorage call is skipped", async () => {
+    // Simulate no-window env by temporarily removing window
+    const origWindow = globalThis.window;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (globalThis as any).window = undefined;
+    try {
+      const { useSidebarState } = await import("../useSidebarState");
+      const { isCollapsed, collapse } = useSidebarState();
+      collapse();
+      expect(isCollapsed.value).toBe(true);
+    } finally {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (globalThis as any).window = origWindow;
+    }
+  });
 });

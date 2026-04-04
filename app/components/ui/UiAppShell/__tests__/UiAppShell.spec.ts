@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { mount } from "@vue/test-utils";
+import { mount, type VueWrapper } from "@vue/test-utils";
 import { createPinia } from "pinia";
 import { ref, type Ref } from "vue";
 import UiAppShell from "../UiAppShell.vue";
@@ -23,6 +23,9 @@ vi.mock("~/composables/useSidebarState", () => ({
   }),
 }));
 
+const closeDrawerMock = vi.fn();
+const openDrawerMock = vi.fn();
+
 vi.mock("~/composables/useResponsiveShell", () => ({
   useResponsiveShell: (): {
     isMobile: Ref<boolean>;
@@ -33,8 +36,8 @@ vi.mock("~/composables/useResponsiveShell", () => ({
   } => ({
     isMobile: ref(false),
     isDrawerOpen: ref(false),
-    openDrawer: vi.fn(),
-    closeDrawer: vi.fn(),
+    openDrawer: openDrawerMock,
+    closeDrawer: closeDrawerMock,
     toggleDrawer: vi.fn(),
   }),
 }));
@@ -54,15 +57,52 @@ const defaultProps = {
   pageSubtitle: "Dezembro 2025",
 };
 
+const UiTopbarStub = {
+  template: `<header
+    @click.self="$emit('menu-toggle')"
+    data-testid="topbar"
+  />`,
+  emits: ["action", "user-settings", "user-logout", "menu-toggle"],
+};
+
 const globalConfig = {
   plugins: [createPinia()],
   stubs: {
     NuxtLink: { template: "<a :href=\"to\"><slot /></a>", props: ["to"] },
     UiSidebarNav: { template: "<nav />" },
-    UiTopbar: { template: "<header />" },
+    UiTopbar: UiTopbarStub,
     Transition: { template: "<slot />" },
   },
 };
+
+/**
+ * Mounts UiAppShell with a UiTopbar stub that emits `event` (with optional
+ * `payload`) immediately in its `mounted()` hook.
+ *
+ * Used by the topbar event-forwarding tests to avoid repeating the same
+ * inline stub definition three times.
+ *
+ * @param event The event name to emit from the stub.
+ * @param payload Optional payload passed as the second argument to $emit.
+ * @returns Mounted wrapper.
+ */
+const mountWithTopbarEmitting = (event: string, payload?: unknown): VueWrapper =>
+  mount(UiAppShell, {
+    props: defaultProps,
+    global: {
+      ...globalConfig,
+      stubs: {
+        ...globalConfig.stubs,
+        UiTopbar: {
+          template: "<header />",
+          emits: ["action", "user-settings", "user-logout", "menu-toggle"],
+          mounted() {
+            (this as unknown as { $emit: (e: string, v?: unknown) => void }).$emit(event, payload);
+          },
+        },
+      },
+    },
+  });
 
 describe("UiAppShell", () => {
   it("renders sidebar and main area", () => {
@@ -107,6 +147,23 @@ describe("UiAppShell", () => {
     });
     const sidebar = wrapper.find(".ui-app-shell__sidebar");
     expect(sidebar.attributes("aria-label")).toBe("Navegação principal");
+  });
+
+  it("emits topbar-action when topbar emits action event", async () => {
+    const wrapper = mountWithTopbarEmitting("action", "my-action");
+    const emitted = wrapper.emitted("topbar-action");
+    expect(emitted).toBeTruthy();
+    expect(emitted?.[0]).toEqual(["my-action"]);
+  });
+
+  it("emits user-settings when topbar emits user-settings", () => {
+    const wrapper = mountWithTopbarEmitting("user-settings");
+    expect(wrapper.emitted("user-settings")).toBeTruthy();
+  });
+
+  it("emits user-logout when topbar emits user-logout", () => {
+    const wrapper = mountWithTopbarEmitting("user-logout");
+    expect(wrapper.emitted("user-logout")).toBeTruthy();
   });
 
   it("snapshot default state", () => {

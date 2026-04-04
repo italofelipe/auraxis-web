@@ -29,13 +29,28 @@ describe("feature flag service", () => {
     expect(overrideValue).toBeUndefined();
   });
 
-  it("retorna override de ambiente quando presente", () => {
+  it("retorna override de ambiente quando presente (true)", () => {
     vi.stubEnv("NUXT_PUBLIC_FLAG_WEB_TOOLS_SALARY_RAISE_CALCULATOR", "true");
 
     const overrideValue = resolveEnvOverride("web.tools.salary-raise-calculator");
     expect(overrideValue).toBe(true);
 
     vi.unstubAllEnvs();
+  });
+
+  it("retorna false quando override de ambiente é 'false'", () => {
+    vi.stubEnv("NUXT_PUBLIC_FLAG_WEB_TOOLS_SALARY_RAISE_CALCULATOR", "false");
+    expect(resolveEnvOverride("web.tools.salary-raise-calculator")).toBe(false);
+  });
+
+  it("retorna false quando override de ambiente é '0'", () => {
+    vi.stubEnv("NUXT_PUBLIC_FLAG_WEB_TOOLS_SALARY_RAISE_CALCULATOR", "0");
+    expect(resolveEnvOverride("web.tools.salary-raise-calculator")).toBe(false);
+  });
+
+  it("retorna undefined quando override tem valor inválido", () => {
+    vi.stubEnv("NUXT_PUBLIC_FLAG_WEB_TOOLS_SALARY_RAISE_CALCULATOR", "maybe");
+    expect(resolveEnvOverride("web.tools.salary-raise-calculator")).toBeUndefined();
   });
 
   it("retorna definição da flag quando ela existe no catálogo", () => {
@@ -88,6 +103,21 @@ describe("feature flag service", () => {
     const providerDecision = await resolveProviderDecision(
       "web.tools.salary-raise-calculator",
     );
+    expect(providerDecision).toBeUndefined();
+  });
+
+  it("retorna undefined quando flag não existe no snapshot remoto", async () => {
+    vi.stubEnv("NUXT_PUBLIC_FLAG_PROVIDER", "unleash");
+    vi.stubEnv("NUXT_PUBLIC_UNLEASH_PROXY_URL", "https://flags.local");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async (): Promise<{ features: never[] }> => ({ features: [] }),
+      }),
+    );
+
+    const providerDecision = await resolveProviderDecision("flag.nao.existe");
     expect(providerDecision).toBeUndefined();
   });
 

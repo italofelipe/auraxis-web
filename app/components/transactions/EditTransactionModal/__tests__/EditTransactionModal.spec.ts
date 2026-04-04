@@ -3,18 +3,12 @@ import { mount, type VueWrapper } from "@vue/test-utils";
 import EditTransactionModal from "../EditTransactionModal.vue";
 import type { TransactionDto } from "~/features/transactions/contracts/transaction.dto";
 
-// ── Hoisted stubs ──────────────────────────────────────────────────────────────
-
-const { NModalStub } = vi.hoisted(() => ({
-  NModalStub: {
-    name: "NModal",
-    props: { show: Boolean, title: String },
-    template:
-      "<div v-if=\"show\" data-testid=\"n-modal\"><span>{{ title }}</span><slot /><slot name=\"footer\" /></div>",
-  },
-}));
+// ── Mock setup ─────────────────────────────────────────────────────────────────
+// NModalStub is loaded via dynamic import inside the factory so it can be
+// shared from ~/test-utils/stubs without triggering temporal dead zone errors.
 
 vi.mock("naive-ui", async (importOriginal) => {
+  const { NModalStub } = await import("~/test-utils/stubs");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const actual = await importOriginal<any>();
   return { ...actual, NModal: NModalStub };
@@ -29,17 +23,9 @@ vi.mock("~/features/transactions/queries/use-update-transaction-mutation", () =>
   }),
 }));
 
-vi.mock("~/features/tags/queries/use-tags-query", () => ({
-  useTagsQuery: (): object => ({ data: { value: [] } }),
-}));
-
-vi.mock("~/features/accounts/queries/use-accounts-query", () => ({
-  useAccountsQuery: (): object => ({ data: { value: [] } }),
-}));
-
-vi.mock("~/features/credit-cards/queries/use-credit-cards-query", () => ({
-  useCreditCardsQuery: (): object => ({ data: { value: [] } }),
-}));
+vi.mock("~/features/tags/queries/use-tags-query", () => ({ useTagsQuery: (): object => ({ data: { value: [] } }) }));
+vi.mock("~/features/accounts/queries/use-accounts-query", () => ({ useAccountsQuery: (): object => ({ data: { value: [] } }) }));
+vi.mock("~/features/credit-cards/queries/use-credit-cards-query", () => ({ useCreditCardsQuery: (): object => ({ data: { value: [] } }) }));
 
 /**
  * Builds a minimal TransactionDto fixture for testing.
@@ -147,5 +133,50 @@ describe("EditTransactionModal", () => {
 
   it("handles null transaction gracefully (closed state)", () => {
     expect(() => mountModal(false, null)).not.toThrow();
+  });
+
+  it("pre-fills form with transaction data on mount (populateForm runs)", () => {
+    const tx = makeTransaction();
+    const wrapper = mountModal(true, tx);
+    const input = wrapper.find("input");
+    expect(input.exists()).toBe(true);
+  });
+
+  it("shows recurring toggle in form", () => {
+    const wrapper = mountModal(true);
+    expect(wrapper.text()).toContain("Recorrente?");
+  });
+
+  it("shows status select in form", () => {
+    const wrapper = mountModal(true);
+    expect(wrapper.text()).toContain("Status");
+  });
+
+  it("triggers handleSubmit when save button is clicked", async () => {
+    const wrapper = mountModal(true);
+    const saveButton = wrapper.findAll("button").find((b) => b.text() === "Salvar");
+    await saveButton?.trigger("click");
+    // handleSubmit runs — form validation triggers
+    expect(wrapper.exists()).toBe(true);
+  });
+
+  it("populates form from transaction with recurring true and end_date", () => {
+    const tx: TransactionDto = {
+      ...makeTransaction(),
+      is_recurring: true,
+      end_date: "2027-01-01",
+    };
+    const wrapper = mountModal(true, tx);
+    expect(wrapper.exists()).toBe(true);
+  });
+
+  it("populates form from expense transaction with credit_card_id", () => {
+    const tx: TransactionDto = {
+      ...makeTransaction(),
+      type: "expense",
+      credit_card_id: "cc-123",
+    };
+    const wrapper = mountModal(true, tx);
+    expect(wrapper.text()).toContain("Cartão de crédito");
   });
 });

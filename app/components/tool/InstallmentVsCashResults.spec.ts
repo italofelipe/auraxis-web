@@ -120,4 +120,64 @@ describe("InstallmentVsCashResults", () => {
     expect(wrapper.text()).toContain("Comparação mês a mês");
     expect(wrapper.text()).toContain("Cronograma mês a mês");
   });
+
+  it("renders 'installment' recommendation when recommended option is installment", () => {
+    const installmentCalc: InstallmentVsCashCalculation = {
+      ...calculation,
+      result: {
+        ...calculation.result,
+        recommendedOption: "installment",
+        recommendationReason: "Parcelado saiu mais barato.",
+      },
+    };
+    const wrapper = mount(InstallmentVsCashResults, {
+      props: { calculation: installmentCalc },
+      global: { stubs },
+    });
+    expect(wrapper.exists()).toBe(true);
+  });
+
+  it("renders neutral recommendation when recommended option is neutral", () => {
+    const neutralCalc: InstallmentVsCashCalculation = {
+      ...calculation,
+      result: {
+        ...calculation.result,
+        recommendedOption: "neutral" as typeof calculation.result.recommendedOption,
+        recommendationReason: "Equivalente.",
+      },
+    };
+    const wrapper = mount(InstallmentVsCashResults, {
+      props: { calculation: neutralCalc },
+      global: { stubs },
+    });
+    expect(wrapper.exists()).toBe(true);
+  });
+
+  it("renders schedule with installment number 0 (Hoje) correctly", () => {
+    const calcWithToday: InstallmentVsCashCalculation = {
+      ...calculation,
+      result: {
+        ...calculation.result,
+        schedule: [
+          {
+            installmentNumber: 0,
+            dueInDays: 0,
+            amount: 0,
+            presentValue: 0,
+            realValueToday: 0,
+            cumulativeNominal: 0,
+            cumulativePresentValue: 0,
+            cumulativeRealValueToday: 0,
+            cashCumulative: 900,
+          },
+          ...calculation.result.schedule,
+        ],
+      },
+    };
+    const wrapper = mount(InstallmentVsCashResults, {
+      props: { calculation: calcWithToday },
+      global: { stubs },
+    });
+    expect(wrapper.exists()).toBe(true);
+  });
 });

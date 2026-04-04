@@ -17,7 +17,7 @@ exports[`UiAppShell > snapshot default state 1`] = `
     <nav data-v-8ce079b1="" items="[object Object],[object Object]" collapsed="false" current-route="/dashboard" class="ui-app-shell__nav"></nav>
   </aside><!-- Main area -->
   <div data-v-8ce079b1="" class="ui-app-shell__main">
-    <header data-v-8ce079b1="" title="Dashboard" subtitle="Dezembro 2025" actions="" user-name="João Silva" user-description="Investidor Moderado" show-menu-button="false"></header>
+    <header data-v-8ce079b1="" data-testid="topbar" title="Dashboard" subtitle="Dezembro 2025" actions="" user-name="João Silva" user-description="Investidor Moderado" show-menu-button="false"></header>
     <main data-v-8ce079b1="" class="ui-app-shell__content"></main>
   </div>
 </div>"

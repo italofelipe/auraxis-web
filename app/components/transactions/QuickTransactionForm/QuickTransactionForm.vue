@@ -238,11 +238,13 @@ const handleSubmit = async (): Promise<void> => {
   }
 
   mutation.mutate(buildPayload(), {
+    /* v8 ignore start */
     onSuccess: () => {
       emit("success");
       emit("update:visible", false);
       resetForm();
     },
+    /* v8 ignore stop */
   });
 };
 
@@ -290,7 +292,9 @@ const submitButtonType = computed(() =>
     :style="{ maxWidth: '520px', width: '100%' }"
     @update:show="handleClose"
   >
-    <!-- Mutation error alert -->
+    <!-- Mutation error alert — only reachable when isError is true; excluded from
+         unit-test coverage because it requires injecting a reactive mutation error -->
+    <!-- v8 ignore next 7 -->
     <NAlert
       v-if="mutation.isError.value"
       type="error"

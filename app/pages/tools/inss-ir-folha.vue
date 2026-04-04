@@ -12,11 +12,13 @@ import {
   NTag,
   NThing,
   NTooltip,
+  useMessage,
 } from "naive-ui";
 import { Info } from "lucide-vue-next";
 import { useRouter } from "#app";
 
 import { captureException } from "~/core/observability";
+import { useApiError } from "~/composables/useApiError";
 import { useCalculatorFormState } from "~/features/tools/composables/use-calculator-form-state";
 import { useSessionStore } from "~/stores/session";
 import { useEntitlementQuery } from "~/features/paywall/queries/use-entitlement-query";
@@ -43,6 +45,8 @@ import TaxBracketTable, {
 definePageMeta({ layout: false });
 
 const { t, n } = useI18n();
+const toast = useMessage();
+const { getErrorMessage } = useApiError();
 const router = useRouter();
 const sessionStore = useSessionStore();
 
@@ -237,6 +241,7 @@ async function ensureSimulationSaved(): Promise<string | null> {
     return simulation.id;
   } catch (err) {
     captureException(err, { context: "inss-ir-folha/save-simulation" });
+    toast.error(getErrorMessage(err));
     return null;
   }
 }

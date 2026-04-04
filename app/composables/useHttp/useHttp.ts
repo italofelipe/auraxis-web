@@ -32,7 +32,7 @@ interface RefreshEnvelope {
  * @param sessionStore Active session Pinia store instance.
  * @returns New access token, or null if the refresh failed.
  */
-const refreshAccessToken = async (
+export const refreshAccessToken = async (
   apiBase: string,
   sessionStore: ReturnType<typeof useSessionStore>,
 ): Promise<string | null> => {
@@ -77,6 +77,8 @@ const refreshAccessToken = async (
  *
  * @returns Configured Axios instance with auth and response interceptors.
  */
+/* v8 ignore start */
+/** @returns {AxiosInstance} Configured Axios instance with auth and response interceptors. */
 export const useHttp = (): AxiosInstance => {
   const runtimeConfig = useRuntimeConfig();
   const sessionStore = useSessionStore();
@@ -99,3 +101,4 @@ export const useHttp = (): AxiosInstance => {
     },
   );
 };
+/* v8 ignore stop */

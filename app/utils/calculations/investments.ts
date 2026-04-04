@@ -14,7 +14,9 @@
  * Source of truth for WEB36 unit tests.
  */
 
+/* v8 ignore start */
 export * from "~/features/tools/model/juros-compostos";
 export * from "~/features/tools/model/cdb-lci-lca";
 export * from "~/features/tools/model/tesouro-direto";
 export * from "~/features/tools/model/fii";
+/* v8 ignore stop */

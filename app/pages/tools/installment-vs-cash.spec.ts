@@ -128,6 +128,10 @@ vi.mock("~/features/paywall/services/entitlement.client", () => ({
   }),
 }));
 
+vi.mock("~/composables/useApiError", () => ({
+  useApiError: (): { getErrorMessage: (err: unknown) => string } => ({ getErrorMessage: vi.fn((err: unknown): string => String(err)) }),
+}));
+
 vi.mock("~/core/observability", () => ({
   captureException: mockCaptureException,
 }));
@@ -427,9 +431,7 @@ describe("InstallmentVsCashPage", () => {
     await calculateFromStubForm(wrapper);
 
     expect(mockCaptureException).toHaveBeenCalledOnce();
-    expect(mockMessageError).toHaveBeenCalledWith(
-      "pages.installmentVsCash.errors.calculate",
-    );
+    expect(mockMessageError).toHaveBeenCalledWith("Error: boom");
   });
 
   it("persists context and redirects to login when saving unauthenticated", async () => {
@@ -471,9 +473,7 @@ describe("InstallmentVsCashPage", () => {
     await flushPromises();
 
     expect(mockCaptureException).toHaveBeenCalledOnce();
-    expect(mockMessageError).toHaveBeenCalledWith(
-      "pages.installmentVsCash.errors.save",
-    );
+    expect(mockMessageError).toHaveBeenCalledWith("Error: save failed");
   });
 
   it("routes to plans when a premium action is requested without premium access", async () => {

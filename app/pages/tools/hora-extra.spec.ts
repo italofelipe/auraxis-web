@@ -78,6 +78,7 @@ vi.mock("naive-ui", () => ({
   NTooltip: {
     template: "<div class='n-tooltip'><slot name='trigger' /><slot /></div>",
   },
+  useMessage: vi.fn(() => ({ error: vi.fn(), success: vi.fn(), warning: vi.fn(), info: vi.fn() })),
 }));
 
 vi.mock("@tanstack/vue-query", async () => {
@@ -111,6 +112,9 @@ vi.mock("~/composables/useToolCta", () => ({
   }),
 }));
 
+vi.mock("~/composables/useApiError", () => ({
+  useApiError: (): { getErrorMessage: (err: unknown) => string } => ({ getErrorMessage: vi.fn((err: unknown): string => String(err)) }),
+}));
 vi.mock("~/core/observability", () => ({
   captureException: mockCaptureException,
 }));

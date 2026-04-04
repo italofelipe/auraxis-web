@@ -1,5 +1,7 @@
 import { test, expect } from "@playwright/test";
 
+import { waitForHydration } from "../helpers/auth";
+
 /**
  * E2E suite: Register flow
  *
@@ -61,6 +63,7 @@ test.describe("Auth — Register", () => {
     });
 
     await page.goto("/register");
+    await waitForHydration(page);
     await page.locator("#signup-name").fill("New User");
     await page.locator("#signup-email").fill("newuser@example.com");
     await page.locator("#signup-password").fill("StrongPass1!");
@@ -84,6 +87,7 @@ test.describe("Auth — Register", () => {
     });
 
     await page.goto("/register");
+    await waitForHydration(page);
     await page.locator("#signup-name").fill("Existing User");
     await page.locator("#signup-email").fill("taken@example.com");
     await page.locator("#signup-password").fill("StrongPass1!");
@@ -92,9 +96,9 @@ test.describe("Auth — Register", () => {
 
     // Should remain on /register
     await expect(page).toHaveURL(/\/register/);
-    // Error message from the API should be visible
+    // Error toast should be visible — useApiError maps 409 (no code) to errors.UNKNOWN i18n key
     await expect(
-      page.getByText(/não foi possível criar a conta|e-mail já está/i),
+      page.getByText(/algo deu errado/i),
     ).toBeVisible({ timeout: 5_000 });
   });
 
@@ -102,7 +106,7 @@ test.describe("Auth — Register", () => {
     page,
   }) => {
     await page.route("**/auth/register", async (route) => {
-      await page.waitForTimeout(200);
+      await page.waitForTimeout(800);
       route.fulfill({
         status: 201,
         contentType: "application/json",
@@ -111,15 +115,17 @@ test.describe("Auth — Register", () => {
     });
 
     await page.goto("/register");
+    await waitForHydration(page);
     await page.locator("#signup-name").fill("New User");
     await page.locator("#signup-email").fill("newuser@example.com");
     await page.locator("#signup-password").fill("StrongPass1!");
     await page.locator("#signup-confirm-password").fill("StrongPass1!");
 
-    const submitButton = page.getByRole("button", { name: /criar conta/i });
+    const submitButton = page.locator(".signup-form__submit");
     await submitButton.click();
 
     await expect(submitButton).toBeDisabled();
+    await page.unrouteAll({ behavior: "ignoreErrors" });
   });
 
   test("shows validation error when submitting empty form", async ({

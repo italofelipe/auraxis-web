@@ -46,6 +46,11 @@ describe("isCNPJ", () => {
     expect(isCNPJ("11222333000181")).toBe(true);
   });
 
+  it("aceita CNPJ válido com primeiro dígito verificador = 0 (resto < 2)", () => {
+    // 63.663.256/0001-07 — first check digit is 0 (remainder 1 < 2 → returns 0)
+    expect(isCNPJ("63663256000107")).toBe(true);
+  });
+
   it("aceita CNPJ válido com máscara", () => {
     expect(isCNPJ("11.222.333/0001-81")).toBe(true);
   });

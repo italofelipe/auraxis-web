@@ -11,11 +11,13 @@ import {
   NTag,
   NThing,
   NTooltip,
+  useMessage,
 } from "naive-ui";
 import { Info } from "lucide-vue-next";
 import { useRouter } from "#app";
 
 import { captureException } from "~/core/observability";
+import { useApiError } from "~/composables/useApiError";
 import { useCalculatorFormState } from "~/features/tools/composables/use-calculator-form-state";
 import { useSessionStore } from "~/stores/session";
 import { useEntitlementQuery } from "~/features/paywall/queries/use-entitlement-query";
@@ -41,6 +43,8 @@ import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
 definePageMeta({ layout: false });
 
 const { t, n } = useI18n();
+const toast = useMessage();
+const { getErrorMessage } = useApiError();
 const router = useRouter();
 const sessionStore = useSessionStore();
 
@@ -176,6 +180,7 @@ async function ensureSimulationSaved(): Promise<string | null> {
     return simulation.id;
   } catch (err) {
     captureException(err, { context: "fgts/save-simulation" });
+    toast.error(getErrorMessage(err));
     return null;
   }
 }
@@ -200,6 +205,7 @@ async function handleAddAsGoal(): Promise<void> {
     goalCreated.value = true;
   } catch (err) {
     captureException(err, { context: "fgts/create-goal" });
+    toast.error(getErrorMessage(err));
   }
 }
 </script>
