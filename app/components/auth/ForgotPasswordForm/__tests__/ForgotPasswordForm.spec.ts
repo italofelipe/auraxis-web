@@ -2,11 +2,7 @@ import { describe, expect, it } from "vitest";
 import { nextTick } from "vue";
 import { mount } from "@vue/test-utils";
 import ForgotPasswordForm from "../ForgotPasswordForm.vue";
-
-const NuxtLinkStub = {
-  template: "<a :href=\"to\" v-bind=\"$attrs\"><slot /></a>",
-  props: ["to"],
-};
+import { NuxtLinkStub } from "~/test-utils";
 
 const IllustrationMailSentStub = {
   template: "<svg class='illustration-mail-sent' aria-hidden='true' />",

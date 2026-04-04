@@ -4,9 +4,7 @@ import { createPinia, setActivePinia } from "pinia";
 import { ref, type App } from "vue";
 import DefaultLayout from "./default.vue";
 
-vi.mock("vue-i18n", () => ({
-  useI18n: (): { t: (key: string) => string } => ({ t: (key: string) => key }),
-}));
+vi.mock("vue-i18n", () => ({ useI18n: (): { t: (key: string) => string } => ({ t: (key: string) => key }) }));
 
 vi.mock("~/stores/session", () => ({
   useSessionStore: vi.fn(() => ({

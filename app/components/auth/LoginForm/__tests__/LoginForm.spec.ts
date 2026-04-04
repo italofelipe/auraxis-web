@@ -2,15 +2,9 @@ import { describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
 import { mount } from "@vue/test-utils";
 import LoginForm from "../LoginForm.vue";
+import { NuxtLinkStub } from "~/test-utils";
 
-vi.mock("vue-i18n", () => ({
-  useI18n: (): { t: (key: string) => string } => ({ t: (key: string) => key }),
-}));
-
-const NuxtLinkStub = {
-  template: "<a :href=\"to\" v-bind=\"$attrs\"><slot /></a>",
-  props: ["to"],
-};
+vi.mock("vue-i18n", () => ({ useI18n: (): { t: (key: string) => string } => ({ t: (key: string) => key }) }));
 
 const globalConfig = {
   stubs: { NuxtLink: NuxtLinkStub },

@@ -5,4 +5,5 @@
 /* v8 ignore start */
 export { renderWithProviders } from "./renderWithProviders";
 export type { RenderWithProvidersOptions } from "./renderWithProviders";
+export { NuxtLinkStub, NModalStub } from "./stubs";
 /* v8 ignore stop */

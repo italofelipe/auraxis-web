@@ -2,19 +2,12 @@ import { describe, expect, it, vi } from "vitest";
 import { mount, type VueWrapper } from "@vue/test-utils";
 import QuickTransactionForm from "../QuickTransactionForm.vue";
 
-// ── Hoisted stubs ──────────────────────────────────────────────────────────────
-// vi.mock factories are hoisted before module initialisation, so the stubs must
-// be created with vi.hoisted() to avoid temporal dead zone errors.
-
-const { NModalStub } = vi.hoisted(() => ({
-  NModalStub: {
-    name: "NModal",
-    props: { show: Boolean, title: String },
-    template: "<div v-if=\"show\" data-testid=\"n-modal\"><span>{{ title }}</span><slot /><slot name=\"footer\" /></div>",
-  },
-}));
+// ── Mock setup ─────────────────────────────────────────────────────────────────
+// NModalStub is loaded via dynamic import inside the factory so it can be
+// shared from ~/test-utils/stubs without triggering temporal dead zone errors.
 
 vi.mock("naive-ui", async (importOriginal) => {
+  const { NModalStub } = await import("~/test-utils/stubs");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const actual = await importOriginal<any>();
   return { ...actual, NModal: NModalStub };
@@ -29,17 +22,9 @@ vi.mock("~/features/transactions/queries/use-create-transaction-mutation", () =>
   }),
 }));
 
-vi.mock("~/features/tags/queries/use-tags-query", () => ({
-  useTagsQuery: (): object => ({ data: { value: [] } }),
-}));
-
-vi.mock("~/features/accounts/queries/use-accounts-query", () => ({
-  useAccountsQuery: (): object => ({ data: { value: [] } }),
-}));
-
-vi.mock("~/features/credit-cards/queries/use-credit-cards-query", () => ({
-  useCreditCardsQuery: (): object => ({ data: { value: [] } }),
-}));
+vi.mock("~/features/tags/queries/use-tags-query", () => ({ useTagsQuery: (): object => ({ data: { value: [] } }) }));
+vi.mock("~/features/accounts/queries/use-accounts-query", () => ({ useAccountsQuery: (): object => ({ data: { value: [] } }) }));
+vi.mock("~/features/credit-cards/queries/use-credit-cards-query", () => ({ useCreditCardsQuery: (): object => ({ data: { value: [] } }) }));
 
 /**
  * Mounts the QuickTransactionForm with sensible defaults.
@@ -60,9 +45,7 @@ const mountForm = (type: "income" | "expense" = "expense"): VueWrapper =>
     },
   });
 
-vi.mock("vue-i18n", () => ({
-  useI18n: (): { t: (key: string) => string } => ({ t: (key: string) => key }),
-}));
+vi.mock("vue-i18n", () => ({ useI18n: (): { t: (key: string) => string } => ({ t: (key: string) => key }) }));
 
 describe("QuickTransactionForm", () => {
   it("renders modal content when visible is true", () => {

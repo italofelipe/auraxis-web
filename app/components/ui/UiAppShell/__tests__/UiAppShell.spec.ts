@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { mount } from "@vue/test-utils";
+import { mount, type VueWrapper } from "@vue/test-utils";
 import { createPinia } from "pinia";
 import { ref, type Ref } from "vue";
 import UiAppShell from "../UiAppShell.vue";
@@ -75,6 +75,35 @@ const globalConfig = {
   },
 };
 
+/**
+ * Mounts UiAppShell with a UiTopbar stub that emits `event` (with optional
+ * `payload`) immediately in its `mounted()` hook.
+ *
+ * Used by the topbar event-forwarding tests to avoid repeating the same
+ * inline stub definition three times.
+ *
+ * @param event The event name to emit from the stub.
+ * @param payload Optional payload passed as the second argument to $emit.
+ * @returns Mounted wrapper.
+ */
+const mountWithTopbarEmitting = (event: string, payload?: unknown): VueWrapper =>
+  mount(UiAppShell, {
+    props: defaultProps,
+    global: {
+      ...globalConfig,
+      stubs: {
+        ...globalConfig.stubs,
+        UiTopbar: {
+          template: "<header />",
+          emits: ["action", "user-settings", "user-logout", "menu-toggle"],
+          mounted() {
+            (this as unknown as { $emit: (e: string, v?: unknown) => void }).$emit(event, payload);
+          },
+        },
+      },
+    },
+  });
+
 describe("UiAppShell", () => {
   it("renders sidebar and main area", () => {
     const wrapper = mount(UiAppShell, {
@@ -121,64 +150,19 @@ describe("UiAppShell", () => {
   });
 
   it("emits topbar-action when topbar emits action event", async () => {
-    const wrapper = mount(UiAppShell, {
-      props: defaultProps,
-      global: {
-        ...globalConfig,
-        stubs: {
-          ...globalConfig.stubs,
-          UiTopbar: {
-            template: "<header />",
-            emits: ["action", "user-settings", "user-logout", "menu-toggle"],
-            mounted() {
-              (this as unknown as { $emit: (e: string, v?: unknown) => void }).$emit("action", "my-action");
-            },
-          },
-        },
-      },
-    });
+    const wrapper = mountWithTopbarEmitting("action", "my-action");
     const emitted = wrapper.emitted("topbar-action");
     expect(emitted).toBeTruthy();
     expect(emitted?.[0]).toEqual(["my-action"]);
   });
 
-  it("emits user-settings when topbar emits user-settings", async () => {
-    const wrapper = mount(UiAppShell, {
-      props: defaultProps,
-      global: {
-        ...globalConfig,
-        stubs: {
-          ...globalConfig.stubs,
-          UiTopbar: {
-            template: "<header />",
-            emits: ["action", "user-settings", "user-logout", "menu-toggle"],
-            mounted() {
-              (this as unknown as { $emit: (e: string) => void }).$emit("user-settings");
-            },
-          },
-        },
-      },
-    });
+  it("emits user-settings when topbar emits user-settings", () => {
+    const wrapper = mountWithTopbarEmitting("user-settings");
     expect(wrapper.emitted("user-settings")).toBeTruthy();
   });
 
-  it("emits user-logout when topbar emits user-logout", async () => {
-    const wrapper = mount(UiAppShell, {
-      props: defaultProps,
-      global: {
-        ...globalConfig,
-        stubs: {
-          ...globalConfig.stubs,
-          UiTopbar: {
-            template: "<header />",
-            emits: ["action", "user-settings", "user-logout", "menu-toggle"],
-            mounted() {
-              (this as unknown as { $emit: (e: string) => void }).$emit("user-logout");
-            },
-          },
-        },
-      },
-    });
+  it("emits user-logout when topbar emits user-logout", () => {
+    const wrapper = mountWithTopbarEmitting("user-logout");
     expect(wrapper.emitted("user-logout")).toBeTruthy();
   });
 
