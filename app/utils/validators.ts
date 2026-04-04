@@ -109,7 +109,7 @@ export const isPhone = (phone: string): boolean => {
   const ddd = Number(digits.slice(0, 2));
   if (ddd < 11 || ddd > 99) { return false; }
 
-  /* v8 ignore next */ const thirdDigit = digits[2] ?? "";
+  const thirdDigit = digits[2]!; // length ≥ 10 guarantees this index exists
   if (digits.length === 11) { return thirdDigit === "9"; }
   return /^[2-8]$/.test(thirdDigit);
 };
