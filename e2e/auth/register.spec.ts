@@ -1,5 +1,7 @@
 import { test, expect } from "@playwright/test";
 
+import { waitForHydration } from "../helpers/auth";
+
 /**
  * E2E suite: Register flow
  *
@@ -61,6 +63,7 @@ test.describe("Auth — Register", () => {
     });
 
     await page.goto("/register");
+    await waitForHydration(page);
     await page.locator("#signup-name").fill("New User");
     await page.locator("#signup-email").fill("newuser@example.com");
     await page.locator("#signup-password").fill("StrongPass1!");
@@ -84,6 +87,7 @@ test.describe("Auth — Register", () => {
     });
 
     await page.goto("/register");
+    await waitForHydration(page);
     await page.locator("#signup-name").fill("Existing User");
     await page.locator("#signup-email").fill("taken@example.com");
     await page.locator("#signup-password").fill("StrongPass1!");
@@ -111,15 +115,17 @@ test.describe("Auth — Register", () => {
     });
 
     await page.goto("/register");
+    await waitForHydration(page);
     await page.locator("#signup-name").fill("New User");
     await page.locator("#signup-email").fill("newuser@example.com");
     await page.locator("#signup-password").fill("StrongPass1!");
     await page.locator("#signup-confirm-password").fill("StrongPass1!");
 
-    const submitButton = page.getByRole("button", { name: /criar conta/i });
+    const submitButton = page.locator(".signup-form__submit");
     await submitButton.click();
 
     await expect(submitButton).toBeDisabled();
+    await page.unrouteAll({ behavior: "ignoreErrors" });
   });
 
   test("shows validation error when submitting empty form", async ({

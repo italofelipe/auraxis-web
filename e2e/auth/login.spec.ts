@@ -1,5 +1,7 @@
 import { test, expect } from "@playwright/test";
 
+import { waitForHydration } from "../helpers/auth";
+
 /**
  * E2E suite: Login flow
  *
@@ -63,6 +65,7 @@ test.describe("Auth — Login", () => {
     });
 
     await page.goto("/login");
+    await waitForHydration(page);
     await page.locator("#login-email").fill("test@example.com");
     await page.locator("#login-password").fill("ValidPassword1!");
     await page.getByRole("button", { name: /entrar/i }).click();
@@ -78,8 +81,18 @@ test.describe("Auth — Login", () => {
         body: JSON.stringify(MOCK_LOGIN_INVALID_CREDENTIALS),
       });
     });
+    // Stub the refresh endpoint so the 401 interceptor fails fast without
+    // making a real network request to localhost:5000/auth/refresh.
+    await page.route("**/auth/refresh", (route) => {
+      route.fulfill({
+        status: 401,
+        contentType: "application/json",
+        body: JSON.stringify({ message: "Refresh token invalid" }),
+      });
+    });
 
     await page.goto("/login");
+    await waitForHydration(page);
     await page.locator("#login-email").fill("wrong@example.com");
     await page.locator("#login-password").fill("WrongPassword1!");
     await page.getByRole("button", { name: /entrar/i }).click();
@@ -106,14 +119,18 @@ test.describe("Auth — Login", () => {
     });
 
     await page.goto("/login");
+    await waitForHydration(page);
     await page.locator("#login-email").fill("test@example.com");
     await page.locator("#login-password").fill("ValidPassword1!");
 
-    const submitButton = page.getByRole("button", { name: /entrar/i });
+    // Use a stable selector that persists even when the button text changes to
+    // the loading label (e.g. "Entrando...") while isPending = true.
+    const submitButton = page.locator(".login-form__submit");
     await submitButton.click();
 
     // While loading, the button should be disabled
     await expect(submitButton).toBeDisabled();
+    await page.unrouteAll({ behavior: "ignoreErrors" });
   });
 
   test("shows validation error when submitting empty form", async ({

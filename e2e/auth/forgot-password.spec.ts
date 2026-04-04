@@ -1,5 +1,7 @@
 import { test, expect } from "@playwright/test";
 
+import { waitForHydration } from "../helpers/auth";
+
 /**
  * E2E suite: Forgot password flow
  *
@@ -45,6 +47,7 @@ test.describe("Auth — Forgot Password", () => {
     });
 
     await page.goto("/forgot-password");
+    await waitForHydration(page);
     await page.locator("#forgot-email").fill("user@example.com");
     await page.getByRole("button", { name: /enviar link/i }).click();
 
@@ -66,6 +69,7 @@ test.describe("Auth — Forgot Password", () => {
     });
 
     await page.goto("/forgot-password");
+    await waitForHydration(page);
     await page.locator("#forgot-email").fill("nonexistent@example.com");
     await page.getByRole("button", { name: /enviar link/i }).click();
 
@@ -86,6 +90,7 @@ test.describe("Auth — Forgot Password", () => {
     });
 
     await page.goto("/forgot-password");
+    await waitForHydration(page);
     await page.locator("#forgot-email").fill("user@example.com");
     await page.getByRole("button", { name: /enviar link/i }).click();
 
@@ -110,12 +115,14 @@ test.describe("Auth — Forgot Password", () => {
     });
 
     await page.goto("/forgot-password");
+    await waitForHydration(page);
     await page.locator("#forgot-email").fill("user@example.com");
 
-    const submitButton = page.getByRole("button", { name: /enviar link/i });
+    const submitButton = page.locator(".forgot-form__submit");
     await submitButton.click();
 
     await expect(submitButton).toBeDisabled();
+    await page.unrouteAll({ behavior: "ignoreErrors" });
   });
 
   test("shows validation error when submitting with empty email", async ({
