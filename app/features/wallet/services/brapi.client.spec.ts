@@ -124,6 +124,16 @@ describe("BrapiClient", () => {
   // ── getHistoricalPrice ────────────────────────────────────────────────────
 
   describe("getHistoricalPrice", () => {
+    it("throws BRAPI_API_KEY_NOT_CONFIGURED when apiKey is empty", async () => {
+      mockedAxiosCreate.mockReturnValue({ get: httpGetMock } as never);
+      const clientWithoutKey = new BrapiClient("");
+
+      await expect(clientWithoutKey.getHistoricalPrice("PETR4", "2021-06-13")).rejects.toThrow(
+        "BRAPI_API_KEY_NOT_CONFIGURED",
+      );
+      expect(httpGetMock).not.toHaveBeenCalled();
+    });
+
     it("calls /quote/{ticker} with correct range, interval, startDate, endDate, and token", async () => {
       const quoteResult = makeQuoteResult();
       httpGetMock.mockResolvedValueOnce({ data: { results: [quoteResult] } });

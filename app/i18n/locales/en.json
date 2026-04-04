@@ -692,7 +692,8 @@
         "label": "Unit price on date (R$)",
         "placeholder": "Waiting for ticker and date…",
         "tooltip": "Estimated value based on closing price on {date} ({currency}). Date may differ if it falls on a weekend or holiday. You can edit this value if needed.",
-        "tooltipNoDate": "Estimated value based on closing price on ... ({currency}). You can edit this value if needed."
+        "tooltipNoDate": "Estimated value based on closing price on ... ({currency}). You can edit this value if needed.",
+        "brapiUnavailable": "Historical quote not available. Please enter the price manually."
       },
       "value": {
         "label": "Current value (R$)",
@@ -2642,5 +2643,24 @@
       "cvm": "Past performance does not guarantee future results. This does not constitute investment advice. Real Estate Investment Trusts are variable income investments subject to market risk."
     },
     "loading": "Loading FII data…"
+  },
+  "dirtyGuard": {
+    "title": "Unsaved changes",
+    "content": "You have unsaved changes. Are you sure you want to leave?",
+    "positiveText": "Leave without saving",
+    "negativeText": "Keep editing"
+  },
+  "errors": {
+    "VALIDATION_ERROR": "Please check the fields and try again",
+    "MISSING_TOKEN": "Session expired. Please log in again",
+    "UNAUTHORIZED": "You do not have permission to perform this action",
+    "NOT_FOUND": "The requested resource was not found",
+    "SERVER_ERROR": "Internal error. Please try again in a moment",
+    "NETWORK_ERROR": "Could not connect. Please check your connection",
+    "UNKNOWN": "Something went wrong. Please try again",
+    "fieldMayNotBeNull": "This field cannot be empty",
+    "fieldRequired": "This field is required",
+    "invalidEmail": "Invalid email address",
+    "invalidDate": "Invalid date"
   }
 }

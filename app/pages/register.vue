@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import axios from "axios";
 import { useMessage } from "naive-ui";
 import { useRegisterMutation } from "~/composables/useAuth";
 import { useCaptcha } from "~/composables/useCaptcha";
+import { useApiError } from "~/composables/useApiError";
 import type { RegisterSchema } from "~/schemas/auth";
 
 definePageMeta({ layout: "auth", middleware: ["guest-only"] });
@@ -16,6 +16,7 @@ useSeoMeta({
 const message = useMessage();
 const registerMutation = useRegisterMutation();
 const captcha = useCaptcha();
+const { getErrorMessage } = useApiError();
 
 /**
  * Submits the registration form.
@@ -37,10 +38,7 @@ const onSubmit = async (values: RegisterSchema): Promise<void> => {
     // user is authenticated. Redirect to the email-confirmation gate.
     await navigateTo("/confirm-email-pending");
   } catch (err) {
-    const msg = axios.isAxiosError(err)
-      ? (err.response?.data?.message ?? "Não foi possível criar a conta. Verifique os dados e tente novamente.")
-      : "Ocorreu um erro inesperado. Tente novamente.";
-    message.error(msg, { duration: 5000 });
+    message.error(getErrorMessage(err), { duration: 5000 });
   }
 };
 </script>
