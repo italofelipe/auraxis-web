@@ -640,6 +640,11 @@
           "strong": "Strong"
         }
       }
+    },
+    "sessionExpired": {
+      "title": "Session expired",
+      "message": "Your session has expired. Please sign in again to continue.",
+      "action": "OK, got it"
     }
   },
   "transaction": {

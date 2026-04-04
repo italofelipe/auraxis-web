@@ -640,6 +640,11 @@
           "strong": "Forte"
         }
       }
+    },
+    "sessionExpired": {
+      "title": "Sessão expirada",
+      "message": "Sua sessão expirou. Por favor, faça login novamente para continuar.",
+      "action": "OK, entendido"
     }
   },
   "transaction": {

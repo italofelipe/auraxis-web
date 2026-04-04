@@ -380,12 +380,11 @@ const features = computed((): FeatureItem[] => [
 .home-features__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 0;
+  gap: var(--space-4);
   max-width: 1200px;
   margin-inline: auto;
   padding-inline: var(--space-4);
   padding-bottom: clamp(var(--space-8), 6vw, 80px);
-  gap: var(--space-4);
 }
 
 .home-feature-card {

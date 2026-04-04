@@ -1,5 +1,5 @@
 import axios, { type AxiosInstance } from "axios";
-import { useMessage } from "naive-ui";
+import { useDialog, useMessage } from "naive-ui";
 
 import { createHttpClient } from "~/core/http/http-client";
 import { useSessionStore } from "~/stores/session";
@@ -83,6 +83,8 @@ export const useHttp = (): AxiosInstance => {
   const runtimeConfig = useRuntimeConfig();
   const sessionStore = useSessionStore();
   const message = useMessage();
+  const dialog = useDialog();
+  const { t } = useI18n();
 
   const apiBase = String(runtimeConfig.public.apiBase ?? DEFAULT_API_BASE);
 
@@ -92,11 +94,22 @@ export const useHttp = (): AxiosInstance => {
     {
       onUnauthorized: async (): Promise<string | null> => {
         const newToken = await refreshAccessToken(apiBase, sessionStore);
+
         if (!newToken) {
-          // Both the access token and the refresh token are expired — the
-          // session is fully invalid. Sign the user out and send them home.
-          await navigateTo("/");
+          // Both the access token and the refresh token are expired.
+          // Show a non-dismissable modal so the user acknowledges the
+          // session loss before being sent to the login page.
+          dialog.warning({
+            title: t("auth.sessionExpired.title"),
+            content: t("auth.sessionExpired.message"),
+            positiveText: t("auth.sessionExpired.action"),
+            closable: false,
+            closeOnEsc: false,
+            maskClosable: false,
+            onPositiveClick: () => navigateTo("/login"),
+          });
         }
+
         return newToken;
       },
       onForbidden: (msg: string): void => {
