@@ -1,2 +1,8 @@
-# All files owned by the sole maintainer
+# Deploy workflows e infra AWS exigem revisão do maintainer
+.github/workflows/deploy*.yml @italofelipe
+.github/workflows/deploy-minimum.yml @italofelipe
+terraform/ @italofelipe
+.github/workflows/ @italofelipe
+
+# All other files owned by the sole maintainer
 * @italofelipe
