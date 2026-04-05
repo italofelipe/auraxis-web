@@ -3,6 +3,8 @@ import type { BillingCycle, PlanDto } from "~/features/subscription/contracts/su
 import { useCreateCheckoutMutation } from "~/features/subscription/queries/use-create-checkout-mutation";
 import { PRICING } from "~/shared/constants/pricing";
 
+definePageMeta({ layout: "public" });
+
 const { t } = useI18n();
 
 useSeoMeta({
