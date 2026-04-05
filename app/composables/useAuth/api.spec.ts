@@ -79,4 +79,34 @@ describe("createAuthApi", () => {
     expect(response.accepted).toBe(true);
     expect(response.message).toBe("Email sent");
   });
+
+  it("forgotPassword normalizes a response that already has the accepted field", async () => {
+    const post = vi.fn().mockResolvedValue({
+      data: { accepted: false, message: "Email not found" },
+    });
+    const authApi = createAuthApi({ post });
+
+    const response = await authApi.forgotPassword({ email: "unknown@auraxis.com" });
+
+    expect(response.accepted).toBe(false);
+    expect(response.message).toBe("Email not found");
+  });
+
+  it("resetPassword calls POST /auth/password/reset and returns the response data", async () => {
+    const post = vi.fn().mockResolvedValue({
+      data: { message: "Password reset successfully" },
+    });
+    const authApi = createAuthApi({ post });
+
+    const response = await authApi.resetPassword({
+      token: "reset-token-123",
+      password: "NewPassword@1",
+    });
+
+    expect(post).toHaveBeenCalledWith("/auth/password/reset", {
+      token: "reset-token-123",
+      password: "NewPassword@1",
+    });
+    expect(response.message).toBe("Password reset successfully");
+  });
 });
