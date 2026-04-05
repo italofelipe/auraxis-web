@@ -4,6 +4,18 @@ import type {
   DashboardTimeseriesPointDto,
 } from "~/features/dashboard/contracts/dashboard-overview.dto";
 
+export interface DashboardTrendsMonthEntry {
+  readonly month: string;
+  readonly income: number;
+  readonly expenses: number;
+  readonly balance: number;
+}
+
+export interface DashboardTrends {
+  readonly months: number;
+  readonly series: DashboardTrendsMonthEntry[];
+}
+
 export type { DashboardPeriodPreset } from "~/features/dashboard/contracts/dashboard-overview.dto";
 
 export type DashboardPeriod = DashboardPeriodDto;
