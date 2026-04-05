@@ -42,6 +42,7 @@ describe("useAuth/mutations", () => {
       login: vi.fn(),
       register: vi.fn(),
       forgotPassword: vi.fn(),
+      resetPassword: vi.fn(),
     };
 
     const mutation = useLoginMutation(authApi) as unknown as {
@@ -70,6 +71,7 @@ describe("useAuth/mutations", () => {
       login: vi.fn(),
       register: vi.fn(),
       forgotPassword: vi.fn(),
+      resetPassword: vi.fn(),
     };
 
     const mutation = useRegisterMutation(authApi) as unknown as {
@@ -98,6 +100,7 @@ describe("useAuth/mutations", () => {
       login: vi.fn(),
       register: vi.fn(),
       forgotPassword: vi.fn(),
+      resetPassword: vi.fn(),
     };
 
     const mutation = useForgotPasswordMutation(authApi) as unknown as {
@@ -112,6 +115,7 @@ describe("useAuth/mutations", () => {
       login: vi.fn(),
       register: vi.fn(),
       forgotPassword: vi.fn(),
+      resetPassword: vi.fn(),
     };
 
     useHttpMock.mockReturnValue({ post: vi.fn() });
