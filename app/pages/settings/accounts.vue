@@ -4,15 +4,18 @@ import {
   NButton,
   NCard,
   NDataTable,
+  NFormItem,
   NInput,
+  NInputNumber,
   NModal,
   NPopconfirm,
+  NSelect,
   NSpace,
   NSpin,
   type DataTableColumns,
 } from "naive-ui";
 
-import type { AccountDto } from "~/features/accounts/contracts/account.dto";
+import type { AccountDto, AccountType } from "~/features/accounts/contracts/account.dto";
 import { useAccountsQuery } from "~/features/accounts/queries/use-accounts-query";
 import { useCreateAccountMutation } from "~/features/accounts/queries/use-create-account-mutation";
 import { useUpdateAccountMutation } from "~/features/accounts/queries/use-update-account-mutation";
@@ -36,6 +39,17 @@ const deleteMutation = useDeleteAccountMutation();
 const showModal = ref(false);
 const editingAccount = ref<AccountDto | null>(null);
 const formName = ref("");
+const formAccountType = ref<AccountType>("checking");
+const formInstitution = ref<string>("");
+const formInitialBalance = ref<number>(0);
+
+const ACCOUNT_TYPE_OPTIONS = computed(() => [
+  { value: "checking", label: t("pages.settings.accounts.accountTypes.checking") },
+  { value: "savings", label: t("pages.settings.accounts.accountTypes.savings") },
+  { value: "investment", label: t("pages.settings.accounts.accountTypes.investment") },
+  { value: "wallet", label: t("pages.settings.accounts.accountTypes.wallet") },
+  { value: "other", label: t("pages.settings.accounts.accountTypes.other") },
+]);
 
 /**
  *
@@ -43,6 +57,9 @@ const formName = ref("");
 function openCreate(): void {
   editingAccount.value = null;
   formName.value = "";
+  formAccountType.value = "checking";
+  formInstitution.value = "";
+  formInitialBalance.value = 0;
   showModal.value = true;
 }
 
@@ -53,6 +70,9 @@ function openCreate(): void {
 function openEdit(account: AccountDto): void {
   editingAccount.value = account;
   formName.value = account.name;
+  formAccountType.value = account.account_type;
+  formInstitution.value = account.institution ?? "";
+  formInitialBalance.value = account.initial_balance ?? 0;
   showModal.value = true;
 }
 
@@ -62,6 +82,9 @@ function openEdit(account: AccountDto): void {
 function closeModal(): void {
   showModal.value = false;
   formName.value = "";
+  formAccountType.value = "checking";
+  formInstitution.value = "";
+  formInitialBalance.value = 0;
   editingAccount.value = null;
 }
 
@@ -72,10 +95,23 @@ async function submitForm(): Promise<void> {
   const name = formName.value.trim();
   if (!name) {return;}
 
+  const institution = formInstitution.value.trim() || null;
+
   if (editingAccount.value) {
-    await updateMutation.mutateAsync({ id: editingAccount.value.id, name });
+    await updateMutation.mutateAsync({
+      id: editingAccount.value.id,
+      name,
+      account_type: formAccountType.value,
+      institution,
+      initial_balance: formInitialBalance.value,
+    });
   } else {
-    await createMutation.mutateAsync({ name });
+    await createMutation.mutateAsync({
+      name,
+      account_type: formAccountType.value,
+      institution,
+      initial_balance: formInitialBalance.value,
+    });
   }
 
   closeModal();
@@ -93,6 +129,21 @@ const columns = computed((): DataTableColumns<AccountDto> => [
   {
     title: t("pages.settings.accounts.columns.name"),
     key: "name",
+  },
+  {
+    title: t("pages.settings.accounts.columns.accountType"),
+    key: "account_type",
+    render(row: AccountDto): VNodeChild {
+      const opt = ACCOUNT_TYPE_OPTIONS.value.find((o) => o.value === row.account_type);
+      return opt?.label ?? row.account_type;
+    },
+  },
+  {
+    title: t("pages.settings.accounts.columns.institution"),
+    key: "institution",
+    render(row: AccountDto): VNodeChild {
+      return row.institution ?? "—";
+    },
   },
   {
     title: t("pages.settings.accounts.columns.actions"),
@@ -160,12 +211,37 @@ const columns = computed((): DataTableColumns<AccountDto> => [
       @positive-click="submitForm"
       @negative-click="closeModal"
     >
-      <NInput
-        v-model:value="formName"
-        :placeholder="$t('pages.settings.accounts.placeholder')"
-        maxlength="100"
-        show-count
-      />
+      <div class="modal-form">
+        <NFormItem :label="$t('pages.settings.accounts.placeholder')">
+          <NInput
+            v-model:value="formName"
+            :placeholder="$t('pages.settings.accounts.placeholder')"
+            maxlength="100"
+            show-count
+          />
+        </NFormItem>
+        <NFormItem :label="$t('pages.settings.accounts.fields.accountType')">
+          <NSelect
+            v-model:value="formAccountType"
+            :options="ACCOUNT_TYPE_OPTIONS"
+          />
+        </NFormItem>
+        <NFormItem :label="$t('pages.settings.accounts.fields.institution')">
+          <NInput
+            v-model:value="formInstitution"
+            :placeholder="$t('pages.settings.accounts.fields.institutionPlaceholder')"
+            maxlength="100"
+          />
+        </NFormItem>
+        <NFormItem :label="$t('pages.settings.accounts.fields.initialBalance')">
+          <NInputNumber
+            v-model:value="formInitialBalance"
+            :min="0"
+            :precision="2"
+            style="width: 100%;"
+          />
+        </NFormItem>
+      </div>
     </NModal>
   </div>
 </template>
@@ -201,5 +277,12 @@ const columns = computed((): DataTableColumns<AccountDto> => [
 .settings-page__subtitle {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-top: var(--space-2);
 }
 </style>

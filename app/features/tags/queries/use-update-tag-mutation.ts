@@ -8,6 +8,8 @@ import { useTagsClient, type TagsClient } from "~/features/tags/services/tags.cl
 export type UpdateTagVariables = {
   readonly id: string;
   readonly name: string;
+  readonly color?: string | null;
+  readonly icon?: string | null;
 };
 
 /**
@@ -22,7 +24,8 @@ export const useUpdateTagMutation = (
   const client = providedClient ?? useTagsClient();
 
   return createApiMutation(
-    ({ id, name }: UpdateTagVariables): Promise<TagDto> => client.updateTag(id, { name }),
+    ({ id, name, color, icon }: UpdateTagVariables): Promise<TagDto> =>
+      client.updateTag(id, { name, color, icon }),
     {
       successMessage: "Tag atualizada.",
       invalidates: [["tags", "list"]],

@@ -256,7 +256,9 @@
         "editAccount": "Editar Conta",
         "columns": {
           "name": "Nome",
-          "actions": "Ações"
+          "actions": "Ações",
+          "accountType": "Tipo",
+          "institution": "Instituição"
         },
         "confirmDelete": "Confirma remoção desta conta?",
         "save": "Salvar",
@@ -264,7 +266,20 @@
         "cancel": "Cancelar",
         "edit": "Editar",
         "remove": "Remover",
-        "placeholder": "Nome da conta"
+        "placeholder": "Nome da conta",
+        "fields": {
+          "accountType": "Tipo de Conta",
+          "institution": "Instituição",
+          "institutionPlaceholder": "Ex: Nubank, Itaú...",
+          "initialBalance": "Saldo Inicial"
+        },
+        "accountTypes": {
+          "checking": "Conta Corrente",
+          "savings": "Poupança",
+          "investment": "Investimentos",
+          "wallet": "Carteira Digital",
+          "other": "Outro"
+        }
       },
       "tags": {
         "title": "Tags",
@@ -273,7 +288,9 @@
         "editTag": "Editar Tag",
         "columns": {
           "name": "Nome",
-          "actions": "Ações"
+          "actions": "Ações",
+          "color": "Cor",
+          "icon": "Ícone"
         },
         "confirmDelete": "Confirma remoção desta tag?",
         "save": "Salvar",
@@ -281,7 +298,13 @@
         "cancel": "Cancelar",
         "edit": "Editar",
         "remove": "Remover",
-        "placeholder": "Nome da tag"
+        "placeholder": "Nome da tag",
+        "fields": {
+          "color": "Cor",
+          "colorPlaceholder": "#FF5733",
+          "icon": "Ícone",
+          "iconPlaceholder": "🏷️"
+        }
       },
       "creditCards": {
         "title": "Cartões de Crédito",
@@ -290,7 +313,9 @@
         "editCard": "Editar Cartão",
         "columns": {
           "name": "Nome",
-          "actions": "Ações"
+          "actions": "Ações",
+          "brand": "Bandeira",
+          "lastFour": "Final"
         },
         "confirmDelete": "Confirma remoção deste cartão?",
         "save": "Salvar",
@@ -298,7 +323,17 @@
         "cancel": "Cancelar",
         "edit": "Editar",
         "remove": "Remover",
-        "placeholder": "Nome do cartão"
+        "placeholder": "Nome do cartão",
+        "fields": {
+          "brand": "Bandeira",
+          "brandNone": "Sem bandeira",
+          "brandOther": "Outra",
+          "limitAmount": "Limite",
+          "closingDay": "Dia de Fechamento",
+          "dueDay": "Dia de Vencimento",
+          "lastFourDigits": "Últimos 4 Dígitos",
+          "lastFourDigitsPlaceholder": "1234"
+        }
       }
     },
     "checkout": {
