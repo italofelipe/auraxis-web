@@ -1,4 +1,5 @@
 import type { SubscriptionDto, PlanDto } from "../contracts/subscription.dto";
+import { PRICING } from "~/shared/constants/pricing";
 
 const periodEnd = new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString();
 
@@ -10,8 +11,8 @@ export const MOCK_CURRENT_SUBSCRIPTION: SubscriptionDto = {
   plan: {
     slug: "premium",
     name: "Premium",
-    price_monthly: 39.9,
-    price_annual: 29.9,
+    price_monthly: PRICING.MONTHLY_PRICE,
+    price_annual: PRICING.ANNUAL_MONTHLY_EQUIVALENT,
     features: [
       { label: "Transações ilimitadas", included: true },
       { label: "Metas ilimitadas", included: true },
@@ -30,7 +31,7 @@ export const MOCK_CURRENT_SUBSCRIPTION: SubscriptionDto = {
  *
  * Canonical pricing (2026):
  *   Free:    R$0
- *   Premium: R$39,90/mês ou R$358,80/ano (R$29,90/mês)
+ *   Premium: R$27,90/mês ou R$220,00/ano (R$18,33/mês equivalente)
  */
 export const MOCK_ALL_PLANS: PlanDto[] = [
   {
@@ -50,8 +51,8 @@ export const MOCK_ALL_PLANS: PlanDto[] = [
   {
     slug: "premium",
     name: "Premium",
-    price_monthly: 39.9,
-    price_annual: 29.9,
+    price_monthly: PRICING.MONTHLY_PRICE,
+    price_annual: PRICING.ANNUAL_MONTHLY_EQUIVALENT,
     features: [
       { label: "Transações ilimitadas", included: true },
       { label: "Metas ilimitadas", included: true },

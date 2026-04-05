@@ -1,14 +1,15 @@
 import { describe, expect, it } from "vitest";
 
 import { MOCK_ALL_PLANS, MOCK_CURRENT_SUBSCRIPTION } from "./subscription.mock";
+import { PRICING } from "~/shared/constants/pricing";
 
 /**
  * Contract tests for the canonical mock data.
  *
  * These tests act as a guardrail against accidental price or slug drift.
- * The canonical pricing (2026) is:
+ * The canonical pricing (2026):
  *   Free:    R$0
- *   Premium: R$39,90/mês ou R$358,80/ano (R$29,90/mês)
+ *   Premium: R$27,90/mês ou R$220,00/ano (R$18,33/mês equivalente — ~34% savings)
  */
 describe("subscription mock data", () => {
   describe("MOCK_ALL_PLANS", () => {
@@ -23,15 +24,15 @@ describe("subscription mock data", () => {
       expect(free.price_annual).toBe(0);
     });
 
-    it("premium plan has canonical monthly price of R$39.90", () => {
+    it("premium plan has canonical monthly price of R$27.90", () => {
       const premium = MOCK_ALL_PLANS.find((p) => p.slug === "premium")!;
-      expect(premium.price_monthly).toBe(39.9);
+      expect(premium.price_monthly).toBe(PRICING.MONTHLY_PRICE);
     });
 
-    it("premium plan annual per-month price is R$29.90 (annual total R$358.80)", () => {
+    it("premium plan annual per-month equivalent is R$18.33 (annual total R$220.00)", () => {
       const premium = MOCK_ALL_PLANS.find((p) => p.slug === "premium")!;
-      expect(premium.price_annual).toBe(29.9);
-      expect(Math.round(premium.price_annual * 12 * 100) / 100).toBe(358.8);
+      expect(premium.price_annual).toBe(PRICING.ANNUAL_MONTHLY_EQUIVALENT);
+      expect(Math.round(premium.price_annual * 12 * 100) / 100).toBe(PRICING.ANNUAL_PRICE);
     });
 
     it("premium annual is cheaper than monthly (discount applies)", () => {
@@ -39,12 +40,12 @@ describe("subscription mock data", () => {
       expect(premium.price_annual).toBeLessThan(premium.price_monthly);
     });
 
-    it("annual discount is approximately 25%", () => {
+    it("annual discount is approximately 34%", () => {
       const premium = MOCK_ALL_PLANS.find((p) => p.slug === "premium")!;
       const discount = Math.round(
-        ((premium.price_monthly - premium.price_annual) / premium.price_monthly) * 100,
+        ((premium.price_monthly * 12 - PRICING.ANNUAL_PRICE) / (premium.price_monthly * 12)) * 100,
       );
-      expect(discount).toBe(25);
+      expect(discount).toBe(PRICING.ANNUAL_SAVINGS_PERCENT);
     });
   });
 

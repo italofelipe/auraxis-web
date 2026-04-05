@@ -14,6 +14,7 @@ import { useCancelSubscriptionMutation } from "~/features/subscription/queries/u
 import { useCreateCheckoutMutation } from "~/features/subscription/queries/use-create-checkout-mutation";
 import type { SubscriptionStatus } from "~/features/subscription/model/subscription";
 import type { BillingCycle, PlanDto, PlanSlug } from "~/features/subscription/contracts/subscription.dto";
+import { PRICING } from "~/shared/constants/pricing";
 
 const { t } = useI18n();
 
@@ -55,8 +56,8 @@ const ALL_PLANS = computed((): PlanDto[] => [
   {
     slug: "premium",
     name: t("pages.subscription.plans.premium.name"),
-    price_monthly: 39.90,
-    price_annual: 29.90,
+    price_monthly: PRICING.MONTHLY_PRICE,
+    price_annual: PRICING.ANNUAL_MONTHLY_EQUIVALENT,
     features: [
       { label: t("pages.subscription.plans.features.unlimitedTransactions"), included: true },
       { label: t("pages.subscription.plans.features.unlimitedGoals"), included: true },

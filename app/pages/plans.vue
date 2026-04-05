@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { BillingCycle, PlanDto } from "~/features/subscription/contracts/subscription.dto";
 import { useCreateCheckoutMutation } from "~/features/subscription/queries/use-create-checkout-mutation";
+import { PRICING } from "~/shared/constants/pricing";
 
 const { t } = useI18n();
 
@@ -38,8 +39,8 @@ const freePlan = computed((): PlanDto => ({
 const premiumPlan = computed((): PlanDto => ({
   slug: "premium",
   name: t("pages.plans.plans.premium.name"),
-  price_monthly: 39.90,
-  price_annual: 29.90,
+  price_monthly: PRICING.MONTHLY_PRICE,
+  price_annual: PRICING.ANNUAL_MONTHLY_EQUIVALENT,
   features: [
     { label: t("pages.plans.plans.premium.features.transactions"), included: true },
     { label: t("pages.plans.plans.premium.features.goals"), included: true },
