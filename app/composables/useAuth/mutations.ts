@@ -13,6 +13,7 @@ import type {
   ForgotPasswordMutation,
   LoginMutation,
   RegisterMutation,
+  ResetPasswordMutation,
 } from "./types";
 
 /**
@@ -84,5 +85,20 @@ export const useForgotPasswordMutation = (
 
   return useMutation({
     mutationFn: resolvedAuthApi.forgotPassword,
+  });
+};
+
+/**
+ * Cria mutation de redefinição de senha via token.
+ * @param authApi API de autenticação opcional para injeção em testes.
+ * @returns Mutation de redefinição de senha.
+ */
+export const useResetPasswordMutation = (
+  authApi?: AuthApi,
+): ResetPasswordMutation => {
+  const resolvedAuthApi = resolveAuthApi(authApi);
+
+  return useMutation({
+    mutationFn: resolvedAuthApi.resetPassword,
   });
 };

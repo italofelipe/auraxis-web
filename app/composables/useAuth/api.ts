@@ -5,6 +5,8 @@ import type {
   LoginResponse,
   RegisterRequest,
   RegisterResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
 } from "~/types/contracts";
 
 import type { AuthApi, HttpAdapter } from "./types";
@@ -96,6 +98,15 @@ export const createAuthApi = (http: HttpAdapter): AuthApi => {
         payload,
       );
       return normalizeForgotPasswordResponse(response.data);
+    },
+    resetPassword: async (
+      payload: ResetPasswordRequest,
+    ): Promise<ResetPasswordResponse> => {
+      const response = await http.post<ResetPasswordResponse>(
+        "/auth/password/reset",
+        payload,
+      );
+      return response.data;
     },
   };
 };

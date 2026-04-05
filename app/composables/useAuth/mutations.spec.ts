@@ -6,6 +6,7 @@ import {
   useForgotPasswordMutation,
   useLoginMutation,
   useRegisterMutation,
+  useResetPasswordMutation,
 } from "./mutations";
 
 const useMutationMock = vi.hoisted(() => vi.fn());
@@ -42,6 +43,7 @@ describe("useAuth/mutations", () => {
       login: vi.fn(),
       register: vi.fn(),
       forgotPassword: vi.fn(),
+      resetPassword: vi.fn(),
     };
 
     const mutation = useLoginMutation(authApi) as unknown as {
@@ -70,6 +72,7 @@ describe("useAuth/mutations", () => {
       login: vi.fn(),
       register: vi.fn(),
       forgotPassword: vi.fn(),
+      resetPassword: vi.fn(),
     };
 
     const mutation = useRegisterMutation(authApi) as unknown as {
@@ -98,6 +101,7 @@ describe("useAuth/mutations", () => {
       login: vi.fn(),
       register: vi.fn(),
       forgotPassword: vi.fn(),
+      resetPassword: vi.fn(),
     };
 
     const mutation = useForgotPasswordMutation(authApi) as unknown as {
@@ -107,11 +111,77 @@ describe("useAuth/mutations", () => {
     expect(mutation.mutationFn).toBe(authApi.forgotPassword);
   });
 
+  it("usa null como refreshToken quando nao e fornecido em useLoginMutation", () => {
+    const authApi: AuthApi = {
+      login: vi.fn(),
+      register: vi.fn(),
+      forgotPassword: vi.fn(),
+      resetPassword: vi.fn(),
+    };
+
+    const mutation = useLoginMutation(authApi) as unknown as {
+      onSuccess: (response: { accessToken: string; refreshToken?: string; user: { email: string; emailConfirmed?: boolean } }) => void;
+    };
+
+    mutation.onSuccess({
+      accessToken: "token-no-refresh",
+      user: { email: "test@auraxis.com", emailConfirmed: false },
+    });
+
+    expect(signInMock).toHaveBeenCalledWith({
+      accessToken: "token-no-refresh",
+      refreshToken: null,
+      userEmail: "test@auraxis.com",
+      emailConfirmed: false,
+    });
+  });
+
+  it("usa null como refreshToken quando nao e fornecido em useRegisterMutation", () => {
+    const authApi: AuthApi = {
+      login: vi.fn(),
+      register: vi.fn(),
+      forgotPassword: vi.fn(),
+      resetPassword: vi.fn(),
+    };
+
+    const mutation = useRegisterMutation(authApi) as unknown as {
+      onSuccess: (response: { accessToken: string; refreshToken?: string; user: { email: string; emailConfirmed?: boolean } }) => void;
+    };
+
+    mutation.onSuccess({
+      accessToken: "register-no-refresh",
+      user: { email: "new@auraxis.com", emailConfirmed: false },
+    });
+
+    expect(signInMock).toHaveBeenCalledWith({
+      accessToken: "register-no-refresh",
+      refreshToken: null,
+      userEmail: "new@auraxis.com",
+      emailConfirmed: false,
+    });
+  });
+
+  it("usa API injetada em useResetPasswordMutation", () => {
+    const authApi: AuthApi = {
+      login: vi.fn(),
+      register: vi.fn(),
+      forgotPassword: vi.fn(),
+      resetPassword: vi.fn(),
+    };
+
+    const mutation = useResetPasswordMutation(authApi) as unknown as {
+      mutationFn: unknown;
+    };
+
+    expect(mutation.mutationFn).toBe(authApi.resetPassword);
+  });
+
   it("resolve API por createAuthApi quando dependencia nao e injetada", () => {
     const resolvedAuthApi: AuthApi = {
       login: vi.fn(),
       register: vi.fn(),
       forgotPassword: vi.fn(),
+      resetPassword: vi.fn(),
     };
 
     useHttpMock.mockReturnValue({ post: vi.fn() });
@@ -120,10 +190,12 @@ describe("useAuth/mutations", () => {
     const loginMutation = useLoginMutation() as unknown as { mutationFn: unknown };
     const registerMutation = useRegisterMutation() as unknown as { mutationFn: unknown };
     const forgotMutation = useForgotPasswordMutation() as unknown as { mutationFn: unknown };
+    const resetMutation = useResetPasswordMutation() as unknown as { mutationFn: unknown };
 
-    expect(createAuthApiMock).toHaveBeenCalledTimes(3);
+    expect(createAuthApiMock).toHaveBeenCalledTimes(4);
     expect(loginMutation.mutationFn).toBe(resolvedAuthApi.login);
     expect(registerMutation.mutationFn).toBe(resolvedAuthApi.register);
     expect(forgotMutation.mutationFn).toBe(resolvedAuthApi.forgotPassword);
+    expect(resetMutation.mutationFn).toBe(resolvedAuthApi.resetPassword);
   });
 });

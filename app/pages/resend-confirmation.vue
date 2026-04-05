@@ -3,6 +3,8 @@ import { Mail } from "lucide-vue-next";
 import { NButton, NAlert } from "naive-ui";
 import { useResendConfirmationMutation } from "~/features/auth/queries/use-resend-confirmation-mutation";
 
+definePageMeta({ middleware: ["authenticated"] });
+
 const { t } = useI18n();
 
 useSeoMeta({

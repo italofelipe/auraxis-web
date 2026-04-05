@@ -11,5 +11,6 @@ describe("useAuth/index", () => {
     expect(useAuthModule.useLoginMutation).toBeTypeOf("function");
     expect(useAuthModule.useRegisterMutation).toBeTypeOf("function");
     expect(useAuthModule.useForgotPasswordMutation).toBeTypeOf("function");
+    expect(useAuthModule.useResetPasswordMutation).toBeTypeOf("function");
   });
 });

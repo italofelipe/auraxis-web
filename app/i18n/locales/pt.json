@@ -26,7 +26,7 @@
       "subtitle": "Escolha o plano ideal e comece a controlar suas finanças com inteligência.",
       "mostPopular": "Mais popular",
       "checkoutError": "Erro ao iniciar o checkout. Tente novamente.",
-      "footnote": "Preços em BRL. Cancele a qualquer momento. Cobrança mensal a partir de R$39,90.",
+      "footnote": "Preços em BRL. Cancele a qualquer momento. Cobrança mensal a partir de R$27,90.",
       "billing": {
         "monthly": "Mensal",
         "annual": "Anual",
@@ -622,6 +622,22 @@
       "rememberPassword": "Lembrou a senha?",
       "sendLink": "Enviar link de recuperação",
       "sending": "Enviando…"
+    },
+    "resetPassword": {
+      "title": "Redefinir senha",
+      "subtitle": "Digite sua nova senha abaixo",
+      "newPassword": "Nova senha",
+      "confirmPassword": "Confirmar nova senha",
+      "submit": "Redefinir senha",
+      "submitting": "Redefinindo...",
+      "success": "Senha redefinida com sucesso!",
+      "successSubtitle": "Você será redirecionado para o login em instantes.",
+      "errorExpired": "Este link expirou. Solicite um novo link de recuperação.",
+      "errorInvalid": "Link inválido. Solicite um novo link de recuperação.",
+      "noToken": "Link de recuperação inválido ou expirado.",
+      "requestNew": "Solicitar novo link",
+      "backToLogin": "Voltar para o login",
+      "metaDescription": "Redefina sua senha da conta Auraxis."
     },
     "emailBanner": {
       "message": "Confirme seu e-mail para garantir acesso completo à sua conta.",
