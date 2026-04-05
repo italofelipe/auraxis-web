@@ -5,6 +5,8 @@ export type {
   LoginResponse,
   RegisterRequest,
   RegisterResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
 } from "./auth";
 export type {
   DashboardAlert,

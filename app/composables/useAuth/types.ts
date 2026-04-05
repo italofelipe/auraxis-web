@@ -7,6 +7,8 @@ import type {
   LoginResponse,
   RegisterRequest,
   RegisterResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
 } from "~/types/contracts";
 
 export interface HttpAdapter {
@@ -17,6 +19,7 @@ export interface AuthApi {
   login(payload: LoginRequest): Promise<LoginResponse>;
   register(payload: RegisterRequest): Promise<RegisterResponse>;
   forgotPassword(payload: ForgotPasswordRequest): Promise<ForgotPasswordResponse>;
+  resetPassword(payload: ResetPasswordRequest): Promise<ResetPasswordResponse>;
 }
 
 export type LoginMutation = UseMutationReturnType<
@@ -35,5 +38,11 @@ export type ForgotPasswordMutation = UseMutationReturnType<
   ForgotPasswordResponse,
   unknown,
   ForgotPasswordRequest,
+  unknown
+>;
+export type ResetPasswordMutation = UseMutationReturnType<
+  ResetPasswordResponse,
+  unknown,
+  ResetPasswordRequest,
   unknown
 >;

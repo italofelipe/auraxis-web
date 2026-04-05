@@ -45,3 +45,12 @@ export interface ForgotPasswordResponse {
   readonly accepted: boolean;
   readonly message: string;
 }
+
+export interface ResetPasswordRequest {
+  readonly token: string;
+  readonly password: string;
+}
+
+export interface ResetPasswordResponse {
+  readonly message: string;
+}

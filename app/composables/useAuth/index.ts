@@ -5,6 +5,7 @@ export {
   useForgotPasswordMutation,
   useLoginMutation,
   useRegisterMutation,
+  useResetPasswordMutation,
 } from "./mutations";
 export type {
   AuthApi,
@@ -12,5 +13,6 @@ export type {
   HttpAdapter,
   LoginMutation,
   RegisterMutation,
+  ResetPasswordMutation,
 } from "./types";
 /* v8 ignore stop */

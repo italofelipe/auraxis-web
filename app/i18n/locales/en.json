@@ -623,6 +623,22 @@
       "sendLink": "Send recovery link",
       "sending": "Sending…"
     },
+    "resetPassword": {
+      "title": "Reset password",
+      "subtitle": "Enter your new password below",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "submit": "Reset password",
+      "submitting": "Resetting...",
+      "success": "Password reset successfully!",
+      "successSubtitle": "You will be redirected to login in a moment.",
+      "errorExpired": "This link has expired. Please request a new recovery link.",
+      "errorInvalid": "Invalid link. Please request a new recovery link.",
+      "noToken": "Invalid or expired recovery link.",
+      "requestNew": "Request new link",
+      "backToLogin": "Back to login",
+      "metaDescription": "Reset your Auraxis account password."
+    },
     "emailBanner": {
       "message": "Confirm your email to ensure full access to your account.",
       "cta": "Confirm email"
