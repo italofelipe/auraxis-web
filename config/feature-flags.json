@@ -306,8 +306,8 @@
       "createdAt": "2026-04-03",
       "removeBy": "2027-12-31",
       "type": "release",
-      "status": "draft",
-      "description": "Sub-página de contas bancárias nas configurações. Freezada para MVP.",
+      "status": "enabled-prod",
+      "description": "Sub-página de contas bancárias nas configurações.",
       "repositories": ["auraxis-web"]
     },
     {
@@ -316,8 +316,8 @@
       "createdAt": "2026-04-03",
       "removeBy": "2027-12-31",
       "type": "release",
-      "status": "draft",
-      "description": "Sub-página de cartões de crédito nas configurações. Freezada para MVP.",
+      "status": "enabled-prod",
+      "description": "Sub-página de cartões de crédito nas configurações.",
       "repositories": ["auraxis-web"]
     },
     {
@@ -326,8 +326,8 @@
       "createdAt": "2026-04-03",
       "removeBy": "2027-12-31",
       "type": "release",
-      "status": "draft",
-      "description": "Sub-página de tags personalizadas nas configurações. Freezada para MVP.",
+      "status": "enabled-prod",
+      "description": "Sub-página de tags personalizadas nas configurações.",
       "repositories": ["auraxis-web"]
     },
     {
