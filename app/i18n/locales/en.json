@@ -479,6 +479,53 @@
         "loginCta": "I already have an account",
         "trust": "Free forever · No credit card · Cancel anytime"
       }
+    },
+    "home": {
+      "meta": {
+        "title": "Auraxis — Intelligent Financial Control",
+        "description": "Manage your finances with clarity. Dashboard, goals, portfolio and tools in one place."
+      },
+      "hero": {
+        "eyebrow": "Finances under control",
+        "title": "Manage your money intelligently",
+        "subtitle": "Complete dashboard, financial goals, investment portfolio and more. All in one place.",
+        "cta": "Start for free",
+        "ctaSecondary": "View plans"
+      },
+      "features": {
+        "title": "Everything you need",
+        "subtitle": "A complete platform for those who take finances seriously.",
+        "items": {
+          "dashboard": {
+            "title": "Smart dashboard",
+            "description": "Visualize income, expenses and balance in real time with interactive charts."
+          },
+          "goals": {
+            "title": "Financial goals",
+            "description": "Set objectives and track your progress with detailed planning."
+          },
+          "portfolio": {
+            "title": "Investment portfolio",
+            "description": "Monitor your assets and see your wealth allocation in real time."
+          },
+          "tools": {
+            "title": "Financial tools",
+            "description": "Calculators and simulators to make smarter decisions."
+          }
+        }
+      },
+      "plans": {
+        "eyebrow": "Plans and Pricing",
+        "title": "Start for free",
+        "subtitle": "Free plan with the essentials. Upgrade when you need more.",
+        "cta": "View all plans"
+      },
+      "cta": {
+        "title": "Ready to get started?",
+        "subtitle": "Create your free account and take full control of your finances.",
+        "button": "Create free account",
+        "login": "I already have an account"
+      }
     }
   },
   "common": {
@@ -593,6 +640,11 @@
           "strong": "Strong"
         }
       }
+    },
+    "sessionExpired": {
+      "title": "Session expired",
+      "message": "Your session has expired. Please sign in again to continue.",
+      "action": "OK, got it"
     }
   },
   "transaction": {
@@ -2662,5 +2714,44 @@
     "fieldRequired": "This field is required",
     "invalidEmail": "Invalid email address",
     "invalidDate": "Invalid date"
+  },
+  "components": {
+    "publicHeader": {
+      "brand": "Auraxis",
+      "navAriaLabel": "Main navigation",
+      "nav": {
+        "tools": "Tools",
+        "plans": "Plans"
+      },
+      "cta": {
+        "login": "Sign in",
+        "register": "Get started",
+        "dashboard": "Go to Dashboard"
+      },
+      "mobileMenuAriaLabel": "Open navigation menu",
+      "mobileMenuCloseAriaLabel": "Close navigation menu"
+    },
+    "publicFooter": {
+      "brand": "Auraxis",
+      "tagline": "Intelligent financial control.",
+      "columns": {
+        "product": {
+          "title": "Product",
+          "links": {
+            "tools": "Tools",
+            "plans": "Plans",
+            "login": "Sign in"
+          }
+        },
+        "legal": {
+          "title": "Legal",
+          "links": {
+            "terms": "Terms of Service",
+            "privacy": "Privacy Policy"
+          }
+        }
+      },
+      "copyright": "© {year} Auraxis. All rights reserved."
+    }
   }
 }
