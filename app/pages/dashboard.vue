@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { NButton, NDatePicker, NSelect } from "naive-ui";
 import {
   DASHBOARD_PERIOD_OPTIONS,
   useDashboardOverviewQuery,
@@ -16,15 +17,34 @@ definePageMeta({
 });
 
 const selectedPeriod = ref<DashboardOverviewFilters["period"]>("current_month");
-const customStart = ref("");
-const customEnd = ref("");
+const customStartTs = ref<number | null>(null);
+const customEndTs = ref<number | null>(null);
+
+/**
+ * Converts a timestamp (ms) to an ISO date string (YYYY-MM-DD).
+ *
+ * @param ts - The timestamp in milliseconds or null.
+ * @returns ISO date string or undefined if null.
+ */
+function tsToDateStr(ts: number | null): string | undefined {
+  if (!ts) {return undefined;}
+  return new Date(ts).toISOString().slice(0, 10);
+}
 
 const filters = computed<DashboardOverviewFilters>(() => {
   if (selectedPeriod.value === "custom") {
-    return { period: selectedPeriod.value, start: customStart.value || undefined, end: customEnd.value || undefined };
+    return {
+      period: selectedPeriod.value,
+      start: tsToDateStr(customStartTs.value),
+      end: tsToDateStr(customEndTs.value),
+    };
   }
   return { period: selectedPeriod.value };
 });
+
+const periodOptions = computed(() =>
+  DASHBOARD_PERIOD_OPTIONS.map((opt) => ({ label: opt.label, value: opt.value })),
+);
 
 const dashboardQuery = useDashboardOverviewQuery(filters);
 
@@ -39,7 +59,7 @@ const alerts = computed(() => overview.value?.alerts ?? []);
 const portfolio = computed(() => overview.value?.portfolio ?? null);
 
 const isCustomPeriodIncomplete = computed(
-  () => selectedPeriod.value === "custom" && (!customStart.value || !customEnd.value),
+  () => selectedPeriod.value === "custom" && (!customStartTs.value || !customEndTs.value),
 );
 
 const isQuickSelectPeriod = computed((): boolean =>
@@ -69,28 +89,32 @@ const emptyMessage = computed(() =>
         @period-change="(p: DashboardPeriod) => (selectedPeriod = p)"
       />
 
-      <label class="control-field">
+      <div class="control-field">
         <span>{{ $t('pages.dashboard.period') }}</span>
-        <select v-model="selectedPeriod">
-          <option
-            v-for="option in DASHBOARD_PERIOD_OPTIONS"
-            :key="option.value"
-            :value="option.value"
-          >
-            {{ option.label }}
-          </option>
-        </select>
-      </label>
+        <NSelect
+          v-model:value="selectedPeriod"
+          :options="periodOptions"
+          style="min-width: 160px;"
+        />
+      </div>
 
       <template v-if="selectedPeriod === 'custom'">
-        <label class="control-field">
+        <div class="control-field">
           <span>{{ $t('pages.dashboard.start') }}</span>
-          <input v-model="customStart" type="date">
-        </label>
-        <label class="control-field">
+          <NDatePicker
+            v-model:value="customStartTs"
+            type="date"
+            clearable
+          />
+        </div>
+        <div class="control-field">
           <span>{{ $t('pages.dashboard.end') }}</span>
-          <input v-model="customEnd" type="date">
-        </label>
+          <NDatePicker
+            v-model:value="customEndTs"
+            type="date"
+            clearable
+          />
+        </div>
       </template>
     </div>
 
@@ -106,9 +130,9 @@ const emptyMessage = computed(() =>
       <p class="error-copy">
         {{ dashboardQuery.error.value?.message ?? $t('pages.dashboard.unknownError') }}
       </p>
-      <button class="retry-button" type="button" @click="dashboardQuery.refetch()">
+      <NButton type="default" @click="dashboardQuery.refetch()">
         {{ $t('pages.dashboard.retry') }}
-      </button>
+      </NButton>
     </UiSurfaceCard>
 
     <template v-else>
@@ -219,22 +243,6 @@ const emptyMessage = computed(() =>
   font-size: var(--font-size-sm);
 }
 
-.control-field select,
-.control-field input,
-.retry-button {
-  min-height: 44px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--color-outline-soft);
-  padding-inline: var(--space-2);
-  font: inherit;
-  background: var(--color-bg-elevated);
-  color: var(--color-text-primary);
-}
-
-.retry-button {
-  cursor: pointer;
-  font-weight: var(--font-weight-semibold);
-}
 
 .support-copy {
   margin: 0;
