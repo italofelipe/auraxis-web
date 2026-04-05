@@ -4,15 +4,18 @@ import {
   NButton,
   NCard,
   NDataTable,
+  NFormItem,
   NInput,
+  NInputNumber,
   NModal,
   NPopconfirm,
+  NSelect,
   NSpace,
   NSpin,
   type DataTableColumns,
 } from "naive-ui";
 
-import type { CreditCardDto } from "~/features/credit-cards/contracts/credit-card.dto";
+import type { CreditCardBrand, CreditCardDto } from "~/features/credit-cards/contracts/credit-card.dto";
 import { useCreditCardsQuery } from "~/features/credit-cards/queries/use-credit-cards-query";
 import { useCreateCreditCardMutation } from "~/features/credit-cards/queries/use-create-credit-card-mutation";
 import { useUpdateCreditCardMutation } from "~/features/credit-cards/queries/use-update-credit-card-mutation";
@@ -33,9 +36,27 @@ const createMutation = useCreateCreditCardMutation();
 const updateMutation = useUpdateCreditCardMutation();
 const deleteMutation = useDeleteCreditCardMutation();
 
+const BRAND_NONE_SENTINEL = "__none__";
+type BrandSelectValue = CreditCardBrand | typeof BRAND_NONE_SENTINEL;
+
 const showModal = ref(false);
 const editingCard = ref<CreditCardDto | null>(null);
 const formName = ref("");
+const formBrand = ref<BrandSelectValue>(BRAND_NONE_SENTINEL);
+const formLimitAmount = ref<number | null>(null);
+const formClosingDay = ref<number | null>(null);
+const formDueDay = ref<number | null>(null);
+const formLastFourDigits = ref<string>("");
+
+const BRAND_OPTIONS = computed(() => [
+  { value: BRAND_NONE_SENTINEL, label: t("pages.settings.creditCards.fields.brandNone") },
+  { value: "visa", label: "Visa" },
+  { value: "mastercard", label: "Mastercard" },
+  { value: "elo", label: "Elo" },
+  { value: "hipercard", label: "Hipercard" },
+  { value: "amex", label: "American Express" },
+  { value: "other", label: t("pages.settings.creditCards.fields.brandOther") },
+]);
 
 /**
  *
@@ -43,6 +64,11 @@ const formName = ref("");
 function openCreate(): void {
   editingCard.value = null;
   formName.value = "";
+  formBrand.value = BRAND_NONE_SENTINEL;
+  formLimitAmount.value = null;
+  formClosingDay.value = null;
+  formDueDay.value = null;
+  formLastFourDigits.value = "";
   showModal.value = true;
 }
 
@@ -53,6 +79,11 @@ function openCreate(): void {
 function openEdit(card: CreditCardDto): void {
   editingCard.value = card;
   formName.value = card.name;
+  formBrand.value = card.brand ?? BRAND_NONE_SENTINEL;
+  formLimitAmount.value = card.limit_amount;
+  formClosingDay.value = card.closing_day;
+  formDueDay.value = card.due_day;
+  formLastFourDigits.value = card.last_four_digits ?? "";
   showModal.value = true;
 }
 
@@ -62,6 +93,11 @@ function openEdit(card: CreditCardDto): void {
 function closeModal(): void {
   showModal.value = false;
   formName.value = "";
+  formBrand.value = BRAND_NONE_SENTINEL;
+  formLimitAmount.value = null;
+  formClosingDay.value = null;
+  formDueDay.value = null;
+  formLastFourDigits.value = "";
   editingCard.value = null;
 }
 
@@ -72,10 +108,29 @@ async function submitForm(): Promise<void> {
   const name = formName.value.trim();
   if (!name) {return;}
 
+  const last_four_digits = formLastFourDigits.value.trim() || null;
+  const brand: CreditCardBrand | null =
+    formBrand.value === BRAND_NONE_SENTINEL ? null : formBrand.value;
+
   if (editingCard.value) {
-    await updateMutation.mutateAsync({ id: editingCard.value.id, name });
+    await updateMutation.mutateAsync({
+      id: editingCard.value.id,
+      name,
+      brand,
+      limit_amount: formLimitAmount.value,
+      closing_day: formClosingDay.value,
+      due_day: formDueDay.value,
+      last_four_digits,
+    });
   } else {
-    await createMutation.mutateAsync({ name });
+    await createMutation.mutateAsync({
+      name,
+      brand,
+      limit_amount: formLimitAmount.value,
+      closing_day: formClosingDay.value,
+      due_day: formDueDay.value,
+      last_four_digits,
+    });
   }
 
   closeModal();
@@ -93,6 +148,22 @@ const columns = computed((): DataTableColumns<CreditCardDto> => [
   {
     title: t("pages.settings.creditCards.columns.name"),
     key: "name",
+  },
+  {
+    title: t("pages.settings.creditCards.columns.brand"),
+    key: "brand",
+    render(row: CreditCardDto): VNodeChild {
+      if (!row.brand) {return "—";}
+      const opt = BRAND_OPTIONS.value.find((o) => o.value === row.brand);
+      return opt?.label ?? row.brand;
+    },
+  },
+  {
+    title: t("pages.settings.creditCards.columns.lastFour"),
+    key: "last_four_digits",
+    render(row: CreditCardDto): VNodeChild {
+      return row.last_four_digits ? `•••• ${row.last_four_digits}` : "—";
+    },
   },
   {
     title: t("pages.settings.creditCards.columns.actions"),
@@ -160,12 +231,57 @@ const columns = computed((): DataTableColumns<CreditCardDto> => [
       @positive-click="submitForm"
       @negative-click="closeModal"
     >
-      <NInput
-        v-model:value="formName"
-        :placeholder="$t('pages.settings.creditCards.placeholder')"
-        maxlength="100"
-        show-count
-      />
+      <div class="modal-form">
+        <NFormItem :label="$t('pages.settings.creditCards.placeholder')">
+          <NInput
+            v-model:value="formName"
+            :placeholder="$t('pages.settings.creditCards.placeholder')"
+            maxlength="100"
+            show-count
+          />
+        </NFormItem>
+        <NFormItem :label="$t('pages.settings.creditCards.fields.brand')">
+          <NSelect
+            v-model:value="formBrand"
+            :options="BRAND_OPTIONS"
+            clearable
+          />
+        </NFormItem>
+        <NFormItem :label="$t('pages.settings.creditCards.fields.limitAmount')">
+          <NInputNumber
+            v-model:value="formLimitAmount"
+            :min="0"
+            :precision="2"
+            clearable
+            style="width: 100%;"
+          />
+        </NFormItem>
+        <NFormItem :label="$t('pages.settings.creditCards.fields.closingDay')">
+          <NInputNumber
+            v-model:value="formClosingDay"
+            :min="1"
+            :max="28"
+            clearable
+            style="width: 100%;"
+          />
+        </NFormItem>
+        <NFormItem :label="$t('pages.settings.creditCards.fields.dueDay')">
+          <NInputNumber
+            v-model:value="formDueDay"
+            :min="1"
+            :max="28"
+            clearable
+            style="width: 100%;"
+          />
+        </NFormItem>
+        <NFormItem :label="$t('pages.settings.creditCards.fields.lastFourDigits')">
+          <NInput
+            v-model:value="formLastFourDigits"
+            :placeholder="$t('pages.settings.creditCards.fields.lastFourDigitsPlaceholder')"
+            maxlength="4"
+          />
+        </NFormItem>
+      </div>
     </NModal>
   </div>
 </template>
@@ -201,5 +317,12 @@ const columns = computed((): DataTableColumns<CreditCardDto> => [
 .settings-page__subtitle {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-top: var(--space-2);
 }
 </style>

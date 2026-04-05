@@ -256,7 +256,9 @@
         "editAccount": "Edit Account",
         "columns": {
           "name": "Name",
-          "actions": "Actions"
+          "actions": "Actions",
+          "accountType": "Type",
+          "institution": "Institution"
         },
         "confirmDelete": "Confirm removal of this account?",
         "save": "Save",
@@ -264,7 +266,20 @@
         "cancel": "Cancel",
         "edit": "Edit",
         "remove": "Remove",
-        "placeholder": "Account name"
+        "placeholder": "Account name",
+        "fields": {
+          "accountType": "Account Type",
+          "institution": "Institution",
+          "institutionPlaceholder": "E.g. Chase, Bank of America...",
+          "initialBalance": "Initial Balance"
+        },
+        "accountTypes": {
+          "checking": "Checking Account",
+          "savings": "Savings Account",
+          "investment": "Investment Account",
+          "wallet": "Digital Wallet",
+          "other": "Other"
+        }
       },
       "tags": {
         "title": "Tags",
@@ -273,7 +288,9 @@
         "editTag": "Edit Tag",
         "columns": {
           "name": "Name",
-          "actions": "Actions"
+          "actions": "Actions",
+          "color": "Color",
+          "icon": "Icon"
         },
         "confirmDelete": "Confirm removal of this tag?",
         "save": "Save",
@@ -281,7 +298,13 @@
         "cancel": "Cancel",
         "edit": "Edit",
         "remove": "Remove",
-        "placeholder": "Tag name"
+        "placeholder": "Tag name",
+        "fields": {
+          "color": "Color",
+          "colorPlaceholder": "#FF5733",
+          "icon": "Icon",
+          "iconPlaceholder": "🏷️"
+        }
       },
       "creditCards": {
         "title": "Credit Cards",
@@ -290,7 +313,9 @@
         "editCard": "Edit Card",
         "columns": {
           "name": "Name",
-          "actions": "Actions"
+          "actions": "Actions",
+          "brand": "Brand",
+          "lastFour": "Last 4"
         },
         "confirmDelete": "Confirm removal of this card?",
         "save": "Save",
@@ -298,7 +323,17 @@
         "cancel": "Cancel",
         "edit": "Edit",
         "remove": "Remove",
-        "placeholder": "Card name"
+        "placeholder": "Card name",
+        "fields": {
+          "brand": "Brand",
+          "brandNone": "No brand",
+          "brandOther": "Other",
+          "limitAmount": "Credit Limit",
+          "closingDay": "Closing Day",
+          "dueDay": "Due Day",
+          "lastFourDigits": "Last 4 Digits",
+          "lastFourDigitsPlaceholder": "1234"
+        }
       }
     },
     "checkout": {

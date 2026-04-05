@@ -4,6 +4,7 @@ import {
   NButton,
   NCard,
   NDataTable,
+  NFormItem,
   NInput,
   NModal,
   NPopconfirm,
@@ -36,6 +37,8 @@ const deleteMutation = useDeleteTagMutation();
 const showModal = ref(false);
 const editingTag = ref<TagDto | null>(null);
 const formName = ref("");
+const formColor = ref<string>("");
+const formIcon = ref<string>("");
 
 /**
  *
@@ -43,6 +46,8 @@ const formName = ref("");
 function openCreate(): void {
   editingTag.value = null;
   formName.value = "";
+  formColor.value = "";
+  formIcon.value = "";
   showModal.value = true;
 }
 
@@ -53,6 +58,8 @@ function openCreate(): void {
 function openEdit(tag: TagDto): void {
   editingTag.value = tag;
   formName.value = tag.name;
+  formColor.value = tag.color ?? "";
+  formIcon.value = tag.icon ?? "";
   showModal.value = true;
 }
 
@@ -62,6 +69,8 @@ function openEdit(tag: TagDto): void {
 function closeModal(): void {
   showModal.value = false;
   formName.value = "";
+  formColor.value = "";
+  formIcon.value = "";
   editingTag.value = null;
 }
 
@@ -72,10 +81,13 @@ async function submitForm(): Promise<void> {
   const name = formName.value.trim();
   if (!name) {return;}
 
+  const color = formColor.value.trim() || null;
+  const icon = formIcon.value.trim() || null;
+
   if (editingTag.value) {
-    await updateMutation.mutateAsync({ id: editingTag.value.id, name });
+    await updateMutation.mutateAsync({ id: editingTag.value.id, name, color, icon });
   } else {
-    await createMutation.mutateAsync({ name });
+    await createMutation.mutateAsync({ name, color, icon });
   }
 
   closeModal();
@@ -93,6 +105,34 @@ const columns = computed((): DataTableColumns<TagDto> => [
   {
     title: t("pages.settings.tags.columns.name"),
     key: "name",
+  },
+  {
+    title: t("pages.settings.tags.columns.color"),
+    key: "color",
+    width: 80,
+    render(row: TagDto): VNodeChild {
+      if (!row.color) {return "—";}
+      return h("span", {
+        style: {
+          display: "inline-block",
+          width: "18px",
+          height: "18px",
+          borderRadius: "4px",
+          background: row.color,
+          border: "1px solid rgba(0,0,0,0.15)",
+          verticalAlign: "middle",
+        },
+        title: row.color,
+      });
+    },
+  },
+  {
+    title: t("pages.settings.tags.columns.icon"),
+    key: "icon",
+    width: 60,
+    render(row: TagDto): VNodeChild {
+      return row.icon ?? "—";
+    },
   },
   {
     title: t("pages.settings.tags.columns.actions"),
@@ -160,12 +200,37 @@ const columns = computed((): DataTableColumns<TagDto> => [
       @positive-click="submitForm"
       @negative-click="closeModal"
     >
-      <NInput
-        v-model:value="formName"
-        :placeholder="$t('pages.settings.tags.placeholder')"
-        maxlength="50"
-        show-count
-      />
+      <div class="modal-form">
+        <NFormItem :label="$t('pages.settings.tags.placeholder')">
+          <NInput
+            v-model:value="formName"
+            :placeholder="$t('pages.settings.tags.placeholder')"
+            maxlength="50"
+            show-count
+          />
+        </NFormItem>
+        <NFormItem :label="$t('pages.settings.tags.fields.color')">
+          <div class="color-field">
+            <NInput
+              v-model:value="formColor"
+              :placeholder="$t('pages.settings.tags.fields.colorPlaceholder')"
+              maxlength="7"
+            />
+            <span
+              v-if="formColor"
+              class="color-preview"
+              :style="{ background: formColor }"
+            />
+          </div>
+        </NFormItem>
+        <NFormItem :label="$t('pages.settings.tags.fields.icon')">
+          <NInput
+            v-model:value="formIcon"
+            :placeholder="$t('pages.settings.tags.fields.iconPlaceholder')"
+            maxlength="10"
+          />
+        </NFormItem>
+      </div>
     </NModal>
   </div>
 </template>
@@ -201,5 +266,32 @@ const columns = computed((): DataTableColumns<TagDto> => [
 .settings-page__subtitle {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-top: var(--space-2);
+}
+
+.color-field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.color-field .n-input {
+  flex: 1;
+}
+
+.color-preview {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-outline-soft);
+  flex-shrink: 0;
 }
 </style>
