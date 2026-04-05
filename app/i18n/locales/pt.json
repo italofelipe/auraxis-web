@@ -105,7 +105,17 @@
       "featuredGoals": "Metas em destaque",
       "noGoals": "Sem metas",
       "noGoalsDesc": "Nenhuma meta ativa para o período selecionado.",
-      "goalOf": "de"
+      "goalOf": "de",
+      "trends": {
+        "title": "Evolução financeira",
+        "months3": "3 meses",
+        "months6": "6 meses",
+        "months12": "12 meses",
+        "income": "Receitas",
+        "expenses": "Despesas",
+        "balance": "Saldo",
+        "emptyState": "Sem dados de transações para o período selecionado"
+      }
     },
     "goals": {
       "title": "Minhas Metas",

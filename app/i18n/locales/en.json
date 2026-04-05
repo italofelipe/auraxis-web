@@ -105,7 +105,17 @@
       "featuredGoals": "Featured goals",
       "noGoals": "No goals",
       "noGoalsDesc": "No active goals for the selected period.",
-      "goalOf": "of"
+      "goalOf": "of",
+      "trends": {
+        "title": "Financial evolution",
+        "months3": "3 months",
+        "months6": "6 months",
+        "months12": "12 months",
+        "income": "Income",
+        "expenses": "Expenses",
+        "balance": "Balance",
+        "emptyState": "No transaction data for the selected period"
+      }
     },
     "goals": {
       "title": "My Goals",

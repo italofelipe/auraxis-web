@@ -3,6 +3,7 @@ import { NButton, NDatePicker, NSelect } from "naive-ui";
 import {
   DASHBOARD_PERIOD_OPTIONS,
   useDashboardOverviewQuery,
+  useDashboardTrendsQuery,
   type DashboardOverviewFilters,
 } from "~/composables/useDashboard";
 import type { DashboardPeriod } from "~/features/dashboard/model/dashboard-period";
@@ -48,12 +49,16 @@ const periodOptions = computed(() =>
 
 const dashboardQuery = useDashboardOverviewQuery(filters);
 
+// Trends — separate query for multi-month income/expense chart
+const trendsMonths = ref<number>(6);
+const trendsQuery = useDashboardTrendsQuery(trendsMonths);
+const trendsSeries = computed(() => trendsQuery.data.value?.series ?? []);
+
 const overview = computed(() => dashboardQuery.data.value);
 const summary = computed(() => overview.value?.summary ?? null);
 const comparison = computed(() => overview.value?.comparison ?? null);
-const timeseries = computed(() => overview.value?.timeseries ?? []);
-const expensesByCategory = computed(() => overview.value?.expensesByCategory ?? []);
 const upcomingDues = computed(() => overview.value?.upcomingDues ?? []);
+const expensesByCategory = computed(() => overview.value?.expensesByCategory ?? []);
 const goals = computed(() => overview.value?.goals ?? []);
 const alerts = computed(() => overview.value?.alerts ?? []);
 const portfolio = computed(() => overview.value?.portfolio ?? null);
@@ -158,9 +163,13 @@ const emptyMessage = computed(() =>
             :summary="summary"
             :loading="dashboardQuery.isLoading.value"
           />
-          <DashboardTimelineEChart
-            :timeseries="timeseries"
-            :loading="dashboardQuery.isLoading.value"
+          <DashboardTrendsChart
+            :series="trendsSeries"
+            :loading="trendsQuery.isLoading.value"
+            :is-error="trendsQuery.isError.value"
+            :selected-months="trendsMonths"
+            @update:selected-months="(m: number) => (trendsMonths = m)"
+            @retry="trendsQuery.refetch()"
           />
         </section>
 

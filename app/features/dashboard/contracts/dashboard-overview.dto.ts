@@ -80,3 +80,15 @@ export interface DashboardOverviewDto {
   readonly portfolio: DashboardPortfolioDto;
   readonly alerts: DashboardAlertDto[];
 }
+
+export interface DashboardTrendsMonthEntryDto {
+  readonly month: string;
+  readonly income: number;
+  readonly expenses: number;
+  readonly balance: number;
+}
+
+export interface DashboardTrendsResponseDto {
+  readonly months: number;
+  readonly series: DashboardTrendsMonthEntryDto[];
+}
