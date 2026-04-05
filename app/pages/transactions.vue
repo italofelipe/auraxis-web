@@ -41,7 +41,7 @@ import { formatCurrency } from "~/utils/currency";
 const { t } = useI18n();
 
 definePageMeta({
-  middleware: ["authenticated"],
+  middleware: ["authenticated", "coming-soon"],
   pageTitle: "Transações",
   pageSubtitle: "Receitas e despesas registradas",
 });
