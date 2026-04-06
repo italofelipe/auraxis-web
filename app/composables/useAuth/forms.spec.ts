@@ -17,6 +17,14 @@ vi.mock("@vee-validate/zod", () => ({
   toTypedSchema: toTypedSchemaMock,
 }));
 
+// Mock vue-i18n so useI18n() works outside of a Vue component setup context.
+vi.mock("vue-i18n", () => ({
+  useI18n: (): { t: (key: string) => string; locale: { value: string } } => ({
+    t: (key: string): string => key,
+    locale: { value: "pt-BR" },
+  }),
+}));
+
 describe("useAuth/forms", () => {
   beforeEach(() => {
     vi.clearAllMocks();
