@@ -10,6 +10,7 @@ import {
   CreditCard,
   User,
   ArrowLeftRight,
+  PiggyBank,
 } from "lucide-vue-next";
 // UiAppShell and ProfileCompletionModal are auto-imported from app/components/.
 import type { AppShellNavItem, AppShellUser } from "~/components/ui/UiAppShell/UiAppShell.types";
@@ -43,6 +44,7 @@ const ALL_NAV_ITEMS = computed<NavItemDefinition[]>(() => [
   { key: "transactions", label: t("nav.transactions"), to: "/transactions", icon: ArrowLeftRight },
   { key: "portfolio", label: t("nav.portfolio"), to: "/portfolio", icon: Briefcase, flagKey: "web.pages.portfolio" },
   { key: "goals", label: t("nav.goals"), to: "/goals", icon: Target, flagKey: "web.pages.goals" },
+  { key: "budgets", label: t("nav.budgets"), to: "/budgets", icon: PiggyBank, flagKey: "web.pages.budgets" },
   { key: "alerts", label: t("nav.alerts"), to: "/alerts", icon: Bell, flagKey: "web.pages.alerts" },
   { key: "simulations", label: t("nav.simulations"), to: "/simulations", icon: Calculator, flagKey: "web.pages.simulations" },
   { key: "sharedEntries", label: t("nav.sharedEntries"), to: "/shared-entries", icon: Share2, flagKey: "web.pages.shared-entries" },
