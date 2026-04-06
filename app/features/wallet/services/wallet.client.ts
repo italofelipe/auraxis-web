@@ -99,6 +99,24 @@ export class WalletClient {
   }
 
   /**
+   * Updates an existing wallet entry using a partial PATCH payload.
+   *
+   * Calls `PATCH /wallet/<id>` and returns the updated WalletEntryDto.
+   * The operation is atomic — if the request fails, the original entry remains unchanged.
+   *
+   * @param id - The unique identifier of the entry to update.
+   * @param payload - Partial update data for the entry.
+   * @returns The updated WalletEntryDto as returned by the API.
+   */
+  async updateEntry(id: string, payload: Partial<CreateWalletEntryPayload>): Promise<WalletEntryDto> {
+    const response = await this.#http.patch<{ data: { investment: WalletEntryDto } }>(
+      `/wallet/${id}`,
+      payload,
+    );
+    return response.data.data.investment;
+  }
+
+  /**
    * Deletes a wallet entry by its identifier.
    *
    * @param id - The unique identifier of the entry to delete.
