@@ -4,18 +4,15 @@ import type { ComputedRef, Ref } from "vue";
 const STORAGE_KEY = "auraxis-theme";
 
 /**
- * Global reactive theme state shared across the entire app.
- * Initialised once at module level so all composable calls share the same ref.
- */
-const isDark = ref<boolean>(true);
-
-let _initialised = false;
-
-/**
  * Composable for toggling between dark and light themes.
  *
- * - Reads the user preference from `localStorage` on first call.
+ * Uses Nuxt's `useState` so the reactive value is isolated per SSR request on
+ * the server and shared (hydrated) on the client.  localStorage is only read
+ * inside `onMounted`, which never runs during SSR, eliminating the module-level
+ * singleton problem that caused `/` to return 500 during Nitro prerender.
+ *
  * - Defaults to `dark` when no preference is stored.
+ * - Reads the user preference from `localStorage` after hydration.
  * - Persists the selection to `localStorage` on every toggle.
  *
  * Usage in `app.vue`:
@@ -36,12 +33,16 @@ export function useTheme(): {
   toggle: () => void;
   naiveTheme: ComputedRef<GlobalTheme | null>;
 } {
-  if (!_initialised && typeof localStorage !== "undefined") {
-    _initialised = true;
+  // useState creates per-request state on the server and shared state on the
+  // client (after hydration), replacing the unsafe module-level ref singleton.
+  const isDark = useState<boolean>("auraxis-theme", () => true);
+
+  // Only access localStorage on the client, after the component has mounted.
+  onMounted(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     // Default to dark; only switch to light if explicitly stored
     isDark.value = stored !== "light";
-  }
+  });
 
   /**
    * Toggles between dark and light and persists the choice.
@@ -49,7 +50,7 @@ export function useTheme(): {
    */
   function toggle(): void {
     isDark.value = !isDark.value;
-    if (typeof localStorage !== "undefined") {
+    if (import.meta.client) {
       localStorage.setItem(STORAGE_KEY, isDark.value ? "dark" : "light");
     }
   }
