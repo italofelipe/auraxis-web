@@ -1,8 +1,17 @@
 import { mount } from "@vue/test-utils";
-import { NConfigProvider } from "naive-ui";
-import { describe, expect, it } from "vitest";
+import { NConfigProvider, type GlobalTheme } from "naive-ui";
+import { computed, ref, type ComputedRef } from "vue";
+import { describe, expect, it, vi } from "vitest";
 
 import App from "./app.vue";
+
+vi.mock("~/composables/useTheme", () => ({
+  useTheme: (): { isDark: ReturnType<typeof ref<boolean>>; toggle: () => void; naiveTheme: ComputedRef<GlobalTheme | null> } => ({
+    isDark: ref(true),
+    toggle: vi.fn(),
+    naiveTheme: computed<GlobalTheme | null>(() => null),
+  }),
+}));
 
 describe("App bootstrap", () => {
   it("renderiza NConfigProvider com tema Auraxis envolvendo layout e page", () => {
