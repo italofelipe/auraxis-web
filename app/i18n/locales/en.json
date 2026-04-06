@@ -1,8 +1,44 @@
 {
+  "theme": {
+    "toggle": "Toggle theme",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "error": {
+    "404": {
+      "title": "Page not found",
+      "description": "The address you visited does not exist or has been removed.",
+      "cta": "Back to home"
+    },
+    "500": {
+      "title": "Something went wrong",
+      "description": "An unexpected error occurred. Please try again in a moment.",
+      "retry": "Try again",
+      "home": "Go to home"
+    }
+  },
+  "validation": {
+    "email": {
+      "invalid": "Please enter a valid email address."
+    },
+    "password": {
+      "minLength": "Password must be at least {min} characters.",
+      "uppercase": "Password must contain at least one uppercase letter.",
+      "number": "Password must contain at least one number.",
+      "symbol": "Password must contain at least one symbol.",
+      "confirm": "Please confirm your password.",
+      "mismatch": "Passwords must match."
+    },
+    "name": {
+      "minLength": "Name must be at least {min} characters.",
+      "maxLength": "Name can be at most {max} characters."
+    }
+  },
   "nav": {
     "dashboard": "Dashboard",
     "portfolio": "Portfolio",
     "goals": "Goals",
+    "budgets": "Budgets",
     "alerts": "Alerts",
     "simulations": "Simulations",
     "sharedEntries": "Shared Entries",
@@ -17,6 +53,11 @@
     "accountDescription": "My account"
   },
   "pages": {
+    "comingSoon": {
+      "title": "Coming soon",
+      "description": "This feature is being finalised and will be available shortly. Stay tuned for Auraxis news.",
+      "backToDashboard": "Back to Dashboard"
+    },
     "plans": {
       "meta": {
         "title": "Plans and Pricing",
@@ -135,6 +176,34 @@
       },
       "empty": "No goals found for the selected filter.",
       "emptyCreate": "Create first goal"
+    },
+    "budgets": {
+      "title": "Budgets",
+      "newBudget": "New budget",
+      "summary": {
+        "budgeted": "Budgeted",
+        "spent": "Spent",
+        "remaining": "Remaining"
+      },
+      "period": {
+        "monthly": "Monthly",
+        "weekly": "Weekly",
+        "custom": "Custom"
+      },
+      "noCategory": "No category (overall)",
+      "overBudget": "Over budget",
+      "emptyState": "No budgets defined. Create your first one to track spending.",
+      "loadError": "Could not load budgets",
+      "loadErrorMessage": "Please reload the page.",
+      "form": {
+        "name": "Budget name",
+        "tag": "Category (tag)",
+        "amount": "Limit (R$)",
+        "period": "Period",
+        "startDate": "Start date",
+        "endDate": "End date"
+      },
+      "deleteConfirm": "Delete this budget?"
     },
     "portfolio": {
       "title": "Portfolio",
@@ -345,6 +414,19 @@
           "lastFourDigits": "Last 4 Digits",
           "lastFourDigitsPlaceholder": "1234"
         }
+      },
+      "dangerZone": {
+        "title": "Danger zone",
+        "deleteAccount": "Delete account",
+        "deleteWarning": "This action is permanent and irreversible. All your personal data will be anonymised.",
+        "deleteConfirmTitle": "Are you sure?",
+        "deleteConfirmBody": "Enter your password to confirm account deletion.",
+        "passwordLabel": "Current password",
+        "confirmButton": "Permanently delete my account",
+        "cancelButton": "Cancel",
+        "successMessage": "Account deleted successfully.",
+        "errorWrongPassword": "Wrong password. Please try again.",
+        "errorGeneric": "An error occurred. Please try again."
       }
     },
     "checkout": {

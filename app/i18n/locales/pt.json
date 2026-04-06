@@ -1,8 +1,44 @@
 {
+  "theme": {
+    "toggle": "Alternar tema",
+    "light": "Claro",
+    "dark": "Escuro"
+  },
+  "error": {
+    "404": {
+      "title": "Página não encontrada",
+      "description": "O endereço que você acessou não existe ou foi removido.",
+      "cta": "Voltar ao início"
+    },
+    "500": {
+      "title": "Algo deu errado",
+      "description": "Ocorreu um erro inesperado. Tente novamente em instantes.",
+      "retry": "Tentar novamente",
+      "home": "Ir para o início"
+    }
+  },
+  "validation": {
+    "email": {
+      "invalid": "Informe um e-mail válido."
+    },
+    "password": {
+      "minLength": "A senha precisa ter ao menos {min} caracteres.",
+      "uppercase": "A senha precisa ter ao menos uma letra maiúscula.",
+      "number": "A senha precisa ter ao menos um número.",
+      "symbol": "A senha precisa ter ao menos um símbolo.",
+      "confirm": "Confirme sua senha.",
+      "mismatch": "As senhas precisam ser iguais."
+    },
+    "name": {
+      "minLength": "O nome precisa ter ao menos {min} caracteres.",
+      "maxLength": "O nome pode ter no máximo {max} caracteres."
+    }
+  },
   "nav": {
     "dashboard": "Dashboard",
     "portfolio": "Carteira",
     "goals": "Metas",
+    "budgets": "Orçamentos",
     "alerts": "Alertas",
     "simulations": "Simulações",
     "sharedEntries": "Lançamentos Compartilhados",
@@ -17,6 +53,11 @@
     "accountDescription": "Minha conta"
   },
   "pages": {
+    "comingSoon": {
+      "title": "Em breve",
+      "description": "Esta funcionalidade está sendo finalizada e estará disponível em breve. Fique de olho nas novidades do Auraxis.",
+      "backToDashboard": "Voltar ao Dashboard"
+    },
     "plans": {
       "meta": {
         "title": "Planos e Preços",
@@ -135,6 +176,34 @@
       },
       "empty": "Nenhuma meta encontrada para o filtro selecionado.",
       "emptyCreate": "Criar primeira meta"
+    },
+    "budgets": {
+      "title": "Orçamentos",
+      "newBudget": "Novo orçamento",
+      "summary": {
+        "budgeted": "Orçado",
+        "spent": "Gasto",
+        "remaining": "Restante"
+      },
+      "period": {
+        "monthly": "Mensal",
+        "weekly": "Semanal",
+        "custom": "Personalizado"
+      },
+      "noCategory": "Sem categoria (geral)",
+      "overBudget": "Acima do limite",
+      "emptyState": "Nenhum orçamento definido. Crie o primeiro para controlar seus gastos.",
+      "loadError": "Não foi possível carregar os orçamentos",
+      "loadErrorMessage": "Tente recarregar a página.",
+      "form": {
+        "name": "Nome do orçamento",
+        "tag": "Categoria (tag)",
+        "amount": "Limite (R$)",
+        "period": "Período",
+        "startDate": "Data início",
+        "endDate": "Data fim"
+      },
+      "deleteConfirm": "Excluir este orçamento?"
     },
     "portfolio": {
       "title": "Carteira",
@@ -345,6 +414,19 @@
           "lastFourDigits": "Últimos 4 Dígitos",
           "lastFourDigitsPlaceholder": "1234"
         }
+      },
+      "dangerZone": {
+        "title": "Zona de perigo",
+        "deleteAccount": "Excluir conta",
+        "deleteWarning": "Esta ação é permanente e irreversível. Todos os seus dados serão anonimizados.",
+        "deleteConfirmTitle": "Tem certeza?",
+        "deleteConfirmBody": "Digite sua senha para confirmar a exclusão da sua conta.",
+        "passwordLabel": "Senha atual",
+        "confirmButton": "Excluir minha conta permanentemente",
+        "cancelButton": "Cancelar",
+        "successMessage": "Conta excluída com sucesso.",
+        "errorWrongPassword": "Senha incorreta. Tente novamente.",
+        "errorGeneric": "Ocorreu um erro. Tente novamente."
       }
     },
     "checkout": {

@@ -287,37 +287,7 @@ const columns = computed((): DataTableColumns<CreditCardDto> => [
 </template>
 
 <style scoped>
-.settings-page {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-3);
-}
-
-.settings-page__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-}
-
-.settings-page__title-block {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.settings-page__title {
-  font-size: var(--font-size-lg, 1.25rem);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-}
-
-.settings-page__subtitle {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-}
+@import "~/assets/css/settings.css";
 
 .modal-form {
   display: flex;

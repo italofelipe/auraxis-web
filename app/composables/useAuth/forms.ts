@@ -2,21 +2,22 @@ import { toTypedSchema } from "@vee-validate/zod";
 import { useForm } from "vee-validate";
 
 import {
-  forgotPasswordSchema,
-  loginSchema,
-  registerSchema,
+  createForgotPasswordSchema,
+  createLoginSchema,
+  createRegisterSchema,
   type ForgotPasswordSchema,
   type LoginSchema,
   type RegisterSchema,
 } from "~/schemas/auth";
 
 /**
- * Inicializa formulário tipado de login.
+ * Inicializa formulário tipado de login com mensagens de validação i18n.
  * @returns Instância de formulário de login.
  */
 export const useLoginForm = (): ReturnType<typeof useForm<LoginSchema>> => {
+  const { t } = useI18n();
   return useForm<LoginSchema>({
-    validationSchema: toTypedSchema(loginSchema),
+    validationSchema: toTypedSchema(createLoginSchema(t)),
     initialValues: {
       email: "",
       password: "",
@@ -25,12 +26,13 @@ export const useLoginForm = (): ReturnType<typeof useForm<LoginSchema>> => {
 };
 
 /**
- * Inicializa formulário tipado de registro.
+ * Inicializa formulário tipado de registro com mensagens de validação i18n.
  * @returns Instância de formulário de registro.
  */
 export const useRegisterForm = (): ReturnType<typeof useForm<RegisterSchema>> => {
+  const { t } = useI18n();
   return useForm<RegisterSchema>({
-    validationSchema: toTypedSchema(registerSchema),
+    validationSchema: toTypedSchema(createRegisterSchema(t)),
     initialValues: {
       name: "",
       email: "",
@@ -41,14 +43,15 @@ export const useRegisterForm = (): ReturnType<typeof useForm<RegisterSchema>> =>
 };
 
 /**
- * Inicializa formulário tipado de recuperação de senha.
+ * Inicializa formulário tipado de recuperação de senha com mensagens de validação i18n.
  * @returns Instância de formulário de recuperação.
  */
 export const useForgotPasswordForm = (): ReturnType<
   typeof useForm<ForgotPasswordSchema>
 > => {
+  const { t } = useI18n();
   return useForm<ForgotPasswordSchema>({
-    validationSchema: toTypedSchema(forgotPasswordSchema),
+    validationSchema: toTypedSchema(createForgotPasswordSchema(t)),
     initialValues: {
       email: "",
     },
