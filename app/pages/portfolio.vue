@@ -120,13 +120,13 @@ const hasEntries = computed(() => (entries.value?.length ?? 0) > 0);
       <UiPageLoader v-if="isLoading" :rows="4" :with-title="true" />
 
       <template v-else-if="!hasEntries">
-        <div class="portfolio-page__empty-state">
-          <span class="portfolio-page__empty-title">{{ $t('pages.portfolio.emptyTitle') }}</span>
-          <span class="portfolio-page__empty-body">{{ $t('pages.portfolio.emptyBody') }}</span>
-          <NButton type="primary" @click="showEntryForm = true">
-            {{ $t('pages.portfolio.emptyAction') }}
-          </NButton>
-        </div>
+        <UiEmptyState
+          icon="wallet"
+          :title="$t('pages.portfolio.emptyTitle')"
+          :description="$t('pages.portfolio.emptyBody')"
+          :action-label="$t('pages.portfolio.emptyAction')"
+          @action="showEntryForm = true"
+        />
       </template>
 
       <template v-else>

@@ -2,7 +2,6 @@
 import {
   NCard,
   NStatistic,
-  NEmpty,
   NTabs,
   NTabPane,
   NPageHeader,
@@ -79,8 +78,10 @@ const onRevoke = (id: string): void => {
       <NTabs v-else type="line" animated>
         <NTabPane name="by-me" :tab="$t('pages.sharedEntries.byMe')">
           <div class="shared-entries-page__tab-content">
-            <NEmpty
+            <UiEmptyState
               v-if="byMeList.length === 0"
+              icon="transactions"
+              :title="$t('pages.sharedEntries.emptyByMeTitle')"
               :description="$t('pages.sharedEntries.emptyByMe')"
             />
             <div v-else class="shared-entries-page__list">
@@ -97,8 +98,10 @@ const onRevoke = (id: string): void => {
 
         <NTabPane name="with-me" :tab="$t('pages.sharedEntries.withMe')">
           <div class="shared-entries-page__tab-content">
-            <NEmpty
+            <UiEmptyState
               v-if="withMeList.length === 0"
+              icon="transactions"
+              :title="$t('pages.sharedEntries.emptyWithMeTitle')"
               :description="$t('pages.sharedEntries.emptyWithMe')"
             />
             <div v-else class="shared-entries-page__list">
