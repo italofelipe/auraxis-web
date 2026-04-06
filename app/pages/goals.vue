@@ -165,20 +165,14 @@ const onDeleteGoal = (id: string): void => {
       <UiPageLoader v-if="isLoading" :rows="3" />
 
       <template v-else>
-        <div v-if="filteredGoals.length === 0" class="goals-page__empty-state">
-          <span class="goals-page__empty-text">
-            {{ $t('pages.goals.empty') }}
-          </span>
-          <NButton
-            v-if="activeFilter === 'all'"
-            type="primary"
-            size="medium"
-            class="goals-page__empty-cta"
-            @click="onNewGoal"
-          >
-            {{ $t('pages.goals.emptyCreate') }}
-          </NButton>
-        </div>
+        <UiEmptyState
+          v-if="filteredGoals.length === 0"
+          icon="goals"
+          :title="activeFilter === 'all' ? $t('pages.goals.emptyAllTitle') : $t('pages.goals.empty')"
+          :description="activeFilter === 'all' ? $t('pages.goals.emptyAllDescription') : undefined"
+          :action-label="activeFilter === 'all' ? $t('pages.goals.emptyCreate') : undefined"
+          @action="onNewGoal"
+        />
 
         <div v-else class="goals-page__grid">
           <GoalCard

@@ -119,11 +119,12 @@ const onDelete = (id: string): void => {
       <UiPageLoader v-if="isLoading" :rows="3" />
 
       <template v-else>
-        <div v-if="filteredSimulations.length === 0" class="simulations-page__empty-state">
-          <span class="simulations-page__empty-text">
-            {{ $t('pages.simulations.empty') }}
-          </span>
-        </div>
+        <UiEmptyState
+          v-if="filteredSimulations.length === 0"
+          icon="analytics"
+          :title="activeFilter === 'all' ? $t('pages.simulations.emptyAllTitle') : $t('pages.simulations.empty')"
+          :description="activeFilter === 'all' ? $t('pages.simulations.emptyAllDescription') : undefined"
+        />
 
         <div v-else class="simulations-page__grid">
           <SimulationCard
