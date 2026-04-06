@@ -339,6 +339,16 @@
       "status": "enabled-prod",
       "description": "Página de transações (receitas e despesas). Habilitada após conclusão do MAC-05.",
       "repositories": ["auraxis-web"]
+    },
+    {
+      "key": "web.pages.budgets",
+      "owner": "platform",
+      "createdAt": "2026-04-05",
+      "removeBy": "2027-12-31",
+      "type": "release",
+      "status": "enabled-prod",
+      "description": "Página de orçamentos com acompanhamento de gastos por categoria e período.",
+      "repositories": ["auraxis-web"]
     }
   ]
 }

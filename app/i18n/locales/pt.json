@@ -9,7 +9,8 @@
     "tools": "Ferramentas",
     "subscription": "Assinatura",
     "personalData": "Dados Pessoais",
-    "transactions": "Transações"
+    "transactions": "Transações",
+    "budgets": "Orçamentos"
   },
   "user": {
     "fallbackName": "Usuário",
@@ -524,6 +525,53 @@
         "loginCta": "Já tenho conta",
         "trust": "Gratuito para sempre · Sem cartão de crédito · Cancele quando quiser"
       }
+    },
+    "budgets": {
+      "meta": {
+        "title": "Orçamentos",
+        "description": "Gerencie seus orçamentos e acompanhe seus gastos por categoria e período."
+      },
+      "title": "Orçamentos",
+      "newBudget": "Novo Orçamento",
+      "summary": {
+        "totalBudgeted": "Total Orçado",
+        "totalSpent": "Total Gasto",
+        "totalRemaining": "Total Restante",
+        "percentageUsed": "Uso Total",
+        "budgeted": "Total Orçado",
+        "spent": "Total Gasto",
+        "remaining": "Restante"
+      },
+      "period": {
+        "monthly": "Mensal",
+        "weekly": "Semanal",
+        "custom": "Personalizado"
+      },
+      "noCategory": "Sem Categoria",
+      "overBudget": "Acima do Limite",
+      "emptyState": {
+        "title": "Nenhum orçamento cadastrado",
+        "description": "Crie seu primeiro orçamento para começar a controlar seus gastos."
+      },
+      "loadError": "Erro ao carregar orçamentos",
+      "loadErrorMessage": "Tente novamente mais tarde.",
+      "form": {
+        "titleCreate": "Novo Orçamento",
+        "titleEdit": "Editar Orçamento",
+        "name": "Nome",
+        "namePlaceholder": "Ex: Alimentação Mensal",
+        "amount": "Valor Limite",
+        "period": "Período",
+        "periodPlaceholder": "Selecione o período",
+        "tag": "Categoria",
+        "tagPlaceholder": "Selecione uma categoria (opcional)",
+        "dateRange": "Período Personalizado",
+        "startDate": "Período Personalizado",
+        "cancel": "Cancelar",
+        "save": "Salvar",
+        "create": "Criar Orçamento"
+      },
+      "deleteConfirm": "Tem certeza que deseja excluir este orçamento? Esta ação não pode ser desfeita."
     },
     "home": {
       "meta": {

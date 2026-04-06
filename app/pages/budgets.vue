@@ -69,7 +69,7 @@ const overallPercentage = computed(() =>
 );
 
 const tagOptions = computed(() => {
-  const opts = [{ label: t("pages.budgets.noCategory"), value: null as string | null }];
+  const opts: Array<{ label: string; value: string }> = [];
   if (tags.value) {
     for (const tag of tags.value) {
       opts.push({ label: tag.name, value: tag.id });
@@ -367,6 +367,7 @@ const onDeleteBudget = (id: string): void => {
           <NSelect
             v-model:value="formTagId"
             :options="tagOptions"
+            :placeholder="$t('pages.budgets.form.tagPlaceholder')"
             clearable
           />
         </NFormItem>

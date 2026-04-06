@@ -9,7 +9,8 @@
     "tools": "Tools",
     "subscription": "Subscription",
     "personalData": "Personal Data",
-    "transactions": "Transactions"
+    "transactions": "Transactions",
+    "budgets": "Budgets"
   },
   "user": {
     "fallbackName": "User",
@@ -524,6 +525,53 @@
         "loginCta": "I already have an account",
         "trust": "Free forever · No credit card · Cancel anytime"
       }
+    },
+    "budgets": {
+      "meta": {
+        "title": "Budgets",
+        "description": "Manage your budgets and track your spending by category and period."
+      },
+      "title": "Budgets",
+      "newBudget": "New Budget",
+      "summary": {
+        "totalBudgeted": "Total Budgeted",
+        "totalSpent": "Total Spent",
+        "totalRemaining": "Total Remaining",
+        "percentageUsed": "Overall Usage",
+        "budgeted": "Total Budgeted",
+        "spent": "Total Spent",
+        "remaining": "Remaining"
+      },
+      "period": {
+        "monthly": "Monthly",
+        "weekly": "Weekly",
+        "custom": "Custom"
+      },
+      "noCategory": "No Category",
+      "overBudget": "Over Budget",
+      "emptyState": {
+        "title": "No budgets yet",
+        "description": "Create your first budget to start tracking your spending."
+      },
+      "loadError": "Failed to load budgets",
+      "loadErrorMessage": "Please try again later.",
+      "form": {
+        "titleCreate": "New Budget",
+        "titleEdit": "Edit Budget",
+        "name": "Name",
+        "namePlaceholder": "E.g. Monthly Food",
+        "amount": "Limit Amount",
+        "period": "Period",
+        "periodPlaceholder": "Select a period",
+        "tag": "Category",
+        "tagPlaceholder": "Select a category (optional)",
+        "dateRange": "Custom Period",
+        "startDate": "Custom Period",
+        "cancel": "Cancel",
+        "save": "Save",
+        "create": "Create Budget"
+      },
+      "deleteConfirm": "Are you sure you want to delete this budget? This action cannot be undone."
     },
     "home": {
       "meta": {
