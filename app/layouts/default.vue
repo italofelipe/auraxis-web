@@ -18,6 +18,7 @@ import { useUserProfileQuery } from "~/features/profile/composables/use-user-pro
 import { useUserStore } from "~/stores/user";
 import { useLogout } from "~/composables/useLogout";
 import { isFeatureEnabled } from "~/shared/feature-flags";
+import { useOnboarding } from "~/features/onboarding/composables/useOnboarding";
 
 const { t } = useI18n();
 const route = useRoute();
@@ -68,6 +69,8 @@ const user = computed<AppShellUser>(() => ({
 const pageTitle = computed(() => (route.meta.pageTitle as string | undefined) ?? "Auraxis");
 const pageSubtitle = computed(() => route.meta.pageSubtitle as string | undefined);
 
+const { shouldShow: showOnboardingWizard } = useOnboarding();
+
 const showProfileModal = ref(false);
 
 const _profileModalFlagKey = computed((): string => {
@@ -89,7 +92,7 @@ const _dismissProfileModal = (): void => {
 watch(
   () => userStore.isLoaded && !userStore.isProfileComplete,
   (shouldShow) => {
-    if (shouldShow && !_isProfileModalDismissed.value) {
+    if (shouldShow && !_isProfileModalDismissed.value && !showOnboardingWizard.value) {
       showProfileModal.value = true;
     }
   },
@@ -128,5 +131,6 @@ function onLogout(): void {
       @saved="showProfileModal = false"
     />
   </UiAppShell>
+  <OnboardingWizard />
   </div>
 </template>

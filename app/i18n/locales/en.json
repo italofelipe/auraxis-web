@@ -175,7 +175,9 @@
         "paused": "Paused"
       },
       "empty": "No goals found for the selected filter.",
-      "emptyCreate": "Create first goal"
+      "emptyCreate": "Create first goal",
+      "emptyAllTitle": "Start by creating your first goal",
+      "emptyAllDescription": "Financial goals help you visualize and achieve your objectives with clarity and discipline."
     },
     "budgets": {
       "title": "Budgets",
@@ -229,7 +231,9 @@
         "unread": "Unread",
         "read": "Read"
       },
-      "empty": "No alerts found for the selected filter."
+      "empty": "No alerts found for the selected filter.",
+      "emptyAllTitle": "All clear here",
+      "emptyAllDescription": "You have no alerts right now. Alerts appear when there are relevant transactions or goals nearing their deadline."
     },
     "simulations": {
       "title": "Simulations",
@@ -263,8 +267,10 @@
       "accepted": "Accepted",
       "byMe": "Shared by me",
       "withMe": "Shared with me",
-      "emptyByMe": "No entries shared by you.",
-      "emptyWithMe": "No entries shared with you."
+      "emptyByMeTitle": "No entries shared by you",
+      "emptyByMe": "Share transactions with others to split expenses transparently.",
+      "emptyWithMeTitle": "No entries shared with you",
+      "emptyWithMe": "When someone shares a transaction with you, it will appear here."
     },
     "subscription": {
       "title": "Subscription",
@@ -2951,6 +2957,34 @@
         }
       },
       "copyright": "© {year} Auraxis. All rights reserved."
+    }
+  },
+  "onboarding": {
+    "ariaLabel": "Initial setup wizard",
+    "closeAriaLabel": "Close onboarding wizard",
+    "back": "Back",
+    "skip": "Skip setup",
+    "step1": {
+      "title": "Welcome to Auraxis!",
+      "description": "Before you start, let's set up your financial profile. This helps us personalize your experience.",
+      "benefit1": "Personalized analytics for your profile",
+      "benefit2": "Realistic goal recommendations",
+      "benefit3": "Reports tailored to your financial moment",
+      "cta": "Let's go"
+    },
+    "step2": {
+      "title": "Record your first transaction",
+      "description": "Add income or an expense to start tracking your cash flow.",
+      "skipStep": "Skip this step"
+    },
+    "step3": {
+      "title": "Set your first goal",
+      "description": "Financial goals help you stay focused and visualize your progress over time.",
+      "benefit1": "Track progress month by month",
+      "benefit2": "Simulate different contribution scenarios",
+      "benefit3": "Get alerts when you're close to achieving it",
+      "ctaPrimary": "Create my first goal",
+      "ctaSecondary": "Do this later"
     }
   }
 }

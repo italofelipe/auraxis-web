@@ -175,7 +175,9 @@
         "paused": "Pausadas"
       },
       "empty": "Nenhuma meta encontrada para o filtro selecionado.",
-      "emptyCreate": "Criar primeira meta"
+      "emptyCreate": "Criar primeira meta",
+      "emptyAllTitle": "Comece criando sua primeira meta",
+      "emptyAllDescription": "Metas financeiras ajudam você a visualizar e alcançar seus objetivos com clareza e disciplina."
     },
     "budgets": {
       "title": "Orçamentos",
@@ -229,7 +231,9 @@
         "unread": "Não lidos",
         "read": "Lidos"
       },
-      "empty": "Nenhum alerta encontrado para o filtro selecionado."
+      "empty": "Nenhum alerta encontrado para o filtro selecionado.",
+      "emptyAllTitle": "Tudo em ordem por aqui",
+      "emptyAllDescription": "Você não tem nenhum alerta no momento. Os alertas aparecem quando há movimentações relevantes ou metas próximas do vencimento."
     },
     "simulations": {
       "title": "Simulações",
@@ -263,8 +267,10 @@
       "accepted": "Aceitas",
       "byMe": "Compartilhadas por mim",
       "withMe": "Compartilhadas comigo",
-      "emptyByMe": "Nenhuma entrada compartilhada por você.",
-      "emptyWithMe": "Nenhuma entrada compartilhada com você."
+      "emptyByMeTitle": "Nenhuma entrada compartilhada por você",
+      "emptyByMe": "Compartilhe transações com outras pessoas para dividir despesas de forma transparente.",
+      "emptyWithMeTitle": "Nenhuma entrada compartilhada com você",
+      "emptyWithMe": "Quando alguém compartilhar uma transação com você, ela aparecerá aqui."
     },
     "subscription": {
       "title": "Assinatura",
@@ -2951,6 +2957,34 @@
         }
       },
       "copyright": "© {year} Auraxis. Todos os direitos reservados."
+    }
+  },
+  "onboarding": {
+    "ariaLabel": "Assistente de configuração inicial",
+    "closeAriaLabel": "Fechar assistente de onboarding",
+    "back": "Voltar",
+    "skip": "Pular configuração",
+    "step1": {
+      "title": "Bem-vindo ao Auraxis!",
+      "description": "Antes de começar, vamos configurar seu perfil financeiro. Isso nos ajuda a personalizar sua experiência.",
+      "benefit1": "Análises personalizadas para o seu perfil",
+      "benefit2": "Recomendações de metas realistas",
+      "benefit3": "Relatórios adaptados ao seu momento financeiro",
+      "cta": "Vamos lá"
+    },
+    "step2": {
+      "title": "Registre sua primeira movimentação",
+      "description": "Adicione uma receita ou despesa para começar a acompanhar seu fluxo de caixa.",
+      "skipStep": "Pular este passo"
+    },
+    "step3": {
+      "title": "Defina sua primeira meta",
+      "description": "Metas financeiras ajudam você a manter o foco e visualizar seu progresso ao longo do tempo.",
+      "benefit1": "Acompanhe o progresso mês a mês",
+      "benefit2": "Simule diferentes cenários de aporte",
+      "benefit3": "Receba alertas quando estiver perto de atingir",
+      "ctaPrimary": "Criar minha primeira meta",
+      "ctaSecondary": "Fazer isso depois"
     }
   }
 }
