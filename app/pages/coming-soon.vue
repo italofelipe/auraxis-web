@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const { t } = useI18n();
+
 definePageMeta({
   layout: "default",
   middleware: ["authenticated"],
@@ -15,13 +17,12 @@ useSeoMeta({
   <div class="coming-soon-page">
     <div class="coming-soon-page__card">
       <div class="coming-soon-page__icon" aria-hidden="true">🚧</div>
-      <h1 class="coming-soon-page__title">Em breve</h1>
+      <h1 class="coming-soon-page__title">{{ t('pages.comingSoon.title') }}</h1>
       <p class="coming-soon-page__description">
-        Esta funcionalidade está sendo finalizada e estará disponível em breve.
-        Fique de olho nas novidades do Auraxis.
+        {{ t('pages.comingSoon.description') }}
       </p>
       <NuxtLink to="/dashboard" class="coming-soon-page__cta">
-        Voltar ao Dashboard
+        {{ t('pages.comingSoon.backToDashboard') }}
       </NuxtLink>
     </div>
   </div>
