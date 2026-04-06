@@ -30,11 +30,8 @@ const makeEntry = (): WalletEntryDto => ({
   quantity: 100,
   cost_basis: 3850,
   register_date: "2026-01-01",
-  current_value: null,
-  current_price: null,
-  profit_loss: null,
-  profit_loss_percent: null,
-  should_be_on_wallet: true,
+  current_value: 3850,
+  change_percent: null,
 });
 
 /**
