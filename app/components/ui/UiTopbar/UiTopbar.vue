@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { Menu } from "lucide-vue-next";
+import { Menu, Moon, Sun } from "lucide-vue-next";
 import type { UiTopbarProps, UiTopbarEmits } from "./UiTopbar.types";
 import UiPageHeader from "../UiPageHeader/UiPageHeader.vue";
 import UiUserMenu from "../UiUserMenu/UiUserMenu.vue";
+import { useTheme } from "~/composables/useTheme";
 
 const props = withDefaults(defineProps<UiTopbarProps>(), {
   subtitle: undefined,
@@ -13,6 +14,8 @@ const props = withDefaults(defineProps<UiTopbarProps>(), {
 });
 
 const emit = defineEmits<UiTopbarEmits>();
+
+const { isDark, toggle: toggleTheme } = useTheme();
 
 </script>
 
@@ -45,6 +48,16 @@ const emit = defineEmits<UiTopbarEmits>();
           aria-hidden="true"
         />
         {{ action.label }}
+      </button>
+
+      <button
+        class="ui-topbar__theme-toggle"
+        :aria-label="$t('theme.toggle')"
+        :title="isDark ? $t('theme.light') : $t('theme.dark')"
+        @click="toggleTheme"
+      >
+        <Sun v-if="isDark" :size="18" aria-hidden="true" />
+        <Moon v-else :size="18" aria-hidden="true" />
       </button>
 
       <UiUserMenu
@@ -127,6 +140,24 @@ const emit = defineEmits<UiTopbarEmits>();
   border-color: var(--color-outline-soft);
 }
 .ui-topbar__action--default:hover {
+  background: var(--color-outline-ghost);
+  color: var(--color-text-primary);
+}
+.ui-topbar__theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: none;
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+}
+.ui-topbar__theme-toggle:hover {
   background: var(--color-outline-ghost);
   color: var(--color-text-primary);
 }
