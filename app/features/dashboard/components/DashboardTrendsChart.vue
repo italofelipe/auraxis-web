@@ -4,6 +4,7 @@ import type { EChartsOption } from "echarts";
 import type { DashboardTrendsMonthEntry } from "~/features/dashboard/model/dashboard-overview";
 import { colors } from "~/theme/tokens/colors";
 import { formatCurrency } from "~/utils/currency";
+import { useLocaleDateFormat } from "~/composables/useLocaleDateFormat";
 
 /** Props */
 const props = defineProps<{
@@ -25,6 +26,7 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+const { formatMonthYear } = useLocaleDateFormat();
 
 const MONTHS_OPTIONS = [
   { label: t("pages.dashboard.trends.months3"), value: 3 },
@@ -34,6 +36,7 @@ const MONTHS_OPTIONS = [
 
 /**
  * Formats a "YYYY-MM" string as a short localized label like "Abr/26".
+ * Uses the active locale from useI18n instead of a hardcoded locale.
  *
  * @param month ISO month string (YYYY-MM).
  * @returns Short localized month label.
@@ -42,9 +45,7 @@ const formatMonthLabel = (month: string): string => {
   const [year, mon] = month.split("-");
   if (!year || !mon) {return month;}
   const date = new Date(Number(year), Number(mon) - 1, 1);
-  const shortMonth = date.toLocaleDateString("pt-BR", { month: "short" });
-  const shortYear = String(date.getFullYear()).slice(-2);
-  return `${shortMonth.replace(".", "").charAt(0).toUpperCase()}${shortMonth.replace(".", "").slice(1)}/${shortYear}`;
+  return formatMonthYear(date);
 };
 
 /**

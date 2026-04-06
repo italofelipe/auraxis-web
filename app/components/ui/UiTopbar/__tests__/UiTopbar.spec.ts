@@ -1,9 +1,18 @@
 import { describe, it, expect, vi } from "vitest";
 import { mount } from "@vue/test-utils";
-import { defineComponent, h } from "vue";
+import { defineComponent, h, ref, computed, type ComputedRef } from "vue";
+import type { GlobalTheme } from "naive-ui";
 import UiTopbar from "../UiTopbar.vue";
 
 vi.mock("vue-i18n");
+
+vi.mock("~/composables/useTheme", () => ({
+  useTheme: (): { isDark: ReturnType<typeof ref<boolean>>; toggle: () => void; naiveTheme: ComputedRef<GlobalTheme | null> } => ({
+    isDark: ref(true),
+    toggle: vi.fn(),
+    naiveTheme: computed<GlobalTheme | null>(() => null),
+  }),
+}));
 
 const MockIcon = defineComponent({ render: () => h("span", "icon") });
 
