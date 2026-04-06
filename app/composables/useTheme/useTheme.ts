@@ -35,7 +35,13 @@ export function useTheme(): {
 } {
   // useState creates per-request state on the server and shared state on the
   // client (after hydration), replacing the unsafe module-level ref singleton.
-  const isDark = useState<boolean>("auraxis-theme", () => true);
+  // Falls back to a plain ref in environments without a Nuxt context (unit tests).
+  let isDark: Ref<boolean>;
+  try {
+    isDark = useState<boolean>("auraxis-theme", () => true);
+  } catch {
+    isDark = ref<boolean>(true);
+  }
 
   // Only access localStorage on the client, after the component has mounted.
   onMounted(() => {
