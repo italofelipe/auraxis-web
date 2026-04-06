@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import {
   NButton,
+  NDropdown,
   NRadioGroup,
   NRadioButton,
   NPageHeader,
+  type DropdownOption,
 } from "naive-ui";
 import { useSimulationsQuery } from "~/features/simulations/queries/use-simulations-query";
 import { useDeleteSimulationMutation } from "~/features/simulations/queries/use-delete-simulation-mutation";
@@ -22,6 +24,13 @@ useHead({ title: "Simulações | Auraxis" });
 
 type FilterValue = "all" | SimulationType;
 
+/** Maps each simulation type to its corresponding tool page route. */
+const SIMULATION_TYPE_ROUTES: Record<SimulationType, string> = {
+  installment_vs_cash: "/tools/installment-vs-cash",
+  goal_projection: "/tools/aposentadoria",
+  investment_return: "/tools/juros-compostos",
+};
+
 const { data: simulations, isLoading, isError } = useSimulationsQuery();
 const deleteMutation = useDeleteSimulationMutation();
 
@@ -34,12 +43,31 @@ const FILTER_OPTIONS = computed((): Array<{ value: FilterValue; label: string }>
   { value: "investment_return", label: t("pages.simulations.filters.investmentReturn") },
 ]);
 
+/** Dropdown options for selecting the simulation type when creating a new simulation. */
+const NEW_SIMULATION_OPTIONS = computed((): DropdownOption[] => [
+  { key: "installment_vs_cash", label: t("pages.simulations.typeSelect.installmentVsCash") },
+  { key: "goal_projection", label: t("pages.simulations.typeSelect.goalProjection") },
+  { key: "investment_return", label: t("pages.simulations.typeSelect.investmentReturn") },
+]);
+
 const allSimulations = computed(() => simulations.value ?? []);
 
 const filteredSimulations = computed(() => {
   if (activeFilter.value === "all") {return allSimulations.value;}
   return allSimulations.value.filter((s) => s.type === activeFilter.value);
 });
+
+/**
+ * Navigates to the tool page corresponding to the selected simulation type.
+ *
+ * @param key - The simulation type key selected from the dropdown.
+ */
+const onNewSimulation = (key: string): void => {
+  const route = SIMULATION_TYPE_ROUTES[key as SimulationType];
+  if (route) {
+    void navigateTo(route);
+  }
+};
 
 /**
  * Deletes a simulation by id via the API.
@@ -59,7 +87,15 @@ const onDelete = (id: string): void => {
         :subtitle="$t('pages.simulations.subtitle')"
         class="simulations-page__page-header"
       />
-      <NButton type="primary" size="medium">{{ $t('pages.simulations.newSimulation') }}</NButton>
+      <NDropdown
+        :options="NEW_SIMULATION_OPTIONS"
+        trigger="click"
+        @select="onNewSimulation"
+      >
+        <NButton type="primary" size="medium">
+          {{ $t('pages.simulations.newSimulation') }}
+        </NButton>
+      </NDropdown>
     </div>
 
     <UiInlineError
