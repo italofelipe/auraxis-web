@@ -33,7 +33,7 @@
     "@css-render/vue3-ssr": "^0.15.14",
     "@nuxt/a11y": "1.0.0-alpha.1",
     "@nuxt/content": "3.11.2",
-    "@nuxt/hints": "1.0.2",
+    "@nuxt/hints": "1.0.3",
     "@nuxt/image": "2.0.0",
     "@nuxt/scripts": "0.13.2",
     "@nuxtjs/device": "4.0.0",
@@ -55,7 +55,7 @@
     "nuxt": "^4.4.2",
     "pinia": "^3.0.4",
     "vee-validate": "^4.15.1",
-    "vue": "^3.5.31",
+    "vue": "^3.5.32",
     "vue-echarts": "^8.0.1",
     "vue-router": "^5.0.4",
     "zod": "^3.25.76"
