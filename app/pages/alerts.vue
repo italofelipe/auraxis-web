@@ -120,13 +120,12 @@ const onDelete = (id: string): void => {
 
       <UiPageLoader v-if="isLoading" :rows="4" />
 
-      <template v-else-if="filteredAlerts.length === 0">
-        <div class="alerts-page__empty-state">
-          <span class="alerts-page__empty-text">
-            {{ $t('pages.alerts.empty') }}
-          </span>
-        </div>
-      </template>
+      <UiEmptyState
+        v-else-if="filteredAlerts.length === 0"
+        icon="notifications"
+        :title="activeFilter === 'all' ? $t('pages.alerts.emptyAllTitle') : $t('pages.alerts.empty')"
+        :description="activeFilter === 'all' ? $t('pages.alerts.emptyAllDescription') : undefined"
+      />
 
       <div v-else class="alerts-page__list">
         <AlertItem

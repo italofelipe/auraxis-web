@@ -3,6 +3,7 @@ import { NButton } from "naive-ui";
 import { usePortfolioSummaryQuery } from "~/features/wallet/queries/use-portfolio-summary-query";
 import { useWalletEntriesQuery } from "~/features/wallet/queries/use-wallet-entries-query";
 import { useCreateWalletEntryMutation } from "~/features/wallet/queries/use-create-wallet-entry-mutation";
+import { useUpdateWalletEntryMutation } from "~/features/wallet/queries/use-update-wallet-entry-mutation";
 import { useDeleteWalletEntryMutation } from "~/features/wallet/queries/use-delete-wallet-entry-mutation";
 import type { CreateWalletEntryPayload } from "~/features/wallet/services/wallet.client";
 import type { WalletEntryDto } from "~/features/portfolio/contracts/portfolio.dto";
@@ -19,6 +20,7 @@ const { data: summary, isLoading: isSummaryLoading, isError: isSummaryError } = 
 const { data: entries, isLoading: isEntriesLoading, isError: isEntriesError } = useWalletEntriesQuery();
 
 const createMutation = useCreateWalletEntryMutation();
+const updateMutation = useUpdateWalletEntryMutation();
 const deleteMutation = useDeleteWalletEntryMutation();
 
 const isLoading = computed(() => isSummaryLoading.value || isEntriesLoading.value);
@@ -40,17 +42,14 @@ const onCreateEntry = (payload: CreateWalletEntryPayload): void => {
 
 /**
  * Handles the edit event from WalletEntryForm.
- * Deletes the old entry then creates a new one with the updated payload.
+ * Uses PATCH so the entry is updated atomically — if the request fails,
+ * the original data is preserved (no risk of data loss).
  *
- * @param id - The id of the entry being replaced.
- * @param payload - The new payload with updated data.
+ * @param id - The id of the entry to update.
+ * @param payload - The updated fields to send via PATCH.
  */
 const onEditEntry = (id: string, payload: CreateWalletEntryPayload): void => {
-  deleteMutation.mutate(id, {
-    onSuccess: () => {
-      createMutation.mutate(payload);
-    },
-  });
+  updateMutation.mutate({ id, payload });
   editingEntry.value = null;
 };
 
@@ -120,13 +119,13 @@ const hasEntries = computed(() => (entries.value?.length ?? 0) > 0);
       <UiPageLoader v-if="isLoading" :rows="4" :with-title="true" />
 
       <template v-else-if="!hasEntries">
-        <div class="portfolio-page__empty-state">
-          <span class="portfolio-page__empty-title">{{ $t('pages.portfolio.emptyTitle') }}</span>
-          <span class="portfolio-page__empty-body">{{ $t('pages.portfolio.emptyBody') }}</span>
-          <NButton type="primary" @click="showEntryForm = true">
-            {{ $t('pages.portfolio.emptyAction') }}
-          </NButton>
-        </div>
+        <UiEmptyState
+          icon="wallet"
+          :title="$t('pages.portfolio.emptyTitle')"
+          :description="$t('pages.portfolio.emptyBody')"
+          :action-label="$t('pages.portfolio.emptyAction')"
+          @action="showEntryForm = true"
+        />
       </template>
 
       <template v-else>

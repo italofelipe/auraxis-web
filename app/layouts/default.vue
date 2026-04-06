@@ -10,6 +10,7 @@ import {
   CreditCard,
   User,
   ArrowLeftRight,
+  PiggyBank,
 } from "lucide-vue-next";
 // UiAppShell and ProfileCompletionModal are auto-imported from app/components/.
 import type { AppShellNavItem, AppShellUser } from "~/components/ui/UiAppShell/UiAppShell.types";
@@ -17,6 +18,7 @@ import { useUserProfileQuery } from "~/features/profile/composables/use-user-pro
 import { useUserStore } from "~/stores/user";
 import { useLogout } from "~/composables/useLogout";
 import { isFeatureEnabled } from "~/shared/feature-flags";
+import { useOnboarding } from "~/features/onboarding/composables/useOnboarding";
 
 const { t } = useI18n();
 const route = useRoute();
@@ -43,6 +45,7 @@ const ALL_NAV_ITEMS = computed<NavItemDefinition[]>(() => [
   { key: "transactions", label: t("nav.transactions"), to: "/transactions", icon: ArrowLeftRight },
   { key: "portfolio", label: t("nav.portfolio"), to: "/portfolio", icon: Briefcase, flagKey: "web.pages.portfolio" },
   { key: "goals", label: t("nav.goals"), to: "/goals", icon: Target, flagKey: "web.pages.goals" },
+  { key: "budgets", label: t("nav.budgets"), to: "/budgets", icon: PiggyBank, flagKey: "web.pages.budgets" },
   { key: "alerts", label: t("nav.alerts"), to: "/alerts", icon: Bell, flagKey: "web.pages.alerts" },
   { key: "simulations", label: t("nav.simulations"), to: "/simulations", icon: Calculator, flagKey: "web.pages.simulations" },
   { key: "sharedEntries", label: t("nav.sharedEntries"), to: "/shared-entries", icon: Share2, flagKey: "web.pages.shared-entries" },
@@ -66,6 +69,8 @@ const user = computed<AppShellUser>(() => ({
 const pageTitle = computed(() => (route.meta.pageTitle as string | undefined) ?? "Auraxis");
 const pageSubtitle = computed(() => route.meta.pageSubtitle as string | undefined);
 
+const { shouldShow: showOnboardingWizard } = useOnboarding();
+
 const showProfileModal = ref(false);
 
 const _profileModalFlagKey = computed((): string => {
@@ -87,7 +92,7 @@ const _dismissProfileModal = (): void => {
 watch(
   () => userStore.isLoaded && !userStore.isProfileComplete,
   (shouldShow) => {
-    if (shouldShow && !_isProfileModalDismissed.value) {
+    if (shouldShow && !_isProfileModalDismissed.value && !showOnboardingWizard.value) {
       showProfileModal.value = true;
     }
   },
@@ -126,5 +131,6 @@ function onLogout(): void {
       @saved="showProfileModal = false"
     />
   </UiAppShell>
+  <OnboardingWizard />
   </div>
 </template>
