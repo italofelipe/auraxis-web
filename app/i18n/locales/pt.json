@@ -173,7 +173,15 @@
         "goalProjection": "Projeção de Meta",
         "investmentReturn": "Retorno"
       },
-      "empty": "Nenhuma simulação encontrada para o filtro selecionado."
+      "empty": "Nenhuma simulação encontrada para o filtro selecionado.",
+      "emptyAllTitle": "Nenhuma simulação salva",
+      "emptyAllDescription": "Use as ferramentas abaixo para criar sua primeira projeção financeira.",
+      "typeSelect": {
+        "label": "Que tipo de simulação você quer criar?",
+        "installmentVsCash": "Parcelamento × À vista",
+        "goalProjection": "Projeção de Meta",
+        "investmentReturn": "Retorno de Investimento"
+      }
     },
     "sharedEntries": {
       "title": "Entradas Compartilhadas",

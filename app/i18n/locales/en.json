@@ -173,7 +173,15 @@
         "goalProjection": "Goal Projection",
         "investmentReturn": "Return"
       },
-      "empty": "No simulations found for the selected filter."
+      "empty": "No simulations found for the selected filter.",
+      "emptyAllTitle": "No simulations saved yet",
+      "emptyAllDescription": "Use the tools below to create your first financial projection.",
+      "typeSelect": {
+        "label": "What type of simulation do you want to create?",
+        "installmentVsCash": "Installment vs Cash",
+        "goalProjection": "Goal Projection",
+        "investmentReturn": "Investment Return"
+      }
     },
     "sharedEntries": {
       "title": "Shared Entries",
