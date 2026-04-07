@@ -1,3 +1,4 @@
+import { useI18n } from "vue-i18n";
 import type { DashboardTimeseriesPoint } from "~/features/dashboard/model/dashboard-overview";
 import { colors } from "~/theme/tokens/colors";
 import type { ChartSeries, ChartSeriesResult } from "./types";
@@ -16,13 +17,14 @@ const TIMESERIES_SERIES: Record<TimeseriesKey, SeriesMeta> = {
 };
 
 /**
- * Formats an ISO calendar date to a compact PT-BR label.
+ * Formats an ISO calendar date to a compact localized label.
  *
  * @param dateStr ISO date string (YYYY-MM-DD).
+ * @param locale  BCP 47 locale string.
  * @returns Compact localized date label.
  */
-const formatLabel = (dateStr: string): string =>
-  new Intl.DateTimeFormat("pt-BR", {
+const formatLabel = (dateStr: string, locale: string): string =>
+  new Intl.DateTimeFormat(locale, {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -52,11 +54,13 @@ export interface ChartSeriesMapperResult {
  * @returns Object with chart mapping utilities.
  */
 export function useChartSeriesMapper(): ChartSeriesMapperResult {
+  const { locale } = useI18n();
+
   /**
    * Maps an array of dashboard timeseries points to normalized chart series.
    *
    * @param points Array of timeseries data points.
-   * @returns Normalized chart series result with PT-BR labels and design-token colors.
+   * @returns Normalized chart series result with locale-aware labels and design-token colors.
    */
   const mapTimeseries = (points: DashboardTimeseriesPoint[]): ChartSeriesResult => {
     if (points.length === 0) {
@@ -66,7 +70,7 @@ export function useChartSeriesMapper(): ChartSeriesMapperResult {
       return { labels: [], series: emptySeries, isEmpty: true };
     }
 
-    const labels = points.map((p) => formatLabel(p.date));
+    const labels = points.map((p) => formatLabel(p.date, locale.value));
 
     const series: ChartSeries[] = (["income", "expense", "balance"] as TimeseriesKey[]).map(
       (key) => ({

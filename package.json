@@ -61,6 +61,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.1",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@nuxt/eslint": "1.15.2",
@@ -86,6 +87,7 @@
     "rollup-plugin-visualizer": "^7.0.1",
     "storybook": "9.1.20",
     "typescript": "^5.8.3",
+    "vite": "7.3.2",
     "vitest": "^4.1.2",
     "vue-tsc": "^2.2.12"
   },
@@ -104,7 +106,9 @@
       "flatted": ">=3.4.2",
       "picomatch": ">=4.0.4",
       "node-forge": ">=1.4.0",
-      "defu": ">=6.1.5"
+      "defu": ">=6.1.5",
+      "vite": "7.3.2",
+      "serialize-javascript": ">=7.0.3"
     },
     "onlyBuiltDependencies": [
       "@parcel/watcher",

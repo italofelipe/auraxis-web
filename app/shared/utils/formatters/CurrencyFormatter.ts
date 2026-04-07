@@ -1,14 +1,15 @@
-const DEFAULT_LOCALE = "pt-BR";
 const DEFAULT_CURRENCY = "BRL";
 
 /**
- * Formata valor como moeda BRL.
- * @param value - Valor numérico a formatar.
- * @param currency - Código ISO da moeda (padrão: BRL).
- * @returns String formatada, ex: "R$ 1.234,56".
+ * Formats a value as a currency string.
+ *
+ * @param value    Numeric value to format.
+ * @param currency ISO 4217 currency code (default `"BRL"`).
+ * @param locale   BCP 47 locale string (default `"pt-BR"`).
+ * @returns Formatted string, e.g. `"R$ 1.234,56"`.
  */
-const format = (value: number, currency = DEFAULT_CURRENCY): string =>
-  new Intl.NumberFormat(DEFAULT_LOCALE, {
+const format = (value: number, currency = DEFAULT_CURRENCY, locale = "pt-BR"): string =>
+  new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
     minimumFractionDigits: 2,
@@ -16,12 +17,14 @@ const format = (value: number, currency = DEFAULT_CURRENCY): string =>
   }).format(value);
 
 /**
- * Formata como moeda compacta (K/mi).
- * @param value - Valor numérico a formatar.
- * @returns String compacta, ex: "R$ 1,5 mi".
+ * Formats a value as a compact currency string (K/mi).
+ *
+ * @param value  Numeric value to format.
+ * @param locale BCP 47 locale string (default `"pt-BR"`).
+ * @returns Compact string, e.g. `"R$ 1,5 mi"`.
  */
-const formatCompact = (value: number): string =>
-  new Intl.NumberFormat(DEFAULT_LOCALE, {
+const formatCompact = (value: number, locale = "pt-BR"): string =>
+  new Intl.NumberFormat(locale, {
     style: "currency",
     currency: DEFAULT_CURRENCY,
     notation: "compact",
@@ -30,9 +33,11 @@ const formatCompact = (value: number): string =>
   }).format(value);
 
 /**
- * Remove formatação e retorna número puro.
- * @param formatted - String monetária formatada, ex: "R$ 1.234,56".
- * @returns Número puro, ex: 1234.56.
+ * Removes BRL formatting and returns a raw number.
+ * Note: parser is locale-specific to pt-BR (dot = thousands, comma = decimal).
+ *
+ * @param formatted Formatted string, e.g. `"R$ 1.234,56"`.
+ * @returns Raw number, e.g. `1234.56`.
  */
 const parse = (formatted: string): number => {
   const cleaned = formatted
@@ -43,7 +48,7 @@ const parse = (formatted: string): number => {
 };
 
 /**
- * Formatador de valores monetários no padrão BRL.
- * Princípio: puro, sem side effects, 100% testável.
+ * Formatter for BRL monetary values.
+ * Pure, side-effect-free, 100% testable.
  */
 export const CurrencyFormatter = { format, formatCompact, parse };

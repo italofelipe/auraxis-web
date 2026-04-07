@@ -293,7 +293,8 @@ const annualDiscountPercent = computed(() =>
 
 .plans-page__popular-badge {
   background: var(--color-brand-500);
-  color: #fff;
+  /* dark text on amber: #ffbe4d bg gives ~11.9:1 vs #000, WCAG AA ✓ */
+  color: #1a0700;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
   text-align: center;
