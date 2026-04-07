@@ -87,6 +87,7 @@
     "rollup-plugin-visualizer": "^7.0.1",
     "storybook": "9.1.20",
     "typescript": "^5.8.3",
+    "vite": "7.3.2",
     "vitest": "^4.1.2",
     "vue-tsc": "^2.2.12"
   },
@@ -128,7 +129,7 @@
   "version": "1.0.0",
   "pnpm": {
     "overrides": {
-      "vite": ">=7.3.2",
+      "vite": "7.3.2",
       "serialize-javascript": ">=7.0.3"
     }
   }
