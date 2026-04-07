@@ -114,7 +114,10 @@ export default defineNuxtConfig({
   modules: [
     "@sentry/nuxt/module", // Error tracking e source maps (opt-in via NUXT_PUBLIC_SENTRY_DSN)
     "@nuxt/eslint",       // Lint integrado ao Nuxt (gera eslint.config via `nuxt lint`)
-    "@nuxt/content",      // CMS baseado em arquivos Markdown/YAML/JSON
+    // @nuxt/content excluded in test env: its SQLite init (better-sqlite3 native
+    // binding) fails in CI when pnpm store cache is cold. Content CMS is only
+    // needed at runtime and in dev; E2E tests cover any content-driven pages.
+    ...(process.env.NODE_ENV !== "test" ? ["@nuxt/content" as const] : []),
     "@nuxt/scripts",      // Carregamento otimizado de scripts de terceiros
     "@nuxt/a11y",         // Auditor de acessibilidade em dev
     // "@nuxt/hints" removed — its virtual config import returned 400 in the
