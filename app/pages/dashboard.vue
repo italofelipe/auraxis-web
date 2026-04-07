@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { NButton, NDatePicker, NSelect } from "naive-ui";
 import {
   DASHBOARD_PERIOD_OPTIONS,
@@ -7,6 +8,7 @@ import {
   type DashboardOverviewFilters,
 } from "~/composables/useDashboard";
 import type { DashboardPeriod } from "~/features/dashboard/model/dashboard-period";
+import { useDueRangeQuery } from "~/features/transactions/queries/use-due-range-query";
 import { formatCurrency } from "~/utils/currency";
 
 const { t } = useI18n();
@@ -62,6 +64,15 @@ const expensesByCategory = computed(() => overview.value?.expensesByCategory ?? 
 const goals = computed(() => overview.value?.goals ?? []);
 const alerts = computed(() => overview.value?.alerts ?? []);
 const portfolio = computed(() => overview.value?.portfolio ?? null);
+
+// Due-range panel (PROD-14) — always shows next 30 days regardless of period selector.
+const dueRangeFilters = computed(() => {
+  const today = new Date().toISOString().slice(0, 10);
+  const end = new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10);
+  return { start_date: today, end_date: end, per_page: 50, order_by: "overdue_first" as const };
+});
+const dueRangeQuery = useDueRangeQuery(dueRangeFilters);
+const dueTransactions = computed(() => dueRangeQuery.data.value?.transactions ?? []);
 
 const isCustomPeriodIncomplete = computed(
   () => selectedPeriod.value === "custom" && (!customStartTs.value || !customEndTs.value),
@@ -172,6 +183,14 @@ const emptyMessage = computed(() =>
             @retry="trendsQuery.refetch()"
           />
         </section>
+
+        <!-- ── Due-date panel (PROD-14) ──────────────────────────────────── -->
+        <UiSurfaceCard class="dashboard-due-dates">
+          <DueDateList
+            :transactions="dueTransactions"
+            :is-loading="dueRangeQuery.isLoading.value"
+          />
+        </UiSurfaceCard>
 
         <section class="dashboard-main-grid">
           <DashboardAlerts
