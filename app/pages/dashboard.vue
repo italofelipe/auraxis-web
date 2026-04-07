@@ -9,6 +9,8 @@ import {
 } from "~/composables/useDashboard";
 import type { DashboardPeriod } from "~/features/dashboard/model/dashboard-period";
 import { useDueRangeQuery } from "~/features/transactions/queries/use-due-range-query";
+import { useWalletEntriesQuery } from "~/features/wallet/queries/use-wallet-entries-query";
+import { useFinancialHealthScore } from "~/features/dashboard/composables/useFinancialHealthScore";
 import { formatCurrency } from "~/utils/currency";
 
 const { t } = useI18n();
@@ -73,6 +75,20 @@ const dueRangeFilters = computed(() => {
 });
 const dueRangeQuery = useDueRangeQuery(dueRangeFilters);
 const dueTransactions = computed(() => dueRangeQuery.data.value?.transactions ?? []);
+
+// Health Score (PROD-01) — wallet entries + trends + dashboard summary + goals.
+const walletEntriesQuery = useWalletEntriesQuery();
+const healthScoreInput = computed(() => ({
+  summary: summary.value,
+  goals: goals.value,
+  trends: trendsSeries.value,
+  portfolioValue: portfolio.value?.currentValue ?? null,
+  walletEntries: walletEntriesQuery.data.value ?? [],
+}));
+const { score: healthScore } = useFinancialHealthScore(healthScoreInput);
+const isHealthScoreLoading = computed(
+  () => dashboardQuery.isLoading.value || trendsQuery.isLoading.value || walletEntriesQuery.isLoading.value,
+);
 
 const isCustomPeriodIncomplete = computed(
   () => selectedPeriod.value === "custom" && (!customStartTs.value || !customEndTs.value),
@@ -168,6 +184,13 @@ const emptyMessage = computed(() =>
       />
 
       <template v-else>
+        <!-- ── Health Score (PROD-01) ────────────────────────────────────── -->
+        <FinancialHealthScore
+          :result="healthScore"
+          :loading="isHealthScoreLoading"
+          class="dashboard-health-score"
+        />
+
         <!-- ── ECharts panels ──────────────────────────────────────────────── -->
         <section class="dashboard-charts-grid">
           <DashboardIncomeExpenseChart
@@ -244,6 +267,10 @@ const emptyMessage = computed(() =>
 .dashboard-page {
   display: grid;
   gap: var(--space-3);
+}
+
+.dashboard-health-score {
+  width: 100%;
 }
 
 .dashboard-page__topbar {
