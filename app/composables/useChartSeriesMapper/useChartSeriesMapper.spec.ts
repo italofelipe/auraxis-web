@@ -1,7 +1,13 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+import { ref } from "vue";
+
 import { useChartSeriesMapper } from "./useChartSeriesMapper";
 import { colors } from "~/theme/tokens/colors";
 import type { DashboardTimeseriesPoint } from "~/features/dashboard/model/dashboard-overview";
+
+vi.mock("vue-i18n", () => ({
+  useI18n: (): { locale: ReturnType<typeof ref<string>> } => ({ locale: ref("pt-BR") }),
+}));
 
 /**
  * Creates a DashboardTimeseriesPoint fixture for testing.

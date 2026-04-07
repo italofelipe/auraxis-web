@@ -1,79 +1,74 @@
 /**
  * Date formatting utilities for the Auraxis web application.
  *
- * All functions use the `pt-BR` locale and the browser-native `Intl` API,
- * which is already used by `currency.ts` and `month.ts` to keep the bundle
- * free of third-party date libraries for simple display needs.
+ * All functions accept an optional `locale` parameter (defaults to `"pt-BR"`).
+ * Components that need locale-aware formatting should pass
+ * `useI18n().locale.value` to respect the active application language.
  */
-
-const dateFormatter = new Intl.DateTimeFormat("pt-BR", {
-  day: "2-digit",
-  month: "2-digit",
-  year: "numeric",
-  timeZone: "UTC",
-});
-
-const relativeTimeFormatter = new Intl.RelativeTimeFormat("pt-BR", {
-  numeric: "always",
-});
-
-/** Milliseconds per minute. */
-const MS_PER_MINUTE = 60_000;
-
-/** Milliseconds per hour. */
-const MS_PER_HOUR = 3_600_000;
-
-/** Milliseconds per day. */
-const MS_PER_DAY = 86_400_000;
 
 /**
- * Formats a date value as `dd/mm/yyyy` using the `pt-BR` locale.
+ * Formats a date value as `dd/mm/yyyy` (pt-BR) or the locale-equivalent.
  *
- * @param date Date instance or ISO-8601 string to format.
+ * @param date   Date instance or ISO-8601 string to format.
+ * @param locale BCP 47 locale string (default `"pt-BR"`).
  * @returns Human-readable date string, e.g. `"28/03/2026"`.
  */
-export const formatDate = (date: Date | string): string => {
+export const formatDate = (date: Date | string, locale = "pt-BR"): string => {
   const parsed = typeof date === "string" ? new Date(date) : date;
-  return dateFormatter.format(parsed);
+  return new Intl.DateTimeFormat(locale, {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(parsed);
 };
 
 /**
- * Returns a human-readable relative time string in `pt-BR`,
- * e.g. `"há 3 dias"`, `"há 2 horas"`, `"há 5 minutos"`, or `"agora"`.
+ * Returns a human-readable relative time string,
+ * e.g. `"há 3 dias"` (pt-BR) or `"3 days ago"` (en).
  *
  * Relative values are resolved against `Date.now()` at call time.
  *
- * @param date Date instance or ISO-8601 string to compare against now.
+ * @param date   Date instance or ISO-8601 string to compare against now.
+ * @param locale BCP 47 locale string (default `"pt-BR"`).
  * @returns Localised relative time string.
  */
-export const formatRelativeTime = (date: Date | string): string => {
+export const formatRelativeTime = (date: Date | string, locale = "pt-BR"): string => {
   const parsed = typeof date === "string" ? new Date(date) : date;
   const diffMs = parsed.getTime() - Date.now();
-
   const absMs = Math.abs(diffMs);
 
+  const formatter = new Intl.RelativeTimeFormat(locale, { numeric: "always" });
+
+  /** Milliseconds per minute. */
+  const MS_PER_MINUTE = 60_000;
+  /** Milliseconds per hour. */
+  const MS_PER_HOUR = 3_600_000;
+  /** Milliseconds per day. */
+  const MS_PER_DAY = 86_400_000;
+
   if (absMs < MS_PER_MINUTE) {
-    return relativeTimeFormatter.format(Math.round(diffMs / 1_000), "second");
+    return formatter.format(Math.round(diffMs / 1_000), "second");
   }
-
   if (absMs < MS_PER_HOUR) {
-    return relativeTimeFormatter.format(Math.round(diffMs / MS_PER_MINUTE), "minute");
+    return formatter.format(Math.round(diffMs / MS_PER_MINUTE), "minute");
   }
-
   if (absMs < MS_PER_DAY) {
-    return relativeTimeFormatter.format(Math.round(diffMs / MS_PER_HOUR), "hour");
+    return formatter.format(Math.round(diffMs / MS_PER_HOUR), "hour");
   }
-
-  return relativeTimeFormatter.format(Math.round(diffMs / MS_PER_DAY), "day");
+  return formatter.format(Math.round(diffMs / MS_PER_DAY), "day");
 };
 
 /**
  * Formats a date range as `"dd/mm/yyyy – dd/mm/yyyy"` (en-dash separator).
  *
- * @param start Start of the range (Date instance or ISO-8601 string).
- * @param end End of the range (Date instance or ISO-8601 string).
+ * @param start  Start of the range (Date instance or ISO-8601 string).
+ * @param end    End of the range (Date instance or ISO-8601 string).
+ * @param locale BCP 47 locale string (default `"pt-BR"`).
  * @returns Human-readable date range string.
  */
-export const formatDateRange = (start: Date | string, end: Date | string): string => {
-  return `${formatDate(start)} – ${formatDate(end)}`;
-};
+export const formatDateRange = (
+  start: Date | string,
+  end: Date | string,
+  locale = "pt-BR",
+): string => `${formatDate(start, locale)} – ${formatDate(end, locale)}`;
