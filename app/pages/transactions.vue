@@ -34,6 +34,10 @@ import type {
   TransactionStatusDto,
   TransactionTypeDto,
 } from "~/features/transactions/contracts/transaction.dto";
+import {
+  useRecurrenceDetection,
+  type RecurrencePattern,
+} from "~/features/transactions/composables/useRecurrenceDetection";
 import { formatCurrency } from "~/utils/currency";
 
 // ── Page meta ─────────────────────────────────────────────────────────────────
@@ -94,6 +98,70 @@ const { data: accounts } = useAccountsQuery();
 
 const deleteMutation = useDeleteTransactionMutation();
 const markPaidMutation = useMarkTransactionPaidMutation();
+
+// ── Recurrence detection (PROD-13) ───────────────────────────────────────────
+
+const NEVER_KEY = "auraxis:recurrence:never";
+
+/** Keys the user has permanently dismissed. Hydrated from localStorage. */
+const neverSuggestKeys = ref<Set<string>>(
+  ((): Set<string> => {
+    try {
+      const raw = localStorage.getItem(NEVER_KEY);
+      return new Set<string>(raw ? (JSON.parse(raw) as string[]) : []);
+    } catch {
+      return new Set<string>();
+    }
+  })(),
+);
+
+/** Keys dismissed only for this session (not persisted). */
+const sessionDismissedKeys = ref<Set<string>>(new Set());
+
+const allTransactions = computed(() => data.value ?? []);
+const { patterns: detectedPatterns } = useRecurrenceDetection(allTransactions);
+
+/** Patterns still actionable (not dismissed or permanently ignored). */
+const visiblePatterns = computed(() =>
+  detectedPatterns.value.filter(
+    (p) => !neverSuggestKeys.value.has(p.groupKey) && !sessionDismissedKeys.value.has(p.groupKey),
+  ),
+);
+
+/**
+ * Hides a suggestion for this session only.
+ *
+ * @param groupKey The pattern's group key.
+ */
+function handleRecurrenceDismiss(groupKey: string): void {
+  sessionDismissedKeys.value = new Set([...sessionDismissedKeys.value, groupKey]);
+}
+
+/**
+ * Permanently hides a suggestion and persists to localStorage.
+ *
+ * @param groupKey The pattern's group key.
+ */
+function handleRecurrenceNever(groupKey: string): void {
+  const next = new Set([...neverSuggestKeys.value, groupKey]);
+  neverSuggestKeys.value = next;
+  try {
+    localStorage.setItem(NEVER_KEY, JSON.stringify([...next]));
+  } catch {
+    // Ignore storage errors (private mode, quota exceeded, etc.)
+  }
+}
+
+/**
+ * Opens the expense quick-add modal pre-tagged with the detected pattern's
+ * title, dismissed from the suggestion list for this session.
+ *
+ * @param pattern The confirmed recurrence pattern.
+ */
+function handleRecurrenceConfirm(pattern: RecurrencePattern): void {
+  sessionDismissedKeys.value = new Set([...sessionDismissedKeys.value, pattern.groupKey]);
+  showExpense.value = true;
+}
 
 // ── Lookup maps ───────────────────────────────────────────────────────────────
 
@@ -720,6 +788,22 @@ const rowKey = (row: TransactionDto): string => row.id;
       @close="showPayConfirm = false"
     />
 
+    <!-- ── Recurrence suggestions (PROD-13) ──────────────────────────────────── -->
+    <div
+      v-if="visiblePatterns.length > 0"
+      class="transactions-page__recurrence"
+      aria-label="Sugestões de recorrência"
+    >
+      <RecurrenceSuggestionCard
+        v-for="pattern in visiblePatterns"
+        :key="pattern.groupKey"
+        :pattern="pattern"
+        @confirm="handleRecurrenceConfirm"
+        @dismiss="handleRecurrenceDismiss"
+        @never="handleRecurrenceNever"
+      />
+    </div>
+
     <!-- ── Summary strip ─────────────────────────────────────────────────────── -->
     <div class="transactions-page__summary">
       <div class="summary-card summary-card--income">
@@ -836,6 +920,12 @@ const rowKey = (row: TransactionDto): string => row.id;
   flex-direction: column;
   gap: var(--space-3);
   padding: var(--space-3);
+}
+
+/* ── Recurrence suggestions ─────────────────────────────────────────────────── */
+.transactions-page__recurrence {
+  display: grid;
+  gap: var(--space-2);
 }
 
 /* ── Summary strip ──────────────────────────────────────────────────────────── */
