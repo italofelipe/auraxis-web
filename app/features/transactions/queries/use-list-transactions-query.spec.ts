@@ -93,4 +93,30 @@ describe("useListTransactionsQuery", () => {
 
     expect(query.queryKey).toEqual(["transactions", "list", filters]);
   });
+
+  it("passes tag_id filter to client.listTransactions", async () => {
+    const client = { listTransactions: vi.fn().mockResolvedValue([]) };
+    const filters = { tag_id: "tag-uuid-123" };
+
+    const query = useListTransactionsQuery(filters, client as never) as unknown as {
+      queryFn: () => Promise<TransactionDto[]>;
+    };
+
+    await query.queryFn();
+
+    expect(client.listTransactions).toHaveBeenCalledWith(filters);
+  });
+
+  it("passes date range filters to client.listTransactions", async () => {
+    const client = { listTransactions: vi.fn().mockResolvedValue([]) };
+    const filters = { start_date: "2026-01-01", end_date: "2026-03-31" };
+
+    const query = useListTransactionsQuery(filters, client as never) as unknown as {
+      queryFn: () => Promise<TransactionDto[]>;
+    };
+
+    await query.queryFn();
+
+    expect(client.listTransactions).toHaveBeenCalledWith(filters);
+  });
 });

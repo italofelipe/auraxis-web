@@ -52,12 +52,14 @@ const makePayload = (): CreateTransactionPayload => ({
 
 describe("TransactionsClient", () => {
   let httpPostMock: ReturnType<typeof vi.fn>;
+  let httpGetMock: ReturnType<typeof vi.fn>;
   let client: TransactionsClient;
 
   beforeEach(() => {
     vi.clearAllMocks();
     httpPostMock = vi.fn();
-    mockedAxiosCreate.mockReturnValue({ post: httpPostMock } as never);
+    httpGetMock = vi.fn();
+    mockedAxiosCreate.mockReturnValue({ post: httpPostMock, get: httpGetMock } as never);
     client = new TransactionsClient(axios.create());
   });
 
@@ -121,6 +123,63 @@ describe("TransactionsClient", () => {
       httpPostMock.mockRejectedValueOnce(new Error("network error"));
 
       await expect(client.createTransaction(makePayload())).rejects.toThrow("network error");
+    });
+  });
+
+  describe("listTransactions", () => {
+    it("passes tag_id as a query parameter when provided", async () => {
+      httpGetMock.mockResolvedValueOnce({ data: { data: { transactions: [] } } });
+
+      await client.listTransactions({ tag_id: "tag-uuid-abc" });
+
+      expect(httpGetMock).toHaveBeenCalledWith("/transactions", {
+        params: { tag_id: "tag-uuid-abc" },
+      });
+    });
+
+    it("passes date range filters as query parameters", async () => {
+      httpGetMock.mockResolvedValueOnce({ data: { data: { transactions: [] } } });
+
+      await client.listTransactions({ start_date: "2026-01-01", end_date: "2026-03-31" });
+
+      expect(httpGetMock).toHaveBeenCalledWith("/transactions", {
+        params: { start_date: "2026-01-01", end_date: "2026-03-31" },
+      });
+    });
+
+    it("returns an empty array when the envelope contains no transactions", async () => {
+      httpGetMock.mockResolvedValueOnce({ data: { data: { transactions: [] } } });
+
+      const result = await client.listTransactions();
+
+      expect(result).toEqual([]);
+    });
+
+    it("unwraps transactions from the v2 envelope shape", async () => {
+      const txn = makeTransaction();
+      httpGetMock.mockResolvedValueOnce({ data: { data: { transactions: [txn] } } });
+
+      const result = await client.listTransactions();
+
+      expect(result).toEqual([txn]);
+    });
+
+    it("falls back to the root-level transactions key for legacy responses", async () => {
+      const txn = makeTransaction();
+      httpGetMock.mockResolvedValueOnce({ data: { transactions: [txn] } });
+
+      const result = await client.listTransactions();
+
+      expect(result).toEqual([txn]);
+    });
+
+    it("returns a bare array response directly", async () => {
+      const txn = makeTransaction();
+      httpGetMock.mockResolvedValueOnce({ data: [txn] });
+
+      const result = await client.listTransactions();
+
+      expect(result).toEqual([txn]);
     });
   });
 });

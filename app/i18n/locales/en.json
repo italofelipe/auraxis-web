@@ -1401,7 +1401,10 @@
     "filter": {
       "all": "All",
       "income": "Income",
-      "expense": "Expenses"
+      "expense": "Expenses",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "clear": "Clear filters"
     },
     "sort": {
       "date": "Date",

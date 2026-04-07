@@ -1401,7 +1401,10 @@
     "filter": {
       "all": "Todos",
       "income": "Receitas",
-      "expense": "Despesas"
+      "expense": "Despesas",
+      "startDate": "Data início",
+      "endDate": "Data fim",
+      "clear": "Limpar filtros"
     },
     "sort": {
       "date": "Data",

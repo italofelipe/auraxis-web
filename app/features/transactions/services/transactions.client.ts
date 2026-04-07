@@ -50,6 +50,8 @@ export interface ListTransactionsFilters {
   readonly start_date?: string;
   /** Latest due_date to include (YYYY-MM-DD). */
   readonly end_date?: string;
+  /** Filter by tag UUID. */
+  readonly tag_id?: string;
 }
 
 /**
