@@ -106,7 +106,9 @@
       "flatted": ">=3.4.2",
       "picomatch": ">=4.0.4",
       "node-forge": ">=1.4.0",
-      "defu": ">=6.1.5"
+      "defu": ">=6.1.5",
+      "vite": "7.3.2",
+      "serialize-javascript": ">=7.0.3"
     },
     "onlyBuiltDependencies": [
       "@parcel/watcher",
@@ -126,11 +128,5 @@
       "prettier --write"
     ]
   },
-  "version": "1.0.0",
-  "pnpm": {
-    "overrides": {
-      "vite": "7.3.2",
-      "serialize-javascript": ">=7.0.3"
-    }
-  }
+  "version": "1.0.0"
 }
