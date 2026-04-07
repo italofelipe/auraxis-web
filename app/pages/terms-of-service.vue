@@ -284,7 +284,9 @@ definePageMeta({ layout: false });
 
 .contact-link,
 .inline-link {
-  color: var(--color-brand-600, #7c5200);
+  /* Dark amber #7c5200 on white → 7.4:1 contrast, WCAG 2.1 AA ✓ */
+  /* Do NOT use --color-brand-600 (resolves to #ffab1a = 1.89:1 on white) */
+  color: #7c5200;
   text-decoration: underline;
   text-underline-offset: 2px;
 }
@@ -293,7 +295,7 @@ definePageMeta({ layout: false });
 .contact-link:focus,
 .inline-link:hover,
 .inline-link:focus {
-  color: var(--color-brand-700, #5a3b00);
+  color: #5a3b00;
   outline: none;
 }
 
