@@ -190,7 +190,7 @@ definePageMeta({ layout: false });
 
 .back-link {
   text-decoration: none;
-  color: var(--color-neutral-700);
+  color: var(--color-neutral-700, #404040);
   font-weight: var(--font-weight-semibold);
   font-size: var(--font-size-body-sm);
   line-height: var(--line-height-body-sm);
@@ -199,13 +199,13 @@ definePageMeta({ layout: false });
 
 .back-link:hover,
 .back-link:focus {
-  color: var(--color-brand-600);
+  color: var(--color-brand-700, #7c5200);
   outline: none;
 }
 
 .nav-link {
   text-decoration: none;
-  color: var(--color-neutral-700);
+  color: var(--color-neutral-700, #404040);
   font-weight: var(--font-weight-semibold);
   font-size: var(--font-size-body-sm);
   line-height: var(--line-height-body-sm);
@@ -213,7 +213,7 @@ definePageMeta({ layout: false });
 
 .nav-link:hover,
 .nav-link:focus {
-  color: var(--color-brand-600);
+  color: var(--color-brand-700, #7c5200);
   outline: none;
 }
 
@@ -249,7 +249,7 @@ definePageMeta({ layout: false });
 .article-meta {
   font-size: var(--font-size-body-sm);
   line-height: var(--line-height-body-sm);
-  color: var(--color-neutral-600);
+  color: var(--color-neutral-600, #525252);
   margin: 0 0 var(--space-1);
 }
 
@@ -262,7 +262,7 @@ definePageMeta({ layout: false });
   font-size: var(--font-size-heading-sm);
   line-height: var(--line-height-heading-sm);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-neutral-900);
+  color: var(--color-neutral-900, #171717);
   margin: 0 0 var(--space-2);
 }
 
@@ -270,7 +270,7 @@ definePageMeta({ layout: false });
 .legal-section p {
   font-size: var(--font-size-body-md);
   line-height: var(--line-height-body-md);
-  color: var(--color-neutral-800);
+  color: var(--color-neutral-800, #262626);
   margin: 0 0 var(--space-2);
 }
 
@@ -284,7 +284,7 @@ definePageMeta({ layout: false });
 
 .contact-link,
 .inline-link {
-  color: var(--color-brand-600);
+  color: var(--color-brand-600, #7c5200);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
@@ -293,7 +293,7 @@ definePageMeta({ layout: false });
 .contact-link:focus,
 .inline-link:hover,
 .inline-link:focus {
-  color: var(--color-brand-700);
+  color: var(--color-brand-700, #5a3b00);
   outline: none;
 }
 
@@ -303,7 +303,7 @@ definePageMeta({ layout: false });
   border-top: 1px solid rgba(38, 33, 33, 0.08);
   font-size: var(--font-size-body-sm);
   line-height: var(--line-height-body-sm);
-  color: var(--color-neutral-600);
+  color: var(--color-neutral-600, #525252);
 }
 
 .article-footer p {
