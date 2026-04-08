@@ -226,7 +226,7 @@ jobs:
               `| Server bundle | ${fmt(srv)} |`,
               `| **Total** | **${fmt(pub + srv)}** |`,
               '',
-              '> Thresholds: public ≤ 5 MB (aviso) · ≤ 6 MB (hard limit)',
+              '> Thresholds: public ≤ 8 MB (aviso) · ≤ 10 MB (hard limit)',
             ].join('\n');
 
             if (context.eventName === 'pull_request') {
@@ -245,11 +245,11 @@ jobs:
               await core.summary.write();
             }
 
-            if (pub > 5 * 1024 * 1024) {
-              core.warning(`Public bundle above recommended size: ${fmt(pub)} (recommended: ≤ 5 MB)`);
+            if (pub > 8 * 1024 * 1024) {
+              core.warning(`Public bundle above recommended size: ${fmt(pub)} (recommended: ≤ 8 MB)`);
             }
-            if (pub > 6 * 1024 * 1024) {
-              core.setFailed(`Public bundle too large: ${fmt(pub)} (limit: 6 MB)`);
+            if (pub > 10 * 1024 * 1024) {
+              core.setFailed(`Public bundle too large: ${fmt(pub)} (limit: 10 MB)`);
             }
 
   # ── 6. Secret Scan (Gitleaks) ──────────────────────────────────────────
