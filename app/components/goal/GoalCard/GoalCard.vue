@@ -11,7 +11,9 @@ import {
 } from "naive-ui";
 import { formatCurrency } from "~/utils/currency";
 import type { GoalCardProps } from "./GoalCard.types";
-import type { GoalStatus } from "~/features/goals/contracts/goal.dto";
+import type { GoalDto, GoalStatus } from "~/features/goals/contracts/goal.dto";
+
+type HealthStatus = "completed" | "at_risk" | "off_track" | "on_track" | "unknown";
 
 const { t } = useI18n();
 
@@ -76,22 +78,57 @@ const statusLabel = (status: GoalStatus): string => {
 /**
  * Formats an ISO date string (YYYY-MM-DD) to a localised short date.
  *
- * @param value - ISO date string.
- * @returns Formatted date string like "31/12/2026".
+ * @param value - ISO date string or null/undefined.
+ * @returns Formatted date string like "31/12/2026", or "Sem prazo" when absent.
  */
-const formatDate = (value: string): string =>
-  new Intl.DateTimeFormat("pt-BR", {
+const formatDate = (value: string | null | undefined): string => {
+  if (!value) { return t("goal.card.noDeadline"); }
+  return new Intl.DateTimeFormat("pt-BR", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
   }).format(new Date(`${value}T00:00:00`));
+};
 
 const progressPercent = computed(() => {
-  if (props.goal.target_amount === 0) {return 0;}
+  if (props.goal.target_amount === 0) { return 0; }
   return Math.min(
     Math.round((props.goal.current_amount / props.goal.target_amount) * 100),
     100,
   );
+});
+
+/**
+ * Derives a health status from the goal's progress and deadline proximity.
+ *
+ * @param goal - The goal to evaluate.
+ * @returns Health status label.
+ */
+function deriveHealthStatus(goal: GoalDto): HealthStatus {
+  if (goal.status === "completed" || (goal.target_amount > 0 && goal.current_amount >= goal.target_amount)) {
+    return "completed";
+  }
+  if (goal.status !== "active") { return "unknown"; }
+  const progress = goal.target_amount > 0 ? (goal.current_amount / goal.target_amount) * 100 : 0;
+  if (goal.target_date) {
+    const daysLeft = Math.floor((new Date(`${goal.target_date}T00:00:00`).getTime() - Date.now()) / 86_400_000);
+    if (daysLeft < 30 && progress < 100) { return "at_risk"; }
+    if (daysLeft < 180 && progress < 50) { return "off_track"; }
+  }
+  return "on_track";
+}
+
+const healthStatus = computed((): HealthStatus => deriveHealthStatus(props.goal));
+
+const healthLabel = computed((): string => {
+  const keyMap: Record<HealthStatus, string> = {
+    completed: "goal.health.completed",
+    on_track: "goal.health.on_track",
+    off_track: "goal.health.off_track",
+    at_risk: "goal.health.at_risk",
+    unknown: "goal.health.unknown",
+  };
+  return t(keyMap[healthStatus.value]);
 });
 </script>
 
@@ -133,6 +170,9 @@ const progressPercent = computed(() => {
           :height="8"
           :border-radius="4"
         />
+        <span class="goal-card__health" :class="`goal-card__health--${healthStatus}`">
+          {{ healthLabel }}
+        </span>
       </div>
 
       <div class="goal-card__stats">
@@ -150,7 +190,7 @@ const progressPercent = computed(() => {
 
       <div class="goal-card__footer">
         <span class="goal-card__target-date">
-          {{ $t('goal.card.targetDate') }} {{ formatDate(props.goal.target_date) }}
+          {{ props.goal.target_date ? $t('goal.card.targetDate') + ' ' + formatDate(props.goal.target_date) : $t('goal.card.noDeadline') }}
         </span>
         <NSpace size="small">
           <NButton size="small" quaternary @click="emit('show-plan')">
@@ -245,6 +285,33 @@ const progressPercent = computed(() => {
 
 .goal-card__target-date {
   font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.goal-card__health {
+  display: inline-block;
+  margin-top: var(--space-1);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.goal-card__health--completed {
+  color: var(--color-success);
+}
+
+.goal-card__health--on_track {
+  color: var(--color-success);
+}
+
+.goal-card__health--off_track {
+  color: var(--color-warning);
+}
+
+.goal-card__health--at_risk {
+  color: var(--color-error);
+}
+
+.goal-card__health--unknown {
   color: var(--color-text-muted);
 }
 </style>

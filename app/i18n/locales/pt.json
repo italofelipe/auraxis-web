@@ -992,6 +992,10 @@
       "fixedIncome": "Renda Fixa",
       "other": "Outros"
     },
+    "staleQuote": {
+      "label": "Cotação desatualizada",
+      "tooltip": "O preço atual não pôde ser obtido. Usando último valor registrado."
+    },
     "positions": {
       "title": "Posições",
       "empty": "Nenhum ativo na carteira."
@@ -1053,11 +1057,19 @@
       "accumulated": "Acumulado",
       "target": "Meta",
       "targetDate": "Meta:",
+      "noDeadline": "Sem prazo",
       "viewDetails": "Ver detalhes",
       "edit": "Editar meta",
       "showPlan": "Ver planejamento",
       "delete": "Excluir meta",
       "deleteConfirm": "Tem certeza que deseja excluir esta meta?"
+    },
+    "health": {
+      "completed": "✓ Concluída",
+      "on_track": "No prazo",
+      "off_track": "Atrasada",
+      "at_risk": "Em risco",
+      "unknown": "—"
     },
     "form": {
       "titleCreate": "Nova Meta",
@@ -1109,6 +1121,13 @@
       "monthsRemainingPlural": "{n} meses restantes",
       "loadError": "Não foi possível carregar o planejamento",
       "loadErrorMessage": "Tente novamente."
+    },
+    "simulate": {
+      "title": "Simulador de Aporte",
+      "monthlyLabel": "Aporte mensal (R$)",
+      "returnLabel": "Rentabilidade anual (%)",
+      "projection": "Projeção: {n} meses (conclusão em {date})",
+      "unreachable": "Com este aporte, a meta não será atingida"
     }
   },
   "alert": {
