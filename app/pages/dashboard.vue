@@ -12,6 +12,7 @@ import { useDueRangeQuery } from "~/features/transactions/queries/use-due-range-
 import { useWalletEntriesQuery } from "~/features/wallet/queries/use-wallet-entries-query";
 import { useFinancialHealthScore } from "~/features/dashboard/composables/useFinancialHealthScore";
 import { formatCurrency } from "~/utils/currency";
+import DashboardTopCategoriesChart from "~/components/dashboard/DashboardTopCategoriesChart/DashboardTopCategoriesChart.vue";
 
 const { t } = useI18n();
 
@@ -206,6 +207,13 @@ const emptyMessage = computed(() =>
             @retry="trendsQuery.refetch()"
           />
         </section>
+
+        <!-- ── Top Expense Categories (PROD-460) ────────────────────────── -->
+        <DashboardTopCategoriesChart
+          :categories="expensesByCategory"
+          :loading="dashboardQuery.isLoading.value"
+          class="dashboard-categories-chart"
+        />
 
         <!-- ── Due-date panel (PROD-14) ──────────────────────────────────── -->
         <UiSurfaceCard class="dashboard-due-dates">
