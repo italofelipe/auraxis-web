@@ -85,6 +85,22 @@ const onFormVisibilityChange = (visible: boolean): void => {
 };
 
 const hasEntries = computed(() => (entries.value?.length ?? 0) > 0);
+
+/**
+ * ID of the currently selected wallet entry for the history chart.
+ * Null means no selection — chart is hidden.
+ */
+const selectedEntryId = ref<string | null>(null);
+
+/**
+ * Updates the selected entry when the user clicks a position card.
+ * Clicking the same card again deselects it (toggle).
+ *
+ * @param id - The wallet entry id that was clicked.
+ */
+const onSelectEntry = (id: string): void => {
+  selectedEntryId.value = selectedEntryId.value === id ? null : id;
+};
 </script>
 
 <template>
@@ -130,7 +146,17 @@ const hasEntries = computed(() => (entries.value?.length ?? 0) > 0);
 
       <template v-else>
         <PortfolioSummaryBar :summary="summary ?? null" />
-        <WalletPositionsPanel :entries="entries ?? []" :is-loading="isLoading" />
+        <WalletPositionsPanel
+          :entries="entries ?? []"
+          :is-loading="isLoading"
+          @select="onSelectEntry"
+        />
+        <WalletHistoryChart
+          v-if="selectedEntryId"
+          :entry-id="selectedEntryId"
+          :entry-name="entries?.find(e => e.id === selectedEntryId)?.name"
+          class="portfolio-history-chart"
+        />
         <WalletAllocationSection :entries="entries ?? []" :is-loading="isLoading" />
         <PortfolioTable
           :entries="entries ?? []"
@@ -194,5 +220,12 @@ const hasEntries = computed(() => (entries.value?.length ?? 0) > 0);
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
   max-width: 360px;
+}
+
+.portfolio-history-chart {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  background: var(--color-bg-elevated);
 }
 </style>

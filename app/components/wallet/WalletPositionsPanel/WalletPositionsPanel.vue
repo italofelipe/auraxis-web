@@ -8,6 +8,24 @@ const { t } = useI18n();
 
 const props = defineProps<WalletPositionsPanelProps>();
 
+const emit = defineEmits<{
+  /**
+   * Emitted when a position card is clicked, carrying the entry id.
+   *
+   * @returns void
+   */
+  (e: "select", id: string): void;
+}>();
+
+/**
+ * Returns true when a ticker entry has a stale (unavailable) quote.
+ *
+ * @param entry - The wallet entry to check.
+ * @returns True if the entry has a ticker but no change_percent.
+ */
+const isStaleQuote = (entry: WalletEntryDto): boolean =>
+  entry.ticker !== null && entry.ticker !== undefined && entry.change_percent === null;
+
 /**
  * Maps an asset_type value to a NaiveUI NTag type.
  *
@@ -93,6 +111,8 @@ const changeColor = (value: number | null): string => {
         :bordered="true"
         size="small"
         class="wallet-positions-panel__card"
+        style="cursor: pointer"
+        @click="emit('select', entry.id)"
       >
         <div class="wpp-card__top">
           <div class="wpp-card__name-row">
@@ -115,6 +135,14 @@ const changeColor = (value: number | null): string => {
             {{ entry.change_percent !== null ? formatPercent(entry.change_percent) : "—" }}
           </span>
         </div>
+
+        <span
+          v-if="isStaleQuote(entry)"
+          class="stale-badge"
+          :title="$t('wallet.staleQuote.tooltip')"
+        >
+          {{ $t('wallet.staleQuote.label') }}
+        </span>
       </NCard>
     </div>
   </div>
@@ -185,5 +213,17 @@ const changeColor = (value: number | null): string => {
 .wpp-card__change {
   font-size: var(--font-size-xs, 0.75rem);
   font-weight: var(--font-weight-semibold);
+}
+
+.stale-badge {
+  display: inline-block;
+  margin-top: var(--space-1);
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-warning, #f0a020);
+  font-weight: var(--font-weight-semibold);
+  border: 1px solid var(--color-warning, #f0a020);
+  border-radius: var(--radius-sm, 4px);
+  padding: 0 var(--space-1);
+  cursor: help;
 }
 </style>

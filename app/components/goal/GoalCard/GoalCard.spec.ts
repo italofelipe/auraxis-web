@@ -135,4 +135,36 @@ describe("GoalCard", () => {
     await planButton!.trigger("click");
     expect(wrapper.emitted("show-plan")).toBeTruthy();
   });
+
+  // ── Health indicator ──────────────────────────────────────────────────────
+
+  it("shows completed health when current_amount equals target_amount", () => {
+    const wrapper = mountGoalCard(makeGoal({ current_amount: 10000, target_amount: 10000, status: "active" }));
+    expect(wrapper.text()).toContain("Concluída");
+  });
+
+  it("shows completed health when current_amount exceeds target_amount", () => {
+    const wrapper = mountGoalCard(makeGoal({ current_amount: 12000, target_amount: 10000, status: "active" }));
+    expect(wrapper.text()).toContain("Concluída");
+  });
+
+  it("shows at_risk health when target_date is within 30 days and progress < 100%", () => {
+    const soon = new Date(Date.now() + 15 * 86_400_000).toISOString().slice(0, 10);
+    const wrapper = mountGoalCard(makeGoal({ target_date: soon, current_amount: 1000, target_amount: 10000, status: "active" }));
+    expect(wrapper.text()).toContain("Em risco");
+  });
+
+  it("does not crash when target_date is null", () => {
+    expect(() =>
+      mountGoalCard(makeGoal({ target_date: null as unknown as string })),
+    ).not.toThrow();
+  });
+
+  it("does not crash and shows 0% when target_amount is 0", () => {
+    expect(() =>
+      mountGoalCard(makeGoal({ target_amount: 0, current_amount: 0 })),
+    ).not.toThrow();
+    const wrapper = mountGoalCard(makeGoal({ target_amount: 0, current_amount: 0 }));
+    expect(wrapper.text()).toContain("0%");
+  });
 });
