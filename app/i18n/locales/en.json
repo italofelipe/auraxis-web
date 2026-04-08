@@ -992,6 +992,10 @@
       "fixedIncome": "Fixed Income",
       "other": "Others"
     },
+    "staleQuote": {
+      "label": "Stale quote",
+      "tooltip": "Current price could not be retrieved. Using last recorded value."
+    },
     "positions": {
       "title": "Positions",
       "empty": "No assets in portfolio."
@@ -1053,11 +1057,19 @@
       "accumulated": "Accumulated",
       "target": "Target",
       "targetDate": "Target:",
+      "noDeadline": "No deadline",
       "viewDetails": "View details",
       "edit": "Edit goal",
       "showPlan": "View plan",
       "delete": "Delete goal",
       "deleteConfirm": "Are you sure you want to delete this goal?"
+    },
+    "health": {
+      "completed": "✓ Completed",
+      "on_track": "On track",
+      "off_track": "Behind",
+      "at_risk": "At risk",
+      "unknown": "—"
     },
     "form": {
       "titleCreate": "New Goal",
@@ -1109,6 +1121,13 @@
       "monthsRemainingPlural": "{n} months remaining",
       "loadError": "Could not load the plan",
       "loadErrorMessage": "Please try again."
+    },
+    "simulate": {
+      "title": "Contribution Simulator",
+      "monthlyLabel": "Monthly contribution (R$)",
+      "returnLabel": "Annual return (%)",
+      "projection": "Projection: {n} months (completion in {date})",
+      "unreachable": "With this contribution, the goal will not be reached"
     }
   },
   "alert": {
