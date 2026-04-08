@@ -3,6 +3,7 @@ import { computed, h, reactive, ref, watch } from "vue";
 import {
   NButton,
   NDataTable,
+  NDatePicker,
   NModal,
   NSelect,
   NSpace,
@@ -25,6 +26,7 @@ import {
 } from "lucide-vue-next";
 
 import { useListTransactionsQuery } from "~/features/transactions/queries/use-list-transactions-query";
+import type { ListTransactionsFilters } from "~/features/transactions/services/transactions.client";
 import { useDeleteTransactionMutation } from "~/features/transactions/queries/use-delete-transaction-mutation";
 import { useMarkTransactionPaidMutation } from "~/features/transactions/queries/use-mark-transaction-paid-mutation";
 import { useTagsQuery } from "~/features/tags/queries/use-tags-query";
@@ -59,6 +61,9 @@ type FilterStatus = TransactionStatusDto | "all";
 
 const filterType = ref<FilterType>("all");
 const filterStatus = ref<FilterStatus>("all");
+const filterStartDate = ref<number | null>(null);
+const filterEndDate = ref<number | null>(null);
+const filterTagId = ref<string | "all">("all");
 
 // ── Modals ────────────────────────────────────────────────────────────────────
 
@@ -88,9 +93,37 @@ const swipingRowId = ref<string | null>(null);
 const swipeDir = ref<"left" | "right" | null>(null);
 const SWIPE_THRESHOLD = 72;
 
+// ── Server-side filter computed ───────────────────────────────────────────────
+
+/**
+ * Builds the filter object forwarded to the API query.
+ *
+ * Type and status filters are sent server-side so the client list is already
+ * scoped. Start/end date timestamps (NDatePicker) are converted to YYYY-MM-DD.
+ *
+ * @returns ListTransactionsFilters or undefined when no active filters.
+ */
+const filters = computed((): ListTransactionsFilters | undefined => {
+	const f: {
+		type?: ListTransactionsFilters["type"];
+		status?: ListTransactionsFilters["status"];
+		start_date?: string;
+		end_date?: string;
+		tag_id?: string;
+	} = {};
+
+	if (filterType.value !== "all") { f.type = filterType.value; }
+	if (filterStatus.value !== "all") { f.status = filterStatus.value; }
+	if (filterStartDate.value) { f.start_date = new Date(filterStartDate.value).toISOString().slice(0, 10); }
+	if (filterEndDate.value) { f.end_date = new Date(filterEndDate.value).toISOString().slice(0, 10); }
+	if (filterTagId.value !== "all") { f.tag_id = filterTagId.value; }
+
+	return Object.keys(f).length > 0 ? f : undefined;
+});
+
 // ── Queries ───────────────────────────────────────────────────────────────────
 
-const { data, isLoading, isError, refetch } = useListTransactionsQuery();
+const { data, isLoading, isError, refetch } = useListTransactionsQuery(filters);
 const { data: tags } = useTagsQuery();
 const { data: accounts } = useAccountsQuery();
 
@@ -191,6 +224,31 @@ const STATUS_OPTIONS = computed((): SelectOption[] => [
   { label: t("transaction.status.postponed"), value: "postponed" },
 ]);
 
+/**
+ * Options for the tag filter dropdown.
+ *
+ * Prepends an "All" entry so the user can clear the tag filter via the select.
+ *
+ * @returns Array of SelectOption derived from the loaded tags list.
+ */
+const tagOptions = computed((): SelectOption[] => [
+	{ label: t("transactions.filter.all"), value: "all" },
+	...(tags.value ?? []).map((tg: { id: string; name: string }) => ({ label: tg.name, value: tg.id })),
+]);
+
+/**
+ * Resets all active filters back to their default (unfiltered) state.
+ *
+ * @returns void
+ */
+const clearFilters = (): void => {
+	filterType.value = "all";
+	filterStatus.value = "all";
+	filterStartDate.value = null;
+	filterEndDate.value = null;
+	filterTagId.value = "all";
+};
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 /**
@@ -240,17 +298,9 @@ const isNearDue = (dueDate: string, status: string): boolean => {
 // ── Processed list ────────────────────────────────────────────────────────────
 
 const processedTransactions = computed((): TransactionDto[] => {
-  let list = data.value ?? [];
-
-  if (filterType.value !== "all") {
-    list = list.filter((tx) => tx.type === filterType.value);
-  }
-
-  if (filterStatus.value !== "all") {
-    list = list.filter((tx) => tx.status === filterStatus.value);
-  }
-
-  return list;
+	// Type and status are sent as server-side query parameters; no client-side
+	// duplication needed. The data array already contains the filtered subset.
+	return data.value ?? [];
 });
 
 /** Table data: respects the local drag-and-drop order when in reorder mode. */
@@ -281,9 +331,9 @@ watch(
 );
 
 // Exit reorder mode when filters change.
-watch([filterType, filterStatus], () => {
-  reorderMode.value = false;
-  localOrder.value = processedTransactions.value.map((tx) => tx.id);
+watch([filterType, filterStatus, filterStartDate, filterEndDate, filterTagId], () => {
+	reorderMode.value = false;
+	localOrder.value = processedTransactions.value.map((tx) => tx.id);
 });
 
 // ── Summary ───────────────────────────────────────────────────────────────────
@@ -719,9 +769,9 @@ const pagination = reactive({
   },
 });
 
-// Reset to first page when filters change.
-watch([filterType, filterStatus], () => {
-  pagination.page = 1;
+// Reset to first page when any filter changes.
+watch([filterType, filterStatus, filterStartDate, filterEndDate, filterTagId], () => {
+	pagination.page = 1;
 });
 
 /**
@@ -837,6 +887,35 @@ const rowKey = (row: TransactionDto): string => row.id;
         size="small"
         style="min-width: 150px"
       />
+      <NDatePicker
+        v-model:value="filterStartDate"
+        type="date"
+        clearable
+        size="small"
+        :placeholder="$t('transactions.filter.startDate')"
+      />
+      <NDatePicker
+        v-model:value="filterEndDate"
+        type="date"
+        clearable
+        size="small"
+        :placeholder="$t('transactions.filter.endDate')"
+      />
+      <NSelect
+        v-model:value="filterTagId"
+        :options="tagOptions"
+        size="small"
+        style="min-width: 140px"
+        clearable
+      />
+      <NButton
+        v-if="filterType !== 'all' || filterStatus !== 'all' || filterStartDate || filterEndDate || filterTagId !== 'all'"
+        size="small"
+        secondary
+        @click="clearFilters"
+      >
+        {{ $t('transactions.filter.clear') }}
+      </NButton>
 
       <!-- Spacer -->
       <div class="transactions-page__toolbar-spacer" />
