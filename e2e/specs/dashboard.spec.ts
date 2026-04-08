@@ -130,8 +130,9 @@ test.describe("Dashboard — MSW-backed flows", () => {
 
 		await expect(page).toHaveURL(/\/dashboard/, { timeout: 10_000 });
 
-		// At least one summary/stat card should be present
-		const cards = page.locator("[data-testid='summary-card'], .summary-card, .stat-card");
-		await expect(cards.first()).toBeVisible({ timeout: 10_000 });
+		// The summary grid section should be present with at least one metric card.
+		// DashboardSummaryGrid renders a <section class="summary-grid"> containing UiMetricCard children.
+		const summaryGrid = page.locator(".summary-grid, [data-testid='summary-grid']");
+		await expect(summaryGrid).toBeVisible({ timeout: 10_000 });
 	});
 });
