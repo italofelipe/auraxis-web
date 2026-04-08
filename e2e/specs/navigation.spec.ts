@@ -105,11 +105,15 @@ test.describe("Navigation — MSW-backed flows", () => {
 
 		await expect(page).toHaveURL(/\/dashboard/, { timeout: 10_000 });
 
-		// Navigate to /goals — either via sidebar link or direct URL
+		// Navigate to /goals — prefer sidebar link when it is within the viewport,
+		// otherwise fall back to direct navigation (mobile viewports collapse the sidebar).
 		const goalsLink = page.getByRole("link", { name: /metas|goals/i }).first();
-		const hasGoalsLink = await goalsLink.isVisible().catch(() => false);
+		const isInViewport = await goalsLink.evaluate((el): boolean => {
+			const rect = el.getBoundingClientRect();
+			return rect.top >= 0 && rect.bottom <= (window.innerHeight ?? document.documentElement.clientHeight);
+		}).catch(() => false);
 
-		if (hasGoalsLink) {
+		if (isInViewport) {
 			await goalsLink.click();
 		} else {
 			await page.goto("/goals");
