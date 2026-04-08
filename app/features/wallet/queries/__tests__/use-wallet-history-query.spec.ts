@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useWalletHistoryQuery } from "../use-wallet-history-query";
 import type { WalletClient, WalletHistoryPoint } from "~/features/wallet/services/wallet.client";
 
@@ -31,6 +31,10 @@ const makeMockClient = (): WalletClient =>
   }) as unknown as WalletClient;
 
 describe("useWalletHistoryQuery", () => {
+  beforeEach((): void => {
+    vi.clearAllMocks();
+  });
+
   it("calls useQuery with the wallet-history query key", (): void => {
     useQueryMock.mockImplementation((opts: unknown) => opts);
 
