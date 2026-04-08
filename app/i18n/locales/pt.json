@@ -992,6 +992,10 @@
       "fixedIncome": "Renda Fixa",
       "other": "Outros"
     },
+    "staleQuote": {
+      "label": "Cotação desatualizada",
+      "tooltip": "O preço atual não pôde ser obtido. Usando último valor registrado."
+    },
     "positions": {
       "title": "Posições",
       "empty": "Nenhum ativo na carteira."

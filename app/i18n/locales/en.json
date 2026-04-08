@@ -992,6 +992,10 @@
       "fixedIncome": "Fixed Income",
       "other": "Others"
     },
+    "staleQuote": {
+      "label": "Stale quote",
+      "tooltip": "Current price could not be retrieved. Using last recorded value."
+    },
     "positions": {
       "title": "Positions",
       "empty": "No assets in portfolio."

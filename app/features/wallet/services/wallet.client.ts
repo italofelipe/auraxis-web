@@ -6,6 +6,16 @@ import type {
   WalletEntryDto,
 } from "~/features/portfolio/contracts/portfolio.dto";
 
+/** Single point in the wallet entry's valuation history. */
+export interface WalletHistoryPoint {
+  /** ISO 8601 date string (YYYY-MM-DD). */
+  readonly date: string;
+  /** Total current market value at this date. */
+  readonly total_value: number;
+  /** Total amount invested (cost basis) at this date. */
+  readonly invested_amount: number;
+}
+
 /**
  * Payload for creating a new wallet entry.
  */
@@ -123,6 +133,22 @@ export class WalletClient {
    */
   async deleteEntry(id: string): Promise<void> {
     await this.#http.delete(`/wallet/${id}`);
+  }
+
+  /**
+   * Fetches the valuation history for a specific wallet entry.
+   *
+   * Normalises both v1 `{ history }` and v2 envelope `{ data: { history } }` responses.
+   *
+   * @param id - Wallet entry UUID.
+   * @returns Array of WalletHistoryPoint records sorted by date ascending.
+   */
+  async getWalletHistory(id: string): Promise<WalletHistoryPoint[]> {
+    const response = await this.#http.get<
+      { data?: { history?: WalletHistoryPoint[] }; history?: WalletHistoryPoint[] }
+    >(`/wallet/${id}/history`);
+    const raw = response.data;
+    return raw.data?.history ?? raw.history ?? [];
   }
 }
 
