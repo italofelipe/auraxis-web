@@ -370,22 +370,32 @@ export default defineNuxtConfig({
 
     // ── Private app — SPA (no prerender, no server HTML) ──────────────
     // Auth middleware enforces access. No financial data in static HTML.
-    "/dashboard":     { ssr: false },
-    "/portfolio":     { ssr: false },
-    "/goals":         { ssr: false },
-    "/alerts":        { ssr: false },
-    "/simulations":   { ssr: false },
-    "/shared-entries":{ ssr: false },
-    "/income":        { ssr: false },
-    "/subscription":  { ssr: false },
-    "/en/dashboard":     { ssr: false },
-    "/en/portfolio":     { ssr: false },
-    "/en/goals":         { ssr: false },
-    "/en/alerts":        { ssr: false },
-    "/en/simulations":   { ssr: false },
-    "/en/shared-entries":{ ssr: false },
-    "/en/income":        { ssr: false },
-    "/en/subscription":  { ssr: false },
+    // IMPORTANT: Every authenticated route MUST be listed here. Without
+    // `ssr: false`, Nuxt falls back to full SSR where `document` is
+    // undefined and `sessionStore.restore()` cannot read the cookie →
+    // `authenticated` middleware always redirects to /login.
+    "/dashboard":      { ssr: false },
+    "/portfolio":      { ssr: false },
+    "/goals":          { ssr: false },
+    "/transactions":   { ssr: false },
+    "/alerts":         { ssr: false },
+    "/simulations":    { ssr: false },
+    "/shared-entries": { ssr: false },
+    "/income":         { ssr: false },
+    "/subscription":   { ssr: false },
+    "/investor-profile":        { ssr: false },
+    "/settings/accounts":       { ssr: false },
+    "/settings/credit-cards":   { ssr: false },
+    "/settings/tags":           { ssr: false },
+    "/en/dashboard":      { ssr: false },
+    "/en/portfolio":      { ssr: false },
+    "/en/goals":          { ssr: false },
+    "/en/transactions":   { ssr: false },
+    "/en/alerts":         { ssr: false },
+    "/en/simulations":    { ssr: false },
+    "/en/shared-entries": { ssr: false },
+    "/en/income":         { ssr: false },
+    "/en/subscription":   { ssr: false },
   },
 
   // ── Nitro ─────────────────────────────────────────────────────────────
