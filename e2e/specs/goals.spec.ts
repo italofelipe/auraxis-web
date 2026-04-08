@@ -37,25 +37,21 @@ const MOCK_OVERVIEW = {
 	portfolio: { currentValue: 25000, costBasis: 20000 },
 };
 
-const MOCK_GOALS = {
-	data: {
-		goals: [
-			{
-				id: "g-1",
-				name: "Reserva de emergência",
-				description: "6 meses de despesas",
-				target_amount: 20000,
-				current_amount: 13000,
-				target_date: "2026-12-31",
-				status: "active",
-				progressPercent: 65,
-				currentAmount: 13000,
-				targetAmount: 20000,
-				targetDate: "2026-12-31",
-			},
-		],
+// GoalsClient.listGoals() does `return response.data` on an Axios GET /goals
+// response, so the mock must return the bare GoalDto[] array — NOT wrapped in
+// { data: { goals: [...] } }. Returning the envelope shape causes the component
+// to receive an object instead of an array and renders no goal cards.
+const MOCK_GOALS: Record<string, unknown>[] = [
+	{
+		id: "g-1",
+		name: "Reserva de emergência",
+		description: "6 meses de despesas",
+		target_amount: 20000,
+		current_amount: 13000,
+		target_date: "2026-12-31",
+		status: "active",
 	},
-};
+];
 
 /**
  * Sets up route mocks for auth, dashboard and goals API.

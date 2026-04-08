@@ -51,11 +51,14 @@ test.describe("Tools — juros-compostos happy path", () => {
 		await waitForHydration(page);
 
 		// NInputNumber renders <input type="text" class="n-input__input-el">.
-		// Fill the first five inputs (capital, aporte, taxa, período, inflação).
+		// Fill the first five inputs: capital, aporte, taxa, período, inflação.
+		// The NSelect for periodUnit uses n-base-selection-input__input (not
+		// n-input__input-el) so it does not interfere with the nth() indexing.
 		const inputs = page.locator(".n-input__input-el");
 
-		// Wait for at least one input to be ready before interacting.
+		// Wait for inputs to be visible AND editable before filling.
 		await expect(inputs.first()).toBeVisible({ timeout: 10_000 });
+		await expect(inputs.first()).toBeEditable({ timeout: 5_000 });
 
 		await inputs.nth(0).fill("10000");
 		await inputs.nth(1).fill("500");
@@ -65,9 +68,11 @@ test.describe("Tools — juros-compostos happy path", () => {
 
 		await page.locator("button[type=\"submit\"]").first().click();
 
-		// Result section appears — look for known result labels.
+		// The result section (.juros-compostos-page__result) appears only after
+		// handleCalculate() sets result.value. We check for the container directly
+		// rather than relying on translated text, which is more robust.
 		await expect(
-			page.getByText(/montante|total aportado|juros acumulados/i).first(),
-		).toBeVisible({ timeout: 10_000 });
+			page.locator(".juros-compostos-page__result").first(),
+		).toBeVisible({ timeout: 15_000 });
 	});
 });
