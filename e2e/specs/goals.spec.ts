@@ -4,12 +4,8 @@ import { waitForHydration } from "../helpers/auth";
 /**
  * E2E suite: Goals — MSW-backed flows.
  *
- * Covers authenticated happy paths for the goals page:
- *   - Goals page loads with mocked goal list
- *   - GoalCard is rendered with goal data
- *   - "Nova Meta" button is visible
- *   - Opening the goal creation form shows required fields
- *
+ * Mirrors the auth/dashboard mock pattern from dashboard.spec.ts so the
+ * app lands cleanly on /dashboard before navigating to /goals.
  * All API calls are intercepted via `page.route()` — no real backend required.
  */
 
@@ -26,6 +22,19 @@ const MOCK_LOGIN_SUCCESS = {
 			email_confirmed: true,
 		},
 	},
+};
+
+const MOCK_OVERVIEW = {
+	income: 10000,
+	expense: 4000,
+	balance: 6000,
+	netWorth: 50000,
+	goals: [],
+	alerts: [],
+	upcomingDues: [],
+	expensesByCategory: [],
+	comparison: null,
+	portfolio: { currentValue: 25000, costBasis: 20000 },
 };
 
 const MOCK_GOALS = {
@@ -49,7 +58,9 @@ const MOCK_GOALS = {
 };
 
 /**
- * Sets up route mocks for auth and goals API.
+ * Sets up route mocks for auth, dashboard and goals API.
+ * Uses the same dashboard mock pattern as dashboard.spec.ts to ensure a
+ * clean post-login state before navigating to /goals.
  *
  * @param page - Playwright page instance.
  */
@@ -75,16 +86,34 @@ const mockAuthAndGoals = async (page: Page): Promise<void> => {
 		});
 	});
 
+	// Provide proper-shaped dashboard responses so the app lands cleanly.
+	await page.route("**/dashboard/overview", (route) => {
+		route.fulfill({
+			status: 200,
+			contentType: "application/json",
+			body: JSON.stringify(MOCK_OVERVIEW),
+		});
+	});
+
+	await page.route("**/dashboard/trends", (route) => {
+		route.fulfill({
+			status: 200,
+			contentType: "application/json",
+			body: JSON.stringify({
+				series: [
+					{ month: "2025-11", income: 8000, expenses: 3500, balance: 4500 },
+					{ month: "2025-12", income: 10000, expenses: 4000, balance: 6000 },
+				],
+			}),
+		});
+	});
+
 	await page.route("**/goals**", (route) => {
 		route.fulfill({
 			status: 200,
 			contentType: "application/json",
 			body: JSON.stringify(MOCK_GOALS),
 		});
-	});
-
-	await page.route("**/dashboard/**", (route) => {
-		route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({}) });
 	});
 };
 
@@ -135,7 +164,6 @@ test.describe("Goals — MSW-backed flows", () => {
 
 		await page.getByRole("button", { name: /nova meta/i }).click();
 
-		// A modal/dialog or inline form should appear
 		await expect(
 			page.getByRole("dialog").or(page.locator("form")).first(),
 		).toBeVisible({ timeout: 8_000 });
