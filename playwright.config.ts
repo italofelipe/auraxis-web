@@ -16,6 +16,9 @@ export default defineConfig({
   testDir: "./e2e",
   testMatch: "**/*.spec.ts",
 
+  // MSW Node interceptor — starts before browsers, shuts down after all tests
+  globalSetup: "./e2e/setup/global-setup.ts",
+
   // Timeout por teste (30s) e por assertion (5s)
   timeout: 30_000,
   expect: { timeout: 5_000 },
