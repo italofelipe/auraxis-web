@@ -108,8 +108,15 @@ const mockAuthAndGoals = async (page: Page): Promise<void> => {
 		});
 	});
 
-	await page.route("**/goals**", (route) => {
-		route.fulfill({
+	await page.route("**/goals**", async (route) => {
+		// Skip page navigation requests — only intercept API (fetch/xhr) calls.
+		// Without this check, the pattern also matches the /goals page URL,
+		// returning JSON where the browser expects HTML and breaking the render.
+		if (route.request().resourceType() === "document") {
+			await route.continue();
+			return;
+		}
+		await route.fulfill({
 			status: 200,
 			contentType: "application/json",
 			body: JSON.stringify(MOCK_GOALS),
@@ -132,6 +139,8 @@ const loginAndGoToGoals = async (page: Page): Promise<void> => {
 	await expect(page).toHaveURL(/\/dashboard/, { timeout: 10_000 });
 	await page.goto("/goals");
 	await expect(page).toHaveURL(/\/goals/);
+	// Wait for Vue to hydrate the goals page before asserting on UI elements.
+	await waitForHydration(page);
 };
 
 test.describe("Goals — MSW-backed flows", () => {

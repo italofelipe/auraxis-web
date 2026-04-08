@@ -118,8 +118,15 @@ const mockAuthAndTransactions = async (page: Page): Promise<void> => {
 		});
 	});
 
-	await page.route("**/transactions**", (route) => {
-		route.fulfill({
+	await page.route("**/transactions**", async (route) => {
+		// Skip page navigation requests — only intercept API (fetch/xhr) calls.
+		// Without this check, the pattern also matches the /transactions page URL,
+		// returning JSON where the browser expects HTML and breaking the render.
+		if (route.request().resourceType() === "document") {
+			await route.continue();
+			return;
+		}
+		await route.fulfill({
 			status: 200,
 			contentType: "application/json",
 			body: JSON.stringify(MOCK_TRANSACTIONS),
@@ -158,6 +165,8 @@ const loginAndGoToTransactions = async (page: Page): Promise<void> => {
 	await expect(page).toHaveURL(/\/dashboard/, { timeout: 10_000 });
 	await page.goto("/transactions");
 	await expect(page).toHaveURL(/\/transactions/);
+	// Wait for Vue to hydrate the transactions page before asserting on UI elements.
+	await waitForHydration(page);
 };
 
 test.describe("Transactions — MSW-backed flows", () => {
