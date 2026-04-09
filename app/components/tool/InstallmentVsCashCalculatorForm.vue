@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import {
   NButton,
   NForm,
@@ -29,30 +30,25 @@ interface Emits {
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
+const { t } = useI18n();
 
-const opportunityRateOptions = [
-  { label: "Manual", value: "manual" satisfies OpportunityRateType },
-  {
-    label: "Preset do produto",
-    value: "product_default" satisfies OpportunityRateType,
-  },
-  {
-    label: "Usar só inflação",
-    value: "inflation_only" satisfies OpportunityRateType,
-  },
-];
+const opportunityRateOptions = computed(() => [
+  { label: t("pages.installmentVsCash.form.opportunityRateOptions.manual"), value: "manual" satisfies OpportunityRateType },
+  { label: t("pages.installmentVsCash.form.opportunityRateOptions.productDefault"), value: "product_default" satisfies OpportunityRateType },
+  { label: t("pages.installmentVsCash.form.opportunityRateOptions.inflationOnly"), value: "inflation_only" satisfies OpportunityRateType },
+]);
 
-const delayOptions = [
-  { label: "Hoje", value: "today" satisfies InstallmentDelayPreset },
-  { label: "30 dias", value: "30_days" satisfies InstallmentDelayPreset },
-  { label: "45 dias", value: "45_days" satisfies InstallmentDelayPreset },
-  { label: "Personalizar", value: "custom" satisfies InstallmentDelayPreset },
-];
+const delayOptions = computed(() => [
+  { label: t("pages.installmentVsCash.form.delayOptions.today"), value: "today" satisfies InstallmentDelayPreset },
+  { label: t("pages.installmentVsCash.form.delayOptions.thirtyDays"), value: "30_days" satisfies InstallmentDelayPreset },
+  { label: t("pages.installmentVsCash.form.delayOptions.fortyFiveDays"), value: "45_days" satisfies InstallmentDelayPreset },
+  { label: t("pages.installmentVsCash.form.delayOptions.custom"), value: "custom" satisfies InstallmentDelayPreset },
+]);
 
-const installmentInputOptions = [
-  { label: "Informar valor total parcelado", value: "total" satisfies InstallmentInputMode },
-  { label: "Informar valor de cada parcela", value: "amount" satisfies InstallmentInputMode },
-] as const;
+const installmentInputOptions = computed(() => [
+  { label: t("pages.installmentVsCash.form.installmentInputOptions.total"), value: "total" satisfies InstallmentInputMode },
+  { label: t("pages.installmentVsCash.form.installmentInputOptions.amount"), value: "amount" satisfies InstallmentInputMode },
+]);
 
 /**
  * Emits a shallow form patch while preserving the remaining state.
@@ -100,78 +96,78 @@ const shouldShowFeesInput = computed<boolean>(() => {
     label-placement="top"
     @submit.prevent="emit('submit')"
   >
-    <NFormItem label="Compra ou cenário">
+    <NFormItem :label="$t('pages.installmentVsCash.form.labels.scenario')">
       <NInput
         :value="props.modelValue.scenarioLabel"
-        placeholder="Ex.: notebook, geladeira, viagem"
+        :placeholder="$t('pages.installmentVsCash.form.placeholders.scenario')"
         clearable
         @update:value="(value: string) => patchForm({ scenarioLabel: value })"
       />
     </NFormItem>
 
     <div class="installment-vs-cash-form__grid">
-      <NFormItem label="Preço à vista">
+      <NFormItem :label="$t('pages.installmentVsCash.form.labels.cashPrice')">
         <NInputNumber
           :value="props.modelValue.cashPrice"
           :min="0"
           :precision="2"
           :show-button="false"
-          placeholder="900,00"
+          :placeholder="$t('pages.installmentVsCash.form.placeholders.cashPrice')"
           @update:value="(value: number | null) => patchForm({ cashPrice: value })"
         />
       </NFormItem>
 
-      <NFormItem label="Quantidade de parcelas">
+      <NFormItem :label="$t('pages.installmentVsCash.form.labels.installmentCount')">
         <NInputNumber
           :value="props.modelValue.installmentCount"
           :min="1"
           :max="60"
           :show-button="false"
-          placeholder="6"
+          :placeholder="$t('pages.installmentVsCash.form.placeholders.installmentCount')"
           @update:value="(value: number | null) => patchForm({ installmentCount: value })"
         />
       </NFormItem>
     </div>
 
-    <NFormItem label="Como você quer informar o parcelado">
+    <NFormItem :label="$t('pages.installmentVsCash.form.labels.installmentInputMode')">
       <UiSegmentedControl
         :model-value="props.modelValue.installmentInputMode"
-        :options="[...installmentInputOptions]"
-        aria-label="Modo do parcelamento"
-        @update:model-value="(value: InstallmentInputMode) => patchForm({ installmentInputMode: value })"
+        :options="installmentInputOptions"
+        :aria-label="$t('pages.installmentVsCash.form.labels.installmentInputAriaLabel')"
+        @update:model-value="(value: string) => patchForm({ installmentInputMode: value as InstallmentInputMode })"
       />
     </NFormItem>
 
     <NFormItem
       v-if="props.modelValue.installmentInputMode === 'total'"
-      label="Valor total parcelado"
+      :label="$t('pages.installmentVsCash.form.labels.installmentTotal')"
     >
       <NInputNumber
         :value="props.modelValue.installmentTotal"
         :min="0"
         :precision="2"
         :show-button="false"
-        placeholder="990,00"
+        :placeholder="$t('pages.installmentVsCash.form.placeholders.installmentTotal')"
         @update:value="(value: number | null) => patchForm({ installmentTotal: value })"
       />
     </NFormItem>
 
     <NFormItem
       v-else
-      label="Valor de cada parcela"
+      :label="$t('pages.installmentVsCash.form.labels.installmentAmount')"
     >
       <NInputNumber
         :value="props.modelValue.installmentAmount"
         :min="0"
         :precision="2"
         :show-button="false"
-        placeholder="165,00"
+        :placeholder="$t('pages.installmentVsCash.form.placeholders.installmentAmount')"
         @update:value="(value: number | null) => patchForm({ installmentAmount: value })"
       />
     </NFormItem>
 
     <div class="installment-vs-cash-form__grid">
-      <NFormItem label="Primeira parcela">
+      <NFormItem :label="$t('pages.installmentVsCash.form.labels.firstPayment')">
         <NSelect
           :value="props.modelValue.firstPaymentDelayPreset"
           :options="delayOptions"
@@ -179,20 +175,20 @@ const shouldShowFeesInput = computed<boolean>(() => {
         />
       </NFormItem>
 
-      <NFormItem v-if="shouldShowCustomDelay" label="Dias até a primeira parcela">
+      <NFormItem v-if="shouldShowCustomDelay" :label="$t('pages.installmentVsCash.form.labels.customDelay')">
         <NInputNumber
           :value="props.modelValue.customFirstPaymentDelayDays"
           :min="0"
           :max="3650"
           :show-button="false"
-          placeholder="75"
+          :placeholder="$t('pages.installmentVsCash.form.placeholders.customDelay')"
           @update:value="(value: number | null) => patchForm({ customFirstPaymentDelayDays: value })"
         />
       </NFormItem>
     </div>
 
     <div class="installment-vs-cash-form__grid">
-      <NFormItem label="Taxa de oportunidade">
+      <NFormItem :label="$t('pages.installmentVsCash.form.labels.opportunityRate')">
         <NSelect
           :value="props.modelValue.opportunityRateType"
           :options="opportunityRateOptions"
@@ -200,30 +196,30 @@ const shouldShowFeesInput = computed<boolean>(() => {
         />
       </NFormItem>
 
-      <NFormItem label="Inflação anual (%)">
+      <NFormItem :label="$t('pages.installmentVsCash.form.labels.inflationRate')">
         <NInputNumber
           :value="props.modelValue.inflationRateAnnual"
           :min="0"
           :precision="2"
           :show-button="false"
-          placeholder="4,50"
+          :placeholder="$t('pages.installmentVsCash.form.placeholders.inflationRate')"
           @update:value="(value: number | null) => patchForm({ inflationRateAnnual: value })"
         />
       </NFormItem>
     </div>
 
-    <NFormItem v-if="shouldShowManualOpportunityRate" label="Taxa de oportunidade anual (%)">
+    <NFormItem v-if="shouldShowManualOpportunityRate" :label="$t('pages.installmentVsCash.form.labels.manualRate')">
       <NInputNumber
         :value="props.modelValue.opportunityRateAnnual"
         :min="0"
         :precision="2"
         :show-button="false"
-        placeholder="12,00"
+        :placeholder="$t('pages.installmentVsCash.form.placeholders.manualRate')"
         @update:value="(value: number | null) => patchForm({ opportunityRateAnnual: value })"
       />
     </NFormItem>
 
-    <NFormItem label="Custos extras iniciais">
+    <NFormItem :label="$t('pages.installmentVsCash.form.labels.fees')">
       <div class="installment-vs-cash-form__fees">
         <NSwitch
           :value="props.modelValue.feesEnabled"
@@ -236,7 +232,7 @@ const shouldShowFeesInput = computed<boolean>(() => {
           :min="0"
           :precision="2"
           :show-button="false"
-          placeholder="60,00"
+          :placeholder="$t('pages.installmentVsCash.form.placeholders.fees')"
           @update:value="(value: number | null) => patchForm({ feesUpfront: value })"
         />
       </div>
@@ -250,7 +246,7 @@ const shouldShowFeesInput = computed<boolean>(() => {
       :disabled="props.loading"
       class="installment-vs-cash-form__submit"
     >
-      Calcular agora
+      {{ $t('pages.installmentVsCash.form.actions.calculate') }}
     </NButton>
   </NForm>
 </template>

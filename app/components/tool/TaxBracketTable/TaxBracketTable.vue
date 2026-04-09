@@ -7,6 +7,11 @@
  * formatting logic) and remains reusable for both INSS and IRRF tables.
  */
 
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
+
 /** A single row in the bracket table. */
 export interface TaxBracketRow {
   /** Unique key used as the v-for key. */
@@ -41,14 +46,19 @@ interface Props {
   totalValue?: string
 }
 
-withDefaults(defineProps<Props>(), {
-  rangeHeader: "Faixa",
-  rateHeader: "Alíquota",
-  baseHeader: "Base",
-  taxHeader: "Desconto",
+const props = withDefaults(defineProps<Props>(), {
+  rangeHeader: undefined,
+  rateHeader: undefined,
+  baseHeader: undefined,
+  taxHeader: undefined,
   totalLabel: undefined,
   totalValue: undefined,
 });
+
+const resolvedRangeHeader = computed(() => props.rangeHeader ?? t("components.taxBracketTable.rangeHeader"));
+const resolvedRateHeader = computed(() => props.rateHeader ?? t("components.taxBracketTable.rateHeader"));
+const resolvedBaseHeader = computed(() => props.baseHeader ?? t("components.taxBracketTable.baseHeader"));
+const resolvedTaxHeader = computed(() => props.taxHeader ?? t("components.taxBracketTable.taxHeader"));
 </script>
 
 <template>
@@ -57,16 +67,16 @@ withDefaults(defineProps<Props>(), {
       <thead>
         <tr class="tax-bracket-table__header-row">
           <th class="tax-bracket-table__th tax-bracket-table__th--range">
-            {{ rangeHeader }}
+            {{ resolvedRangeHeader }}
           </th>
           <th class="tax-bracket-table__th tax-bracket-table__th--rate">
-            {{ rateHeader }}
+            {{ resolvedRateHeader }}
           </th>
           <th class="tax-bracket-table__th tax-bracket-table__th--base">
-            {{ baseHeader }}
+            {{ resolvedBaseHeader }}
           </th>
           <th class="tax-bracket-table__th tax-bracket-table__th--tax">
-            {{ taxHeader }}
+            {{ resolvedTaxHeader }}
           </th>
         </tr>
       </thead>

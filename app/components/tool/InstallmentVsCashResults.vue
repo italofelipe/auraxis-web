@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import {
   NCollapse,
   NCollapseItem,
@@ -21,6 +22,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const { t } = useI18n();
 
 /**
  * Chart option derived from the current calculation.
@@ -37,42 +39,47 @@ const chartOption = computed(() => {
  * The render callbacks are called by NDataTable at runtime. In unit tests
  * NDataTable is stubbed and never invokes them, so they are excluded from
  * coverage to avoid false negatives.
+ *
+ * Wrapped in computed so column titles react to locale changes.
  */
 /* v8 ignore start */
-const scheduleColumns = [
+const scheduleColumns = computed(() => [
   {
     key: "installmentNumber",
-    title: "Parcela",
+    title: t("pages.installmentVsCash.schedule.columns.installment"),
     render: (row: InstallmentVsCashScheduleItem): string => {
-      return row.installmentNumber === 0 ? "Hoje" : `${row.installmentNumber}ª`;
+      return row.installmentNumber === 0
+        ? t("pages.installmentVsCash.schedule.today")
+        : `${row.installmentNumber}${t("pages.installmentVsCash.schedule.ordinalSuffix")}`;
     },
   },
   {
     key: "dueInDays",
-    title: "Vence em",
-    render: (row: InstallmentVsCashScheduleItem): string => `${row.dueInDays} dias`,
+    title: t("pages.installmentVsCash.schedule.columns.dueDate"),
+    render: (row: InstallmentVsCashScheduleItem): string =>
+      `${row.dueInDays} ${t("pages.installmentVsCash.schedule.daysUnit")}`,
   },
   {
     key: "amount",
-    title: "Valor",
+    title: t("pages.installmentVsCash.schedule.columns.amount"),
     render: (row: InstallmentVsCashScheduleItem): string => formatCurrency(row.amount),
   },
   {
     key: "presentValue",
-    title: "Valor presente",
+    title: t("pages.installmentVsCash.schedule.columns.presentValue"),
     render: (row: InstallmentVsCashScheduleItem): string => formatCurrency(row.presentValue),
   },
   {
     key: "cumulativeNominal",
-    title: "Acumulado nominal",
+    title: t("pages.installmentVsCash.schedule.columns.cumulativeNominal"),
     render: (row: InstallmentVsCashScheduleItem): string => formatCurrency(row.cumulativeNominal),
   },
   {
     key: "cashCumulative",
-    title: "Acumulado à vista",
+    title: t("pages.installmentVsCash.schedule.columns.cashCumulative"),
     render: (row: InstallmentVsCashScheduleItem): string => formatCurrency(row.cashCumulative),
   },
-];
+]);
 /* v8 ignore stop */
 
 /**
@@ -112,15 +119,15 @@ const recommendationTagType = computed<
 
       <div class="installment-vs-cash-results__metrics">
         <UiMetricCard
-          label="Preço à vista"
+          :label="$t('pages.installmentVsCash.breakdown.metrics.cashPrice')"
           :value="formatCurrency(props.calculation.result.comparison.cashOptionTotal)"
         />
         <UiMetricCard
-          label="Parcelado nominal"
+          :label="$t('pages.installmentVsCash.breakdown.metrics.installmentNominal')"
           :value="formatCurrency(props.calculation.result.comparison.installmentOptionTotal)"
         />
         <UiMetricCard
-          label="Parcelado em valor presente"
+          :label="$t('pages.installmentVsCash.breakdown.metrics.installmentPv')"
           :value="formatCurrency(props.calculation.result.comparison.installmentPresentValue)"
           :trend="props.calculation.result.comparison.relativeDeltaVsCashPercent"
         />
@@ -129,8 +136,8 @@ const recommendationTagType = computed<
 
     <UiSurfaceCard class="installment-vs-cash-results__chart-card">
       <NThing
-        title="Comparação mês a mês"
-        description="Veja o desembolso acumulado e o valor presente do parcelamento ao longo do tempo."
+        :title="$t('pages.installmentVsCash.breakdown.monthlyComparison.title')"
+        :description="$t('pages.installmentVsCash.breakdown.monthlyComparison.description')"
       />
       <UiChart
         :option="chartOption"
@@ -140,50 +147,50 @@ const recommendationTagType = computed<
     </UiSurfaceCard>
 
     <NCollapse arrow-placement="right">
-      <NCollapseItem title="Entenda o cálculo" name="formula">
+      <NCollapseItem :title="$t('pages.installmentVsCash.breakdown.formula.collapseTitle')" name="formula">
         <NThing
-          title="Fórmula e premissas"
+          :title="$t('pages.installmentVsCash.breakdown.formula.title')"
           :description="props.calculation.result.formulaExplainer"
         >
           <template #default>
             <div class="installment-vs-cash-results__assumptions">
               <span>
-                Taxa de oportunidade:
-                <strong>{{ props.calculation.result.assumptions.opportunityRateAnnualPercent.toFixed(2).replace(".", ",") }}% a.a.</strong>
+                {{ $t('pages.installmentVsCash.breakdown.formula.opportunityRateLabel') }}
+                <strong>{{ props.calculation.result.assumptions.opportunityRateAnnualPercent.toFixed(2).replace(".", ",") }}{{ $t('pages.installmentVsCash.breakdown.formula.rateAnnualSuffix') }}</strong>
               </span>
               <span>
-                Inflação:
-                <strong>{{ props.calculation.result.assumptions.inflationRateAnnualPercent.toFixed(2).replace(".", ",") }}% a.a.</strong>
+                {{ $t('pages.installmentVsCash.breakdown.formula.inflationLabel') }}
+                <strong>{{ props.calculation.result.assumptions.inflationRateAnnualPercent.toFixed(2).replace(".", ",") }}{{ $t('pages.installmentVsCash.breakdown.formula.rateAnnualSuffix') }}</strong>
               </span>
               <span>
-                Faixa de neutralidade:
+                {{ $t('pages.installmentVsCash.breakdown.formula.neutralityBandLabel') }}
                 <strong>{{ formatCurrency(props.calculation.result.neutralityBand.absoluteBrl) }}</strong>
-                ou
-                <strong>{{ props.calculation.result.neutralityBand.relativePercent.toFixed(2).replace(".", ",") }}%</strong>
+                {{ $t('pages.installmentVsCash.breakdown.formula.or') }}
+                <strong>{{ props.calculation.result.neutralityBand.relativePercent.toFixed(2).replace(".", ",") }}{{ $t('pages.installmentVsCash.breakdown.formula.percentSuffix') }}</strong>
               </span>
             </div>
           </template>
         </NThing>
       </NCollapseItem>
 
-      <NCollapseItem title="Break-even e comparação detalhada" name="break-even">
+      <NCollapseItem :title="$t('pages.installmentVsCash.breakdown.breakEven.collapseTitle')" name="break-even">
         <div class="installment-vs-cash-results__details-grid">
           <UiMetricCard
-            label="Diferença vs à vista"
+            :label="$t('pages.installmentVsCash.breakdown.metrics.difference')"
             :value="formatCurrency(props.calculation.result.comparison.absoluteDeltaVsCash)"
           />
           <UiMetricCard
-            label="Desconto à vista para empatar"
+            :label="$t('pages.installmentVsCash.breakdown.metrics.breakEvenDiscount')"
             :value="`${props.calculation.result.comparison.breakEvenDiscountPercent.toFixed(2).replace('.', ',')}%`"
           />
           <UiMetricCard
-            label="Taxa mínima para o parcelado empatar"
+            :label="$t('pages.installmentVsCash.breakdown.metrics.breakEvenRate')"
             :value="`${props.calculation.result.comparison.breakEvenOpportunityRateAnnual.toFixed(2).replace('.', ',')}% a.a.`"
           />
         </div>
       </NCollapseItem>
 
-      <NCollapseItem title="Cronograma mês a mês" name="schedule">
+      <NCollapseItem :title="$t('pages.installmentVsCash.breakdown.scheduleSection.collapseTitle')" name="schedule">
         <NDataTable
           :columns="scheduleColumns"
           :data="props.calculation.result.schedule"
