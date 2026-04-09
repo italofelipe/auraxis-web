@@ -4,6 +4,7 @@ import { useHttp } from "~/composables/useHttp";
 import type {
   GoalDto,
   GoalPlanDto,
+  GoalProjectionResponseDto,
   CreateGoalPayload,
   UpdateGoalPayload,
 } from "~/features/goals/contracts/goal.dto";
@@ -74,6 +75,23 @@ export class GoalsClient {
    */
   async getGoalPlan(id: string): Promise<GoalPlanDto> {
     const response = await this.#http.get<GoalPlanDto>(`/goals/${id}/plan`);
+    return response.data;
+  }
+
+  /**
+   * Fetches the compound-interest portfolio-aware projection for a goal.
+   *
+   * Uses the authenticated user's wallet blended return rate and monthly
+   * investment to compute projected completion date, on-track status, and
+   * suggested contribution when off-track.
+   *
+   * @param id - Goal identifier.
+   * @returns GoalProjectionResponseDto containing goal + projection data.
+   */
+  async getGoalProjection(id: string): Promise<GoalProjectionResponseDto> {
+    const response = await this.#http.get<GoalProjectionResponseDto>(
+      `/goals/${id}/projection`,
+    );
     return response.data;
   }
 }

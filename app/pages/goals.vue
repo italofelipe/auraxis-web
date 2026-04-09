@@ -192,6 +192,12 @@ const onDeleteGoal = (id: string): void => {
         class="goals-page__plan-panel"
       />
 
+      <GoalProjectionPanel
+        v-if="planGoalId !== null"
+        :goal-id="planGoalId"
+        class="goals-page__projection-panel"
+      />
+
       <GoalSimulatePanel
         v-if="planGoalId !== null"
         :goal="filteredGoals.find(g => g.id === planGoalId)!"
@@ -277,6 +283,10 @@ const onDeleteGoal = (id: string): void => {
 }
 
 .goals-page__plan-panel {
+  margin-top: var(--space-1);
+}
+
+.goals-page__projection-panel {
   margin-top: var(--space-1);
 }
 

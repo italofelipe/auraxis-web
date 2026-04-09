@@ -1128,6 +1128,23 @@
       "returnLabel": "Rentabilidade anual (%)",
       "projection": "Projeção: {n} meses (conclusão em {date})",
       "unreachable": "Com este aporte, a meta não será atingida"
+    },
+    "projection": {
+      "title": "Projeção com Carteira",
+      "monthlyContribution": "Aporte mensal",
+      "portfolioRate": "Rentabilidade anual da carteira",
+      "estimatedCompletion": "Conclusão prevista",
+      "monthsToCompletion": "Meses para atingir a meta",
+      "onTrack": "No caminho certo",
+      "offTrack": "Fora do prazo",
+      "loadError": "Não foi possível carregar a projeção",
+      "loadErrorMessage": "Tente novamente.",
+      "unreachable": "Com este aporte a meta não será atingida",
+      "alreadyDone": "Meta já atingida!",
+      "suggestedAlert": "Para atingir a meta no prazo, contribua {amount}/mês",
+      "chartTitle": "Acumulação projetada",
+      "seriesBalance": "Saldo acumulado",
+      "seriesTarget": "Meta"
     }
   },
   "alert": {
