@@ -14,16 +14,19 @@ import {
 import {
   AlertCircle,
   AlertTriangle,
+  Calendar,
   Check,
   CheckCircle2,
   Clock,
   GripVertical,
+  List,
   Pencil,
   RefreshCw,
   Trash2,
   TrendingDown,
   TrendingUp,
 } from "lucide-vue-next";
+import type { CalendarDay } from "~/features/transactions/composables/useFinancialCalendar";
 
 import { useListTransactionsQuery } from "~/features/transactions/queries/use-list-transactions-query";
 import type { ListTransactionsFilters } from "~/features/transactions/services/transactions.client";
@@ -64,6 +67,26 @@ const filterStatus = ref<FilterStatus>("all");
 const filterStartDate = ref<number | null>(null);
 const filterEndDate = ref<number | null>(null);
 const filterTagId = ref<string | "all">("all");
+
+// ── View mode ─────────────────────────────────────────────────────────────────
+
+type ViewMode = "list" | "calendar";
+const viewMode = ref<ViewMode>("list");
+
+// ── Calendar day detail ───────────────────────────────────────────────────────
+
+const selectedDay = ref<CalendarDay | null>(null);
+const showDayDetail = ref<boolean>(false);
+
+/**
+ * Opens the CalendarDayDetail modal for the clicked day.
+ *
+ * @param day - The CalendarDay emitted by FinancialCalendar.
+ */
+const onDayClick = (day: CalendarDay): void => {
+  selectedDay.value = day;
+  showDayDetail.value = true;
+};
 
 // ── Modals ────────────────────────────────────────────────────────────────────
 
@@ -838,6 +861,13 @@ const rowKey = (row: TransactionDto): string => row.id;
       @close="showPayConfirm = false"
     />
 
+    <!-- ── Calendar day detail modal ────────────────────────────────────────── -->
+    <CalendarDayDetail
+      :day="selectedDay"
+      :visible="showDayDetail"
+      @update:visible="showDayDetail = $event"
+    />
+
     <!-- ── Recurrence suggestions (PROD-13) ──────────────────────────────────── -->
     <div
       v-if="visiblePatterns.length > 0"
@@ -920,6 +950,19 @@ const rowKey = (row: TransactionDto): string => row.id;
       <!-- Spacer -->
       <div class="transactions-page__toolbar-spacer" />
 
+      <!-- View toggle: list / calendar -->
+      <NButton
+        size="small"
+        :type="viewMode === 'calendar' ? 'primary' : 'default'"
+        :title="viewMode === 'calendar' ? $t('transactions.view.list') : $t('transactions.view.calendar')"
+        @click="viewMode = viewMode === 'list' ? 'calendar' : 'list'"
+      >
+        <template #icon>
+          <Calendar v-if="viewMode === 'list'" :size="14" />
+          <List v-else :size="14" />
+        </template>
+      </NButton>
+
       <!-- Reorder toggle -->
       <NButton
         size="small"
@@ -976,9 +1019,9 @@ const rowKey = (row: TransactionDto): string => row.id;
       </template>
     </UiEmptyState>
 
-    <!-- ── Data table ────────────────────────────────────────────────────────── -->
+    <!-- ── Data table (list view) ──────────────────────────────────────────── -->
     <NDataTable
-      v-else
+      v-else-if="viewMode === 'list'"
       :columns="columns"
       :data="tableData"
       :loading="isLoading"
@@ -988,6 +1031,13 @@ const rowKey = (row: TransactionDto): string => row.id;
       :scroll-x="780"
       size="small"
       class="transactions-page__table"
+    />
+
+    <!-- ── Financial calendar (calendar view) ───────────────────────────────── -->
+    <FinancialCalendar
+      v-else-if="viewMode === 'calendar'"
+      class="transactions-page__calendar"
+      @day-click="onDayClick"
     />
 
   </div>
@@ -1005,6 +1055,10 @@ const rowKey = (row: TransactionDto): string => row.id;
 .transactions-page__recurrence {
   display: grid;
   gap: var(--space-2);
+}
+
+.transactions-page__calendar {
+  width: 100%;
 }
 
 /* ── Summary strip ──────────────────────────────────────────────────────────── */

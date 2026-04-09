@@ -45,8 +45,7 @@
     "tools": "Tools",
     "subscription": "Subscription",
     "personalData": "Personal Data",
-    "transactions": "Transactions",
-    "budgets": "Budgets"
+    "transactions": "Transactions"
   },
   "user": {
     "fallbackName": "User",
@@ -180,11 +179,19 @@
       "emptyAllDescription": "Financial goals help you visualize and achieve your objectives with clarity and discipline."
     },
     "budgets": {
+      "meta": {
+        "title": "Budgets",
+        "description": "Manage your budgets and track your spending by category and period."
+      },
       "title": "Budgets",
-      "newBudget": "New budget",
+      "newBudget": "New Budget",
       "summary": {
-        "budgeted": "Budgeted",
-        "spent": "Spent",
+        "totalBudgeted": "Total Budgeted",
+        "totalSpent": "Total Spent",
+        "totalRemaining": "Total Remaining",
+        "percentageUsed": "Overall Usage",
+        "budgeted": "Total Budgeted",
+        "spent": "Total Spent",
         "remaining": "Remaining"
       },
       "period": {
@@ -192,20 +199,31 @@
         "weekly": "Weekly",
         "custom": "Custom"
       },
-      "noCategory": "No category (overall)",
-      "overBudget": "Over budget",
-      "emptyState": "No budgets defined. Create your first one to track spending.",
-      "loadError": "Could not load budgets",
-      "loadErrorMessage": "Please reload the page.",
-      "form": {
-        "name": "Budget name",
-        "tag": "Category (tag)",
-        "amount": "Limit (R$)",
-        "period": "Period",
-        "startDate": "Start date",
-        "endDate": "End date"
+      "noCategory": "No Category",
+      "overBudget": "Over Budget",
+      "emptyState": {
+        "title": "No budgets yet",
+        "description": "Create your first budget to start tracking your spending."
       },
-      "deleteConfirm": "Delete this budget?"
+      "loadError": "Failed to load budgets",
+      "loadErrorMessage": "Please try again later.",
+      "form": {
+        "titleCreate": "New Budget",
+        "titleEdit": "Edit Budget",
+        "name": "Name",
+        "namePlaceholder": "E.g. Monthly Food",
+        "amount": "Limit Amount",
+        "period": "Period",
+        "periodPlaceholder": "Select a period",
+        "tag": "Category",
+        "tagPlaceholder": "Select a category (optional)",
+        "dateRange": "Custom Period",
+        "startDate": "Custom Period",
+        "cancel": "Cancel",
+        "save": "Save",
+        "create": "Create Budget"
+      },
+      "deleteConfirm": "Are you sure you want to delete this budget? This action cannot be undone."
     },
     "portfolio": {
       "title": "Portfolio",
@@ -621,53 +639,6 @@
         "loginCta": "I already have an account",
         "trust": "Free forever · No credit card · Cancel anytime"
       }
-    },
-    "budgets": {
-      "meta": {
-        "title": "Budgets",
-        "description": "Manage your budgets and track your spending by category and period."
-      },
-      "title": "Budgets",
-      "newBudget": "New Budget",
-      "summary": {
-        "totalBudgeted": "Total Budgeted",
-        "totalSpent": "Total Spent",
-        "totalRemaining": "Total Remaining",
-        "percentageUsed": "Overall Usage",
-        "budgeted": "Total Budgeted",
-        "spent": "Total Spent",
-        "remaining": "Remaining"
-      },
-      "period": {
-        "monthly": "Monthly",
-        "weekly": "Weekly",
-        "custom": "Custom"
-      },
-      "noCategory": "No Category",
-      "overBudget": "Over Budget",
-      "emptyState": {
-        "title": "No budgets yet",
-        "description": "Create your first budget to start tracking your spending."
-      },
-      "loadError": "Failed to load budgets",
-      "loadErrorMessage": "Please try again later.",
-      "form": {
-        "titleCreate": "New Budget",
-        "titleEdit": "Edit Budget",
-        "name": "Name",
-        "namePlaceholder": "E.g. Monthly Food",
-        "amount": "Limit Amount",
-        "period": "Period",
-        "periodPlaceholder": "Select a period",
-        "tag": "Category",
-        "tagPlaceholder": "Select a category (optional)",
-        "dateRange": "Custom Period",
-        "startDate": "Custom Period",
-        "cancel": "Cancel",
-        "save": "Save",
-        "create": "Create Budget"
-      },
-      "deleteConfirm": "Are you sure you want to delete this budget? This action cannot be undone."
     },
     "home": {
       "meta": {
@@ -1147,6 +1118,21 @@
       "seriesTarget": "Target"
     }
   },
+  "financialCalendar": {
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "loadError": "Could not load the calendar",
+    "loadErrorMessage": "Please try again.",
+    "legendToday": "Today",
+    "legendValley": "Cash valley",
+    "detail": {
+      "income": "Income",
+      "expense": "Expenses",
+      "balance": "Daily balance",
+      "empty": "No transactions on this day",
+      "valleyWarning": "⚠ Negative balance day — part of a cash valley (3+ consecutive days)"
+    }
+  },
   "alert": {
     "type": {
       "goalAchieved": "Goal achieved",
@@ -1491,6 +1477,10 @@
     "swipe": {
       "payHint": "Swipe → to pay",
       "deleteHint": "Swipe ← to delete"
+    },
+    "view": {
+      "list": "List view",
+      "calendar": "Calendar view"
     }
   },
   "thirteenthSalary": {

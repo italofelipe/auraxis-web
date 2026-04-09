@@ -45,8 +45,7 @@
     "tools": "Ferramentas",
     "subscription": "Assinatura",
     "personalData": "Dados Pessoais",
-    "transactions": "Transações",
-    "budgets": "Orçamentos"
+    "transactions": "Transações"
   },
   "user": {
     "fallbackName": "Usuário",
@@ -180,11 +179,19 @@
       "emptyAllDescription": "Metas financeiras ajudam você a visualizar e alcançar seus objetivos com clareza e disciplina."
     },
     "budgets": {
+      "meta": {
+        "title": "Orçamentos",
+        "description": "Gerencie seus orçamentos e acompanhe seus gastos por categoria e período."
+      },
       "title": "Orçamentos",
-      "newBudget": "Novo orçamento",
+      "newBudget": "Novo Orçamento",
       "summary": {
-        "budgeted": "Orçado",
-        "spent": "Gasto",
+        "totalBudgeted": "Total Orçado",
+        "totalSpent": "Total Gasto",
+        "totalRemaining": "Total Restante",
+        "percentageUsed": "Uso Total",
+        "budgeted": "Total Orçado",
+        "spent": "Total Gasto",
         "remaining": "Restante"
       },
       "period": {
@@ -192,20 +199,31 @@
         "weekly": "Semanal",
         "custom": "Personalizado"
       },
-      "noCategory": "Sem categoria (geral)",
-      "overBudget": "Acima do limite",
-      "emptyState": "Nenhum orçamento definido. Crie o primeiro para controlar seus gastos.",
-      "loadError": "Não foi possível carregar os orçamentos",
-      "loadErrorMessage": "Tente recarregar a página.",
-      "form": {
-        "name": "Nome do orçamento",
-        "tag": "Categoria (tag)",
-        "amount": "Limite (R$)",
-        "period": "Período",
-        "startDate": "Data início",
-        "endDate": "Data fim"
+      "noCategory": "Sem Categoria",
+      "overBudget": "Acima do Limite",
+      "emptyState": {
+        "title": "Nenhum orçamento cadastrado",
+        "description": "Crie seu primeiro orçamento para começar a controlar seus gastos."
       },
-      "deleteConfirm": "Excluir este orçamento?"
+      "loadError": "Erro ao carregar orçamentos",
+      "loadErrorMessage": "Tente novamente mais tarde.",
+      "form": {
+        "titleCreate": "Novo Orçamento",
+        "titleEdit": "Editar Orçamento",
+        "name": "Nome",
+        "namePlaceholder": "Ex: Alimentação Mensal",
+        "amount": "Valor Limite",
+        "period": "Período",
+        "periodPlaceholder": "Selecione o período",
+        "tag": "Categoria",
+        "tagPlaceholder": "Selecione uma categoria (opcional)",
+        "dateRange": "Período Personalizado",
+        "startDate": "Período Personalizado",
+        "cancel": "Cancelar",
+        "save": "Salvar",
+        "create": "Criar Orçamento"
+      },
+      "deleteConfirm": "Tem certeza que deseja excluir este orçamento? Esta ação não pode ser desfeita."
     },
     "portfolio": {
       "title": "Carteira",
@@ -621,53 +639,6 @@
         "loginCta": "Já tenho conta",
         "trust": "Gratuito para sempre · Sem cartão de crédito · Cancele quando quiser"
       }
-    },
-    "budgets": {
-      "meta": {
-        "title": "Orçamentos",
-        "description": "Gerencie seus orçamentos e acompanhe seus gastos por categoria e período."
-      },
-      "title": "Orçamentos",
-      "newBudget": "Novo Orçamento",
-      "summary": {
-        "totalBudgeted": "Total Orçado",
-        "totalSpent": "Total Gasto",
-        "totalRemaining": "Total Restante",
-        "percentageUsed": "Uso Total",
-        "budgeted": "Total Orçado",
-        "spent": "Total Gasto",
-        "remaining": "Restante"
-      },
-      "period": {
-        "monthly": "Mensal",
-        "weekly": "Semanal",
-        "custom": "Personalizado"
-      },
-      "noCategory": "Sem Categoria",
-      "overBudget": "Acima do Limite",
-      "emptyState": {
-        "title": "Nenhum orçamento cadastrado",
-        "description": "Crie seu primeiro orçamento para começar a controlar seus gastos."
-      },
-      "loadError": "Erro ao carregar orçamentos",
-      "loadErrorMessage": "Tente novamente mais tarde.",
-      "form": {
-        "titleCreate": "Novo Orçamento",
-        "titleEdit": "Editar Orçamento",
-        "name": "Nome",
-        "namePlaceholder": "Ex: Alimentação Mensal",
-        "amount": "Valor Limite",
-        "period": "Período",
-        "periodPlaceholder": "Selecione o período",
-        "tag": "Categoria",
-        "tagPlaceholder": "Selecione uma categoria (opcional)",
-        "dateRange": "Período Personalizado",
-        "startDate": "Período Personalizado",
-        "cancel": "Cancelar",
-        "save": "Salvar",
-        "create": "Criar Orçamento"
-      },
-      "deleteConfirm": "Tem certeza que deseja excluir este orçamento? Esta ação não pode ser desfeita."
     },
     "home": {
       "meta": {
@@ -1147,6 +1118,21 @@
       "seriesTarget": "Meta"
     }
   },
+  "financialCalendar": {
+    "previousMonth": "Mês anterior",
+    "nextMonth": "Próximo mês",
+    "loadError": "Não foi possível carregar o calendário",
+    "loadErrorMessage": "Tente novamente.",
+    "legendToday": "Hoje",
+    "legendValley": "Vale de caixa",
+    "detail": {
+      "income": "Receitas",
+      "expense": "Despesas",
+      "balance": "Saldo do dia",
+      "empty": "Nenhuma transação neste dia",
+      "valleyWarning": "⚠ Dia com saldo negativo — parte de um vale de caixa (3+ dias consecutivos)"
+    }
+  },
   "alert": {
     "type": {
       "goalAchieved": "Meta atingida",
@@ -1491,6 +1477,10 @@
     "swipe": {
       "payHint": "Deslize → para pagar",
       "deleteHint": "Deslize ← para excluir"
+    },
+    "view": {
+      "list": "Vista de lista",
+      "calendar": "Vista de calendário"
     }
   },
   "thirteenthSalary": {
