@@ -4,7 +4,7 @@ import { BarChart3, Target, ShieldCheck, Zap, Sparkles, ArrowRight } from "lucid
 import { NButton } from "naive-ui";
 import { useRouter } from "#app";
 import { useI18n } from "vue-i18n";
-import { useToolCta } from "~/composables/useToolCta";
+import { useToolCta } from "~/features/tools/composables/useToolCta";
 
 /**
  * A feature highlight shown inside the guest CTA panel.

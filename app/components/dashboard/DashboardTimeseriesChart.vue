@@ -4,7 +4,7 @@ import { BarChart2 } from "lucide-vue-next";
 
 import type { DashboardTimeseriesPoint } from "~/features/dashboard/model/dashboard-overview";
 import { formatCurrency } from "~/utils/currency";
-import { useChartSeriesMapper } from "~/composables/useChartSeriesMapper";
+import { useChartSeriesMapper } from "~/features/dashboard/composables/useChartSeriesMapper";
 
 interface Props {
   data: DashboardTimeseriesPoint[];

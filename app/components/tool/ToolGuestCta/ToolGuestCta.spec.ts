@@ -8,7 +8,7 @@ import ToolGuestCta from "./ToolGuestCta.vue";
 const pushMock = vi.fn();
 const showCtaRef = ref(true);
 
-vi.mock("~/composables/useToolCta", () => ({
+vi.mock("~/features/tools/composables/useToolCta", () => ({
   useToolCta: (): { showCta: Ref<boolean> } => ({
     showCta: showCtaRef,
   }),
