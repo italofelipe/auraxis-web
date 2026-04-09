@@ -139,6 +139,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       # Guard: same as prod — never deploy to the wrong bucket.
+      # Prefix match tolerates REST vs website endpoint formats (see deploy.yml).
       - name: Verify S3 bucket matches CloudFront origin
         run: |
           DIST_ID="${{ vars.AWS_WEB_STAGING_CLOUDFRONT_DISTRIBUTION_ID }}"
@@ -146,14 +147,15 @@ jobs:
             --id "$DIST_ID" \
             --query 'Distribution.DistributionConfig.Origins.Items[0].DomainName' \
             --output text)
-          EXPECTED="${{ env.S3_BUCKET }}.s3-website-${{ env.AWS_REGION }}.amazonaws.com"
+          BUCKET="${{ env.S3_BUCKET }}"
           echo "CloudFront origin : $CF_ORIGIN"
-          echo "S3_BUCKET expected: $EXPECTED"
-          if [ "$CF_ORIGIN" != "$EXPECTED" ]; then
+          echo "S3_BUCKET         : $BUCKET"
+          if [[ "$CF_ORIGIN" != "${BUCKET}."* ]]; then
             echo "✗ MISMATCH — staging deploy aborted"
+            echo "  CF origin '${CF_ORIGIN}' does not start with '${BUCKET}.'"
             exit 1
           fi
-          echo "✓ CloudFront origin matches S3_BUCKET"
+          echo "✓ CloudFront origin matches S3_BUCKET (format: ${CF_ORIGIN})"
 
       - name: Upload HTML files (no-cache, force)
         run: |
