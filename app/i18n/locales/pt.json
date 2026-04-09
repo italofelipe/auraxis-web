@@ -113,7 +113,15 @@
       },
       "card": {
         "open": "Abrir ferramenta",
-        "disabled": "Em breve"
+        "disabled": "Em breve",
+        "use": "Usar ferramenta",
+        "viewPlans": "Ver planos",
+        "loginToUse": "Fazer login para usar",
+        "badgeLabels": {
+          "premium": "Premium",
+          "loginRequired": "Login necessário",
+          "public": "Público"
+        }
       },
       "empty": "Nenhuma ferramenta disponível no momento."
     },
@@ -638,6 +646,95 @@
         "registerCta": "Criar conta grátis",
         "loginCta": "Já tenho conta",
         "trust": "Gratuito para sempre · Sem cartão de crédito · Cancele quando quiser"
+      },
+      "form": {
+        "labels": {
+          "scenario": "Compra ou cenário",
+          "cashPrice": "Preço à vista",
+          "installmentCount": "Quantidade de parcelas",
+          "installmentInputMode": "Como você quer informar o parcelado",
+          "installmentInputAriaLabel": "Modo do parcelamento",
+          "installmentTotal": "Valor total parcelado",
+          "installmentAmount": "Valor de cada parcela",
+          "firstPayment": "Primeira parcela",
+          "customDelay": "Dias até a primeira parcela",
+          "opportunityRate": "Taxa de oportunidade",
+          "inflationRate": "Inflação anual (%)",
+          "manualRate": "Taxa de oportunidade anual (%)",
+          "fees": "Custos extras iniciais"
+        },
+        "placeholders": {
+          "scenario": "Ex.: notebook, geladeira, viagem",
+          "cashPrice": "900,00",
+          "installmentCount": "6",
+          "installmentTotal": "990,00",
+          "installmentAmount": "165,00",
+          "customDelay": "75",
+          "inflationRate": "4,50",
+          "manualRate": "12,00",
+          "fees": "60,00"
+        },
+        "opportunityRateOptions": {
+          "manual": "Manual",
+          "productDefault": "Preset do produto",
+          "inflationOnly": "Usar só inflação"
+        },
+        "delayOptions": {
+          "today": "Hoje",
+          "thirtyDays": "30 dias",
+          "fortyFiveDays": "45 dias",
+          "custom": "Personalizar"
+        },
+        "installmentInputOptions": {
+          "total": "Informar valor total parcelado",
+          "amount": "Informar valor de cada parcela"
+        },
+        "actions": {
+          "calculate": "Calcular agora"
+        }
+      },
+      "schedule": {
+        "columns": {
+          "installment": "Parcela",
+          "dueDate": "Vence em",
+          "amount": "Valor",
+          "presentValue": "Valor presente",
+          "cumulativeNominal": "Acumulado nominal",
+          "cashCumulative": "Acumulado à vista"
+        },
+        "today": "Hoje",
+        "daysUnit": "dias",
+        "ordinalSuffix": "ª"
+      },
+      "breakdown": {
+        "metrics": {
+          "cashPrice": "Preço à vista",
+          "installmentNominal": "Parcelado nominal",
+          "installmentPv": "Parcelado em valor presente",
+          "difference": "Diferença vs à vista",
+          "breakEvenDiscount": "Desconto à vista para empatar",
+          "breakEvenRate": "Taxa mínima para o parcelado empatar"
+        },
+        "monthlyComparison": {
+          "title": "Comparação mês a mês",
+          "description": "Veja o desembolso acumulado e o valor presente do parcelamento ao longo do tempo."
+        },
+        "formula": {
+          "collapseTitle": "Entenda o cálculo",
+          "title": "Fórmula e premissas",
+          "opportunityRateLabel": "Taxa de oportunidade:",
+          "rateAnnualSuffix": "% a.a.",
+          "inflationLabel": "Inflação:",
+          "neutralityBandLabel": "Faixa de neutralidade:",
+          "or": "ou",
+          "percentSuffix": "%"
+        },
+        "breakEven": {
+          "collapseTitle": "Break-even e comparação detalhada"
+        },
+        "scheduleSection": {
+          "collapseTitle": "Cronograma mês a mês"
+        }
       }
     },
     "home": {
@@ -685,6 +782,48 @@
         "subtitle": "Crie sua conta gratuita e tenha controle total sobre suas finanças.",
         "button": "Criar conta gratuita",
         "login": "Já tenho uma conta"
+      }
+    },
+    "profile": {
+      "modal": {
+        "title": "Complete seu perfil",
+        "subtitle": "Preencha seus dados financeiros para personalizar sua experiência no Auraxis.",
+        "closeAriaLabel": "Fechar modal",
+        "sectionRequired": "Dados pessoais e financeiros *",
+        "sectionOptional": "Informações opcionais",
+        "selectPlaceholder": "Selecione",
+        "labels": {
+          "gender": "Gênero",
+          "birthDate": "Data de nascimento",
+          "monthlyIncome": "Renda mensal (R$)",
+          "netWorth": "Patrimônio líquido (R$)",
+          "monthlyExpenses": "Gastos mensais (R$)",
+          "stateUf": "Estado (UF)",
+          "occupation": "Profissão",
+          "investorProfile": "Perfil de investidor",
+          "financialObjectives": "Objetivos financeiros",
+          "initialInvestment": "Investimento inicial (R$)",
+          "monthlyInvestment": "Aporte mensal (R$)",
+          "investmentGoalDate": "Data meta de investimento"
+        },
+        "placeholders": {
+          "occupation": "Ex.: Engenheiro de Software",
+          "financialObjectives": "Ex.: Aposentadoria antecipada, compra de imóvel..."
+        },
+        "genderOptions": {
+          "masculino": "Masculino",
+          "feminino": "Feminino",
+          "outro": "Outro"
+        },
+        "actions": {
+          "postpone": "Preencher depois",
+          "saving": "Salvando...",
+          "update": "Atualizar dados"
+        },
+        "messages": {
+          "success": "Seus dados foram atualizados",
+          "error": "Houve um problema ao atualizar os dados"
+        }
       }
     }
   },
@@ -2986,6 +3125,12 @@
         }
       },
       "copyright": "© {year} Auraxis. Todos os direitos reservados."
+    },
+    "taxBracketTable": {
+      "rangeHeader": "Faixa",
+      "rateHeader": "Alíquota",
+      "baseHeader": "Base",
+      "taxHeader": "Desconto"
     }
   },
   "onboarding": {

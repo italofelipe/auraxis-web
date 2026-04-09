@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { NModal, useMessage } from "naive-ui";
+import { useI18n } from "vue-i18n";
 import { toTypedSchema } from "@vee-validate/zod";
 import { useForm } from "vee-validate";
 import {
@@ -20,6 +21,7 @@ import type { UpdateUserProfileRequest } from "~/features/profile/contracts/user
 const props = defineProps<ProfileCompletionModalProps>();
 const emit = defineEmits<ProfileCompletionModalEmits>();
 
+const { t } = useI18n();
 const message = useMessage();
 const userStore = useUserStore();
 const { mutate, isPending } = useUpdateProfileMutation();
@@ -159,26 +161,32 @@ const buildPayload = (values: UserProfileSchema): UpdateUserProfileRequest => ({
 const onSubmit = handleSubmit((values: UserProfileSchema) => {
   mutate(buildPayload(values), {
     onSuccess: () => {
-      message.success("Seus dados foram atualizados", { duration: 3500 });
+      message.success(t("pages.profile.modal.messages.success"), { duration: 3500 });
       emit("saved");
     },
     onError: () => {
-      message.error("Houve um problema ao atualizar os dados", { duration: 4000 });
+      message.error(t("pages.profile.modal.messages.error"), { duration: 4000 });
     },
   });
 });
 
-const GENDER_LABELS: Record<string, string> = {
-  masculino: "Masculino",
-  feminino: "Feminino",
-  outro: "Outro",
-};
+/**
+ * Returns the localized label for a gender option.
+ *
+ * @param opt The gender option key (e.g., "masculino").
+ * @returns Localized label string.
+ */
+const genderLabel = (opt: string): string =>
+  t(`pages.profile.modal.genderOptions.${opt}`, opt);
 
-const INVESTOR_PROFILE_LABELS: Record<string, string> = {
-  conservador: "Conservador",
-  explorador: "Explorador",
-  entusiasta: "Entusiasta",
-};
+/**
+ * Returns the localized label for an investor profile option.
+ *
+ * @param opt The investor profile key (e.g., "conservador").
+ * @returns Localized title string.
+ */
+const investorProfileLabel = (opt: string): string =>
+  t(`investorProfile.result.${opt}.title`, opt);
 </script>
 
 <template>
@@ -193,15 +201,15 @@ const INVESTOR_PROFILE_LABELS: Record<string, string> = {
       <!-- Header -->
       <div class="profile-modal__header">
         <div>
-          <h2 class="profile-modal__title">Complete seu perfil</h2>
+          <h2 class="profile-modal__title">{{ $t('pages.profile.modal.title') }}</h2>
           <p class="profile-modal__subtitle">
-            Preencha seus dados financeiros para personalizar sua experiência no Auraxis.
+            {{ $t('pages.profile.modal.subtitle') }}
           </p>
         </div>
         <button
           class="profile-modal__close"
           type="button"
-          aria-label="Fechar modal"
+          :aria-label="$t('pages.profile.modal.closeAriaLabel')"
           @click="emit('close')"
         >
           ✕
@@ -211,11 +219,11 @@ const INVESTOR_PROFILE_LABELS: Record<string, string> = {
       <!-- Form -->
       <form class="profile-modal__form" novalidate @submit.prevent="onSubmit">
         <!-- Required section -->
-        <div class="profile-modal__section-label">Dados pessoais e financeiros *</div>
+        <div class="profile-modal__section-label">{{ $t('pages.profile.modal.sectionRequired') }}</div>
 
         <div class="profile-modal__grid">
           <!-- Gender -->
-          <UiFormField label="Gênero" field-id="pm-gender" :error="errors.gender" required>
+          <UiFormField :label="$t('pages.profile.modal.labels.gender')" field-id="pm-gender" :error="errors.gender" required>
             <select
               id="pm-gender"
               v-model="gender"
@@ -224,17 +232,17 @@ const INVESTOR_PROFILE_LABELS: Record<string, string> = {
               :disabled="isPending"
               v-bind="genderAttrs"
             >
-              <option value="" disabled>Selecione</option>
+              <option value="" disabled>{{ $t('pages.profile.modal.selectPlaceholder') }}</option>
               <option
                 v-for="opt in GENDER_OPTIONS"
                 :key="opt"
                 :value="opt"
-              >{{ GENDER_LABELS[opt] }}</option>
+              >{{ genderLabel(opt) }}</option>
             </select>
           </UiFormField>
 
           <!-- Birth date -->
-          <UiFormField label="Data de nascimento" field-id="pm-birth-date" :error="errors.birth_date" required>
+          <UiFormField :label="$t('pages.profile.modal.labels.birthDate')" field-id="pm-birth-date" :error="errors.birth_date" required>
             <input
               id="pm-birth-date"
               v-model="birthDate"
@@ -247,7 +255,7 @@ const INVESTOR_PROFILE_LABELS: Record<string, string> = {
           </UiFormField>
 
           <!-- Monthly income -->
-          <UiFormField label="Renda mensal (R$)" field-id="pm-income" :error="errors.monthly_income" required>
+          <UiFormField :label="$t('pages.profile.modal.labels.monthlyIncome')" field-id="pm-income" :error="errors.monthly_income" required>
             <input
               id="pm-income"
               v-model="monthlyIncome"
@@ -263,7 +271,7 @@ const INVESTOR_PROFILE_LABELS: Record<string, string> = {
           </UiFormField>
 
           <!-- Net worth -->
-          <UiFormField label="Patrimônio líquido (R$)" field-id="pm-networth" :error="errors.net_worth" required>
+          <UiFormField :label="$t('pages.profile.modal.labels.netWorth')" field-id="pm-networth" :error="errors.net_worth" required>
             <input
               id="pm-networth"
               v-model="netWorth"
@@ -279,7 +287,7 @@ const INVESTOR_PROFILE_LABELS: Record<string, string> = {
           </UiFormField>
 
           <!-- Monthly expenses -->
-          <UiFormField label="Gastos mensais (R$)" field-id="pm-expenses" :error="errors.monthly_expenses" required>
+          <UiFormField :label="$t('pages.profile.modal.labels.monthlyExpenses')" field-id="pm-expenses" :error="errors.monthly_expenses" required>
             <input
               id="pm-expenses"
               v-model="monthlyExpenses"
@@ -295,7 +303,7 @@ const INVESTOR_PROFILE_LABELS: Record<string, string> = {
           </UiFormField>
 
           <!-- State UF -->
-          <UiFormField label="Estado (UF)" field-id="pm-state" :error="errors.state_uf" required>
+          <UiFormField :label="$t('pages.profile.modal.labels.stateUf')" field-id="pm-state" :error="errors.state_uf" required>
             <select
               id="pm-state"
               v-model="stateUf"
@@ -304,20 +312,20 @@ const INVESTOR_PROFILE_LABELS: Record<string, string> = {
               :disabled="isPending"
               v-bind="stateUfAttrs"
             >
-              <option value="" disabled>Selecione</option>
+              <option value="" disabled>{{ $t('pages.profile.modal.selectPlaceholder') }}</option>
               <option v-for="uf in BRAZIL_UF_OPTIONS" :key="uf" :value="uf">{{ uf }}</option>
             </select>
           </UiFormField>
 
           <!-- Occupation -->
-          <UiFormField label="Profissão" field-id="pm-occupation" :error="errors.occupation" required>
+          <UiFormField :label="$t('pages.profile.modal.labels.occupation')" field-id="pm-occupation" :error="errors.occupation" required>
             <input
               id="pm-occupation"
               v-model="occupation"
               class="profile-modal__input"
               :class="{ 'profile-modal__input--error': !!errors.occupation }"
               type="text"
-              placeholder="Ex.: Engenheiro de Software"
+              :placeholder="$t('pages.profile.modal.placeholders.occupation')"
               maxlength="128"
               :disabled="isPending"
               v-bind="occupationAttrs"
@@ -325,7 +333,7 @@ const INVESTOR_PROFILE_LABELS: Record<string, string> = {
           </UiFormField>
 
           <!-- Investor profile -->
-          <UiFormField label="Perfil de investidor" field-id="pm-inv-profile" :error="errors.investor_profile" required>
+          <UiFormField :label="$t('pages.profile.modal.labels.investorProfile')" field-id="pm-inv-profile" :error="errors.investor_profile" required>
             <select
               id="pm-inv-profile"
               v-model="investorProfile"
@@ -334,19 +342,19 @@ const INVESTOR_PROFILE_LABELS: Record<string, string> = {
               :disabled="isPending"
               v-bind="investorProfileAttrs"
             >
-              <option value="" disabled>Selecione</option>
+              <option value="" disabled>{{ $t('pages.profile.modal.selectPlaceholder') }}</option>
               <option
                 v-for="opt in INVESTOR_PROFILE_OPTIONS"
                 :key="opt"
                 :value="opt"
-              >{{ INVESTOR_PROFILE_LABELS[opt] }}</option>
+              >{{ investorProfileLabel(opt) }}</option>
             </select>
           </UiFormField>
         </div>
 
         <!-- Financial objectives (full width) -->
         <UiFormField
-          label="Objetivos financeiros"
+          :label="$t('pages.profile.modal.labels.financialObjectives')"
           field-id="pm-objectives"
           :error="errors.financial_objectives"
           required
@@ -356,7 +364,7 @@ const INVESTOR_PROFILE_LABELS: Record<string, string> = {
             v-model="financialObjectives"
             class="profile-modal__textarea"
             :class="{ 'profile-modal__input--error': !!errors.financial_objectives }"
-            placeholder="Ex.: Aposentadoria antecipada, compra de imóvel..."
+            :placeholder="$t('pages.profile.modal.placeholders.financialObjectives')"
             rows="3"
             :disabled="isPending"
             v-bind="financialObjectivesAttrs"
@@ -365,12 +373,12 @@ const INVESTOR_PROFILE_LABELS: Record<string, string> = {
 
         <!-- Optional section -->
         <div class="profile-modal__section-label profile-modal__section-label--optional">
-          Informações opcionais
+          {{ $t('pages.profile.modal.sectionOptional') }}
         </div>
 
         <div class="profile-modal__grid">
           <!-- Initial investment -->
-          <UiFormField label="Investimento inicial (R$)" field-id="pm-init-inv" :error="errors.initial_investment">
+          <UiFormField :label="$t('pages.profile.modal.labels.initialInvestment')" field-id="pm-init-inv" :error="errors.initial_investment">
             <input
               id="pm-init-inv"
               v-model="initialInvestment"
@@ -386,7 +394,7 @@ const INVESTOR_PROFILE_LABELS: Record<string, string> = {
           </UiFormField>
 
           <!-- Monthly investment -->
-          <UiFormField label="Aporte mensal (R$)" field-id="pm-monthly-inv" :error="errors.monthly_investment">
+          <UiFormField :label="$t('pages.profile.modal.labels.monthlyInvestment')" field-id="pm-monthly-inv" :error="errors.monthly_investment">
             <input
               id="pm-monthly-inv"
               v-model="monthlyInvestment"
@@ -402,7 +410,7 @@ const INVESTOR_PROFILE_LABELS: Record<string, string> = {
           </UiFormField>
 
           <!-- Investment goal date -->
-          <UiFormField label="Data meta de investimento" field-id="pm-goal-date" :error="errors.investment_goal_date">
+          <UiFormField :label="$t('pages.profile.modal.labels.investmentGoalDate')" field-id="pm-goal-date" :error="errors.investment_goal_date">
             <input
               id="pm-goal-date"
               v-model="investmentGoalDate"
@@ -423,7 +431,7 @@ const INVESTOR_PROFILE_LABELS: Record<string, string> = {
             :disabled="isPending"
             @click="emit('close')"
           >
-            Preencher depois
+            {{ $t('pages.profile.modal.actions.postpone') }}
           </button>
 
           <button
@@ -433,7 +441,7 @@ const INVESTOR_PROFILE_LABELS: Record<string, string> = {
             :aria-busy="isPending"
           >
             <span v-if="isPending" class="profile-modal__spinner" aria-hidden="true" />
-            {{ isPending ? "Salvando..." : "Atualizar dados" }}
+            {{ isPending ? $t('pages.profile.modal.actions.saving') : $t('pages.profile.modal.actions.update') }}
           </button>
         </div>
       </form>

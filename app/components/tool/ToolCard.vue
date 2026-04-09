@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { NButton, NCard, NTag } from "naive-ui";
 import { useRouter } from "#app";
+import { useI18n } from "vue-i18n";
 import type { Tool, ToolAccessLevel } from "~/features/tools/model/tools";
 
 interface Props {
@@ -14,6 +15,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const router = useRouter();
+const { t } = useI18n();
 
 /**
  * Returns the label for the access badge based on access level.
@@ -22,12 +24,12 @@ const router = useRouter();
  */
 const accessBadgeLabel = (accessLevel: ToolAccessLevel): string => {
   if (accessLevel === "premium") {
-    return "Premium";
+    return t("pages.tools.card.badgeLabels.premium");
   }
   if (accessLevel === "authenticated") {
-    return "Login necessário";
+    return t("pages.tools.card.badgeLabels.loginRequired");
   }
-  return "Público";
+  return t("pages.tools.card.badgeLabels.public");
 };
 
 /**
@@ -73,15 +75,15 @@ const handleCtaClick = (): void => {
  */
 const ctaLabel = (): string => {
   if (!props.tool.enabled) {
-    return "Em breve";
+    return t("pages.tools.card.disabled");
   }
   if (props.tool.accessLevel === "premium" && !props.isPremium) {
-    return "Ver planos";
+    return t("pages.tools.card.viewPlans");
   }
   if (props.tool.accessLevel === "authenticated" && !props.isAuthenticated) {
-    return "Fazer login para usar";
+    return t("pages.tools.card.loginToUse");
   }
-  return "Usar ferramenta";
+  return t("pages.tools.card.use");
 };
 </script>
 

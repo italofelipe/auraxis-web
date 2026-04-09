@@ -113,7 +113,15 @@
       },
       "card": {
         "open": "Open tool",
-        "disabled": "Coming soon"
+        "disabled": "Coming soon",
+        "use": "Use tool",
+        "viewPlans": "View plans",
+        "loginToUse": "Log in to use",
+        "badgeLabels": {
+          "premium": "Premium",
+          "loginRequired": "Login required",
+          "public": "Public"
+        }
       },
       "empty": "No tools available at this time."
     },
@@ -638,6 +646,95 @@
         "registerCta": "Create free account",
         "loginCta": "I already have an account",
         "trust": "Free forever · No credit card · Cancel anytime"
+      },
+      "form": {
+        "labels": {
+          "scenario": "Purchase or scenario",
+          "cashPrice": "Cash price",
+          "installmentCount": "Number of installments",
+          "installmentInputMode": "How do you want to enter the installment value",
+          "installmentInputAriaLabel": "Installment mode",
+          "installmentTotal": "Total installment amount",
+          "installmentAmount": "Amount per installment",
+          "firstPayment": "First payment",
+          "customDelay": "Days until first payment",
+          "opportunityRate": "Opportunity rate",
+          "inflationRate": "Annual inflation (%)",
+          "manualRate": "Annual opportunity rate (%)",
+          "fees": "Upfront extra costs"
+        },
+        "placeholders": {
+          "scenario": "E.g.: laptop, fridge, trip",
+          "cashPrice": "900.00",
+          "installmentCount": "6",
+          "installmentTotal": "990.00",
+          "installmentAmount": "165.00",
+          "customDelay": "75",
+          "inflationRate": "4.50",
+          "manualRate": "12.00",
+          "fees": "60.00"
+        },
+        "opportunityRateOptions": {
+          "manual": "Manual",
+          "productDefault": "Product preset",
+          "inflationOnly": "Inflation only"
+        },
+        "delayOptions": {
+          "today": "Today",
+          "thirtyDays": "30 days",
+          "fortyFiveDays": "45 days",
+          "custom": "Custom"
+        },
+        "installmentInputOptions": {
+          "total": "Enter total installment amount",
+          "amount": "Enter amount per installment"
+        },
+        "actions": {
+          "calculate": "Calculate now"
+        }
+      },
+      "schedule": {
+        "columns": {
+          "installment": "Installment",
+          "dueDate": "Due in",
+          "amount": "Amount",
+          "presentValue": "Present value",
+          "cumulativeNominal": "Cumulative nominal",
+          "cashCumulative": "Cash cumulative"
+        },
+        "today": "Today",
+        "daysUnit": "days",
+        "ordinalSuffix": "st"
+      },
+      "breakdown": {
+        "metrics": {
+          "cashPrice": "Cash price",
+          "installmentNominal": "Installment nominal",
+          "installmentPv": "Installment present value",
+          "difference": "Difference vs cash",
+          "breakEvenDiscount": "Cash discount to break even",
+          "breakEvenRate": "Min rate for installment to break even"
+        },
+        "monthlyComparison": {
+          "title": "Month-by-month comparison",
+          "description": "See cumulative outflow and present value of installments over time."
+        },
+        "formula": {
+          "collapseTitle": "Understand the calculation",
+          "title": "Formula and assumptions",
+          "opportunityRateLabel": "Opportunity rate:",
+          "rateAnnualSuffix": "% p.a.",
+          "inflationLabel": "Inflation:",
+          "neutralityBandLabel": "Neutrality band:",
+          "or": "or",
+          "percentSuffix": "%"
+        },
+        "breakEven": {
+          "collapseTitle": "Break-even and detailed comparison"
+        },
+        "scheduleSection": {
+          "collapseTitle": "Month-by-month schedule"
+        }
       }
     },
     "home": {
@@ -685,6 +782,48 @@
         "subtitle": "Create your free account and take full control of your finances.",
         "button": "Create free account",
         "login": "I already have an account"
+      }
+    },
+    "profile": {
+      "modal": {
+        "title": "Complete your profile",
+        "subtitle": "Fill in your financial data to personalize your Auraxis experience.",
+        "closeAriaLabel": "Close modal",
+        "sectionRequired": "Personal and financial details *",
+        "sectionOptional": "Optional information",
+        "selectPlaceholder": "Select",
+        "labels": {
+          "gender": "Gender",
+          "birthDate": "Date of birth",
+          "monthlyIncome": "Monthly income (R$)",
+          "netWorth": "Net worth (R$)",
+          "monthlyExpenses": "Monthly expenses (R$)",
+          "stateUf": "State (UF)",
+          "occupation": "Occupation",
+          "investorProfile": "Investor profile",
+          "financialObjectives": "Financial objectives",
+          "initialInvestment": "Initial investment (R$)",
+          "monthlyInvestment": "Monthly contribution (R$)",
+          "investmentGoalDate": "Investment goal date"
+        },
+        "placeholders": {
+          "occupation": "E.g.: Software Engineer",
+          "financialObjectives": "E.g.: Early retirement, buying a property..."
+        },
+        "genderOptions": {
+          "masculino": "Male",
+          "feminino": "Female",
+          "outro": "Other"
+        },
+        "actions": {
+          "postpone": "Fill in later",
+          "saving": "Saving...",
+          "update": "Update profile"
+        },
+        "messages": {
+          "success": "Your data has been updated",
+          "error": "There was a problem updating your data"
+        }
       }
     }
   },
@@ -2986,6 +3125,12 @@
         }
       },
       "copyright": "© {year} Auraxis. All rights reserved."
+    },
+    "taxBracketTable": {
+      "rangeHeader": "Bracket",
+      "rateHeader": "Rate",
+      "baseHeader": "Base",
+      "taxHeader": "Deduction"
     }
   },
   "onboarding": {
