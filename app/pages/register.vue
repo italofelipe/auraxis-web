@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useMessage } from "naive-ui";
 import { useRegisterMutation } from "~/composables/useAuth";
-import { useCaptcha } from "~/composables/useCaptcha";
+import { useCaptcha } from "~/features/auth/composables/useCaptcha";
 import { useApiError } from "~/composables/useApiError";
 import type { RegisterSchema } from "~/schemas/auth";
 

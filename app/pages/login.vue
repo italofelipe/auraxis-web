@@ -2,7 +2,7 @@
 import { useMessage } from "naive-ui";
 import { useLoginMutation } from "~/composables/useAuth";
 import { useAuthRedirectContext } from "~/composables/useAuthRedirectContext";
-import { useCaptcha } from "~/composables/useCaptcha";
+import { useCaptcha } from "~/features/auth/composables/useCaptcha";
 import { useApiError } from "~/composables/useApiError";
 import type { LoginSchema } from "~/schemas/auth";
 

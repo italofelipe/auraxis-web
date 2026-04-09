@@ -1,7 +1,7 @@
 import { useI18n } from "vue-i18n";
 import type { DashboardTimeseriesPoint } from "~/features/dashboard/model/dashboard-overview";
 import { colors } from "~/theme/tokens/colors";
-import type { ChartSeries, ChartSeriesResult } from "./types";
+import type { ChartSeries, ChartSeriesResult } from "./useChartSeriesMapper.types";
 
 type TimeseriesKey = "income" | "expense" | "balance";
 

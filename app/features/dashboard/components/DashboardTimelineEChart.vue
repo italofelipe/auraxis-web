@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { EChartsOption } from "echarts";
 import type { DashboardTimeseriesPoint } from "~/features/dashboard/model/dashboard-overview";
-import { useChartSeriesMapper } from "~/composables/useChartSeriesMapper";
+import { useChartSeriesMapper } from "~/features/dashboard/composables/useChartSeriesMapper";
 
 /** Props */
 const props = defineProps<{

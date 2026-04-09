@@ -114,7 +114,7 @@ vi.mock("#app", () => ({
   useRouter: (): { push: typeof mockPush } => ({ push: mockPush }),
 }));
 
-vi.mock("~/composables/useToolCta", () => ({
+vi.mock("~/features/tools/composables/useToolCta", () => ({
   useToolCta: (): { showCta: ComputedRef<boolean> } => ({
     showCta: computed(() => !mockIsAuthenticated.value),
   }),

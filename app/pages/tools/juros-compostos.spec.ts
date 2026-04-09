@@ -124,7 +124,7 @@ vi.mock("~/stores/session", () => ({
   }),
 }));
 
-vi.mock("~/composables/useToolCta", () => ({
+vi.mock("~/features/tools/composables/useToolCta", () => ({
   useToolCta: (): { showCta: ComputedRef<boolean> } => ({
     showCta: computed(() => !mockIsAuthenticated.value),
   }),
