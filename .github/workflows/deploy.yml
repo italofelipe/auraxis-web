@@ -150,6 +150,14 @@ jobs:
       # A mismatch (e.g. S3_BUCKET points to the wrong bucket) would silently
       # deploy to a bucket CloudFront never reads — root cause of the 26/03
       # incident where production served a 3-day-old snapshot indefinitely.
+      #
+      # We check that CF_ORIGIN *starts with* S3_BUCKET (prefix match) rather
+      # than an exact string comparison. This tolerates the two endpoint formats
+      # AWS uses depending on how the distribution was configured:
+      #   • REST endpoint  : bucket.s3.amazonaws.com
+      #   • Website endpoint: bucket.s3-website-us-east-1.amazonaws.com
+      # Both start with the bucket name followed by a dot, so the prefix check
+      # catches true bucket drift (wrong bucket) while ignoring endpoint format.
       - name: Verify S3 bucket matches CloudFront origin
         run: |
           DIST_ID="${{ vars.AWS_WEB_CLOUDFRONT_DISTRIBUTION_ID }}"
@@ -157,15 +165,16 @@ jobs:
             --id "$DIST_ID" \
             --query 'Distribution.DistributionConfig.Origins.Items[0].DomainName' \
             --output text)
-          EXPECTED="${{ env.S3_BUCKET }}.s3.amazonaws.com"
+          BUCKET="${{ env.S3_BUCKET }}"
           echo "CloudFront origin : $CF_ORIGIN"
-          echo "S3_BUCKET expected: $EXPECTED"
-          if [ "$CF_ORIGIN" != "$EXPECTED" ]; then
+          echo "S3_BUCKET         : $BUCKET"
+          if [[ "$CF_ORIGIN" != "${BUCKET}."* ]]; then
             echo "✗ MISMATCH — deploy abortado para evitar entrega no bucket errado"
+            echo "  CF origin '${CF_ORIGIN}' não começa com '${BUCKET}.'"
             echo "  Verifique S3_BUCKET no workflow e o origin da distribuição $DIST_ID"
             exit 1
           fi
-          echo "✓ CloudFront origin bate com S3_BUCKET"
+          echo "✓ CloudFront origin bate com S3_BUCKET (formato: ${CF_ORIGIN})"
 
       # Upload to S3.
       # Cache strategy:
