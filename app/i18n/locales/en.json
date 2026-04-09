@@ -1128,6 +1128,23 @@
       "returnLabel": "Annual return (%)",
       "projection": "Projection: {n} months (completion in {date})",
       "unreachable": "With this contribution, the goal will not be reached"
+    },
+    "projection": {
+      "title": "Portfolio Projection",
+      "monthlyContribution": "Monthly contribution",
+      "portfolioRate": "Portfolio annual return",
+      "estimatedCompletion": "Estimated completion",
+      "monthsToCompletion": "Months to reach goal",
+      "onTrack": "On track",
+      "offTrack": "Off track",
+      "loadError": "Could not load the projection",
+      "loadErrorMessage": "Please try again.",
+      "unreachable": "With this contribution the goal will not be reached",
+      "alreadyDone": "Goal already reached!",
+      "suggestedAlert": "To reach the goal on time, contribute {amount}/month",
+      "chartTitle": "Projected accumulation",
+      "seriesBalance": "Accumulated balance",
+      "seriesTarget": "Target"
     }
   },
   "alert": {
