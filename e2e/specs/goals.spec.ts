@@ -61,7 +61,30 @@ const MOCK_GOALS: Record<string, unknown>[] = [
  * @param page - Playwright page instance.
  */
 const mockAuthAndGoals = async (page: Page): Promise<void> => {
+	// Tracks whether POST /auth/login has succeeded. The session-restore plugin
+	// calls POST /auth/refresh on every full page load (split-token pattern, SEC-GAP-01):
+	// before login the refresh cookie doesn't exist → 401; after login the cookie
+	// is set by the server → 200 (simulated here so page.goto("/goals") re-authenticates).
+	let sessionEstablished = false;
+
+	await page.route("**/auth/refresh", (route) => {
+		if (!sessionEstablished) {
+			route.fulfill({
+				status: 401,
+				contentType: "application/json",
+				body: JSON.stringify({ message: "Unauthorized" }),
+			});
+		} else {
+			route.fulfill({
+				status: 200,
+				contentType: "application/json",
+				body: JSON.stringify({ success: true, data: { token: "mock-access-token-refreshed" } }),
+			});
+		}
+	});
+
 	await page.route("**/auth/login", (route) => {
+		sessionEstablished = true;
 		route.fulfill({
 			status: 200,
 			contentType: "application/json",
