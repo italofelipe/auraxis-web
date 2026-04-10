@@ -14,7 +14,6 @@ export {
 /** Shape of the data payload returned by POST /auth/refresh (v2 envelope). */
 interface RefreshResponseData {
   readonly token: string;
-  readonly refresh_token: string;
 }
 
 /** Full v2 envelope for the token-refresh endpoint. */
@@ -24,9 +23,12 @@ interface RefreshEnvelope {
 }
 
 /**
- * Exchanges the stored refresh token for a new access+refresh token pair.
- * On success, persists both tokens to the session store and returns the new
- * access token. On failure, signs the user out and returns null.
+ * Exchanges the httpOnly refresh cookie for a new access token.
+ *
+ * SEC-GAP-01: The refresh token is no longer passed via Authorization header.
+ * The browser sends the `auraxis_refresh` httpOnly cookie automatically when
+ * `withCredentials: true` is set. On success the access token is updated in
+ * the session store. On failure the user is signed out.
  *
  * @param apiBase Absolute base URL of the Auraxis API.
  * @param sessionStore Active session Pinia store instance.
@@ -36,26 +38,17 @@ export const refreshAccessToken = async (
   apiBase: string,
   sessionStore: ReturnType<typeof useSessionStore>,
 ): Promise<string | null> => {
-  const refreshToken = sessionStore.getRefreshToken();
-
-  if (!refreshToken) {
-    sessionStore.signOut();
-    return null;
-  }
-
   try {
     const response = await axios.post<RefreshEnvelope>(
       `${apiBase}/auth/refresh`,
       {},
       {
-        headers: {
-          Authorization: `Bearer ${refreshToken}`,
-          "X-API-Contract": "v2",
-        },
+        withCredentials: true, // sends the httpOnly auraxis_refresh cookie
+        headers: { "X-API-Contract": "v2" },
       },
     );
-    const { token, refresh_token } = response.data.data;
-    sessionStore.updateTokens(token, refresh_token);
+    const { token } = response.data.data;
+    sessionStore.updateTokens(token);
     return token;
   } catch {
     sessionStore.signOut();

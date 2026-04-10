@@ -34,7 +34,29 @@ const MOCK_LOGIN_SUCCESS = {
  * @param page - Playwright page instance.
  */
 const mockAuthRoutes = async (page: Page): Promise<void> => {
+	// The session-restore plugin calls POST /auth/refresh on every full page load
+	// (split-token pattern, SEC-GAP-01). Returns 401 before login (no refresh cookie),
+	// 200 after login (simulating the cookie set by the server on POST /auth/login).
+	let sessionEstablished = false;
+
+	await page.route("**/auth/refresh", (route) => {
+		if (!sessionEstablished) {
+			route.fulfill({
+				status: 401,
+				contentType: "application/json",
+				body: JSON.stringify({ message: "Unauthorized" }),
+			});
+		} else {
+			route.fulfill({
+				status: 200,
+				contentType: "application/json",
+				body: JSON.stringify({ success: true, data: { token: "mock-access-token-refreshed" } }),
+			});
+		}
+	});
+
 	await page.route("**/auth/login", (route) => {
+		sessionEstablished = true;
 		route.fulfill({
 			status: 200,
 			contentType: "application/json",

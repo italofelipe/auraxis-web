@@ -28,6 +28,12 @@ describe("useHttp helpers", () => {
     expect(client.defaults.timeout).toBe(15000);
   });
 
+  it("habilita withCredentials para enviar o cookie httpOnly de refresh (SEC-GAP-01)", () => {
+    const client = createHttpClient("http://localhost:5000", () => null);
+
+    expect(client.defaults.withCredentials).toBe(true);
+  });
+
   it("define header X-API-Contract: v2 por padrão", () => {
     const client = createHttpClient("http://localhost:5000", () => null);
 
@@ -103,28 +109,36 @@ describe("useHttp helpers", () => {
   });
 });
 
-describe("refreshAccessToken", () => {
+describe("refreshAccessToken (SEC-GAP-01 — cookie-based)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.restoreAllMocks();
   });
 
-  it("signs out and returns null when no refresh token exists", async () => {
+  it("calls POST /auth/refresh with withCredentials: true (no Authorization header)", async () => {
     const sessionStore = {
-      getRefreshToken: vi.fn().mockReturnValue(null),
       signOut: vi.fn(),
       updateTokens: vi.fn(),
     } as unknown as Parameters<typeof refreshAccessToken>[1];
 
-    const result = await refreshAccessToken("http://api", sessionStore);
+    let capturedConfig: Record<string, unknown> = {};
+    vi.spyOn(axios, "post").mockImplementationOnce(
+      (_url, _body, config) => {
+        capturedConfig = config as Record<string, unknown>;
+        return Promise.resolve({
+          data: { success: true, data: { token: "new-token" } },
+        });
+      },
+    );
 
-    expect(result).toBeNull();
-    expect(sessionStore.signOut).toHaveBeenCalledOnce();
+    await refreshAccessToken("http://api", sessionStore);
+
+    expect(capturedConfig.withCredentials).toBe(true);
+    expect(capturedConfig.headers).not.toHaveProperty("Authorization");
   });
 
-  it("calls updateTokens and returns new token on successful refresh", async () => {
+  it("calls updateTokens with the new access token and returns it", async () => {
     const sessionStore = {
-      getRefreshToken: vi.fn().mockReturnValue("refresh-token"),
       signOut: vi.fn(),
       updateTokens: vi.fn(),
     } as unknown as Parameters<typeof refreshAccessToken>[1];
@@ -132,25 +146,42 @@ describe("refreshAccessToken", () => {
     vi.spyOn(axios, "post").mockResolvedValueOnce({
       data: {
         success: true,
-        data: { token: "new-access-token", refresh_token: "new-refresh-token" },
+        data: { token: "new-access-token" },
       },
     });
 
     const result = await refreshAccessToken("http://api", sessionStore);
 
     expect(result).toBe("new-access-token");
-    expect(sessionStore.updateTokens).toHaveBeenCalledWith("new-access-token", "new-refresh-token");
+    expect(sessionStore.updateTokens).toHaveBeenCalledWith("new-access-token");
     expect(sessionStore.signOut).not.toHaveBeenCalled();
   });
 
   it("signs out and returns null when refresh request fails", async () => {
     const sessionStore = {
-      getRefreshToken: vi.fn().mockReturnValue("refresh-token"),
       signOut: vi.fn(),
       updateTokens: vi.fn(),
     } as unknown as Parameters<typeof refreshAccessToken>[1];
 
     vi.spyOn(axios, "post").mockRejectedValueOnce(new Error("Network error"));
+
+    const result = await refreshAccessToken("http://api", sessionStore);
+
+    expect(result).toBeNull();
+    expect(sessionStore.signOut).toHaveBeenCalledOnce();
+  });
+
+  it("signs out and returns null when the server returns 401 (expired cookie)", async () => {
+    const sessionStore = {
+      signOut: vi.fn(),
+      updateTokens: vi.fn(),
+    } as unknown as Parameters<typeof refreshAccessToken>[1];
+
+    const axiosError = Object.assign(new Error("Unauthorized"), {
+      isAxiosError: true,
+      response: { status: 401 },
+    });
+    vi.spyOn(axios, "post").mockRejectedValueOnce(axiosError);
 
     const result = await refreshAccessToken("http://api", sessionStore);
 
