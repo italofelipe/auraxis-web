@@ -68,6 +68,9 @@ export const createHttpClient = (
     baseURL: normalizeBaseUrl(baseUrl),
     timeout: 15_000,
     headers: { "X-API-Contract": "v2" },
+    // SEC-GAP-01: enables the httpOnly auraxis_refresh cookie to be sent with
+    // every request so the /auth/refresh endpoint can read it automatically.
+    withCredentials: true,
   });
 
   client.interceptors.request.use(createAuthInterceptor(getAccessToken));
