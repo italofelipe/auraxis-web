@@ -31,12 +31,13 @@ const LEGACY_COOKIE_KEY = "auraxis_session";
 /**
  * Removes the legacy auraxis_session cookie that previously stored tokens in
  * a JavaScript-readable non-httpOnly cookie.
+ *
+ * All callers (signIn, signOut, restore) are invoked only in client context —
+ * the session-restore plugin guards against SSR via `import.meta.client`, and
+ * Pinia actions are always called from Vue components or composables. No SSR
+ * guard is needed here.
  */
 const clearLegacyCookie = (): void => {
-  /* v8 ignore next 3 */
-  if (typeof document === "undefined") {
-    return;
-  }
   document.cookie = `${LEGACY_COOKIE_KEY}=; path=/; SameSite=Lax; Max-Age=0`;
 };
 
