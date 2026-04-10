@@ -54,14 +54,29 @@ ci:
       unused-javascript:                   { severity: off }
       unused-css-rules:                    { severity: off }
 
-      # Performance metrics: too noisy on shared CI runners (no throttling
-      # consistency, no CDN, no HTTP/2 push). Tracked separately via RUM.
+      # Performance metrics: warn-only (non-blocking) to establish a Phase 0 baseline.
+      # Thresholds are generous — goal is visibility, not enforcement yet.
+      # Tighten after Phase 2 (PERF-GAP-01/02/06/07) improvements land.
+      # Note: CI runners have no throttling consistency; treat absolute numbers
+      # as relative indicators only. RUM in prod is the authoritative source.
+      'categories:performance':
+        - warn
+        - minScore: 0.5
+
+      largest-contentful-paint:
+        - warn
+        - maxNumericValue: 5000   # warn if LCP > 5s (CI runner, no CDN)
+
+      total-blocking-time:
+        - warn
+        - maxNumericValue: 1500   # warn if TBT > 1.5s
+
+      cumulative-layout-shift:
+        - warn
+        - maxNumericValue: 0.25   # warn if CLS > 0.25
+
       first-contentful-paint:              { severity: off }
-      largest-contentful-paint:            { severity: off }
-      total-blocking-time:                 { severity: off }
-      cumulative-layout-shift:             { severity: off }
       speed-index:                         { severity: off }
-      'categories:performance':            { severity: off }
       'categories:best-practices':         { severity: off }
 
   upload:
