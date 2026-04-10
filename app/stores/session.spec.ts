@@ -250,6 +250,29 @@ describe("session store (split-token, SEC-GAP-01)", () => {
     });
   });
 
+  // ─── SSR safety ───────────────────────────────────────────────────────────
+
+  describe("SSR safety (clearLegacyCookie when document is undefined)", () => {
+    it("does not throw when document is undefined (route middleware runs during prerender)", () => {
+      const store = useSessionStore();
+      const savedDocument = globalThis.document;
+      // Simulate SSR prerender environment where document is not available.
+      // Route middlewares (guest-only, authenticated) call restore() server-side;
+      // clearLegacyCookie must be a safe no-op in that context.
+      // @ts-expect-error — intentionally removing document to test SSR guard
+      globalThis.document = undefined;
+      try {
+        expect(() => store.restore()).not.toThrow();
+        expect(() => store.signOut()).not.toThrow();
+        expect(() =>
+          store.signIn({ accessToken: "tok", userEmail: "u@test.com" }),
+        ).not.toThrow();
+      } finally {
+        globalThis.document = savedDocument;
+      }
+    });
+  });
+
   // ─── F5 / page reload simulation ──────────────────────────────────────────
 
   describe("page reload behavior", () => {

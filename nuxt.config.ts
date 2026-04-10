@@ -346,9 +346,12 @@ export default defineNuxtConfig({
     "/login":                  { prerender: true },
     "/register":               { prerender: true },
     "/forgot-password":        { prerender: true },
+    "/reset-password":         { prerender: true },
     "/confirm-email":          { prerender: true },
     "/confirm-email-pending":  { ssr: false },
-    "/resend-confirmation":    { prerender: true },
+    // resend-confirmation requires authentication (logged-in user resending
+    // their verification email) — must be SPA, not prerendered.
+    "/resend-confirmation":    { ssr: false },
     "/checkout/success":       { ssr: false },
     "/checkout/cancel":        { prerender: true },
 
@@ -362,9 +365,10 @@ export default defineNuxtConfig({
     "/en/login":                     { prerender: true },
     "/en/register":                  { prerender: true },
     "/en/forgot-password":           { prerender: true },
+    "/en/reset-password":            { prerender: true },
     "/en/confirm-email":             { prerender: true },
     "/en/confirm-email-pending":     { ssr: false },
-    "/en/resend-confirmation":       { prerender: true },
+    "/en/resend-confirmation":       { ssr: false },
     "/en/checkout/success":          { ssr: false },
     "/en/checkout/cancel":           { prerender: true },
 
@@ -372,8 +376,7 @@ export default defineNuxtConfig({
     // Auth middleware enforces access. No financial data in static HTML.
     // IMPORTANT: Every authenticated route MUST be listed here. Without
     // `ssr: false`, Nuxt falls back to full SSR where `document` is
-    // undefined and `sessionStore.restore()` cannot read the cookie →
-    // `authenticated` middleware always redirects to /login.
+    // undefined and route middlewares crash → 500 during prerender.
     "/dashboard":      { ssr: false },
     "/portfolio":      { ssr: false },
     "/goals":          { ssr: false },
@@ -383,10 +386,13 @@ export default defineNuxtConfig({
     "/shared-entries": { ssr: false },
     "/income":         { ssr: false },
     "/subscription":   { ssr: false },
+    "/budgets":        { ssr: false },
     "/investor-profile":        { ssr: false },
     "/settings/accounts":       { ssr: false },
     "/settings/credit-cards":   { ssr: false },
     "/settings/tags":           { ssr: false },
+    "/settings/profile":        { ssr: false },
+    "/settings/danger-zone":    { ssr: false },
     "/en/dashboard":      { ssr: false },
     "/en/portfolio":      { ssr: false },
     "/en/goals":          { ssr: false },
@@ -396,6 +402,13 @@ export default defineNuxtConfig({
     "/en/shared-entries": { ssr: false },
     "/en/income":         { ssr: false },
     "/en/subscription":   { ssr: false },
+    "/en/budgets":        { ssr: false },
+    "/en/investor-profile":        { ssr: false },
+    "/en/settings/accounts":       { ssr: false },
+    "/en/settings/credit-cards":   { ssr: false },
+    "/en/settings/tags":           { ssr: false },
+    "/en/settings/profile":        { ssr: false },
+    "/en/settings/danger-zone":    { ssr: false },
   },
 
   // ── Nitro ─────────────────────────────────────────────────────────────
