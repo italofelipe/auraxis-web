@@ -257,3 +257,93 @@ describe("registerResponseInterceptors — onUnauthorized (token refresh)", () =
     expect(onUnauthorized).not.toHaveBeenCalled();
   });
 });
+
+// ---------------------------------------------------------------------------
+// 401 — concurrent refresh deduplication (stampede guard)
+// ---------------------------------------------------------------------------
+
+describe("registerResponseInterceptors — refresh stampede dedup", () => {
+  it("dez 401 concorrentes compartilham o mesmo refresh in-flight", async () => {
+    let resolveRefresh: ((token: string | null) => void) | null = null;
+    const onUnauthorized = vi.fn<() => Promise<string | null>>().mockImplementation(
+      () =>
+        new Promise<string | null>((resolve) => {
+          resolveRefresh = resolve;
+        }),
+    );
+    // Mock the client so the retry path doesn't attempt a real network call.
+    const retryCalls: Array<Record<string, unknown>> = [];
+    const baseClient = axios.create({ baseURL: "http://localhost" });
+    const clientAsFn = baseClient as unknown as ((
+      config: unknown,
+    ) => Promise<unknown>) & { interceptors: typeof baseClient.interceptors };
+    const proxyHandler: ProxyHandler<typeof clientAsFn> = {
+      apply: (_target, _this, args: unknown[]) => {
+        retryCalls.push(args[0] as Record<string, unknown>);
+        return Promise.resolve({ data: "ok" });
+      },
+    };
+    const proxied = new Proxy(clientAsFn, proxyHandler);
+    registerResponseInterceptors(
+      proxied as unknown as ReturnType<typeof axios.create>,
+      { onUnauthorized },
+    );
+    const proxiedHandler = (
+      (proxied as unknown as typeof clientAsFn).interceptors.response as unknown as {
+        handlers: Array<{ rejected: (e: unknown) => Promise<never> }>;
+      }
+    ).handlers[0]!.rejected;
+
+    const failures = Array.from({ length: 10 }, (_, i) =>
+      Object.assign(new Error("Unauthorized"), {
+        isAxiosError: true,
+        response: { status: 401, data: { message: "Unauthorized" } },
+        config: { headers: {}, _retry: false, url: `/res/${i}` },
+      }),
+    );
+
+    const results = failures.map((err) =>
+      proxiedHandler(err).catch((e: unknown) => e),
+    );
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(onUnauthorized).toHaveBeenCalledTimes(1);
+
+    if (!resolveRefresh) {
+      throw new Error("refresh was never scheduled");
+    }
+    (resolveRefresh as (token: string | null) => void)("new-token");
+
+    await Promise.all(results);
+    expect(retryCalls.length).toBe(10);
+    expect(onUnauthorized).toHaveBeenCalledTimes(1);
+  });
+
+  it("libera a promise cacheada após a resolução para permitir novos refreshes", async () => {
+    const onUnauthorized = vi.fn<() => Promise<string | null>>().mockResolvedValue(null);
+    const refreshClient = axios.create({ baseURL: "http://localhost" });
+    registerResponseInterceptors(refreshClient, { onUnauthorized });
+    const handler = getRejectedHandler(refreshClient);
+
+    /**
+     * Creates a fresh axios-like error object with `_retry: false` so each
+     * invocation passes the retry-guard and exercises the shared-refresh path.
+     *
+     * @returns Axios-shaped 401 error ready to hand to the interceptor.
+     */
+    const makeErr = (): Error => Object.assign(new Error("Unauthorized"), {
+      isAxiosError: true,
+      response: { status: 401, data: { message: "Unauthorized" } },
+      config: { headers: {}, _retry: false },
+    });
+
+    await handler(makeErr()).catch(() => undefined);
+    await handler(makeErr()).catch(() => undefined);
+
+    // Each sequential 401 (with its own config) must trigger a fresh refresh
+    // once the previous one has settled, even though it returned null.
+    expect(onUnauthorized).toHaveBeenCalledTimes(2);
+  });
+});
