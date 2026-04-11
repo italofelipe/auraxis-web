@@ -68,11 +68,38 @@ export const toApiError = (error: unknown): ApiError => {
 };
 
 /**
+ * Deduplicates concurrent refresh calls triggered by parallel 401 responses.
+ *
+ * When N requests fail with 401 before any refresh has completed, the first
+ * one kicks off `onUnauthorized()` and the others await the same in-flight
+ * promise. Once the promise settles, the cache is cleared so subsequent
+ * 401s can trigger a fresh refresh.
+ *
+ * @param onUnauthorized Underlying refresh handler.
+ * @returns A wrapped handler that collapses concurrent calls into one.
+ */
+const createSharedRefresh = (
+  onUnauthorized: () => Promise<string | null>,
+): (() => Promise<string | null>) => {
+  let inflight: Promise<string | null> | null = null;
+  return (): Promise<string | null> => {
+    if (inflight) {
+      return inflight;
+    }
+    inflight = onUnauthorized().finally(() => {
+      inflight = null;
+    });
+    return inflight;
+  };
+};
+
+/**
  * Registers a response interceptor on the provided Axios instance.
  *
  * Behaviour by HTTP status:
  * - **401**: When `options.onUnauthorized` is provided, calls it to refresh
- *   tokens and retries the original request once. If the refresh fails or no
+ *   tokens and retries the original request once. Concurrent 401s share a
+ *   single in-flight refresh (stampede guard). If the refresh fails or no
  *   handler is configured, re-throws the 401 as an {@link ApiError}.
  * - **403**: Calls `options.onForbidden` with the localised message, then re-throws.
  * - **5xx**: Calls `options.onServerError` with the localised message, then re-throws.
@@ -88,19 +115,23 @@ export const registerResponseInterceptors = (
   client: AxiosInstance,
   options: ResponseInterceptorOptions,
 ): void => {
+  const sharedRefresh = options.onUnauthorized
+    ? createSharedRefresh(options.onUnauthorized)
+    : null;
+
   client.interceptors.response.use(
     (response) => response,
     async (error: unknown): Promise<never> => {
       const apiError = toApiError(error);
 
-      if (apiError.status === 401 && options.onUnauthorized) {
+      if (apiError.status === 401 && sharedRefresh) {
         const config = axios.isAxiosError(error)
           ? (error.config as RetryableConfig | undefined)
           : undefined;
 
         if (config && !config._retry) {
           config._retry = true;
-          const newToken = await options.onUnauthorized();
+          const newToken = await sharedRefresh();
 
           if (newToken) {
             config.headers.Authorization = `Bearer ${newToken}`;
