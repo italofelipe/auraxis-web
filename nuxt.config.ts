@@ -1,6 +1,13 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import { visualizer } from "rollup-plugin-visualizer";
+import { buildCsp, resolveCspEnvironment } from "./app/core/security/csp";
 import { TOOL_SLUGS } from "./app/data/tools";
+
+// Resolve Content Security Policy at build time based on NUXT_PUBLIC_APP_ENV.
+// Production returns null because CloudFront emits the CSP header, so no meta
+// tag is injected and there is no duplicate policy.
+const cspEnvironment = resolveCspEnvironment(process.env.NUXT_PUBLIC_APP_ENV);
+const cspPolicy = buildCsp(cspEnvironment);
 
 /**
  * Generates routeRules entries for all tool slugs (PT + EN locales).
@@ -92,6 +99,11 @@ export default defineNuxtConfig({
         // serving the current build and not a cached stale snapshot.
         // Empty string in local dev — harmless.
         { name: "x-build-id", content: process.env.NUXT_PUBLIC_BUILD_ID ?? "" },
+        // Env-aware CSP. In production the header comes from CloudFront, so
+        // `cspPolicy` is null and this entry is filtered out.
+        ...(cspPolicy
+          ? [{ "http-equiv": "Content-Security-Policy", content: cspPolicy }]
+          : []),
       ],
     },
   },
