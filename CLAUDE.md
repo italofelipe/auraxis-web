@@ -41,13 +41,20 @@ Frontend web do Auraxis.
 
 ## Quality gates obrigatórios
 
+**Canonical CI-parity command** (mirrors GitHub Actions ci.yml exactly):
+
 ```bash
-pnpm lint
-pnpm typecheck
-pnpm test:coverage
-pnpm policy:check
-pnpm contracts:check
-pnpm build
+pnpm quality-check
+```
+
+This runs in order: flags:check → lint → typecheck → test:coverage → policy:check →
+contracts:check → build.
+
+**Full CI parity** (includes audit gate, optional lighthouse/e2e/sonar):
+
+```bash
+bash scripts/run_ci_like_actions_local.sh --local
+# Add --with-e2e --with-lighthouse for complete CI match
 ```
 
 Thresholds:
