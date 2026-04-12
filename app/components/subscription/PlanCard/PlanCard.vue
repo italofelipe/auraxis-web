@@ -6,8 +6,8 @@ import {
   NButton,
   NList,
   NListItem,
-  NSkeleton,
 } from "naive-ui";
+import BaseSkeleton from "~/components/ui/BaseSkeleton.vue";
 import { CheckIcon, XIcon } from "lucide-vue-next";
 import { formatCurrency } from "~/utils/currency";
 import type { PlanCardProps, PlanCardEmits } from "./PlanCard.types";
@@ -55,12 +55,12 @@ const onSelect = (): void => {
     content-style="padding: var(--space-3);"
   >
     <template v-if="props.loading">
-      <NSkeleton height="16px" width="50%" :sharp="false" />
-      <NSkeleton height="20px" width="65%" :sharp="false" style="margin-top: 8px;" />
-      <NSkeleton height="14px" width="80%" :sharp="false" style="margin-top: 12px;" />
-      <NSkeleton height="14px" width="75%" :sharp="false" style="margin-top: 6px;" />
-      <NSkeleton height="14px" width="70%" :sharp="false" style="margin-top: 6px;" />
-      <NSkeleton type="button" :sharp="false" style="margin-top: 16px; width: 100%;" />
+      <BaseSkeleton height="16px" width="50%" />
+      <BaseSkeleton height="20px" width="65%" />
+      <BaseSkeleton variant="text" width="80%" />
+      <BaseSkeleton variant="text" width="75%" />
+      <BaseSkeleton variant="text" width="70%" />
+      <BaseSkeleton variant="button" />
     </template>
 
     <template v-else>

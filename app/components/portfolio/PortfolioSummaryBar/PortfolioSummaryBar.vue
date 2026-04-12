@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { NCard, NStatistic, NSkeleton } from "naive-ui";
+import { NCard, NStatistic } from "naive-ui";
+import BaseSkeleton from "~/components/ui/BaseSkeleton.vue";
 import { formatCurrency } from "~/utils/currency";
 import type { PortfolioSummaryBarProps } from "./PortfolioSummaryBar.types";
 
@@ -35,11 +36,10 @@ const percentColor = (value: number | null): string => {
   <NCard :bordered="true" class="portfolio-summary-bar">
     <template v-if="props.loading">
       <div class="portfolio-summary-bar__grid">
-        <NSkeleton
+        <BaseSkeleton
           v-for="i in 4"
           :key="i"
           height="56px"
-          :sharp="false"
           class="portfolio-summary-bar__skeleton"
         />
       </div>

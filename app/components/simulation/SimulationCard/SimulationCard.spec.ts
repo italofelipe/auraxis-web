@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { describe, it, expect } from "vitest";
-import { NTag, NSkeleton } from "naive-ui";
+import { NTag } from "naive-ui";
 
 import SimulationCard from "./SimulationCard.vue";
 import type { SimulationCardDto } from "~/features/simulations/contracts/simulation-card.dto";
@@ -84,9 +84,9 @@ describe("SimulationCard", () => {
     expect(wrapper.emitted("delete")![0]).toEqual(["sim-delete-01"]);
   });
 
-  it("shows NSkeleton elements when loading is true", () => {
+  it("shows BaseSkeleton elements when loading is true", () => {
     const wrapper = mountSimulationCard(makeSimulation(), true);
-    expect(wrapper.findAllComponents(NSkeleton).length).toBeGreaterThan(0);
+    expect(wrapper.findAll("[data-testid='base-skeleton']").length).toBeGreaterThan(0);
   });
 
   it("hides simulation name when loading is true", () => {

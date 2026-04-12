@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NSkeleton } from "naive-ui";
+import BaseSkeleton from "~/components/ui/BaseSkeleton.vue";
 import { useEntitlementQuery } from "~/features/paywall/queries/use-entitlement-query";
 import type { FeatureKey } from "~/features/paywall/model/entitlement";
 
@@ -14,7 +14,7 @@ const { isLoading, data: hasAccessData } = useEntitlementQuery(props.feature);
 
 <template>
   <div class="paywall-gate">
-    <NSkeleton v-if="isLoading" height="120px" :sharp="false" />
+    <BaseSkeleton v-if="isLoading" height="120px" />
     <slot v-else-if="hasAccessData === true" />
     <slot v-else name="locked" />
   </div>

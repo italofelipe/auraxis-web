@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { describe, it, expect } from "vitest";
-import { NTag, NProgress, NSkeleton } from "naive-ui";
+import { NTag, NProgress } from "naive-ui";
 
 import GoalCard from "./GoalCard.vue";
 import type { GoalDto } from "~/features/goals/contracts/goal.dto";
@@ -114,7 +114,7 @@ describe("GoalCard", () => {
 
   it("shows skeleton elements when loading is true", () => {
     const wrapper = mountGoalCard(makeGoal(), true);
-    expect(wrapper.findAllComponents(NSkeleton).length).toBeGreaterThan(0);
+    expect(wrapper.findAll("[data-testid='base-skeleton']").length).toBeGreaterThan(0);
     expect(wrapper.findComponent(NProgress).exists()).toBe(false);
   });
 

@@ -7,8 +7,8 @@
  */
 
 import type { Meta, StoryObj } from "@storybook/vue3";
-import { NSkeleton } from "naive-ui";
 import { type VNode, defineComponent, h } from "vue";
+import BaseSkeleton from "~/components/ui/BaseSkeleton.vue";
 import UiPaywallGate from "./UiPaywallGate.vue";
 
 /**
@@ -18,10 +18,10 @@ import UiPaywallGate from "./UiPaywallGate.vue";
 
 const LoadingDemo = defineComponent({
   name: "LoadingDemo",
-  components: { NSkeleton },
+  components: { BaseSkeleton },
   template: `
     <div class="ui-paywall-gate" style="width:320px">
-      <NSkeleton height="120px" :sharp="false" />
+      <BaseSkeleton height="120px" />
     </div>
   `,
 });

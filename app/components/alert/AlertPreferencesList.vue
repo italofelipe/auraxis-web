@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { NCard, NEmpty, NSkeleton, NSpace } from "naive-ui";
+import { NCard, NEmpty, NSpace } from "naive-ui";
+import BaseSkeleton from "~/components/ui/BaseSkeleton.vue";
 
 import type { AlertPreference } from "~/features/alerts/model/alerts";
 
@@ -40,7 +41,7 @@ const onToggle = (category: string, enabled: boolean): void => {
   <NCard :title="$t('alert.preferences.title')">
     <!-- Loading skeletons -->
     <NSpace v-if="isLoading" vertical :size="12">
-      <NSkeleton v-for="n in 4" :key="n" height="52px" :sharp="false" />
+      <BaseSkeleton :repeat="4" height="52px" />
     </NSpace>
 
     <!-- Empty state -->

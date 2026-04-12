@@ -10,11 +10,7 @@ vi.mock("~/features/paywall/queries/use-entitlement-query", () => ({
   useEntitlementQuery: useEntitlementQueryMock,
 }));
 
-const stubs = {
-  NSkeleton: {
-    template: "<div class='n-skeleton' />",
-  },
-};
+const stubs = {};
 
 const defaultSlotContent = "<span class='default-slot'>Feature content</span>";
 const lockedSlotContent = "<span class='locked-slot'>Upgrade required</span>";
@@ -35,7 +31,7 @@ describe("PaywallGate", () => {
       global: { stubs },
     });
 
-    expect(wrapper.find(".n-skeleton").exists()).toBe(true);
+    expect(wrapper.find("[data-testid='base-skeleton']").exists()).toBe(true);
     expect(wrapper.find(".default-slot").exists()).toBe(false);
     expect(wrapper.find(".locked-slot").exists()).toBe(false);
   });
@@ -57,7 +53,7 @@ describe("PaywallGate", () => {
 
     expect(wrapper.find(".default-slot").exists()).toBe(true);
     expect(wrapper.find(".locked-slot").exists()).toBe(false);
-    expect(wrapper.find(".n-skeleton").exists()).toBe(false);
+    expect(wrapper.find("[data-testid='base-skeleton']").exists()).toBe(false);
   });
 
   it("renders locked slot when has_access is false", () => {
@@ -77,7 +73,7 @@ describe("PaywallGate", () => {
 
     expect(wrapper.find(".locked-slot").exists()).toBe(true);
     expect(wrapper.find(".default-slot").exists()).toBe(false);
-    expect(wrapper.find(".n-skeleton").exists()).toBe(false);
+    expect(wrapper.find("[data-testid='base-skeleton']").exists()).toBe(false);
   });
 
   it("renders locked slot when data is undefined (not yet resolved)", () => {
