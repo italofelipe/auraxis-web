@@ -18,7 +18,7 @@
     "contracts:sync": "node scripts/contracts-sync.cjs",
     "contracts:check": "node scripts/contracts-check.cjs",
     "policy:check": "node scripts/check-frontend-governance.cjs",
-    "quality-check": "pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm policy:check && pnpm contracts:check",
+    "quality-check": "pnpm flags:check && pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm policy:check && pnpm contracts:check && pnpm build",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
