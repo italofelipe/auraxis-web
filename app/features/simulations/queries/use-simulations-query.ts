@@ -1,6 +1,7 @@
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
 import { isMockDataEnabled } from "~/core/config";
+import { STALE_TIME } from "~/core/query/stale-time";
 import {
   useSimulationClient,
   type SimulationClient,
@@ -34,5 +35,6 @@ export const useSimulationsQuery = (
       const simulations = await client.listSimulations();
       return simulations.map(mapToSimulationCardDto);
     },
+    staleTime: STALE_TIME.STABLE,
   });
 };

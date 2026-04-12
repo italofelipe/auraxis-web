@@ -1,6 +1,7 @@
 import { type MaybeRef, unref } from "vue";
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
+import { STALE_TIME } from "~/core/query/stale-time";
 import type { TransactionDto } from "~/features/transactions/contracts/transaction.dto";
 import {
   type ListTransactionsFilters,
@@ -29,5 +30,6 @@ export const useListTransactionsQuery = (
     queryFn: (): Promise<TransactionDto[]> => {
       return client.listTransactions(unref(filters));
     },
+    staleTime: STALE_TIME.ACTIVE,
   });
 };

@@ -1,6 +1,7 @@
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 import { computed, type Ref } from "vue";
 
+import { STALE_TIME } from "~/core/query/stale-time";
 import {
   useGoalsClient,
   type GoalsClient,
@@ -26,5 +27,6 @@ export const useGoalPlanQuery = (
     queryKey: ["goals", goalId, "plan"] as const,
     queryFn: (): Promise<GoalPlanDto> => client.getGoalPlan(goalId.value!),
     enabled: computed(() => goalId.value !== null),
+    staleTime: STALE_TIME.STABLE,
   });
 };

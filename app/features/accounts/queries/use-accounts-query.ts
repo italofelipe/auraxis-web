@@ -1,6 +1,7 @@
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
 import { isMockDataEnabled } from "~/core/config";
+import { STALE_TIME } from "~/core/query/stale-time";
 import type { AccountDto } from "~/features/accounts/contracts/account.dto";
 import { MOCK_ACCOUNTS } from "~/features/accounts/mock/accounts.mock";
 import { useAccountsClient, type AccountsClient } from "~/features/accounts/services/accounts.client";
@@ -24,5 +25,6 @@ export const useAccountsQuery = (
       }
       return client.listAccounts();
     },
+    staleTime: STALE_TIME.STATIC,
   });
 };

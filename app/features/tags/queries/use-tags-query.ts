@@ -1,6 +1,7 @@
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
 import { isMockDataEnabled } from "~/core/config";
+import { STALE_TIME } from "~/core/query/stale-time";
 import type { TagDto } from "~/features/tags/contracts/tag.dto";
 import { MOCK_TAGS } from "~/features/tags/mock/tags.mock";
 import { useTagsClient, type TagsClient } from "~/features/tags/services/tags.client";
@@ -24,5 +25,6 @@ export const useTagsQuery = (
       }
       return client.listTags();
     },
+    staleTime: STALE_TIME.STATIC,
   });
 };

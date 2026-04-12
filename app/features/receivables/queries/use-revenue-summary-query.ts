@@ -1,6 +1,7 @@
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
 import { isMockDataEnabled } from "~/core/config";
+import { STALE_TIME } from "~/core/query/stale-time";
 import {
   useReceivablesClient,
   type ReceivablesClient,
@@ -37,5 +38,6 @@ export const useRevenueSummaryQuery = (
 
       return client.getSummary();
     },
+    staleTime: STALE_TIME.ACTIVE,
   });
 };

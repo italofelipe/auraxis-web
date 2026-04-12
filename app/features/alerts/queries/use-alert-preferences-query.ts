@@ -1,6 +1,7 @@
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
 import { isMockDataEnabled } from "~/core/config";
+import { STALE_TIME } from "~/core/query/stale-time";
 import { useAlertsClient, type AlertsClient } from "~/features/alerts/services/alerts.client";
 import type { AlertPreference } from "~/features/alerts/model/alerts";
 
@@ -55,5 +56,6 @@ export const useAlertPreferencesQuery = (
 
       return client.getPreferences();
     },
+    staleTime: STALE_TIME.STATIC,
   });
 };

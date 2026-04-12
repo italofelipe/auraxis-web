@@ -1,5 +1,6 @@
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
+import { STALE_TIME } from "~/core/query/stale-time";
 import {
   useDashboardTrendsApiClient,
   type DashboardTrendsApiClient,
@@ -38,6 +39,6 @@ export const useDashboardTrendsQuery = (
   return useQuery({
     queryKey: computed(() => createTrendsQueryKey(resolvedMonths.value)),
     queryFn: () => trendsClient.getTrends(resolvedMonths.value),
-    staleTime: 5 * 60_000,
+    staleTime: STALE_TIME.STABLE,
   });
 };

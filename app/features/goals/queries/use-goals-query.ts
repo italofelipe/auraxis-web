@@ -1,6 +1,7 @@
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
 import { isMockDataEnabled } from "~/core/config";
+import { STALE_TIME } from "~/core/query/stale-time";
 import { useGoalsClient, type GoalsClient } from "~/features/goals/services/goals.client";
 import { MOCK_GOALS } from "~/features/goals/mock/goals.mock";
 import type { GoalDto } from "~/features/goals/contracts/goal.dto";
@@ -28,5 +29,6 @@ export const useGoalsQuery = (
 
       return client.listGoals();
     },
+    staleTime: STALE_TIME.STABLE,
   });
 };

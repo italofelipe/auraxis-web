@@ -17,6 +17,7 @@ import {
 } from "naive-ui";
 
 import { captureException } from "~/core/observability";
+import { STALE_TIME } from "~/core/query/stale-time";
 import { useApiError } from "~/composables/useApiError";
 import { useAuthRedirectContext } from "~/composables/useAuthRedirectContext";
 import { useSessionStore } from "~/stores/session";
@@ -146,6 +147,7 @@ const premiumAccessQuery: UseQueryReturnType<boolean, Error> = useQuery({
   queryFn: (): Promise<boolean> => {
     return entitlementClient.checkEntitlement("advanced_simulations");
   },
+  staleTime: STALE_TIME.STATIC,
 });
 
 /**
