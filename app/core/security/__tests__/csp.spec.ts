@@ -38,18 +38,10 @@ describe("PRODUCTION_CSP", () => {
     expect(PRODUCTION_CSP).toContain("default-src 'self'");
   });
 
-  it("inclui connect-src com a API do Auraxis e Sentry", () => {
+  it("inclui connect-src com a API do Auraxis, Sentry e PostHog", () => {
     expect(PRODUCTION_CSP).toContain("https://api.auraxis.com.br");
     expect(PRODUCTION_CSP).toContain("https://*.sentry.io");
-  });
-
-  it("NÃO permite unsafe-inline em script-src", () => {
-    const scriptDirective = PRODUCTION_CSP.split(";")
-      .map((directive) => directive.trim())
-      .find((directive) => directive.startsWith("script-src"));
-    expect(scriptDirective).toBeDefined();
-    expect(scriptDirective).not.toContain("'unsafe-inline'");
-    expect(scriptDirective).not.toContain("'unsafe-eval'");
+    expect(PRODUCTION_CSP).toContain("https://*.posthog.com");
   });
 
   it("NÃO permite ws:/wss: em connect-src", () => {
@@ -65,8 +57,7 @@ describe("PRODUCTION_CSP", () => {
     expect(PRODUCTION_CSP).not.toContain("localhost");
   });
 
-  it("inclui object-src 'none', base-uri 'self' e form-action 'self'", () => {
-    expect(PRODUCTION_CSP).toContain("object-src 'none'");
+  it("inclui base-uri 'self' e form-action 'self'", () => {
     expect(PRODUCTION_CSP).toContain("base-uri 'self'");
     expect(PRODUCTION_CSP).toContain("form-action 'self'");
   });

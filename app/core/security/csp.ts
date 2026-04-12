@@ -55,23 +55,23 @@ const STAGING_CSP = [
 /**
  * Canonical production CSP value.
  *
- * Kept byte-identical to the CSP injected by the CloudFront custom
- * response headers policy in `auraxis-platform/infra/web/main.tf`
- * (`local.web_csp`). If you change one, change both.
+ * Byte-identical to the CSP currently served by CloudFront distribution
+ * E38WVQOCDQADWB (custom response headers policy
+ * `8078897a-1312-4e87-8730-4c959789ecde`), and to `local.web_csp` in
+ * `auraxis-platform/infra/web/main.tf`. If you change one, change all three.
  *
- * This constant is exported so integration tests can assert the two
- * sources stay in sync.
+ * This constant is exported so integration tests can assert the sources
+ * stay in sync.
  */
 export const PRODUCTION_CSP = [
   "default-src 'self'",
-  "script-src 'self'",
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "img-src 'self' data: https:",
-  "font-src 'self' https://fonts.gstatic.com",
-  "connect-src 'self' https://api.auraxis.com.br https://*.sentry.io",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "font-src 'self'",
+  "connect-src 'self' https://api.auraxis.com.br https://*.sentry.io https://*.posthog.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
-  "object-src 'none'",
   "form-action 'self'",
 ].join("; ");
 
