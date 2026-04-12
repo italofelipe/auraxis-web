@@ -3,18 +3,18 @@
 exports[`UiPageLoader > matches snapshot with defaults 1`] = `
 "<div data-v-0e53768c="" class="ui-page-loader" role="status" aria-label="Carregando…" aria-busy="true">
   <!--v-if-->
-  <div data-v-0e53768c="" class="n-skeleton ui-page-loader__row" style="height: 72px;"></div>
-  <div data-v-0e53768c="" class="n-skeleton ui-page-loader__row" style="height: 56px;"></div>
-  <div data-v-0e53768c="" class="n-skeleton ui-page-loader__row" style="height: 56px;"></div>
+  <div data-v-fab834c6="" data-v-0e53768c="" class="base-skeleton base-skeleton--line ui-page-loader__row" style="height: 72px; width: 100%;" aria-hidden="true" data-testid="base-skeleton"></div>
+  <div data-v-fab834c6="" data-v-0e53768c="" class="base-skeleton base-skeleton--line ui-page-loader__row" style="height: 56px; width: 100%;" aria-hidden="true" data-testid="base-skeleton"></div>
+  <div data-v-fab834c6="" data-v-0e53768c="" class="base-skeleton base-skeleton--line ui-page-loader__row" style="height: 56px; width: 100%;" aria-hidden="true" data-testid="base-skeleton"></div>
 </div>"
 `;
 
 exports[`UiPageLoader > matches snapshot with title and custom row count 1`] = `
 "<div data-v-0e53768c="" class="ui-page-loader" role="status" aria-label="Carregando…" aria-busy="true">
-  <div data-v-0e53768c="" class="n-skeleton ui-page-loader__title" style="height: 28px; width: 40%;"></div>
-  <div data-v-0e53768c="" class="n-skeleton ui-page-loader__row" style="height: 72px;"></div>
-  <div data-v-0e53768c="" class="n-skeleton ui-page-loader__row" style="height: 56px;"></div>
-  <div data-v-0e53768c="" class="n-skeleton ui-page-loader__row" style="height: 56px;"></div>
-  <div data-v-0e53768c="" class="n-skeleton ui-page-loader__row" style="height: 56px;"></div>
+  <div data-v-fab834c6="" data-v-0e53768c="" class="base-skeleton base-skeleton--line ui-page-loader__title" style="height: 28px; width: 40%;" aria-hidden="true" data-testid="base-skeleton"></div>
+  <div data-v-fab834c6="" data-v-0e53768c="" class="base-skeleton base-skeleton--line ui-page-loader__row" style="height: 72px; width: 100%;" aria-hidden="true" data-testid="base-skeleton"></div>
+  <div data-v-fab834c6="" data-v-0e53768c="" class="base-skeleton base-skeleton--line ui-page-loader__row" style="height: 56px; width: 100%;" aria-hidden="true" data-testid="base-skeleton"></div>
+  <div data-v-fab834c6="" data-v-0e53768c="" class="base-skeleton base-skeleton--line ui-page-loader__row" style="height: 56px; width: 100%;" aria-hidden="true" data-testid="base-skeleton"></div>
+  <div data-v-fab834c6="" data-v-0e53768c="" class="base-skeleton base-skeleton--line ui-page-loader__row" style="height: 56px; width: 100%;" aria-hidden="true" data-testid="base-skeleton"></div>
 </div>"
 `;

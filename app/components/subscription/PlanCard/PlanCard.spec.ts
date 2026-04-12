@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { describe, it, expect } from "vitest";
-import { NTag, NButton, NSkeleton } from "naive-ui";
+import { NTag, NButton } from "naive-ui";
 
 import PlanCard from "./PlanCard.vue";
 import type { BillingCycle, PlanDto } from "~/features/subscription/contracts/subscription.dto";
@@ -158,7 +158,7 @@ describe("PlanCard", () => {
 
   it("shows skeleton elements when loading is true", () => {
     const wrapper = mountPlanCard({ loading: true });
-    expect(wrapper.findAllComponents(NSkeleton).length).toBeGreaterThan(0);
+    expect(wrapper.findAll("[data-testid='base-skeleton']").length).toBeGreaterThan(0);
   });
 
   it("hides plan name when loading is true", () => {

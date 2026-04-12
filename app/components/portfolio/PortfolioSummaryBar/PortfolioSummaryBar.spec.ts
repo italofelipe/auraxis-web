@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { describe, it, expect } from "vitest";
-import { NStatistic, NSkeleton } from "naive-ui";
+import { NStatistic } from "naive-ui";
 
 import PortfolioSummaryBar from "./PortfolioSummaryBar.vue";
 import type { PortfolioSummaryDto } from "~/features/portfolio/contracts/portfolio.dto";
@@ -39,7 +39,7 @@ describe("PortfolioSummaryBar", () => {
 
   it("shows 4 skeleton elements when loading is true", () => {
     const wrapper = mountBar(mockSummary, true);
-    expect(wrapper.findAllComponents(NSkeleton)).toHaveLength(4);
+    expect(wrapper.findAll("[data-testid='base-skeleton']")).toHaveLength(4);
     expect(wrapper.findAllComponents(NStatistic)).toHaveLength(0);
   });
 

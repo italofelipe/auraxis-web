@@ -1,14 +1,6 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import UiPageLoader from "../UiPageLoader.vue";
-
-vi.mock("naive-ui", () => ({
-  NSkeleton: {
-    name: "NSkeleton",
-    props: ["sharp", "height", "width"],
-    template: "<div class=\"n-skeleton\" :style=\"{ height, width }\" />",
-  },
-}));
 
 describe("UiPageLoader", () => {
   it("renders with role=status and aria-busy", () => {

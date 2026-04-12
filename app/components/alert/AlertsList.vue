@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { NCard, NEmpty, NSkeleton, NSpace } from "naive-ui";
+import { NCard, NEmpty, NSpace } from "naive-ui";
+import BaseSkeleton from "~/components/ui/BaseSkeleton.vue";
 
 import type { Alert } from "~/features/alerts/model/alerts";
 
@@ -45,7 +46,7 @@ const onDelete = (id: string): void => {
   <NCard :title="$t('alert.list.title')">
     <!-- Loading skeletons -->
     <NSpace v-if="isLoading" vertical :size="12">
-      <NSkeleton v-for="n in 3" :key="n" height="72px" :sharp="false" />
+      <BaseSkeleton :repeat="3" height="72px" />
     </NSpace>
 
     <!-- Empty state -->

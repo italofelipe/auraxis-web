@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { NCard, NEmpty, NSkeleton, NSpace, NTabPane, NTabs } from "naive-ui";
+import { NCard, NEmpty, NSpace, NTabPane, NTabs } from "naive-ui";
 import { ref } from "vue";
+import BaseSkeleton from "~/components/ui/BaseSkeleton.vue";
 
 import { useConfirmImportMutation } from "~/features/receivables/queries/use-confirm-import-mutation";
 import { useCsvUploadMutation } from "~/features/receivables/queries/use-csv-upload-mutation";
@@ -92,10 +93,9 @@ const handleDelete = (id: string): void => {
 
 <template>
   <div class="income-page">
-    <NSkeleton
+    <BaseSkeleton
       v-if="summaryQuery.isLoading.value"
       height="100px"
-      :sharp="false"
     />
 
     <UiBaseCard
@@ -121,10 +121,9 @@ const handleDelete = (id: string): void => {
             v-if="csvUploadMutation.isPending.value || previewRows.length > 0 || createdCount !== null"
             :title="t('pages.income.preview')"
           >
-            <NSkeleton
+            <BaseSkeleton
               v-if="csvUploadMutation.isPending.value"
               height="120px"
-              :sharp="false"
             />
 
             <p
@@ -147,9 +146,7 @@ const handleDelete = (id: string): void => {
 
       <NTabPane name="list" :tab="t('pages.income.tabs.list')">
         <NSpace v-if="receivablesQuery.isLoading.value" vertical :size="8">
-          <NSkeleton height="72px" :sharp="false" />
-          <NSkeleton height="72px" :sharp="false" />
-          <NSkeleton height="72px" :sharp="false" />
+          <BaseSkeleton height="72px" :repeat="3" />
         </NSpace>
 
         <UiBaseCard

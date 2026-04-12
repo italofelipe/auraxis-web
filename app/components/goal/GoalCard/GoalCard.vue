@@ -5,10 +5,10 @@ import {
   NProgress,
   NStatistic,
   NButton,
-  NSkeleton,
   NPopconfirm,
   NSpace,
 } from "naive-ui";
+import BaseSkeleton from "~/components/ui/BaseSkeleton.vue";
 import { formatCurrency } from "~/utils/currency";
 import type { GoalCardProps } from "./GoalCard.types";
 import type { GoalDto, GoalStatus } from "~/features/goals/contracts/goal.dto";
@@ -139,10 +139,10 @@ const healthLabel = computed((): string => {
     content-style="padding: var(--space-3);"
   >
     <template v-if="props.loading">
-      <NSkeleton height="20px" width="60%" :sharp="false" />
-      <NSkeleton height="14px" width="40%" :sharp="false" style="margin-top: 8px;" />
-      <NSkeleton height="8px" :sharp="false" style="margin-top: 12px;" />
-      <NSkeleton height="40px" :sharp="false" style="margin-top: 12px;" />
+      <BaseSkeleton height="20px" width="60%" />
+      <BaseSkeleton height="14px" width="40%" />
+      <BaseSkeleton height="8px" />
+      <BaseSkeleton height="40px" />
     </template>
 
     <template v-else>

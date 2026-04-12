@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { NCard, NTag, NText, NStatistic, NButton, NSkeleton } from "naive-ui";
+import { NCard, NTag, NText, NStatistic, NButton } from "naive-ui";
+import BaseSkeleton from "~/components/ui/BaseSkeleton.vue";
 import { Trash2Icon } from "lucide-vue-next";
 import { formatCurrency } from "~/utils/currency";
 import type { SimulationCardProps, SimulationCardEmits } from "./SimulationCard.types";
@@ -66,10 +67,10 @@ const onDelete = (): void => {
     content-style="padding: var(--space-3);"
   >
     <template v-if="props.loading">
-      <NSkeleton height="16px" width="70%" :sharp="false" />
-      <NSkeleton height="14px" width="40%" :sharp="false" style="margin-top: 8px;" />
-      <NSkeleton height="14px" width="55%" :sharp="false" style="margin-top: 6px;" />
-      <NSkeleton height="36px" :sharp="false" style="margin-top: 12px;" />
+      <BaseSkeleton height="16px" width="70%" />
+      <BaseSkeleton variant="text" width="40%" />
+      <BaseSkeleton variant="text" width="55%" />
+      <BaseSkeleton variant="button" />
     </template>
 
     <template v-else>

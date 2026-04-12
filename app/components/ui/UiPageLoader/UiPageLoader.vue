@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NSkeleton } from "naive-ui";
+import BaseSkeleton from "~/components/ui/BaseSkeleton.vue";
 import type { UiPageLoaderProps } from "./UiPageLoader.types";
 
 withDefaults(defineProps<UiPageLoaderProps>(), {
@@ -10,18 +10,16 @@ withDefaults(defineProps<UiPageLoaderProps>(), {
 
 <template>
   <div class="ui-page-loader" role="status" aria-label="Carregando…" aria-busy="true">
-    <NSkeleton
+    <BaseSkeleton
       v-if="withTitle"
       class="ui-page-loader__title"
-      :sharp="false"
       height="28px"
       width="40%"
     />
-    <NSkeleton
+    <BaseSkeleton
       v-for="n in rows"
       :key="n"
       class="ui-page-loader__row"
-      :sharp="false"
       :height="n === 1 ? '72px' : '56px'"
     />
   </div>
