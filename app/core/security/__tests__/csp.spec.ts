@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildCsp, resolveCspEnvironment } from "../csp";
+import { PRODUCTION_CSP, buildCsp, resolveCspEnvironment } from "../csp";
 
 describe("resolveCspEnvironment", () => {
   it("resolve 'production' e 'prod' para production", () => {
@@ -30,6 +30,49 @@ describe("resolveCspEnvironment", () => {
 describe("buildCsp — production", () => {
   it("retorna null em production (header vem do CloudFront)", () => {
     expect(buildCsp("production")).toBeNull();
+  });
+});
+
+describe("PRODUCTION_CSP", () => {
+  it("inclui default-src 'self'", () => {
+    expect(PRODUCTION_CSP).toContain("default-src 'self'");
+  });
+
+  it("inclui connect-src com a API do Auraxis e Sentry", () => {
+    expect(PRODUCTION_CSP).toContain("https://api.auraxis.com.br");
+    expect(PRODUCTION_CSP).toContain("https://*.sentry.io");
+  });
+
+  it("NÃO permite unsafe-inline em script-src", () => {
+    const scriptDirective = PRODUCTION_CSP.split(";")
+      .map((directive) => directive.trim())
+      .find((directive) => directive.startsWith("script-src"));
+    expect(scriptDirective).toBeDefined();
+    expect(scriptDirective).not.toContain("'unsafe-inline'");
+    expect(scriptDirective).not.toContain("'unsafe-eval'");
+  });
+
+  it("NÃO permite ws:/wss: em connect-src", () => {
+    const connectDirective = PRODUCTION_CSP.split(";")
+      .map((directive) => directive.trim())
+      .find((directive) => directive.startsWith("connect-src"));
+    expect(connectDirective).toBeDefined();
+    expect(connectDirective).not.toMatch(/\bws:/);
+    expect(connectDirective).not.toMatch(/\bwss:/);
+  });
+
+  it("NÃO permite localhost em connect-src", () => {
+    expect(PRODUCTION_CSP).not.toContain("localhost");
+  });
+
+  it("inclui object-src 'none', base-uri 'self' e form-action 'self'", () => {
+    expect(PRODUCTION_CSP).toContain("object-src 'none'");
+    expect(PRODUCTION_CSP).toContain("base-uri 'self'");
+    expect(PRODUCTION_CSP).toContain("form-action 'self'");
+  });
+
+  it("bloqueia iframes via frame-ancestors 'none'", () => {
+    expect(PRODUCTION_CSP).toContain("frame-ancestors 'none'");
   });
 });
 
