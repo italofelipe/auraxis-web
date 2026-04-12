@@ -1,5 +1,6 @@
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
+import { STALE_TIME } from "~/core/query/stale-time";
 import { useSharingClient, type SharingClient } from "~/features/sharing/services/sharing.client";
 import type { SharedEntry } from "~/features/sharing/model/sharing";
 
@@ -21,6 +22,7 @@ export const useSharedByMeQuery = (
     queryFn: (): Promise<SharedEntry[]> => {
       return client.getSharedByMe();
     },
+    staleTime: STALE_TIME.STABLE,
   });
 };
 
@@ -42,5 +44,6 @@ export const useSharedWithMeQuery = (
     queryFn: (): Promise<SharedEntry[]> => {
       return client.getSharedWithMe();
     },
+    staleTime: STALE_TIME.STABLE,
   });
 };

@@ -1,5 +1,7 @@
 import { type MaybeRef, unref } from "vue";
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
+
+import { STALE_TIME } from "~/core/query/stale-time";
 import {
   type WalletClient,
   type WalletHistoryPoint,
@@ -32,5 +34,6 @@ export const useWalletHistoryQuery = (
       return client.getWalletHistory(id);
     },
     enabled: () => !!unref(entryId),
+    staleTime: STALE_TIME.STABLE,
   });
 };

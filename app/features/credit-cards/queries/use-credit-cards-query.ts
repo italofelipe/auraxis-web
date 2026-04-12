@@ -1,6 +1,7 @@
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
 import { isMockDataEnabled } from "~/core/config";
+import { STALE_TIME } from "~/core/query/stale-time";
 import type { CreditCardDto } from "~/features/credit-cards/contracts/credit-card.dto";
 import { MOCK_CREDIT_CARDS } from "~/features/credit-cards/mock/credit-cards.mock";
 import {
@@ -27,5 +28,6 @@ export const useCreditCardsQuery = (
       }
       return client.listCreditCards();
     },
+    staleTime: STALE_TIME.STATIC,
   });
 };

@@ -1,6 +1,7 @@
 import { type Ref, computed } from "vue";
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
+import { STALE_TIME } from "~/core/query/stale-time";
 import {
   useBrapiClient,
   type BrapiClient,
@@ -27,6 +28,6 @@ export const useBrapiTickerSearchQuery = (
     queryKey: computed(() => ["brapi", "tickers", "search", query.value] as const),
     queryFn: (): Promise<BrapiTickerSearchResult[]> => client.searchTickers(query.value),
     enabled: computed(() => query.value.trim().length >= 1),
-    staleTime: 5 * 60 * 1000, // 5 minutes — ticker metadata is stable within a session
+    staleTime: STALE_TIME.STABLE,
   });
 };

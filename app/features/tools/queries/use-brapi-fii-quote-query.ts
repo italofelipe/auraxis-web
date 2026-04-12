@@ -1,6 +1,7 @@
 import { type Ref, computed } from "vue";
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
+import { STALE_TIME } from "~/core/query/stale-time";
 import {
   useBrapiToolsClient,
   type BrapiToolsClient,
@@ -25,7 +26,7 @@ export const useBrapiFiiQuoteQuery = (
     queryKey: computed(() => ["brapi", "fii", ticker.value] as const),
     queryFn: (): Promise<BrapiFiiQuoteResult | null> => client.getFiiQuote(ticker.value),
     enabled: computed(() => ticker.value.trim().length >= 4),
-    staleTime: 5 * 60 * 1000,
+    staleTime: STALE_TIME.STABLE,
     retry: 1,
   });
 };

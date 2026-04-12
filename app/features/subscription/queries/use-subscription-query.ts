@@ -1,6 +1,7 @@
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
 import { isMockDataEnabled } from "~/core/config";
+import { STALE_TIME } from "~/core/query/stale-time";
 import {
   useSubscriptionClient,
   type SubscriptionClient,
@@ -41,5 +42,6 @@ export const useSubscriptionQuery = (
 
       return client.getMySubscription();
     },
+    staleTime: STALE_TIME.STABLE,
   });
 };

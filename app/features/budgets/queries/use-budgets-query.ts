@@ -1,6 +1,7 @@
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
 import { isMockDataEnabled } from "~/core/config";
+import { STALE_TIME } from "~/core/query/stale-time";
 import type { BudgetDto } from "~/features/budgets/contracts/budget.contracts";
 import { MOCK_BUDGETS } from "~/features/budgets/mock/budget.mock";
 import { useBudgetClient, type BudgetClient } from "~/features/budgets/services/budget.client";
@@ -28,5 +29,6 @@ export const useBudgetsQuery = (
 
       return client.listBudgets();
     },
+    staleTime: STALE_TIME.STABLE,
   });
 };

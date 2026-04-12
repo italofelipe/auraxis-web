@@ -1,5 +1,6 @@
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
+import { STALE_TIME } from "~/core/query/stale-time";
 import {
   useDashboardOverviewApiClient,
   type DashboardOverviewApiClient,
@@ -72,6 +73,6 @@ export const useDashboardOverviewQuery = (
     queryKey: computed(() => createQueryKey(resolvedFilters.value)),
     queryFn: () => dashboardClient.getOverview(resolvedFilters.value),
     enabled: computed(() => canRunDashboardOverviewQuery(resolvedFilters.value)),
-    staleTime: 60_000,
+    staleTime: STALE_TIME.STABLE,
   });
 };

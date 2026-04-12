@@ -1,4 +1,5 @@
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
+import { STALE_TIME } from "~/core/query/stale-time";
 import { useUserProfileApi, type UserProfileApi } from "~/features/profile/services/user-profile-api";
 import type { UserProfileDto } from "~/features/profile/contracts/user-profile.dto";
 import { useUserStore } from "~/stores/user";
@@ -27,5 +28,6 @@ export const useUserProfileQuery = (
       return profile;
     },
     enabled: computed(() => sessionStore.isAuthenticated),
+    staleTime: STALE_TIME.STATIC,
   });
 };

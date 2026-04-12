@@ -1,6 +1,7 @@
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
 import { isMockDataEnabled } from "~/core/config";
+import { STALE_TIME } from "~/core/query/stale-time";
 import {
   useEntitlementClient,
   type EntitlementClient,
@@ -32,5 +33,6 @@ export const useEntitlementQuery = (
 
       return client.checkEntitlement(featureKey);
     },
+    staleTime: STALE_TIME.STATIC,
   });
 };

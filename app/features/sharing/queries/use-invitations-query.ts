@@ -1,5 +1,6 @@
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
+import { STALE_TIME } from "~/core/query/stale-time";
 import { useSharingClient, type SharingClient } from "~/features/sharing/services/sharing.client";
 import type { Invitation } from "~/features/sharing/model/sharing";
 
@@ -21,5 +22,6 @@ export const useInvitationsQuery = (
     queryFn: (): Promise<Invitation[]> => {
       return client.getInvitations();
     },
+    staleTime: STALE_TIME.STABLE,
   });
 };

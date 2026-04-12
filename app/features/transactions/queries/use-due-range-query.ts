@@ -7,6 +7,7 @@
 import { type MaybeRef, unref } from "vue";
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
+import { STALE_TIME } from "~/core/query/stale-time";
 import type { DueRangeFilters, DueRangeResponseDto } from "../contracts/due-range.dto";
 import { type DueRangeClient, useDueRangeClient } from "../services/due-range.client";
 
@@ -29,5 +30,6 @@ export function useDueRangeQuery(
   return useQuery({
     queryKey: ["transactions", "due-range", filters] as const,
     queryFn: (): Promise<DueRangeResponseDto> => client.getDueRange(unref(filters)),
+    staleTime: STALE_TIME.ACTIVE,
   });
 }

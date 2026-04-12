@@ -1,6 +1,7 @@
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
 import { isMockDataEnabled } from "~/core/config";
+import { STALE_TIME } from "~/core/query/stale-time";
 import { useWalletClient, type WalletClient } from "~/features/wallet/services/wallet.client";
 import { MOCK_WALLET_ENTRIES } from "~/features/portfolio/mock/portfolio.mock";
 import type { WalletEntryDto } from "~/features/portfolio/contracts/portfolio.dto";
@@ -28,5 +29,6 @@ export const useWalletEntriesQuery = (
 
       return client.getEntries();
     },
+    staleTime: STALE_TIME.ACTIVE,
   });
 };
