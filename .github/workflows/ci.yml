@@ -70,6 +70,30 @@ jobs:
       - name: Validate feature flags metadata
         run: node scripts/check-feature-flags.cjs
 
+  # ── 3.1 Locale EN freeze (DEC-186) ─────────────────────────────────────
+  locale-freeze:
+    name: Locale EN Freeze (DEC-186)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Check bypass marker
+        id: bypass
+        run: |
+          subject="$(git log -1 --pretty=%s)"
+          if echo "${subject}" | grep -qF '[en-freeze-bypass]'; then
+            echo "bypass=true" >> "$GITHUB_OUTPUT"
+            echo "[dec-02] bypass marker found in commit subject — skipping freeze check"
+          else
+            echo "bypass=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Verify en.json matches frozen baseline
+        if: steps.bypass.outputs.bypass != 'true'
+        run: bash scripts/check-locale-freeze.sh
+
   # ── 4. Testes com coverage (Vitest) ────────────────────────────────────
   test:
     name: Tests + Coverage (Vitest)
