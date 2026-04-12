@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { Settings, LogOut, ChevronRight } from "lucide-vue-next";
+import UiImage from "~/components/ui/UiImage.vue";
 import type { UiUserMenuProps, UiUserMenuEmits } from "./UiUserMenu.types";
 
 
@@ -48,12 +49,14 @@ onUnmounted(() => document.removeEventListener("mousedown", handleClickOutside))
       aria-haspopup="menu"
       @click="toggle"
     >
-      <img
+      <UiImage
         v-if="avatarUrl"
         :src="avatarUrl"
         :alt="name"
+        :width="32"
+        :height="32"
         class="ui-user-menu__avatar"
-      >
+      />
       <span
         v-else
         class="ui-user-menu__avatar ui-user-menu__avatar--fallback"
