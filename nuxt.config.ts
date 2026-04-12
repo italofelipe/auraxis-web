@@ -4,8 +4,10 @@ import { buildCsp, resolveCspEnvironment } from "./app/core/security/csp";
 import { TOOL_SLUGS } from "./app/data/tools";
 
 // Resolve Content Security Policy at build time based on NUXT_PUBLIC_APP_ENV.
-// Production returns null because CloudFront emits the CSP header, so no meta
-// tag is injected and there is no duplicate policy.
+// Production returns null because the CSP is emitted by the custom CloudFront
+// response headers policy (auraxis-platform/infra/web/main.tf →
+// aws_cloudfront_response_headers_policy.web_security). No meta tag is
+// injected in production to avoid double-specification.
 const cspEnvironment = resolveCspEnvironment(process.env.NUXT_PUBLIC_APP_ENV);
 const cspPolicy = buildCsp(cspEnvironment);
 
