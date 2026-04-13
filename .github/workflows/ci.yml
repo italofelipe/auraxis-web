@@ -219,7 +219,7 @@ jobs:
           retention-days: 14
           if-no-files-found: warn
       - name: Report bundle sizes
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');
