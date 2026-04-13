@@ -70,3 +70,4 @@ config.global.plugins = [
   ...(config.global.plugins ?? []),
   i18n,
 ];
+
