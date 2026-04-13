@@ -83,7 +83,7 @@
     "lint-staged": "^16.4.0",
     "msw": "^2.13.1",
     "openapi-typescript": "^7.10.1",
-    "posthog-js": "^1.364.7",
+    "posthog-js": "^1.367.0",
     "prettier": "^3.8.1",
     "rollup-plugin-visualizer": "^7.0.1",
     "storybook": "9.1.20",
