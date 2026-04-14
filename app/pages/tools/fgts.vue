@@ -8,7 +8,6 @@ import {
   NInputNumber,
   NSelect,
   NSpace,
-  NTag,
   NThing,
   NTooltip,
   useMessage,
@@ -214,7 +213,7 @@ async function handleAddAsGoal(): Promise<void> {
   <!-- Transparent root wrapper required by vue/no-multiple-template-root. -->
   <div class="fgts-root">
   <!-- ═══ AUTHENTICATED — app shell ══════════════════════════════════════════ -->
-  <NuxtLayout v-if="isAuthenticated" name="default">
+  <NuxtLayout :name="isAuthenticated ? 'default' : 'tools-public'">
     <div class="fgts-page fgts-page--authenticated">
       <div class="fgts-page__layout">
         <!-- Form column -->
@@ -420,157 +419,9 @@ async function handleAddAsGoal(): Promise<void> {
         </div>
       </div>
     </div>
+        <!-- Guest CTA — shown below result for unauthenticated users -->
+        <ToolGuestCta v-if="!isAuthenticated" />
   </NuxtLayout>
-
-  <!-- ═══ GUEST — standalone public page ════════════════════════════════════ -->
-  <div v-else class="fgts-page">
-    <header class="fgts-page__header">
-      <div class="fgts-page__brand">
-        <span class="fgts-page__brand-mark">Auraxis</span>
-        <span class="fgts-page__brand-copy">{{ t('fgts.header.publicTool') }}</span>
-      </div>
-      <div class="fgts-page__header-actions">
-        <NButton quaternary @click="router.push('/tools')">{{ t('fgts.header.otherTools') }}</NButton>
-        <NButton type="primary" @click="router.push('/register')">{{ t('fgts.header.createAccount') }}</NButton>
-      </div>
-    </header>
-
-    <main class="fgts-page__content">
-      <section class="fgts-page__hero">
-        <div class="fgts-page__hero-copy">
-          <NTag round type="warning">{{ t('fgts.hero.badge') }}</NTag>
-          <UiPageHeader
-            :title="t('fgts.hero.title')"
-            :subtitle="t('fgts.hero.subtitle')"
-          />
-        </div>
-
-        <UiGlassPanel glow class="fgts-page__form-panel">
-          <NForm @submit.prevent="handleCalculate">
-            <CalculatorFormSection :title="t('fgts.form.title')">
-              <NFormItem :label="t('fgts.form.grossSalary')">
-                <NInputNumber
-                  :value="form.grossSalary"
-                  :placeholder="t('fgts.form.grossSalaryPlaceholder')"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ grossSalary: v })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('fgts.form.yearsOfService')">
-                <NInputNumber
-                  :value="form.yearsOfService"
-                  :min="0"
-                  :precision="0"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ yearsOfService: v ?? 0 })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('fgts.form.monthsOfService')">
-                <NInputNumber
-                  :value="form.monthsOfService"
-                  :min="0"
-                  :max="11"
-                  :precision="0"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ monthsOfService: v ?? 0 })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('fgts.form.terminationType')">
-                <NSelect
-                  :value="form.terminationType"
-                  :options="terminationTypeOptions"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ terminationType: v })"
-                />
-              </NFormItem>
-            </CalculatorFormSection>
-
-            <NAlert v-if="validationError" type="warning" style="margin-top:12px">
-              {{ validationError }}
-            </NAlert>
-
-            <div class="fgts-page__form-actions">
-              <NButton v-if="isDirty" quaternary @click="handleReset">
-                {{ t('fgts.form.reset') }}
-              </NButton>
-              <NButton type="primary" attr-type="submit" :style="{ flex: 1 }">
-                {{ t('fgts.form.calculate') }}
-              </NButton>
-            </div>
-          </NForm>
-        </UiGlassPanel>
-      </section>
-
-      <section v-if="result" class="fgts-page__results-section">
-        <div class="fgts-page__layout">
-          <div class="fgts-page__results-main">
-            <!-- Breakdown card -->
-            <UiSurfaceCard>
-              <p class="fgts-page__section-title">{{ t('fgts.results.title') }}</p>
-              <div class="fgts-page__breakdown">
-                <div class="fgts-page__breakdown-row">
-                  <span>{{ t('fgts.results.monthlyDeposit') }}</span>
-                  <span>{{ formatBrl(result.monthlyDeposit) }}</span>
-                </div>
-                <div class="fgts-page__breakdown-row">
-                  <span>{{ t('fgts.results.totalDeposited') }}</span>
-                  <span>{{ formatBrl(result.totalDeposited) }}</span>
-                </div>
-                <div class="fgts-page__breakdown-row fgts-page__breakdown-row--bonus">
-                  <span>{{ t('fgts.results.correctionAmount') }}</span>
-                  <span>+ {{ formatBrl(result.correctionAmount) }}</span>
-                </div>
-                <div class="fgts-page__breakdown-row fgts-page__breakdown-row--total">
-                  <span>{{ t('fgts.results.projectedBalance') }}</span>
-                  <span class="fgts-page__value--gross">{{ formatBrl(result.projectedBalance) }}</span>
-                </div>
-                <div v-if="result.fineAmount > 0" class="fgts-page__breakdown-row fgts-page__breakdown-row--bonus">
-                  <span>{{ t('fgts.results.fineAmount') }}</span>
-                  <span>+ {{ formatBrl(result.fineAmount) }}</span>
-                </div>
-                <div v-if="result.governmentFineAmount > 0" class="fgts-page__breakdown-row">
-                  <span>{{ t('fgts.results.governmentFineAmount') }}</span>
-                  <span>{{ formatBrl(result.governmentFineAmount) }}</span>
-                </div>
-                <div class="fgts-page__breakdown-row fgts-page__breakdown-row--net">
-                  <span>{{ t('fgts.results.withdrawableAmount') }}</span>
-                  <span :class="result.canWithdraw ? 'fgts-page__value--positive' : 'fgts-page__value--muted'">
-                    {{ result.canWithdraw ? formatBrl(result.withdrawableAmount) : t('fgts.results.cannotWithdraw') }}
-                  </span>
-                </div>
-              </div>
-            </UiSurfaceCard>
-
-            <!-- Disclaimer -->
-            <UiSurfaceCard>
-              <NAlert type="warning">
-                {{ t('fgts.disclaimer.legal', { year: FGTS_TABLE_YEAR }) }}
-              </NAlert>
-            </UiSurfaceCard>
-          </div>
-
-          <div class="fgts-page__results-aside">
-            <UiStickySummaryCard>
-              <CalculatorResultSummary
-                :label="t('fgts.results.projectedBalance')"
-                :value="formatBrl(result.projectedBalance)"
-                :metrics="summaryMetrics"
-              />
-            </UiStickySummaryCard>
-
-            <!-- Guest CTA -->
-            <ToolGuestCta />
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
   </div>
 </template>
 

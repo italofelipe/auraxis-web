@@ -8,7 +8,6 @@ import {
   NFormItem,
   NInputNumber,
   NSpace,
-  NTag,
   NThing,
   useMessage,
 } from "naive-ui";
@@ -244,7 +243,7 @@ const isSaved = computed(() => savedSimulationId.value !== null);
   <!-- Transparent root wrapper required by vue/no-multiple-template-root. -->
   <div class="cdb-root">
   <!-- ═══ AUTHENTICATED — app shell ══════════════════════════════════════════ -->
-  <NuxtLayout v-if="isAuthenticated" name="default">
+  <NuxtLayout :name="isAuthenticated ? 'default' : 'tools-public'">
     <div class="cdb-page cdb-page--authenticated">
       <div class="cdb-page__layout">
         <!-- Form column -->
@@ -503,199 +502,9 @@ const isSaved = computed(() => savedSimulationId.value !== null);
         </div>
       </div>
     </div>
+        <!-- Guest CTA — shown below result for unauthenticated users -->
+        <ToolGuestCta v-if="!isAuthenticated" />
   </NuxtLayout>
-
-  <!-- ═══ GUEST — standalone public page ════════════════════════════════════ -->
-  <div v-else class="cdb-page">
-    <header class="cdb-page__header">
-      <div class="cdb-page__brand">
-        <span class="cdb-page__brand-mark">Auraxis</span>
-        <span class="cdb-page__brand-copy">{{ t('cdbLciLca.header.publicTool') }}</span>
-      </div>
-      <div class="cdb-page__header-actions">
-        <NButton quaternary @click="router.push('/tools')">{{ t('cdbLciLca.header.otherTools') }}</NButton>
-        <NButton type="primary" @click="router.push('/register')">{{ t('cdbLciLca.header.createAccount') }}</NButton>
-      </div>
-    </header>
-
-    <main class="cdb-page__content">
-      <section class="cdb-page__hero">
-        <div class="cdb-page__hero-copy">
-          <NTag round type="warning">{{ t('cdbLciLca.hero.badge') }}</NTag>
-          <UiPageHeader
-            :title="t('cdbLciLca.hero.title')"
-            :subtitle="t('cdbLciLca.hero.subtitle')"
-          />
-        </div>
-
-        <UiGlassPanel glow class="cdb-page__form-panel">
-          <NForm @submit.prevent="handleCalculate">
-            <CalculatorFormSection :title="t('cdbLciLca.form.sectionInvestment')">
-              <NFormItem :label="t('cdbLciLca.form.amount')">
-                <NInputNumber
-                  :value="form.amount"
-                  :placeholder="t('cdbLciLca.form.amountPlaceholder')"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ amount: v })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('cdbLciLca.form.termDays')">
-                <NInputNumber
-                  :value="form.termDays"
-                  :min="1"
-                  :precision="0"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ termDays: v ?? 365 })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('cdbLciLca.form.cdbRatePct')">
-                <NInputNumber
-                  :value="form.cdbRatePct"
-                  :min="0"
-                  :precision="2"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ cdbRatePct: v })"
-                />
-                <p class="cdb-page__hint">{{ t('cdbLciLca.form.cdbRateHint') }}</p>
-              </NFormItem>
-
-              <NFormItem :label="t('cdbLciLca.form.lciRatePct')">
-                <NInputNumber
-                  :value="form.lciRatePct"
-                  :min="0"
-                  :precision="2"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ lciRatePct: v })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('cdbLciLca.form.lcaRatePct')">
-                <NInputNumber
-                  :value="form.lcaRatePct"
-                  :min="0"
-                  :precision="2"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ lcaRatePct: v })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('cdbLciLca.form.cdiRatePct')">
-                <NInputNumber
-                  :value="form.cdiRatePct"
-                  :min="0"
-                  :precision="2"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ cdiRatePct: v ?? 10.65 })"
-                />
-                <p class="cdb-page__hint">{{ t('cdbLciLca.form.cdiHint') }}</p>
-              </NFormItem>
-
-              <NFormItem :label="t('cdbLciLca.form.selicRatePct')">
-                <NInputNumber
-                  :value="form.selicRatePct"
-                  :min="0"
-                  :precision="2"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ selicRatePct: v ?? 10.75 })"
-                />
-                <p class="cdb-page__hint">{{ t('cdbLciLca.form.selicHint') }}</p>
-              </NFormItem>
-
-              <NFormItem :label="t('cdbLciLca.form.ipcaRatePct')">
-                <NInputNumber
-                  :value="form.ipcaRatePct"
-                  :min="0"
-                  :precision="2"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ ipcaRatePct: v ?? 4.5 })"
-                />
-              </NFormItem>
-            </CalculatorFormSection>
-
-            <NAlert v-if="validationError" type="warning" style="margin-top:12px">
-              {{ validationError }}
-            </NAlert>
-
-            <div class="cdb-page__form-actions">
-              <NButton v-if="isDirty" quaternary @click="handleReset">
-                {{ t('cdbLciLca.form.reset') }}
-              </NButton>
-              <NButton type="primary" attr-type="submit" :style="{ flex: 1 }">
-                {{ t('cdbLciLca.form.calculate') }}
-              </NButton>
-            </div>
-          </NForm>
-        </UiGlassPanel>
-      </section>
-
-      <section v-if="result" class="cdb-page__results-section">
-        <div class="cdb-page__layout">
-          <div class="cdb-page__results-main">
-            <!-- Ranking -->
-            <UiSurfaceCard>
-              <p class="cdb-page__section-title">{{ t('cdbLciLca.results.rankingTitle') }}</p>
-              <div class="cdb-page__ranking">
-                <div
-                  v-for="(entry, idx) in result.ranking"
-                  :key="entry.name"
-                  class="cdb-page__ranking-row"
-                  :class="{ 'cdb-page__ranking-row--best': idx === 0 }"
-                >
-                  <span class="cdb-page__ranking-position">{{ idx + 1 }}.</span>
-                  <span class="cdb-page__ranking-name">{{ entry.name }}</span>
-                  <span class="cdb-page__ranking-amount">{{ formatBrl(entry.netAmount) }}</span>
-                </div>
-              </div>
-            </UiSurfaceCard>
-
-            <!-- CDB detail (guest) -->
-            <UiSurfaceCard v-if="form.cdbRatePct !== null">
-              <p class="cdb-page__section-title">{{ t('cdbLciLca.results.cdbDetail') }}</p>
-              <div class="cdb-page__breakdown">
-                <div class="cdb-page__breakdown-row">
-                  <span>{{ t('cdbLciLca.results.grossReturn') }}</span>
-                  <span>{{ formatBrl(result.cdb.grossReturn) }}</span>
-                </div>
-                <div class="cdb-page__breakdown-row cdb-page__breakdown-row--deduction">
-                  <span>{{ t('cdbLciLca.results.irAmount', { rate: formatPct(result.cdb.irRate) }) }}</span>
-                  <span>− {{ formatBrl(result.cdb.irAmount) }}</span>
-                </div>
-                <div class="cdb-page__breakdown-row cdb-page__breakdown-row--net">
-                  <span>{{ t('cdbLciLca.results.netReturn') }}</span>
-                  <span class="cdb-page__value--positive">{{ formatBrl(result.cdb.netReturn) }}</span>
-                </div>
-              </div>
-            </UiSurfaceCard>
-
-            <!-- Disclaimer -->
-            <UiSurfaceCard>
-              <NAlert type="warning">
-                {{ t('cdbLciLca.disclaimer.note', { year: CDB_TABLE_YEAR }) }}
-              </NAlert>
-            </UiSurfaceCard>
-          </div>
-
-          <div class="cdb-page__results-aside">
-            <UiStickySummaryCard>
-              <CalculatorResultSummary
-                :label="t('cdbLciLca.results.bestOption', { name: result.bestOption })"
-                :value="formatBrl(bestNetAmount)"
-                :metrics="summaryMetrics"
-              />
-            </UiStickySummaryCard>
-
-            <!-- Guest CTA -->
-            <ToolGuestCta />
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
   </div>
 </template>
 

@@ -11,7 +11,6 @@ import {
   NModal,
   NSelect,
   NSpace,
-  NTag,
   NThing,
   NTooltip,
 } from "naive-ui";
@@ -262,7 +261,7 @@ const isBridging = computed(
 <template>
   <div class="thirteenth-salary-root">
   <!-- ═══ AUTHENTICATED ═══════════════════════════════════════════════════════ -->
-  <NuxtLayout v-if="isAuthenticated" name="default">
+  <NuxtLayout :name="isAuthenticated ? 'default' : 'tools-public'">
     <div class="thirteenth-salary-page thirteenth-salary-page--authenticated">
       <div class="thirteenth-salary-page__layout">
         <!-- Form column -->
@@ -436,146 +435,10 @@ const isBridging = computed(
         </div>
       </div>
     </div>
+      <ToolGuestCta v-if="!isAuthenticated" />
   </NuxtLayout>
 
-  <!-- ═══ GUEST ═══════════════════════════════════════════════════════════════ -->
-  <div v-else class="thirteenth-salary-page">
-    <header class="thirteenth-salary-page__header">
-      <div class="thirteenth-salary-page__brand">
-        <span class="thirteenth-salary-page__brand-mark">Auraxis</span>
-        <span class="thirteenth-salary-page__brand-copy">{{ t('thirteenthSalary.header.publicTool') }}</span>
-      </div>
-      <div class="thirteenth-salary-page__header-actions">
-        <NButton quaternary @click="router.push('/tools')">{{ t('thirteenthSalary.header.otherTools') }}</NButton>
-        <NButton type="primary" @click="router.push('/register')">{{ t('thirteenthSalary.header.createAccount') }}</NButton>
-      </div>
-    </header>
-
-    <main class="thirteenth-salary-page__content">
-      <section class="thirteenth-salary-page__hero">
-        <div class="thirteenth-salary-page__hero-copy">
-          <NTag round type="warning">{{ t('thirteenthSalary.hero.badge') }}</NTag>
-          <UiPageHeader
-            :title="t('thirteenthSalary.hero.title')"
-            :subtitle="t('thirteenthSalary.hero.subtitle')"
-          />
-        </div>
-
-        <UiGlassPanel glow class="thirteenth-salary-page__form-panel">
-          <NForm @submit.prevent="handleCalculate">
-            <CalculatorFormSection :title="t('thirteenthSalary.form.title')">
-              <NFormItem :label="t('thirteenthSalary.form.grossSalary')">
-                <NInputNumber
-                  :value="form.grossSalary"
-                  :placeholder="t('thirteenthSalary.form.grossSalaryPlaceholder')"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ grossSalary: v })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('thirteenthSalary.form.monthsWorked')">
-                <NSelect
-                  :value="form.monthsWorked"
-                  :options="monthsOptions"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ monthsWorked: v })"
-                />
-              </NFormItem>
-
-              <NFormItem>
-                <template #label>
-                  {{ t('thirteenthSalary.form.variablePay') }}
-                  <NTooltip>
-                    <template #trigger>
-                      <Info :size="14" style="margin-left:4px;cursor:help;vertical-align:middle;" />
-                    </template>
-                    {{ t('thirteenthSalary.form.variablePayTooltip') }}
-                  </NTooltip>
-                </template>
-                <NInputNumber
-                  :value="form.variablePay"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ variablePay: v ?? 0 })"
-                />
-              </NFormItem>
-
-              <NFormItem>
-                <template #label>
-                  {{ t('thirteenthSalary.form.dependents') }}
-                  <NTooltip>
-                    <template #trigger>
-                      <Info :size="14" style="margin-left:4px;cursor:help;vertical-align:middle;" />
-                    </template>
-                    {{ t('thirteenthSalary.form.dependentsTooltip') }}
-                  </NTooltip>
-                </template>
-                <NInputNumber
-                  :value="form.dependents"
-                  :min="0"
-                  :max="10"
-                  :precision="0"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ dependents: v ?? 0 })"
-                />
-              </NFormItem>
-            </CalculatorFormSection>
-
-            <NAlert v-if="validationError" type="warning" style="margin-top:12px">
-              {{ validationError }}
-            </NAlert>
-
-            <div class="thirteenth-salary-page__form-actions">
-              <NButton v-if="isDirty" quaternary @click="handleReset">
-                {{ t('thirteenthSalary.form.reset') }}
-              </NButton>
-              <NButton type="primary" attr-type="submit" :style="{ flex: 1 }">
-                {{ t('thirteenthSalary.form.calculate') }}
-              </NButton>
-            </div>
-          </NForm>
-        </UiGlassPanel>
-      </section>
-
-      <section v-if="result" class="thirteenth-salary-page__results-section">
-        <div class="thirteenth-salary-page__layout">
-          <div class="thirteenth-salary-page__results-main">
-            <UiSurfaceCard>
-              <ThirteenthSalaryResultPanel :result="result" />
-            </UiSurfaceCard>
-
-            <UiSurfaceCard>
-              <p class="thirteenth-salary-page__disclaimer">
-                {{ t('thirteenthSalary.disclaimer.tableYear', { year: BR_TAX_TABLE_YEAR }) }}
-              </p>
-              <p class="thirteenth-salary-page__disclaimer">
-                {{ t('thirteenthSalary.disclaimer.notFinancialAdvice') }}
-              </p>
-            </UiSurfaceCard>
-          </div>
-
-          <div class="thirteenth-salary-page__results-aside">
-            <UiStickySummaryCard>
-              <CalculatorResultSummary
-                :label="t('thirteenthSalary.results.totalNet')"
-                :value="formatBrl(result.totalNet)"
-                :reason="t('thirteenthSalary.results.totalNetNote')"
-                :metrics="summaryMetrics"
-              />
-            </UiStickySummaryCard>
-            <ToolGuestCta />
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <!-- ═══ GOAL MODAL ══════════════════════════════════════════════════════════ -->
+    <!-- ═══ GOAL MODAL ══════════════════════════════════════════════════════════ -->
   <NModal
     v-model:show="showGoalModal"
     preset="card"

@@ -8,11 +8,9 @@ import {
   NInputNumber,
   NSelect,
   NSpace,
-  NTag,
   NThing,
   useMessage,
 } from "naive-ui";
-import { useRouter } from "#app";
 
 import { captureException } from "~/core/observability";
 import { useApiError } from "~/composables/useApiError";
@@ -42,7 +40,6 @@ definePageMeta({ layout: false });
 const { t, n } = useI18n();
 const toast = useMessage();
 const { getErrorMessage } = useApiError();
-const router = useRouter();
 const sessionStore = useSessionStore();
 
 useSeoMeta({
@@ -265,8 +262,7 @@ const isSaved = computed(() => savedSimulationId.value !== null);
 <template>
   <!-- Transparent root wrapper required by vue/no-multiple-template-root. -->
   <div class="desconto-markup-root">
-  <!-- ═══ AUTHENTICATED — app shell ══════════════════════════════════════════ -->
-  <NuxtLayout v-if="isAuthenticated" name="default">
+  <NuxtLayout :name="isAuthenticated ? 'default' : 'tools-public'">
     <div class="desconto-markup-page desconto-markup-page--authenticated">
       <div class="desconto-markup-page__layout">
         <!-- Form column -->
@@ -391,107 +387,12 @@ const isSaved = computed(() => savedSimulationId.value !== null);
               :description="formatBrl(result.savingsOrProfit)"
             />
           </UiSurfaceCard>
+
+          <!-- Guest CTA — shown below result for unauthenticated users -->
+          <ToolGuestCta v-if="!isAuthenticated" />
         </div>
       </div>
     </div>
   </NuxtLayout>
-
-  <!-- ═══ GUEST — standalone public layout ════════════════════════════════════ -->
-  <div v-else class="desconto-markup-page desconto-markup-page--guest">
-    <!-- Brand header -->
-    <header class="desconto-markup-page__header">
-      <NTag round type="success" size="small">
-        {{ t('descontoMarkup.header.publicTool') }}
-      </NTag>
-      <NButton quaternary @click="router.push('/auth/login')">
-        {{ t('descontoMarkup.header.createAccount') }}
-      </NButton>
-    </header>
-
-    <!-- Hero -->
-    <div class="desconto-markup-page__hero">
-      <NTag round size="small">{{ t('descontoMarkup.hero.badge') }}</NTag>
-      <h1 class="desconto-markup-page__hero-title">{{ t('descontoMarkup.hero.title') }}</h1>
-      <p class="desconto-markup-page__hero-subtitle">{{ t('descontoMarkup.hero.subtitle') }}</p>
-    </div>
-
-    <!-- Form -->
-    <div class="desconto-markup-page__content">
-      <UiGlassPanel class="desconto-markup-page__form-panel">
-        <NForm @submit.prevent="handleCalculate">
-          <CalculatorFormSection :title="t('descontoMarkup.form.mode')">
-            <NFormItem :label="t('descontoMarkup.form.mode')">
-              <NSelect
-                :value="form.mode"
-                :options="modeOptions"
-                style="width: 100%"
-                @update:value="(v) => patch({ mode: v })"
-              />
-            </NFormItem>
-
-            <NFormItem v-if="showPrice" :label="priceLabel">
-              <NInputNumber
-                :value="form.price"
-                :min="0"
-                :precision="2"
-                prefix="R$"
-                style="width: 100%"
-                @update:value="(v) => patch({ price: v })"
-              />
-            </NFormItem>
-
-            <NFormItem v-if="showPct" :label="pctLabel">
-              <NInputNumber
-                :value="form.pct"
-                :min="0"
-                :max="form.mode === 'reverso' ? 99.99 : 100"
-                :precision="2"
-                style="width: 100%"
-                @update:value="(v) => patch({ pct: v })"
-              />
-            </NFormItem>
-
-            <NFormItem v-if="showCost" :label="t('descontoMarkup.form.cost')">
-              <NInputNumber
-                :value="form.cost"
-                :min="0"
-                :precision="2"
-                prefix="R$"
-                style="width: 100%"
-                @update:value="(v) => patch({ cost: v })"
-              />
-            </NFormItem>
-          </CalculatorFormSection>
-
-          <NAlert v-if="validationError" type="error" style="margin-bottom: 16px">
-            {{ validationError }}
-          </NAlert>
-
-          <NSpace style="margin-top: 16px">
-            <NButton type="primary" attr-type="submit">
-              {{ t('descontoMarkup.form.calculate') }}
-            </NButton>
-            <NButton quaternary @click="handleReset">
-              {{ t('descontoMarkup.form.reset') }}
-            </NButton>
-          </NSpace>
-        </NForm>
-      </UiGlassPanel>
-
-      <!-- Result -->
-      <div v-if="result" class="desconto-markup-page__result">
-        <UiSurfaceCard>
-          <CalculatorResultSummary
-            :label="getPrimaryResultLabel()"
-            :value="getPrimaryResultValue(result)"
-            :metrics="summaryMetrics"
-          />
-        </UiSurfaceCard>
-
-        <!-- Guest CTA -->
-        <ToolGuestCta />
-      </div>
-    </div>
-  </div>
   </div>
 </template>

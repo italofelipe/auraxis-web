@@ -7,7 +7,6 @@ import {
   NFormItem,
   NInputNumber,
   NSpace,
-  NTag,
   NThing,
   NTooltip,
 } from "naive-ui";
@@ -137,7 +136,7 @@ async function handleSaveSimulation(): Promise<void> {
 <template>
   <div class="hora-extra-root">
   <!-- ═══ AUTHENTICATED ═══════════════════════════════════════════════════════ -->
-  <NuxtLayout v-if="isAuthenticated" name="default">
+  <NuxtLayout :name="isAuthenticated ? 'default' : 'tools-public'">
     <div class="hora-extra-page hora-extra-page--authenticated">
       <div class="hora-extra-page__layout">
         <!-- Form column -->
@@ -311,174 +310,8 @@ async function handleSaveSimulation(): Promise<void> {
         </div>
       </div>
     </div>
+      <ToolGuestCta v-if="!isAuthenticated" />
   </NuxtLayout>
-
-  <!-- ═══ GUEST ═══════════════════════════════════════════════════════════════ -->
-  <div v-else class="hora-extra-page">
-    <header class="hora-extra-page__header">
-      <div class="hora-extra-page__brand">
-        <span class="hora-extra-page__brand-mark">Auraxis</span>
-        <span class="hora-extra-page__brand-copy">{{ t('horaExtra.header.publicTool') }}</span>
-      </div>
-      <div class="hora-extra-page__header-actions">
-        <NButton quaternary @click="router.push('/tools')">{{ t('horaExtra.header.otherTools') }}</NButton>
-        <NButton type="primary" @click="router.push('/register')">{{ t('horaExtra.header.createAccount') }}</NButton>
-      </div>
-    </header>
-
-    <main class="hora-extra-page__content">
-      <section class="hora-extra-page__hero">
-        <div class="hora-extra-page__hero-copy">
-          <NTag round type="warning">{{ t('horaExtra.hero.badge') }}</NTag>
-          <UiPageHeader
-            :title="t('horaExtra.hero.title')"
-            :subtitle="t('horaExtra.hero.subtitle')"
-          />
-        </div>
-
-        <UiGlassPanel glow class="hora-extra-page__form-panel">
-          <NForm @submit.prevent="handleCalculate">
-            <CalculatorFormSection :title="t('horaExtra.form.title')">
-              <NFormItem :label="t('horaExtra.form.grossSalary')">
-                <NInputNumber
-                  :value="form.grossSalary"
-                  :placeholder="t('horaExtra.form.grossSalaryPlaceholder')"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ grossSalary: v })"
-                />
-              </NFormItem>
-
-              <NFormItem>
-                <template #label>
-                  {{ t('horaExtra.form.hoursPerMonth') }}
-                  <NTooltip>
-                    <template #trigger>
-                      <Info :size="14" style="margin-left:4px;cursor:help;vertical-align:middle;" />
-                    </template>
-                    {{ t('horaExtra.form.hoursPerMonthTooltip') }}
-                  </NTooltip>
-                </template>
-                <NInputNumber
-                  :value="form.hoursPerMonth"
-                  :min="1"
-                  :max="744"
-                  :precision="0"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ hoursPerMonth: v ?? CLT_DEFAULT_HOURS_PER_MONTH })"
-                />
-              </NFormItem>
-
-              <NFormItem>
-                <template #label>
-                  {{ t('horaExtra.form.hours50') }}
-                  <NTooltip>
-                    <template #trigger>
-                      <Info :size="14" style="margin-left:4px;cursor:help;vertical-align:middle;" />
-                    </template>
-                    {{ t('horaExtra.form.hours50Tooltip') }}
-                  </NTooltip>
-                </template>
-                <NInputNumber
-                  :value="form.hours50"
-                  :min="0"
-                  :precision="1"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ hours50: v ?? 0 })"
-                />
-              </NFormItem>
-
-              <NFormItem>
-                <template #label>
-                  {{ t('horaExtra.form.hours75') }}
-                  <NTooltip>
-                    <template #trigger>
-                      <Info :size="14" style="margin-left:4px;cursor:help;vertical-align:middle;" />
-                    </template>
-                    {{ t('horaExtra.form.hours75Tooltip') }}
-                  </NTooltip>
-                </template>
-                <NInputNumber
-                  :value="form.hours75"
-                  :min="0"
-                  :precision="1"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ hours75: v ?? 0 })"
-                />
-              </NFormItem>
-
-              <NFormItem>
-                <template #label>
-                  {{ t('horaExtra.form.hours100') }}
-                  <NTooltip>
-                    <template #trigger>
-                      <Info :size="14" style="margin-left:4px;cursor:help;vertical-align:middle;" />
-                    </template>
-                    {{ t('horaExtra.form.hours100Tooltip') }}
-                  </NTooltip>
-                </template>
-                <NInputNumber
-                  :value="form.hours100"
-                  :min="0"
-                  :precision="1"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ hours100: v ?? 0 })"
-                />
-              </NFormItem>
-            </CalculatorFormSection>
-
-            <NAlert v-if="validationError" type="warning" style="margin-top:12px">
-              {{ validationError }}
-            </NAlert>
-
-            <div class="hora-extra-page__form-actions">
-              <NButton v-if="isDirty" quaternary @click="handleReset">
-                {{ t('horaExtra.form.reset') }}
-              </NButton>
-              <NButton type="primary" attr-type="submit" :style="{ flex: 1 }">
-                {{ t('horaExtra.form.calculate') }}
-              </NButton>
-            </div>
-          </NForm>
-        </UiGlassPanel>
-      </section>
-
-      <section v-if="result" class="hora-extra-page__results-section">
-        <div class="hora-extra-page__layout">
-          <div class="hora-extra-page__results-main">
-            <UiSurfaceCard>
-              <p class="hora-extra-page__section-title">{{ t('horaExtra.results.title') }}</p>
-              <div class="hora-extra-page__breakdown">
-                <HoraExtraResultPanel :result="result" />
-              </div>
-            </UiSurfaceCard>
-
-            <UiSurfaceCard>
-              <p class="hora-extra-page__disclaimer">
-                {{ t('horaExtra.disclaimer.tableYear', { year: BR_TAX_TABLE_YEAR }) }}
-              </p>
-              <p class="hora-extra-page__disclaimer">
-                {{ t('horaExtra.disclaimer.irNotIncluded') }}
-              </p>
-            </UiSurfaceCard>
-          </div>
-
-          <div class="hora-extra-page__results-aside">
-            <UiStickySummaryCard>
-              <CalculatorResultSummary
-                :label="t('horaExtra.results.netOvertimeEstimate')"
-                :value="formatBrl(result.netOvertimeEstimate)"
-                :metrics="summaryMetrics"
-              />
-            </UiStickySummaryCard>
-            <ToolGuestCta />
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
   </div>
 </template>
 

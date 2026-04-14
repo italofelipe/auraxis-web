@@ -279,9 +279,8 @@ describe("DividirContaPage — guest layout", () => {
   it("renders the public hero and brand header when unauthenticated", () => {
     const wrapper = mountPage();
 
-    expect(wrapper.find(".dividir-conta-page__header").exists()).toBe(true);
+    expect(wrapper.find(".nuxt-layout").exists()).toBe(true);
     expect(wrapper.text()).toContain("dividirConta.hero.title");
-    expect(wrapper.text()).toContain("dividirConta.header.publicTool");
   });
 
   it("shows the guest CTA after calculation", async () => {
@@ -306,7 +305,6 @@ describe("DividirContaPage — authenticated layout", () => {
     const wrapper = mountPage();
 
     expect(wrapper.find(".nuxt-layout").exists()).toBe(true);
-    expect(wrapper.find(".dividir-conta-page__header").exists()).toBe(false);
     expect(wrapper.find(".tool-guest-cta").exists()).toBe(false);
   });
 });

@@ -284,7 +284,7 @@ describe("FinanciamentoImobiliarioPage — layout", () => {
 
   it("renders public hero and brand header when unauthenticated", () => {
     const wrapper = mountPage();
-    expect(wrapper.find(".fin-imob-page__header").exists()).toBe(true);
+    expect(wrapper.find(".nuxt-layout").exists()).toBe(true);
     expect(wrapper.text()).toContain("financiamentoImobiliario.hero.title");
   });
 
@@ -300,7 +300,6 @@ describe("FinanciamentoImobiliarioPage — layout", () => {
     mockIsAuthenticated.value = true;
     const wrapper = mountPage();
     expect(wrapper.find(".nuxt-layout").exists()).toBe(true);
-    expect(wrapper.find(".fin-imob-page__header").exists()).toBe(false);
     expect(wrapper.find(".tool-guest-cta").exists()).toBe(false);
   });
 });

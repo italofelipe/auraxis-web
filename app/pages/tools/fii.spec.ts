@@ -294,9 +294,8 @@ describe("FiiPage — layout", () => {
   it("renders the public hero and brand header when unauthenticated", () => {
     const wrapper = mountPage();
 
-    expect(wrapper.find(".fii-page__header").exists()).toBe(true);
+    expect(wrapper.find(".nuxt-layout").exists()).toBe(true);
     expect(wrapper.text()).toContain("fii.hero.title");
-    expect(wrapper.text()).toContain("fii.header.publicTool");
   });
 
   it("shows NuxtLayout and no standalone header when authenticated", () => {
@@ -304,7 +303,6 @@ describe("FiiPage — layout", () => {
     const wrapper = mountPage();
 
     expect(wrapper.find(".nuxt-layout").exists()).toBe(true);
-    expect(wrapper.find(".fii-page__header").exists()).toBe(false);
     expect(wrapper.find(".tool-guest-cta").exists()).toBe(false);
   });
 

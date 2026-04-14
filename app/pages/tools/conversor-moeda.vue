@@ -8,11 +8,9 @@ import {
   NInputNumber,
   NSelect,
   NSpace,
-  NTag,
   NSpin,
   useMessage,
 } from "naive-ui";
-import { useRouter } from "#app";
 
 import { captureException } from "~/core/observability";
 import { useApiError } from "~/composables/useApiError";
@@ -43,7 +41,6 @@ definePageMeta({ layout: false });
 const { t, n } = useI18n();
 const toast = useMessage();
 const { getErrorMessage } = useApiError();
-const router = useRouter();
 const sessionStore = useSessionStore();
 
 useSeoMeta({
@@ -244,7 +241,7 @@ async function handleAddAsGoal(): Promise<void> {
   <!-- Transparent root wrapper required by vue/no-multiple-template-root. -->
   <div class="conversor-root">
   <!-- ═══ AUTHENTICATED — app shell ══════════════════════════════════════════ -->
-  <NuxtLayout v-if="isAuthenticated" name="default">
+  <NuxtLayout :name="isAuthenticated ? 'default' : 'tools-public'">
     <div class="conversor-page conversor-page--authenticated">
       <div class="conversor-page__layout">
         <!-- Form column -->
@@ -376,157 +373,9 @@ async function handleAddAsGoal(): Promise<void> {
         </div>
       </div>
     </div>
+        <!-- Guest CTA — shown below result for unauthenticated users -->
+        <ToolGuestCta v-if="!isAuthenticated" />
   </NuxtLayout>
-
-  <!-- ═══ GUEST — standalone public page ════════════════════════════════════ -->
-  <div v-else class="conversor-page">
-    <header class="conversor-page__header">
-      <div class="conversor-page__brand">
-        <span class="conversor-page__brand-mark">Auraxis</span>
-        <span class="conversor-page__brand-copy">{{ t('conversorMoeda.header.publicTool') }}</span>
-      </div>
-      <div class="conversor-page__header-actions">
-        <NButton quaternary @click="router.push('/tools')">{{ t('conversorMoeda.header.otherTools') }}</NButton>
-        <NButton type="primary" @click="router.push('/register')">{{ t('conversorMoeda.header.createAccount') }}</NButton>
-      </div>
-    </header>
-
-    <main class="conversor-page__content">
-      <section class="conversor-page__hero">
-        <div class="conversor-page__hero-copy">
-          <NTag round type="warning">{{ t('conversorMoeda.hero.badge') }}</NTag>
-          <UiPageHeader
-            :title="t('conversorMoeda.hero.title')"
-            :subtitle="t('conversorMoeda.hero.subtitle')"
-          />
-        </div>
-
-        <UiGlassPanel glow class="conversor-page__form-panel">
-          <NForm @submit.prevent="handleCalculate">
-            <CalculatorFormSection :title="t('conversorMoeda.form.title')">
-              <NFormItem :label="t('conversorMoeda.form.pair')">
-                <NSelect
-                  :value="form.pair"
-                  :options="pairOptions"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ pair: v })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('conversorMoeda.form.direction')">
-                <NSelect
-                  :value="form.direction"
-                  :options="directionOptions"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ direction: v })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('conversorMoeda.form.amount')">
-                <NInputNumber
-                  :value="form.amount"
-                  :placeholder="t('conversorMoeda.form.amountPlaceholder')"
-                  :min="0"
-                  :precision="2"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ amount: v })"
-                />
-              </NFormItem>
-
-              <!-- Manual rate fallback -->
-              <NFormItem
-                v-if="hasBrapiError"
-                :label="t('conversorMoeda.form.manualRate')"
-              >
-                <NInputNumber
-                  :value="form.manualRate"
-                  :placeholder="t('conversorMoeda.form.manualRatePlaceholder')"
-                  :min="0"
-                  :precision="4"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ manualRate: v })"
-                />
-              </NFormItem>
-            </CalculatorFormSection>
-
-            <NAlert v-if="hasBrapiError" type="warning" style="margin-top:12px" data-testid="brapi-error-alert">
-              {{ t('conversorMoeda.alerts.brapiUnavailable') }}
-            </NAlert>
-
-            <NAlert v-if="validationError" type="warning" style="margin-top:12px">
-              {{ validationError }}
-            </NAlert>
-
-            <div class="conversor-page__form-actions">
-              <NButton v-if="isDirty" quaternary @click="handleReset">
-                {{ t('conversorMoeda.form.reset') }}
-              </NButton>
-              <NButton type="primary" attr-type="submit" :style="{ flex: 1 }">
-                {{ t('conversorMoeda.form.calculate') }}
-              </NButton>
-            </div>
-          </NForm>
-        </UiGlassPanel>
-      </section>
-
-      <section v-if="result" class="conversor-page__results-section">
-        <div class="conversor-page__layout">
-          <div class="conversor-page__results-main">
-            <!-- Result card -->
-            <UiSurfaceCard>
-              <p class="conversor-page__section-title">{{ t('conversorMoeda.results.title') }}</p>
-              <div class="conversor-page__breakdown">
-                <div class="conversor-page__breakdown-row conversor-page__breakdown-row--main">
-                  <span>{{ result.fromCurrency }} → {{ result.toCurrency }}</span>
-                  <span class="conversor-page__value--positive">
-                    {{ formatAmount(result.convertedAmount) }} {{ result.toCurrency }}
-                  </span>
-                </div>
-                <div class="conversor-page__breakdown-row">
-                  <span>{{ t('conversorMoeda.results.rate') }}</span>
-                  <span>{{ formatRate(result.rate) }}</span>
-                </div>
-                <div class="conversor-page__breakdown-row">
-                  <span>{{ t('conversorMoeda.results.bid') }}</span>
-                  <span>{{ formatRate(result.bid) }}</span>
-                </div>
-                <div class="conversor-page__breakdown-row">
-                  <span>{{ t('conversorMoeda.results.ask') }}</span>
-                  <span>{{ formatRate(result.ask) }}</span>
-                </div>
-                <div class="conversor-page__breakdown-row">
-                  <span>{{ t('conversorMoeda.results.pctChange') }}</span>
-                  <span :class="result.pctChange >= 0 ? 'conversor-page__value--positive' : 'conversor-page__value--negative'">
-                    {{ result.pctChange.toFixed(2) }}%
-                  </span>
-                </div>
-              </div>
-            </UiSurfaceCard>
-
-            <!-- Disclaimer -->
-            <UiSurfaceCard>
-              <NAlert type="warning" data-testid="disclaimer-alert">
-                {{ t('conversorMoeda.disclaimer.indicativeRate') }}
-              </NAlert>
-            </UiSurfaceCard>
-          </div>
-
-          <div class="conversor-page__results-aside">
-            <UiStickySummaryCard>
-              <CalculatorResultSummary
-                :label="`${result.fromCurrency} → ${result.toCurrency}`"
-                :value="`${formatAmount(result.convertedAmount)} ${result.toCurrency}`"
-                :metrics="summaryMetrics"
-              />
-            </UiStickySummaryCard>
-
-            <!-- Guest CTA -->
-            <ToolGuestCta />
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
   </div>
 </template>
 

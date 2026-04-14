@@ -9,7 +9,6 @@ import {
   NInputNumber,
   NSelect,
   NSpace,
-  NTag,
   NThing,
   NTooltip,
   useMessage,
@@ -212,7 +211,7 @@ async function handleSaveSimulation(): Promise<void> {
   <!-- Transparent root wrapper required by vue/no-multiple-template-root. -->
   <div class="ferias-root">
   <!-- ═══ AUTHENTICATED — app shell ══════════════════════════════════════════ -->
-  <NuxtLayout v-if="isAuthenticated" name="default">
+  <NuxtLayout :name="isAuthenticated ? 'default' : 'tools-public'">
     <div class="ferias-page ferias-page--authenticated">
       <div class="ferias-page__layout">
         <!-- Form column -->
@@ -426,194 +425,9 @@ async function handleSaveSimulation(): Promise<void> {
         </div>
       </div>
     </div>
+        <!-- Guest CTA — shown below result for unauthenticated users -->
+        <ToolGuestCta v-if="!isAuthenticated" />
   </NuxtLayout>
-
-  <!-- ═══ GUEST — standalone public page ════════════════════════════════════ -->
-  <div v-else class="ferias-page">
-    <header class="ferias-page__header">
-      <div class="ferias-page__brand">
-        <span class="ferias-page__brand-mark">Auraxis</span>
-        <span class="ferias-page__brand-copy">{{ t('ferias.header.publicTool') }}</span>
-      </div>
-      <div class="ferias-page__header-actions">
-        <NButton quaternary @click="router.push('/tools')">{{ t('ferias.header.otherTools') }}</NButton>
-        <NButton type="primary" @click="router.push('/register')">{{ t('ferias.header.createAccount') }}</NButton>
-      </div>
-    </header>
-
-    <main class="ferias-page__content">
-      <section class="ferias-page__hero">
-        <div class="ferias-page__hero-copy">
-          <NTag round type="warning">{{ t('ferias.hero.badge') }}</NTag>
-          <UiPageHeader
-            :title="t('ferias.hero.title')"
-            :subtitle="t('ferias.hero.subtitle')"
-          />
-        </div>
-
-        <UiGlassPanel glow class="ferias-page__form-panel">
-          <NForm @submit.prevent="handleCalculate">
-            <CalculatorFormSection :title="t('ferias.form.title')">
-              <NFormItem :label="t('ferias.form.grossSalary')">
-                <NInputNumber
-                  :value="form.grossSalary"
-                  :placeholder="t('ferias.form.grossSalaryPlaceholder')"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ grossSalary: v })"
-                />
-              </NFormItem>
-
-              <NFormItem>
-                <template #label>
-                  {{ t('ferias.form.vacationDays') }}
-                  <NTooltip>
-                    <template #trigger>
-                      <Info :size="14" style="margin-left:4px;cursor:help;vertical-align:middle;" />
-                    </template>
-                    {{ t('ferias.form.vacationDaysTooltip') }}
-                  </NTooltip>
-                </template>
-                <NSelect
-                  :value="form.vacationDays"
-                  :options="vacationDaysOptions"
-                  style="width: 100%"
-                  @update:value="handleVacationDaysChange"
-                />
-              </NFormItem>
-
-              <NFormItem>
-                <NCheckbox
-                  :checked="form.abonoEnabled"
-                  :disabled="abonoDisabled"
-                  @update:checked="(v) => patch({ abonoEnabled: v })"
-                >
-                  {{ t('ferias.form.abonoEnabled') }}
-                  <NTooltip>
-                    <template #trigger>
-                      <Info :size="14" style="margin-left:4px;cursor:help;vertical-align:middle;" />
-                    </template>
-                    {{ t('ferias.form.abonoEnabledTooltip') }}
-                  </NTooltip>
-                </NCheckbox>
-              </NFormItem>
-
-              <NFormItem>
-                <template #label>
-                  {{ t('ferias.form.dependents') }}
-                  <NTooltip>
-                    <template #trigger>
-                      <Info :size="14" style="margin-left:4px;cursor:help;vertical-align:middle;" />
-                    </template>
-                    {{ t('ferias.form.dependentsTooltip') }}
-                  </NTooltip>
-                </template>
-                <NInputNumber
-                  :value="form.dependents"
-                  :min="0"
-                  :max="20"
-                  :precision="0"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ dependents: v ?? 0 })"
-                />
-              </NFormItem>
-            </CalculatorFormSection>
-
-            <NAlert v-if="validationError" type="warning" style="margin-top:12px">
-              {{ validationError }}
-            </NAlert>
-
-            <div class="ferias-page__form-actions">
-              <NButton v-if="isDirty" quaternary @click="handleReset">
-                {{ t('ferias.form.reset') }}
-              </NButton>
-              <NButton type="primary" attr-type="submit" :style="{ flex: 1 }">
-                {{ t('ferias.form.calculate') }}
-              </NButton>
-            </div>
-          </NForm>
-        </UiGlassPanel>
-      </section>
-
-      <section v-if="result" class="ferias-page__results-section">
-        <div class="ferias-page__layout">
-          <div class="ferias-page__results-main">
-            <!-- Breakdown card -->
-            <UiSurfaceCard>
-              <p class="ferias-page__section-title">{{ t('ferias.results.title') }}</p>
-              <div class="ferias-page__breakdown">
-                <div class="ferias-page__breakdown-row">
-                  <span>{{ t('ferias.results.vacationBasePay') }} ({{ result.vacationDays }}d)</span>
-                  <span>{{ formatBrl(result.vacationBasePay) }}</span>
-                </div>
-                <div class="ferias-page__breakdown-row ferias-page__breakdown-row--bonus">
-                  <span>{{ t('ferias.results.constitutionalThird') }}</span>
-                  <span>+ {{ formatBrl(result.constitutionalThird) }}</span>
-                </div>
-                <div class="ferias-page__breakdown-row ferias-page__breakdown-row--subtotal">
-                  <span>{{ t('ferias.results.vacationGross') }}</span>
-                  <span>{{ formatBrl(result.vacationGross) }}</span>
-                </div>
-                <div v-if="result.abonoEnabled" class="ferias-page__breakdown-row ferias-page__breakdown-row--abono">
-                  <span>{{ t('ferias.results.abonoValue') }}</span>
-                  <span>+ {{ formatBrl(result.abonoValue) }}</span>
-                </div>
-                <div class="ferias-page__breakdown-row ferias-page__breakdown-row--total">
-                  <span>{{ t('ferias.results.totalGross') }}</span>
-                  <span class="ferias-page__value--gross">{{ formatBrl(result.totalGross) }}</span>
-                </div>
-                <div class="ferias-page__breakdown-row ferias-page__breakdown-row--deduction">
-                  <span>{{ t('ferias.results.inss') }}</span>
-                  <span class="ferias-page__value--negative">− {{ formatBrl(result.inss) }}</span>
-                </div>
-                <div v-if="result.irrf > 0" class="ferias-page__breakdown-row ferias-page__breakdown-row--deduction">
-                  <span>{{ t('ferias.results.irrf') }}</span>
-                  <span class="ferias-page__value--negative">− {{ formatBrl(result.irrf) }}</span>
-                </div>
-                <div class="ferias-page__breakdown-row ferias-page__breakdown-row--net">
-                  <span>{{ t('ferias.results.netTotal') }}</span>
-                  <span class="ferias-page__value--positive">{{ formatBrl(result.netTotal) }}</span>
-                </div>
-              </div>
-            </UiSurfaceCard>
-
-            <!-- Best month tip -->
-            <UiSurfaceCard>
-              <p class="ferias-page__tip">{{ t('ferias.results.bestMonthNote') }}</p>
-            </UiSurfaceCard>
-
-            <!-- Disclaimer -->
-            <UiSurfaceCard>
-              <p class="ferias-page__disclaimer">
-                {{ t('ferias.disclaimer.tableYear', { year: BR_TAX_TABLE_YEAR }) }}
-              </p>
-              <p class="ferias-page__disclaimer">
-                {{ t('ferias.disclaimer.abonoExempt') }}
-              </p>
-              <p class="ferias-page__disclaimer">
-                {{ t('ferias.disclaimer.notLegal') }}
-              </p>
-            </UiSurfaceCard>
-          </div>
-
-          <div class="ferias-page__results-aside">
-            <UiStickySummaryCard>
-              <CalculatorResultSummary
-                :label="t('ferias.results.netTotal')"
-                :value="formatBrl(result.netTotal)"
-                :metrics="summaryMetrics"
-              />
-            </UiStickySummaryCard>
-
-            <!-- Guest CTA -->
-            <ToolGuestCta />
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
   </div>
 </template>
 

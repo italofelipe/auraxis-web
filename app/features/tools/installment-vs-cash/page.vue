@@ -430,7 +430,7 @@ onMounted((): void => {
   <!-- Transparent root wrapper required by vue/no-multiple-template-root. -->
   <div class="installment-vs-cash-root">
   <!-- ═══ AUTHENTICATED VIEW ════════════════════════════════════════════════ -->
-  <NuxtLayout v-if="isAuthenticated" name="default">
+  <NuxtLayout :name="isAuthenticated ? 'default' : 'tools-public'">
     <main class="installment-vs-cash-page__content installment-vs-cash-page__content--in-app">
       <section class="installment-vs-cash-page__hero">
         <div class="installment-vs-cash-page__hero-copy">
@@ -521,121 +521,10 @@ onMounted((): void => {
         </UiSurfaceCard>
       </section>
     </main>
+      <ToolGuestCta v-if="!isAuthenticated" />
   </NuxtLayout>
 
-  <!-- ═══ GUEST VIEW ════════════════════════════════════════════════════════ -->
-  <div v-else class="installment-vs-cash-page">
-    <header class="installment-vs-cash-page__header">
-      <div class="installment-vs-cash-page__brand">
-        <span class="installment-vs-cash-page__brand-mark">Auraxis</span>
-        <span class="installment-vs-cash-page__brand-copy">{{ t('pages.installmentVsCash.header.publicTool') }}</span>
-      </div>
-
-      <div class="installment-vs-cash-page__header-actions">
-        <NButton quaternary @click="router.push('/tools')">
-          {{ t('pages.installmentVsCash.header.otherTools') }}
-        </NButton>
-        <NButton type="primary" @click="router.push('/register')">
-          {{ t('pages.installmentVsCash.header.createAccount') }}
-        </NButton>
-      </div>
-    </header>
-
-    <main class="installment-vs-cash-page__content">
-      <section class="installment-vs-cash-page__hero">
-        <div class="installment-vs-cash-page__hero-copy">
-          <NTag round type="warning">
-            {{ t('pages.installmentVsCash.hero.badge') }}
-          </NTag>
-          <UiPageHeader
-            :title="t('pages.installmentVsCash.hero.title')"
-            :subtitle="t('pages.installmentVsCash.hero.subtitle')"
-          />
-
-          <NSpace vertical :size="16">
-            <NThing
-              :title="t('pages.installmentVsCash.hero.featureBasic')"
-              :description="t('pages.installmentVsCash.hero.featureBasicDesc')"
-            />
-            <NThing
-              :title="t('pages.installmentVsCash.hero.featureAdvanced')"
-              :description="t('pages.installmentVsCash.hero.featureAdvancedDesc')"
-            />
-          </NSpace>
-        </div>
-
-        <UiGlassPanel glow class="installment-vs-cash-page__hero-panel">
-          <InstallmentVsCashCalculatorForm
-            v-model="form"
-            :loading="calculateMutation.isPending.value"
-            @submit="handleCalculate"
-          />
-
-          <NAlert
-            v-if="validationMessage"
-            type="warning"
-            class="installment-vs-cash-page__alert"
-          >
-            {{ validationMessage }}
-          </NAlert>
-
-          <NAlert
-            v-if="calculateMutation.isError.value"
-            type="error"
-            class="installment-vs-cash-page__alert"
-          >
-            {{ t('pages.installmentVsCash.errors.calculate') }}
-          </NAlert>
-        </UiGlassPanel>
-      </section>
-
-      <section v-if="calculation" class="installment-vs-cash-page__results">
-        <InstallmentVsCashResults :calculation="calculation" />
-
-        <UiSurfaceCard>
-          <NThing
-            :title="t('pages.installmentVsCash.results.nextStep')"
-            :description="`${getRecommendationLabel(calculation.result.recommendedOption)}.`"
-          />
-
-          <InstallmentVsCashActionBar
-            class="installment-vs-cash-page__actions"
-            :is-authenticated="isAuthenticated"
-            :has-premium-access="hasPremiumAccess"
-            :is-saving="saveMutation.isPending.value"
-            :is-bridging="isBridging"
-            :has-saved-simulation="savedSimulation !== null"
-            @save="handleSave"
-            @goal="handleGoalAction"
-            @expense="handleExpenseAction"
-          />
-        </UiSurfaceCard>
-      </section>
-
-      <section class="installment-vs-cash-page__seo">
-        <UiSurfaceCard>
-          <NSpace vertical :size="16">
-            <NThing
-              :title="t('pages.installmentVsCash.seoSection.considers')"
-              :description="t('pages.installmentVsCash.seoSection.considersDesc')"
-            />
-            <NThing
-              :title="t('pages.installmentVsCash.seoSection.notReplaces')"
-              :description="t('pages.installmentVsCash.seoSection.notReplacesDesc')"
-            />
-            <NThing
-              :title="t('pages.installmentVsCash.seoSection.howToUse')"
-              :description="t('pages.installmentVsCash.seoSection.howToUseDesc')"
-            />
-          </NSpace>
-        </UiSurfaceCard>
-      </section>
-    </main>
-
-    <ToolGuestCta />
-  </div>
-
-  <!-- ─── Modals ─────────────────────────────────────────────────────────── -->
+    <!-- ─── Modals ─────────────────────────────────────────────────────────── -->
   <NModal
     v-model:show="showGoalModal"
     preset="card"

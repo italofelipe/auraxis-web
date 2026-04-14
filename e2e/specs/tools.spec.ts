@@ -68,11 +68,11 @@ test.describe("Tools — juros-compostos happy path", () => {
 
 		await page.locator("button[type=\"submit\"]").first().click();
 
-		// The result section (.juros-compostos-page__result) appears only after
+		// The result column (.juros-compostos-page__result-col) appears only after
 		// handleCalculate() sets result.value. We check for the container directly
 		// rather than relying on translated text, which is more robust.
 		await expect(
-			page.locator(".juros-compostos-page__result").first(),
+			page.locator(".juros-compostos-page__result-col").first(),
 		).toBeVisible({ timeout: 15_000 });
 	});
 });

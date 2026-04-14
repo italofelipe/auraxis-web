@@ -8,11 +8,9 @@ import {
   NFormItem,
   NInputNumber,
   NSpace,
-  NTag,
   NThing,
   useMessage,
 } from "naive-ui";
-import { useRouter } from "#app";
 
 import { captureException } from "~/core/observability";
 import { useApiError } from "~/composables/useApiError";
@@ -42,7 +40,6 @@ definePageMeta({ layout: false });
 const { t, n } = useI18n();
 const toast = useMessage();
 const { getErrorMessage } = useApiError();
-const router = useRouter();
 const sessionStore = useSessionStore();
 
 useSeoMeta({
@@ -273,7 +270,7 @@ const isSaved = computed(() => savedSimulationId.value !== null);
   <!-- Transparent root wrapper required by vue/no-multiple-template-root. -->
   <div class="avc-root">
   <!-- ═══ AUTHENTICATED — app shell ══════════════════════════════════════════ -->
-  <NuxtLayout v-if="isAuthenticated" name="default">
+  <NuxtLayout :name="isAuthenticated ? 'default' : 'tools-public'">
     <div class="avc-page avc-page--authenticated">
       <div class="avc-page__layout">
         <!-- Form column -->
@@ -452,188 +449,9 @@ const isSaved = computed(() => savedSimulationId.value !== null);
         </div>
       </div>
     </div>
+        <!-- Guest CTA — shown below result for unauthenticated users -->
+        <ToolGuestCta v-if="!isAuthenticated" />
   </NuxtLayout>
-
-  <!-- ═══ GUEST — standalone public page ════════════════════════════════════ -->
-  <div v-else class="avc-page">
-    <header class="avc-page__header">
-      <div class="avc-page__brand">
-        <span class="avc-page__brand-mark">Auraxis</span>
-        <span class="avc-page__brand-copy">{{ t('aluguelVsCompra.header.publicTool') }}</span>
-      </div>
-      <div class="avc-page__header-actions">
-        <NButton quaternary @click="router.push('/tools')">{{ t('aluguelVsCompra.header.otherTools') }}</NButton>
-        <NButton type="primary" @click="router.push('/register')">{{ t('aluguelVsCompra.header.createAccount') }}</NButton>
-      </div>
-    </header>
-
-    <main class="avc-page__content">
-      <section class="avc-page__hero">
-        <div class="avc-page__hero-copy">
-          <NTag round type="success">{{ t('aluguelVsCompra.hero.badge') }}</NTag>
-          <UiPageHeader
-            :title="t('aluguelVsCompra.hero.title')"
-            :subtitle="t('aluguelVsCompra.hero.subtitle')"
-          />
-        </div>
-
-        <UiGlassPanel glow class="avc-page__form-panel">
-          <NForm @submit.prevent="handleCalculate">
-            <CalculatorFormSection :title="t('aluguelVsCompra.form.title')">
-              <NFormItem :label="t('aluguelVsCompra.form.propertyValue')">
-                <NInputNumber
-                  :value="form.propertyValue"
-                  :placeholder="t('aluguelVsCompra.form.propertyValuePlaceholder')"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ propertyValue: v })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('aluguelVsCompra.form.monthlyRent')">
-                <NInputNumber
-                  :value="form.monthlyRent"
-                  :placeholder="t('aluguelVsCompra.form.monthlyRentPlaceholder')"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ monthlyRent: v })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('aluguelVsCompra.form.downPaymentAvailable')">
-                <NInputNumber
-                  :value="form.downPaymentAvailable"
-                  :placeholder="t('aluguelVsCompra.form.downPaymentPlaceholder')"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ downPaymentAvailable: v })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('aluguelVsCompra.form.annualInvestmentReturnPct')">
-                <NInputNumber
-                  :value="form.annualInvestmentReturnPct"
-                  :min="0"
-                  :precision="2"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ annualInvestmentReturnPct: v ?? 10 })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('aluguelVsCompra.form.annualPropertyValorizationPct')">
-                <NInputNumber
-                  :value="form.annualPropertyValorizationPct"
-                  :min="0"
-                  :precision="2"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ annualPropertyValorizationPct: v ?? 5 })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('aluguelVsCompra.form.analysisYears')">
-                <NInputNumber
-                  :value="form.analysisYears"
-                  :min="1"
-                  :max="50"
-                  :precision="0"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ analysisYears: v ?? 20 })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('aluguelVsCompra.form.mortgageAnnualRatePct')">
-                <NInputNumber
-                  :value="form.mortgageAnnualRatePct"
-                  :min="0"
-                  :precision="2"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ mortgageAnnualRatePct: v ?? 12 })"
-                />
-              </NFormItem>
-            </CalculatorFormSection>
-
-            <NAlert v-if="validationError" type="warning" style="margin-top:12px">
-              {{ validationError }}
-            </NAlert>
-
-            <div class="avc-page__form-actions">
-              <NButton v-if="isDirty" quaternary @click="handleReset">
-                {{ t('aluguelVsCompra.form.reset') }}
-              </NButton>
-              <NButton type="primary" attr-type="submit" :style="{ flex: 1 }">
-                {{ t('aluguelVsCompra.form.calculate') }}
-              </NButton>
-            </div>
-          </NForm>
-        </UiGlassPanel>
-      </section>
-
-      <section v-if="result" class="avc-page__results-section">
-        <div class="avc-page__layout">
-          <div class="avc-page__results-main">
-            <!-- Verdict banner -->
-            <UiSurfaceCard :class="result.buyIsBetter ? 'avc-page__verdict--buy' : 'avc-page__verdict--rent'">
-              <p class="avc-page__verdict-text">
-                {{ result.buyIsBetter ? t('aluguelVsCompra.results.buyWinsDetail') : t('aluguelVsCompra.results.rentWinsDetail') }}
-              </p>
-              <p v-if="result.breakEvenYear !== null" class="avc-page__verdict-sub">
-                {{ t('aluguelVsCompra.results.breakEvenNote', { year: result.breakEvenYear }) }}
-              </p>
-            </UiSurfaceCard>
-
-            <!-- Evolution chart -->
-            <UiSurfaceCard class="avc-page__chart">
-              <UiChart :option="chartOption" height="280px" />
-            </UiSurfaceCard>
-
-            <!-- Detail rows -->
-            <UiSurfaceCard>
-              <NThing
-                :title="t('aluguelVsCompra.results.propertyValueAtEnd')"
-                :description="formatBrl(result.propertyValueAtEnd)"
-              />
-              <NThing
-                :title="t('aluguelVsCompra.results.opportunityCost')"
-                :description="formatBrl(result.opportunityCost)"
-              />
-              <NThing
-                :title="t('aluguelVsCompra.results.totalBuyCost')"
-                :description="formatBrl(result.totalBuyCost)"
-              />
-              <NThing
-                :title="t('aluguelVsCompra.results.totalRentCost')"
-                :description="formatBrl(result.totalRentCost)"
-              />
-            </UiSurfaceCard>
-
-            <!-- Disclaimer -->
-            <UiSurfaceCard>
-              <p class="avc-page__disclaimer">{{ t('aluguelVsCompra.disclaimer.note') }}</p>
-            </UiSurfaceCard>
-          </div>
-
-          <div class="avc-page__results-aside">
-            <UiStickySummaryCard>
-              <CalculatorResultSummary
-                :label="t('aluguelVsCompra.results.verdict')"
-                :value="result.buyIsBetter ? t('aluguelVsCompra.results.buyWins') : t('aluguelVsCompra.results.rentWins')"
-                :metrics="summaryMetrics"
-              />
-            </UiStickySummaryCard>
-
-            <!-- Guest CTA -->
-            <ToolGuestCta />
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
   </div>
 </template>
 

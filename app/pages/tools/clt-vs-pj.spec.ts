@@ -299,9 +299,8 @@ describe("CltVsPjPage", () => {
   describe("guest layout", () => {
     it("renders the public hero and brand header when unauthenticated", () => {
       const wrapper = mountPage();
-      expect(wrapper.find(".clt-vs-pj-page__header").exists()).toBe(true);
+      expect(wrapper.find(".nuxt-layout").exists()).toBe(true);
       expect(wrapper.text()).toContain("cltVsPj.hero.title");
-      expect(wrapper.text()).toContain("cltVsPj.header.publicTool");
     });
 
     it("shows the guest CTA after calculation", async () => {
@@ -324,7 +323,6 @@ describe("CltVsPjPage", () => {
       const wrapper = mountPage();
 
       expect(wrapper.find(".nuxt-layout").exists()).toBe(true);
-      expect(wrapper.find(".clt-vs-pj-page__header").exists()).toBe(false);
       expect(wrapper.find(".tool-guest-cta").exists()).toBe(false);
     });
   });

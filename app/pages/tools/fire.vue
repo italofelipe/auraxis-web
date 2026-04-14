@@ -9,7 +9,6 @@ import {
   NInputNumber,
   NSelect,
   NSpace,
-  NTag,
   NThing,
   useMessage,
 } from "naive-ui";
@@ -279,7 +278,7 @@ const isSaved = computed(() => savedSimulationId.value !== null);
   <!-- Transparent root wrapper required by vue/no-multiple-template-root. -->
   <div class="fire-root">
   <!-- ═══ AUTHENTICATED — app shell ══════════════════════════════════════════ -->
-  <NuxtLayout v-if="isAuthenticated" name="default">
+  <NuxtLayout :name="isAuthenticated ? 'default' : 'tools-public'">
     <div class="fire-page fire-page--authenticated">
       <div class="fire-page__layout">
         <!-- Form column -->
@@ -461,156 +460,9 @@ const isSaved = computed(() => savedSimulationId.value !== null);
         </div>
       </div>
     </div>
+        <!-- Guest CTA — shown below result for unauthenticated users -->
+        <ToolGuestCta v-if="!isAuthenticated" />
   </NuxtLayout>
-
-  <!-- ═══ GUEST — standalone public page ════════════════════════════════════ -->
-  <div v-else class="fire-page">
-    <header class="fire-page__header">
-      <div class="fire-page__brand">
-        <span class="fire-page__brand-mark">Auraxis</span>
-        <span class="fire-page__brand-copy">{{ t('fire.header.publicTool') }}</span>
-      </div>
-      <div class="fire-page__header-actions">
-        <NButton quaternary @click="router.push('/tools')">{{ t('fire.header.otherTools') }}</NButton>
-        <NButton type="primary" @click="router.push('/register')">{{ t('fire.header.createAccount') }}</NButton>
-      </div>
-    </header>
-
-    <main class="fire-page__content">
-      <section class="fire-page__hero">
-        <div class="fire-page__hero-copy">
-          <NTag round type="warning">{{ t('fire.hero.badge') }}</NTag>
-          <UiPageHeader
-            :title="t('fire.hero.title')"
-            :subtitle="t('fire.hero.subtitle')"
-          />
-        </div>
-
-        <UiGlassPanel glow class="fire-page__form-panel">
-          <NForm @submit.prevent="handleCalculate">
-            <CalculatorFormSection :title="t('fire.form.title')">
-              <NFormItem :label="t('fire.form.variant')">
-                <NSelect
-                  :value="form.variant"
-                  :options="variantOptions"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ variant: v })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('fire.form.currentAge')">
-                <NInputNumber
-                  :value="form.currentAge"
-                  :min="18"
-                  :max="80"
-                  :precision="0"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ currentAge: v ?? 30 })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('fire.form.retirementAge')">
-                <NInputNumber
-                  :value="form.retirementAge"
-                  :min="19"
-                  :precision="0"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ retirementAge: v ?? 45 })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('fire.form.monthlyExpenses')">
-                <NInputNumber
-                  :value="form.monthlyExpenses"
-                  :placeholder="t('fire.form.expensesPlaceholder')"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ monthlyExpenses: v })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('fire.form.currentPatrimony')">
-                <NInputNumber
-                  :value="form.currentPatrimony"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ currentPatrimony: v ?? 0 })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('fire.form.expectedReturnPct')">
-                <NInputNumber
-                  :value="form.expectedReturnPct"
-                  :min="0"
-                  :precision="2"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ expectedReturnPct: v ?? 8 })"
-                />
-              </NFormItem>
-            </CalculatorFormSection>
-
-            <NAlert v-if="validationError" type="warning" style="margin-top:12px">
-              {{ validationError }}
-            </NAlert>
-
-            <div class="fire-page__form-actions">
-              <NButton v-if="isDirty" quaternary @click="handleReset">
-                {{ t('fire.form.reset') }}
-              </NButton>
-              <NButton type="primary" attr-type="submit" :style="{ flex: 1 }">
-                {{ t('fire.form.calculate') }}
-              </NButton>
-            </div>
-          </NForm>
-        </UiGlassPanel>
-      </section>
-
-      <section v-if="result" class="fire-page__results-section">
-        <div class="fire-page__layout">
-          <div class="fire-page__results-main">
-            <!-- All variants comparison (guest) -->
-            <UiSurfaceCard>
-              <p class="fire-page__section-title">{{ t('fire.results.variantsTitle') }}</p>
-              <div class="fire-page__breakdown">
-                <div
-                  v-for="milestone in result.allVariants"
-                  :key="milestone.variant"
-                  class="fire-page__breakdown-row"
-                >
-                  <span>{{ t(`fire.variants.${milestone.variant}`) }}</span>
-                  <span>{{ formatBrl(milestone.requiredPatrimony) }}</span>
-                </div>
-              </div>
-            </UiSurfaceCard>
-
-            <!-- Disclaimer -->
-            <UiSurfaceCard>
-              <NAlert type="warning">
-                {{ t('fire.disclaimer.note', { year: FIRE_TABLE_YEAR }) }}
-              </NAlert>
-            </UiSurfaceCard>
-          </div>
-
-          <div class="fire-page__results-aside">
-            <UiStickySummaryCard>
-              <CalculatorResultSummary
-                :label="t('fire.results.requiredPatrimony')"
-                :value="formatBrl(result.selectedVariant.requiredPatrimony)"
-                :metrics="summaryMetrics"
-              />
-            </UiStickySummaryCard>
-
-            <!-- Guest CTA -->
-            <ToolGuestCta />
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
   </div>
 </template>
 

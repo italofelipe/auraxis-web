@@ -3160,5 +3160,18 @@
       "ctaPrimary": "Create my first goal",
       "ctaSecondary": "Do this later"
     }
+  },
+  "toolsSidebar": {
+    "title": "Tools",
+    "open": "Open tools menu",
+    "close": "Close tools menu",
+    "navAriaLabel": "Available tools",
+    "groups": {
+      "labor": "Labor",
+      "tax": "Tax",
+      "investment": "Investments",
+      "realEstate": "Real Estate",
+      "personal": "Personal"
+    }
   }
 }

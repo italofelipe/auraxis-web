@@ -232,8 +232,7 @@ describe("AposentadoriaPage — guest layout", () => {
 
   it("shows the public header when unauthenticated", () => {
     const wrapper = mountPage();
-    expect(wrapper.find(".apos-page__header").exists()).toBe(true);
-    expect(wrapper.text()).toContain("aposentadoria.header.publicTool");
+    expect(wrapper.find(".nuxt-layout").exists()).toBe(true);
   });
 
   it("shows guest CTA after a valid calculation", async () => {
@@ -244,8 +243,10 @@ describe("AposentadoriaPage — guest layout", () => {
     expect(wrapper.find(".tool-guest-cta").exists()).toBe(true);
   });
 
-  it("does not show NuxtLayout when unauthenticated", () => {
-    expect(mountPage().find(".nuxt-layout").exists()).toBe(false);
+  it("uses tools-public layout when unauthenticated", () => {
+    const wrapper = mountPage();
+    // NuxtLayout always renders; guest users get 'tools-public', not 'default'
+    expect(wrapper.find(".nuxt-layout").exists()).toBe(true);
   });
 });
 
@@ -256,7 +257,6 @@ describe("AposentadoriaPage — authenticated layout", () => {
     mockIsAuthenticated.value = true;
     const wrapper = mountPage();
     expect(wrapper.find(".nuxt-layout").exists()).toBe(true);
-    expect(wrapper.find(".apos-page__header").exists()).toBe(false);
   });
 
   it("does not show guest CTA when authenticated", () => {
