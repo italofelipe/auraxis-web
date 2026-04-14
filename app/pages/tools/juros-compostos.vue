@@ -9,11 +9,9 @@ import {
   NInputNumber,
   NSelect,
   NSpace,
-  NTag,
   NThing,
   useMessage,
 } from "naive-ui";
-import { useRouter } from "#app";
 
 import { captureException } from "~/core/observability";
 import { useApiError } from "~/composables/useApiError";
@@ -44,7 +42,6 @@ definePageMeta({ layout: false });
 const { t, n } = useI18n();
 const toast = useMessage();
 const { getErrorMessage } = useApiError();
-const router = useRouter();
 const sessionStore = useSessionStore();
 
 useSeoMeta({
@@ -288,7 +285,7 @@ const isSaved = computed(() => savedSimulationId.value !== null);
   <!-- Transparent root wrapper required by vue/no-multiple-template-root. -->
   <div class="juros-compostos-root">
   <!-- ═══ AUTHENTICATED — app shell ══════════════════════════════════════════ -->
-  <NuxtLayout v-if="isAuthenticated" name="default">
+  <NuxtLayout :name="isAuthenticated ? 'default' : 'tools-public'">
     <div class="juros-compostos-page juros-compostos-page--authenticated">
       <div class="juros-compostos-page__layout">
         <!-- Form column -->
@@ -444,135 +441,8 @@ const isSaved = computed(() => savedSimulationId.value !== null);
         </div>
       </div>
     </div>
+        <!-- Guest CTA — shown below result for unauthenticated users -->
+        <ToolGuestCta v-if="!isAuthenticated" />
   </NuxtLayout>
-
-  <!-- ═══ GUEST — standalone public layout ════════════════════════════════════ -->
-  <div v-else class="juros-compostos-page juros-compostos-page--guest">
-    <!-- Brand header -->
-    <header class="juros-compostos-page__header">
-      <NTag round type="success" size="small">
-        {{ t('jurosCompostos.header.publicTool') }}
-      </NTag>
-      <NButton quaternary @click="router.push('/auth/login')">
-        {{ t('jurosCompostos.header.createAccount') }}
-      </NButton>
-    </header>
-
-    <!-- Hero -->
-    <div class="juros-compostos-page__hero">
-      <NTag round size="small">{{ t('jurosCompostos.hero.badge') }}</NTag>
-      <h1 class="juros-compostos-page__hero-title">{{ t('jurosCompostos.hero.title') }}</h1>
-      <p class="juros-compostos-page__hero-subtitle">{{ t('jurosCompostos.hero.subtitle') }}</p>
-    </div>
-
-    <!-- Form -->
-    <div class="juros-compostos-page__content">
-      <UiGlassPanel class="juros-compostos-page__form-panel">
-        <NForm @submit.prevent="handleCalculate">
-          <CalculatorFormSection :title="t('jurosCompostos.form.title')">
-            <NFormItem :label="t('jurosCompostos.form.initialCapital')">
-              <NInputNumber
-                :value="form.initialCapital"
-                :min="0"
-                :precision="2"
-                prefix="R$"
-                style="width: 100%"
-                @update:value="(v) => patch({ initialCapital: v })"
-              />
-            </NFormItem>
-
-            <NFormItem :label="t('jurosCompostos.form.monthlyContribution')">
-              <NInputNumber
-                :value="form.monthlyContribution"
-                :min="0"
-                :precision="2"
-                prefix="R$"
-                style="width: 100%"
-                @update:value="(v) => patch({ monthlyContribution: v ?? 0 })"
-              />
-            </NFormItem>
-
-            <NFormItem :label="t('jurosCompostos.form.nominalRatePct')">
-              <NInputNumber
-                :value="form.nominalRatePct"
-                :min="0"
-                :precision="2"
-                style="width: 100%"
-                @update:value="(v) => patch({ nominalRatePct: v })"
-              />
-            </NFormItem>
-
-            <NFormItem :label="t('jurosCompostos.form.period')">
-              <NInputNumber
-                :value="form.period"
-                :min="1"
-                :precision="0"
-                style="width: 100%"
-                @update:value="(v) => patch({ period: v })"
-              />
-            </NFormItem>
-
-            <NFormItem :label="t('jurosCompostos.form.periodUnit')">
-              <NSelect
-                :value="form.periodUnit"
-                :options="periodUnitOptions"
-                style="width: 100%"
-                @update:value="(v) => patch({ periodUnit: v })"
-              />
-            </NFormItem>
-
-            <NFormItem :label="t('jurosCompostos.form.inflationPct')">
-              <NInputNumber
-                :value="form.inflationPct"
-                :min="0"
-                :precision="2"
-                style="width: 100%"
-                @update:value="(v) => patch({ inflationPct: v ?? 4.5 })"
-              />
-              <p class="juros-compostos-page__hint">
-                {{ t('jurosCompostos.form.inflationHint') }}
-              </p>
-            </NFormItem>
-          </CalculatorFormSection>
-
-          <NAlert v-if="validationError" type="error" style="margin-bottom: 16px">
-            {{ validationError }}
-          </NAlert>
-
-          <NSpace style="margin-top: 16px">
-            <NButton type="primary" attr-type="submit">
-              {{ t('jurosCompostos.form.calculate') }}
-            </NButton>
-            <NButton quaternary @click="handleReset">
-              {{ t('jurosCompostos.form.reset') }}
-            </NButton>
-          </NSpace>
-        </NForm>
-      </UiGlassPanel>
-
-      <!-- Result -->
-      <div v-if="result" class="juros-compostos-page__result">
-        <UiSurfaceCard>
-          <CalculatorResultSummary
-            :label="t('jurosCompostos.results.finalAmountNominal')"
-            :value="formatBrl(result.finalAmountNominal)"
-            :metrics="summaryMetrics"
-          />
-        </UiSurfaceCard>
-
-        <!-- Chart -->
-        <UiSurfaceCard class="juros-compostos-page__chart">
-          <UiChart :option="chartOption" height="260px" />
-        </UiSurfaceCard>
-
-        <!-- Guest CTA -->
-        <ToolGuestCta />
-
-        <p class="juros-compostos-page__disclaimer">
-          {{ t('jurosCompostos.disclaimer.note') }}
-        </p>
-      </div>
-    </div>
-  </div>
   </div>
 </template>

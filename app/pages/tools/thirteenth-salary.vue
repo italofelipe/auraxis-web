@@ -3,12 +3,9 @@ import { computed, reactive, ref } from "vue";
 import {
   NAlert,
   NButton,
-  NDatePicker,
   NForm,
   NFormItem,
-  NInput,
   NInputNumber,
-  NModal,
   NSelect,
   NSpace,
   NTag,
@@ -234,31 +231,6 @@ function openGoalModal(): void {
   showGoalModal.value = true;
 }
 
-/**
- * Saves the simulation (if needed) then creates the goal.
- */
-async function handleCreateGoal(): Promise<void> {
-  if (!result.value) { return; }
-
-  await ensureSimulationSaved();
-
-  const targetDate = goalForm.targetDate
-    ? new Date(goalForm.targetDate).toISOString().split("T")[0]
-    : undefined;
-
-  try {
-    await createGoalMutation.mutateAsync({
-      name: goalForm.name,
-      target_amount: result.value.totalNet,
-      target_date: targetDate ?? null,
-    });
-    showGoalModal.value = false;
-  } catch (err) {
-    captureException(err, { context: "thirteenth-salary/create-goal" });
-    toast.error(getErrorMessage(err));
-  }
-}
-
 // ─── Budget bridge (premium) ─────────────────────────────────────────────────
 
 /**
@@ -266,37 +238,6 @@ async function handleCreateGoal(): Promise<void> {
  */
 function openBudgetModal(): void {
   showBudgetModal.value = true;
-}
-
-/**
- * Saves the simulation (if needed) then creates the two receivable entries.
- */
-async function handleAddToBudget(): Promise<void> {
-  if (!result.value) { return; }
-
-  await ensureSimulationSaved();
-
-  const res = result.value;
-  try {
-    await Promise.all([
-      createReceivableMutation.mutateAsync({
-        description: t("thirteenthSalary.budget.firstInstallmentLabel"),
-        amount: res.firstInstallment.net,
-        expected_date: isoDate(11, 30),
-        category: "salary",
-      }),
-      createReceivableMutation.mutateAsync({
-        description: t("thirteenthSalary.budget.secondInstallmentLabel"),
-        amount: res.secondInstallment.net,
-        expected_date: isoDate(12, 20),
-        category: "salary",
-      }),
-    ]);
-    showBudgetModal.value = false;
-  } catch (err) {
-    captureException(err, { context: "thirteenth-salary/add-to-budget" });
-    toast.error(getErrorMessage(err));
-  }
 }
 
 // ─── Derived action states ────────────────────────────────────────────────────
@@ -314,7 +255,7 @@ const isBridging = computed(
        display:contents makes it invisible to the layout engine. -->
   <div class="thirteenth-salary-root">
   <!-- ═══ AUTHENTICATED — app shell ══════════════════════════════════════════ -->
-  <NuxtLayout v-if="isAuthenticated" name="default">
+  <NuxtLayout :name="isAuthenticated ? 'default' : 'tools-public'">
     <div class="thirteenth-salary-page thirteenth-salary-page--authenticated">
       <div class="thirteenth-salary-page__layout">
         <!-- Form column -->
@@ -545,285 +486,9 @@ const isBridging = computed(
         </div>
       </div>
     </div>
+        <!-- Guest CTA — shown below result for unauthenticated users -->
+        <ToolGuestCta v-if="!isAuthenticated" />
   </NuxtLayout>
-
-  <!-- ═══ GUEST — standalone public page ════════════════════════════════════ -->
-  <div v-else class="thirteenth-salary-page">
-    <header class="thirteenth-salary-page__header">
-      <div class="thirteenth-salary-page__brand">
-        <span class="thirteenth-salary-page__brand-mark">Auraxis</span>
-        <span class="thirteenth-salary-page__brand-copy">{{ t('thirteenthSalary.header.publicTool') }}</span>
-      </div>
-      <div class="thirteenth-salary-page__header-actions">
-        <NButton quaternary @click="router.push('/tools')">{{ t('thirteenthSalary.header.otherTools') }}</NButton>
-        <NButton type="primary" @click="router.push('/register')">{{ t('thirteenthSalary.header.createAccount') }}</NButton>
-      </div>
-    </header>
-
-    <main class="thirteenth-salary-page__content">
-      <section class="thirteenth-salary-page__hero">
-        <div class="thirteenth-salary-page__hero-copy">
-          <NTag round type="warning">{{ t('thirteenthSalary.hero.badge') }}</NTag>
-          <UiPageHeader
-            :title="t('thirteenthSalary.hero.title')"
-            :subtitle="t('thirteenthSalary.hero.subtitle')"
-          />
-        </div>
-
-        <UiGlassPanel glow class="thirteenth-salary-page__form-panel">
-          <NForm @submit.prevent="handleCalculate">
-            <CalculatorFormSection :title="t('thirteenthSalary.form.title')">
-              <NFormItem :label="t('thirteenthSalary.form.grossSalary')">
-                <NInputNumber
-                  :value="form.grossSalary"
-                  :placeholder="t('thirteenthSalary.form.grossSalaryPlaceholder')"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ grossSalary: v })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('thirteenthSalary.form.monthsWorked')">
-                <NSelect
-                  :value="form.monthsWorked"
-                  :options="monthsOptions"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ monthsWorked: v })"
-                />
-              </NFormItem>
-
-              <NFormItem>
-                <template #label>
-                  {{ t('thirteenthSalary.form.variablePay') }}
-                  <NTooltip>
-                    <template #trigger>
-                      <Info :size="14" style="margin-left:4px;cursor:help;vertical-align:middle;" />
-                    </template>
-                    {{ t('thirteenthSalary.form.variablePayTooltip') }}
-                  </NTooltip>
-                </template>
-                <NInputNumber
-                  :value="form.variablePay"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ variablePay: v ?? 0 })"
-                />
-              </NFormItem>
-
-              <NFormItem>
-                <template #label>
-                  {{ t('thirteenthSalary.form.dependents') }}
-                  <NTooltip>
-                    <template #trigger>
-                      <Info :size="14" style="margin-left:4px;cursor:help;vertical-align:middle;" />
-                    </template>
-                    {{ t('thirteenthSalary.form.dependentsTooltip') }}
-                  </NTooltip>
-                </template>
-                <NInputNumber
-                  :value="form.dependents"
-                  :min="0"
-                  :max="10"
-                  :precision="0"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ dependents: v ?? 0 })"
-                />
-              </NFormItem>
-            </CalculatorFormSection>
-
-            <NAlert v-if="validationError" type="warning" style="margin-top:12px">
-              {{ validationError }}
-            </NAlert>
-
-            <div class="thirteenth-salary-page__form-actions">
-              <NButton v-if="isDirty" quaternary @click="handleReset">
-                {{ t('thirteenthSalary.form.reset') }}
-              </NButton>
-              <NButton type="primary" attr-type="submit" :style="{ flex: 1 }">
-                {{ t('thirteenthSalary.form.calculate') }}
-              </NButton>
-            </div>
-          </NForm>
-        </UiGlassPanel>
-      </section>
-
-      <section v-if="result" class="thirteenth-salary-page__results-section">
-        <div class="thirteenth-salary-page__layout">
-          <div class="thirteenth-salary-page__results-main">
-            <UiSurfaceCard>
-              <div class="thirteenth-salary-page__installment">
-                <div class="thirteenth-salary-page__installment-header">
-                  <span class="thirteenth-salary-page__installment-title">{{ t('thirteenthSalary.results.firstInstallment') }}</span>
-                  <NTag size="small" round>{{ t('thirteenthSalary.results.firstInstallmentDate') }}</NTag>
-                </div>
-                <div class="thirteenth-salary-page__installment-rows">
-                  <div class="thirteenth-salary-page__installment-row">
-                    <span>{{ t('thirteenthSalary.results.firstInstallmentGross') }}</span>
-                    <span>{{ formatBrl(result.firstInstallment.gross) }}</span>
-                  </div>
-                  <div class="thirteenth-salary-page__installment-row thirteenth-salary-page__installment-row--net">
-                    <span>{{ t('thirteenthSalary.results.firstInstallmentNet') }}</span>
-                    <span class="thirteenth-salary-page__value--positive">{{ formatBrl(result.firstInstallment.net) }}</span>
-                  </div>
-                </div>
-                <p class="thirteenth-salary-page__installment-note">{{ t('thirteenthSalary.results.firstInstallmentNote') }}</p>
-              </div>
-            </UiSurfaceCard>
-
-            <UiSurfaceCard>
-              <div class="thirteenth-salary-page__installment">
-                <div class="thirteenth-salary-page__installment-header">
-                  <span class="thirteenth-salary-page__installment-title">{{ t('thirteenthSalary.results.secondInstallment') }}</span>
-                  <NTag size="small" round>{{ t('thirteenthSalary.results.secondInstallmentDate') }}</NTag>
-                </div>
-                <div class="thirteenth-salary-page__installment-rows">
-                  <div class="thirteenth-salary-page__installment-row">
-                    <span>{{ t('thirteenthSalary.results.secondInstallmentGross') }}</span>
-                    <span>{{ formatBrl(result.secondInstallment.gross) }}</span>
-                  </div>
-                  <div class="thirteenth-salary-page__installment-row thirteenth-salary-page__installment-row--deduction">
-                    <span>{{ t('thirteenthSalary.results.deductionInss') }}</span>
-                    <span class="thirteenth-salary-page__value--negative">− {{ formatBrl(result.secondInstallment.inss) }}</span>
-                  </div>
-                  <div class="thirteenth-salary-page__installment-row thirteenth-salary-page__installment-row--deduction">
-                    <span>{{ t('thirteenthSalary.results.deductionIrrf') }}</span>
-                    <span class="thirteenth-salary-page__value--negative">− {{ formatBrl(result.secondInstallment.irrf) }}</span>
-                  </div>
-                  <div class="thirteenth-salary-page__installment-row thirteenth-salary-page__installment-row--net">
-                    <span>{{ t('thirteenthSalary.results.secondInstallmentNet') }}</span>
-                    <span class="thirteenth-salary-page__value--positive">{{ formatBrl(result.secondInstallment.net) }}</span>
-                  </div>
-                </div>
-              </div>
-            </UiSurfaceCard>
-
-            <UiSurfaceCard>
-              <p class="thirteenth-salary-page__disclaimer">
-                {{ t('thirteenthSalary.disclaimer.tableYear', { year: BR_TAX_TABLE_YEAR }) }}
-              </p>
-              <p class="thirteenth-salary-page__disclaimer">
-                {{ t('thirteenthSalary.disclaimer.notFinancialAdvice') }}
-              </p>
-            </UiSurfaceCard>
-          </div>
-
-          <div class="thirteenth-salary-page__results-aside">
-            <UiStickySummaryCard>
-              <CalculatorResultSummary
-                :label="t('thirteenthSalary.results.totalNet')"
-                :value="formatBrl(result.totalNet)"
-                :reason="t('thirteenthSalary.results.totalNetNote')"
-                :metrics="summaryMetrics"
-              />
-            </UiStickySummaryCard>
-
-            <!-- Guest CTA -->
-            <ToolGuestCta />
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <!-- ═══ GOAL MODAL ══════════════════════════════════════════════════════════ -->
-  <NModal
-    v-model:show="showGoalModal"
-    preset="card"
-    :title="t('thirteenthSalary.goalModal.title')"
-    style="max-width: 480px"
-    :mask-closable="!isBridging"
-    :closable="!isBridging"
-  >
-    <NSpace vertical :size="16">
-      <NFormItem :label="t('thirteenthSalary.goalModal.nameLabel')">
-        <NInput
-          v-model:value="goalForm.name"
-          :placeholder="t('thirteenthSalary.goalModal.namePlaceholder')"
-        />
-      </NFormItem>
-
-      <NFormItem :label="t('thirteenthSalary.goalModal.targetDateLabel')">
-        <NDatePicker
-          v-model:value="goalForm.targetDate"
-          type="date"
-          style="width: 100%"
-        />
-      </NFormItem>
-
-      <div v-if="result" class="thirteenth-salary-page__modal-summary">
-        <span>{{ t('thirteenthSalary.goalModal.targetAmountLabel') }}</span>
-        <span class="thirteenth-salary-page__value--positive">{{ formatBrl(result.totalNet) }}</span>
-      </div>
-    </NSpace>
-
-    <template #footer>
-      <NSpace justify="end">
-        <NButton :disabled="isBridging" @click="showGoalModal = false">
-          {{ t('thirteenthSalary.goalModal.cancel') }}
-        </NButton>
-        <NButton
-          type="primary"
-          :loading="createGoalMutation.isPending.value || saveSimulationMutation.isPending.value"
-          :disabled="!goalForm.name"
-          @click="handleCreateGoal"
-        >
-          {{ t('thirteenthSalary.goalModal.confirm') }}
-        </NButton>
-      </NSpace>
-    </template>
-  </NModal>
-
-  <!-- ═══ BUDGET MODAL ════════════════════════════════════════════════════════ -->
-  <NModal
-    v-model:show="showBudgetModal"
-    preset="card"
-    :title="t('thirteenthSalary.budgetModal.title')"
-    style="max-width: 480px"
-    :mask-closable="!isBridging"
-    :closable="!isBridging"
-  >
-    <NSpace v-if="result" vertical :size="12">
-      <p class="thirteenth-salary-page__modal-description">
-        {{ t('thirteenthSalary.budgetModal.description') }}
-      </p>
-
-      <div class="thirteenth-salary-page__installment-rows">
-        <div class="thirteenth-salary-page__installment-row">
-          <span>{{ t('thirteenthSalary.budget.firstInstallmentLabel') }}</span>
-          <span class="thirteenth-salary-page__value--positive">{{ formatBrl(result.firstInstallment.net) }}</span>
-        </div>
-        <div class="thirteenth-salary-page__installment-row thirteenth-salary-page__installment-row--deduction">
-          <span class="thirteenth-salary-page__installment-date">{{ t('thirteenthSalary.results.firstInstallmentDate') }}</span>
-        </div>
-        <div class="thirteenth-salary-page__installment-row" style="margin-top:8px">
-          <span>{{ t('thirteenthSalary.budget.secondInstallmentLabel') }}</span>
-          <span class="thirteenth-salary-page__value--positive">{{ formatBrl(result.secondInstallment.net) }}</span>
-        </div>
-        <div class="thirteenth-salary-page__installment-row thirteenth-salary-page__installment-row--deduction">
-          <span class="thirteenth-salary-page__installment-date">{{ t('thirteenthSalary.results.secondInstallmentDate') }}</span>
-        </div>
-      </div>
-    </NSpace>
-
-    <template #footer>
-      <NSpace justify="end">
-        <NButton :disabled="isBridging" @click="showBudgetModal = false">
-          {{ t('thirteenthSalary.budgetModal.cancel') }}
-        </NButton>
-        <NButton
-          type="primary"
-          :loading="createReceivableMutation.isPending.value || saveSimulationMutation.isPending.value"
-          @click="handleAddToBudget"
-        >
-          {{ t('thirteenthSalary.budgetModal.confirm') }}
-        </NButton>
-      </NSpace>
-    </template>
-  </NModal>
   </div>
 </template>
 

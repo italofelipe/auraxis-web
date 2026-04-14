@@ -294,9 +294,8 @@ describe("FgtsPage", () => {
   describe("guest layout", () => {
     it("renders the public hero and brand header when unauthenticated", () => {
       const wrapper = mountPage();
-      expect(wrapper.find(".fgts-page__header").exists()).toBe(true);
+      expect(wrapper.find(".nuxt-layout").exists()).toBe(true);
       expect(wrapper.text()).toContain("fgts.hero.title");
-      expect(wrapper.text()).toContain("fgts.header.publicTool");
     });
 
     it("shows the guest CTA after calculation", async () => {
@@ -321,7 +320,6 @@ describe("FgtsPage", () => {
       const wrapper = mountPage();
 
       expect(wrapper.find(".nuxt-layout").exists()).toBe(true);
-      expect(wrapper.find(".fgts-page__header").exists()).toBe(false);
       expect(wrapper.find(".tool-guest-cta").exists()).toBe(false);
     });
   });

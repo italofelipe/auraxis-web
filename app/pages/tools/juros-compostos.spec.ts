@@ -299,9 +299,8 @@ describe("JurosCompostosPage — guest layout", () => {
   it("renders the public hero and brand header when unauthenticated", () => {
     const wrapper = mountPage();
 
-    expect(wrapper.find(".juros-compostos-page__header").exists()).toBe(true);
+    expect(wrapper.find(".nuxt-layout").exists()).toBe(true);
     expect(wrapper.text()).toContain("jurosCompostos.hero.title");
-    expect(wrapper.text()).toContain("jurosCompostos.header.publicTool");
   });
 
   it("shows the guest CTA after calculation", async () => {
@@ -336,7 +335,6 @@ describe("JurosCompostosPage — authenticated layout", () => {
     const wrapper = mountPage();
 
     expect(wrapper.find(".nuxt-layout").exists()).toBe(true);
-    expect(wrapper.find(".juros-compostos-page__header").exists()).toBe(false);
     expect(wrapper.find(".tool-guest-cta").exists()).toBe(false);
   });
 });

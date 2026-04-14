@@ -9,11 +9,9 @@ import {
   NInput,
   NSelect,
   NSpace,
-  NTag,
   NSpin,
   useMessage,
 } from "naive-ui";
-import { useRouter } from "#app";
 
 import { captureException } from "~/core/observability";
 import { useApiError } from "~/composables/useApiError";
@@ -43,7 +41,6 @@ definePageMeta({ layout: false });
 const { t, n } = useI18n();
 const toast = useMessage();
 const { getErrorMessage } = useApiError();
-const router = useRouter();
 const sessionStore = useSessionStore();
 
 useSeoMeta({
@@ -228,7 +225,7 @@ async function handleAddAsGoal(): Promise<void> {
   <!-- Transparent root wrapper required by vue/no-multiple-template-root. -->
   <div class="fii-root">
   <!-- ═══ AUTHENTICATED — app shell ══════════════════════════════════════════ -->
-  <NuxtLayout v-if="isAuthenticated" name="default">
+  <NuxtLayout :name="isAuthenticated ? 'default' : 'tools-public'">
     <div class="fii-page fii-page--authenticated">
       <div class="fii-page__layout">
         <!-- Form column -->
@@ -409,172 +406,9 @@ async function handleAddAsGoal(): Promise<void> {
         </div>
       </div>
     </div>
+        <!-- Guest CTA — shown below result for unauthenticated users -->
+        <ToolGuestCta v-if="!isAuthenticated" />
   </NuxtLayout>
-
-  <!-- ═══ GUEST — standalone public page ════════════════════════════════════ -->
-  <div v-else class="fii-page">
-    <header class="fii-page__header">
-      <div class="fii-page__brand">
-        <span class="fii-page__brand-mark">Auraxis</span>
-        <span class="fii-page__brand-copy">{{ t('fii.header.publicTool') }}</span>
-      </div>
-      <div class="fii-page__header-actions">
-        <NButton quaternary @click="router.push('/tools')">{{ t('fii.header.otherTools') }}</NButton>
-        <NButton type="primary" @click="router.push('/register')">{{ t('fii.header.createAccount') }}</NButton>
-      </div>
-    </header>
-
-    <main class="fii-page__content">
-      <section class="fii-page__hero">
-        <div class="fii-page__hero-copy">
-          <NTag round type="warning">{{ t('fii.hero.badge') }}</NTag>
-          <UiPageHeader
-            :title="t('fii.hero.title')"
-            :subtitle="t('fii.hero.subtitle')"
-          />
-        </div>
-
-        <UiGlassPanel glow class="fii-page__form-panel">
-          <NForm @submit.prevent="handleCalculate">
-            <CalculatorFormSection :title="t('fii.form.title')">
-              <NFormItem :label="t('fii.form.ticker')">
-                <NInput
-                  :value="form.ticker"
-                  :placeholder="t('fii.form.tickerPlaceholder')"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ ticker: v.toUpperCase() })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('fii.form.shares')">
-                <NInputNumber
-                  :value="form.shares"
-                  :placeholder="t('fii.form.sharesPlaceholder')"
-                  :min="0"
-                  :precision="0"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ shares: v })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('fii.form.avgPurchasePrice')">
-                <NInputNumber
-                  :value="form.avgPurchasePrice"
-                  :placeholder="t('fii.form.avgPurchasePricePlaceholder')"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ avgPurchasePrice: v })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('fii.form.cdiRate')">
-                <NInputNumber
-                  :value="form.cdiRatePct"
-                  :min="0"
-                  :max="100"
-                  :precision="2"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ cdiRatePct: v ?? 10.65 })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('fii.form.historyMonths')">
-                <NSelect
-                  :value="form.historyMonths"
-                  :options="historyMonthsOptions"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ historyMonths: v })"
-                />
-              </NFormItem>
-            </CalculatorFormSection>
-
-            <div v-if="isLoadingQuote" class="fii-page__loading" data-testid="loading-spinner">
-              <NSpin />
-              <span>{{ t('fii.loading') }}</span>
-            </div>
-
-            <NAlert v-if="hasBrapiError" type="warning" style="margin-top:12px" data-testid="brapi-error-alert">
-              {{ t('fii.alerts.brapiUnavailable') }}
-            </NAlert>
-
-            <NAlert v-if="validationError" type="warning" style="margin-top:12px">
-              {{ validationError }}
-            </NAlert>
-
-            <div class="fii-page__form-actions">
-              <NButton v-if="isDirty" quaternary @click="handleReset">
-                {{ t('fii.form.reset') }}
-              </NButton>
-              <NButton type="primary" attr-type="submit" :style="{ flex: 1 }">
-                {{ t('fii.form.calculate') }}
-              </NButton>
-            </div>
-          </NForm>
-        </UiGlassPanel>
-      </section>
-
-      <section v-if="result" class="fii-page__results-section">
-        <div class="fii-page__layout">
-          <div class="fii-page__results-main">
-            <!-- Results breakdown -->
-            <UiSurfaceCard>
-              <p class="fii-page__section-title">{{ t('fii.results.title') }}</p>
-              <div class="fii-page__breakdown">
-                <div class="fii-page__breakdown-row">
-                  <span>{{ t('fii.results.currentPrice') }}</span>
-                  <span>{{ formatBrl(result.currentPrice) }}</span>
-                </div>
-                <div class="fii-page__breakdown-row fii-page__breakdown-row--highlight">
-                  <span>{{ t('fii.results.dividendYield') }}</span>
-                  <span>{{ formatPct(result.dividendYield) }}</span>
-                </div>
-                <div v-if="result.yieldOnCost !== null" class="fii-page__breakdown-row">
-                  <span>{{ t('fii.results.yieldOnCost') }}</span>
-                  <span>{{ formatPct(result.yieldOnCost) }}</span>
-                </div>
-                <div v-if="result.monthlyIncome !== null" class="fii-page__breakdown-row">
-                  <span>{{ t('fii.results.monthlyIncome') }}</span>
-                  <span>{{ formatBrl(result.monthlyIncome) }}</span>
-                </div>
-                <div v-if="result.annualIncome !== null" class="fii-page__breakdown-row">
-                  <span>{{ t('fii.results.annualIncome') }}</span>
-                  <span>{{ formatBrl(result.annualIncome) }}</span>
-                </div>
-                <div class="fii-page__breakdown-row fii-page__breakdown-row--cdi">
-                  <span>{{ t('fii.results.vsCdi') }}</span>
-                  <span :class="result.isAboveCdi ? 'fii-page__value--positive' : 'fii-page__value--negative'">
-                    {{ formatPct(result.vsCdiPremium) }}
-                  </span>
-                </div>
-              </div>
-            </UiSurfaceCard>
-
-            <!-- CVM regulatory disclaimer -->
-            <UiSurfaceCard>
-              <NAlert type="error" data-testid="cvm-disclaimer">
-                {{ t('fii.disclaimer.cvm') }}
-              </NAlert>
-            </UiSurfaceCard>
-          </div>
-
-          <div class="fii-page__results-aside">
-            <UiStickySummaryCard>
-              <CalculatorResultSummary
-                :label="t('fii.results.dividendYield')"
-                :value="formatPct(result.dividendYield)"
-                :metrics="summaryMetrics"
-              />
-            </UiStickySummaryCard>
-
-            <!-- Guest CTA -->
-            <ToolGuestCta />
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
   </div>
 </template>
 

@@ -8,11 +8,9 @@ import {
   NInputNumber,
   NSelect,
   NSpace,
-  NTag,
   NThing,
   useMessage,
 } from "naive-ui";
-import { useRouter } from "#app";
 
 import { captureException } from "~/core/observability";
 import { useApiError } from "~/composables/useApiError";
@@ -42,7 +40,6 @@ definePageMeta({ layout: false });
 const { t, n } = useI18n();
 const toast = useMessage();
 const { getErrorMessage } = useApiError();
-const router = useRouter();
 const sessionStore = useSessionStore();
 
 useSeoMeta({
@@ -244,7 +241,7 @@ const isSaved = computed(() => savedSimulationId.value !== null);
   <!-- Transparent root wrapper required by vue/no-multiple-template-root. -->
   <div class="dividir-conta-root">
   <!-- ═══ AUTHENTICATED — app shell ══════════════════════════════════════════ -->
-  <NuxtLayout v-if="isAuthenticated" name="default">
+  <NuxtLayout :name="isAuthenticated ? 'default' : 'tools-public'">
     <div class="dividir-conta-page dividir-conta-page--authenticated">
       <div class="dividir-conta-page__layout">
         <!-- Form column -->
@@ -403,153 +400,8 @@ const isSaved = computed(() => savedSimulationId.value !== null);
         </div>
       </div>
     </div>
+        <!-- Guest CTA — shown below result for unauthenticated users -->
+        <ToolGuestCta v-if="!isAuthenticated" />
   </NuxtLayout>
-
-  <!-- ═══ GUEST — standalone public layout ════════════════════════════════════ -->
-  <div v-else class="dividir-conta-page dividir-conta-page--guest">
-    <!-- Brand header -->
-    <header class="dividir-conta-page__header">
-      <NTag round type="success" size="small">
-        {{ t('dividirConta.header.publicTool') }}
-      </NTag>
-      <NButton quaternary @click="router.push('/auth/login')">
-        {{ t('dividirConta.header.createAccount') }}
-      </NButton>
-    </header>
-
-    <!-- Hero -->
-    <div class="dividir-conta-page__hero">
-      <NTag round size="small">{{ t('dividirConta.hero.badge') }}</NTag>
-      <h1 class="dividir-conta-page__hero-title">{{ t('dividirConta.hero.title') }}</h1>
-      <p class="dividir-conta-page__hero-subtitle">{{ t('dividirConta.hero.subtitle') }}</p>
-    </div>
-
-    <!-- Form -->
-    <div class="dividir-conta-page__content">
-      <UiGlassPanel class="dividir-conta-page__form-panel">
-        <NForm @submit.prevent="handleCalculate">
-          <CalculatorFormSection :title="t('dividirConta.form.title')">
-            <NFormItem :label="t('dividirConta.form.total')">
-              <NInputNumber
-                :value="form.total"
-                :placeholder="t('dividirConta.form.totalPlaceholder')"
-                :min="0"
-                :precision="2"
-                prefix="R$"
-                style="width: 100%"
-                @update:value="(v) => patch({ total: v })"
-              />
-            </NFormItem>
-
-            <NFormItem :label="t('dividirConta.form.serviceFeePct')">
-              <NInputNumber
-                :value="form.serviceFeePct"
-                :min="0"
-                :max="100"
-                :precision="1"
-                style="width: 100%"
-                @update:value="(v) => patch({ serviceFeePct: v ?? 10 })"
-              />
-            </NFormItem>
-
-            <NFormItem :label="t('dividirConta.form.tipPct')">
-              <NInputNumber
-                :value="form.tipPct"
-                :min="0"
-                :max="100"
-                :precision="1"
-                style="width: 100%"
-                @update:value="(v) => patch({ tipPct: v ?? 0 })"
-              />
-            </NFormItem>
-
-            <NFormItem :label="t('dividirConta.form.people')">
-              <NInputNumber
-                :value="form.people"
-                :min="2"
-                :max="50"
-                :precision="0"
-                style="width: 100%"
-                @update:value="handlePeopleChange"
-              />
-            </NFormItem>
-
-            <NFormItem :label="t('dividirConta.form.mode')">
-              <NSelect
-                :value="form.mode"
-                :options="modeOptions"
-                style="width: 100%"
-                @update:value="(v) => patch({ mode: v })"
-              />
-            </NFormItem>
-
-            <template v-if="form.mode === 'individual'">
-              <NFormItem
-                v-for="i in form.people"
-                :key="i"
-                :label="t('dividirConta.form.individualAmountLabel', { n: i })"
-              >
-                <NInputNumber
-                  :value="form.individualAmounts[i - 1]"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => {
-                    const updated = [...form.individualAmounts];
-                    updated[i - 1] = v;
-                    patch({ individualAmounts: updated });
-                  }"
-                />
-              </NFormItem>
-            </template>
-          </CalculatorFormSection>
-
-          <NAlert v-if="validationError" type="error" style="margin-bottom: 16px">
-            {{ validationError }}
-          </NAlert>
-
-          <NSpace style="margin-top: 16px">
-            <NButton type="primary" attr-type="submit">
-              {{ t('dividirConta.form.calculate') }}
-            </NButton>
-            <NButton quaternary @click="handleReset">
-              {{ t('dividirConta.form.reset') }}
-            </NButton>
-          </NSpace>
-        </NForm>
-      </UiGlassPanel>
-
-      <!-- Result -->
-      <div v-if="result" class="dividir-conta-page__result">
-        <UiSurfaceCard>
-          <CalculatorResultSummary
-            :label="t('dividirConta.results.perPersonEqual')"
-            :value="formatBrl(result.perPersonEqual)"
-            :metrics="summaryMetrics"
-          />
-        </UiSurfaceCard>
-
-        <UiSurfaceCard v-if="form.mode === 'individual'" class="dividir-conta-page__breakdown">
-          <p class="dividir-conta-page__breakdown-title">
-            {{ t('dividirConta.results.individualBreakdown') }}
-          </p>
-          <NThing
-            v-for="(amount, idx) in result.perPersonIndividual"
-            :key="idx"
-            :title="t('dividirConta.results.person', { n: idx + 1 })"
-            :description="formatBrl(amount)"
-          />
-        </UiSurfaceCard>
-
-        <!-- Guest CTA -->
-        <ToolGuestCta />
-
-        <p class="dividir-conta-page__disclaimer">
-          {{ t('dividirConta.disclaimer.note') }}
-        </p>
-      </div>
-    </div>
-  </div>
   </div>
 </template>

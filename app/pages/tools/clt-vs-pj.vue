@@ -8,7 +8,6 @@ import {
   NInputNumber,
   NSelect,
   NSpace,
-  NTag,
   NThing,
   NTooltip,
   useMessage,
@@ -211,7 +210,7 @@ async function handleAddAsGoal(): Promise<void> {
   <!-- Transparent root wrapper required by vue/no-multiple-template-root. -->
   <div class="clt-vs-pj-root">
   <!-- ═══ AUTHENTICATED — app shell ══════════════════════════════════════════ -->
-  <NuxtLayout v-if="isAuthenticated" name="default">
+  <NuxtLayout :name="isAuthenticated ? 'default' : 'tools-public'">
     <div class="clt-vs-pj-page clt-vs-pj-page--authenticated">
       <div class="clt-vs-pj-page__layout">
         <!-- Form column -->
@@ -424,148 +423,9 @@ async function handleAddAsGoal(): Promise<void> {
         </div>
       </div>
     </div>
+        <!-- Guest CTA — shown below result for unauthenticated users -->
+        <ToolGuestCta v-if="!isAuthenticated" />
   </NuxtLayout>
-
-  <!-- ═══ GUEST — standalone public page ════════════════════════════════════ -->
-  <div v-else class="clt-vs-pj-page">
-    <header class="clt-vs-pj-page__header">
-      <div class="clt-vs-pj-page__brand">
-        <span class="clt-vs-pj-page__brand-mark">Auraxis</span>
-        <span class="clt-vs-pj-page__brand-copy">{{ t('cltVsPj.header.publicTool') }}</span>
-      </div>
-      <div class="clt-vs-pj-page__header-actions">
-        <NButton quaternary @click="router.push('/tools')">{{ t('cltVsPj.header.otherTools') }}</NButton>
-        <NButton type="primary" @click="router.push('/register')">{{ t('cltVsPj.header.createAccount') }}</NButton>
-      </div>
-    </header>
-
-    <main class="clt-vs-pj-page__content">
-      <section class="clt-vs-pj-page__hero">
-        <div class="clt-vs-pj-page__hero-copy">
-          <NTag round type="warning">{{ t('cltVsPj.hero.badge') }}</NTag>
-          <UiPageHeader
-            :title="t('cltVsPj.hero.title')"
-            :subtitle="t('cltVsPj.hero.subtitle')"
-          />
-        </div>
-
-        <UiGlassPanel glow class="clt-vs-pj-page__form-panel">
-          <NForm @submit.prevent="handleCalculate">
-            <CalculatorFormSection :title="t('cltVsPj.form.cltTitle')">
-              <NFormItem :label="t('cltVsPj.form.cltGrossSalary')">
-                <NInputNumber
-                  :value="form.cltGrossSalary"
-                  :placeholder="t('cltVsPj.form.grossSalaryPlaceholder')"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ cltGrossSalary: v })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('cltVsPj.form.dependents')">
-                <NInputNumber
-                  :value="form.dependents"
-                  :min="0"
-                  :max="20"
-                  :precision="0"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ dependents: v ?? 0 })"
-                />
-              </NFormItem>
-            </CalculatorFormSection>
-
-            <CalculatorFormSection :title="t('cltVsPj.form.pjTitle')">
-              <NFormItem :label="t('cltVsPj.form.pjRegime')">
-                <NSelect
-                  :value="form.pjRegime"
-                  :options="pjRegimeOptions"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ pjRegime: v })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('cltVsPj.form.pjMonthlyInvoice')">
-                <NInputNumber
-                  :value="form.pjMonthlyInvoice"
-                  :placeholder="t('cltVsPj.form.invoicePlaceholder')"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ pjMonthlyInvoice: v })"
-                />
-              </NFormItem>
-            </CalculatorFormSection>
-
-            <NAlert v-if="validationError" type="warning" style="margin-top:12px">
-              {{ validationError }}
-            </NAlert>
-
-            <div class="clt-vs-pj-page__form-actions">
-              <NButton v-if="isDirty" quaternary @click="handleReset">
-                {{ t('cltVsPj.form.reset') }}
-              </NButton>
-              <NButton type="primary" attr-type="submit" :style="{ flex: 1 }">
-                {{ t('cltVsPj.form.calculate') }}
-              </NButton>
-            </div>
-          </NForm>
-        </UiGlassPanel>
-      </section>
-
-      <section v-if="result" class="clt-vs-pj-page__results-section">
-        <div class="clt-vs-pj-page__layout">
-          <div class="clt-vs-pj-page__results-main">
-            <UiSurfaceCard>
-              <p class="clt-vs-pj-page__section-title">{{ t('cltVsPj.results.title') }}</p>
-              <div class="clt-vs-pj-page__comparison">
-                <div class="clt-vs-pj-page__comparison-col">
-                  <p class="clt-vs-pj-page__col-label">{{ t('cltVsPj.results.cltColumn') }}</p>
-                  <p class="clt-vs-pj-page__col-value">{{ formatBrl(result.cltNetMonthly) }}</p>
-                </div>
-                <div class="clt-vs-pj-page__vs">VS</div>
-                <div class="clt-vs-pj-page__comparison-col">
-                  <p class="clt-vs-pj-page__col-label">{{ t('cltVsPj.results.pjColumn') }}</p>
-                  <p class="clt-vs-pj-page__col-value">{{ formatBrl(result.pjNetMonthly) }}</p>
-                </div>
-              </div>
-
-              <div class="clt-vs-pj-page__verdict" :class="result.pjIsMoreProfitable ? 'clt-vs-pj-page__verdict--pj' : 'clt-vs-pj-page__verdict--clt'">
-                {{ t(result.pjIsMoreProfitable ? 'cltVsPj.results.pjAdvantage' : 'cltVsPj.results.cltAdvantage', { value: formatBrl(result.monthlyDifference) }) }}
-              </div>
-            </UiSurfaceCard>
-
-            <UiSurfaceCard>
-              <p class="clt-vs-pj-page__breakeven-label">{{ t('cltVsPj.results.breakEvenLabel') }}</p>
-              <p class="clt-vs-pj-page__breakeven-value">{{ formatBrl(result.breakEvenInvoice) }}</p>
-              <p class="clt-vs-pj-page__breakeven-note">{{ t('cltVsPj.results.breakEvenNote') }}</p>
-            </UiSurfaceCard>
-
-            <UiSurfaceCard>
-              <NAlert type="warning">
-                {{ t('cltVsPj.disclaimer.note', { year: PJ_TABLE_YEAR }) }}
-              </NAlert>
-            </UiSurfaceCard>
-          </div>
-
-          <div class="clt-vs-pj-page__results-aside">
-            <UiStickySummaryCard>
-              <CalculatorResultSummary
-                :label="t(result.pjIsMoreProfitable ? 'cltVsPj.results.pjWins' : 'cltVsPj.results.cltWins')"
-                :value="formatBrl(result.pjIsMoreProfitable ? result.pjNetMonthly : result.cltNetMonthly)"
-                :metrics="summaryMetrics"
-              />
-            </UiStickySummaryCard>
-
-            <!-- Guest CTA -->
-            <ToolGuestCta />
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
   </div>
 </template>
 

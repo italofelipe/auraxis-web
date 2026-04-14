@@ -275,12 +275,12 @@ beforeEach(() => {
 });
 
 describe("DescontoMarkupPage — guest layout", () => {
-  it("renders the public hero and brand header when unauthenticated", () => {
+  it("renders inside NuxtLayout with tools-public name when unauthenticated", () => {
     const wrapper = mountPage();
 
-    expect(wrapper.find(".desconto-markup-page__header").exists()).toBe(true);
+    const layout = wrapper.find(".nuxt-layout");
+    expect(layout.exists()).toBe(true);
     expect(wrapper.text()).toContain("descontoMarkup.hero.title");
-    expect(wrapper.text()).toContain("descontoMarkup.header.publicTool");
   });
 
   it("shows the guest CTA after calculation", async () => {
@@ -300,12 +300,11 @@ describe("DescontoMarkupPage — guest layout", () => {
 });
 
 describe("DescontoMarkupPage — authenticated layout", () => {
-  it("shows NuxtLayout and no standalone header when authenticated", () => {
+  it("shows NuxtLayout when authenticated", () => {
     mockIsAuthenticated.value = true;
     const wrapper = mountPage();
 
     expect(wrapper.find(".nuxt-layout").exists()).toBe(true);
-    expect(wrapper.find(".desconto-markup-page__header").exists()).toBe(false);
   });
 });
 
