@@ -10,16 +10,12 @@ import {
   NTag,
   NThing,
   NTooltip,
-  useMessage,
 } from "naive-ui";
 import { Info } from "lucide-vue-next";
-import { useRouter } from "#app";
 
 import { captureException } from "~/core/observability";
-import { useApiError } from "~/composables/useApiError";
 import { useCalculatorFormState } from "~/features/tools/composables/use-calculator-form-state";
-import { useSessionStore } from "~/stores/session";
-import { useEntitlementQuery } from "~/features/paywall/queries/use-entitlement-query";
+import { useToolPageContext } from "~/features/tools/composables/use-tool-page-context";
 import { useSaveSimulationMutation } from "~/features/simulations/queries/use-save-simulation-mutation";
 import {
   BR_TAX_TABLE_YEAR,
@@ -42,21 +38,8 @@ import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
 
 defineOptions({ name: "HoraExtraPage" });
 
-const { t, n } = useI18n();
-const toast = useMessage();
-const { getErrorMessage } = useApiError();
-const router = useRouter();
-const sessionStore = useSessionStore();
-
-// ─── Session & access ─────────────────────────────────────────────────────────
-
-const isAuthenticated = computed<boolean>(() => sessionStore.isAuthenticated);
-
-const premiumAccessQuery = useEntitlementQuery("advanced_simulations");
-
-const hasPremiumAccess = computed<boolean>(
-  () => premiumAccessQuery.data.value === true,
-);
+const { t, toast, getErrorMessage, router, isAuthenticated, hasPremiumAccess, formatBrl } =
+  useToolPageContext();
 
 // ─── Calculator form state ────────────────────────────────────────────────────
 
@@ -69,18 +52,6 @@ const savedSimulationId = ref<string | null>(null);
 // ─── Mutations ────────────────────────────────────────────────────────────────
 
 const saveSimulationMutation = useSaveSimulationMutation();
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-/**
- * Formats a numeric value as Brazilian Real currency string.
- *
- * @param value Number to format.
- * @returns Formatted BRL string.
- */
-function formatBrl(value: number): string {
-  return n(value, "currency");
-}
 
 // ─── Calculation ──────────────────────────────────────────────────────────────
 
