@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { NButton, NDatePicker, NSelect } from "naive-ui";
+import { useDashboardOverviewQuery } from "~/features/dashboard/queries/use-dashboard-overview-query";
+import { useDashboardTrendsQuery } from "~/features/dashboard/queries/use-dashboard-trends-query";
 import {
   DASHBOARD_PERIOD_OPTIONS,
-  useDashboardOverviewQuery,
-  useDashboardTrendsQuery,
   type DashboardOverviewFilters,
-} from "~/composables/useDashboard";
+} from "~/features/dashboard/model/dashboard-overview";
 import type { DashboardPeriod } from "~/features/dashboard/model/dashboard-period";
 import { useDueRangeQuery } from "~/features/transactions/queries/use-due-range-query";
 import { useWalletEntriesQuery } from "~/features/wallet/queries/use-wallet-entries-query";
