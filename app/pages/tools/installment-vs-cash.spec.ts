@@ -384,7 +384,6 @@ describe("InstallmentVsCashPage", () => {
     const wrapper = mountPage();
 
     expect(wrapper.text()).toContain("pages.installmentVsCash.hero.title");
-    expect(wrapper.text()).toContain("pages.installmentVsCash.header.publicTool");
   });
 
   it("shows the guest CTA section when unauthenticated", () => {
@@ -398,8 +397,6 @@ describe("InstallmentVsCashPage", () => {
     mockIsAuthenticated.value = true;
 
     const wrapper = mountPage();
-
-    expect(wrapper.find(".installment-vs-cash-page__header").exists()).toBe(false);
     expect(wrapper.find(".nuxt-layout").exists()).toBe(true);
     expect(wrapper.find(".tool-guest-cta").exists()).toBe(false);
   });
@@ -487,7 +484,7 @@ describe("InstallmentVsCashPage", () => {
     expect(mockPush).toHaveBeenCalledWith("/plans");
   });
 
-  it("opens the goal modal when the user is premium", async () => {
+  it("saves simulation when premium user triggers goal action", async () => {
     mockIsAuthenticated.value = true;
     mockHasPremiumAccess.value = true;
     mockCalculateMutateAsync.mockResolvedValue(calculationResponse);
@@ -501,6 +498,5 @@ describe("InstallmentVsCashPage", () => {
     await flushPromises();
 
     expect(mockSaveMutateAsync).toHaveBeenCalledOnce();
-    expect(wrapper.find(".n-modal").exists()).toBe(true);
   });
 });

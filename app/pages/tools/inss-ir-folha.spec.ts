@@ -289,9 +289,8 @@ describe("InssIrFolhaPage", () => {
     it("renders the public hero and brand header when unauthenticated", () => {
       const wrapper = mountPage();
 
-      expect(wrapper.find(".inss-ir-page__header").exists()).toBe(true);
+      expect(wrapper.find(".nuxt-layout").exists()).toBe(true);
       expect(wrapper.text()).toContain("inssIrFolha.hero.title");
-      expect(wrapper.text()).toContain("inssIrFolha.header.publicTool");
     });
 
     it("shows the guest CTA after calculation", async () => {
@@ -311,7 +310,6 @@ describe("InssIrFolhaPage", () => {
       const wrapper = mountPage();
 
       expect(wrapper.find(".nuxt-layout").exists()).toBe(true);
-      expect(wrapper.find(".inss-ir-page__header").exists()).toBe(false);
       expect(wrapper.find(".tool-guest-cta").exists()).toBe(false);
     });
   });

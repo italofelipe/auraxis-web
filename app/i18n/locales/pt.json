@@ -3160,5 +3160,18 @@
       "ctaPrimary": "Criar minha primeira meta",
       "ctaSecondary": "Fazer isso depois"
     }
+  },
+  "toolsSidebar": {
+    "title": "Ferramentas",
+    "open": "Abrir menu de ferramentas",
+    "close": "Fechar menu de ferramentas",
+    "navAriaLabel": "Ferramentas disponíveis",
+    "groups": {
+      "labor": "Trabalhista",
+      "tax": "Tributário",
+      "investment": "Investimentos",
+      "realEstate": "Imóveis",
+      "personal": "Pessoal"
+    }
   }
 }

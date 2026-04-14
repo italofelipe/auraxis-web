@@ -287,9 +287,8 @@ describe("ConversorMoedaPage — layout", () => {
   it("renders the public hero and brand header when unauthenticated", () => {
     const wrapper = mountPage();
 
-    expect(wrapper.find(".conversor-page__header").exists()).toBe(true);
+    expect(wrapper.find(".nuxt-layout").exists()).toBe(true);
     expect(wrapper.text()).toContain("conversorMoeda.hero.title");
-    expect(wrapper.text()).toContain("conversorMoeda.header.publicTool");
   });
 
   it("shows the guest CTA after calculation", async () => {
@@ -307,7 +306,6 @@ describe("ConversorMoedaPage — layout", () => {
     const wrapper = mountPage();
 
     expect(wrapper.find(".nuxt-layout").exists()).toBe(true);
-    expect(wrapper.find(".conversor-page__header").exists()).toBe(false);
     expect(wrapper.find(".tool-guest-cta").exists()).toBe(false);
   });
 });

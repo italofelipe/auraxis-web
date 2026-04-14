@@ -7,11 +7,9 @@ import {
   NFormItem,
   NInputNumber,
   NSpace,
-  NTag,
   NThing,
   useMessage,
 } from "naive-ui";
-import { useRouter } from "#app";
 
 import { captureException } from "~/core/observability";
 import { useApiError } from "~/composables/useApiError";
@@ -41,7 +39,6 @@ definePageMeta({ layout: false });
 const { t, n } = useI18n();
 const toast = useMessage();
 const { getErrorMessage } = useApiError();
-const router = useRouter();
 const sessionStore = useSessionStore();
 
 useSeoMeta({
@@ -221,7 +218,7 @@ const isSaved = computed(() => savedSimulationId.value !== null);
   <!-- Transparent root wrapper required by vue/no-multiple-template-root. -->
   <div class="fin-imob-root">
   <!-- ═══ AUTHENTICATED — app shell ══════════════════════════════════════════ -->
-  <NuxtLayout v-if="isAuthenticated" name="default">
+  <NuxtLayout :name="isAuthenticated ? 'default' : 'tools-public'">
     <div class="fin-imob-page fin-imob-page--authenticated">
       <div class="fin-imob-page__layout">
         <!-- Form column -->
@@ -403,186 +400,9 @@ const isSaved = computed(() => savedSimulationId.value !== null);
         </div>
       </div>
     </div>
+        <!-- Guest CTA — shown below result for unauthenticated users -->
+        <ToolGuestCta v-if="!isAuthenticated" />
   </NuxtLayout>
-
-  <!-- ═══ GUEST — standalone public page ════════════════════════════════════ -->
-  <div v-else class="fin-imob-page">
-    <header class="fin-imob-page__header">
-      <div class="fin-imob-page__brand">
-        <span class="fin-imob-page__brand-mark">Auraxis</span>
-        <span class="fin-imob-page__brand-copy">{{ t('financiamentoImobiliario.header.publicTool') }}</span>
-      </div>
-      <div class="fin-imob-page__header-actions">
-        <NButton quaternary @click="router.push('/tools')">{{ t('financiamentoImobiliario.header.otherTools') }}</NButton>
-        <NButton type="primary" @click="router.push('/register')">{{ t('financiamentoImobiliario.header.createAccount') }}</NButton>
-      </div>
-    </header>
-
-    <main class="fin-imob-page__content">
-      <section class="fin-imob-page__hero">
-        <div class="fin-imob-page__hero-copy">
-          <NTag round type="warning">{{ t('financiamentoImobiliario.hero.badge') }}</NTag>
-          <UiPageHeader
-            :title="t('financiamentoImobiliario.hero.title')"
-            :subtitle="t('financiamentoImobiliario.hero.subtitle')"
-          />
-        </div>
-
-        <UiGlassPanel glow class="fin-imob-page__form-panel">
-          <NForm @submit.prevent="handleCalculate">
-            <CalculatorFormSection :title="t('financiamentoImobiliario.form.title')">
-              <NFormItem :label="t('financiamentoImobiliario.form.propertyValue')">
-                <NInputNumber
-                  :value="form.propertyValue"
-                  :placeholder="t('financiamentoImobiliario.form.propertyValuePlaceholder')"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ propertyValue: v })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('financiamentoImobiliario.form.downPaymentPct')">
-                <NInputNumber
-                  :value="form.downPaymentPct"
-                  :min="0"
-                  :max="99"
-                  :precision="1"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ downPaymentPct: v ?? 20 })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('financiamentoImobiliario.form.termMonths')">
-                <NInputNumber
-                  :value="form.termMonths"
-                  :min="12"
-                  :max="360"
-                  :precision="0"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ termMonths: v ?? 360 })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('financiamentoImobiliario.form.annualRatePct')">
-                <NInputNumber
-                  :value="form.annualRatePct"
-                  :placeholder="t('financiamentoImobiliario.form.annualRatePlaceholder')"
-                  :min="0"
-                  :precision="2"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ annualRatePct: v })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('financiamentoImobiliario.form.insuranceMonthly')">
-                <NInputNumber
-                  :value="form.insuranceMonthly"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ insuranceMonthly: v ?? 0 })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('financiamentoImobiliario.form.adminFeeMonthly')">
-                <NInputNumber
-                  :value="form.adminFeeMonthly"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ adminFeeMonthly: v ?? 0 })"
-                />
-              </NFormItem>
-            </CalculatorFormSection>
-
-            <NAlert v-if="validationError" type="warning" style="margin-top:12px">
-              {{ validationError }}
-            </NAlert>
-
-            <div class="fin-imob-page__form-actions">
-              <NButton v-if="isDirty" quaternary @click="handleReset">
-                {{ t('financiamentoImobiliario.form.reset') }}
-              </NButton>
-              <NButton type="primary" attr-type="submit" :style="{ flex: 1 }">
-                {{ t('financiamentoImobiliario.form.calculate') }}
-              </NButton>
-            </div>
-          </NForm>
-        </UiGlassPanel>
-      </section>
-
-      <section v-if="result" class="fin-imob-page__results-section">
-        <div class="fin-imob-page__layout">
-          <div class="fin-imob-page__results-main">
-            <!-- SAC vs PRICE comparison table -->
-            <UiSurfaceCard>
-              <p class="fin-imob-page__section-title">{{ t('financiamentoImobiliario.results.comparisonTitle') }}</p>
-              <div class="fin-imob-page__comparison-table">
-                <div class="fin-imob-page__comparison-header">
-                  <span />
-                  <span class="fin-imob-page__comparison-col-label">{{ t('financiamentoImobiliario.results.sacLabel') }}</span>
-                  <span class="fin-imob-page__comparison-col-label">{{ t('financiamentoImobiliario.results.priceLabel') }}</span>
-                </div>
-                <div class="fin-imob-page__comparison-row">
-                  <span>{{ t('financiamentoImobiliario.results.firstPayment') }}</span>
-                  <span>{{ formatBrl(result.sac.firstPayment) }}</span>
-                  <span>{{ formatBrl(result.price.firstPayment) }}</span>
-                </div>
-                <div class="fin-imob-page__comparison-row">
-                  <span>{{ t('financiamentoImobiliario.results.lastPayment') }}</span>
-                  <span>{{ formatBrl(result.sac.lastPayment) }}</span>
-                  <span>{{ formatBrl(result.price.lastPayment) }}</span>
-                </div>
-                <div class="fin-imob-page__comparison-row">
-                  <span>{{ t('financiamentoImobiliario.results.totalInterest') }}</span>
-                  <span class="fin-imob-page__value--negative">{{ formatBrl(result.sac.totalInterest) }}</span>
-                  <span class="fin-imob-page__value--negative">{{ formatBrl(result.price.totalInterest) }}</span>
-                </div>
-                <div class="fin-imob-page__comparison-row fin-imob-page__comparison-row--total">
-                  <span>{{ t('financiamentoImobiliario.results.totalPaid') }}</span>
-                  <span class="fin-imob-page__value--bold">{{ formatBrl(result.sac.totalPaid) }}</span>
-                  <span class="fin-imob-page__value--bold">{{ formatBrl(result.price.totalPaid) }}</span>
-                </div>
-                <div class="fin-imob-page__comparison-row">
-                  <span>{{ t('financiamentoImobiliario.results.savingsVsPrice') }}</span>
-                  <span class="fin-imob-page__value--positive">{{ formatBrl(result.price.totalPaid - result.sac.totalPaid) }}</span>
-                  <span>—</span>
-                </div>
-              </div>
-            </UiSurfaceCard>
-
-            <!-- CET summary -->
-            <UiSurfaceCard>
-              <NThing
-                :title="t('financiamentoImobiliario.results.cetEstimated')"
-                :description="`${result.cetEstimatedPct.toFixed(2)}% a.a.`"
-              />
-              <NAlert type="warning" style="margin-top: 12px">
-                {{ t('financiamentoImobiliario.disclaimer.cet', { year: FINANCIAMENTO_TABLE_YEAR }) }}
-              </NAlert>
-            </UiSurfaceCard>
-          </div>
-
-          <div class="fin-imob-page__results-aside">
-            <UiStickySummaryCard>
-              <CalculatorResultSummary
-                :label="t('financiamentoImobiliario.results.loanAmount')"
-                :value="formatBrl(result.loanAmount)"
-                :metrics="summaryMetrics"
-              />
-            </UiStickySummaryCard>
-
-            <!-- Guest CTA -->
-            <ToolGuestCta />
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
   </div>
 </template>
 

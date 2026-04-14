@@ -9,7 +9,6 @@ import {
   NInputNumber,
   NSelect,
   NSpace,
-  NTag,
   NThing,
   useMessage,
 } from "naive-ui";
@@ -272,7 +271,7 @@ const isSaved = computed(() => savedSimulationId.value !== null);
   <!-- Transparent root wrapper required by vue/no-multiple-template-root. -->
   <div class="tesouro-root">
   <!-- ═══ AUTHENTICATED — app shell ══════════════════════════════════════════ -->
-  <NuxtLayout v-if="isAuthenticated" name="default">
+  <NuxtLayout :name="isAuthenticated ? 'default' : 'tools-public'">
     <div class="tesouro-page tesouro-page--authenticated">
       <div class="tesouro-page__layout">
         <!-- Form column -->
@@ -450,164 +449,9 @@ const isSaved = computed(() => savedSimulationId.value !== null);
         </div>
       </div>
     </div>
+        <!-- Guest CTA — shown below result for unauthenticated users -->
+        <ToolGuestCta v-if="!isAuthenticated" />
   </NuxtLayout>
-
-  <!-- ═══ GUEST — standalone public page ════════════════════════════════════ -->
-  <div v-else class="tesouro-page">
-    <header class="tesouro-page__header">
-      <div class="tesouro-page__brand">
-        <span class="tesouro-page__brand-mark">Auraxis</span>
-        <span class="tesouro-page__brand-copy">{{ t('tesouroDireto.header.publicTool') }}</span>
-      </div>
-      <div class="tesouro-page__header-actions">
-        <NButton quaternary @click="router.push('/tools')">{{ t('tesouroDireto.header.otherTools') }}</NButton>
-        <NButton type="primary" @click="router.push('/register')">{{ t('tesouroDireto.header.createAccount') }}</NButton>
-      </div>
-    </header>
-
-    <main class="tesouro-page__content">
-      <section class="tesouro-page__hero">
-        <div class="tesouro-page__hero-copy">
-          <NTag round type="warning">{{ t('tesouroDireto.hero.badge') }}</NTag>
-          <UiPageHeader
-            :title="t('tesouroDireto.hero.title')"
-            :subtitle="t('tesouroDireto.hero.subtitle')"
-          />
-        </div>
-
-        <UiGlassPanel glow class="tesouro-page__form-panel">
-          <NForm @submit.prevent="handleCalculate">
-            <CalculatorFormSection :title="t('tesouroDireto.form.title')">
-              <NFormItem :label="t('tesouroDireto.form.type')">
-                <NSelect
-                  :value="form.type"
-                  :options="bondTypeOptions"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ type: v })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('tesouroDireto.form.amount')">
-                <NInputNumber
-                  :value="form.amount"
-                  :placeholder="t('tesouroDireto.form.amountPlaceholder')"
-                  :min="30"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ amount: v })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('tesouroDireto.form.termDays')">
-                <NInputNumber
-                  :value="form.termDays"
-                  :min="1"
-                  :precision="0"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ termDays: v ?? 365 })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('tesouroDireto.form.taxaIndicativaPct')">
-                <NInputNumber
-                  :value="form.taxaIndicativaPct"
-                  :min="0"
-                  :precision="4"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ taxaIndicativaPct: v })"
-                />
-                <p class="tesouro-page__hint">{{ t('tesouroDireto.form.taxaHint') }}</p>
-              </NFormItem>
-
-              <NFormItem :label="t('tesouroDireto.form.selicPct')">
-                <NInputNumber
-                  :value="form.selicPct"
-                  :min="0"
-                  :precision="2"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ selicPct: v ?? 10.75 })"
-                />
-                <p class="tesouro-page__hint">{{ t('tesouroDireto.form.selicHint') }}</p>
-              </NFormItem>
-
-              <NFormItem :label="t('tesouroDireto.form.ipcaPct')">
-                <NInputNumber
-                  :value="form.ipcaPct"
-                  :min="0"
-                  :precision="2"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ ipcaPct: v ?? 4.5 })"
-                />
-              </NFormItem>
-            </CalculatorFormSection>
-
-            <NAlert v-if="validationError" type="warning" style="margin-top:12px">
-              {{ validationError }}
-            </NAlert>
-
-            <div class="tesouro-page__form-actions">
-              <NButton v-if="isDirty" quaternary @click="handleReset">
-                {{ t('tesouroDireto.form.reset') }}
-              </NButton>
-              <NButton type="primary" attr-type="submit" :style="{ flex: 1 }">
-                {{ t('tesouroDireto.form.calculate') }}
-              </NButton>
-            </div>
-          </NForm>
-        </UiGlassPanel>
-      </section>
-
-      <section v-if="result" class="tesouro-page__results-section">
-        <div class="tesouro-page__layout">
-          <div class="tesouro-page__results-main">
-            <!-- Breakdown (guest) -->
-            <UiSurfaceCard>
-              <p class="tesouro-page__section-title">{{ t('tesouroDireto.results.breakdown') }}</p>
-              <div class="tesouro-page__breakdown">
-                <div class="tesouro-page__breakdown-row">
-                  <span>{{ t('tesouroDireto.results.grossReturn') }}</span>
-                  <span>{{ formatBrl(result.grossReturn) }}</span>
-                </div>
-                <div class="tesouro-page__breakdown-row tesouro-page__breakdown-row--deduction">
-                  <span>{{ t('tesouroDireto.results.custodyFee') }}</span>
-                  <span>− {{ formatBrl(result.custodyFee) }}</span>
-                </div>
-                <div class="tesouro-page__breakdown-row tesouro-page__breakdown-row--deduction">
-                  <span>{{ t('tesouroDireto.results.irAmountWithRate', { rate: formatPct(result.irRate) }) }}</span>
-                  <span>− {{ formatBrl(result.irAmount) }}</span>
-                </div>
-                <div class="tesouro-page__breakdown-row tesouro-page__breakdown-row--net">
-                  <span>{{ t('tesouroDireto.results.netReturn') }}</span>
-                  <span class="tesouro-page__value--positive">{{ formatBrl(result.netReturn) }}</span>
-                </div>
-              </div>
-            </UiSurfaceCard>
-
-            <!-- Disclaimer -->
-            <UiSurfaceCard>
-              <NAlert type="warning">
-                {{ t('tesouroDireto.disclaimer.note', { year: TESOURO_TABLE_YEAR }) }}
-              </NAlert>
-            </UiSurfaceCard>
-          </div>
-
-          <div class="tesouro-page__results-aside">
-            <UiStickySummaryCard>
-              <CalculatorResultSummary
-                :label="t('tesouroDireto.results.netAmount')"
-                :value="formatBrl(result.netAmount)"
-                :metrics="summaryMetrics"
-              />
-            </UiStickySummaryCard>
-
-            <!-- Guest CTA -->
-            <ToolGuestCta />
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
   </div>
 </template>
 

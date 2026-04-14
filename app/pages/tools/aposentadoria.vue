@@ -8,7 +8,6 @@ import {
   NFormItem,
   NInputNumber,
   NSpace,
-  NTag,
   NThing,
   useMessage,
 } from "naive-ui";
@@ -266,7 +265,7 @@ const isSaved = computed(() => savedSimulationId.value !== null);
   <!-- Transparent root wrapper required by vue/no-multiple-template-root. -->
   <div class="apos-root">
   <!-- ═══ AUTHENTICATED — app shell ══════════════════════════════════════════ -->
-  <NuxtLayout v-if="isAuthenticated" name="default">
+  <NuxtLayout :name="isAuthenticated ? 'default' : 'tools-public'">
     <div class="apos-page apos-page--authenticated">
       <div class="apos-page__layout">
         <!-- Form column -->
@@ -454,162 +453,9 @@ const isSaved = computed(() => savedSimulationId.value !== null);
         </div>
       </div>
     </div>
+        <!-- Guest CTA — shown below result for unauthenticated users -->
+        <ToolGuestCta v-if="!isAuthenticated" />
   </NuxtLayout>
-
-  <!-- ═══ GUEST — standalone public page ════════════════════════════════════ -->
-  <div v-else class="apos-page">
-    <header class="apos-page__header">
-      <div class="apos-page__brand">
-        <span class="apos-page__brand-mark">Auraxis</span>
-        <span class="apos-page__brand-copy">{{ t('aposentadoria.header.publicTool') }}</span>
-      </div>
-      <div class="apos-page__header-actions">
-        <NButton quaternary @click="router.push('/tools')">{{ t('aposentadoria.header.otherTools') }}</NButton>
-        <NButton type="primary" @click="router.push('/register')">{{ t('aposentadoria.header.createAccount') }}</NButton>
-      </div>
-    </header>
-
-    <main class="apos-page__content">
-      <section class="apos-page__hero">
-        <div class="apos-page__hero-copy">
-          <NTag round type="warning">{{ t('aposentadoria.hero.badge') }}</NTag>
-          <UiPageHeader
-            :title="t('aposentadoria.hero.title')"
-            :subtitle="t('aposentadoria.hero.subtitle')"
-          />
-        </div>
-
-        <UiGlassPanel glow class="apos-page__form-panel">
-          <NForm @submit.prevent="handleCalculate">
-            <CalculatorFormSection :title="t('aposentadoria.form.title')">
-              <NFormItem :label="t('aposentadoria.form.currentAge')">
-                <NInputNumber
-                  :value="form.currentAge"
-                  :min="18"
-                  :max="80"
-                  :precision="0"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ currentAge: v ?? 30 })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('aposentadoria.form.retirementAge')">
-                <NInputNumber
-                  :value="form.retirementAge"
-                  :min="19"
-                  :precision="0"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ retirementAge: v ?? 65 })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('aposentadoria.form.desiredMonthlyIncome')">
-                <NInputNumber
-                  :value="form.desiredMonthlyIncome"
-                  :placeholder="t('aposentadoria.form.incomePlaceholder')"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ desiredMonthlyIncome: v })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('aposentadoria.form.currentPatrimony')">
-                <NInputNumber
-                  :value="form.currentPatrimony"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ currentPatrimony: v ?? 0 })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('aposentadoria.form.expectedReturnPct')">
-                <NInputNumber
-                  :value="form.expectedReturnPct"
-                  :min="0"
-                  :precision="2"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ expectedReturnPct: v ?? 8 })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('aposentadoria.form.ipcaPct')">
-                <NInputNumber
-                  :value="form.ipcaPct"
-                  :min="0"
-                  :precision="2"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ ipcaPct: v ?? 4.5 })"
-                />
-                <p class="apos-page__hint">{{ t('aposentadoria.form.ipcaHint') }}</p>
-              </NFormItem>
-            </CalculatorFormSection>
-
-            <NAlert v-if="validationError" type="warning" style="margin-top:12px">
-              {{ validationError }}
-            </NAlert>
-
-            <div class="apos-page__form-actions">
-              <NButton v-if="isDirty" quaternary @click="handleReset">
-                {{ t('aposentadoria.form.reset') }}
-              </NButton>
-              <NButton type="primary" attr-type="submit" :style="{ flex: 1 }">
-                {{ t('aposentadoria.form.calculate') }}
-              </NButton>
-            </div>
-          </NForm>
-        </UiGlassPanel>
-      </section>
-
-      <section v-if="result" class="apos-page__results-section">
-        <div class="apos-page__layout">
-          <div class="apos-page__results-main">
-            <!-- Sensitivity (guest) -->
-            <UiSurfaceCard>
-              <p class="apos-page__section-title">{{ t('aposentadoria.results.sensitivity') }}</p>
-              <div class="apos-page__breakdown">
-                <div class="apos-page__breakdown-row">
-                  <span>{{ t('aposentadoria.results.baseline') }}</span>
-                  <span>{{ formatBrl(result.requiredMonthlyContribution) }}</span>
-                </div>
-                <div class="apos-page__breakdown-row apos-page__breakdown-row--positive">
-                  <span>{{ t('aposentadoria.results.retire5YearsLater') }}</span>
-                  <span>{{ formatBrl(result.sensitivityMinus20pct) }}</span>
-                </div>
-                <div class="apos-page__breakdown-row apos-page__breakdown-row--negative">
-                  <span>{{ t('aposentadoria.results.retire5YearsEarlier') }}</span>
-                  <span>{{ formatBrl(result.sensitivityPlus20pct) }}</span>
-                </div>
-              </div>
-            </UiSurfaceCard>
-
-            <!-- Disclaimer -->
-            <UiSurfaceCard>
-              <NAlert type="warning">
-                {{ t('aposentadoria.disclaimer.note', { year: APOSENTADORIA_TABLE_YEAR }) }}
-              </NAlert>
-            </UiSurfaceCard>
-          </div>
-
-          <div class="apos-page__results-aside">
-            <UiStickySummaryCard>
-              <CalculatorResultSummary
-                :label="t('aposentadoria.results.requiredPatrimony')"
-                :value="formatBrl(result.requiredPatrimony)"
-                :metrics="summaryMetrics"
-              />
-            </UiStickySummaryCard>
-
-            <!-- Guest CTA -->
-            <ToolGuestCta />
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
   </div>
 </template>
 

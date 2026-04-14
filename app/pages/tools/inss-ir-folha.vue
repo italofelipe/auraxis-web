@@ -9,7 +9,6 @@ import {
   NFormItem,
   NInputNumber,
   NSpace,
-  NTag,
   NThing,
   NTooltip,
   useMessage,
@@ -259,7 +258,7 @@ async function handleSaveSimulation(): Promise<void> {
        display:contents makes it invisible to the layout engine. -->
   <div class="inss-ir-root">
   <!-- ═══ AUTHENTICATED — app shell ══════════════════════════════════════════ -->
-  <NuxtLayout v-if="isAuthenticated" name="default">
+  <NuxtLayout :name="isAuthenticated ? 'default' : 'tools-public'">
     <div class="inss-ir-page inss-ir-page--authenticated">
       <div class="inss-ir-page__layout">
         <!-- Form column -->
@@ -477,208 +476,9 @@ async function handleSaveSimulation(): Promise<void> {
         </div>
       </div>
     </div>
+        <!-- Guest CTA — shown below result for unauthenticated users -->
+        <ToolGuestCta v-if="!isAuthenticated" />
   </NuxtLayout>
-
-  <!-- ═══ GUEST — standalone public page ════════════════════════════════════ -->
-  <div v-else class="inss-ir-page">
-    <header class="inss-ir-page__header">
-      <div class="inss-ir-page__brand">
-        <span class="inss-ir-page__brand-mark">Auraxis</span>
-        <span class="inss-ir-page__brand-copy">{{ t('inssIrFolha.header.publicTool') }}</span>
-      </div>
-      <div class="inss-ir-page__header-actions">
-        <NButton quaternary @click="router.push('/tools')">{{ t('inssIrFolha.header.otherTools') }}</NButton>
-        <NButton type="primary" @click="router.push('/register')">{{ t('inssIrFolha.header.createAccount') }}</NButton>
-      </div>
-    </header>
-
-    <main class="inss-ir-page__content">
-      <section class="inss-ir-page__hero">
-        <div class="inss-ir-page__hero-copy">
-          <NTag round type="warning">{{ t('inssIrFolha.hero.badge') }}</NTag>
-          <UiPageHeader
-            :title="t('inssIrFolha.hero.title')"
-            :subtitle="t('inssIrFolha.hero.subtitle')"
-          />
-        </div>
-
-        <UiGlassPanel glow class="inss-ir-page__form-panel">
-          <NForm @submit.prevent="handleCalculate">
-            <CalculatorFormSection :title="t('inssIrFolha.form.title')">
-              <NFormItem :label="t('inssIrFolha.form.grossSalary')">
-                <NInputNumber
-                  :value="form.grossSalary"
-                  :placeholder="t('inssIrFolha.form.grossSalaryPlaceholder')"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ grossSalary: v })"
-                />
-              </NFormItem>
-
-              <NFormItem>
-                <template #label>
-                  {{ t('inssIrFolha.form.dependents') }}
-                  <NTooltip>
-                    <template #trigger>
-                      <Info :size="14" style="margin-left:4px;cursor:help;vertical-align:middle;" />
-                    </template>
-                    {{ t('inssIrFolha.form.dependentsTooltip') }}
-                  </NTooltip>
-                </template>
-                <NInputNumber
-                  :value="form.dependents"
-                  :min="0"
-                  :max="20"
-                  :precision="0"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ dependents: v ?? 0 })"
-                />
-              </NFormItem>
-
-              <NFormItem>
-                <template #label>
-                  {{ t('inssIrFolha.form.alimentPension') }}
-                  <NTooltip>
-                    <template #trigger>
-                      <Info :size="14" style="margin-left:4px;cursor:help;vertical-align:middle;" />
-                    </template>
-                    {{ t('inssIrFolha.form.alimentPensionTooltip') }}
-                  </NTooltip>
-                </template>
-                <NInputNumber
-                  :value="form.alimentPension"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ alimentPension: v ?? 0 })"
-                />
-              </NFormItem>
-
-              <NFormItem>
-                <template #label>
-                  {{ t('inssIrFolha.form.privatePension') }}
-                  <NTooltip>
-                    <template #trigger>
-                      <Info :size="14" style="margin-left:4px;cursor:help;vertical-align:middle;" />
-                    </template>
-                    {{ t('inssIrFolha.form.privatePensionTooltip') }}
-                  </NTooltip>
-                </template>
-                <NInputNumber
-                  :value="form.privatePension"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ privatePension: v ?? 0 })"
-                />
-              </NFormItem>
-            </CalculatorFormSection>
-
-            <NAlert v-if="validationError" type="warning" style="margin-top:12px">
-              {{ validationError }}
-            </NAlert>
-
-            <div class="inss-ir-page__form-actions">
-              <NButton v-if="isDirty" quaternary @click="handleReset">
-                {{ t('inssIrFolha.form.reset') }}
-              </NButton>
-              <NButton type="primary" attr-type="submit" :style="{ flex: 1 }">
-                {{ t('inssIrFolha.form.calculate') }}
-              </NButton>
-            </div>
-          </NForm>
-        </UiGlassPanel>
-      </section>
-
-      <section v-if="result" class="inss-ir-page__results-section">
-        <div class="inss-ir-page__layout">
-          <div class="inss-ir-page__results-main">
-            <!-- INSS bracket table -->
-            <UiSurfaceCard>
-              <p class="inss-ir-page__section-title">{{ t('inssIrFolha.results.inssBreakdown') }}</p>
-              <TaxBracketTable
-                :rows="inssBracketRows"
-                :range-header="t('inssIrFolha.table.bracketRange')"
-                :rate-header="t('inssIrFolha.table.rate')"
-                :base-header="t('inssIrFolha.table.sliceAmount')"
-                :tax-header="t('inssIrFolha.table.contribution')"
-                :total-label="t('inssIrFolha.table.total')"
-                :total-value="formatBrl(result.totalInss)"
-              />
-            </UiSurfaceCard>
-
-            <!-- IR deductions -->
-            <UiSurfaceCard>
-              <p class="inss-ir-page__section-title">{{ t('inssIrFolha.results.irDeductions') }}</p>
-              <div class="inss-ir-page__deductions">
-                <div class="inss-ir-page__deduction-row">
-                  <span>{{ t('inssIrFolha.deductions.inss') }}</span>
-                  <span class="inss-ir-page__deduction-value">− {{ formatBrl(result.totalInss) }}</span>
-                </div>
-                <div v-if="result.dependentsDeduction > 0" class="inss-ir-page__deduction-row">
-                  <span>{{ t('inssIrFolha.deductions.dependents', { count: form.dependents }) }}</span>
-                  <span class="inss-ir-page__deduction-value">− {{ formatBrl(result.dependentsDeduction) }}</span>
-                </div>
-                <div v-if="result.alimentPensionDeduction > 0" class="inss-ir-page__deduction-row">
-                  <span>{{ t('inssIrFolha.deductions.alimentPension') }}</span>
-                  <span class="inss-ir-page__deduction-value">− {{ formatBrl(result.alimentPensionDeduction) }}</span>
-                </div>
-                <div v-if="result.privatePensionDeduction > 0" class="inss-ir-page__deduction-row">
-                  <span>{{ t('inssIrFolha.deductions.privatePension') }}</span>
-                  <span class="inss-ir-page__deduction-value">− {{ formatBrl(result.privatePensionDeduction) }}</span>
-                </div>
-                <div class="inss-ir-page__deduction-row inss-ir-page__deduction-row--total">
-                  <span>{{ t('inssIrFolha.results.irBase') }}</span>
-                  <span class="inss-ir-page__deduction-base">{{ formatBrl(result.irBase) }}</span>
-                </div>
-                <p v-if="privatePensionWasCapped" class="inss-ir-page__cap-note">
-                  {{ t('inssIrFolha.disclaimer.privatePensionCapped') }}
-                </p>
-              </div>
-            </UiSurfaceCard>
-
-            <!-- IRRF bracket table -->
-            <UiSurfaceCard>
-              <p class="inss-ir-page__section-title">{{ t('inssIrFolha.results.irrfBreakdown') }}</p>
-              <TaxBracketTable
-                :rows="irrfBracketRows"
-                :range-header="t('inssIrFolha.table.irrfBracketRange')"
-                :rate-header="t('inssIrFolha.table.rate')"
-                :base-header="t('inssIrFolha.table.irrfParcela')"
-                tax-header=""
-                :total-label="t('inssIrFolha.table.total')"
-                :total-value="formatBrl(result.totalIrrf)"
-              />
-            </UiSurfaceCard>
-
-            <!-- Disclaimer -->
-            <UiSurfaceCard>
-              <p class="inss-ir-page__disclaimer">
-                {{ t('inssIrFolha.disclaimer.tableYear', { year: BR_TAX_TABLE_YEAR }) }}
-              </p>
-            </UiSurfaceCard>
-          </div>
-
-          <div class="inss-ir-page__results-aside">
-            <UiStickySummaryCard>
-              <CalculatorResultSummary
-                :label="t('inssIrFolha.results.netSalary')"
-                :value="formatBrl(result.netSalary)"
-                :metrics="summaryMetrics"
-              />
-            </UiStickySummaryCard>
-
-            <!-- Guest CTA -->
-            <ToolGuestCta />
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
   </div>
 </template>
 

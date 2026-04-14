@@ -8,7 +8,6 @@ import {
   NInputNumber,
   NSelect,
   NSpace,
-  NTag,
   NThing,
   useMessage,
 } from "naive-ui";
@@ -214,7 +213,7 @@ async function handleAddAsGoal(): Promise<void> {
   <!-- Transparent root wrapper required by vue/no-multiple-template-root. -->
   <div class="mei-root">
   <!-- ═══ AUTHENTICATED — app shell ══════════════════════════════════════════ -->
-  <NuxtLayout v-if="isAuthenticated" name="default">
+  <NuxtLayout :name="isAuthenticated ? 'default' : 'tools-public'">
     <div class="mei-page mei-page--authenticated">
       <div class="mei-page__layout">
         <!-- Form column -->
@@ -391,155 +390,9 @@ async function handleAddAsGoal(): Promise<void> {
         </div>
       </div>
     </div>
+        <!-- Guest CTA — shown below result for unauthenticated users -->
+        <ToolGuestCta v-if="!isAuthenticated" />
   </NuxtLayout>
-
-  <!-- ═══ GUEST — standalone public page ════════════════════════════════════ -->
-  <div v-else class="mei-page">
-    <header class="mei-page__header">
-      <div class="mei-page__brand">
-        <span class="mei-page__brand-mark">Auraxis</span>
-        <span class="mei-page__brand-copy">{{ t('mei.header.publicTool') }}</span>
-      </div>
-      <div class="mei-page__header-actions">
-        <NButton quaternary @click="router.push('/tools')">{{ t('mei.header.otherTools') }}</NButton>
-        <NButton type="primary" @click="router.push('/register')">{{ t('mei.header.createAccount') }}</NButton>
-      </div>
-    </header>
-
-    <main class="mei-page__content">
-      <section class="mei-page__hero">
-        <div class="mei-page__hero-copy">
-          <NTag round type="warning">{{ t('mei.hero.badge') }}</NTag>
-          <UiPageHeader
-            :title="t('mei.hero.title')"
-            :subtitle="t('mei.hero.subtitle')"
-          />
-        </div>
-
-        <UiGlassPanel glow class="mei-page__form-panel">
-          <NForm @submit.prevent="handleCalculate">
-            <CalculatorFormSection :title="t('mei.form.title')">
-              <NFormItem :label="t('mei.form.activity')">
-                <NSelect
-                  :value="form.activity"
-                  :options="activityOptions"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ activity: v })"
-                />
-              </NFormItem>
-
-              <NFormItem :label="t('mei.form.monthlyRevenue')">
-                <NInputNumber
-                  :value="form.monthlyRevenue"
-                  :placeholder="t('mei.form.revenuePlaceholder')"
-                  :min="0"
-                  :precision="2"
-                  prefix="R$"
-                  style="width: 100%"
-                  @update:value="(v) => patch({ monthlyRevenue: v })"
-                />
-              </NFormItem>
-            </CalculatorFormSection>
-
-            <NAlert v-if="validationError" type="warning" style="margin-top:12px">
-              {{ validationError }}
-            </NAlert>
-
-            <div class="mei-page__form-actions">
-              <NButton v-if="isDirty" quaternary @click="handleReset">
-                {{ t('mei.form.reset') }}
-              </NButton>
-              <NButton type="primary" attr-type="submit" :style="{ flex: 1 }">
-                {{ t('mei.form.calculate') }}
-              </NButton>
-            </div>
-          </NForm>
-        </UiGlassPanel>
-      </section>
-
-      <section v-if="result" class="mei-page__results-section">
-        <div class="mei-page__layout">
-          <div class="mei-page__results-main">
-            <!-- DAS card -->
-            <UiSurfaceCard>
-              <p class="mei-page__section-title">{{ t('mei.results.title') }}</p>
-              <div class="mei-page__breakdown">
-                <div class="mei-page__breakdown-row">
-                  <span>{{ t('mei.results.dasMontly') }}</span>
-                  <span class="mei-page__value--primary">{{ formatBrl(result.dasMontly) }}</span>
-                </div>
-                <div class="mei-page__breakdown-row">
-                  <span>{{ t('mei.results.dasAnnual') }}</span>
-                  <span>{{ formatBrl(result.dasAnnual) }}</span>
-                </div>
-                <div class="mei-page__breakdown-row">
-                  <span>{{ t('mei.results.annualRevenue') }}</span>
-                  <span>{{ formatBrl(result.annualRevenueProjection) }}</span>
-                </div>
-              </div>
-
-              <NAlert v-if="result.limitWarning" type="warning" style="margin-top:12px">
-                {{ t('mei.results.limitWarning') }}
-              </NAlert>
-            </UiSurfaceCard>
-
-            <!-- PF comparison card -->
-            <UiSurfaceCard>
-              <p class="mei-page__section-title">{{ t('mei.results.comparisonTitle') }}</p>
-              <div class="mei-page__breakdown">
-                <div class="mei-page__breakdown-row">
-                  <span>{{ t('mei.results.pfInss') }}</span>
-                  <span>{{ formatBrl(result.comparisonPF.inssMonthly) }}</span>
-                </div>
-                <div class="mei-page__breakdown-row">
-                  <span>{{ t('mei.results.pfIrpf') }}</span>
-                  <span>{{ formatBrl(result.comparisonPF.irpfMonthly) }}</span>
-                </div>
-                <div class="mei-page__breakdown-row mei-page__breakdown-row--total">
-                  <span>{{ t('mei.results.pfTotalTax') }}</span>
-                  <span>{{ formatBrl(result.comparisonPF.totalTaxPF) }}</span>
-                </div>
-              </div>
-            </UiSurfaceCard>
-
-            <!-- Benefits card -->
-            <UiSurfaceCard>
-              <p class="mei-page__section-title">{{ t('mei.results.benefitsTitle') }}</p>
-              <ul class="mei-page__benefits-list">
-                <li v-for="benefit in result.benefitsAvailable" :key="benefit" class="mei-page__benefit-item">
-                  {{ t(`mei.results.benefits.${benefit}`) }}
-                </li>
-              </ul>
-              <p class="mei-page__benefit-note">{{ t('mei.results.benefitsNote') }}</p>
-            </UiSurfaceCard>
-
-            <!-- Disclaimer -->
-            <UiSurfaceCard>
-              <NAlert type="warning">
-                {{ t('mei.disclaimer.note', { year: MEI_TABLE_YEAR }) }}
-                <a href="https://www.gov.br/mei" target="_blank" rel="noopener noreferrer" class="mei-page__disclaimer-link">
-                  {{ t('mei.disclaimer.portalLink') }}
-                </a>
-              </NAlert>
-            </UiSurfaceCard>
-          </div>
-
-          <div class="mei-page__results-aside">
-            <UiStickySummaryCard>
-              <CalculatorResultSummary
-                :label="t('mei.results.dasMontly')"
-                :value="formatBrl(result.dasMontly)"
-                :metrics="summaryMetrics"
-              />
-            </UiStickySummaryCard>
-
-            <!-- Guest CTA -->
-            <ToolGuestCta />
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
   </div>
 </template>
 
