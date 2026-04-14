@@ -1,2 +1,33 @@
 User-Agent: *
-Disallow:
+
+# Block private authenticated routes — no financial data should be indexed
+Disallow: /dashboard
+Disallow: /portfolio
+Disallow: /goals
+Disallow: /transactions
+Disallow: /alerts
+Disallow: /simulations
+Disallow: /shared-entries
+Disallow: /income
+Disallow: /subscription
+Disallow: /budgets
+Disallow: /investor-profile
+Disallow: /settings/
+Disallow: /checkout/success
+
+# EN locale equivalents
+Disallow: /en/dashboard
+Disallow: /en/portfolio
+Disallow: /en/goals
+Disallow: /en/transactions
+Disallow: /en/alerts
+Disallow: /en/simulations
+Disallow: /en/shared-entries
+Disallow: /en/income
+Disallow: /en/subscription
+Disallow: /en/budgets
+Disallow: /en/investor-profile
+Disallow: /en/settings/
+Disallow: /en/checkout/success
+
+Sitemap: https://app.auraxis.com.br/sitemap.xml

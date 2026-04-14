@@ -272,6 +272,61 @@ export default defineNuxtConfig({
     enabled: false,
   },
 
+  // ── Sitemap (@nuxtjs/sitemap, bundled in @nuxtjs/seo) ────────────────────
+  // Generated as a static file at build time (prerendered via nitro below).
+  // Only public SSG routes are included — private SPA routes are excluded.
+  // Locale alternates are injected automatically by @nuxtjs/i18n integration.
+  sitemap: {
+    // Explicitly exclude private SPA routes (ssr: false in routeRules).
+    // @nuxtjs/sitemap normally skips them, but listing is belt-and-suspenders.
+    exclude: [
+      "/dashboard",
+      "/portfolio",
+      "/goals",
+      "/transactions",
+      "/alerts",
+      "/simulations",
+      "/shared-entries",
+      "/income",
+      "/subscription",
+      "/budgets",
+      "/investor-profile",
+      "/settings/**",
+      "/checkout/success",
+      "/confirm-email-pending",
+      "/resend-confirmation",
+      "/en/dashboard",
+      "/en/portfolio",
+      "/en/goals",
+      "/en/transactions",
+      "/en/alerts",
+      "/en/simulations",
+      "/en/shared-entries",
+      "/en/income",
+      "/en/subscription",
+      "/en/budgets",
+      "/en/investor-profile",
+      "/en/settings/**",
+      "/en/checkout/success",
+      "/en/confirm-email-pending",
+      "/en/resend-confirmation",
+      // Auth pages — noindex, not useful in search results
+      "/login",
+      "/register",
+      "/forgot-password",
+      "/reset-password",
+      "/confirm-email",
+      "/en/login",
+      "/en/register",
+      "/en/forgot-password",
+      "/en/reset-password",
+      "/en/confirm-email",
+      // Checkout cancel — transactional, not useful in search
+      "/checkout/cancel",
+      "/en/checkout/cancel",
+    ],
+  },
+
   // ── PWA (@vite-pwa/nuxt) ─────────────────────────────────────────────
   //
   // Strategy: generateSW — Workbox generates a service worker at build time.
@@ -453,8 +508,10 @@ export default defineNuxtConfig({
         // ── Tool routes — auto-generated from app/data/tools.ts ────────
         // DO NOT add individual tool routes here. Edit app/data/tools.ts.
         ...toolPrerenderRoutes,
+        // ── SEO assets ────────────────────────────────────────────────
+        "/sitemap.xml",
       ],
-      ignore: ["/sitemap.xml", "/__nuxt_content"],
+      ignore: ["/__nuxt_content"],
     },
   },
 });
