@@ -11,6 +11,7 @@ import {
   Check,
   CheckCircle2,
   Clock,
+  Copy,
   GripVertical,
   Pencil,
   RefreshCw,
@@ -74,10 +75,12 @@ export type UseTransactionTableOptions = {
   filterTagId: Ref<string>;
   deleteMutation: { isPending: Ref<boolean> };
   markPaidMutation: { isPending: Ref<boolean> };
+  duplicateMutation: { isPending: Ref<boolean> };
   deleteTarget: Ref<TransactionDto | null>;
   onEdit: (row: TransactionDto) => void;
   onMarkPaid: (row: TransactionDto) => void;
   onDelete: (row: TransactionDto) => void;
+  onDuplicate: (row: TransactionDto) => void;
 };
 
 export type UseTransactionTableReturn = {
@@ -218,12 +221,13 @@ function renderTitle(row: TransactionDto, t: (key: string, ctx?: Record<string, 
  */
 function renderActions(
   row: TransactionDto,
-  opts: Pick<UseTransactionTableOptions, "deleteMutation" | "markPaidMutation" | "deleteTarget" | "onEdit" | "onMarkPaid" | "onDelete">,
+  opts: Pick<UseTransactionTableOptions, "deleteMutation" | "markPaidMutation" | "duplicateMutation" | "deleteTarget" | "onEdit" | "onMarkPaid" | "onDelete" | "onDuplicate">,
   t: (key: string) => string,
 ): ReturnType<typeof h> {
   return h(NSpace, { size: 4, align: "center", wrap: false }, {
     default: () => [
       h(NButton, { size: "tiny", quaternary: true, circle: true, title: t("transactions.action.edit"), onClick: () => opts.onEdit(row) }, { default: () => h(Pencil, { size: 13 }) }),
+      h(NButton, { size: "tiny", quaternary: true, circle: true, title: t("transactions.action.duplicate"), loading: opts.duplicateMutation.isPending.value, onClick: () => opts.onDuplicate(row) }, { default: () => h(Copy, { size: 13 }) }),
       h(NButton, { size: "tiny", quaternary: true, circle: true, type: "success", disabled: row.status === "paid" || opts.markPaidMutation.isPending.value, title: t("transactions.action.markPaid"), onClick: () => opts.onMarkPaid(row) }, { default: () => h(Check, { size: 13 }) }),
       h(NButton, { size: "tiny", quaternary: true, circle: true, type: "error", loading: opts.deleteMutation.isPending.value && opts.deleteTarget.value?.id === row.id, title: t("transactions.action.delete"), onClick: () => opts.onDelete(row) }, { default: () => h(Trash2, { size: 13 }) }),
     ],
@@ -336,7 +340,7 @@ export function useTransactionTable(opts: UseTransactionTableOptions): UseTransa
       { key: "tag_id" as DataTableRowKey, title: t("transactions.table.category"), width: 150, ellipsis: { tooltip: true }, render: (row: TransactionDto) => renderTagBadge(row, opts.tagDetailMap) },
       { key: "account_id" as DataTableRowKey, title: t("transactions.table.account"), width: 120, ellipsis: { tooltip: true }, render: (row: TransactionDto): string => opts.accountMap.value.get(row.account_id ?? "") ?? "—" },
       { key: "amount" as DataTableRowKey, title: t("transactions.table.amount"), width: 138, sorter: withSort ? (a: TransactionDto, b: TransactionDto): number => parseFloat(a.amount) - parseFloat(b.amount) : undefined, render: (row: TransactionDto) => renderAmount(row) },
-      { key: "__actions" as DataTableRowKey, title: t("transactions.table.actions"), width: 108, render: (row: TransactionDto) => renderActions(row, opts, t) },
+      { key: "__actions" as DataTableRowKey, title: t("transactions.table.actions"), width: 140, render: (row: TransactionDto) => renderActions(row, opts, t) },
     ];
   });
 

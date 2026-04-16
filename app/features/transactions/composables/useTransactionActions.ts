@@ -1,7 +1,35 @@
 import { ref, type Ref } from "vue";
 import { useDeleteTransactionMutation } from "~/features/transactions/queries/use-delete-transaction-mutation";
 import { useMarkTransactionPaidMutation } from "~/features/transactions/queries/use-mark-transaction-paid-mutation";
-import type { TransactionDto } from "~/features/transactions/contracts/transaction.dto";
+import { useCreateTransactionMutation } from "~/features/transactions/queries/use-create-transaction-mutation";
+import type {
+  CreateTransactionPayload,
+  TransactionDto,
+} from "~/features/transactions/contracts/transaction.dto";
+
+/**
+ * Builds a CreateTransactionPayload that clones the given transaction's
+ * core fields, suffixes the title with "(cópia)" and resets the status to
+ * pending. Recurrence and installment flags are intentionally dropped so
+ * the duplicate is a standalone single entry.
+ *
+ * @param row - Source transaction to duplicate.
+ * @returns Payload ready for {@link useCreateTransactionMutation}.
+ */
+export function buildDuplicatePayload(row: TransactionDto): CreateTransactionPayload {
+  return {
+    title: `${row.title} (cópia)`,
+    amount: row.amount,
+    type: row.type,
+    due_date: row.due_date,
+    status: "pending",
+    tag_id: row.tag_id,
+    account_id: row.account_id,
+    credit_card_id: row.credit_card_id,
+    ...(row.description ? { description: row.description } : {}),
+    ...(row.currency ? { currency: row.currency } : {}),
+  };
+}
 
 export type UseTransactionActionsReturn = {
   showIncome: Ref<boolean>;
@@ -14,11 +42,13 @@ export type UseTransactionActionsReturn = {
   showEditModal: Ref<boolean>;
   deleteMutation: ReturnType<typeof useDeleteTransactionMutation>;
   markPaidMutation: ReturnType<typeof useMarkTransactionPaidMutation>;
+  duplicateMutation: ReturnType<typeof useCreateTransactionMutation>;
   handleDeleteClick: (row: TransactionDto) => void;
   confirmDelete: () => void;
   handleMarkPaid: (row: TransactionDto) => void;
   confirmMarkPaid: () => void;
   handleEdit: (row: TransactionDto) => void;
+  handleDuplicate: (row: TransactionDto) => void;
   onTransactionCreated: () => void;
 };
 
@@ -34,20 +64,16 @@ export type UseTransactionActionsReturn = {
  * @returns Modal state refs, mutations and action handlers.
  */
 export function useTransactionActions(onRefetch: () => void): UseTransactionActionsReturn {
-  const showIncome = ref(false);
-  const showExpense = ref(false);
+  const showIncome = ref(false), showExpense = ref(false), showDeleteConfirm = ref(false);
+  const showPayConfirm = ref(false), showEditModal = ref(false);
 
   const deleteTarget = ref<TransactionDto | null>(null);
-  const showDeleteConfirm = ref(false);
-
   const payTarget = ref<TransactionDto | null>(null);
-  const showPayConfirm = ref(false);
-
   const editTarget = ref<TransactionDto | null>(null);
-  const showEditModal = ref(false);
 
   const deleteMutation = useDeleteTransactionMutation();
   const markPaidMutation = useMarkTransactionPaidMutation();
+  const duplicateMutation = useCreateTransactionMutation();
 
   /**
    * Opens the delete confirmation modal for the given row.
@@ -116,6 +142,16 @@ export function useTransactionActions(onRefetch: () => void): UseTransactionActi
     onRefetch();
   }
 
+  /**
+   * Duplicates a transaction by creating a new one with the same core fields.
+   * Delegates payload shaping to {@link buildDuplicatePayload}.
+   *
+   * @param row - Transaction to duplicate.
+   */
+  function handleDuplicate(row: TransactionDto): void {
+    duplicateMutation.mutate(buildDuplicatePayload(row), { onSuccess: () => onRefetch() });
+  }
+
   return {
     showIncome,
     showExpense,
@@ -127,11 +163,13 @@ export function useTransactionActions(onRefetch: () => void): UseTransactionActi
     showEditModal,
     deleteMutation,
     markPaidMutation,
+    duplicateMutation,
     handleDeleteClick,
     confirmDelete,
     handleMarkPaid,
     confirmMarkPaid,
     handleEdit,
+    handleDuplicate,
     onTransactionCreated,
   };
 }
