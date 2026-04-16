@@ -53,13 +53,19 @@ const makePayload = (): CreateTransactionPayload => ({
 describe("TransactionsClient", () => {
   let httpPostMock: ReturnType<typeof vi.fn>;
   let httpGetMock: ReturnType<typeof vi.fn>;
+  let httpPatchMock: ReturnType<typeof vi.fn>;
   let client: TransactionsClient;
 
   beforeEach(() => {
     vi.clearAllMocks();
     httpPostMock = vi.fn();
     httpGetMock = vi.fn();
-    mockedAxiosCreate.mockReturnValue({ post: httpPostMock, get: httpGetMock } as never);
+    httpPatchMock = vi.fn();
+    mockedAxiosCreate.mockReturnValue({
+      post: httpPostMock,
+      get: httpGetMock,
+      patch: httpPatchMock,
+    } as never);
     client = new TransactionsClient(axios.create());
   });
 
@@ -180,6 +186,101 @@ describe("TransactionsClient", () => {
       const result = await client.listTransactions();
 
       expect(result).toEqual([txn]);
+    });
+  });
+
+  describe("listDeletedTransactions", () => {
+    it("gets /transactions/deleted", async () => {
+      httpGetMock.mockResolvedValueOnce({ data: { data: { transactions: [] } } });
+
+      await client.listDeletedTransactions();
+
+      expect(httpGetMock).toHaveBeenCalledWith("/transactions/deleted");
+    });
+
+    it("unwraps transactions from the v2 envelope shape", async () => {
+      const txn = makeTransaction();
+      httpGetMock.mockResolvedValueOnce({ data: { data: { transactions: [txn] } } });
+
+      const result = await client.listDeletedTransactions();
+
+      expect(result).toEqual([txn]);
+    });
+
+    it("falls back to the root-level transactions key", async () => {
+      const txn = makeTransaction();
+      httpGetMock.mockResolvedValueOnce({ data: { transactions: [txn] } });
+
+      const result = await client.listDeletedTransactions();
+
+      expect(result).toEqual([txn]);
+    });
+
+    it("returns a bare array response directly", async () => {
+      const txn = makeTransaction();
+      httpGetMock.mockResolvedValueOnce({ data: [txn] });
+
+      const result = await client.listDeletedTransactions();
+
+      expect(result).toEqual([txn]);
+    });
+
+    it("returns empty array when envelope is empty", async () => {
+      httpGetMock.mockResolvedValueOnce({ data: {} });
+
+      const result = await client.listDeletedTransactions();
+
+      expect(result).toEqual([]);
+    });
+
+    it("propagates network errors without catching", async () => {
+      httpGetMock.mockRejectedValueOnce(new Error("network error"));
+
+      await expect(client.listDeletedTransactions()).rejects.toThrow("network error");
+    });
+  });
+
+  describe("restoreTransaction", () => {
+    it("patches /transactions/restore/:id", async () => {
+      const txn = makeTransaction({ id: "txn-restore-1" });
+      httpPatchMock.mockResolvedValueOnce({ data: { data: { transaction: txn } } });
+
+      await client.restoreTransaction("txn-restore-1");
+
+      expect(httpPatchMock).toHaveBeenCalledWith("/transactions/restore/txn-restore-1");
+    });
+
+    it("unwraps transaction from the v2 envelope shape", async () => {
+      const txn = makeTransaction();
+      httpPatchMock.mockResolvedValueOnce({ data: { data: { transaction: txn } } });
+
+      const result = await client.restoreTransaction(txn.id);
+
+      expect(result).toEqual(txn);
+    });
+
+    it("falls back to the root-level transaction key", async () => {
+      const txn = makeTransaction();
+      httpPatchMock.mockResolvedValueOnce({ data: { transaction: txn } });
+
+      const result = await client.restoreTransaction(txn.id);
+
+      expect(result).toEqual(txn);
+    });
+
+    it("accepts a flat TransactionDto response shape", async () => {
+      const txn = makeTransaction();
+      httpPatchMock.mockResolvedValueOnce({ data: txn });
+
+      const result = await client.restoreTransaction(txn.id);
+
+      expect(result).toEqual(txn);
+    });
+
+    it("propagates network errors without catching", async () => {
+      httpPatchMock.mockRejectedValueOnce(new Error("restore failed"));
+
+      await expect(client.restoreTransaction("txn-x")).rejects.toThrow("restore failed");
     });
   });
 });

@@ -156,6 +156,46 @@ export class TransactionsClient {
   }
 
   /**
+   * Lists the authenticated user's soft-deleted transactions.
+   *
+   * These are records still retained in the database after DELETE
+   * (soft delete) and can be restored individually.
+   *
+   * @returns Array of soft-deleted TransactionDto records.
+   */
+  async listDeletedTransactions(): Promise<TransactionDto[]> {
+    const response = await this.#http.get<TransactionListResponseEnvelope | TransactionDto[]>(
+      "/transactions/deleted",
+    );
+
+    const raw = response.data;
+    if (Array.isArray(raw)) { return raw; }
+    return (raw as TransactionListResponseEnvelope).data?.transactions
+      ?? (raw as TransactionListResponseEnvelope).transactions
+      ?? [];
+  }
+
+  /**
+   * Restores a previously soft-deleted transaction.
+   *
+   * @param id UUID of the transaction to restore.
+   * @returns The restored TransactionDto.
+   */
+  async restoreTransaction(id: string): Promise<TransactionDto> {
+    const response = await this.#http.patch<
+      | { data?: { transaction?: TransactionDto }; transaction?: TransactionDto }
+      | TransactionDto
+    >(`/transactions/restore/${id}`);
+
+    const raw = response.data as {
+      data?: { transaction?: TransactionDto };
+      transaction?: TransactionDto;
+    } & Partial<TransactionDto>;
+
+    return raw.data?.transaction ?? raw.transaction ?? (raw as unknown as TransactionDto);
+  }
+
+  /**
    * Lists the authenticated user's transactions, optionally filtered by
    * type, status and date range.
    *
