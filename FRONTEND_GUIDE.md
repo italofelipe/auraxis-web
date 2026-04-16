@@ -677,13 +677,13 @@ const HeavyChart = defineAsyncComponent(() => import("@/components/domain/HeavyC
 
 ### Regras de performance
 
-| Regra                                       | Detalhe                                      |
-| :------------------------------------------ | :------------------------------------------- |
-| Paginação em listas > 50 itens              | Nunca carregar tudo de uma vez               |
-| Imagens com `<NuxtImg>`                     | Lazy load e otimização automática            |
-| Não computar em template                    | Mover para `computed` ou `useMemo`           |
-| `shallowRef` para objetos grandes imutáveis | Evita reatividade profunda desnecessária     |
-| Sem watchers em loop                        | `watch` com `immediate: false` e deep mínimo |
+| Regra                                       | Detalhe                                                      |
+| :------------------------------------------ | :----------------------------------------------------------- |
+| Paginação em listas > 50 itens              | Nunca carregar tudo de uma vez                               |
+| Imagens com `<UiImage>`                     | Lazy load, decoding async e dimensões explícitas (evita CLS) |
+| Não computar em template                    | Mover para `computed` ou `useMemo`                           |
+| `shallowRef` para objetos grandes imutáveis | Evita reatividade profunda desnecessária                     |
+| Sem watchers em loop                        | `watch` com `immediate: false` e deep mínimo                 |
 
 ---
 
