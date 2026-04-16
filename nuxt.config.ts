@@ -487,6 +487,20 @@ export default defineNuxtConfig({
     "/en/settings/danger-zone":    { ssr: false },
   },
 
+  // ── Experimental flags ────────────────────────────────────────────────
+  // payloadExtraction: when true (Nuxt default for prerendered routes),
+  // every prerendered page emits a sibling `_payload.json` so subsequent
+  // client-side navigations can skip re-running `useAsyncData`. For this
+  // app the public pages (home, /tools, /tools/<slug>) have no runtime
+  // async data — the payload files are empty of value and their eager
+  // prefetch floods the network tab with 404s in dev and
+  // `Unexpected token '<'` parse errors in prod (S3 SPA fallback returns
+  // index.html for missing payloads). Disabling avoids the flood; nav
+  // performance is unaffected since there is no payload to save.
+  experimental: {
+    payloadExtraction: false,
+  },
+
   // ── Nitro ─────────────────────────────────────────────────────────────
   nitro: {
     prerender: {
