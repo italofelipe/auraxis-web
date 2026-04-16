@@ -23,8 +23,10 @@ useHead({ title: "Transações | Auraxis" });
 const {
   filterType, filterStatus, filterStartDate, filterEndDate, filterTagId,
   viewMode, selectedDay, showDayDetail, onDayClick,
-  filters, TYPE_OPTIONS, STATUS_OPTIONS, tagOptions, tagMap, accountMap, clearFilters,
+  filters, TYPE_OPTIONS, STATUS_OPTIONS, tagOptions, tagMap, tagDetailMap, accountMap, clearFilters,
 } = useTransactionFilters();
+
+const showCreateTag = ref(false);
 
 // ── Query ─────────────────────────────────────────────────────────────────────
 
@@ -53,6 +55,7 @@ const {
 } = useTransactionTable({
   data,
   tagMap,
+  tagDetailMap,
   accountMap,
   filterType,
   filterStatus,
@@ -77,6 +80,9 @@ const {
 
     <!-- ── Edit modal ──────────────────────────────────────────────────────── -->
     <EditTransactionModal :visible="showEditModal" :transaction="editTarget" @update:visible="showEditModal = $event" @success="onTransactionCreated" />
+
+    <!-- ── Create tag modal ───────────────────────────────────────────────── -->
+    <CreateTagModal :visible="showCreateTag" @update:visible="showCreateTag = $event" />
 
     <!-- ── Delete confirmation ─────────────────────────────────────────────── -->
     <NModal :show="showDeleteConfirm" preset="dialog" type="error" :title="$t('transactions.action.delete')" :content="$t('transactions.action.deleteConfirm')" :positive-text="$t('transactions.action.deleteConfirmYes')" :negative-text="$t('transactions.action.deleteConfirmNo')" :loading="deleteMutation.isPending.value" @positive-click="confirmDelete" @negative-click="showDeleteConfirm = false" @close="showDeleteConfirm = false" />
@@ -127,6 +133,7 @@ const {
       @exit-reorder="exitReorderMode"
       @add-income="showIncome = true"
       @add-expense="showExpense = true"
+      @create-tag="showCreateTag = true"
     />
 
     <!-- ── Reorder / swipe hints ───────────────────────────────────────────── -->
@@ -227,6 +234,7 @@ const {
 :deep(.tx-badge) { display: inline-flex; align-items: center; gap: 3px; font-size: var(--font-size-xs); color: var(--color-text-muted); }
 :deep(.tx-drag-handle) { display: flex; align-items: center; justify-content: center; cursor: grab; color: var(--color-text-muted); }
 :deep(.tx-drag-handle):active { cursor: grabbing; }
+:deep(.tx-tag-badge) { display: inline-block; padding: 2px 8px; border-radius: var(--radius-full, 9999px); font-size: var(--font-size-xs); font-weight: var(--font-weight-medium, 500); line-height: 1.4; white-space: nowrap; }
 
 @media (max-width: 640px) {
   .transactions-page__summary { grid-template-columns: 1fr; }

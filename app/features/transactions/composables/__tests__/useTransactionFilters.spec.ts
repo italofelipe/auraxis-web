@@ -2,7 +2,9 @@ import { describe, expect, it, vi } from "vitest";
 import { useTransactionFilters } from "../useTransactionFilters";
 
 vi.mock("~/features/tags/queries/use-tags-query", () => ({
-  useTagsQuery: (): { data: { value: { id: string; name: string }[] } } => ({ data: { value: [{ id: "t1", name: "Food" }] } }),
+  useTagsQuery: (): { data: { value: { id: string; name: string; color: string | null }[] } } => ({
+    data: { value: [{ id: "t1", name: "Food", color: "#FF6B6B" }, { id: "t2", name: "Travel", color: null }] },
+  }),
 }));
 
 vi.mock("~/features/accounts/queries/use-accounts-query", () => ({
@@ -62,6 +64,16 @@ describe("useTransactionFilters", () => {
   it("tagMap contains entries from loaded tags", () => {
     const { tagMap } = useTransactionFilters();
     expect(tagMap.value.get("t1")).toBe("Food");
+  });
+
+  it("tagDetailMap exposes both name and colour for a tag with a colour", () => {
+    const { tagDetailMap } = useTransactionFilters();
+    expect(tagDetailMap.value.get("t1")).toStrictEqual({ name: "Food", color: "#FF6B6B" });
+  });
+
+  it("tagDetailMap returns null colour for tags without a colour", () => {
+    const { tagDetailMap } = useTransactionFilters();
+    expect(tagDetailMap.value.get("t2")).toStrictEqual({ name: "Travel", color: null });
   });
 
   it("accountMap contains entries from loaded accounts", () => {

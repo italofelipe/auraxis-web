@@ -17,6 +17,7 @@ import {
   Trash2,
 } from "lucide-vue-next";
 import type { TransactionDto } from "~/features/transactions/contracts/transaction.dto";
+import type { TagLookup } from "./useTransactionFilters";
 import { formatCurrency } from "~/utils/currency";
 
 const SWIPE_THRESHOLD = 72;
@@ -64,6 +65,7 @@ export function isTransactionNearDue(dueDate: string, status: string): boolean {
 export type UseTransactionTableOptions = {
   data: Ref<TransactionDto[] | undefined> | ComputedRef<TransactionDto[] | undefined>;
   tagMap: ComputedRef<Map<string, string>>;
+  tagDetailMap: ComputedRef<Map<string, TagLookup>>;
   accountMap: ComputedRef<Map<string, string>>;
   filterType: Ref<string>;
   filterStatus: Ref<string>;
@@ -229,6 +231,50 @@ function renderActions(
 }
 
 /**
+ * Darkens a hex colour by mixing it with black.
+ *
+ * @param hex    7-char hex string like "#FF6B6B".
+ * @param factor 0-1 where 0 = original, 1 = fully black.
+ * @returns Darkened hex string.
+ */
+export function darkenHex(hex: string, factor: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  /**
+   * @param v - Channel value (0-255).
+   * @returns Hex pair string.
+   */
+  const d = (v: number): string => Math.round(v * (1 - factor)).toString(16).padStart(2, "0");
+  return `#${d(r)}${d(g)}${d(b)}`;
+}
+
+/**
+ * Renders the tag column as a coloured badge when the tag has a colour,
+ * or as plain text when it does not.
+ *
+ * @param row          Transaction row.
+ * @param tagDetailMap Reactive map of tag id → {name, color}.
+ * @returns VNode or plain string.
+ */
+export function renderTagBadge(
+  row: TransactionDto,
+  tagDetailMap: ComputedRef<Map<string, TagLookup>>,
+): ReturnType<typeof h> | string {
+  const tag = tagDetailMap.value.get(row.tag_id ?? "");
+  if (!tag) { return "—"; }
+  if (!tag.color) { return tag.name; }
+  return h("span", {
+    class: "tx-tag-badge",
+    style: {
+      backgroundColor: `${tag.color}20`,
+      border: `1px solid ${darkenHex(tag.color, 0.25)}`,
+      color: darkenHex(tag.color, 0.4),
+    },
+  }, tag.name);
+}
+
+/**
  * Manages table columns, drag-and-drop reorder, touch swipe gestures,
  * row props, pagination and summary totals for the transactions page.
  *
@@ -287,7 +333,7 @@ export function useTransactionTable(opts: UseTransactionTableOptions): UseTransa
       { key: "status" as DataTableRowKey, title: t("transactions.table.status"), width: 64, render: (row: TransactionDto) => renderStatusIcon(row, t) },
       { key: "due_date" as DataTableRowKey, title: t("transactions.table.date"), width: 108, defaultSortOrder: "descend" as const, sorter: withSort ? (a: TransactionDto, b: TransactionDto): number => a.due_date.localeCompare(b.due_date) : undefined, render: (row: TransactionDto): string => formatTransactionDate(row.due_date) },
       { key: "title" as DataTableRowKey, title: t("transactions.table.description"), ellipsis: { tooltip: true }, sorter: withSort ? (a: TransactionDto, b: TransactionDto): number => a.title.localeCompare(b.title, "pt-BR") : undefined, render: (row: TransactionDto) => renderTitle(row, t) },
-      { key: "tag_id" as DataTableRowKey, title: t("transactions.table.category"), width: 130, ellipsis: { tooltip: true }, render: (row: TransactionDto): string => opts.tagMap.value.get(row.tag_id ?? "") ?? "—" },
+      { key: "tag_id" as DataTableRowKey, title: t("transactions.table.category"), width: 150, ellipsis: { tooltip: true }, render: (row: TransactionDto) => renderTagBadge(row, opts.tagDetailMap) },
       { key: "account_id" as DataTableRowKey, title: t("transactions.table.account"), width: 120, ellipsis: { tooltip: true }, render: (row: TransactionDto): string => opts.accountMap.value.get(row.account_id ?? "") ?? "—" },
       { key: "amount" as DataTableRowKey, title: t("transactions.table.amount"), width: 138, sorter: withSort ? (a: TransactionDto, b: TransactionDto): number => parseFloat(a.amount) - parseFloat(b.amount) : undefined, render: (row: TransactionDto) => renderAmount(row) },
       { key: "__actions" as DataTableRowKey, title: t("transactions.table.actions"), width: 108, render: (row: TransactionDto) => renderActions(row, opts, t) },
