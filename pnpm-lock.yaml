@@ -79,6 +79,9 @@ importers:
       css-render:
         specifier: ^0.15.14
         version: 0.15.14
+      dayjs:
+        specifier: 1.11.19
+        version: 1.11.19
       dayjs-nuxt:
         specifier: 2.1.11
         version: 2.1.11(magicast@0.5.2)

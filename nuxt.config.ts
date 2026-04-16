@@ -376,7 +376,14 @@ export default defineNuxtConfig({
 
   vite: {
     optimizeDeps: {
-      include: ["naive-ui", "vueuc"],
+      include: [
+        "naive-ui",
+        "vueuc",
+        "dayjs",
+        "dayjs/plugin/updateLocale",
+        "dayjs/plugin/relativeTime",
+        "dayjs/plugin/utc",
+      ],
     },
     // Bundle visualizer — active only when ANALYZE=true (set by CI bundle-analysis job).
     // Generates stats.html at the project root for upload as a CI artifact.
