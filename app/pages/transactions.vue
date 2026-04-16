@@ -37,8 +37,8 @@ const { data, isLoading, isError, refetch } = useListTransactionsQuery(filters);
 const {
   showIncome, showExpense,
   deleteTarget, showDeleteConfirm, payTarget, showPayConfirm, editTarget, showEditModal,
-  deleteMutation, markPaidMutation,
-  handleDeleteClick, confirmDelete, handleMarkPaid, confirmMarkPaid, handleEdit, onTransactionCreated,
+  deleteMutation, markPaidMutation, duplicateMutation,
+  handleDeleteClick, confirmDelete, handleMarkPaid, confirmMarkPaid, handleEdit, handleDuplicate, onTransactionCreated,
 } = useTransactionActions(() => void refetch());
 
 // ── Recurrence ────────────────────────────────────────────────────────────────
@@ -64,10 +64,12 @@ const {
   filterTagId,
   deleteMutation,
   markPaidMutation,
+  duplicateMutation,
   deleteTarget,
   onEdit: handleEdit,
   onMarkPaid: handleMarkPaid,
   onDelete: handleDeleteClick,
+  onDuplicate: handleDuplicate,
 });
 </script>
 

@@ -4,6 +4,7 @@ import { useTransactionActions } from "../useTransactionActions";
 
 const mockDeleteMutate = vi.fn();
 const mockMarkPaidMutate = vi.fn();
+const mockCreateMutate = vi.fn();
 
 vi.mock("~/features/transactions/queries/use-delete-transaction-mutation", () => ({
   useDeleteTransactionMutation: (): { mutate: ReturnType<typeof vi.fn>; isPending: { value: boolean } } => ({
@@ -15,6 +16,13 @@ vi.mock("~/features/transactions/queries/use-delete-transaction-mutation", () =>
 vi.mock("~/features/transactions/queries/use-mark-transaction-paid-mutation", () => ({
   useMarkTransactionPaidMutation: (): { mutate: ReturnType<typeof vi.fn>; isPending: { value: boolean } } => ({
     mutate: mockMarkPaidMutate,
+    isPending: { value: false },
+  }),
+}));
+
+vi.mock("~/features/transactions/queries/use-create-transaction-mutation", () => ({
+  useCreateTransactionMutation: (): { mutate: ReturnType<typeof vi.fn>; isPending: { value: boolean } } => ({
+    mutate: mockCreateMutate,
     isPending: { value: false },
   }),
 }));
@@ -95,5 +103,46 @@ describe("useTransactionActions", () => {
     const { confirmDelete } = useTransactionActions(vi.fn());
     confirmDelete();
     expect(mockDeleteMutate).not.toHaveBeenCalled();
+  });
+
+  it("handleDuplicate calls createMutation with cloned core fields, pending status and copy suffix", () => {
+    mockCreateMutate.mockClear();
+    const { handleDuplicate } = useTransactionActions(vi.fn());
+    const tx = makeTransaction({
+      title: "Aluguel",
+      amount: "1200.00",
+      type: "expense",
+      due_date: "2026-02-05",
+      status: "paid",
+      tag_id: "t-1",
+      account_id: "a-1",
+      credit_card_id: "c-1",
+      description: "Mensal",
+      currency: "BRL",
+    } as Partial<TransactionDto>);
+    handleDuplicate(tx);
+    expect(mockCreateMutate).toHaveBeenCalledTimes(1);
+    const [payload] = mockCreateMutate.mock.calls[0] ?? [];
+    expect(payload).toMatchObject({
+      title: "Aluguel (cópia)",
+      amount: "1200.00",
+      type: "expense",
+      due_date: "2026-02-05",
+      status: "pending",
+      tag_id: "t-1",
+      account_id: "a-1",
+      credit_card_id: "c-1",
+      description: "Mensal",
+      currency: "BRL",
+    });
+  });
+
+  it("handleDuplicate omits description when source transaction has none", () => {
+    mockCreateMutate.mockClear();
+    const { handleDuplicate } = useTransactionActions(vi.fn());
+    const tx = makeTransaction({ title: "Café", description: null } as Partial<TransactionDto>);
+    handleDuplicate(tx);
+    const [payload] = mockCreateMutate.mock.calls[0] ?? [];
+    expect(payload).not.toHaveProperty("description");
   });
 });

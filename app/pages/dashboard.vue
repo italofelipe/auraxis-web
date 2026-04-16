@@ -158,115 +158,123 @@ const emptyMessage = computed(() =>
       :description="$t('pages.dashboard.selectIntervalDesc')"
     />
 
-    <UiSurfaceCard v-else-if="dashboardQuery.isError.value">
-      <p class="support-copy">{{ $t('pages.dashboard.loadError') }}</p>
-      <p class="error-copy">
-        {{ dashboardQuery.error.value?.message ?? $t('pages.dashboard.unknownError') }}
-      </p>
-      <NButton type="default" @click="dashboardQuery.refetch()">
-        {{ $t('pages.dashboard.retry') }}
-      </NButton>
-    </UiSurfaceCard>
-
     <template v-else>
-      <DashboardSummaryGrid
-        :summary="summary"
-        :comparison="comparison"
-        :portfolio="portfolio"
-        :upcoming-dues="upcomingDues"
-        :is-loading="dashboardQuery.isLoading.value"
-      />
-
-      <UiEmptyState
-        v-if="!dashboardQuery.isLoading.value && !summary && !dashboardQuery.isError.value"
-        icon="chartLine"
-        :title="$t('pages.dashboard.noData')"
-        :description="emptyMessage"
-      />
+      <!-- ── Overview-dependent widgets ──────────────────────────────────────
+           When the overview query fails, these widgets show a single shared
+           error card with retry. Widgets that query independently (trends,
+           due-range) still render below. -->
+      <UiSurfaceCard v-if="dashboardQuery.isError.value" class="dashboard-overview-error">
+        <p class="support-copy">{{ $t('pages.dashboard.loadError') }}</p>
+        <p class="error-copy">
+          {{ dashboardQuery.error.value?.message ?? $t('pages.dashboard.unknownError') }}
+        </p>
+        <NButton type="default" @click="dashboardQuery.refetch()">
+          {{ $t('pages.dashboard.retry') }}
+        </NButton>
+      </UiSurfaceCard>
 
       <template v-else>
-        <!-- ── Health Score (PROD-01) ────────────────────────────────────── -->
-        <FinancialHealthScore
-          :result="healthScore"
-          :loading="isHealthScoreLoading"
-          class="dashboard-health-score"
+        <DashboardSummaryGrid
+          :summary="summary"
+          :comparison="comparison"
+          :portfolio="portfolio"
+          :upcoming-dues="upcomingDues"
+          :is-loading="dashboardQuery.isLoading.value"
         />
 
-        <!-- ── ECharts panels ──────────────────────────────────────────────── -->
-        <section class="dashboard-charts-grid">
-          <DashboardIncomeExpenseChart
-            :summary="summary"
+        <UiEmptyState
+          v-if="!dashboardQuery.isLoading.value && !summary"
+          icon="chartLine"
+          :title="$t('pages.dashboard.noData')"
+          :description="emptyMessage"
+        />
+
+        <template v-else>
+          <!-- ── Health Score (PROD-01) ────────────────────────────────────── -->
+          <FinancialHealthScore
+            :result="healthScore"
+            :loading="isHealthScoreLoading"
+            class="dashboard-health-score"
+          />
+
+          <!-- ── ECharts panels ──────────────────────────────────────────────── -->
+          <section class="dashboard-charts-grid">
+            <DashboardIncomeExpenseChart
+              :summary="summary"
+              :loading="dashboardQuery.isLoading.value"
+            />
+            <DashboardTrendsChart
+              :series="trendsSeries"
+              :loading="trendsQuery.isLoading.value"
+              :is-error="trendsQuery.isError.value"
+              :selected-months="trendsMonths"
+              @update:selected-months="(m: number) => (trendsMonths = m)"
+              @retry="trendsQuery.refetch()"
+            />
+          </section>
+
+          <!-- ── Top Expense Categories (PROD-460) ────────────────────────── -->
+          <DashboardTopCategoriesChart
+            :categories="expensesByCategory"
             :loading="dashboardQuery.isLoading.value"
-          />
-          <DashboardTrendsChart
-            :series="trendsSeries"
-            :loading="trendsQuery.isLoading.value"
-            :is-error="trendsQuery.isError.value"
-            :selected-months="trendsMonths"
-            @update:selected-months="(m: number) => (trendsMonths = m)"
-            @retry="trendsQuery.refetch()"
-          />
-        </section>
-
-        <!-- ── Top Expense Categories (PROD-460) ────────────────────────── -->
-        <DashboardTopCategoriesChart
-          :categories="expensesByCategory"
-          :loading="dashboardQuery.isLoading.value"
-          class="dashboard-categories-chart"
-        />
-
-        <!-- ── Due-date panel (PROD-14) ──────────────────────────────────── -->
-        <UiSurfaceCard class="dashboard-due-dates">
-          <DueDateList
-            :transactions="dueTransactions"
-            :is-loading="dueRangeQuery.isLoading.value"
-          />
-        </UiSurfaceCard>
-
-        <section class="dashboard-main-grid">
-          <DashboardAlerts
-            :alerts="alerts"
-            :is-loading="dashboardQuery.isLoading.value"
+            class="dashboard-categories-chart"
           />
 
-          <DashboardTransactionsPanel
-            :upcoming-dues="upcomingDues"
-            :expenses-by-category="expensesByCategory"
-            :is-loading="dashboardQuery.isLoading.value"
-          />
+          <section class="dashboard-main-grid">
+            <DashboardAlerts
+              :alerts="alerts"
+              :is-loading="dashboardQuery.isLoading.value"
+            />
 
-          <UiSurfaceCard>
-            <template #header>{{ $t('pages.dashboard.featuredGoals') }}</template>
-            <BaseSkeleton v-if="dashboardQuery.isLoading.value" />
-            <div v-else class="item-list">
-              <article
-                v-for="goal in goals"
-                :key="goal.id"
-                class="goal-item"
-              >
-                <div class="goal-item__header">
-                  <strong>{{ goal.name }}</strong>
-                  <span>{{ goal.progressPercent.toFixed(0) }}%</span>
-                </div>
-                <div class="goal-item__track">
-                  <span :style="{ width: `${Math.min(goal.progressPercent, 100)}%` }" />
-                </div>
-                <p>
-                  {{ formatCurrency(goal.currentAmount) }} {{ $t('pages.dashboard.goalOf') }}
-                  {{ formatCurrency(goal.targetAmount) }}
-                </p>
-              </article>
-              <UiEmptyState
-                v-if="goals.length === 0"
-                icon="target"
-                :title="$t('pages.dashboard.noGoals')"
-                :description="$t('pages.dashboard.noGoalsDesc')"
-                :compact="true"
-              />
-            </div>
-          </UiSurfaceCard>
-        </section>
+            <DashboardTransactionsPanel
+              :upcoming-dues="upcomingDues"
+              :expenses-by-category="expensesByCategory"
+              :is-loading="dashboardQuery.isLoading.value"
+            />
+
+            <UiSurfaceCard>
+              <template #header>{{ $t('pages.dashboard.featuredGoals') }}</template>
+              <BaseSkeleton v-if="dashboardQuery.isLoading.value" />
+              <div v-else class="item-list">
+                <article
+                  v-for="goal in goals"
+                  :key="goal.id"
+                  class="goal-item"
+                >
+                  <div class="goal-item__header">
+                    <strong>{{ goal.name }}</strong>
+                    <span>{{ goal.progressPercent.toFixed(0) }}%</span>
+                  </div>
+                  <div class="goal-item__track">
+                    <span :style="{ width: `${Math.min(goal.progressPercent, 100)}%` }" />
+                  </div>
+                  <p>
+                    {{ formatCurrency(goal.currentAmount) }} {{ $t('pages.dashboard.goalOf') }}
+                    {{ formatCurrency(goal.targetAmount) }}
+                  </p>
+                </article>
+                <UiEmptyState
+                  v-if="goals.length === 0"
+                  icon="target"
+                  :title="$t('pages.dashboard.noGoals')"
+                  :description="$t('pages.dashboard.noGoalsDesc')"
+                  :compact="true"
+                />
+              </div>
+            </UiSurfaceCard>
+          </section>
+        </template>
       </template>
+
+      <!-- ── Due-date panel (PROD-14) ──────────────────────────────────────
+           Independent of `dashboardQuery` — always renders when the period is
+           valid, with its own loading + error states. -->
+      <UiSurfaceCard class="dashboard-due-dates">
+        <DueDateList
+          :transactions="dueTransactions"
+          :is-loading="dueRangeQuery.isLoading.value"
+        />
+      </UiSurfaceCard>
     </template>
   </div>
 </template>
