@@ -3,6 +3,7 @@ import { h, type VNodeChild } from "vue";
 import {
   NButton,
   NCard,
+  NColorPicker,
   NDataTable,
   NFormItem,
   NInput,
@@ -22,7 +23,7 @@ import { useDeleteTagMutation } from "~/features/tags/queries/use-delete-tag-mut
 const { t } = useI18n();
 
 definePageMeta({
-  middleware: ["authenticated", "coming-soon"],
+  middleware: ["authenticated"],
   pageTitle: "Tags",
   pageSubtitle: "Gerencie suas tags de categorização",
 });
@@ -210,18 +211,12 @@ const columns = computed((): DataTableColumns<TagDto> => [
           />
         </NFormItem>
         <NFormItem :label="$t('pages.settings.tags.fields.color')">
-          <div class="color-field">
-            <NInput
-              v-model:value="formColor"
-              :placeholder="$t('pages.settings.tags.fields.colorPlaceholder')"
-              maxlength="7"
-            />
-            <span
-              v-if="formColor"
-              class="color-preview"
-              :style="{ background: formColor }"
-            />
-          </div>
+          <NColorPicker
+            v-model:value="formColor"
+            :swatches="['#FF6B6B','#E67E22','#F1C40F','#2ECC71','#4ECDC4','#3498DB','#9B59B6','#DDA0DD','#96CEB4','#D3D3D3']"
+            :modes="['hex']"
+            size="small"
+          />
         </NFormItem>
         <NFormItem :label="$t('pages.settings.tags.fields.icon')">
           <NInput

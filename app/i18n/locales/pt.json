@@ -1554,6 +1554,17 @@
     "subtitle": "Receitas e despesas registradas",
     "addIncome": "Nova Receita",
     "addExpense": "Nova Despesa",
+    "createTag": "Criar Tag",
+    "tagModal": {
+      "title": "Nova Tag",
+      "name": "Nome da tag",
+      "namePlaceholder": "Ex: Urgência, Investimento...",
+      "color": "Cor",
+      "icon": "Ícone (emoji)",
+      "iconPlaceholder": "🏷️",
+      "previewLabel": "Exemplo",
+      "create": "Criar tag"
+    },
     "recurring": "Recorrente",
     "installment": "{count}x",
     "count": "{n} transação | {n} transações",

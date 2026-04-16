@@ -26,12 +26,22 @@ function useLookupQueries(): { tags: ReturnType<typeof useTagsQuery>["data"]; ac
  * @param accounts Reactive account list.
  * @returns ComputedRef maps for fast id → name resolution.
  */
+export type TagLookup = { name: string; color: string | null };
+
+/**
+ * Builds reactive lookup maps from tag and account query data.
+ *
+ * @param tags     Reactive tag list.
+ * @param accounts Reactive account list.
+ * @returns ComputedRef maps for fast id → name/color resolution.
+ */
 function buildLookupMaps(
   tags: ReturnType<typeof useTagsQuery>["data"],
   accounts: ReturnType<typeof useAccountsQuery>["data"],
-): { tagMap: ComputedRef<Map<string, string>>; accountMap: ComputedRef<Map<string, string>> } {
+): { tagMap: ComputedRef<Map<string, string>>; tagDetailMap: ComputedRef<Map<string, TagLookup>>; accountMap: ComputedRef<Map<string, string>> } {
   return {
     tagMap: computed(() => new Map((tags.value ?? []).map((tg: { id: string; name: string }) => [tg.id, tg.name]))),
+    tagDetailMap: computed(() => new Map((tags.value ?? []).map((tg: { id: string; name: string; color: string | null }) => [tg.id, { name: tg.name, color: tg.color }]))),
     accountMap: computed(() => new Map((accounts.value ?? []).map((ac: { id: string; name: string }) => [ac.id, ac.name]))),
   };
 }
@@ -51,6 +61,7 @@ export type UseTransactionFiltersReturn = {
   STATUS_OPTIONS: ComputedRef<SelectOption[]>;
   tagOptions: ComputedRef<SelectOption[]>;
   tagMap: ComputedRef<Map<string, string>>;
+  tagDetailMap: ComputedRef<Map<string, TagLookup>>;
   accountMap: ComputedRef<Map<string, string>>;
   clearFilters: () => void;
 };
@@ -143,7 +154,7 @@ export function useTransactionFilters(): UseTransactionFiltersReturn {
     ...(tags.value ?? []).map((tg: { id: string; name: string }) => ({ label: tg.name, value: tg.id })),
   ]);
 
-  const { tagMap, accountMap } = buildLookupMaps(tags, accounts);
+  const { tagMap, tagDetailMap, accountMap } = buildLookupMaps(tags, accounts);
 
   /**
    * Resets all active filters back to their default (unfiltered) state.
@@ -171,6 +182,7 @@ export function useTransactionFilters(): UseTransactionFiltersReturn {
     STATUS_OPTIONS,
     tagOptions,
     tagMap,
+    tagDetailMap,
     accountMap,
     clearFilters,
   };
