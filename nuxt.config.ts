@@ -144,7 +144,7 @@ export default defineNuxtConfig({
     "@nuxtjs/google-fonts",
     "dayjs-nuxt",
     "@vite-pwa/nuxt",     // PWA: service worker + install prompt
-    // '@nuxt/image',      // ⚠️ Removido: Depende de sharp que causa conflitos de build em ARM64
+    // @nuxt/image dropped — substituted by ~/components/ui/UiImage.vue (PERF-6)
     // '@nuxtjs/apollo',   // ⚠️ Incompatível com Nuxt 4 — aguarda versão estável
     //                       Adicionar de volta quando disponível: https://github.com/nuxt-modules/apollo
   ],

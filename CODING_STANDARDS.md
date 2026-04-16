@@ -1010,14 +1010,14 @@ export default defineNuxtConfig({
 
 ### 12.1 Regras obrigatórias
 
-| Regra                                                      | Implementação                           |
-| :--------------------------------------------------------- | :-------------------------------------- |
-| `useAsyncData` para fetch                                  | Nunca `onMounted` + fetch               |
-| `v-memo` em listas estáticas longas                        | Evita re-render desnecessário           |
-| Componentes pesados com `defineAsyncComponent`             | Gráficos, editores, tabelas complexas   |
-| Paginação em listas > 50 itens                             | `useLazyFetch` com cursor               |
-| Imagens com `<NuxtImg>`                                    | Lazy load, WebP automático, placeholder |
-| `shallowRef` para objetos grandes sem reatividade profunda | `const config = shallowRef(bigObject)`  |
+| Regra                                                      | Implementação                                         |
+| :--------------------------------------------------------- | :---------------------------------------------------- |
+| `useAsyncData` para fetch                                  | Nunca `onMounted` + fetch                             |
+| `v-memo` em listas estáticas longas                        | Evita re-render desnecessário                         |
+| Componentes pesados com `defineAsyncComponent`             | Gráficos, editores, tabelas complexas                 |
+| Paginação em listas > 50 itens                             | `useLazyFetch` com cursor                             |
+| Imagens com `<UiImage>`                                    | Lazy load, decoding async e largura/altura explícitas |
+| `shallowRef` para objetos grandes sem reatividade profunda | `const config = shallowRef(bigObject)`                |
 
 ---
 
