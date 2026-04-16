@@ -25,3 +25,15 @@ audit.json
 .env
 .env.*
 !.env.example
+
+# iCloud Drive / Finder duplicates (name patterns: "foo 2.ext" and "foo 2")
+# Silently break Nuxt auto-import when they land in app/features, app/composables, etc.
+* 2
+* 2.*
+* 3
+* 3.*
+
+# Playwright / Vitest local artifacts
+playwright-report/
+test-results/
+
