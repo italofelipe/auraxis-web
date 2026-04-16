@@ -112,7 +112,8 @@
       "node-forge": ">=1.4.0",
       "defu": ">=6.1.5",
       "vite": "7.3.2",
-      "serialize-javascript": ">=7.0.3"
+      "serialize-javascript": ">=7.0.3",
+      "protobufjs": ">=7.5.5"
     },
     "onlyBuiltDependencies": [
       "@parcel/watcher",
