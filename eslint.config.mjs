@@ -138,6 +138,33 @@ export default withNuxt(
       "jsdoc/require-param-type": "off",
       "jsdoc/require-returns-type": "off",
       "jsdoc/no-undefined-types": "off",
+      // PERF-7: every Vue Query call must set `staleTime` explicitly, so
+      // cache-freshness contract is visible at the call site. Use the
+      // `STALE_TIME` presets from `~/core/query` when in doubt.
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "CallExpression[callee.name=/^(useQuery|useInfiniteQuery|createApiQuery)$/] > ObjectExpression:first-child:not(:has(Property[key.name='staleTime']))",
+          message:
+            "Vue Query calls must set an explicit `staleTime` — import `STALE_TIME` from `~/core/query` (PERF-7).",
+        },
+        {
+          selector:
+            "CallExpression[callee.name=/^(useQuery|useInfiniteQuery|createApiQuery)$/]:not(:has(ObjectExpression Property[key.name='staleTime']))",
+          message:
+            "Vue Query calls must set an explicit `staleTime` — import `STALE_TIME` from `~/core/query` (PERF-7).",
+        },
+      ],
+    },
+  },
+  // The Vue Query wrapper factory itself forwards `staleTime` through its
+  // options bag and does not set a default — enforcing the rule inside
+  // `app/core/query/` would be a false positive.
+  {
+    files: ["app/core/query/**"],
+    rules: {
+      "no-restricted-syntax": "off",
     },
   },
   {
