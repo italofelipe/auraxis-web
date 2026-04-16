@@ -136,6 +136,7 @@ const {
       @add-income="showIncome = true"
       @add-expense="showExpense = true"
       @create-tag="showCreateTag = true"
+      @open-trash="navigateTo('/transactions/trash')"
     />
 
     <!-- ── Reorder / swipe hints ───────────────────────────────────────────── -->

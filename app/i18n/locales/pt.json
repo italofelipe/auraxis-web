@@ -1632,6 +1632,25 @@
     "view": {
       "list": "Vista de lista",
       "calendar": "Vista de calendário"
+    },
+    "trash": {
+      "link": "Lixeira",
+      "title": "Lixeira de transações",
+      "subtitle": "Transações excluídas recentemente — restaure a qualquer momento",
+      "backToList": "Voltar para transações",
+      "empty": {
+        "title": "Nenhuma transação na lixeira",
+        "description": "Transações que você excluir aparecerão aqui."
+      },
+      "loadError": "Não foi possível carregar a lixeira",
+      "loadErrorMessage": "Tente recarregar a página.",
+      "restore": "Restaurar",
+      "restoreConfirm": "Restaurar transação",
+      "restoreConfirmDesc": "Restaurar \"{title}\" ({amount}) para a lista de transações?",
+      "restoreConfirmYes": "Restaurar",
+      "restoreConfirmNo": "Cancelar",
+      "restoreSuccess": "Transação restaurada",
+      "restoreError": "Não foi possível restaurar a transação"
     }
   },
   "thirteenthSalary": {
