@@ -237,7 +237,7 @@ function renderActions(
  * @param factor 0-1 where 0 = original, 1 = fully black.
  * @returns Darkened hex string.
  */
-function darkenHex(hex: string, factor: number): string {
+export function darkenHex(hex: string, factor: number): string {
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
   const b = parseInt(hex.slice(5, 7), 16);
@@ -257,7 +257,7 @@ function darkenHex(hex: string, factor: number): string {
  * @param tagDetailMap Reactive map of tag id → {name, color}.
  * @returns VNode or plain string.
  */
-function renderTagBadge(
+export function renderTagBadge(
   row: TransactionDto,
   tagDetailMap: ComputedRef<Map<string, TagLookup>>,
 ): ReturnType<typeof h> | string {

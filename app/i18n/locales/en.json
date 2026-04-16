@@ -1554,17 +1554,6 @@
     "subtitle": "Recorded income and expenses",
     "addIncome": "New Income",
     "addExpense": "New Expense",
-    "createTag": "Create Tag",
-    "tagModal": {
-      "title": "New Tag",
-      "name": "Tag name",
-      "namePlaceholder": "e.g. Urgent, Investment...",
-      "color": "Color",
-      "icon": "Icon (emoji)",
-      "iconPlaceholder": "🏷️",
-      "previewLabel": "Preview",
-      "create": "Create tag"
-    },
     "recurring": "Recurring",
     "installment": "{count}x",
     "count": "{n} transactions",
