@@ -109,6 +109,9 @@ importers:
       vue-router:
         specifier: ^5.0.4
         version: 5.0.4(@pinia/colada@0.21.5(pinia@3.0.4(typescript@5.9.3)(vue@3.5.32(typescript@5.9.3)))(vue@3.5.32(typescript@5.9.3)))(@vue/compiler-sfc@3.5.32)(pinia@3.0.4(typescript@5.9.3)(vue@3.5.32(typescript@5.9.3)))(vue@3.5.32(typescript@5.9.3))
+      web-vitals:
+        specifier: ^5.2.0
+        version: 5.2.0
       zod:
         specifier: ^3.25.76
         version: 3.25.76

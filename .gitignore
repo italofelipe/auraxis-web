@@ -37,3 +37,5 @@ audit.json
 playwright-report/
 test-results/
 
+bundle-report.json
+stats.html
