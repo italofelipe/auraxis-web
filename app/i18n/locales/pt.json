@@ -3146,31 +3146,56 @@
     }
   },
   "onboarding": {
-    "ariaLabel": "Assistente de configuração inicial",
-    "closeAriaLabel": "Fechar assistente de onboarding",
+    "ariaLabel": "Tour guiado do Auraxis",
+    "closeAriaLabel": "Fechar tour",
+    "triggerAriaLabel": "Abrir tour guiado do Auraxis",
+    "triggerTitle": "Ver tour guiado",
     "back": "Voltar",
-    "skip": "Pular configuração",
+    "skip": "Pular tour",
     "step1": {
-      "title": "Bem-vindo ao Auraxis!",
-      "description": "Antes de começar, vamos configurar seu perfil financeiro. Isso nos ajuda a personalizar sua experiência.",
-      "benefit1": "Análises personalizadas para o seu perfil",
-      "benefit2": "Recomendações de metas realistas",
-      "benefit3": "Relatórios adaptados ao seu momento financeiro",
-      "cta": "Vamos lá"
+      "title": "Bem-vindo ao Auraxis",
+      "description": "Este tour rápido mostra os três pilares do app em menos de 1 minuto. Você pode reabrir a qualquer momento pelo botão de ajuda.",
+      "pillarTransactionsTitle": "Transações",
+      "pillarTransactionsBody": "Registre receitas e despesas para enxergar seu fluxo de caixa.",
+      "pillarGoalsTitle": "Metas e orçamentos",
+      "pillarGoalsBody": "Planeje o futuro com metas e controle o mês com orçamentos.",
+      "pillarToolsTitle": "Ferramentas",
+      "pillarToolsBody": "Calculadoras especializadas para decisões rápidas de carreira, imposto e investimento.",
+      "cta": "Começar"
     },
     "step2": {
-      "title": "Registre sua primeira movimentação",
-      "description": "Adicione uma receita ou despesa para começar a acompanhar seu fluxo de caixa.",
-      "skipStep": "Pular este passo"
+      "title": "Transações: o coração do Auraxis",
+      "description": "É daqui que saem os dados para dashboards, metas e orçamentos. Quanto mais fiel o lançamento, melhor a análise.",
+      "point1Title": "Registrar",
+      "point1Body": "Use o botão Nova transação em Transações. Classifique como receita ou despesa e escolha uma categoria.",
+      "point2Title": "Duplicar e repetir",
+      "point2Body": "Despesas recorrentes? Duplique uma transação existente em 2 cliques em vez de digitar tudo de novo.",
+      "point3Title": "Marcar como pago",
+      "point3Body": "Lançamentos futuros podem ser agendados. Marque como pago quando efetivar para manter o saldo correto.",
+      "cta": "Próximo"
     },
     "step3": {
-      "title": "Defina sua primeira meta",
-      "description": "Metas financeiras ajudam você a manter o foco e visualizar seu progresso ao longo do tempo.",
-      "benefit1": "Acompanhe o progresso mês a mês",
-      "benefit2": "Simule diferentes cenários de aporte",
-      "benefit3": "Receba alertas quando estiver perto de atingir",
-      "ctaPrimary": "Criar minha primeira meta",
-      "ctaSecondary": "Fazer isso depois"
+      "title": "Metas vs. Orçamentos",
+      "description": "Dois conceitos parecidos que cumprem papéis diferentes. Vale entender a distinção antes de usar.",
+      "example": "Exemplo:",
+      "goalTitle": "Meta",
+      "goalDefinition": "Um objetivo financeiro de médio ou longo prazo, com valor e data-alvo.",
+      "goalExample": "Juntar R$ 30.000 para entrada de imóvel até dez/2027.",
+      "budgetTitle": "Orçamento",
+      "budgetDefinition": "Um teto de gastos recorrente por categoria em cada mês.",
+      "budgetExample": "Gastar no máximo R$ 800 em Alimentação por mês.",
+      "tip": "Dica: use metas para o que você quer alcançar e orçamentos para o que você quer controlar todo mês.",
+      "cta": "Próximo"
+    },
+    "step4": {
+      "title": "Ferramentas e Carteira",
+      "description": "Dois recursos complementares que vivem fora do fluxo de transações.",
+      "toolsTitle": "Ferramentas",
+      "toolsBody": "Mais de 20 calculadoras prontas (salário CLT, férias, 13º, imposto de renda, conversor de moedas) acessíveis em qualquer hora pelo menu Ferramentas.",
+      "portfolioTitle": "Carteira",
+      "portfolioBody": "Acompanhe seus investimentos e patrimônio total em um só lugar, com variação mês a mês.",
+      "tip": "Pode voltar a este tour pelo botão de ajuda no canto da tela.",
+      "cta": "Concluir"
     }
   },
   "toolsSidebar": {
