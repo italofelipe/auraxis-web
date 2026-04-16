@@ -5,59 +5,64 @@ import OnboardingWizard from "../components/OnboardingWizard.vue";
 
 vi.mock("vue-i18n");
 
-// Shared mock functions so the component and the test hold the same reference
 const mockSkip = vi.fn();
 const mockComplete = vi.fn();
 
 vi.mock("../composables/useOnboarding", () => ({
   useOnboarding: (): {
     shouldShow: ComputedRef<boolean>;
+    start: () => void;
     complete: () => void;
     skip: () => void;
     reset: () => void;
   } => ({
     shouldShow: computed<boolean>(() => true),
+    start: vi.fn(),
     complete: mockComplete,
     skip: mockSkip,
     reset: vi.fn(),
   }),
 }));
 
-describe("OnboardingWizard", () => {
-  /**
-   * Mounts the OnboardingWizard with all child components stubbed out for
-   * fast, isolated unit tests.  Step stubs expose a trigger button so
-   * advancing and completing the wizard can be tested without real step logic.
-   *
-   * @returns A mounted VueWrapper instance for the OnboardingWizard component.
-   */
-  function mountWizard(): VueWrapper {
-    return mount(OnboardingWizard, {
-      global: {
-        stubs: {
-          Teleport: { template: "<div><slot /></div>" },
-          Transition: { template: "<slot />" },
-          UiWizardProgress: true,
-          OnboardingStep1Profile: {
-            name: "OnboardingStep1Profile",
-            template: "<div data-testid='step1'><button class='stub-next' @click=\"$emit('next')\">next</button></div>",
-            emits: ["next"],
-          },
-          OnboardingStep2Transaction: {
-            name: "OnboardingStep2Transaction",
-            template: "<div data-testid='step2'><button class='stub-next' @click=\"$emit('next')\">next</button></div>",
-            emits: ["next"],
-          },
-          OnboardingStep3Goals: {
-            name: "OnboardingStep3Goals",
-            template: "<div data-testid='step3'><button class='stub-complete' @click=\"$emit('complete')\">done</button></div>",
-            emits: ["complete"],
-          },
+/**
+ * Mounts the wizard with its four step children stubbed so tests can drive
+ * the step transitions without relying on real template content.
+ *
+ * @returns The mounted wizard wrapper ready for interaction assertions.
+ */
+function mountWizard(): VueWrapper {
+  return mount(OnboardingWizard, {
+    global: {
+      stubs: {
+        Teleport: { template: "<div><slot /></div>" },
+        Transition: { template: "<slot />" },
+        UiWizardProgress: true,
+        OnboardingStep1Welcome: {
+          name: "OnboardingStep1Welcome",
+          template: "<div data-testid='step1'><button class='stub-next' @click=\"$emit('next')\">next</button></div>",
+          emits: ["next"],
+        },
+        OnboardingStep2Transactions: {
+          name: "OnboardingStep2Transactions",
+          template: "<div data-testid='step2'><button class='stub-next' @click=\"$emit('next')\">next</button></div>",
+          emits: ["next"],
+        },
+        OnboardingStep3GoalsVsBudgets: {
+          name: "OnboardingStep3GoalsVsBudgets",
+          template: "<div data-testid='step3'><button class='stub-next' @click=\"$emit('next')\">next</button></div>",
+          emits: ["next"],
+        },
+        OnboardingStep4ToolsPortfolio: {
+          name: "OnboardingStep4ToolsPortfolio",
+          template: "<div data-testid='step4'><button class='stub-complete' @click=\"$emit('complete')\">done</button></div>",
+          emits: ["complete"],
         },
       },
-    });
-  }
+    },
+  });
+}
 
+describe("OnboardingWizard", () => {
   it("renders the wizard dialog when shouldShow is true", () => {
     const wrapper = mountWizard();
     expect(wrapper.find(".onboarding-dialog").exists()).toBe(true);
@@ -69,10 +74,16 @@ describe("OnboardingWizard", () => {
     expect(wrapper.find("[data-testid='step2']").exists()).toBe(false);
   });
 
-  it("advances to step 2 when step 1 emits next", async () => {
+  it("advances through all four steps", async () => {
     const wrapper = mountWizard();
     await wrapper.find("[data-testid='step1'] .stub-next").trigger("click");
     expect(wrapper.find("[data-testid='step2']").exists()).toBe(true);
+
+    await wrapper.find("[data-testid='step2'] .stub-next").trigger("click");
+    expect(wrapper.find("[data-testid='step3']").exists()).toBe(true);
+
+    await wrapper.find("[data-testid='step3'] .stub-next").trigger("click");
+    expect(wrapper.find("[data-testid='step4']").exists()).toBe(true);
   });
 
   it("does not show back button on step 1", () => {
@@ -84,6 +95,22 @@ describe("OnboardingWizard", () => {
     const wrapper = mountWizard();
     await wrapper.find("[data-testid='step1'] .stub-next").trigger("click");
     expect(wrapper.find(".onboarding-dialog__btn-back").exists()).toBe(true);
+  });
+
+  it("back button returns to previous step", async () => {
+    const wrapper = mountWizard();
+    await wrapper.find("[data-testid='step1'] .stub-next").trigger("click");
+    await wrapper.find(".onboarding-dialog__btn-back").trigger("click");
+    expect(wrapper.find("[data-testid='step1']").exists()).toBe(true);
+  });
+
+  it("calls complete() when step 4 emits complete", async () => {
+    const wrapper = mountWizard();
+    await wrapper.find("[data-testid='step1'] .stub-next").trigger("click");
+    await wrapper.find("[data-testid='step2'] .stub-next").trigger("click");
+    await wrapper.find("[data-testid='step3'] .stub-next").trigger("click");
+    await wrapper.find("[data-testid='step4'] .stub-complete").trigger("click");
+    expect(mockComplete).toHaveBeenCalled();
   });
 
   it("shows skip button", () => {

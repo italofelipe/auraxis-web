@@ -132,5 +132,6 @@ function onLogout(): void {
     />
   </UiAppShell>
   <OnboardingWizard />
+  <OnboardingTriggerButton />
   </div>
 </template>

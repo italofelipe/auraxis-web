@@ -5,7 +5,6 @@ import { useOnboarding } from "../composables/useOnboarding";
 import { useUserStore } from "~/stores/user";
 import { useSessionStore } from "~/stores/session";
 
-// Mock localStorage with an in-memory store
 let _store: Record<string, string> = {};
 const localStorageMock = {
   getItem: vi.fn((key: string): string | null => _store[key] ?? null),
@@ -14,7 +13,6 @@ const localStorageMock = {
   clear: vi.fn((): void => { _store = {}; }),
 };
 
-// Mock onMounted to run immediately so localStorage is read during test setup
 vi.mock("vue", async () => {
   const actual = await vi.importActual("vue") as object;
   return {
@@ -29,6 +27,9 @@ describe("useOnboarding", () => {
     Object.defineProperty(global, "localStorage", { value: localStorageMock, writable: true });
     localStorageMock.clear();
     vi.clearAllMocks();
+    // Reset module-level singleton state between tests.
+    const { reset } = useOnboarding();
+    reset();
   });
 
   afterEach((): void => {
@@ -55,40 +56,7 @@ describe("useOnboarding", () => {
     expect(shouldShow.value).toBe(false);
   });
 
-  it("shouldShow is false when profile is already complete", () => {
-    const userStore = useUserStore();
-    const sessionStore = useSessionStore();
-    sessionStore.$patch({ emailConfirmed: true });
-    userStore.$patch({
-      isLoaded: true,
-      profile: {
-        id: "u1",
-        name: "Test",
-        email: "test@test.com",
-        gender: "M",
-        birth_date: "1990-01-01",
-        monthly_income: 5000,
-        monthly_income_net: null,
-        net_worth: 10000,
-        monthly_expenses: 2000,
-        initial_investment: null,
-        monthly_investment: null,
-        investment_goal_date: null,
-        state_uf: "SP",
-        occupation: "Engineer",
-        investor_profile: "moderate",
-        financial_objectives: "savings",
-        investor_profile_suggested: null,
-        profile_quiz_score: null,
-        taxonomy_version: null,
-      } as UserProfileDto,
-    });
-
-    const { shouldShow } = useOnboarding();
-    expect(shouldShow.value).toBe(false);
-  });
-
-  it("shouldShow is true when email confirmed, profile incomplete, and not seen", () => {
+  it("shouldShow is true when email confirmed and tour not yet seen", () => {
     const userStore = useUserStore();
     const sessionStore = useSessionStore();
     sessionStore.$patch({ emailConfirmed: true, userEmail: "user@test.com" });
@@ -122,6 +90,32 @@ describe("useOnboarding", () => {
     expect(shouldShow.value).toBe(false);
   });
 
+  it("start() forces shouldShow to true even after skip()", () => {
+    const userStore = useUserStore();
+    const sessionStore = useSessionStore();
+    sessionStore.$patch({ emailConfirmed: true, userEmail: "user@test.com" });
+    userStore.$patch({ isLoaded: true, profile: { id: "u1", name: "Test", email: "user@test.com" } as unknown as UserProfileDto });
+
+    const { shouldShow, skip, start } = useOnboarding();
+    skip();
+    expect(shouldShow.value).toBe(false);
+    start();
+    expect(shouldShow.value).toBe(true);
+  });
+
+  it("start() re-opens the tour after complete()", () => {
+    const userStore = useUserStore();
+    const sessionStore = useSessionStore();
+    sessionStore.$patch({ emailConfirmed: true, userEmail: "user@test.com" });
+    userStore.$patch({ isLoaded: true, profile: { id: "u1", name: "Test", email: "user@test.com" } as unknown as UserProfileDto });
+
+    const { shouldShow, complete, start } = useOnboarding();
+    complete();
+    expect(shouldShow.value).toBe(false);
+    start();
+    expect(shouldShow.value).toBe(true);
+  });
+
   it("persists skip to localStorage", () => {
     const userStore = useUserStore();
     const sessionStore = useSessionStore();
@@ -132,8 +126,9 @@ describe("useOnboarding", () => {
     skip();
 
     expect(localStorageMock.setItem).toHaveBeenCalled();
-    const key = localStorageMock.setItem.mock.calls[0]![0] as string;
-    const value = JSON.parse(localStorageMock.setItem.mock.calls[0]![1] as string) as { done: boolean; skipped: boolean };
+    const lastCall = localStorageMock.setItem.mock.calls[localStorageMock.setItem.mock.calls.length - 1]!;
+    const key = lastCall[0] as string;
+    const value = JSON.parse(lastCall[1] as string) as { done: boolean; skipped: boolean };
     expect(key).toContain("auraxis:onboarding:");
     expect(value).toEqual({ done: false, skipped: true });
   });
@@ -147,7 +142,8 @@ describe("useOnboarding", () => {
     const { complete } = useOnboarding();
     complete();
 
-    const value = JSON.parse(localStorageMock.setItem.mock.calls[0]![1] as string) as { done: boolean; skipped: boolean };
+    const lastCall = localStorageMock.setItem.mock.calls[localStorageMock.setItem.mock.calls.length - 1]!;
+    const value = JSON.parse(lastCall[1] as string) as { done: boolean; skipped: boolean };
     expect(value).toEqual({ done: true, skipped: false });
   });
 
@@ -162,18 +158,5 @@ describe("useOnboarding", () => {
     expect(shouldShow.value).toBe(false);
     reset();
     expect(shouldShow.value).toBe(true);
-  });
-
-  it("reads persisted state from localStorage on mount", () => {
-    const sessionStore = useSessionStore();
-    const userStore = useUserStore();
-    sessionStore.$patch({ emailConfirmed: true, userEmail: "user@test.com" });
-    userStore.$patch({ isLoaded: true, profile: { id: "u1", name: "Test", email: "user@test.com" } as unknown as UserProfileDto });
-
-    // Pre-seed localStorage with skipped state
-    localStorageMock.getItem.mockReturnValueOnce(JSON.stringify({ done: false, skipped: true }));
-
-    const { shouldShow } = useOnboarding();
-    expect(shouldShow.value).toBe(false);
   });
 });

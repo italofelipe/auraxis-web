@@ -5,8 +5,12 @@ import { useOnboarding } from "../composables/useOnboarding";
 const { t } = useI18n();
 const { shouldShow, complete, skip } = useOnboarding();
 
-const TOTAL_STEPS = 3;
+const TOTAL_STEPS = 4;
 const currentStep = ref(1);
+
+watch(shouldShow, (open) => {
+  if (open) { currentStep.value = 1; }
+});
 
 /** Advances the wizard to the next step when not on the last step. */
 function onNext(): void {
@@ -60,9 +64,10 @@ function onComplete(): void {
           <!-- Step content -->
           <div class="onboarding-dialog__body">
             <Transition name="onboarding-step" mode="out-in">
-              <OnboardingStep1Profile v-if="currentStep === 1" key="step1" @next="onNext" />
-              <OnboardingStep2Transaction v-else-if="currentStep === 2" key="step2" @next="onNext" />
-              <OnboardingStep3Goals v-else-if="currentStep === 3" key="step3" @complete="onComplete" />
+              <OnboardingStep1Welcome v-if="currentStep === 1" key="step1" @next="onNext" />
+              <OnboardingStep2Transactions v-else-if="currentStep === 2" key="step2" @next="onNext" />
+              <OnboardingStep3GoalsVsBudgets v-else-if="currentStep === 3" key="step3" @next="onNext" />
+              <OnboardingStep4ToolsPortfolio v-else-if="currentStep === 4" key="step4" @complete="onComplete" />
             </Transition>
           </div>
 
