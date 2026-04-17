@@ -29,6 +29,7 @@ import {
 import CalculatorFormSection from "~/components/tool/CalculatorFormSection/CalculatorFormSection.vue";
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
+import ToolSaveResult from "~/components/tool/ToolSaveResult/ToolSaveResult.vue";
 import UiStickySummaryCard from "~/components/ui/UiStickySummaryCard/UiStickySummaryCard.vue";
 import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
 import UiGlassPanel from "~/components/ui/UiGlassPanel/UiGlassPanel.vue";
@@ -395,6 +396,12 @@ const isSaved = computed(() => savedSimulationId.value !== null);
               :label="t('aluguelVsCompra.results.verdict')"
               :value="result.buyIsBetter ? t('aluguelVsCompra.results.buyWins') : t('aluguelVsCompra.results.rentWins')"
               :metrics="summaryMetrics"
+            />
+
+            <ToolSaveResult
+              intent="goal"
+              :label="t('aluguelVsCompra.hero.title')"
+              :amount="result.totalBuyCost"
             />
 
             <NSpace vertical style="margin-top: 16px">

@@ -212,6 +212,10 @@ const globalStubs = {
     props: ["rows", "rangeHeader", "rateHeader", "baseHeader", "taxHeader", "totalLabel", "totalValue"],
     template: "<div class='tax-bracket-table'>{{ totalLabel }}: {{ totalValue }}</div>",
   },
+  ToolSaveResult: {
+    props: ["intent", "label", "amount", "description"],
+    template: "<div class='tool-save-result-stub' />",
+  },
 };
 
 /**

@@ -45,6 +45,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     accessLevel: "public",
     route: "/tools/inss-ir-folha",
     featureFlag: "web.tools.inss-ir-folha",
+    saveIntent: "expense",
   },
   {
     id: "hora-extra",
@@ -66,6 +67,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     accessLevel: "public",
     route: "/tools/ferias",
     featureFlag: "web.tools.ferias",
+    saveIntent: "receivable",
   },
   {
     id: "rescisao",
@@ -76,6 +78,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     accessLevel: "public",
     route: "/tools/rescisao",
     featureFlag: "web.tools.rescisao",
+    saveIntent: "receivable",
   },
   {
     id: "dividir-conta",
@@ -86,6 +89,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     accessLevel: "public",
     route: "/tools/dividir-conta",
     featureFlag: "web.tools.dividir-conta",
+    saveIntent: "none",
   },
   {
     id: "desconto-markup",
@@ -96,6 +100,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     accessLevel: "public",
     route: "/tools/desconto-markup",
     featureFlag: "web.tools.desconto-markup",
+    saveIntent: "none",
   },
   {
     id: "juros-compostos",
@@ -106,6 +111,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     accessLevel: "public",
     route: "/tools/juros-compostos",
     featureFlag: "web.tools.juros-compostos",
+    saveIntent: "goal",
   },
   {
     id: "fgts",
@@ -116,6 +122,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     accessLevel: "public",
     route: "/tools/fgts",
     featureFlag: "web.tools.fgts",
+    saveIntent: "receivable",
   },
   {
     id: "clt-vs-pj",
@@ -126,6 +133,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     accessLevel: "public",
     route: "/tools/clt-vs-pj",
     featureFlag: "web.tools.clt-vs-pj",
+    saveIntent: "receivable",
   },
   {
     id: "mei",
@@ -136,6 +144,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     accessLevel: "public",
     route: "/tools/mei",
     featureFlag: "web.tools.mei",
+    saveIntent: "expense",
   },
   {
     id: "cdb-lci-lca",
@@ -146,6 +155,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     accessLevel: "public",
     route: "/tools/cdb-lci-lca",
     featureFlag: "web.tools.cdb-lci-lca",
+    saveIntent: "goal",
   },
   {
     id: "tesouro-direto",
@@ -156,6 +166,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     accessLevel: "public",
     route: "/tools/tesouro-direto",
     featureFlag: "web.tools.tesouro-direto",
+    saveIntent: "goal",
   },
   {
     id: "aposentadoria",
@@ -166,6 +177,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     accessLevel: "public",
     route: "/tools/aposentadoria",
     featureFlag: "web.tools.aposentadoria",
+    saveIntent: "goal",
   },
   {
     id: "fire",
@@ -176,6 +188,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     accessLevel: "public",
     route: "/tools/fire",
     featureFlag: "web.tools.fire",
+    saveIntent: "goal",
   },
   {
     id: "financiamento-imobiliario",
@@ -186,6 +199,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     accessLevel: "public",
     route: "/tools/financiamento-imobiliario",
     featureFlag: "web.tools.financiamento-imobiliario",
+    saveIntent: "goal",
   },
   {
     id: "aluguel-vs-compra",
@@ -196,6 +210,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     accessLevel: "public",
     route: "/tools/aluguel-vs-compra",
     featureFlag: "web.tools.aluguel-vs-compra",
+    saveIntent: "goal",
   },
   {
     id: "conversor-moeda",
@@ -206,6 +221,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     accessLevel: "public",
     route: "/tools/conversor-moeda",
     featureFlag: "web.tools.conversor-moeda",
+    saveIntent: "none",
   },
   {
     id: "fii",
@@ -216,6 +232,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     accessLevel: "public",
     route: "/tools/fii",
     featureFlag: "web.tools.fii",
+    saveIntent: "goal",
   },
 ];
 

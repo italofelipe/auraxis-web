@@ -164,6 +164,10 @@ const globalStubs = {
     template: "<div class='calculator-result-summary'>{{ label }}: {{ value }}</div>",
   },
   ToolGuestCta: { template: "<div class='tool-guest-cta'>guest-cta</div>" },
+  ToolSaveResult: {
+    props: ["intent", "label", "amount", "description"],
+    template: "<div class='tool-save-result-stub' />",
+  },
 };
 
 /**

@@ -189,6 +189,10 @@ const globalStubs = {
     props: ["option", "height", "width", "autoresize", "updateKey"],
     template: "<div class='v-chart'></div>",
   },
+  ToolSaveResult: {
+    props: ["intent", "label", "amount", "description"],
+    template: "<div class='tool-save-result-stub' />",
+  },
 };
 
 /**
