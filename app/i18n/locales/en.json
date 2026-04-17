@@ -3173,5 +3173,304 @@
       "realEstate": "Real Estate",
       "personal": "Personal"
     }
+  },
+  "salarioLiquido": {
+    "seo": {
+      "title": "Net Salary CLT — Auraxis",
+      "description": "Calculate your CLT net salary with all deductions.",
+      "ogTitle": "Net Salary CLT | Auraxis",
+      "ogDescription": "Find out your take-home pay and employer cost."
+    },
+    "hero": {
+      "title": "Net Salary CLT",
+      "subtitle": "Calculate your net salary with all deductions and employer cost."
+    },
+    "form": {
+      "title": "Salary data",
+      "grossSalary": "Gross salary (R$)",
+      "dependents": "Dependents (tax)",
+      "healthPlan": "Health plan (R$)",
+      "vaVr": "Meal/food voucher (R$)",
+      "alimonyPct": "Alimony (%)",
+      "vtOptOut": "No transportation voucher",
+      "unionContribution": "Union contribution (1 day)",
+      "calculate": "Calculate",
+      "reset": "Reset"
+    },
+    "results": {
+      "netSalary": "Net salary",
+      "totalDeductions": "Total deductions",
+      "inss": "INSS",
+      "irrf": "IRRF",
+      "employerFgts": "FGTS (employer)",
+      "employerInss": "Employer INSS",
+      "employerTotal": "Total employer cost"
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Saved"
+    },
+    "simulation": {
+      "defaultName": "Net Salary CLT"
+    },
+    "errors": {
+      "grossSalaryRequired": "Enter the gross salary."
+    },
+    "disclaimer": {
+      "note": "Based on {year} INSS/IR tables. Consult your accountant for official calculations."
+    }
+  },
+  "reservaEmergencia": {
+    "seo": {
+      "title": "Emergency Fund — Auraxis",
+      "description": "Calculate your emergency fund target by professional profile.",
+      "ogTitle": "Emergency Fund | Auraxis",
+      "ogDescription": "Find your emergency fund target and compare investments."
+    },
+    "hero": {
+      "title": "Emergency Fund",
+      "subtitle": "Calculate your emergency fund target by professional profile."
+    },
+    "form": {
+      "title": "Your data",
+      "monthlyExpenses": "Monthly expenses (R$)",
+      "profile": "Professional profile",
+      "currentReserve": "Current reserve (R$)",
+      "monthlyContribution": "Monthly contribution (R$)",
+      "annualReturnPct": "Annual return (%)",
+      "calculate": "Calculate",
+      "reset": "Reset"
+    },
+    "results": {
+      "targetAmount": "Target amount",
+      "profileMonths": "Months of coverage",
+      "gap": "Gap",
+      "monthsToTarget": "Months to target",
+      "chart": {
+        "xAxis": "Month",
+        "balance": "Balance"
+      }
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Saved",
+      "addAsGoal": "Create goal",
+      "goalAdded": "Goal created"
+    },
+    "simulation": {
+      "defaultName": "Emergency Fund",
+      "goalName": "Emergency Fund"
+    },
+    "errors": {
+      "expensesRequired": "Enter your monthly expenses.",
+      "contributionRequired": "Enter the monthly contribution."
+    },
+    "disclaimer": {
+      "note": "Reference rates may vary. Consult your investment advisor."
+    }
+  },
+  "orcamento5030": {
+    "seo": {
+      "title": "50/30/20 Budget — Auraxis",
+      "description": "Distribute your income with the 50/30/20 rule.",
+      "ogTitle": "50/30/20 Budget | Auraxis",
+      "ogDescription": "Organize your finances with the 50/30/20 rule."
+    },
+    "hero": {
+      "title": "50/30/20 Budget",
+      "subtitle": "Find out how much to allocate to needs, wants, and investments."
+    },
+    "form": {
+      "title": "Your income",
+      "netIncome": "Monthly net income (R$)",
+      "mode": "Mode",
+      "modeSimple": "Simple",
+      "modeDetailed": "Detailed",
+      "actualNeeds": "Actual spending — Needs (R$)",
+      "actualWants": "Actual spending — Wants (R$)",
+      "actualInvestments": "Actual spending — Investments (R$)",
+      "calculate": "Calculate",
+      "reset": "Reset"
+    },
+    "results": {
+      "distribution": "Ideal distribution",
+      "actual": "Actual",
+      "surplus": "Surplus / Deficit",
+      "investmentGoal": "Monthly investment goal"
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Saved",
+      "addAsGoal": "Create investment goal",
+      "goalAdded": "Goal created"
+    },
+    "simulation": {
+      "defaultName": "50/30/20 Budget",
+      "goalName": "Monthly investment goal"
+    },
+    "errors": {
+      "incomeRequired": "Enter your net income."
+    },
+    "disclaimer": {
+      "note": "The 50/30/20 rule is a general guideline. Adapt to your needs."
+    }
+  },
+  "cet": {
+    "seo": {
+      "title": "CET — Total Effective Cost — Auraxis",
+      "description": "Discover the real cost of a loan by calculating the CET.",
+      "ogTitle": "CET — Total Effective Cost | Auraxis",
+      "ogDescription": "Compare the nominal rate with the real CET."
+    },
+    "hero": {
+      "title": "CET — Total Effective Cost",
+      "subtitle": "Discover the real cost of a loan including IOF, fees, insurance and hidden charges."
+    },
+    "form": {
+      "title": "Loan data",
+      "loanAmount": "Loan amount (R$)",
+      "nominalMonthlyRate": "Nominal monthly rate (%)",
+      "termMonths": "Term (months)",
+      "tac": "Opening fee (R$)",
+      "insurance": "Monthly insurance (R$)",
+      "appraisal": "Appraisal fee (R$)",
+      "iofOverride": "Manual IOF (R$)",
+      "iofAutoPlaceholder": "Auto-calculated",
+      "calculate": "Calculate",
+      "reset": "Reset"
+    },
+    "results": {
+      "cetAnnual": "CET annual",
+      "cetMonthly": "CET monthly",
+      "nominalMonthly": "Nominal monthly",
+      "nominalAnnual": "Nominal annual",
+      "totalPaid": "Total paid",
+      "totalCost": "Total cost",
+      "netReceived": "Net received",
+      "iof": "IOF",
+      "monthlyPayment": "Monthly payment",
+      "costDescription": "Total loan cost"
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Saved"
+    },
+    "simulation": {
+      "defaultName": "CET — Total Effective Cost"
+    },
+    "errors": {
+      "loanAmountRequired": "Enter the loan amount.",
+      "rateRequired": "Enter the nominal monthly rate.",
+      "termRequired": "Enter the term in months.",
+      "convergenceFailed": "Could not calculate CET. Check your inputs."
+    },
+    "disclaimer": {
+      "note": "Calculation per Bacen resolution 3,517. Consult your loan contract."
+    }
+  },
+  "quitacaoDividas": {
+    "seo": {
+      "title": "Debt Payoff — Auraxis",
+      "description": "Compare Snowball and Avalanche strategies to pay off debt faster.",
+      "ogTitle": "Debt Payoff | Auraxis",
+      "ogDescription": "Find the best strategy to pay off your debts."
+    },
+    "hero": {
+      "title": "Debt Payoff",
+      "subtitle": "Compare Snowball (smallest balance) and Avalanche (highest rate) strategies."
+    },
+    "form": {
+      "title": "Your debts",
+      "debtName": "Debt name",
+      "debtNamePlaceholder": "e.g. Credit card, Loan",
+      "balance": "Balance (R$)",
+      "monthlyRate": "Monthly rate (%)",
+      "minimumPayment": "Minimum payment (R$)",
+      "extraPayment": "Extra monthly payment (R$)",
+      "addDebt": "Add debt",
+      "removeDebt": "Remove",
+      "calculate": "Simulate",
+      "reset": "Reset"
+    },
+    "results": {
+      "totalDebt": "Total debt",
+      "snowballMonths": "Snowball (months)",
+      "avalancheMonths": "Avalanche (months)",
+      "interestSaved": "Interest saved",
+      "best": {
+        "snowball": "Snowball is better",
+        "avalanche": "Avalanche is better"
+      },
+      "goalDescription": "Goal: pay off all debts",
+      "chart": {
+        "xAxis": "Month"
+      }
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Saved",
+      "addAsGoal": "Create goal",
+      "goalAdded": "Goal created"
+    },
+    "simulation": {
+      "defaultName": "Debt Payoff",
+      "goalName": "Pay off debts"
+    },
+    "errors": {
+      "minTwoDebts": "Add at least 2 debts.",
+      "atLeastOneDebtRequired": "Fill in at least one debt with balance and minimum payment."
+    },
+    "disclaimer": {
+      "note": "Simplified simulation. Actual compound rates and fees may differ."
+    }
+  },
+  "custoEstiloVida": {
+    "seo": {
+      "title": "Lifestyle Cost — Auraxis",
+      "description": "Discover the opportunity cost of your recurring expenses if invested.",
+      "ogTitle": "Lifestyle Cost | Auraxis",
+      "ogDescription": "See how much your recurring expenses would be worth if invested."
+    },
+    "hero": {
+      "title": "Lifestyle Cost",
+      "subtitle": "Discover the true opportunity cost of your recurring expenses."
+    },
+    "form": {
+      "title": "Your recurring expenses",
+      "expenseName": "Expense name",
+      "expenseNamePlaceholder": "e.g. Streaming, Coffee, Gym",
+      "monthlyAmount": "Monthly amount (R$)",
+      "annualReturnPct": "Annual return (%)",
+      "horizonYears": "Horizon (years)",
+      "addExpense": "Add expense",
+      "removeExpense": "Remove",
+      "calculate": "Calculate",
+      "reset": "Reset"
+    },
+    "results": {
+      "totalOpportunityCost": "Total opportunity cost",
+      "totalMonthly": "Total monthly cost",
+      "totalAnnual": "Total annual cost",
+      "horizon": "Horizon"
+    },
+    "actions": {
+      "save": "Save simulation",
+      "saved": "Saved",
+      "addAsGoal": "Create goal",
+      "goalAdded": "Goal created",
+      "copyShareUrl": "Copy share link",
+      "copied": "Link copied!"
+    },
+    "simulation": {
+      "defaultName": "Lifestyle Cost",
+      "goalName": "Investment opportunity"
+    },
+    "errors": {
+      "atLeastOneExpenseRequired": "Add at least one expense with an amount.",
+      "horizonRequired": "Enter the horizon in years."
+    },
+    "disclaimer": {
+      "note": "Based on constant compound return. Actual results may vary."
+    }
   }
 }

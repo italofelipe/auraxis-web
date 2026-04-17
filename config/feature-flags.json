@@ -349,6 +349,66 @@
       "status": "enabled-prod",
       "description": "Página de orçamentos com acompanhamento de gastos por categoria e período.",
       "repositories": ["auraxis-web"]
+    },
+    {
+      "key": "web.tools.salario-liquido",
+      "owner": "platform",
+      "createdAt": "2026-04-17",
+      "removeBy": "2027-12-31",
+      "type": "release",
+      "status": "draft",
+      "description": "Calculadora de salário líquido CLT com todos os descontos e custo do empregador.",
+      "repositories": ["auraxis-web"]
+    },
+    {
+      "key": "web.tools.reserva-emergencia",
+      "owner": "platform",
+      "createdAt": "2026-04-17",
+      "removeBy": "2027-12-31",
+      "type": "release",
+      "status": "draft",
+      "description": "Calculadora de reserva de emergência por perfil profissional.",
+      "repositories": ["auraxis-web"]
+    },
+    {
+      "key": "web.tools.orcamento-50-30-20",
+      "owner": "platform",
+      "createdAt": "2026-04-17",
+      "removeBy": "2027-12-31",
+      "type": "release",
+      "status": "draft",
+      "description": "Orçamento 50/30/20: distribuição ideal vs real de renda.",
+      "repositories": ["auraxis-web"]
+    },
+    {
+      "key": "web.tools.cet",
+      "owner": "platform",
+      "createdAt": "2026-04-17",
+      "removeBy": "2027-12-31",
+      "type": "release",
+      "status": "draft",
+      "description": "CET — Custo Efetivo Total de financiamentos com Newton-Raphson.",
+      "repositories": ["auraxis-web"]
+    },
+    {
+      "key": "web.tools.quitacao-dividas",
+      "owner": "platform",
+      "createdAt": "2026-04-17",
+      "removeBy": "2027-12-31",
+      "type": "release",
+      "status": "draft",
+      "description": "Quitação de dívidas: Snowball vs Avalanche.",
+      "repositories": ["auraxis-web"]
+    },
+    {
+      "key": "web.tools.custo-estilo-vida",
+      "owner": "platform",
+      "createdAt": "2026-04-17",
+      "removeBy": "2027-12-31",
+      "type": "release",
+      "status": "draft",
+      "description": "Custo do estilo de vida: custo de oportunidade de gastos recorrentes.",
+      "repositories": ["auraxis-web"]
     }
   ]
 }

@@ -234,6 +234,72 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     featureFlag: "web.tools.fii",
     saveIntent: "goal",
   },
+  {
+    id: "salario-liquido",
+    name: "Salário Líquido CLT",
+    description:
+      "Calcule o salário líquido com todos os descontos (INSS, IR, VT, VA/VR, plano de saúde) e custo do empregador.",
+    enabled: isFeatureEnabled("web.tools.salario-liquido"),
+    accessLevel: "public",
+    route: "/tools/salario-liquido",
+    featureFlag: "web.tools.salario-liquido",
+    saveIntent: "receivable",
+  },
+  {
+    id: "reserva-emergencia",
+    name: "Reserva de Emergência",
+    description:
+      "Calcule sua meta de reserva de emergência por perfil profissional, com timeline de acumulação e comparação de investimentos.",
+    enabled: isFeatureEnabled("web.tools.reserva-emergencia"),
+    accessLevel: "public",
+    route: "/tools/reserva-emergencia",
+    featureFlag: "web.tools.reserva-emergencia",
+    saveIntent: "goal",
+  },
+  {
+    id: "orcamento-50-30-20",
+    name: "Orçamento 50/30/20",
+    description:
+      "Distribua sua renda em necessidades, desejos e investimentos com comparação real vs ideal.",
+    enabled: isFeatureEnabled("web.tools.orcamento-50-30-20"),
+    accessLevel: "public",
+    route: "/tools/orcamento-50-30-20",
+    featureFlag: "web.tools.orcamento-50-30-20",
+    saveIntent: "goal",
+  },
+  {
+    id: "cet",
+    name: "CET — Custo Efetivo Total",
+    description:
+      "Descubra o custo real de um financiamento calculando o CET com IOF, TAC, seguro e todos os encargos.",
+    enabled: isFeatureEnabled("web.tools.cet"),
+    accessLevel: "public",
+    route: "/tools/cet",
+    featureFlag: "web.tools.cet",
+    saveIntent: "expense",
+  },
+  {
+    id: "quitacao-dividas",
+    name: "Quitação de Dívidas",
+    description:
+      "Compare estratégias Snowball e Avalanche para quitar suas dívidas mais rápido e pagar menos juros.",
+    enabled: isFeatureEnabled("web.tools.quitacao-dividas"),
+    accessLevel: "public",
+    route: "/tools/quitacao-dividas",
+    featureFlag: "web.tools.quitacao-dividas",
+    saveIntent: "goal",
+  },
+  {
+    id: "custo-estilo-vida",
+    name: "Custo do Estilo de Vida",
+    description:
+      "Veja o custo de oportunidade dos seus gastos recorrentes se investidos ao longo do tempo.",
+    enabled: isFeatureEnabled("web.tools.custo-estilo-vida"),
+    accessLevel: "public",
+    route: "/tools/custo-estilo-vida",
+    featureFlag: "web.tools.custo-estilo-vida",
+    saveIntent: "goal",
+  },
 ];
 
 /**
