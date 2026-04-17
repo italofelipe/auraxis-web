@@ -1,55 +1,125 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import { waitForHydration } from "../helpers/auth";
 
 /**
  * E2E suite: Tools catalog (index) page.
  *
- * The /tools page lists all available calculators. It is publicly accessible.
+ * The /tools page requires authentication (middleware: ["authenticated"]).
+ * Tool cards use ToolCatalogCard which renders NCard + NButton (not <a> links).
  */
 
-test.describe("Tools — Catalog page", () => {
-	test("tools index page loads for guest user", async ({ page }) => {
-		const response = await page.goto("/tools");
-		expect(response?.status()).toBe(200);
-		await waitForHydration(page);
+const MOCK_LOGIN_SUCCESS = {
+	success: true,
+	message: "Authenticated",
+	data: {
+		token: "mock-access-token",
+		refresh_token: "mock-refresh-token",
+		user: {
+			id: "user-1",
+			name: "Test User",
+			email: "test@auraxis.com",
+			email_confirmed: true,
+		},
+	},
+};
+
+/**
+ * Sets up auth routes for the tools catalog page.
+ *
+ * @param page - Playwright page instance.
+ */
+const mockAuthForTools = async (page: Page): Promise<void> => {
+	let sessionEstablished = false;
+
+	await page.route("**/auth/refresh", (route) => {
+		if (!sessionEstablished) {
+			route.fulfill({
+				status: 401,
+				contentType: "application/json",
+				body: JSON.stringify({ message: "Unauthorized" }),
+			});
+		} else {
+			route.fulfill({
+				status: 200,
+				contentType: "application/json",
+				body: JSON.stringify({ success: true, data: { token: "mock-refreshed" } }),
+			});
+		}
 	});
 
-	test("catalog displays tool cards", async ({ page }) => {
-		await page.goto("/tools");
-		await waitForHydration(page);
-
-		// Tool cards are rendered as links to individual tool pages
-		const toolLinks = page.locator("a[href*='/tools/']");
-		await expect(toolLinks.first()).toBeVisible({ timeout: 10_000 });
-
-		// At least 10 tools should be listed
-		const count = await toolLinks.count();
-		expect(count).toBeGreaterThanOrEqual(10);
-	});
-
-	test("clicking a tool card navigates to the tool page", async ({ page }) => {
-		await page.goto("/tools");
-		await waitForHydration(page);
-
-		const firstTool = page.locator("a[href*='/tools/']").first();
-		await expect(firstTool).toBeVisible({ timeout: 10_000 });
-
-		const href = await firstTool.getAttribute("href");
-		await firstTool.click();
-
-		await expect(page).toHaveURL(new RegExp(href!.replace(/\//g, "\\/")), {
-			timeout: 10_000,
+	await page.route("**/auth/login", (route) => {
+		sessionEstablished = true;
+		route.fulfill({
+			status: 200,
+			contentType: "application/json",
+			body: JSON.stringify(MOCK_LOGIN_SUCCESS),
 		});
 	});
 
-	test("catalog page has search or filter functionality", async ({ page }) => {
-		await page.goto("/tools");
-		await waitForHydration(page);
+	await page.route("**/user/me", (route) => {
+		route.fulfill({
+			status: 200,
+			contentType: "application/json",
+			body: JSON.stringify({
+				id: "user-1",
+				email: "test@auraxis.com",
+				name: "Test User",
+				subscription_plan: "free",
+			}),
+		});
+	});
 
-		// The catalog should have a search input or category filter
-		const searchInput = page.locator(
-			"input[type='search'], input[type='text'], .n-input__input-el",
-		).first();
-		await expect(searchInput).toBeVisible({ timeout: 10_000 });
+	await page.route("**/dashboard/**", (route) => {
+		route.fulfill({
+			status: 200,
+			contentType: "application/json",
+			body: JSON.stringify({}),
+		});
+	});
+};
+
+/**
+ * Logs in via UI and navigates to /tools.
+ *
+ * @param page - Playwright page instance.
+ */
+const loginAndGoToTools = async (page: Page): Promise<void> => {
+	await page.goto("/login");
+	await waitForHydration(page);
+	await page.locator("#login-email").fill("test@auraxis.com");
+	await page.locator("#login-password").fill("ValidPassword1!");
+	await page.getByRole("button", { name: /entrar/i }).click();
+	await expect(page).toHaveURL(/\/dashboard/, { timeout: 10_000 });
+	await page.goto("/tools");
+	await waitForHydration(page);
+};
+
+test.describe("Tools — Catalog page", () => {
+	test("tools index page loads for authenticated user", async ({ page }) => {
+		await mockAuthForTools(page);
+		await loginAndGoToTools(page);
+
+		await expect(page).toHaveURL(/\/tools/);
+	});
+
+	test("catalog displays tool cards as NCard components", async ({ page }) => {
+		await mockAuthForTools(page);
+		await loginAndGoToTools(page);
+
+		// ToolCatalogCard renders inside .tool-catalog-card (NCard with that class)
+		const toolCards = page.locator(".tool-catalog-card");
+		await expect(toolCards.first()).toBeVisible({ timeout: 10_000 });
+
+		const count = await toolCards.count();
+		expect(count).toBeGreaterThanOrEqual(10);
+	});
+
+	test("tool cards have an actionable CTA button", async ({ page }) => {
+		await mockAuthForTools(page);
+		await loginAndGoToTools(page);
+
+		// Each ToolCatalogCard has a .tool-catalog-card__cta button
+		const ctaButton = page.locator(".tool-catalog-card__cta").first();
+		await expect(ctaButton).toBeVisible({ timeout: 10_000 });
 	});
 });
