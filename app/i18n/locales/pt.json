@@ -3229,5 +3229,304 @@
       "realEstate": "Imóveis",
       "personal": "Pessoal"
     }
+  },
+  "salarioLiquido": {
+    "seo": {
+      "title": "Salário Líquido CLT — Auraxis",
+      "description": "Calcule seu salário líquido CLT com todos os descontos: INSS, IR, VT, VA/VR, plano de saúde e custo do empregador.",
+      "ogTitle": "Salário Líquido CLT | Auraxis",
+      "ogDescription": "Descubra quanto você realmente recebe e quanto o empregador paga."
+    },
+    "hero": {
+      "title": "Salário Líquido CLT",
+      "subtitle": "Calcule seu salário líquido com todos os descontos e veja o custo total para o empregador."
+    },
+    "form": {
+      "title": "Dados do salário",
+      "grossSalary": "Salário bruto (R$)",
+      "dependents": "Dependentes (IR)",
+      "healthPlan": "Desconto plano de saúde (R$)",
+      "vaVr": "Desconto VA/VR (R$)",
+      "alimonyPct": "Pensão alimentícia (%)",
+      "vtOptOut": "Não recebo vale-transporte",
+      "unionContribution": "Contribuição sindical (1 dia)",
+      "calculate": "Calcular",
+      "reset": "Limpar"
+    },
+    "results": {
+      "netSalary": "Salário líquido",
+      "totalDeductions": "Total de descontos",
+      "inss": "INSS",
+      "irrf": "IRRF",
+      "employerFgts": "FGTS (empregador)",
+      "employerInss": "INSS patronal",
+      "employerTotal": "Custo total empregador"
+    },
+    "actions": {
+      "save": "Salvar simulação",
+      "saved": "Simulação salva"
+    },
+    "simulation": {
+      "defaultName": "Salário Líquido CLT"
+    },
+    "errors": {
+      "grossSalaryRequired": "Informe o salário bruto."
+    },
+    "disclaimer": {
+      "note": "Valores baseados nas tabelas INSS/IR de {year}. Consulte seu contador para cálculos oficiais."
+    }
+  },
+  "reservaEmergencia": {
+    "seo": {
+      "title": "Reserva de Emergência — Auraxis",
+      "description": "Calcule sua meta de reserva de emergência por perfil profissional e veja em quanto tempo você atinge o objetivo.",
+      "ogTitle": "Reserva de Emergência | Auraxis",
+      "ogDescription": "Descubra sua meta de reserva de emergência e compare investimentos."
+    },
+    "hero": {
+      "title": "Reserva de Emergência",
+      "subtitle": "Calcule sua meta de reserva por perfil profissional e planeje quanto guardar por mês."
+    },
+    "form": {
+      "title": "Seus dados",
+      "monthlyExpenses": "Despesas fixas mensais (R$)",
+      "profile": "Perfil profissional",
+      "currentReserve": "Reserva atual (R$)",
+      "monthlyContribution": "Aporte mensal (R$)",
+      "annualReturnPct": "Rentabilidade anual (%)",
+      "calculate": "Calcular",
+      "reset": "Limpar"
+    },
+    "results": {
+      "targetAmount": "Meta de reserva",
+      "profileMonths": "Meses de cobertura",
+      "gap": "Falta acumular",
+      "monthsToTarget": "Meses para atingir",
+      "chart": {
+        "xAxis": "Mês",
+        "balance": "Saldo acumulado"
+      }
+    },
+    "actions": {
+      "save": "Salvar simulação",
+      "saved": "Simulação salva",
+      "addAsGoal": "Criar meta",
+      "goalAdded": "Meta criada"
+    },
+    "simulation": {
+      "defaultName": "Reserva de Emergência",
+      "goalName": "Reserva de Emergência"
+    },
+    "errors": {
+      "expensesRequired": "Informe suas despesas mensais.",
+      "contributionRequired": "Informe o aporte mensal."
+    },
+    "disclaimer": {
+      "note": "Taxas de referência podem variar. Consulte seu assessor de investimentos."
+    }
+  },
+  "orcamento5030": {
+    "seo": {
+      "title": "Orçamento 50/30/20 — Auraxis",
+      "description": "Distribua sua renda em necessidades, desejos e investimentos com a regra 50/30/20.",
+      "ogTitle": "Orçamento 50/30/20 | Auraxis",
+      "ogDescription": "Organize suas finanças com a regra 50/30/20."
+    },
+    "hero": {
+      "title": "Orçamento 50/30/20",
+      "subtitle": "Descubra quanto destinar para necessidades, desejos e investimentos."
+    },
+    "form": {
+      "title": "Sua renda",
+      "netIncome": "Renda líquida mensal (R$)",
+      "mode": "Modo",
+      "modeSimple": "Simples",
+      "modeDetailed": "Detalhado",
+      "actualNeeds": "Gastos reais — Necessidades (R$)",
+      "actualWants": "Gastos reais — Desejos (R$)",
+      "actualInvestments": "Gastos reais — Investimentos (R$)",
+      "calculate": "Calcular",
+      "reset": "Limpar"
+    },
+    "results": {
+      "distribution": "Distribuição ideal",
+      "actual": "Real",
+      "surplus": "Sobra / Déficit",
+      "investmentGoal": "Meta mensal de investimento"
+    },
+    "actions": {
+      "save": "Salvar simulação",
+      "saved": "Simulação salva",
+      "addAsGoal": "Criar meta de investimento",
+      "goalAdded": "Meta criada"
+    },
+    "simulation": {
+      "defaultName": "Orçamento 50/30/20",
+      "goalName": "Meta de investimento mensal"
+    },
+    "errors": {
+      "incomeRequired": "Informe sua renda líquida."
+    },
+    "disclaimer": {
+      "note": "A regra 50/30/20 é uma referência geral. Adapte às suas necessidades."
+    }
+  },
+  "cet": {
+    "seo": {
+      "title": "CET — Custo Efetivo Total — Auraxis",
+      "description": "Descubra o custo real de um financiamento calculando o CET com IOF, TAC, seguro e todos os encargos.",
+      "ogTitle": "CET — Custo Efetivo Total | Auraxis",
+      "ogDescription": "Compare a taxa nominal com o CET real e saiba quanto você vai pagar."
+    },
+    "hero": {
+      "title": "CET — Custo Efetivo Total",
+      "subtitle": "Descubra o custo real de um financiamento, incluindo IOF, TAC, seguro e encargos ocultos."
+    },
+    "form": {
+      "title": "Dados do financiamento",
+      "loanAmount": "Valor financiado (R$)",
+      "nominalMonthlyRate": "Taxa nominal mensal (%)",
+      "termMonths": "Prazo (meses)",
+      "tac": "TAC — Taxa de abertura (R$)",
+      "insurance": "Seguro mensal (R$)",
+      "appraisal": "Avaliação do bem (R$)",
+      "iofOverride": "IOF manual (R$)",
+      "iofAutoPlaceholder": "Auto-calculado",
+      "calculate": "Calcular",
+      "reset": "Limpar"
+    },
+    "results": {
+      "cetAnnual": "CET anual",
+      "cetMonthly": "CET mensal",
+      "nominalMonthly": "Taxa nominal mensal",
+      "nominalAnnual": "Taxa nominal anual",
+      "totalPaid": "Total pago",
+      "totalCost": "Custo total dos encargos",
+      "netReceived": "Valor líquido recebido",
+      "iof": "IOF",
+      "monthlyPayment": "Parcela mensal",
+      "costDescription": "Custo total do financiamento"
+    },
+    "actions": {
+      "save": "Salvar simulação",
+      "saved": "Simulação salva"
+    },
+    "simulation": {
+      "defaultName": "CET — Custo Efetivo Total"
+    },
+    "errors": {
+      "loanAmountRequired": "Informe o valor financiado.",
+      "rateRequired": "Informe a taxa nominal mensal.",
+      "termRequired": "Informe o prazo em meses.",
+      "convergenceFailed": "Não foi possível calcular o CET. Verifique os valores informados."
+    },
+    "disclaimer": {
+      "note": "Cálculo conforme resolução Bacen nº 3.517. Consulte o contrato do seu financiamento."
+    }
+  },
+  "quitacaoDividas": {
+    "seo": {
+      "title": "Quitação de Dívidas — Auraxis",
+      "description": "Compare Snowball e Avalanche para quitar suas dívidas mais rápido e pagar menos juros.",
+      "ogTitle": "Quitação de Dívidas | Auraxis",
+      "ogDescription": "Descubra a melhor estratégia para quitar suas dívidas."
+    },
+    "hero": {
+      "title": "Quitação de Dívidas",
+      "subtitle": "Compare estratégias Snowball (menor saldo) e Avalanche (maior taxa) para quitar dívidas."
+    },
+    "form": {
+      "title": "Suas dívidas",
+      "debtName": "Nome da dívida",
+      "debtNamePlaceholder": "Ex: Cartão, Empréstimo",
+      "balance": "Saldo devedor (R$)",
+      "monthlyRate": "Taxa mensal (%)",
+      "minimumPayment": "Pagamento mínimo (R$)",
+      "extraPayment": "Pagamento extra mensal (R$)",
+      "addDebt": "Adicionar dívida",
+      "removeDebt": "Remover",
+      "calculate": "Simular",
+      "reset": "Limpar"
+    },
+    "results": {
+      "totalDebt": "Dívida total",
+      "snowballMonths": "Snowball (meses)",
+      "avalancheMonths": "Avalanche (meses)",
+      "interestSaved": "Economia em juros",
+      "best": {
+        "snowball": "Snowball é melhor",
+        "avalanche": "Avalanche é melhor"
+      },
+      "goalDescription": "Meta: quitar todas as dívidas",
+      "chart": {
+        "xAxis": "Mês"
+      }
+    },
+    "actions": {
+      "save": "Salvar simulação",
+      "saved": "Simulação salva",
+      "addAsGoal": "Criar meta",
+      "goalAdded": "Meta criada"
+    },
+    "simulation": {
+      "defaultName": "Quitação de Dívidas",
+      "goalName": "Quitar dívidas"
+    },
+    "errors": {
+      "minTwoDebts": "Adicione pelo menos 2 dívidas.",
+      "atLeastOneDebtRequired": "Preencha ao menos uma dívida com saldo e pagamento mínimo."
+    },
+    "disclaimer": {
+      "note": "Simulação simplificada. Taxas compostas e encargos reais podem diferir."
+    }
+  },
+  "custoEstiloVida": {
+    "seo": {
+      "title": "Custo do Estilo de Vida — Auraxis",
+      "description": "Descubra o custo de oportunidade dos seus gastos recorrentes se investidos ao longo do tempo.",
+      "ogTitle": "Custo do Estilo de Vida | Auraxis",
+      "ogDescription": "Veja quanto seus gastos recorrentes custariam se fossem investidos."
+    },
+    "hero": {
+      "title": "Custo do Estilo de Vida",
+      "subtitle": "Descubra o verdadeiro custo de oportunidade dos seus gastos recorrentes."
+    },
+    "form": {
+      "title": "Seus gastos recorrentes",
+      "expenseName": "Nome do gasto",
+      "expenseNamePlaceholder": "Ex: Streaming, Café, Academia",
+      "monthlyAmount": "Valor mensal (R$)",
+      "annualReturnPct": "Rentabilidade anual (%)",
+      "horizonYears": "Horizonte (anos)",
+      "addExpense": "Adicionar gasto",
+      "removeExpense": "Remover",
+      "calculate": "Calcular",
+      "reset": "Limpar"
+    },
+    "results": {
+      "totalOpportunityCost": "Custo de oportunidade total",
+      "totalMonthly": "Custo mensal total",
+      "totalAnnual": "Custo anual total",
+      "horizon": "Horizonte"
+    },
+    "actions": {
+      "save": "Salvar simulação",
+      "saved": "Simulação salva",
+      "addAsGoal": "Criar meta",
+      "goalAdded": "Meta criada",
+      "copyShareUrl": "Copiar link para compartilhar",
+      "copied": "Link copiado!"
+    },
+    "simulation": {
+      "defaultName": "Custo do Estilo de Vida",
+      "goalName": "Oportunidade de investimento"
+    },
+    "errors": {
+      "atLeastOneExpenseRequired": "Adicione pelo menos um gasto com valor.",
+      "horizonRequired": "Informe o horizonte em anos."
+    },
+    "disclaimer": {
+      "note": "Simulação baseada em rentabilidade composta constante. Resultados reais podem variar."
+    }
   }
 }
