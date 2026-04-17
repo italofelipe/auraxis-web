@@ -17,6 +17,8 @@
     "flags:check": "node scripts/check-feature-flags.cjs",
     "contracts:sync": "node scripts/contracts-sync.cjs",
     "contracts:check": "node scripts/contracts-check.cjs",
+    "analyze": "ANALYZE=true pnpm build && node scripts/analyze-bundle.cjs",
+    "analyze:report": "node scripts/analyze-bundle.cjs",
     "policy:check": "node scripts/check-frontend-governance.cjs",
     "quality-check": "pnpm flags:check && pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm policy:check && pnpm contracts:check && pnpm build",
     "test:e2e": "playwright test",
@@ -58,6 +60,7 @@
     "vue": "^3.5.32",
     "vue-echarts": "^8.0.1",
     "vue-router": "^5.0.4",
+    "web-vitals": "^5.2.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {
@@ -109,7 +112,8 @@
       "node-forge": ">=1.4.0",
       "defu": ">=6.1.5",
       "vite": "7.3.2",
-      "serialize-javascript": ">=7.0.3"
+      "serialize-javascript": ">=7.0.3",
+      "protobufjs": ">=7.5.5"
     },
     "onlyBuiltDependencies": [
       "@parcel/watcher",

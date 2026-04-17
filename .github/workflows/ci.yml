@@ -218,6 +218,39 @@ jobs:
           path: stats.html
           retention-days: 14
           if-no-files-found: warn
+      - name: Per-chunk bundle analysis (hard-fails on category overflow)
+        id: chunk-analysis
+        run: |
+          set -o pipefail
+          node scripts/analyze-bundle.cjs | tee chunk-report.md
+      - name: Upload per-chunk report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chunk-report
+          path: |
+            chunk-report.md
+            bundle-report.json
+          retention-days: 14
+          if-no-files-found: warn
+      - name: Comment per-chunk report on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const fs = require('fs');
+            if (!fs.existsSync('chunk-report.md')) return;
+            const body = fs.readFileSync('chunk-report.md', 'utf8');
+            try {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body,
+              });
+            } catch (error) {
+              core.warning(`Could not post per-chunk report comment: ${error.message}`);
+            }
       - name: Report bundle sizes
         uses: actions/github-script@v9
         with:

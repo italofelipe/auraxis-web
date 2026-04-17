@@ -28,16 +28,21 @@ ci:
   assert:
     preset: lighthouse:no-pwa  # Does not require PWA (can be enabled later)
     assertions:
-      # ── Scores measured reliably on localhost ──────────────────────────────
-      # Accessibility: strictly enforced — a11y is a product requirement.
+      # ── Category thresholds enforced per PERF-8 budget ─────────────────────
+      # Performance ≥ 90, A11y ≥ 95, Best Practices ≥ 90, SEO ≥ 90.
+      # All are `error` so regressions fail the PR check.
+      'categories:performance':
+        - error
+        - minScore: 0.9
       'categories:accessibility':
         - error
-        - minScore: 0.9           # ≥ 90 — fail
-
-      # SEO: descriptive meta tags and crawlability — valid in any environment.
+        - minScore: 0.95
+      'categories:best-practices':
+        - error
+        - minScore: 0.9
       'categories:seo':
-        - warn
-        - minScore: 0.85
+        - error
+        - minScore: 0.9
 
       # ── Explicitly disabled: localhost-only artefacts ──────────────────────
       # The following assertions always fail or produce unreliable results when
@@ -54,30 +59,22 @@ ci:
       unused-javascript:                   { severity: off }
       unused-css-rules:                    { severity: off }
 
-      # Performance metrics: warn-only (non-blocking) to establish a Phase 0 baseline.
-      # Thresholds are generous — goal is visibility, not enforcement yet.
-      # Tighten after Phase 2 (PERF-GAP-01/02/06/07) improvements land.
-      # Note: CI runners have no throttling consistency; treat absolute numbers
-      # as relative indicators only. RUM in prod is the authoritative source.
-      'categories:performance':
-        - warn
-        - minScore: 0.5
-
+      # Individual metric budgets — warn-only so the category score is the
+      # load-bearing signal. Tighten once RUM data confirms steady baselines.
       largest-contentful-paint:
         - warn
-        - maxNumericValue: 5000   # warn if LCP > 5s (CI runner, no CDN)
+        - maxNumericValue: 4000   # warn if LCP > 4s (CI runner, no CDN)
 
       total-blocking-time:
         - warn
-        - maxNumericValue: 1500   # warn if TBT > 1.5s
+        - maxNumericValue: 1200   # warn if TBT > 1.2s
 
       cumulative-layout-shift:
         - warn
-        - maxNumericValue: 0.25   # warn if CLS > 0.25
+        - maxNumericValue: 0.1    # warn if CLS > 0.1 (Core Web Vitals "good")
 
       first-contentful-paint:              { severity: off }
       speed-index:                         { severity: off }
-      'categories:best-practices':         { severity: off }
 
   upload:
     # Use temporary public storage (free, 13-day retention)
