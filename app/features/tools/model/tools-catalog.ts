@@ -23,6 +23,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     accessLevel: "public",
     route: "/tools/installment-vs-cash",
     featureFlag: "web.tools.installment-vs-cash",
+    saveIntent: "goal",
   },
   {
     id: "thirteenth-salary",
@@ -33,6 +34,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     accessLevel: "public",
     route: "/tools/thirteenth-salary",
     featureFlag: "web.tools.thirteenth-salary",
+    saveIntent: "receivable",
   },
   {
     id: "inss-ir-folha",
@@ -53,6 +55,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     accessLevel: "public",
     route: "/tools/hora-extra",
     featureFlag: "web.tools.hora-extra",
+    saveIntent: "receivable",
   },
   {
     id: "ferias",

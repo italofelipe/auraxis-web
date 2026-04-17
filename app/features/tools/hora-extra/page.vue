@@ -18,6 +18,7 @@ import HoraExtraForm from "./HoraExtraForm.vue";
 import HoraExtraResultPanel from "./HoraExtraResult.vue";
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
+import ToolSaveResult from "~/components/tool/ToolSaveResult/ToolSaveResult.vue";
 import UiStickySummaryCard from "~/components/ui/UiStickySummaryCard/UiStickySummaryCard.vue";
 import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
 import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
@@ -129,6 +130,12 @@ async function handleSaveSimulation(): Promise<void> {
                   <HoraExtraResultPanel :result="result" />
                 </div>
               </UiSurfaceCard>
+
+              <ToolSaveResult
+                intent="receivable"
+                :label="t('horaExtra.hero.title')"
+                :amount="result.netOvertimeEstimate"
+              />
 
               <HoraExtraActions
                 :saved-simulation-id="savedSimulationId"

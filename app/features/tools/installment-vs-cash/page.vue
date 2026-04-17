@@ -3,6 +3,7 @@ import { provide } from "vue";
 import { NSpace, NThing } from "naive-ui";
 
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
+import ToolSaveResult from "~/components/tool/ToolSaveResult/ToolSaveResult.vue";
 import { getRecommendationLabel } from "~/features/tools/model/installment-vs-cash";
 
 import InstallmentVsCashHero from "./InstallmentVsCashHero.vue";
@@ -46,6 +47,13 @@ function updateForm(value: typeof page.form.value): void {
 
         <section v-if="page.calculation.value" class="installment-vs-cash-page__results">
           <InstallmentVsCashResults :calculation="page.calculation.value" />
+
+          <ToolSaveResult
+            intent="goal"
+            :label="page.t('pages.installmentVsCash.title')"
+            :amount="page.calculation.value.input.cashPrice"
+            :description="getRecommendationLabel(page.calculation.value.result.recommendedOption)"
+          />
 
           <UiSurfaceCard>
             <NThing
