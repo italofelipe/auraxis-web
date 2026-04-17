@@ -31,6 +31,7 @@ import {
 import CalculatorFormSection from "~/components/tool/CalculatorFormSection/CalculatorFormSection.vue";
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
+import ToolSaveResult from "~/components/tool/ToolSaveResult/ToolSaveResult.vue";
 import UiStickySummaryCard from "~/components/ui/UiStickySummaryCard/UiStickySummaryCard.vue";
 import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
 import UiGlassPanel from "~/components/ui/UiGlassPanel/UiGlassPanel.vue";
@@ -386,6 +387,12 @@ const isSaved = computed(() => savedSimulationId.value !== null);
               :label="t('jurosCompostos.results.finalAmountNominal')"
               :value="formatBrl(result.finalAmountNominal)"
               :metrics="summaryMetrics"
+            />
+
+            <ToolSaveResult
+              intent="goal"
+              :label="t('jurosCompostos.hero.title')"
+              :amount="result.finalAmountNominal"
             />
 
             <NSpace vertical style="margin-top: 16px">

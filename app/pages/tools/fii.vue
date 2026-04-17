@@ -31,6 +31,7 @@ import {
 import CalculatorFormSection from "~/components/tool/CalculatorFormSection/CalculatorFormSection.vue";
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
+import ToolSaveResult from "~/components/tool/ToolSaveResult/ToolSaveResult.vue";
 import UiStickySummaryCard from "~/components/ui/UiStickySummaryCard/UiStickySummaryCard.vue";
 import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
 import UiGlassPanel from "~/components/ui/UiGlassPanel/UiGlassPanel.vue";
@@ -376,6 +377,12 @@ async function handleAddAsGoal(): Promise<void> {
                 {{ t('fii.disclaimer.cvm') }}
               </NAlert>
             </UiSurfaceCard>
+
+            <ToolSaveResult
+              intent="goal"
+              :label="t('fii.hero.title')"
+              :amount="result.monthlyIncome ?? 0"
+            />
 
             <!-- Action bar -->
             <UiSurfaceCard class="fii-page__action-bar">

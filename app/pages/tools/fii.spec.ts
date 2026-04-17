@@ -217,6 +217,10 @@ const globalStubs = {
   ToolGuestCta: {
     template: "<div class='tool-guest-cta'>toolGuestCta</div>",
   },
+  ToolSaveResult: {
+    props: ["intent", "label", "amount", "description"],
+    template: "<div class='tool-save-result-stub' />",
+  },
 };
 
 /**

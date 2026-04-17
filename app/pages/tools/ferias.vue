@@ -36,6 +36,7 @@ import {
 import CalculatorFormSection from "~/components/tool/CalculatorFormSection/CalculatorFormSection.vue";
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
+import ToolSaveResult from "~/components/tool/ToolSaveResult/ToolSaveResult.vue";
 import UiStickySummaryCard from "~/components/ui/UiStickySummaryCard/UiStickySummaryCard.vue";
 import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
 import UiGlassPanel from "~/components/ui/UiGlassPanel/UiGlassPanel.vue";
@@ -382,6 +383,12 @@ async function handleSaveSimulation(): Promise<void> {
                 {{ t('ferias.results.bestMonthNote') }}
               </p>
             </UiSurfaceCard>
+
+            <ToolSaveResult
+              intent="receivable"
+              :label="t('ferias.hero.title')"
+              :amount="result.netTotal"
+            />
 
             <!-- Action bar -->
             <UiSurfaceCard class="ferias-page__action-bar">

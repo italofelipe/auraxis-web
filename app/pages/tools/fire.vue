@@ -33,6 +33,7 @@ import {
 import CalculatorFormSection from "~/components/tool/CalculatorFormSection/CalculatorFormSection.vue";
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
+import ToolSaveResult from "~/components/tool/ToolSaveResult/ToolSaveResult.vue";
 import UiStickySummaryCard from "~/components/ui/UiStickySummaryCard/UiStickySummaryCard.vue";
 import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
 import UiGlassPanel from "~/components/ui/UiGlassPanel/UiGlassPanel.vue";
@@ -390,6 +391,12 @@ const isSaved = computed(() => savedSimulationId.value !== null);
               :label="t('fire.results.requiredPatrimony')"
               :value="formatBrl(result.selectedVariant.requiredPatrimony)"
               :metrics="summaryMetrics"
+            />
+
+            <ToolSaveResult
+              intent="goal"
+              :label="t('fire.hero.title')"
+              :amount="result.selectedVariant.requiredPatrimony"
             />
 
             <NSpace vertical style="margin-top: 16px">
