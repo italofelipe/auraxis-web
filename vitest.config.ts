@@ -23,10 +23,10 @@ import type { UserConfig } from "vitest/config";
 const coverageConfig = {
   enabled: true,
   thresholds: {
-    lines: 85,
-    functions: 85,
+    lines: 90,
+    functions: 87,
     branches: 85,
-    statements: 85,
+    statements: 90,
   },
   provider: "v8",
   reporter: ["text", "json", "json-summary", "lcovonly", "html"],
