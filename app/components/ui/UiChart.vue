@@ -9,34 +9,45 @@
  * - Ser extensível via prop `option` (EChartsOption completo)
  *
  * NÃO tem lógica de negócio — apenas renderização.
+ *
+ * PERFORMANCE: ECharts modules are lazy-loaded via defineAsyncComponent.
+ * The ~800 KB echarts bundle is only fetched when a chart is first rendered,
+ * keeping the initial page load lean.
  */
 import type { EChartsOption } from "echarts";
-import { use } from "echarts/core";
-import { CanvasRenderer } from "echarts/renderers";
-import { LineChart, BarChart, PieChart, GaugeChart } from "echarts/charts";
-import {
-  GridComponent,
-  TooltipComponent,
-  LegendComponent,
-  TitleComponent,
-  DataZoomComponent,
-} from "echarts/components";
-import VChart from "vue-echarts";
+import { defineAsyncComponent } from "vue";
 import { useChartTheme } from "~/composables/useChartTheme";
 
-// Tree-shaking: registrar apenas os módulos utilizados
-use([
-  CanvasRenderer,
-  LineChart,
-  BarChart,
-  PieChart,
-  GaugeChart,
-  GridComponent,
-  TooltipComponent,
-  LegendComponent,
-  TitleComponent,
-  DataZoomComponent,
-]);
+/**
+ * Lazy-loaded VChart — dynamically imports echarts core, renderers, charts,
+ * components and vue-echarts. Registration via `use()` runs once inside the
+ * factory (defineAsyncComponent caches the resolved component).
+ */
+const LazyVChart = defineAsyncComponent(async () => {
+  const [{ use }, { CanvasRenderer }, charts, components, vueEcharts] =
+    await Promise.all([
+      import("echarts/core"),
+      import("echarts/renderers"),
+      import("echarts/charts"),
+      import("echarts/components"),
+      import("vue-echarts"),
+    ]);
+
+  use([
+    CanvasRenderer,
+    charts.LineChart,
+    charts.BarChart,
+    charts.PieChart,
+    charts.GaugeChart,
+    components.GridComponent,
+    components.TooltipComponent,
+    components.LegendComponent,
+    components.TitleComponent,
+    components.DataZoomComponent,
+  ]);
+
+  return vueEcharts.default;
+});
 
 const props = withDefaults(
   defineProps<{
@@ -64,7 +75,7 @@ const { auraxisEChartsTheme } = useChartTheme();
 
 <template>
   <ClientOnly>
-    <VChart
+    <LazyVChart
       :key="props.updateKey"
       :option="props.option"
       :theme="auraxisEChartsTheme"
