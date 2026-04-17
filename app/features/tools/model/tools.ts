@@ -1,4 +1,5 @@
 import type { ToolDto } from "~/features/tools/contracts/tools.dto";
+import type { SaveIntent } from "~/components/tool/ToolSaveResult/ToolSaveResult.types";
 
 /**
  * Access level required to use a tool.
@@ -25,6 +26,8 @@ export interface Tool {
    * When absent, the tool relies solely on `enabled` and `accessLevel`.
    */
   featureFlag?: string;
+  /** What kind of financial record the tool result can be saved as. */
+  saveIntent?: SaveIntent;
 }
 
 /**

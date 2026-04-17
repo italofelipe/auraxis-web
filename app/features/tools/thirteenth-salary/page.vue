@@ -6,6 +6,7 @@ import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/C
 import UiStickySummaryCard from "~/components/ui/UiStickySummaryCard/UiStickySummaryCard.vue";
 import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
 import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
+import ToolSaveResult from "~/components/tool/ToolSaveResult/ToolSaveResult.vue";
 
 import ThirteenthSalaryResultPanel from "./ThirteenthSalaryResult.vue";
 import ThirteenthSalaryForm from "./ThirteenthSalaryForm.vue";
@@ -63,6 +64,12 @@ function handleUpgrade(): void {
               <UiSurfaceCard>
                 <ThirteenthSalaryResultPanel :result="page.result.value" />
               </UiSurfaceCard>
+
+              <ToolSaveResult
+                intent="receivable"
+                :label="page.t('thirteenthSalary.hero.title')"
+                :amount="page.result.value.totalNet"
+              />
 
               <ThirteenthSalaryActions
                 :saved-simulation-id="page.savedSimulationId.value"

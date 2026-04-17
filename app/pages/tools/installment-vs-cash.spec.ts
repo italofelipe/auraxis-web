@@ -224,6 +224,10 @@ const globalStubs = {
     props: ["calculation"],
     template: "<div class='results'>resultado</div>",
   },
+  ToolSaveResult: {
+    props: ["intent", "label", "amount", "description"],
+    template: "<div class='tool-save-result-stub' />",
+  },
   InstallmentVsCashActionBar: {
     props: ["isAuthenticated", "hasPremiumAccess", "isSaving", "isBridging", "hasSavedSimulation"],
     template: `
