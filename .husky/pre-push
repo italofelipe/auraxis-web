@@ -1,7 +1,53 @@
-echo "🔍 Running TypeScript check before push..."
+#!/usr/bin/env sh
+# Pre-push hook — mirrors GitHub Actions CI pipeline locally.
+# Catches failures before they reach remote.
+#
+# E2E is opt-in because local preview server + mock routing can diverge
+# from CI. Run manually with: pnpm test:e2e --project=chromium --project=mobile-chrome
+# Or enable in hook with: RUN_E2E=1 git push
+#
+# Skip the entire hook with: git push --no-verify (use sparingly)
+
+set -e
+
+echo "══════════════════════════════════════════════════════"
+echo "  Pre-push CI parity gate"
+echo "══════════════════════════════════════════════════════"
+
+echo ""
+echo "▸ [1/7] Feature flags hygiene..."
+pnpm flags:check
+
+echo ""
+echo "▸ [2/7] Lint (ESLint)..."
+pnpm lint
+
+echo ""
+echo "▸ [3/7] TypeScript (strict)..."
 npx nuxi typecheck
 
-echo "🧪 Running tests with coverage..."
+echo ""
+echo "▸ [4/7] Unit tests + coverage..."
 npx vitest run --coverage
 
-echo "✅ Pre-push checks passed."
+echo ""
+echo "▸ [5/7] Frontend governance + contracts..."
+pnpm policy:check
+pnpm contracts:check
+
+echo ""
+echo "▸ [6/7] Build..."
+pnpm build
+
+echo ""
+if [ "${RUN_E2E:-0}" = "1" ]; then
+  echo "▸ [7/7] E2E (Playwright — chromium + mobile-chrome)..."
+  pnpm test:e2e --project=chromium --project=mobile-chrome
+else
+  echo "▸ [7/7] E2E (skipped — opt-in with RUN_E2E=1 git push)"
+fi
+
+echo ""
+echo "══════════════════════════════════════════════════════"
+echo "  All pre-push checks passed."
+echo "══════════════════════════════════════════════════════"

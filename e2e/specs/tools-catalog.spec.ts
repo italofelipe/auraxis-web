@@ -98,10 +98,12 @@ const loginAndGoToTools = async (page: Page): Promise<void> => {
 	// Client-side navigation preserves the in-memory Pinia session token.
 	// A full page.goto would trigger SSR → server-side middleware → redirect,
 	// because the token only lives in Pinia memory (client-side).
-	// Clicking the sidebar NuxtLink triggers Vue Router (SPA mode).
-	const toolsLink = page.locator("a[href='/tools']").first();
-	await expect(toolsLink).toBeVisible({ timeout: 10_000 });
-	await toolsLink.click();
+	// Access the Vue Router via the root Vue app instance and push client-side.
+	await page.evaluate(() => {
+		const root = document.getElementById("__nuxt");
+		const router = root?.__vue_app__?.config?.globalProperties?.$router;
+		router?.push("/tools");
+	});
 	await page.waitForURL("**/tools", { timeout: 10_000 });
 	await waitForHydration(page);
 };
