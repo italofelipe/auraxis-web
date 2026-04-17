@@ -79,7 +79,11 @@ const mockAuthForTools = async (page: Page): Promise<void> => {
 };
 
 /**
- * Logs in via UI and navigates to /tools.
+ * Logs in via UI and navigates to /tools using client-side routing.
+ *
+ * Clicks the sidebar NuxtLink instead of page.goto (which causes a full SSR
+ * reload, wiping Pinia state and causing the authenticated middleware to
+ * redirect back to /login).
  *
  * @param page - Playwright page instance.
  */
@@ -90,7 +94,15 @@ const loginAndGoToTools = async (page: Page): Promise<void> => {
 	await page.locator("#login-password").fill("ValidPassword1!");
 	await page.getByRole("button", { name: /entrar/i }).click();
 	await expect(page).toHaveURL(/\/dashboard/, { timeout: 10_000 });
-	await page.goto("/tools");
+
+	// Client-side navigation preserves the in-memory Pinia session token.
+	// A full page.goto would trigger SSR → server-side middleware → redirect,
+	// because the token only lives in Pinia memory (client-side).
+	// Clicking the sidebar NuxtLink triggers Vue Router (SPA mode).
+	const toolsLink = page.locator("a[href='/tools']").first();
+	await expect(toolsLink).toBeVisible({ timeout: 10_000 });
+	await toolsLink.click();
+	await page.waitForURL("**/tools", { timeout: 10_000 });
 	await waitForHydration(page);
 };
 
