@@ -1,56 +1,50 @@
 /**
  * Auraxis design tokens mapped to Naive UI's GlobalThemeOverrides.
  *
- * Source of truth: `.context/30_design_reference.md` + `designs/1920w default.png`.
- *
- * Rules:
- * - Do NOT use raw hex values outside this file in product code.
- * - Reference tokens via the `n-config-provider` :theme-overrides prop (already
- *   injected globally in `app/app.vue`) or via the exported `tokens` object.
- * - To add a new override, extend the relevant component key below and open a PR.
+ * Source of truth: DS v3 "Market Pulse"
+ * - `docs/wiki/MVP-1-Web-Design-System-v3-Market-Pulse.md`
+ * - `designs/web/revamp/tokens/auraxis-ds-v3.tokens.css`
  */
 import type { GlobalThemeOverrides } from "naive-ui";
 
 /**
- * Core Auraxis token palette — mirrors `.context/30_design_reference.md`.
+ * Core Auraxis token palette — DS v3 "Market Pulse".
  * Exported so wrappers and composables can reference tokens without duplicating values.
  */
 export const tokens = {
   surface: {
-    base: "#272020",
-    deep: "#0c0909",
-    card: "#413a3a",
-    cardActive: "#322a2a",
+    base: "#121a2a",
+    deep: "#05070d",
+    card: "#0e1523",
+    cardActive: "#172338",
   },
   brand: {
-    primary: "#ffab1a",
-    secondary: "#ffbe4d",
-    highlight: "#ffd080",
-    primaryPressed: "#e09600",
+    primary: "#44d4ff",
+    secondary: "#8b7dff",
+    highlight: "#42e8a9",
+    primaryPressed: "#24beea",
   },
   text: {
-    default: "#f5f0f0",
-    muted: "#bcb3b3",
-    disabled: "#6b6060",
+    default: "#f1f5ff",
+    muted: "#d2dcf3",
+    disabled: "#6e7f9f",
   },
   status: {
-    success: "#059669",
-    successSoft: "#4ade80",
-    danger: "#ef4343",
-    dangerSoft: "#f87171",
-    warning: "#f59e0b",
-    info: "#3b82f6",
+    success: "#42e8a9",
+    successSoft: "#86f7cc",
+    danger: "#ff6f79",
+    dangerSoft: "#ff9099",
+    warning: "#ffb861",
+    info: "#44d4ff",
   },
-  border: "#4a3f3f",
+  border: "rgba(255, 255, 255, 0.1)",
 } as const;
 
 /**
- * Naive UI GlobalThemeOverrides applying the Auraxis visual identity.
+ * Naive UI GlobalThemeOverrides applying the Auraxis DS v3 visual identity.
  *
  * Passed to `<NConfigProvider :theme-overrides="auraxisThemeOverrides">` in app.vue.
  * All product components inherit these values automatically — no per-component theming needed.
- *
- * @returns GlobalThemeOverrides
  */
 export const auraxisThemeOverrides: GlobalThemeOverrides = {
   common: {
@@ -79,21 +73,20 @@ export const auraxisThemeOverrides: GlobalThemeOverrides = {
     warningColor: tokens.status.warning,
     errorColor: tokens.status.danger,
     infoColor: tokens.status.info,
-    // Typography — fonts loaded via @nuxtjs/google-fonts (Playfair Display + Raleway)
-    fontFamily: "Raleway, system-ui, sans-serif",
-    fontFamilyMono: "\"Fira Code\", \"Cascadia Code\", monospace",
+    // Typography — Inter + IBM Plex Mono (DS v3)
+    fontFamily: "Inter, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+    fontFamilyMono: "\"IBM Plex Mono\", \"SF Mono\", ui-monospace, Menlo, monospace",
     fontSize: "14px",
     fontSizeMini: "12px",
     fontSizeSmall: "13px",
     fontSizeMedium: "14px",
     fontSizeLarge: "16px",
     fontSizeHuge: "20px",
-    // Radius — 8px grid
-    borderRadius: "8px",
-    borderRadiusSmall: "4px",
+    // Radius — DS v3 scale
+    borderRadius: "10px",
+    borderRadiusSmall: "6px",
   },
   Button: {
-    // Primary button text is dark (brand primary is bright amber)
     textColor: tokens.surface.deep,
     fontWeightStrong: "600",
   },

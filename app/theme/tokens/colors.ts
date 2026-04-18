@@ -1,54 +1,89 @@
 export const colors = {
-  // Backgrounds (dark warm base)
+  // Backgrounds (navy base — DS v3 "Market Pulse")
   bg: {
-    base:     "#0b0909",            // deepest background
-    surface:  "#272020",            // cards, panels
-    elevated: "#413939",            // elevated surfaces, dropdowns
-    glass:    "rgba(39, 32, 32, 0.6)", // glassmorphism
+    canvas:   "#05070d",            // deepest background (--a3-neutral-950)
+    app:      "#0a0f1a",            // app-level background (--a3-neutral-900)
+    elevated: "#0e1523",            // elevated overlays (--a3-neutral-850)
+    surface:  "#121a2a",            // cards, panels (--a3-neutral-800)
+    surface2: "#172338",            // secondary surface (--a3-neutral-750)
+    glass:    "rgba(18, 26, 42, 0.86)", // glassmorphism
   },
-  // Amber/gold brand — single palette across the product
-  brand: {
-    400: "#ffd180",  // lightest — hovers, disabled
-    500: "#ffbe4d",  // secondary accent
-    600: "#ffab1a",  // DEFAULT — CTAs, links, focus
-    700: "#f59600",  // pressed
-    800: "#d97600",  // darkest
-  },
-  // Brand glows (alpha)
-  brandGlow: {
-    lg:  "rgba(255, 171, 26, 0.4)",
-    md:  "rgba(255, 171, 26, 0.3)",
-    sm:  "rgba(255, 171, 26, 0.2)",
-    xs:  "rgba(255, 171, 26, 0.1)",
-    xxs: "rgba(255, 171, 26, 0.05)",
+  // Neutral scale
+  neutral: {
+    950: "#05070d",
+    900: "#0a0f1a",
+    850: "#0e1523",
+    800: "#121a2a",
+    750: "#172338",
+    700: "#1d2b44",
+    650: "#243652",
+    600: "#2d4466",
   },
   // Text
   text: {
-    primary:   "#faf9f9",
-    secondary: "#d1c7c7",
-    muted:     "#9b8888",
-    subtle:    "#6c5a5a",
+    primary:   "#f1f5ff",
+    secondary: "#d2dcf3",
+    muted:     "#94a3bf",
+    subtle:    "#6e7f9f",
   },
-  // Semantic — positive (positive financial values)
+  // Accent — Cyan (primary action)
+  cyan: {
+    300: "#9be9ff",
+    400: "#6fe0ff",
+    500: "#44d4ff",
+    600: "#24beea",
+    700: "#1598be",
+  },
+  // Accent — Violet
+  violet: {
+    300: "#bfb5ff",
+    400: "#a495ff",
+    500: "#8b7dff",
+    600: "#6f62e2",
+    700: "#594fc2",
+  },
+  // Accent — Lime (profit / positive)
+  lime: {
+    300: "#86f7cc",
+    400: "#63f0b9",
+    500: "#42e8a9",
+    600: "#22c88a",
+    700: "#169b6b",
+  },
+  // Accent — Orange (warning)
+  orange: {
+    300: "#ffd7a7",
+    400: "#ffc985",
+    500: "#ffb861",
+    600: "#e89e47",
+    700: "#c68431",
+  },
+  // Accent — Red (loss / error)
+  red: {
+    300: "#ffb0b6",
+    400: "#ff9099",
+    500: "#ff6f79",
+    600: "#e85763",
+    700: "#c53f4a",
+  },
+  // Semantic — positive (profit)
   positive: {
-    DEFAULT: "#10b981",
-    dark:    "#059669",
-    bg:      "rgba(16, 185, 129, 0.1)",
-    glow:    "rgba(16, 185, 129, 0.4)",
+    DEFAULT: "#42e8a9",
+    dark:    "#22c88a",
+    bg:      "rgba(66, 232, 169, 0.1)",
+    glow:    "rgba(66, 232, 169, 0.4)",
   },
-  // Semantic — negative (negative financial values, errors)
+  // Semantic — negative (loss / errors)
   negative: {
-    DEFAULT: "#ef4444",
-    dark:    "#dc2626",
-    bg:      "rgba(239, 68, 68, 0.1)",
-    glow:    "rgba(239, 68, 68, 0.2)",
+    DEFAULT: "#ff6f79",
+    dark:    "#e85763",
+    bg:      "rgba(255, 111, 121, 0.1)",
+    glow:    "rgba(255, 111, 121, 0.2)",
   },
   // Borders and dividers
-  outline: {
-    hard:   "rgba(65, 57, 57, 0.8)",
-    soft:   "rgba(65, 57, 57, 0.5)",
-    subtle: "rgba(38, 33, 33, 0.2)",
-    ghost:  "rgba(38, 33, 33, 0.08)",
+  border: {
+    subtle: "rgba(255, 255, 255, 0.1)",
+    strong: "rgba(68, 212, 255, 0.4)",
   },
 } as const;
 

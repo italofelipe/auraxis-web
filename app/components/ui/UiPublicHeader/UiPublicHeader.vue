@@ -250,13 +250,12 @@ const closeMenu = (): void => {
 }
 
 .ui-public-header__btn--primary {
-  background: var(--color-brand-500);
-  /* #1a0700 on #ffbe4d → ~11.9:1 contrast, WCAG 2.1 AA ✓ */
-  color: #1a0700;
+  background: linear-gradient(140deg, #44d4ff, #42e8a9);
+  color: #05070d;
 }
 
 .ui-public-header__btn--primary:hover {
-  background: var(--color-brand-600, #e6a800);
+  filter: brightness(1.05);
   box-shadow: 0 2px 8px color-mix(in srgb, var(--color-brand-500) 40%, transparent);
 }
 

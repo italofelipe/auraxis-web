@@ -11,9 +11,9 @@ const TokensShowcase = defineComponent({
       h(NCard, { title: "Auraxis Design Tokens", style: { maxWidth: "600px" } }, {
         default: () => [
           h("div", { style: "display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;" }, [
-            h("div", { style: `width:48px;height:48px;background:${colors.brand[600]};border-radius:8px;` }),
-            h("div", { style: `width:48px;height:48px;background:${colors.brand[500]};border-radius:8px;` }),
-            h("div", { style: `width:48px;height:48px;background:${colors.brand[400]};border-radius:8px;` }),
+            h("div", { style: `width:48px;height:48px;background:${colors.cyan[500]};border-radius:8px;` }),
+            h("div", { style: `width:48px;height:48px;background:${colors.violet[500]};border-radius:8px;` }),
+            h("div", { style: `width:48px;height:48px;background:${colors.lime[500]};border-radius:8px;` }),
             h("div", { style: `width:48px;height:48px;background:${colors.positive.DEFAULT};border-radius:8px;` }),
             h("div", { style: `width:48px;height:48px;background:${colors.negative.DEFAULT};border-radius:8px;` }),
           ]),

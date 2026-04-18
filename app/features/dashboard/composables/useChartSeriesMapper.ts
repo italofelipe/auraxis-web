@@ -13,7 +13,7 @@ interface SeriesMeta {
 const TIMESERIES_SERIES: Record<TimeseriesKey, SeriesMeta> = {
   income:  { name: "Receitas",  color: colors.positive.DEFAULT },
   expense: { name: "Despesas",  color: colors.negative.DEFAULT },
-  balance: { name: "Saldo",     color: colors.brand[600] },
+  balance: { name: "Saldo",     color: colors.cyan[500] },
 };
 
 /**

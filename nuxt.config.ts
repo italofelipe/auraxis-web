@@ -93,7 +93,7 @@ export default defineNuxtConfig({
             + "Acompanhe investimentos, simule cenários e tome decisões financeiras com inteligência.",
         },
         // ── Security ──────────────────────────────────────────────────
-        { name: "theme-color", content: "#ffbe4d" },
+        { name: "theme-color", content: "#44d4ff" },
         // Restricts referrer info to same origin — protects user session URLs
         { name: "referrer", content: "strict-origin-when-cross-origin" },
         // Baked in by CI via NUXT_PUBLIC_BUILD_ID="<run_id>-<sha>".
@@ -109,7 +109,7 @@ export default defineNuxtConfig({
       ],
     },
   },
-  css: ["~/assets/css/main.css"],
+  css: ["~/assets/css/main.css", "~/assets/css/ds-bridge.css"],
 
   // ── @nuxtjs/seo — site-wide defaults ─────────────────────────────────────
   // Used by nuxt-site-config (bundled in @nuxtjs/seo) to auto-generate
@@ -187,8 +187,8 @@ export default defineNuxtConfig({
 
   googleFonts: {
     families: {
-      "Playfair Display": [400, 500, 600, 700],
-      Raleway: [400, 500, 600, 700],
+      Inter: [400, 500, 600, 700, 800],
+      "IBM Plex Mono": [400, 500, 600],
     },
     display: "swap",
     preload: true,

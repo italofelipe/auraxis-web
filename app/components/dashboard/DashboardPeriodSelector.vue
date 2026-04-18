@@ -71,8 +71,8 @@ const handleSelect = (period: DashboardPeriod): void => {
 }
 
 .period-selector__btn--active {
-  background: var(--color-brand-500, #ffab1a);
-  border-color: var(--color-brand-500, #ffab1a);
-  color: #1a1410;
+  background: var(--color-brand-500, #44d4ff);
+  border-color: var(--color-brand-500, #44d4ff);
+  color: #05070d;
 }
 </style>

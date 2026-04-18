@@ -1,6 +1,7 @@
 export const fonts = {
-  heading: "\"Playfair Display\", serif",
-  body: "Raleway, sans-serif",
+  heading: "Inter, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+  body: "Inter, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+  mono: "\"IBM Plex Mono\", \"SF Mono\", ui-monospace, Menlo, monospace",
 } as const;
 
 export const fontSizes = {

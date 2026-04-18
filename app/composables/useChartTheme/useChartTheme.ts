@@ -38,33 +38,33 @@ export function useChartTheme(): ChartThemeResult {
 
     tooltip: {
       backgroundColor: colors.bg.elevated,
-      borderColor:     colors.outline.soft,
+      borderColor:     colors.border.subtle,
       textStyle: {
         color: colors.text.primary,
       },
     },
 
     categoryAxis: {
-      axisLine: { lineStyle: { color: colors.outline.subtle } },
-      axisTick: { lineStyle: { color: colors.outline.subtle } },
+      axisLine: { lineStyle: { color: colors.border.subtle } },
+      axisTick: { lineStyle: { color: colors.border.subtle } },
       axisLabel: { color: colors.text.muted },
-      splitLine: { lineStyle: { color: colors.outline.ghost, type: "dashed" } },
+      splitLine: { lineStyle: { color: "rgba(255, 255, 255, 0.03)", type: "dashed" } },
     },
 
     valueAxis: {
-      axisLine: { lineStyle: { color: colors.outline.subtle } },
-      axisTick: { lineStyle: { color: colors.outline.subtle } },
+      axisLine: { lineStyle: { color: colors.border.subtle } },
+      axisTick: { lineStyle: { color: colors.border.subtle } },
       axisLabel: { color: colors.text.muted },
-      splitLine: { lineStyle: { color: colors.outline.ghost, type: "dashed" } },
+      splitLine: { lineStyle: { color: "rgba(255, 255, 255, 0.03)", type: "dashed" } },
     },
 
-    // Paleta de séries — brand como primária, positive/negative como semânticos
+    // Paleta de séries — cyan/lime/violet como primárias, positive/negative como semânticos
     color: [
-      colors.brand[600],
+      colors.cyan[500],
       colors.positive.DEFAULT,
-      colors.brand[400],
+      colors.violet[500],
       colors.negative.DEFAULT,
-      colors.brand[800],
+      colors.orange[500],
       colors.positive.dark,
     ],
 

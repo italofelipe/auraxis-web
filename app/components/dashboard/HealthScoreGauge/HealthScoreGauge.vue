@@ -67,7 +67,7 @@ const chartOption = computed((): EChartsOption => ({
         fontSize: 32,
         fontWeight: "bold",
         color: gaugeColor.value,
-        fontFamily: "Raleway, sans-serif",
+        fontFamily: "Inter, sans-serif",
       },
       data: [{ value: props.score }],
     },

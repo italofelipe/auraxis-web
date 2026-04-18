@@ -31,7 +31,7 @@ export const Default: Story = {
     components: { UiInfoTooltip },
     setup: () => ({ args }),
     template: `
-      <div style="padding: 48px; background: #0c0909;">
+      <div style="padding: 48px; background: #05070d;">
         <UiInfoTooltip v-bind="args" />
       </div>
     `,

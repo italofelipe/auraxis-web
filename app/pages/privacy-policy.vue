@@ -305,9 +305,8 @@ definePageMeta({ layout: false });
 
 .contact-link,
 .inline-link {
-  /* Dark amber #7c5200 on white → 7.4:1 contrast, WCAG 2.1 AA ✓ */
-  /* Do NOT use --color-brand-600 (resolves to #ffab1a = 1.89:1 on white) */
-  color: #7c5200;
+  /* Dark cyan #0e6e8a on white → 5.2:1 contrast, WCAG 2.1 AA ✓ */
+  color: #0e6e8a;
   text-decoration: underline;
   text-underline-offset: 2px;
 }

@@ -8,22 +8,22 @@ export interface NaiveThemeResult {
   themeOverrides: GlobalThemeOverrides;
 }
 
-/** @returns GlobalThemeOverrides.common mapped from Auraxis design tokens. */
+/** @returns GlobalThemeOverrides.common mapped from Auraxis DS v3 tokens. */
 function buildCommonOverrides(): GlobalThemeOverrides["common"] {
   return {
-    primaryColor:             colors.brand[600],
-    primaryColorHover:        colors.brand[500],
-    primaryColorPressed:      colors.brand[700],
-    primaryColorSuppl:        colors.brand[400],
-    bodyColor:                colors.bg.base,
+    primaryColor:             colors.cyan[500],
+    primaryColorHover:        colors.cyan[400],
+    primaryColorPressed:      colors.cyan[600],
+    primaryColorSuppl:        colors.violet[500],
+    bodyColor:                colors.bg.canvas,
     cardColor:                colors.bg.surface,
     modalColor:               colors.bg.surface,
     popoverColor:             colors.bg.elevated,
     tableColor:               colors.bg.surface,
     inputColor:               colors.bg.elevated,
     inputColorDisabled:       colors.bg.surface,
-    borderColor:              colors.outline.soft,
-    dividerColor:             colors.outline.subtle,
+    borderColor:              colors.border.subtle,
+    dividerColor:             colors.border.subtle,
     textColorBase:            colors.text.primary,
     textColor1:               colors.text.primary,
     textColor2:               colors.text.secondary,
@@ -34,9 +34,9 @@ function buildCommonOverrides(): GlobalThemeOverrides["common"] {
     errorColorHover:          colors.negative.dark,
     successColor:             colors.positive.DEFAULT,
     successColorHover:        colors.positive.dark,
-    warningColor:             colors.brand[500],
+    warningColor:             colors.orange[500],
     fontFamily:               fonts.body,
-    fontFamilyMono:           "ui-monospace, SFMono-Regular, monospace",
+    fontFamilyMono:           fonts.mono,
     borderRadius:             radii.md,
     borderRadiusSmall:        radii.sm,
   };
@@ -46,14 +46,14 @@ function buildCommonOverrides(): GlobalThemeOverrides["common"] {
 function buildComponentOverrides(): Omit<GlobalThemeOverrides, "common"> {
   return {
     Button: {
-      colorPrimary:             colors.brand[600],
-      colorHoverPrimary:        colors.brand[500],
-      colorPressedPrimary:      colors.brand[700],
-      colorFocusPrimary:        colors.brand[500],
+      colorPrimary:             colors.cyan[500],
+      colorHoverPrimary:        colors.cyan[400],
+      colorPressedPrimary:      colors.cyan[600],
+      colorFocusPrimary:        colors.cyan[400],
       colorDisabledPrimary:     colors.bg.elevated,
-      textColorPrimary:         colors.bg.base,
-      textColorHoverPrimary:    colors.bg.base,
-      textColorPressedPrimary:  colors.bg.base,
+      textColorPrimary:         colors.bg.canvas,
+      textColorHoverPrimary:    colors.bg.canvas,
+      textColorPressedPrimary:  colors.bg.canvas,
       textColorDisabledPrimary: colors.text.muted,
       borderRadiusPrimary:      radii.md,
     },
@@ -63,16 +63,16 @@ function buildComponentOverrides(): Omit<GlobalThemeOverrides, "common"> {
       colorDisabled:    colors.bg.surface,
       textColor:        colors.text.primary,
       placeholderColor: colors.text.subtle,
-      border:           `1px solid ${colors.outline.soft}`,
-      borderFocus:      `1px solid ${colors.brand[600]}`,
-      borderHover:      `1px solid ${colors.brand[500]}`,
+      border:           `1px solid ${colors.border.subtle}`,
+      borderFocus:      `1px solid ${colors.cyan[500]}`,
+      borderHover:      `1px solid ${colors.cyan[400]}`,
       borderRadius:     radii.md,
-      boxShadowFocus:   `0 0 0 2px ${colors.brandGlow.xs}`,
+      boxShadowFocus:   "0 0 0 2px rgba(68, 212, 255, 0.18)",
     },
     Card: {
       color:          colors.bg.surface,
       colorModal:     colors.bg.surface,
-      borderColor:    colors.outline.subtle,
+      borderColor:    colors.border.subtle,
       borderRadius:   radii.lg,
       titleTextColor: colors.text.primary,
       textColor:      colors.text.secondary,
@@ -89,10 +89,10 @@ function buildOverlayOverrides(): Omit<GlobalThemeOverrides, "common"> {
   return {
     Select: {
       menuColor:             colors.bg.elevated,
-      optionColorActive:     colors.brandGlow.xs,
-      optionColorPending:    colors.brandGlow.xxs,
-      optionTextColorActive: colors.brand[500],
-      optionCheckColor:      colors.brand[600],
+      optionColorActive:     "rgba(68, 212, 255, 0.1)",
+      optionColorPending:    "rgba(68, 212, 255, 0.05)",
+      optionTextColorActive: colors.cyan[400],
+      optionCheckColor:      colors.cyan[500],
       peers: {
         InternalSelectMenu: {
           color: colors.bg.elevated,
@@ -111,14 +111,14 @@ function buildOverlayOverrides(): Omit<GlobalThemeOverrides, "common"> {
     Tag: {
       colorBordered:  "transparent",
       textColor:      colors.text.secondary,
-      borderColor:    colors.outline.soft,
+      borderColor:    colors.border.subtle,
       closeIconColor: colors.text.muted,
     },
     Tabs: {
       tabTextColorLine:       colors.text.muted,
       tabTextColorHoverLine:  colors.text.secondary,
-      tabTextColorActiveLine: colors.brand[600],
-      barColor:               colors.brand[600],
+      tabTextColorActiveLine: colors.cyan[500],
+      barColor:               colors.cyan[500],
       tabFontWeightActive:    "600",
     },
     DataTable: {
@@ -126,7 +126,7 @@ function buildOverlayOverrides(): Omit<GlobalThemeOverrides, "common"> {
       thTextColor: colors.text.muted,
       tdColor:     colors.bg.surface,
       tdColorHover: colors.bg.elevated,
-      borderColor: colors.outline.subtle,
+      borderColor: colors.border.subtle,
     },
     Skeleton: {
       color:    colors.bg.elevated,
@@ -145,7 +145,7 @@ function buildOverlayOverrides(): Omit<GlobalThemeOverrides, "common"> {
  * Use com NConfigProvider em app.vue:
  *   `<NConfigProvider :theme="theme" :theme-overrides="themeOverrides">`
  *
- * @returns Naive UI theme object and GlobalThemeOverrides derived from Auraxis design tokens.
+ * @returns Naive UI theme object and GlobalThemeOverrides derived from Auraxis DS v3 tokens.
  */
 export function useNaiveTheme(): NaiveThemeResult {
   const themeOverrides: GlobalThemeOverrides = {
