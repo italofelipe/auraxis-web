@@ -47,6 +47,10 @@ jobs:
   deploy:
     name: Build + publish preview
     runs-on: ubuntu-latest
+    # The AuraxisWebDeployRole trust policy scopes OIDC assumption to specific
+    # refs/environments. "preview" is the environment explicitly whitelisted
+    # for per-PR deploys (see infra/web/iam.tf in auraxis-platform).
+    environment: preview
     steps:
       - name: Check deploy capability
         id: capability

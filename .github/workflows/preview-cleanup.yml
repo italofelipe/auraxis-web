@@ -26,6 +26,9 @@ jobs:
   cleanup:
     name: Delete preview prefix
     runs-on: ubuntu-latest
+    # Must match preview-deploy.yml — the OIDC trust policy only accepts
+    # assumption when the GitHub Actions job targets the `preview` environment.
+    environment: preview
     steps:
       - name: Check cleanup capability
         id: capability
