@@ -21,50 +21,50 @@ describe("feature flag service", () => {
   });
 
   it("normaliza sufixo de env var a partir da chave da flag", () => {
-    expect(toEnvSuffix("web.tools.salary-raise-calculator")).toBe("WEB_TOOLS_SALARY_RAISE_CALCULATOR");
+    expect(toEnvSuffix("web.pages.investor-profile")).toBe("WEB_PAGES_INVESTOR_PROFILE");
   });
 
   it("retorna undefined quando override de env não existe", () => {
-    const overrideValue = resolveEnvOverride("web.tools.salary-raise-calculator");
+    const overrideValue = resolveEnvOverride("web.pages.investor-profile");
     expect(overrideValue).toBeUndefined();
   });
 
   it("retorna override de ambiente quando presente (true)", () => {
-    vi.stubEnv("NUXT_PUBLIC_FLAG_WEB_TOOLS_SALARY_RAISE_CALCULATOR", "true");
+    vi.stubEnv("NUXT_PUBLIC_FLAG_WEB_PAGES_INVESTOR_PROFILE", "true");
 
-    const overrideValue = resolveEnvOverride("web.tools.salary-raise-calculator");
+    const overrideValue = resolveEnvOverride("web.pages.investor-profile");
     expect(overrideValue).toBe(true);
 
     vi.unstubAllEnvs();
   });
 
   it("retorna false quando override de ambiente é 'false'", () => {
-    vi.stubEnv("NUXT_PUBLIC_FLAG_WEB_TOOLS_SALARY_RAISE_CALCULATOR", "false");
-    expect(resolveEnvOverride("web.tools.salary-raise-calculator")).toBe(false);
+    vi.stubEnv("NUXT_PUBLIC_FLAG_WEB_PAGES_INVESTOR_PROFILE", "false");
+    expect(resolveEnvOverride("web.pages.investor-profile")).toBe(false);
   });
 
   it("retorna false quando override de ambiente é '0'", () => {
-    vi.stubEnv("NUXT_PUBLIC_FLAG_WEB_TOOLS_SALARY_RAISE_CALCULATOR", "0");
-    expect(resolveEnvOverride("web.tools.salary-raise-calculator")).toBe(false);
+    vi.stubEnv("NUXT_PUBLIC_FLAG_WEB_PAGES_INVESTOR_PROFILE", "0");
+    expect(resolveEnvOverride("web.pages.investor-profile")).toBe(false);
   });
 
   it("retorna undefined quando override tem valor inválido", () => {
-    vi.stubEnv("NUXT_PUBLIC_FLAG_WEB_TOOLS_SALARY_RAISE_CALCULATOR", "maybe");
-    expect(resolveEnvOverride("web.tools.salary-raise-calculator")).toBeUndefined();
+    vi.stubEnv("NUXT_PUBLIC_FLAG_WEB_PAGES_INVESTOR_PROFILE", "maybe");
+    expect(resolveEnvOverride("web.pages.investor-profile")).toBeUndefined();
   });
 
   it("retorna definição da flag quando ela existe no catálogo", () => {
-    const localFlag = getLocalFlag("web.tools.salary-raise-calculator");
-    expect(localFlag?.key).toBe("web.tools.salary-raise-calculator");
+    const localFlag = getLocalFlag("web.pages.investor-profile");
+    expect(localFlag?.key).toBe("web.pages.investor-profile");
   });
 
   it("considera flag desabilitada quando status local é draft", () => {
-    expect(isFeatureEnabled("web.tools.salary-raise-calculator")).toBe(false);
+    expect(isFeatureEnabled("web.pages.investor-profile")).toBe(false);
   });
 
   it("respeita decisão explícita do provider externo", () => {
-    expect(isFeatureEnabled("web.tools.salary-raise-calculator", true)).toBe(true);
-    expect(isFeatureEnabled("web.tools.salary-raise-calculator", false)).toBe(false);
+    expect(isFeatureEnabled("web.pages.investor-profile", true)).toBe(true);
+    expect(isFeatureEnabled("web.pages.investor-profile", false)).toBe(false);
   });
 
   it("retorna modo local quando provider não está configurado", () => {
@@ -81,7 +81,7 @@ describe("feature flag service", () => {
         json: async () => ({
           features: [
             {
-              name: "web.tools.salary-raise-calculator",
+              name: "web.pages.investor-profile",
               enabled: true,
             },
           ],
@@ -90,7 +90,7 @@ describe("feature flag service", () => {
     );
 
     const providerDecision = await resolveProviderDecision(
-      "web.tools.salary-raise-calculator",
+      "web.pages.investor-profile",
     );
     expect(providerDecision).toBe(true);
   });
@@ -101,7 +101,7 @@ describe("feature flag service", () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network error")));
 
     const providerDecision = await resolveProviderDecision(
-      "web.tools.salary-raise-calculator",
+      "web.pages.investor-profile",
     );
     expect(providerDecision).toBeUndefined();
   });
@@ -136,7 +136,7 @@ describe("feature flag service", () => {
         json: async () => ({
           features: [
             {
-              name: "web.tools.salary-raise-calculator",
+              name: "web.pages.investor-profile",
               enabled: true,
             },
           ],
@@ -145,7 +145,7 @@ describe("feature flag service", () => {
     );
 
     const snapshot = await fetchUnleashSnapshot();
-    expect(snapshot["web.tools.salary-raise-calculator"]).toBe(true);
+    expect(snapshot["web.pages.investor-profile"]).toBe(true);
   });
 });
 

@@ -16,7 +16,7 @@ describe("useFeatureFlag", () => {
     const wrapper = mount(
       defineComponent({
         setup() {
-          return { enabled: useFeatureFlag("web.tools.salary-raise-calculator") };
+          return { enabled: useFeatureFlag("web.pages.investor-profile") };
         },
         template: "<span>{{ enabled }}</span>",
       }),
@@ -25,11 +25,11 @@ describe("useFeatureFlag", () => {
   });
 
   it("returns true when env override is set to true", () => {
-    vi.stubEnv("NUXT_PUBLIC_FLAG_WEB_TOOLS_SALARY_RAISE_CALCULATOR", "true");
+    vi.stubEnv("NUXT_PUBLIC_FLAG_WEB_PAGES_INVESTOR_PROFILE", "true");
     const wrapper = mount(
       defineComponent({
         setup() {
-          return { enabled: useFeatureFlag("web.tools.salary-raise-calculator") };
+          return { enabled: useFeatureFlag("web.pages.investor-profile") };
         },
         template: "<span>{{ enabled }}</span>",
       }),
@@ -56,7 +56,7 @@ describe("useFeatureFlagAsync", () => {
     const wrapper = mount(
       defineComponent({
         setup() {
-          return useFeatureFlagAsync("web.tools.salary-raise-calculator");
+          return useFeatureFlagAsync("web.pages.investor-profile");
         },
         template: "<span>{{ enabled }}</span>",
       }),
@@ -73,7 +73,7 @@ describe("useFeatureFlagAsync", () => {
       vi.fn().mockResolvedValue({
         ok: true,
         json: async () => ({
-          features: [{ name: "web.tools.salary-raise-calculator", enabled: true }],
+          features: [{ name: "web.pages.investor-profile", enabled: true }],
         }),
       }),
     );
@@ -81,7 +81,7 @@ describe("useFeatureFlagAsync", () => {
     const wrapper = mount(
       defineComponent({
         setup() {
-          return useFeatureFlagAsync("web.tools.salary-raise-calculator");
+          return useFeatureFlagAsync("web.pages.investor-profile");
         },
         template: "<span>{{ enabled }}</span>",
       }),
