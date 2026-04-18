@@ -6,43 +6,50 @@ O job `lighthouse` em `.github/workflows/ci.yml` executa após o `build` job em 
 
 Fluxo:
 
-1. `pnpm build` — build de produção (Nuxt generate/SSR)
-2. `lhci autorun` (via `treosh/lighthouse-ci-action@v12`) — lê `.lighthouserc.yml`
-3. `.lighthouserc.yml` inicia `pnpm preview` como servidor e roda 3 coletas contra `http://localhost:3000/`
-4. Resultados são enviados para `temporary-public-storage` (13 dias de retenção)
-5. O link para o relatório aparece no log do job
+1. `pnpm build` — build de produção (Nuxt generate/SSR).
+2. `lhci autorun` (via `treosh/lighthouse-ci-action@v12`) — lê `.lighthouserc.yml`.
+3. `.lighthouserc.yml` inicia `pnpm preview` como servidor e roda **3 coletas** contra `http://localhost:3000/` (média das 3 runs para reduzir variabilidade).
+4. Resultados são enviados para `temporary-public-storage` (13 dias de retenção).
+5. O link para o relatório aparece no log do job.
 
 > O Lighthouse roda contra o **build real** (`pnpm build` + `pnpm preview`), não contra o dev server.
 > Isso garante que otimizações de produção (tree-shaking, minificação, etc.) sejam consideradas.
 
-## Thresholds atuais
+## Budgets atuais (PERF-8)
 
-| Métrica           | Nível                   | Threshold |
-| ----------------- | ----------------------- | --------- |
-| Accessibility     | **error** (bloqueia CI) | ≥ 0.90    |
-| SEO               | warn                    | ≥ 0.85    |
-| Performance score | warn                    | ≥ 0.50    |
-| LCP               | warn                    | ≤ 5000ms  |
-| TBT               | warn                    | ≤ 1500ms  |
-| CLS               | warn                    | ≤ 0.25    |
+Todas as categorias quebram o build (`severity: error`):
 
-**Nota:** Performance metrics são `warn` (não bloqueiam CI). Os valores são generosos propositalmente — o objetivo é capturar o baseline antes de apertar. Após a Fase 2 de hardening (PERF-GAP-01/02/06/07), apertar para:
+| Categoria      | Threshold  | Ação em regressão |
+| -------------- | ---------- | ----------------- |
+| Performance    | ≥ **0.90** | ❌ Falha CI       |
+| Accessibility  | ≥ **0.95** | ❌ Falha CI       |
+| Best Practices | ≥ **0.90** | ❌ Falha CI       |
+| SEO            | ≥ **0.90** | ❌ Falha CI       |
 
-- Performance ≥ 0.80
-- LCP ≤ 2500ms
-- TBT ≤ 600ms
-- CLS ≤ 0.10
+Métricas granulares (warn-only, não bloqueiam):
+
+| Métrica                  | Threshold |
+| ------------------------ | --------- |
+| Largest Contentful Paint | ≤ 4000 ms |
+| Total Blocking Time      | ≤ 1200 ms |
+| Cumulative Layout Shift  | ≤ 0.10    |
+
+## Métricas explicitamente desabilitadas
+
+Os checks abaixo são validados em outras camadas (CloudFront headers, `pnpm audit`, smoke test de deploy) e ficam `severity: off` no Lighthouse porque falham/oscilam contra o preview HTTP local:
+
+- `uses-https`, `redirects-http` — enforcement está no CloudFront/ACM.
+- `no-vulnerable-libraries` — coberto por `pnpm audit` + Dependabot.
+- `valid-source-maps` — source maps não são emitidos em prod por decisão (ver DEC-093).
+- `uses-text-compression`, `uses-long-cache-ttl` — política de cache vive no CloudFront (ver `repos/auraxis-web/docs/CloudFront-headers.md`).
+- `bf-cache` — depende de heuristicas do browser e polui o sinal.
+- `unused-javascript`, `unused-css-rules` — coberto pelo gate de bundle size (HARD-10) em `scripts/analyze-bundle.cjs`.
 
 ## Como interpretar os resultados
 
-O link para o relatório aparece no output do step "Run Lighthouse CI". Exemplo:
-
-```
-✅ https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/...
-```
-
-Métricas com `⚠ warn` aparecem no log mas **não bloqueiam o merge**.
-Métricas com `✖ error` bloqueiam o merge.
+- Link do relatório aparece no step **Run Lighthouse CI** (`✅ https://storage.googleapis.com/…`).
+- `⚠ warn` aparece no log mas não bloqueia merge.
+- `✖ error` bloqueia merge.
 
 ## Rodar localmente
 
@@ -50,17 +57,17 @@ Métricas com `✖ error` bloqueiam o merge.
 # Build primeiro
 pnpm build
 
-# Rodar lhci localmente (abre relatório no browser)
+# Rodar lhci localmente (mesma config da CI)
 pnpm dlx @lhci/cli autorun
 ```
 
-## Desabilitar temporariamente um threshold
+## Relaxar temporariamente um threshold
 
-Caso uma métrica esteja failing por razão conhecida, mover de `error` para `warn` em `.lighthouserc.yml` enquanto o fix não vai para prod.
+Se uma métrica começar a falhar por razão conhecida, mover de `error` para `warn` em `.lighthouserc.yml` **com link para a issue de follow-up** e prazo para voltar a `error`. Relaxamento sem rastreabilidade é proibido — o budget é o contrato.
 
-## Referência
+## Referências
 
-- Issue: [PERF-GAP-08](https://github.com/italofelipe/auraxis-web/issues/613)
-- Próximas etapas: PERF-GAP-06 (#611), PERF-GAP-07 (#612), HARD-10 (#597)
+- Issue: [PERF-8](https://github.com/italofelipe/auraxis-web/issues/643) — Lighthouse CI verify contra build real + budget
 - Config: `.lighthouserc.yml`
-- Job: `.github/workflows/ci.yml` → job `lighthouse` (linha ~362)
+- Workflow: `.github/workflows/ci.yml` → job `lighthouse`
+- Gates complementares: bundle size (`HARD-10`), axe-core (`H-A11Y-01`), staleTime (`PERF-GAP-07`).
