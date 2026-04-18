@@ -201,15 +201,15 @@ const handleSkip = async (): Promise<void> => {
   align-items: flex-start;
   gap: var(--space-2);
   padding: var(--space-3);
-  background: color-mix(in srgb, #f59e0b 10%, transparent);
-  border: 1px solid color-mix(in srgb, #f59e0b 30%, transparent);
+  background: color-mix(in srgb, #ffb861 10%, transparent);
+  border: 1px solid color-mix(in srgb, #ffb861 30%, transparent);
   border-radius: var(--radius-md);
   text-align: left;
   width: 100%;
 }
 
 .confirm-pending__deadline-icon {
-  color: #f59e0b;
+  color: #ffb861;
   flex-shrink: 0;
   margin-top: 2px;
 }
@@ -224,7 +224,7 @@ const handleSkip = async (): Promise<void> => {
 .confirm-pending__deadline-heading {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
-  color: color-mix(in srgb, #f59e0b 90%, var(--color-text-primary));
+  color: color-mix(in srgb, #ffb861 90%, var(--color-text-primary));
 }
 
 .confirm-pending__deadline-body {
@@ -234,7 +234,7 @@ const handleSkip = async (): Promise<void> => {
 }
 
 .confirm-pending__deadline-warning {
-  color: #f59e0b;
+  color: #ffb861;
   flex-shrink: 0;
   margin-top: 2px;
 }

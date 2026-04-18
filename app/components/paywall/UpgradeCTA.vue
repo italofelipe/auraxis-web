@@ -36,7 +36,7 @@ const goToPlanos = (): void => {
 }
 
 .upgrade-cta__icon {
-  color: var(--color-warning, #f59e0b);
+  color: var(--color-warning, #ffb861);
 }
 
 .upgrade-cta__title {

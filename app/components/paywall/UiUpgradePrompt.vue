@@ -85,7 +85,7 @@ const goToPlanos = (): void => {
 }
 
 .ui-upgrade-prompt__icon {
-  color: var(--color-warning, #f59e0b);
+  color: var(--color-warning, #ffb861);
   margin-top: var(--space-1, 4px);
 }
 

@@ -664,7 +664,7 @@ async function handleSaveSimulation(): Promise<void> {
 }
 
 .rescisao-page__breakdown-row--fgts {
-  color: var(--color-semantic-warning, #f59e0b);
+  color: var(--color-semantic-warning, #ffb861);
 }
 
 .rescisao-page__breakdown-row--deduction {

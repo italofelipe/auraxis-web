@@ -222,22 +222,22 @@ function displayValue(value: string | null | undefined): string {
   gap: var(--space-2);
   flex-wrap: wrap;
   padding: var(--space-2) var(--space-3);
-  background: var(--color-warning-bg, #fefce8);
-  border: 1px solid var(--color-warning, #eab308);
+  background: var(--color-warning-bg, rgba(255, 184, 97, 0.1));
+  border: 1px solid var(--color-warning, #ffb861);
   border-radius: var(--radius-md);
 }
 
 .profile-page__warning-text {
   font-size: var(--font-size-sm);
-  color: var(--color-warning-text, #854d0e);
+  color: var(--color-warning-text, #ffb861);
 }
 
 .profile-page__warning-cta {
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
-  border: 1px solid var(--color-warning, #eab308);
+  border: 1px solid var(--color-warning, #ffb861);
   background: transparent;
-  color: var(--color-warning-text, #854d0e);
+  color: var(--color-warning-text, #ffb861);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   cursor: pointer;
@@ -245,7 +245,7 @@ function displayValue(value: string | null | undefined): string {
 }
 
 .profile-page__warning-cta:hover {
-  background: var(--color-warning, #eab308);
+  background: var(--color-warning, #ffb861);
   color: #fff;
 }
 
