@@ -7,14 +7,19 @@
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
 
   /* Heading scale (used by form titles and section headers) */
   --font-size-heading-sm: 1.25rem;
   --font-size-heading-md: 1.5rem;
   --font-size-heading-lg: 1.875rem;
+  --font-size-heading-xl: 2.25rem;
   --line-height-heading-sm: 1.3;
   --line-height-heading-md: 1.25;
   --line-height-heading-lg: 1.2;
+  --line-height-heading-xl: 1.15;
+  --line-height-body-sm: 1.45;
+  --line-height-body-md: 1.55;
 
   /* Body font sizes */
   --font-size-xs: 0.75rem;

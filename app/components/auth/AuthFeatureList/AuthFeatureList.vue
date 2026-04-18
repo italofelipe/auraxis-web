@@ -35,60 +35,49 @@ const features = computed(() => props.features ?? DEFAULT_FEATURES.value);
 </script>
 
 <template>
-  <ul class="auth-feature-list" :aria-label="$t('authFeatureList.ariaLabel')">
-    <li
+  <div class="auth-highlights" :aria-label="$t('authFeatureList.ariaLabel')">
+    <article
       v-for="feature in features"
       :key="feature.title"
-      class="auth-feature-list__item"
+      class="auth-highlight"
     >
-      <span class="auth-feature-list__icon" aria-hidden="true">{{ feature.icon }}</span>
-      <div class="auth-feature-list__text">
-        <span class="auth-feature-list__title">{{ feature.title }}</span>
-        <span class="auth-feature-list__desc">{{ feature.description }}</span>
-      </div>
-    </li>
-  </ul>
+      <h3 class="auth-highlight__title">{{ feature.title }}</h3>
+      <p class="auth-highlight__desc">{{ feature.description }}</p>
+    </article>
+  </div>
 </template>
 
 <style scoped>
-.auth-feature-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
+.auth-highlights {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: var(--space-4);
 }
 
-.auth-feature-list__item {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
+.auth-highlight {
+  border: 1px solid var(--color-outline-soft);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.02);
+  padding: var(--space-4);
 }
 
-.auth-feature-list__icon {
-  font-size: var(--font-size-xl);
-  line-height: 1;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.auth-feature-list__text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.auth-feature-list__title {
+.auth-highlight__title {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
-  line-height: 1.4;
+  margin: 0 0 var(--space-1) 0;
 }
 
-.auth-feature-list__desc {
+.auth-highlight__desc {
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
-  line-height: 1.5;
+  margin: 0;
+  line-height: 1.45;
+}
+
+@media (max-width: 1160px) {
+  .auth-highlights {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

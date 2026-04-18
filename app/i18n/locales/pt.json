@@ -743,11 +743,14 @@
         "description": "Gerencie suas finanças com clareza. Dashboard, metas, carteira e ferramentas em um só lugar."
       },
       "hero": {
-        "eyebrow": "Finanças sob controle",
-        "title": "Gerencie seu dinheiro com inteligência",
-        "subtitle": "Dashboard completo, metas financeiras, carteira de investimentos e mais. Tudo em um só lugar.",
-        "cta": "Começar gratuitamente",
-        "ctaSecondary": "Ver planos"
+        "eyebrow": "Precision Layered Analytics",
+        "title": "Do controle básico ao analytics total em uma única experiência.",
+        "subtitle": "O Auraxis foi redesenhado para servir dois perfis ao mesmo tempo: quem quer entender rapidamente para onde o dinheiro vai e quem acompanha cada indicador diariamente.",
+        "cta": "Começar agora",
+        "ctaSecondary": "Ver dashboard analytics",
+        "previewLabel": "Resumo em 30 dias",
+        "previewValue": "R$ 12.320",
+        "previewDesc": "Saldo líquido com comparação automática vs período anterior (+9.4%)."
       },
       "features": {
         "title": "Tudo que você precisa",
@@ -772,16 +775,71 @@
         }
       },
       "plans": {
-        "eyebrow": "Planos e Preços",
-        "title": "Comece gratuitamente",
-        "subtitle": "Plano gratuito com o essencial. Upgrade quando precisar.",
-        "cta": "Ver todos os planos"
+        "title": "Planos",
+        "subtitle": "Entre no básico com segurança e avance para o analytics completo quando quiser.",
+        "cta": "Ver todos os planos",
+        "items": {
+          "essential": {
+            "title": "Essencial",
+            "price": "R$ 0",
+            "description": "Controle diário com painel executivo."
+          },
+          "pro": {
+            "title": "Pro Analytics",
+            "price": "R$ 27,90",
+            "description": "Drill-down completo, comparações e insights avançados."
+          },
+          "enterprise": {
+            "title": "Empresas",
+            "price": "Em breve",
+            "description": "Camada fiscal e operacional para rotina PJ."
+          }
+        }
       },
       "cta": {
         "title": "Pronto para começar?",
         "subtitle": "Crie sua conta gratuita e tenha controle total sobre suas finanças.",
         "button": "Criar conta gratuita",
         "login": "Já tenho uma conta"
+      },
+      "product": {
+        "title": "Clareza para leigo, profundidade para hardcore",
+        "subtitle": "Resumo executivo no topo, drill-down completo em poucos cliques.",
+        "items": {
+          "essential": {
+            "title": "Modo Essencial",
+            "description": "Receitas, despesas, saldo e ações prioritárias com leitura instantânea."
+          },
+          "analytic": {
+            "title": "Modo Analítico",
+            "description": "Comparações por período, categoria, conta e transações detalhadas."
+          },
+          "narrative": {
+            "title": "Narrativa única",
+            "description": "Mesma linguagem visual entre público, auth e dashboard privado."
+          }
+        }
+      },
+      "analytics": {
+        "title": "Workspace de análise em grande escala",
+        "subtitle": "Fluxo de caixa, composição, heatmap e tendência acumulada com alternância fluida.",
+        "items": {
+          "cashflow": {
+            "title": "Fluxo de caixa",
+            "kpi": "+R$ 28.450",
+            "description": "Receitas/despesas por período com comparação automática."
+          },
+          "composition": {
+            "title": "Composição",
+            "kpi": "R$ 16.130",
+            "description": "Quais categorias pressionaram o orçamento no período."
+          },
+          "trend": {
+            "title": "Tendência",
+            "kpi": "34.2%",
+            "description": "Taxa de poupança e variação acumulada em uma leitura contínua."
+          }
+        }
       }
     },
     "profile": {
@@ -1515,8 +1573,9 @@
   },
   "authBrandPanel": {
     "ariaLabel": "Auraxis — painel de marca",
-    "taglineLine1": "Dados financeiros complexos.",
-    "taglineLine2": "Clareza radical.",
+    "badge": "Acesso seguro",
+    "taglineLine1": "Volte ao seu painel de analytics",
+    "taglineLine2": "em segundos.",
     "sub": "Gerencie seu patrimônio, metas e transações em um único lugar — com a precisão que você merece."
   },
   "authFeatureList": {
@@ -1978,10 +2037,10 @@
       "calculate": "Calcular férias",
       "reset": "Limpar",
       "vacationDaysOptions": {
-        "30": "30 dias",
-        "20": "20 dias",
+        "10": "10 dias",
         "15": "15 dias",
-        "10": "10 dias"
+        "20": "20 dias",
+        "30": "30 dias"
       }
     },
     "results": {

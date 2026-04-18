@@ -140,14 +140,14 @@ const currentRoute = computed(() => route.path);
 .ui-app-shell__logo-mark {
   width: 32px;
   height: 32px;
-  background: var(--color-brand-600);
+  background: linear-gradient(145deg, var(--accent-cyan, #44d4ff), var(--accent-violet, #8b7dff));
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--color-bg-base);
   flex-shrink: 0;
-  box-shadow: var(--shadow-brand-glow-sm);
+  box-shadow: 0 0 12px rgba(68, 212, 255, 0.2);
 }
 
 .ui-app-shell__logo-text {
