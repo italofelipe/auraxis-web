@@ -1,0 +1,15 @@
+{
+  "_description": "Known EN keys without PT counterparts. Orphan keys that survived the onboarding PT rewrite and are no longer rendered at runtime. They will be deleted from en.json when DEC-186 (EN freeze) lifts; until then the parity check must tolerate them to stay green. Add here only keys that are verified dead code.",
+  "_lifted_after": "DEC-186 EN freeze is released",
+  "en_keys_without_pt": [
+    "onboarding.step1.benefit1",
+    "onboarding.step1.benefit2",
+    "onboarding.step1.benefit3",
+    "onboarding.step2.skipStep",
+    "onboarding.step3.benefit1",
+    "onboarding.step3.benefit2",
+    "onboarding.step3.benefit3",
+    "onboarding.step3.ctaPrimary",
+    "onboarding.step3.ctaSecondary"
+  ]
+}

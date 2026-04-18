@@ -70,6 +70,24 @@ jobs:
       - name: Validate feature flags metadata
         run: node scripts/check-feature-flags.cjs
 
+  # ── 3.05 i18n key parity (EN ↔ PT) ─────────────────────────────────────
+  # Hard-fails if any key present in en.json is missing in pt.json (losing a
+  # translation is a regression). PT-only keys are tolerated during the
+  # DEC-186 EN freeze. An allowlist of known-orphan EN keys lives at
+  # scripts/i18n-parity-allowlist.json and is reconciled when the freeze lifts.
+  i18n-parity:
+    name: i18n Key Parity
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Validate locale key parity
+        run: node scripts/check-i18n-parity.cjs
+
   # ── 3.1 Locale EN freeze (DEC-186) ─────────────────────────────────────
   locale-freeze:
     name: Locale EN Freeze (DEC-186)
@@ -148,7 +166,7 @@ jobs:
   build:
     name: Build (Nuxt)
     runs-on: ubuntu-latest
-    needs: [lint, typecheck, feature-flag-hygiene, test, contract-smoke]
+    needs: [lint, typecheck, feature-flag-hygiene, i18n-parity, test, contract-smoke]
     permissions:
       contents: read
     steps:
