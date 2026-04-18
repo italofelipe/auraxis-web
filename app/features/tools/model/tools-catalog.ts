@@ -41,7 +41,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     name: "INSS + IR na Folha",
     description:
       "Veja exatamente quanto INSS e IR descontam do salário, faixa a faixa, com todas as deduções do IR.",
-    enabled: true,
+    enabled: isFeatureEnabled("web.tools.inss-ir-folha"),
     accessLevel: "public",
     route: "/tools/inss-ir-folha",
     featureFlag: "web.tools.inss-ir-folha",
@@ -74,7 +74,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     name: "Rescisão Contratual CLT",
     description:
       "Calcule o valor bruto e líquido da rescisão: aviso prévio, 13º, férias, FGTS e descontos de INSS/IR.",
-    enabled: true,
+    enabled: isFeatureEnabled("web.tools.rescisao"),
     accessLevel: "public",
     route: "/tools/rescisao",
     featureFlag: "web.tools.rescisao",
