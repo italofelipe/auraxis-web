@@ -1,0 +1,177 @@
+name: Preview Deploy (per-PR)
+
+# Per-PR static preview for auraxis-web (H-P4.4).
+#
+# Behaviour:
+#   - Triggered on PR opened/synchronize/reopened targeting main.
+#   - Builds the Nuxt static site with baseURL = /_preview/pr-{N}/ so all
+#     generated assets resolve under that prefix.
+#   - Uploads the build to s3://$S3_BUCKET/_preview/pr-{N}/.
+#   - Posts (or updates) a sticky comment on the PR with the preview URL.
+#
+# CloudFront assumption:
+#   The production distribution (AWS_WEB_CLOUDFRONT_DISTRIBUTION_ID) already
+#   serves the bucket's entire namespace, so paths under /_preview/pr-{N}/ are
+#   reachable once the files exist in S3. No CloudFront config change is
+#   required for the happy path. Preview files carry Cache-Control: no-cache so
+#   each PR push is immediately visible without invalidation.
+#
+# Fork PRs: secrets are not available to forks, so the deploy step is guarded.
+# When the AWS_WEB_DEPLOY_ROLE_ARN secret is empty the workflow posts a notice
+# and exits without attempting to push anything.
+#
+# Cleanup is owned by .github/workflows/preview-cleanup.yml (PR closed).
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main, master]
+
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: write
+
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "25"
+  PNPM_VERSION: "10.30.1"
+  AWS_REGION: "us-east-1"
+  S3_BUCKET: "app.auraxis.com.br"
+  PREVIEW_HOST: "app.auraxis.com.br"
+
+jobs:
+  deploy:
+    name: Build + publish preview
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check deploy capability
+        id: capability
+        env:
+          ROLE_VALUE: ${{ secrets.AWS_WEB_DEPLOY_ROLE_ARN }}
+        run: |
+          if [ -n "${ROLE_VALUE:-}" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Preview deploy skipped: AWS_WEB_DEPLOY_ROLE_ARN not available (likely a fork PR)."
+          fi
+
+      - name: Checkout
+        if: steps.capability.outputs.enabled == 'true'
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        if: steps.capability.outputs.enabled == 'true'
+        uses: pnpm/action-setup@v5
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node
+        if: steps.capability.outputs.enabled == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        if: steps.capability.outputs.enabled == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Compute preview paths
+        if: steps.capability.outputs.enabled == 'true'
+        id: paths
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          PREFIX="_preview/pr-${PR_NUMBER}"
+          echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
+          echo "prefix=${PREFIX}" >> "$GITHUB_OUTPUT"
+          echo "base_url=/${PREFIX}/" >> "$GITHUB_OUTPUT"
+          echo "preview_url=https://${PREVIEW_HOST}/${PREFIX}/" >> "$GITHUB_OUTPUT"
+
+      - name: Generate static preview
+        if: steps.capability.outputs.enabled == 'true'
+        env:
+          NODE_ENV: production
+          NUXT_APP_BASE_URL: ${{ steps.paths.outputs.base_url }}
+          NUXT_PUBLIC_APP_ENV: preview
+          NUXT_PUBLIC_API_BASE: https://api.auraxis.com.br
+          NUXT_PUBLIC_SITE_URL: ${{ steps.paths.outputs.preview_url }}
+          NUXT_PUBLIC_BUILD_ID: "pr-${{ github.event.pull_request.number }}-${{ github.sha }}"
+          NUXT_PUBLIC_SENTRY_DSN: ${{ secrets.NUXT_PUBLIC_SENTRY_DSN }}
+        run: pnpm generate
+
+      - name: Validate output
+        if: steps.capability.outputs.enabled == 'true'
+        run: |
+          test -d .output/public || { echo "ERROR: .output/public not found"; exit 1; }
+          test -f .output/public/index.html || { echo "ERROR: index.html not found"; exit 1; }
+          echo "✓ Static output validated ($(find .output/public -type f | wc -l) files, $(du -sh .output/public | cut -f1))"
+
+      - name: Configure AWS credentials (OIDC)
+        if: steps.capability.outputs.enabled == 'true'
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_WEB_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Upload preview to S3
+        if: steps.capability.outputs.enabled == 'true'
+        run: |
+          PREFIX="${{ steps.paths.outputs.prefix }}"
+          # Unlike prod, preview serves every file with Cache-Control: no-cache
+          # so CloudFront does not need an invalidation round-trip per PR push.
+          aws s3 sync .output/public/ "s3://${S3_BUCKET}/${PREFIX}/" \
+            --region "${AWS_REGION}" \
+            --delete \
+            --cache-control "no-cache, no-store, must-revalidate" \
+            --exclude ".DS_Store"
+          echo "✓ Preview uploaded to s3://${S3_BUCKET}/${PREFIX}/"
+
+      - name: Post preview URL comment
+        if: steps.capability.outputs.enabled == 'true'
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const url = '${{ steps.paths.outputs.preview_url }}';
+            const sha = context.sha.slice(0, 7);
+            const marker = '<!-- auraxis-preview-deploy -->';
+            const body = [
+              marker,
+              '## Preview deploy',
+              '',
+              `Published: ${url}`,
+              '',
+              `| Commit | Build ID |`,
+              `|--------|----------|`,
+              `| \`${sha}\` | pr-${{ github.event.pull_request.number }}-${{ github.sha }} |`,
+              '',
+              '> Preview is served with `Cache-Control: no-cache` so every push refreshes immediately.',
+              '> The preview is removed automatically when this PR is closed or merged.',
+            ].join('\n');
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              per_page: 100,
+            });
+            const existing = comments.find(c => (c.body || '').includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
