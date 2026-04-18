@@ -46,7 +46,7 @@
       "createdAt": "2026-04-01",
       "removeBy": "2027-12-31",
       "type": "release",
-      "status": "draft",
+      "status": "enabled-prod",
       "description": "Rescisão contratual CLT por tipo de desligamento.",
       "repositories": ["auraxis-web"]
     },
@@ -66,7 +66,7 @@
       "createdAt": "2026-04-01",
       "removeBy": "2027-12-31",
       "type": "release",
-      "status": "draft",
+      "status": "enabled-prod",
       "description": "INSS + IR na folha: desconto real por faixa salarial.",
       "repositories": ["auraxis-web"]
     },
