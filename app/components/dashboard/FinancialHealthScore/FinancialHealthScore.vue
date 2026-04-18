@@ -26,9 +26,9 @@ const props = defineProps<{
 // ── History sparkline ─────────────────────────────────────────────────────────
 
 const TIER_COLORS: Record<"good" | "fair" | "poor", string> = {
-  good: "#10b981",
-  fair: "#f59e0b",
-  poor: "#ef4444",
+  good: "#42e8a9",
+  fair: "#ffb861",
+  poor: "#ff6f79",
 };
 
 const historyOption = computed((): EChartsOption => {
@@ -275,9 +275,9 @@ function pillarTierClass(pillar: HealthPillar): string {
   transition: width 0.4s ease;
 }
 
-.fhs__pillar-bar--good    { background: #10b981; }
+.fhs__pillar-bar--good    { background: #42e8a9; }
 .fhs__pillar-bar--fair    { background: #f59e0b; }
-.fhs__pillar-bar--poor    { background: #ef4444; }
+.fhs__pillar-bar--poor    { background: #ff6f79; }
 .fhs__pillar-bar--unknown { background: var(--color-outline-soft); }
 
 .fhs__pillar-tip {

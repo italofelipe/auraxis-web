@@ -24,9 +24,9 @@ export const LineChart: Story = {
       series: [{
         type: "line",
         data: [5200, 6100, 5800, 7400, 8200, 9100],
-        areaStyle: { color: colors.brandGlow.xs },
-        lineStyle: { color: colors.brand[600] },
-        itemStyle: { color: colors.brand[600] },
+        areaStyle: { color: "rgba(68, 212, 255, 0.1)" },
+        lineStyle: { color: colors.cyan[500] },
+        itemStyle: { color: colors.cyan[500] },
       }],
     },
   },

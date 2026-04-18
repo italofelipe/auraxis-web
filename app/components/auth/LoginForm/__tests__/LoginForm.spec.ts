@@ -45,12 +45,7 @@ describe("LoginForm", () => {
     expect(wrapper.text()).toContain("auth.login.submitLoading");
   });
 
-  it("renders social auth buttons", () => {
-    const wrapper = mount(LoginForm, { global: globalConfig });
-    expect(wrapper.find(".login-form__social").exists()).toBe(true);
-  });
-
-  it("shows divider between social and email form", () => {
+  it("shows divider between form and register link", () => {
     const wrapper = mount(LoginForm, { global: globalConfig });
     expect(wrapper.text()).toContain("auth.login.divider");
   });
@@ -78,7 +73,7 @@ describe("LoginForm", () => {
       props: { loading: true },
       global: globalConfig,
     });
-    expect(wrapper.find(".login-form__spinner").exists()).toBe(true);
+    expect(wrapper.find(".auth-card__spinner").exists()).toBe(true);
   });
 
   it("isPending reflects loading prop via computed", () => {

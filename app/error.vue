@@ -72,7 +72,7 @@ const handleRetry = async (): Promise<void> => {
   justify-content: center;
   min-height: 100vh;
   padding: 2rem;
-  background: var(--color-bg-base, #0b0909);
+  background: var(--color-bg-base, #05070d);
   font-family: var(--font-body, system-ui, sans-serif);
 }
 
@@ -89,20 +89,20 @@ const handleRetry = async (): Promise<void> => {
 .error-page__logo-mark {
   width: 32px;
   height: 32px;
-  background: var(--color-brand-600, #ffab1a);
-  border-radius: var(--radius-sm, 6px);
+  background: linear-gradient(145deg, #44d4ff, #8b7dff);
+  border-radius: var(--radius-sm, 10px);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-bg-base, #0b0909);
-  box-shadow: 0 0 12px rgba(255, 171, 26, 0.25);
+  color: var(--color-bg-base, #05070d);
+  box-shadow: 0 0 12px rgba(68, 212, 255, 0.25);
 }
 
 .error-page__logo-text {
-  font-family: var(--font-heading, serif);
+  font-family: var(--font-heading, sans-serif);
   font-size: var(--font-size-lg, 1.25rem);
   font-weight: var(--font-weight-bold, 700);
-  color: var(--color-text-primary, #fff);
+  color: var(--color-text-primary, #f1f5ff);
 }
 
 /* Content */
@@ -120,21 +120,21 @@ const handleRetry = async (): Promise<void> => {
   font-weight: var(--font-weight-bold, 700);
   line-height: 1;
   margin: 0;
-  color: var(--color-brand-600, #ffab1a);
+  color: var(--color-brand-500, #44d4ff);
   letter-spacing: -2px;
 }
 
 .error-title {
-  font-family: var(--font-heading, serif);
+  font-family: var(--font-heading, sans-serif);
   font-size: var(--font-size-heading-lg, 1.75rem);
   font-weight: var(--font-weight-bold, 700);
-  color: var(--color-text-primary, #fff);
+  color: var(--color-text-primary, #f1f5ff);
   margin: 0;
 }
 
 .error-message {
   font-size: var(--font-size-base, 1rem);
-  color: var(--color-text-secondary, #b0a9a9);
+  color: var(--color-text-secondary, #d2dcf3);
   margin: 0;
   line-height: 1.6;
 }
@@ -152,7 +152,7 @@ const handleRetry = async (): Promise<void> => {
   align-items: center;
   justify-content: center;
   padding: 0.625rem 1.5rem;
-  border-radius: var(--radius-md, 8px);
+  border-radius: var(--radius-sm, 10px);
   font-size: var(--font-size-sm, 0.875rem);
   font-weight: var(--font-weight-semibold, 600);
   font-family: var(--font-body, system-ui, sans-serif);
@@ -163,22 +163,22 @@ const handleRetry = async (): Promise<void> => {
 }
 
 .error-cta--primary {
-  background: var(--color-brand-600, #ffab1a);
-  color: var(--color-bg-base, #0b0909);
+  background: linear-gradient(140deg, #44d4ff, #42e8a9);
+  color: var(--color-bg-base, #05070d);
 }
 
 .error-cta--primary:hover {
-  background: var(--color-brand-500, #ffc44d);
+  filter: brightness(1.05);
 }
 
 .error-cta--secondary {
-  background: var(--color-bg-elevated, #3a2e2e);
-  color: var(--color-text-secondary, #b0a9a9);
+  background: var(--color-bg-elevated, #0e1523);
+  color: var(--color-text-secondary, #d2dcf3);
   border: 1px solid var(--color-outline-soft, rgba(255, 255, 255, 0.1));
 }
 
 .error-cta--secondary:hover {
   background: var(--color-outline-ghost, rgba(255, 255, 255, 0.05));
-  color: var(--color-text-primary, #fff);
+  color: var(--color-text-primary, #f1f5ff);
 }
 </style>

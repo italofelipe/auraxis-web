@@ -6,9 +6,6 @@
     <!-- Left: brand panel (hidden on mobile) -->
     <div class="auth-layout__brand" aria-hidden="false">
       <AuthBrandPanel />
-      <div class="auth-layout__features">
-        <AuthFeatureList />
-      </div>
     </div>
 
     <!-- Right: form area -->
@@ -23,42 +20,31 @@
 <style scoped>
 .auth-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.08fr 0.92fr;
   min-height: 100dvh;
 }
 
-/* Left column */
+/* Left column — brand panel */
 .auth-layout__brand {
   position: relative;
   display: flex;
   flex-direction: column;
 }
 
-.auth-layout__features {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: var(--space-6);
-  z-index: 1;
-}
-
-/* Right column */
+/* Right column — form */
 .auth-layout__form {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-bg-surface);
-  padding: var(--space-5) var(--space-4);
+  padding: var(--space-8) var(--space-5);
 }
 
 .auth-layout__form-inner {
-  width: 100%;
-  max-width: 440px;
+  width: min(500px, 100%);
 }
 
 /* Mobile: single column, brand hidden */
-@media (max-width: 767px) {
+@media (max-width: 860px) {
   .auth-layout {
     grid-template-columns: 1fr;
   }
@@ -69,12 +55,12 @@
 
   .auth-layout__form {
     min-height: 100dvh;
-    padding: var(--space-4) var(--space-3);
+    padding: var(--space-5) var(--space-4);
   }
 }
 
 /* Tablet: narrower brand panel */
-@media (min-width: 768px) and (max-width: 1023px) {
+@media (min-width: 861px) and (max-width: 1160px) {
   .auth-layout {
     grid-template-columns: 5fr 7fr;
   }

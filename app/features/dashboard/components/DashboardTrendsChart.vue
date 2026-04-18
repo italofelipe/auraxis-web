@@ -111,9 +111,9 @@ const chartOption = computed((): EChartsOption => {
         smooth: true,
         symbol: "circle",
         symbolSize: 5,
-        lineStyle: { color: colors.brand["500"], width: 2 },
-        itemStyle: { color: colors.brand["500"] },
-        areaStyle: { color: colors.brand["500"], opacity: 0.06 },
+        lineStyle: { color: colors.cyan[500], width: 2 },
+        itemStyle: { color: colors.cyan[500] },
+        areaStyle: { color: colors.cyan[500], opacity: 0.06 },
       },
     ],
   };

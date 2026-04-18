@@ -122,7 +122,7 @@ describe("useChartSeriesMapper", () => {
 
       expect(incomeSeries?.color).toBe(colors.positive.DEFAULT);
       expect(expenseSeries?.color).toBe(colors.negative.DEFAULT);
-      expect(balanceSeries?.color).toBe(colors.brand[600]);
+      expect(balanceSeries?.color).toBe(colors.cyan[500]);
     });
 
     it("assigns correct design-token colors in empty case too", () => {
@@ -132,7 +132,7 @@ describe("useChartSeriesMapper", () => {
 
       expect(incomeSeries?.color).toBe(colors.positive.DEFAULT);
       expect(expenseSeries?.color).toBe(colors.negative.DEFAULT);
-      expect(balanceSeries?.color).toBe(colors.brand[600]);
+      expect(balanceSeries?.color).toBe(colors.cyan[500]);
     });
 
     it("generates a PT-BR formatted label for a known date", () => {

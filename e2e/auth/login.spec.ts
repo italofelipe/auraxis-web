@@ -125,7 +125,7 @@ test.describe("Auth — Login", () => {
 
     // Use a stable selector that persists even when the button text changes to
     // the loading label (e.g. "Entrando...") while isPending = true.
-    const submitButton = page.locator(".login-form__submit");
+    const submitButton = page.locator(".auth-card__submit");
     await submitButton.click();
 
     // While loading, the button should be disabled

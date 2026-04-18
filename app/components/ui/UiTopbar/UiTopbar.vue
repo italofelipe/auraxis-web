@@ -121,18 +121,18 @@ const { isDark, toggle: toggleTheme } = useTheme();
 .ui-topbar__action--positive {
   background: var(--color-positive-bg);
   color: var(--color-positive);
-  border-color: rgba(16, 185, 129, 0.2);
+  border-color: rgba(66, 232, 169, 0.2);
 }
 .ui-topbar__action--positive:hover {
-  background: rgba(16, 185, 129, 0.15);
+  background: rgba(66, 232, 169, 0.15);
 }
 .ui-topbar__action--negative {
   background: var(--color-negative-bg);
   color: var(--color-negative);
-  border-color: rgba(239, 68, 68, 0.2);
+  border-color: rgba(255, 111, 121, 0.2);
 }
 .ui-topbar__action--negative:hover {
-  background: rgba(239, 68, 68, 0.15);
+  background: rgba(255, 111, 121, 0.15);
 }
 .ui-topbar__action--default {
   background: var(--color-bg-elevated);

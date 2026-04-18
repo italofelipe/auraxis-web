@@ -187,7 +187,7 @@ const resolvedTaxHeader = computed(() => props.taxHeader ?? t("components.taxBra
 
 .tax-bracket-table__td--tax {
   font-weight: var(--font-weight-semibold, 600);
-  color: var(--color-semantic-negative, #ef4444);
+  color: var(--color-semantic-negative, #ff6f79);
 }
 
 .tax-bracket-table__row--inactive .tax-bracket-table__td--tax {
@@ -226,6 +226,6 @@ const resolvedTaxHeader = computed(() => props.taxHeader ?? t("components.taxBra
 
 .tax-bracket-table__td--total-value {
   font-weight: var(--font-weight-bold, 700);
-  color: var(--color-semantic-negative, #ef4444);
+  color: var(--color-semantic-negative, #ff6f79);
 }
 </style>

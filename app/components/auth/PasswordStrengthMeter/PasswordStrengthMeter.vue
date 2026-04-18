@@ -168,11 +168,11 @@ const strengthLabelClass = computed((): string => {
 }
 
 .strength-meter__segment--fair {
-  background: #f59e0b;
+  background: #ffb861;
 }
 
 .strength-meter__segment--good {
-  background: #eab308;
+  background: #ffb861;
 }
 
 .strength-meter__segment--strong {
@@ -188,8 +188,8 @@ const strengthLabelClass = computed((): string => {
 }
 
 .strength-meter__label--weak  { color: var(--color-negative); }
-.strength-meter__label--fair  { color: #f59e0b; }
-.strength-meter__label--good  { color: #eab308; }
+.strength-meter__label--fair  { color: #ffb861; }
+.strength-meter__label--good  { color: #ffb861; }
 .strength-meter__label--strong { color: var(--color-positive); }
 
 /* ── Criteria list ──────────────────────────────────────────────────────── */

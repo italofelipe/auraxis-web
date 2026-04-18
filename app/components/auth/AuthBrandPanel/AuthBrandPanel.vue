@@ -1,146 +1,115 @@
 <script setup lang="ts">
-// FEAT-01 — AuthBrandPanel
-// Left-side branding panel for the split auth layout.
-// Static by design; no props needed.
-
+import { PieChart } from "lucide-vue-next";
 </script>
 
 <template>
-  <aside class="auth-brand-panel" :aria-label="$t('authBrandPanel.ariaLabel')">
-    <div class="auth-brand-panel__inner">
-      <!-- Logo -->
-      <div class="auth-brand-panel__logo" aria-label="Auraxis">
-        <span class="auth-brand-panel__logo-mark">A</span>
-        <span class="auth-brand-panel__logo-name">uraxis</span>
-      </div>
+  <aside class="auth-brand" :aria-label="$t('authBrandPanel.ariaLabel')">
+    <!-- Logo -->
+    <a class="auth-brand__logo" href="/">
+      <span class="auth-brand__logo-mark" aria-hidden="true">
+        <PieChart :size="16" />
+      </span>
+      <span class="auth-brand__logo-name">Auraxis</span>
+    </a>
 
-      <!-- Headline -->
-      <div class="auth-brand-panel__copy">
-        <p class="auth-brand-panel__tagline">
-          {{ $t('authBrandPanel.taglineLine1') }}<br>
-          {{ $t('authBrandPanel.taglineLine2') }}
-        </p>
-        <p class="auth-brand-panel__sub">
-          {{ $t('authBrandPanel.sub') }}
-        </p>
-      </div>
-
-      <!-- Decorative accent -->
-      <div class="auth-brand-panel__accent" aria-hidden="true" />
+    <!-- Copy block -->
+    <div class="auth-brand__copy">
+      <span class="auth-brand__badge">{{ $t('authBrandPanel.badge') }}</span>
+      <h1 class="auth-brand__headline">
+        {{ $t('authBrandPanel.taglineLine1') }}
+        {{ $t('authBrandPanel.taglineLine2') }}
+      </h1>
+      <p class="auth-brand__sub">{{ $t('authBrandPanel.sub') }}</p>
     </div>
 
-    <!-- Background aurora -->
-    <div class="auth-brand-panel__aurora" aria-hidden="true">
-      <div class="auth-brand-panel__aurora-blob auth-brand-panel__aurora-blob--a" />
-      <div class="auth-brand-panel__aurora-blob auth-brand-panel__aurora-blob--b" />
+    <!-- Highlights grid -->
+    <div class="auth-brand__highlights">
+      <AuthFeatureList />
     </div>
   </aside>
 </template>
 
 <style scoped>
-.auth-brand-panel {
-  position: relative;
+.auth-brand {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   height: 100%;
   min-height: 100dvh;
-  padding: var(--space-5) var(--space-6);
-  background: var(--color-bg-base);
-  overflow: hidden;
+  padding: var(--space-8);
+  border-right: 1px solid var(--color-outline-soft);
+  background: linear-gradient(170deg, rgba(18, 26, 42, 0.88), rgba(5, 7, 13, 0.95));
   color: var(--color-text-primary);
-}
-
-.auth-brand-panel__inner {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-  max-width: 380px;
+  overflow: hidden;
 }
 
 /* Logo */
-.auth-brand-panel__logo {
-  display: flex;
-  align-items: baseline;
-  gap: 1px;
-  font-family: var(--font-heading);
-  font-size: var(--font-size-heading-lg);
-  line-height: 1;
+.auth-brand__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: var(--font-weight-extrabold);
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  color: inherit;
 }
 
-.auth-brand-panel__logo-mark {
-  color: var(--color-brand-400);
-  font-weight: var(--font-weight-bold);
+.auth-brand__logo-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+  background: linear-gradient(145deg, var(--accent-cyan, #44d4ff), var(--accent-violet, #8b7dff));
+  color: #0b1626;
+  font-weight: var(--font-weight-extrabold);
 }
 
-.auth-brand-panel__logo-name {
+.auth-brand__logo-name {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-extrabold);
   color: var(--color-text-primary);
-  font-weight: var(--font-weight-bold);
+}
+
+/* Badge */
+.auth-brand__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  border: 1px solid var(--border-strong, rgba(68, 212, 255, 0.4));
+  border-radius: var(--radius-full);
+  padding: 7px 12px;
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-cyan, #44d4ff);
+  background: rgba(68, 212, 255, 0.1);
 }
 
 /* Copy */
-.auth-brand-panel__copy {
+.auth-brand__copy {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
-.auth-brand-panel__tagline {
-  font-family: var(--font-heading);
-  font-size: var(--font-size-heading-xl);
-  line-height: var(--line-height-heading-xl);
+.auth-brand__headline {
+  font-size: clamp(var(--font-size-3xl), 4vw, var(--font-size-4xl));
+  line-height: 1.08;
   font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
+  letter-spacing: -0.01em;
   margin: 0;
 }
 
-.auth-brand-panel__sub {
+.auth-brand__sub {
   font-size: var(--font-size-md);
-  line-height: var(--line-height-md);
   color: var(--color-text-secondary);
+  max-width: 48ch;
   margin: 0;
-  max-width: 320px;
 }
 
-/* Gold accent bar */
-.auth-brand-panel__accent {
-  width: 48px;
-  height: 3px;
-  background: var(--color-brand-400);
-  border-radius: var(--radius-full);
-}
-
-/* Aurora blobs */
-.auth-brand-panel__aurora {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.auth-brand-panel__aurora-blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.25;
-}
-
-.auth-brand-panel__aurora-blob--a {
-  width: 420px;
-  height: 420px;
-  top: -80px;
-  left: -100px;
-  background: radial-gradient(circle, var(--color-brand-700) 0%, transparent 70%);
-}
-
-.auth-brand-panel__aurora-blob--b {
-  width: 320px;
-  height: 320px;
-  bottom: -60px;
-  right: -60px;
-  background: radial-gradient(circle, var(--color-brand-500) 0%, transparent 70%);
-  opacity: 0.15;
+/* Highlights */
+.auth-brand__highlights {
+  margin-top: auto;
 }
 </style>

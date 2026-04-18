@@ -743,11 +743,14 @@
         "description": "Manage your finances with clarity. Dashboard, goals, portfolio and tools in one place."
       },
       "hero": {
-        "eyebrow": "Finances under control",
-        "title": "Manage your money intelligently",
-        "subtitle": "Complete dashboard, financial goals, investment portfolio and more. All in one place.",
-        "cta": "Start for free",
-        "ctaSecondary": "View plans"
+        "eyebrow": "Precision Layered Analytics",
+        "title": "From basic control to full analytics in a single experience.",
+        "subtitle": "Auraxis was redesigned to serve two profiles at once: those who want to quickly understand where money goes and those who track every indicator daily.",
+        "cta": "Get started",
+        "ctaSecondary": "View analytics dashboard",
+        "previewLabel": "30-day summary",
+        "previewValue": "R$ 12,320",
+        "previewDesc": "Net balance with automatic comparison vs previous period (+9.4%)."
       },
       "features": {
         "title": "Everything you need",
@@ -772,16 +775,71 @@
         }
       },
       "plans": {
-        "eyebrow": "Plans and Pricing",
-        "title": "Start for free",
-        "subtitle": "Free plan with the essentials. Upgrade when you need more.",
-        "cta": "View all plans"
+        "title": "Plans",
+        "subtitle": "Start with the basics safely and move to full analytics when ready.",
+        "cta": "View all plans",
+        "items": {
+          "essential": {
+            "title": "Essential",
+            "price": "Free",
+            "description": "Daily control with executive panel."
+          },
+          "pro": {
+            "title": "Pro Analytics",
+            "price": "R$ 27.90",
+            "description": "Complete drill-down, comparisons and advanced insights."
+          },
+          "enterprise": {
+            "title": "Enterprise",
+            "price": "Coming soon",
+            "description": "Tax and operational layer for business routines."
+          }
+        }
       },
       "cta": {
         "title": "Ready to get started?",
         "subtitle": "Create your free account and take full control of your finances.",
         "button": "Create free account",
         "login": "I already have an account"
+      },
+      "product": {
+        "title": "Clarity for beginners, depth for power users",
+        "subtitle": "Executive summary on top, complete drill-down in a few clicks.",
+        "items": {
+          "essential": {
+            "title": "Essential Mode",
+            "description": "Revenue, expenses, balance and priority actions with instant readability."
+          },
+          "analytic": {
+            "title": "Analytic Mode",
+            "description": "Comparisons by period, category, account and detailed transactions."
+          },
+          "narrative": {
+            "title": "Unified Narrative",
+            "description": "Same visual language across public, auth and private dashboard."
+          }
+        }
+      },
+      "analytics": {
+        "title": "Large-scale analysis workspace",
+        "subtitle": "Cash flow, composition, heatmap and cumulative trend with fluid switching.",
+        "items": {
+          "cashflow": {
+            "title": "Cash Flow",
+            "kpi": "+R$ 28,450",
+            "description": "Revenue/expenses by period with automatic comparison."
+          },
+          "composition": {
+            "title": "Composition",
+            "kpi": "R$ 16,130",
+            "description": "Which categories stressed the budget in the period."
+          },
+          "trend": {
+            "title": "Trend",
+            "kpi": "34.2%",
+            "description": "Savings rate and cumulative variation in continuous reading."
+          }
+        }
       }
     },
     "profile": {
@@ -1515,8 +1573,9 @@
   },
   "authBrandPanel": {
     "ariaLabel": "Auraxis — brand panel",
-    "taglineLine1": "Complex financial data.",
-    "taglineLine2": "Radical clarity.",
+    "badge": "Secure access",
+    "taglineLine1": "Get back to your analytics dashboard",
+    "taglineLine2": "in seconds.",
     "sub": "Manage your assets, goals and transactions in one place — with the precision you deserve."
   },
   "authFeatureList": {
@@ -1947,10 +2006,10 @@
       "calculate": "Calculate vacation",
       "reset": "Clear",
       "vacationDaysOptions": {
-        "30": "30 days",
-        "20": "20 days",
+        "10": "10 days",
         "15": "15 days",
-        "10": "10 days"
+        "20": "20 days",
+        "30": "30 days"
       }
     },
     "results": {

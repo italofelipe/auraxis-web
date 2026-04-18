@@ -4,17 +4,17 @@ import { colors } from "./colors";
 export const semantic = {
   // Surfaces
   surface: {
-    page:    colors.bg.base,
+    page:    colors.bg.canvas,
     card:    colors.bg.surface,
     overlay: colors.bg.elevated,
     glass:   colors.bg.glass,
   },
   // Actions
   action: {
-    primary:        colors.brand[600],
-    primaryHover:   colors.brand[500],
-    primaryPressed: colors.brand[700],
-    primarySubtle:  colors.brandGlow.xs,
+    primary:        colors.cyan[500],
+    primaryHover:   colors.violet[500],
+    primaryPressed: colors.cyan[600],
+    primarySubtle:  "rgba(68, 212, 255, 0.1)",
   },
   // Financial feedback
   financial: {
