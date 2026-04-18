@@ -224,12 +224,16 @@ function renderActions(
   opts: Pick<UseTransactionTableOptions, "deleteMutation" | "markPaidMutation" | "duplicateMutation" | "deleteTarget" | "onEdit" | "onMarkPaid" | "onDelete" | "onDuplicate">,
   t: (key: string) => string,
 ): ReturnType<typeof h> {
+  const editLabel = t("transactions.action.edit");
+  const duplicateLabel = t("transactions.action.duplicate");
+  const markPaidLabel = t("transactions.action.markPaid");
+  const deleteLabel = t("transactions.action.delete");
   return h(NSpace, { size: 4, align: "center", wrap: false }, {
     default: () => [
-      h(NButton, { size: "tiny", quaternary: true, circle: true, title: t("transactions.action.edit"), onClick: () => opts.onEdit(row) }, { default: () => h(Pencil, { size: 13 }) }),
-      h(NButton, { size: "tiny", quaternary: true, circle: true, title: t("transactions.action.duplicate"), loading: opts.duplicateMutation.isPending.value, onClick: () => opts.onDuplicate(row) }, { default: () => h(Copy, { size: 13 }) }),
-      h(NButton, { size: "tiny", quaternary: true, circle: true, type: "success", disabled: row.status === "paid" || opts.markPaidMutation.isPending.value, title: t("transactions.action.markPaid"), onClick: () => opts.onMarkPaid(row) }, { default: () => h(Check, { size: 13 }) }),
-      h(NButton, { size: "tiny", quaternary: true, circle: true, type: "error", loading: opts.deleteMutation.isPending.value && opts.deleteTarget.value?.id === row.id, title: t("transactions.action.delete"), onClick: () => opts.onDelete(row) }, { default: () => h(Trash2, { size: 13 }) }),
+      h(NButton, { size: "tiny", quaternary: true, circle: true, title: editLabel, "aria-label": editLabel, onClick: () => opts.onEdit(row) }, { default: () => h(Pencil, { size: 13 }) }),
+      h(NButton, { size: "tiny", quaternary: true, circle: true, title: duplicateLabel, "aria-label": duplicateLabel, loading: opts.duplicateMutation.isPending.value, onClick: () => opts.onDuplicate(row) }, { default: () => h(Copy, { size: 13 }) }),
+      h(NButton, { size: "tiny", quaternary: true, circle: true, type: "success", disabled: row.status === "paid" || opts.markPaidMutation.isPending.value, title: markPaidLabel, "aria-label": markPaidLabel, onClick: () => opts.onMarkPaid(row) }, { default: () => h(Check, { size: 13 }) }),
+      h(NButton, { size: "tiny", quaternary: true, circle: true, type: "error", loading: opts.deleteMutation.isPending.value && opts.deleteTarget.value?.id === row.id, title: deleteLabel, "aria-label": deleteLabel, onClick: () => opts.onDelete(row) }, { default: () => h(Trash2, { size: 13 }) }),
     ],
   });
 }
