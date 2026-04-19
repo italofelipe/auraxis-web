@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import {
   NAlert,
   NButton,
@@ -10,16 +10,8 @@ import {
   NSelect,
   NSpace,
   NSpin,
-  useMessage,
 } from "naive-ui";
 
-import { captureException } from "~/core/observability";
-import { useApiError } from "~/composables/useApiError";
-import { useCalculatorFormState } from "~/features/tools/composables/use-calculator-form-state";
-import { useSessionStore } from "~/stores/session";
-import { useEntitlementQuery } from "~/features/paywall/queries/use-entitlement-query";
-import { useSaveSimulationMutation } from "~/features/simulations/queries/use-save-simulation-mutation";
-import { useCreateGoalMutation } from "~/features/goals/queries/use-create-goal-mutation";
 import { useBrapiFiiQuoteQuery } from "~/features/tools/queries/use-brapi-fii-quote-query";
 import {
   calculateFii,
@@ -28,6 +20,7 @@ import {
   type FiiFormState,
   type FiiResult,
 } from "~/features/tools/model/fii";
+import { useToolPage } from "~/features/tools/composables/use-tool-page";
 import CalculatorFormSection from "~/components/tool/CalculatorFormSection/CalculatorFormSection.vue";
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
@@ -39,10 +32,7 @@ import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
 
 definePageMeta({ layout: false });
 
-const { t, n } = useI18n();
-const toast = useMessage();
-const { getErrorMessage } = useApiError();
-const sessionStore = useSessionStore();
+const { t } = useI18n();
 
 useSeoMeta({
   title: t("fii.seo.title"),
@@ -52,27 +42,39 @@ useSeoMeta({
   twitterCard: "summary_large_image",
 });
 
-// ─── Session & access ─────────────────────────────────────────────────────────
-
-const isAuthenticated = computed<boolean>(() => sessionStore.isAuthenticated);
-
-const premiumAccessQuery = useEntitlementQuery("advanced_simulations");
-
-/**
- * True when the authenticated user holds a premium subscription.
- */
-const hasPremiumAccess = computed<boolean>(
-  () => premiumAccessQuery.data.value === true,
-);
-
-// ─── Calculator form state ────────────────────────────────────────────────────
-
-const { form, validationError, isDirty, patch, reset, setValidationError } =
-  useCalculatorFormState<FiiFormState>(createDefaultFiiFormState);
-
-const result = ref<FiiResult | null>(null);
-const savedSimulationId = ref<string | null>(null);
-const goalCreated = ref(false);
+const {
+  isAuthenticated,
+  hasPremiumAccess,
+  formatBrl,
+  form,
+  validationError,
+  isDirty,
+  patch,
+  reset,
+  setValidationError,
+  result,
+  savedSimulationId,
+  goalAdded,
+  saveSimulationMutation,
+  createGoalMutation,
+  handleSaveSimulation,
+  handleAddAsGoal,
+} = useToolPage<FiiFormState, FiiResult>({
+  createDefaultState: createDefaultFiiFormState,
+  buildSimulationPayload: ({ form, result, t }) => ({
+    name: t("fii.simulation.defaultName", { ticker: form.ticker, year: new Date().getFullYear() }),
+    toolSlug: "fii_calculator",
+    inputs: { ...form },
+    result: { ...result },
+  }),
+  getGoalPayload: ({ result, form: rawForm, t }) => {
+    const form = rawForm as FiiFormState;
+    return {
+      name: t("fii.simulation.goalName", { ticker: form.ticker }),
+      target_amount: result.annualIncome ?? result.currentPrice * (form.shares ?? 1),
+    };
+  },
+});
 
 // ─── BRAPI FII query ──────────────────────────────────────────────────────────
 
@@ -92,22 +94,7 @@ const historyMonthsOptions = computed(() =>
   })),
 );
 
-// ─── Mutations ────────────────────────────────────────────────────────────────
-
-const saveSimulationMutation = useSaveSimulationMutation();
-const createGoalMutation = useCreateGoalMutation();
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-/**
- * Formats a number as BRL currency string.
- *
- * @param value - Number to format.
- * @returns Formatted BRL string.
- */
-function formatBrl(value: number): string {
-  return n(value, "currency");
-}
 
 /**
  * Formats a percentage with 2 decimal places.
@@ -137,7 +124,7 @@ function handleCalculate(): void {
   }
   setValidationError(null);
   savedSimulationId.value = null;
-  goalCreated.value = false;
+  goalAdded.value = false;
   result.value = calculateFii(form.value, liveQuote.value);
 }
 
@@ -148,7 +135,7 @@ function handleReset(): void {
   reset();
   result.value = null;
   savedSimulationId.value = null;
-  goalCreated.value = false;
+  goalAdded.value = false;
 }
 
 // ─── Summary metrics ──────────────────────────────────────────────────────────
@@ -167,59 +154,6 @@ const summaryMetrics = computed(() => {
   }
   return items;
 });
-
-// ─── Save simulation ──────────────────────────────────────────────────────────
-
-/**
- * Saves the current simulation and returns its id.
- *
- * @returns Simulation id or null on failure.
- */
-async function ensureSimulationSaved(): Promise<string | null> {
-  if (savedSimulationId.value) { return savedSimulationId.value; }
-  if (!result.value) { return null; }
-
-  try {
-    const simulation = await saveSimulationMutation.mutateAsync({
-      name: t("fii.simulation.defaultName", { ticker: form.value.ticker, year: new Date().getFullYear() }),
-      toolSlug: "fii_calculator",
-      inputs: { ...form.value },
-      result: { ...result.value },
-    });
-    savedSimulationId.value = simulation.id;
-    return simulation.id;
-  } catch (err) {
-    captureException(err, { context: "fii/save-simulation" });
-    toast.error(getErrorMessage(err));
-    return null;
-  }
-}
-
-/**
- * Handles the Save Simulation button click.
- */
-async function handleSaveSimulation(): Promise<void> {
-  await ensureSimulationSaved();
-}
-
-/**
- * Creates a financial goal using the FII annual income or market cap as target.
- */
-async function handleAddAsGoal(): Promise<void> {
-  if (!result.value) { return; }
-  const targetAmount = result.value.annualIncome
-    ?? result.value.currentPrice * (form.value.shares ?? 1);
-  try {
-    await createGoalMutation.mutateAsync({
-      name: t("fii.simulation.goalName", { ticker: form.value.ticker }),
-      target_amount: targetAmount,
-    });
-    goalCreated.value = true;
-  } catch (err) {
-    captureException(err, { context: "fii/add-as-goal" });
-    toast.error(getErrorMessage(err));
-  }
-}
 </script>
 
 <template>
@@ -401,11 +335,11 @@ async function handleAddAsGoal(): Promise<void> {
                   block
                   type="warning"
                   :loading="createGoalMutation.isPending.value"
-                  :disabled="goalCreated || createGoalMutation.isPending.value"
+                  :disabled="goalAdded || createGoalMutation.isPending.value"
                   data-testid="add-as-goal-btn"
                   @click="handleAddAsGoal"
                 >
-                  {{ goalCreated ? t('fii.actions.goalAdded') : t('fii.actions.addAsGoal') }}
+                  {{ goalAdded ? t('fii.actions.goalAdded') : t('fii.actions.addAsGoal') }}
                 </NButton>
               </NSpace>
             </UiSurfaceCard>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import {
   NAlert,
   NButton,
@@ -11,17 +11,9 @@ import {
   NSpace,
   NThing,
   NTooltip,
-  useMessage,
 } from "naive-ui";
 import { Info } from "lucide-vue-next";
-import { useRouter } from "#app";
 
-import { captureException } from "~/core/observability";
-import { useApiError } from "~/composables/useApiError";
-import { useCalculatorFormState } from "~/features/tools/composables/use-calculator-form-state";
-import { useSessionStore } from "~/stores/session";
-import { useEntitlementQuery } from "~/features/paywall/queries/use-entitlement-query";
-import { useSaveSimulationMutation } from "~/features/simulations/queries/use-save-simulation-mutation";
 import {
   BR_TAX_TABLE_YEAR,
   calculateInssIr,
@@ -30,6 +22,7 @@ import {
   type InssIrFormState,
   type InssIrResult,
 } from "~/features/tools/model/inss-ir-folha";
+import { useToolPage } from "~/features/tools/composables/use-tool-page";
 import CalculatorFormSection from "~/components/tool/CalculatorFormSection/CalculatorFormSection.vue";
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
@@ -45,10 +38,6 @@ import TaxBracketTable, {
 definePageMeta({ layout: false });
 
 const { t, n } = useI18n();
-const toast = useMessage();
-const { getErrorMessage } = useApiError();
-const router = useRouter();
-const sessionStore = useSessionStore();
 
 useSeoMeta({
   title: t("inssIrFolha.seo.title"),
@@ -58,42 +47,32 @@ useSeoMeta({
   twitterCard: "summary_large_image",
 });
 
-// ─── Session & access ─────────────────────────────────────────────────────────
-
-const isAuthenticated = computed<boolean>(() => sessionStore.isAuthenticated);
-
-const premiumAccessQuery = useEntitlementQuery("advanced_simulations");
-
-/**
- * True when the authenticated user holds a premium subscription.
- */
-const hasPremiumAccess = computed<boolean>(
-  () => premiumAccessQuery.data.value === true,
-);
-
-// ─── Calculator form state ────────────────────────────────────────────────────
-
-const { form, validationError, isDirty, patch, reset, setValidationError } =
-  useCalculatorFormState<InssIrFormState>(createDefaultInssIrFormState);
-
-const result = ref<InssIrResult | null>(null);
-const savedSimulationId = ref<string | null>(null);
-
-// ─── Mutations ────────────────────────────────────────────────────────────────
-
-const saveSimulationMutation = useSaveSimulationMutation();
+const {
+  router,
+  isAuthenticated,
+  hasPremiumAccess,
+  formatBrl,
+  form,
+  validationError,
+  isDirty,
+  patch,
+  reset,
+  setValidationError,
+  result,
+  savedSimulationId,
+  saveSimulationMutation,
+  handleSaveSimulation,
+} = useToolPage<InssIrFormState, InssIrResult>({
+  createDefaultState: createDefaultInssIrFormState,
+  buildSimulationPayload: ({ form, result, t }) => ({
+    name: t("inssIrFolha.simulation.defaultName", { year: new Date().getFullYear() }),
+    toolSlug: "inss_ir_folha",
+    inputs: { ...form },
+    result: { ...result },
+  }),
+});
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-/**
- * Formats a numeric value as Brazilian Real currency string.
- *
- * @param value Number to format.
- * @returns Formatted BRL string.
- */
-function formatBrl(value: number): string {
-  return n(value, "currency");
-}
 
 /**
  * Formats a rate (0–1 fraction) as a percentage string with one decimal.
@@ -217,41 +196,6 @@ const privatePensionWasCapped = computed<boolean>(() => {
   if (!result.value || !form.value.grossSalary) { return false; }
   return result.value.privatePensionDeduction < form.value.privatePension;
 });
-
-// ─── Save simulation ──────────────────────────────────────────────────────────
-
-/**
- * Saves the current simulation and returns its id.
- * Re-uses an existing id if the simulation was already saved.
- *
- * @returns Simulation id or null on failure.
- */
-async function ensureSimulationSaved(): Promise<string | null> {
-  if (savedSimulationId.value) { return savedSimulationId.value; }
-  if (!result.value) { return null; }
-
-  try {
-    const simulation = await saveSimulationMutation.mutateAsync({
-      name: t("inssIrFolha.simulation.defaultName", { year: new Date().getFullYear() }),
-      toolSlug: "inss_ir_folha",
-      inputs: { ...form.value },
-      result: { ...result.value },
-    });
-    savedSimulationId.value = simulation.id;
-    return simulation.id;
-  } catch (err) {
-    captureException(err, { context: "inss-ir-folha/save-simulation" });
-    toast.error(getErrorMessage(err));
-    return null;
-  }
-}
-
-/**
- * Saves the simulation when the user clicks the standalone Save button.
- */
-async function handleSaveSimulation(): Promise<void> {
-  await ensureSimulationSaved();
-}
 </script>
 
 <template>
