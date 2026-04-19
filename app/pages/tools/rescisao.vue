@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import {
   NAlert,
   NButton,
@@ -11,17 +11,9 @@ import {
   NSpace,
   NThing,
   NTooltip,
-  useMessage,
 } from "naive-ui";
 import { Info } from "lucide-vue-next";
-import { useRouter } from "#app";
 
-import { captureException } from "~/core/observability";
-import { useApiError } from "~/composables/useApiError";
-import { useCalculatorFormState } from "~/features/tools/composables/use-calculator-form-state";
-import { useSessionStore } from "~/stores/session";
-import { useEntitlementQuery } from "~/features/paywall/queries/use-entitlement-query";
-import { useSaveSimulationMutation } from "~/features/simulations/queries/use-save-simulation-mutation";
 import {
   BR_TAX_TABLE_YEAR,
   TERMINATION_TYPES,
@@ -32,6 +24,7 @@ import {
   type RescisaoResult,
   type TerminationType,
 } from "~/features/tools/model/rescisao";
+import { useToolPage } from "~/features/tools/composables/use-tool-page";
 import CalculatorFormSection from "~/components/tool/CalculatorFormSection/CalculatorFormSection.vue";
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
@@ -43,11 +36,7 @@ import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
 
 definePageMeta({ layout: false });
 
-const { t, n } = useI18n();
-const toast = useMessage();
-const { getErrorMessage } = useApiError();
-const router = useRouter();
-const sessionStore = useSessionStore();
+const { t } = useI18n();
 
 useSeoMeta({
   title: t("rescisao.seo.title"),
@@ -57,26 +46,30 @@ useSeoMeta({
   twitterCard: "summary_large_image",
 });
 
-// ─── Session & access ─────────────────────────────────────────────────────────
-
-const isAuthenticated = computed<boolean>(() => sessionStore.isAuthenticated);
-
-const premiumAccessQuery = useEntitlementQuery("advanced_simulations");
-
-/**
- * True when the authenticated user holds a premium subscription.
- */
-const hasPremiumAccess = computed<boolean>(
-  () => premiumAccessQuery.data.value === true,
-);
-
-// ─── Calculator form state ────────────────────────────────────────────────────
-
-const { form, validationError, isDirty, patch, reset, setValidationError } =
-  useCalculatorFormState<RescisaoFormState>(createDefaultRescisaoFormState);
-
-const result = ref<RescisaoResult | null>(null);
-const savedSimulationId = ref<string | null>(null);
+const {
+  router,
+  isAuthenticated,
+  hasPremiumAccess,
+  formatBrl,
+  form,
+  validationError,
+  isDirty,
+  patch,
+  reset,
+  setValidationError,
+  result,
+  savedSimulationId,
+  saveSimulationMutation,
+  handleSaveSimulation,
+} = useToolPage<RescisaoFormState, RescisaoResult>({
+  createDefaultState: createDefaultRescisaoFormState,
+  buildSimulationPayload: ({ form, result, t }) => ({
+    name: t("rescisao.simulation.defaultName", { year: new Date().getFullYear() }),
+    toolSlug: "rescisao_clt",
+    inputs: { ...form },
+    result: { ...result },
+  }),
+});
 
 // ─── Select options ───────────────────────────────────────────────────────────
 
@@ -101,22 +94,6 @@ const vacationMonthsOptions = computed(() => [
     value: i + 1,
   })),
 ]);
-
-// ─── Mutations ────────────────────────────────────────────────────────────────
-
-const saveSimulationMutation = useSaveSimulationMutation();
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-/**
- * Formats a numeric value as Brazilian Real currency string.
- *
- * @param value Number to format.
- * @returns Formatted BRL string.
- */
-function formatBrl(value: number): string {
-  return n(value, "currency");
-}
 
 // ─── Calculation ──────────────────────────────────────────────────────────────
 
@@ -174,40 +151,6 @@ const summaryMetrics = computed(() => {
     },
   ];
 });
-
-// ─── Save simulation ──────────────────────────────────────────────────────────
-
-/**
- * Saves the current simulation and returns its id.
- *
- * @returns Simulation id or null on failure.
- */
-async function ensureSimulationSaved(): Promise<string | null> {
-  if (savedSimulationId.value) { return savedSimulationId.value; }
-  if (!result.value) { return null; }
-
-  try {
-    const simulation = await saveSimulationMutation.mutateAsync({
-      name: t("rescisao.simulation.defaultName", { year: new Date().getFullYear() }),
-      toolSlug: "rescisao_clt",
-      inputs: { ...form.value },
-      result: { ...result.value },
-    });
-    savedSimulationId.value = simulation.id;
-    return simulation.id;
-  } catch (err) {
-    captureException(err, { context: "rescisao/save-simulation" });
-    toast.error(getErrorMessage(err));
-    return null;
-  }
-}
-
-/**
- * Handles the Save Simulation button click.
- */
-async function handleSaveSimulation(): Promise<void> {
-  await ensureSimulationSaved();
-}
 </script>
 
 <template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import {
   NAlert,
   NButton,
@@ -9,17 +9,9 @@ import {
   NInputNumber,
   NSpace,
   NThing,
-  useMessage,
 } from "naive-ui";
-import { useRouter } from "#app";
 
-import { captureException } from "~/core/observability";
-import { useApiError } from "~/composables/useApiError";
-import { useCalculatorFormState } from "~/features/tools/composables/use-calculator-form-state";
-import { useSessionStore } from "~/stores/session";
-import { useEntitlementQuery } from "~/features/paywall/queries/use-entitlement-query";
-import { useSaveSimulationMutation } from "~/features/simulations/queries/use-save-simulation-mutation";
-import { useCreateGoalMutation } from "~/features/goals/queries/use-create-goal-mutation";
+import { useToolPage } from "~/features/tools/composables/use-tool-page";
 import {
   CDB_TABLE_YEAR,
   calculateCdbLciLca,
@@ -39,11 +31,51 @@ import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
 
 definePageMeta({ layout: false });
 
-const { t, n } = useI18n();
-const toast = useMessage();
-const { getErrorMessage } = useApiError();
-const router = useRouter();
-const sessionStore = useSessionStore();
+const {
+  t,
+  router,
+  isAuthenticated,
+  hasPremiumAccess,
+  formatBrl,
+  form,
+  validationError,
+  isDirty,
+  patch,
+  reset,
+  setValidationError,
+  result,
+  savedSimulationId,
+  goalAdded,
+  saveSimulationMutation,
+  createGoalMutation,
+  handleSaveSimulation,
+  handleAddAsGoal,
+  isBridging,
+  isSaved,
+} = useToolPage<CdbLciLcaFormState, CdbLciLcaResult>({
+  createDefaultState: createDefaultCdbLciLcaFormState,
+  buildSimulationPayload: ({ form, result, t }) => ({
+    name: t("cdbLciLca.simulation.defaultName", { year: new Date().getFullYear() }),
+    toolSlug: "cdb_lci_lca",
+    inputs: { ...form },
+    result: {
+      bestOption: result.bestOption,
+      cdbNetAmount: result.cdb.netAmount,
+      lciNetAmount: result.lci.netAmount,
+      lcaNetAmount: result.lca.netAmount,
+      poupancaNetAmount: result.poupanca.netAmount,
+    },
+  }),
+  getGoalPayload: ({ result, t }) => ({
+    name: t("cdbLciLca.simulation.goalName"),
+    target_amount: Math.max(
+      result.cdb.netAmount,
+      result.lci.netAmount,
+      result.lca.netAmount,
+      result.poupanca.netAmount,
+    ),
+  }),
+});
 
 useSeoMeta({
   title: t("cdbLciLca.seo.title"),
@@ -53,56 +85,15 @@ useSeoMeta({
   twitterCard: "summary_large_image",
 });
 
-// ─── Session & access ─────────────────────────────────────────────────────────
-
-const isAuthenticated = computed<boolean>(() => sessionStore.isAuthenticated);
-
-const premiumAccessQuery = useEntitlementQuery("advanced_simulations");
-
-/**
- * True when the authenticated user holds a premium subscription.
- */
-const hasPremiumAccess = computed<boolean>(
-  () => premiumAccessQuery.data.value === true,
-);
-
-// ─── Calculator form state ────────────────────────────────────────────────────
-
-const { form, validationError, isDirty, patch, reset, setValidationError } =
-  useCalculatorFormState<CdbLciLcaFormState>(createDefaultCdbLciLcaFormState);
-
-const result = ref<CdbLciLcaResult | null>(null);
-const savedSimulationId = ref<string | null>(null);
-const goalAdded = ref(false);
-
-// ─── Mutations ────────────────────────────────────────────────────────────────
-
-const saveSimulationMutation = useSaveSimulationMutation();
-const createGoalMutation = useCreateGoalMutation();
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-/**
- * Formats a numeric value as Brazilian Real currency string.
- *
- * @param value Number to format.
- * @returns Formatted BRL string.
- */
-function formatBrl(value: number): string {
-  return n(value, "currency");
-}
-
 /**
  * Formats a decimal rate as a percentage string with 2 decimal places.
  *
- * @param rate Decimal rate (e.g. 0.175).
+ * @param rate - Decimal rate (e.g. 0.175).
  * @returns Formatted percentage string (e.g. "17.50%").
  */
 function formatPct(rate: number): string {
   return `${(rate * 100).toFixed(2)}%`;
 }
-
-// ─── Calculation ──────────────────────────────────────────────────────────────
 
 /**
  * Validates the form and triggers the calculation when valid.
@@ -130,37 +121,6 @@ function handleReset(): void {
   goalAdded.value = false;
 }
 
-// ─── Summary metrics ──────────────────────────────────────────────────────────
-
-const summaryMetrics = computed(() => {
-  if (!result.value) { return []; }
-  return [
-    {
-      label: t("cdbLciLca.results.cdbNet"),
-      value: formatBrl(result.value.cdb.netAmount),
-    },
-    {
-      label: t("cdbLciLca.results.lciNet"),
-      value: formatBrl(result.value.lci.netAmount),
-    },
-    {
-      label: t("cdbLciLca.results.lcaNet"),
-      value: formatBrl(result.value.lca.netAmount),
-    },
-    {
-      label: t("cdbLciLca.results.poupancaNet"),
-      value: formatBrl(result.value.poupanca.netAmount),
-    },
-  ];
-});
-
-// ─── Best product for goal ────────────────────────────────────────────────────
-
-/**
- * Returns the highest net amount across selected products.
- *
- * @returns Highest net amount.
- */
 const bestNetAmount = computed<number>(() => {
   if (!result.value) { return 0; }
   const candidates = [
@@ -171,73 +131,15 @@ const bestNetAmount = computed<number>(() => {
   return Math.max(...candidates, result.value.poupanca.netAmount);
 });
 
-// ─── Save simulation ──────────────────────────────────────────────────────────
-
-/**
- * Saves the current simulation and returns its id.
- *
- * @returns Simulation id or null on failure.
- */
-async function ensureSimulationSaved(): Promise<string | null> {
-  if (savedSimulationId.value) { return savedSimulationId.value; }
-  if (!result.value) { return null; }
-
-  try {
-    const simulation = await saveSimulationMutation.mutateAsync({
-      name: t("cdbLciLca.simulation.defaultName", { year: new Date().getFullYear() }),
-      toolSlug: "cdb_lci_lca",
-      inputs: { ...form.value },
-      result: {
-        bestOption: result.value.bestOption,
-        cdbNetAmount: result.value.cdb.netAmount,
-        lciNetAmount: result.value.lci.netAmount,
-        lcaNetAmount: result.value.lca.netAmount,
-        poupancaNetAmount: result.value.poupanca.netAmount,
-      },
-    });
-    savedSimulationId.value = simulation.id;
-    return simulation.id;
-  } catch (err) {
-    captureException(err, { context: "cdb-lci-lca/save-simulation" });
-    toast.error(getErrorMessage(err));
-    return null;
-  }
-}
-
-/**
- * Handles the Save Simulation button click.
- */
-async function handleSaveSimulation(): Promise<void> {
-  await ensureSimulationSaved();
-}
-
-// ─── Goal bridge (premium) ────────────────────────────────────────────────────
-
-/**
- * Saves the simulation then creates a goal from the best net amount.
- */
-async function handleAddAsGoal(): Promise<void> {
-  if (!result.value) { return; }
-
-  await ensureSimulationSaved();
-
-  try {
-    await createGoalMutation.mutateAsync({
-      name: t("cdbLciLca.simulation.goalName"),
-      target_amount: bestNetAmount.value,
-    });
-    goalAdded.value = true;
-  } catch (err) {
-    captureException(err, { context: "cdb-lci-lca/add-as-goal" });
-    toast.error(getErrorMessage(err));
-  }
-}
-
-const isBridging = computed(
-  () => saveSimulationMutation.isPending.value || createGoalMutation.isPending.value,
-);
-
-const isSaved = computed(() => savedSimulationId.value !== null);
+const summaryMetrics = computed(() => {
+  if (!result.value) { return []; }
+  return [
+    { label: t("cdbLciLca.results.cdbNet"), value: formatBrl(result.value.cdb.netAmount) },
+    { label: t("cdbLciLca.results.lciNet"), value: formatBrl(result.value.lci.netAmount) },
+    { label: t("cdbLciLca.results.lcaNet"), value: formatBrl(result.value.lca.netAmount) },
+    { label: t("cdbLciLca.results.poupancaNet"), value: formatBrl(result.value.poupanca.netAmount) },
+  ];
+});
 </script>
 
 <template>

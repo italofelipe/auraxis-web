@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import type { EChartsOption } from "echarts";
 import {
   NAlert,
@@ -9,16 +9,8 @@ import {
   NInputNumber,
   NSpace,
   NThing,
-  useMessage,
 } from "naive-ui";
 
-import { captureException } from "~/core/observability";
-import { useApiError } from "~/composables/useApiError";
-import { useCalculatorFormState } from "~/features/tools/composables/use-calculator-form-state";
-import { useSessionStore } from "~/stores/session";
-import { useEntitlementQuery } from "~/features/paywall/queries/use-entitlement-query";
-import { useSaveSimulationMutation } from "~/features/simulations/queries/use-save-simulation-mutation";
-import { useCreateGoalMutation } from "~/features/goals/queries/use-create-goal-mutation";
 import {
   calculateAluguelVsCompra,
   createDefaultAluguelVsCompraFormState,
@@ -26,6 +18,7 @@ import {
   type AluguelVsCompraFormState,
   type AluguelVsCompraResult,
 } from "~/features/tools/model/aluguel-vs-compra";
+import { useToolPage } from "~/features/tools/composables/use-tool-page";
 import CalculatorFormSection from "~/components/tool/CalculatorFormSection/CalculatorFormSection.vue";
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
@@ -38,10 +31,35 @@ import UiChart from "~/components/ui/UiChart.vue";
 
 definePageMeta({ layout: false });
 
-const { t, n } = useI18n();
-const toast = useMessage();
-const { getErrorMessage } = useApiError();
-const sessionStore = useSessionStore();
+const {
+  t,
+  isAuthenticated, hasPremiumAccess, formatBrl,
+  form, validationError, isDirty, patch, reset, setValidationError,
+  result, savedSimulationId, goalAdded,
+  saveSimulationMutation, createGoalMutation,
+  handleSaveSimulation, handleAddAsGoal,
+  isBridging, isSaved,
+} = useToolPage<AluguelVsCompraFormState, AluguelVsCompraResult>({
+  createDefaultState: createDefaultAluguelVsCompraFormState,
+  buildSimulationPayload: ({ form, result, t }) => ({
+    name: t("aluguelVsCompra.simulation.defaultName", { year: new Date().getFullYear() }),
+    toolSlug: "aluguel_vs_compra",
+    inputs: { ...form },
+    result: {
+      finalBuyNetWorth: result.finalBuyNetWorth,
+      finalRentNetWorth: result.finalRentNetWorth,
+      totalRentCost: result.totalRentCost,
+      totalBuyCost: result.totalBuyCost,
+      breakEvenYear: result.breakEvenYear,
+      buyIsBetter: result.buyIsBetter,
+      propertyValueAtEnd: result.propertyValueAtEnd,
+    },
+  }),
+  getGoalPayload: ({ result, t }) => ({
+    name: t("aluguelVsCompra.simulation.goalName"),
+    target_amount: result.propertyValueAtEnd,
+  }),
+});
 
 useSeoMeta({
   title: t("aluguelVsCompra.seo.title"),
@@ -51,46 +69,7 @@ useSeoMeta({
   twitterCard: "summary_large_image",
 });
 
-// ─── Session & access ─────────────────────────────────────────────────────────
-
-const isAuthenticated = computed<boolean>(() => sessionStore.isAuthenticated);
-
-const premiumAccessQuery = useEntitlementQuery("advanced_simulations");
-
-/**
- * True when the authenticated user holds a premium subscription.
- */
-const hasPremiumAccess = computed<boolean>(
-  () => premiumAccessQuery.data.value === true,
-);
-
-// ─── Calculator form state ────────────────────────────────────────────────────
-
-const { form, validationError, isDirty, patch, reset, setValidationError } =
-  useCalculatorFormState<AluguelVsCompraFormState>(createDefaultAluguelVsCompraFormState);
-
-const result = ref<AluguelVsCompraResult | null>(null);
-const savedSimulationId = ref<string | null>(null);
-const goalAdded = ref(false);
-
-// ─── Mutations ────────────────────────────────────────────────────────────────
-
-const saveSimulationMutation = useSaveSimulationMutation();
-const createGoalMutation = useCreateGoalMutation();
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-/**
- * Formats a numeric value as Brazilian Real currency string.
- *
- * @param value Number to format.
- * @returns Formatted BRL string.
- */
-function formatBrl(value: number): string {
-  return n(value, "currency");
-}
-
-// ─── Chart options ──────────────────────���─────────────────────────────────────
+// ─── Chart options ────────────────────────────────────────────────────────────
 
 const chartOption = computed<EChartsOption>(() => {
   if (!result.value) { return {} as EChartsOption; }
@@ -168,7 +147,7 @@ function handleReset(): void {
   goalAdded.value = false;
 }
 
-// ─── Summary metrics ────────────────────────────────���─────────────────────────
+// ─── Summary metrics ──────────────────────────────────────────────────────────
 
 const summaryMetrics = computed(() => {
   if (!result.value) { return []; }
@@ -193,78 +172,6 @@ const summaryMetrics = computed(() => {
     },
   ];
 });
-
-// ─── Save simulation ─────────────────────────────────��────────────────────────
-
-/**
- * Saves the current simulation and returns its id.
- *
- * @returns Simulation id or null on failure.
- */
-async function ensureSimulationSaved(): Promise<string | null> {
-  if (savedSimulationId.value) { return savedSimulationId.value; }
-  if (!result.value) { return null; }
-
-  try {
-    const simulation = await saveSimulationMutation.mutateAsync({
-      name: t("aluguelVsCompra.simulation.defaultName", { year: new Date().getFullYear() }),
-      toolSlug: "aluguel_vs_compra",
-      inputs: { ...form.value },
-      result: {
-        finalBuyNetWorth: result.value.finalBuyNetWorth,
-        finalRentNetWorth: result.value.finalRentNetWorth,
-        totalRentCost: result.value.totalRentCost,
-        totalBuyCost: result.value.totalBuyCost,
-        breakEvenYear: result.value.breakEvenYear,
-        buyIsBetter: result.value.buyIsBetter,
-        propertyValueAtEnd: result.value.propertyValueAtEnd,
-      },
-    });
-    savedSimulationId.value = simulation.id;
-    return simulation.id;
-  } catch (err) {
-    captureException(err, { context: "aluguel-vs-compra/save-simulation" });
-    toast.error(getErrorMessage(err));
-    return null;
-  }
-}
-
-/**
- * Handles the Save Simulation button click.
- */
-async function handleSaveSimulation(): Promise<void> {
-  await ensureSimulationSaved();
-}
-
-// ─── Goal bridge (premium) ────────────────────────────────────────────────────
-
-/**
- * Saves the simulation then creates a goal from the property value at end.
- */
-async function handleAddAsGoal(): Promise<void> {
-  if (!result.value) { return; }
-
-  await ensureSimulationSaved();
-
-  try {
-    await createGoalMutation.mutateAsync({
-      name: t("aluguelVsCompra.simulation.goalName"),
-      target_amount: result.value.propertyValueAtEnd,
-    });
-    goalAdded.value = true;
-  } catch (err) {
-    captureException(err, { context: "aluguel-vs-compra/add-as-goal" });
-    toast.error(getErrorMessage(err));
-  }
-}
-
-// ─── Derived states ───────────────────────────────────────────────────────────
-
-const isBridging = computed(
-  () => saveSimulationMutation.isPending.value || createGoalMutation.isPending.value,
-);
-
-const isSaved = computed(() => savedSimulationId.value !== null);
 </script>
 
 <template>
@@ -463,7 +370,7 @@ const isSaved = computed(() => savedSimulationId.value !== null);
 </template>
 
 <style scoped>
-/* ── Root & page ──────────────────────────���─────────────────��────────────────── */
+/* ── Root & page ─────────────────────────────────────────────────────────────── */
 .avc-root {
   display: contents;
 }
@@ -503,14 +410,14 @@ const isSaved = computed(() => savedSimulationId.value !== null);
   width: 100%;
 }
 
-/* ── Form actions ────────────────────────────���──────────────────────────���────── */
+/* ── Form actions ────────────────────────────────────────────────────────────── */
 .avc-page__form-actions {
   display: flex;
   gap: var(--space-2, 8px);
   margin-top: var(--space-4, 16px);
 }
 
-/* ── Guest header ──────────────────────────���──────────────────────────���──────── */
+/* ── Guest header ────────────────────────────────────────────────────────────── */
 .avc-page__header {
   display: flex;
   align-items: center;
@@ -544,7 +451,7 @@ const isSaved = computed(() => savedSimulationId.value !== null);
   gap: var(--space-2, 8px);
 }
 
-/* ── Guest hero ────────────────────────────────────────────────────────────���─── */
+/* ── Guest hero ──────────────────────────────────────────────────────────────── */
 .avc-page__content {
   max-width: 1100px;
   margin: 0 auto;
@@ -571,7 +478,7 @@ const isSaved = computed(() => savedSimulationId.value !== null);
   gap: var(--space-3, 12px);
 }
 
-/* ── Results section (guest) ─────────────────────────────���───────────────────── */
+/* ── Results section (guest) ─────────────────────────────────────────────────── */
 .avc-page__results-section {
   margin-top: var(--space-6, 24px);
 }
@@ -605,12 +512,12 @@ const isSaved = computed(() => savedSimulationId.value !== null);
   margin: 0;
 }
 
-/* ── Chart ─────────────────────────────���────────────────────��────────────────── */
+/* ── Chart ───────────────────────────────────────────────────────────────────── */
 .avc-page__chart {
   min-height: 300px;
 }
 
-/* ── Disclaimer ──────────────────────────────────────────────────────────���───── */
+/* ── Disclaimer ──────────────────────────────────────────────────────────────── */
 .avc-page__disclaimer {
   font-size: var(--font-size-body-xs, 11px);
   color: var(--color-text-muted);

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import type { EChartsOption } from "echarts";
 import {
   NAlert,
@@ -10,17 +10,8 @@ import {
   NSelect,
   NSpace,
   NThing,
-  useMessage,
 } from "naive-ui";
-import { useRouter } from "#app";
 
-import { captureException } from "~/core/observability";
-import { useApiError } from "~/composables/useApiError";
-import { useCalculatorFormState } from "~/features/tools/composables/use-calculator-form-state";
-import { useSessionStore } from "~/stores/session";
-import { useEntitlementQuery } from "~/features/paywall/queries/use-entitlement-query";
-import { useSaveSimulationMutation } from "~/features/simulations/queries/use-save-simulation-mutation";
-import { useCreateGoalMutation } from "~/features/goals/queries/use-create-goal-mutation";
 import {
   TESOURO_TABLE_YEAR,
   TESOURO_TYPES,
@@ -30,6 +21,7 @@ import {
   type TesouroDiretoFormState,
   type TesouroDiretoResult,
 } from "~/features/tools/model/tesouro-direto";
+import { useToolPage } from "~/features/tools/composables/use-tool-page";
 import CalculatorFormSection from "~/components/tool/CalculatorFormSection/CalculatorFormSection.vue";
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
@@ -42,11 +34,7 @@ import UiChart from "~/components/ui/UiChart.vue";
 
 definePageMeta({ layout: false });
 
-const { t, n } = useI18n();
-const toast = useMessage();
-const { getErrorMessage } = useApiError();
-const router = useRouter();
-const sessionStore = useSessionStore();
+const { t } = useI18n();
 
 useSeoMeta({
   title: t("tesouroDireto.seo.title"),
@@ -56,27 +44,50 @@ useSeoMeta({
   twitterCard: "summary_large_image",
 });
 
-// ─── Session & access ─────────────────────────────────────────────────────────
-
-const isAuthenticated = computed<boolean>(() => sessionStore.isAuthenticated);
-
-const premiumAccessQuery = useEntitlementQuery("advanced_simulations");
-
-/**
- * True when the authenticated user holds a premium subscription.
- */
-const hasPremiumAccess = computed<boolean>(
-  () => premiumAccessQuery.data.value === true,
-);
-
-// ─── Calculator form state ────────────────────────────────────────────────────
-
-const { form, validationError, isDirty, patch, reset, setValidationError } =
-  useCalculatorFormState<TesouroDiretoFormState>(createDefaultTesouroDiretoFormState);
-
-const result = ref<TesouroDiretoResult | null>(null);
-const savedSimulationId = ref<string | null>(null);
-const goalAdded = ref(false);
+const {
+  router,
+  isAuthenticated,
+  hasPremiumAccess,
+  formatBrl,
+  form,
+  validationError,
+  isDirty,
+  patch,
+  reset,
+  setValidationError,
+  result,
+  savedSimulationId,
+  goalAdded,
+  saveSimulationMutation,
+  createGoalMutation,
+  handleSaveSimulation,
+  handleAddAsGoal,
+  isBridging,
+  isSaved,
+} = useToolPage<TesouroDiretoFormState, TesouroDiretoResult>({
+  createDefaultState: createDefaultTesouroDiretoFormState,
+  buildSimulationPayload: ({ form, result, t }) => ({
+    name: t("tesouroDireto.simulation.defaultName", {
+      type: form.type,
+      year: new Date().getFullYear(),
+    }),
+    toolSlug: "tesouro_direto",
+    inputs: { ...form },
+    result: {
+      netAmount: result.netAmount,
+      netReturn: result.netReturn,
+      annualizedNetReturn: result.annualizedNetReturn,
+      realReturn: result.realReturn,
+    },
+  }),
+  getGoalPayload: ({ result, form: rawForm, t }) => {
+    const form = rawForm as TesouroDiretoFormState;
+    return {
+      name: t("tesouroDireto.simulation.goalName", { type: form.type }),
+      target_amount: result.netAmount,
+    };
+  },
+});
 
 // ─── Bond type select ─────────────────────────────────────────────────────────
 
@@ -87,22 +98,7 @@ const bondTypeOptions = computed(() =>
   })),
 );
 
-// ─── Mutations ────────────────────────────────────────────────────────────────
-
-const saveSimulationMutation = useSaveSimulationMutation();
-const createGoalMutation = useCreateGoalMutation();
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-/**
- * Formats a numeric value as Brazilian Real currency string.
- *
- * @param value Number to format.
- * @returns Formatted BRL string.
- */
-function formatBrl(value: number): string {
-  return n(value, "currency");
-}
 
 /**
  * Formats a decimal as a percentage with 2 decimal places.
@@ -196,76 +192,6 @@ const summaryMetrics = computed(() => {
     { label: t("tesouroDireto.results.realReturn"), value: formatPct(result.value.realReturn) },
   ];
 });
-
-// ─── Save simulation ──────────────────────────────────────────────────────────
-
-/**
- * Saves the current simulation and returns its id.
- *
- * @returns Simulation id or null on failure.
- */
-async function ensureSimulationSaved(): Promise<string | null> {
-  if (savedSimulationId.value) { return savedSimulationId.value; }
-  if (!result.value) { return null; }
-
-  try {
-    const simulation = await saveSimulationMutation.mutateAsync({
-      name: t("tesouroDireto.simulation.defaultName", {
-        type: form.value.type,
-        year: new Date().getFullYear(),
-      }),
-      toolSlug: "tesouro_direto",
-      inputs: { ...form.value },
-      result: {
-        netAmount: result.value.netAmount,
-        netReturn: result.value.netReturn,
-        annualizedNetReturn: result.value.annualizedNetReturn,
-        realReturn: result.value.realReturn,
-      },
-    });
-    savedSimulationId.value = simulation.id;
-    return simulation.id;
-  } catch (err) {
-    captureException(err, { context: "tesouro-direto/save-simulation" });
-    toast.error(getErrorMessage(err));
-    return null;
-  }
-}
-
-/**
- * Handles the Save Simulation button click.
- */
-async function handleSaveSimulation(): Promise<void> {
-  await ensureSimulationSaved();
-}
-
-// ─── Goal bridge (premium) ────────────────────────────────────────────────────
-
-/**
- * Saves the simulation then creates a goal from the net amount.
- */
-async function handleAddAsGoal(): Promise<void> {
-  if (!result.value) { return; }
-
-  await ensureSimulationSaved();
-
-  try {
-    await createGoalMutation.mutateAsync({
-      name: t("tesouroDireto.simulation.goalName", { type: form.value.type }),
-      target_amount: result.value.netAmount,
-    });
-    goalAdded.value = true;
-  } catch (err) {
-    captureException(err, { context: "tesouro-direto/add-as-goal" });
-    toast.error(getErrorMessage(err));
-  }
-}
-
-const isBridging = computed(
-  () => saveSimulationMutation.isPending.value || createGoalMutation.isPending.value,
-);
-
-const isSaved = computed(() => savedSimulationId.value !== null);
 </script>
 
 <template>

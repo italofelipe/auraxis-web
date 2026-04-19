@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import {
   NAlert,
   NButton,
@@ -8,16 +8,8 @@ import {
   NInputNumber,
   NSpace,
   NThing,
-  useMessage,
 } from "naive-ui";
 
-import { captureException } from "~/core/observability";
-import { useApiError } from "~/composables/useApiError";
-import { useCalculatorFormState } from "~/features/tools/composables/use-calculator-form-state";
-import { useSessionStore } from "~/stores/session";
-import { useEntitlementQuery } from "~/features/paywall/queries/use-entitlement-query";
-import { useSaveSimulationMutation } from "~/features/simulations/queries/use-save-simulation-mutation";
-import { useCreateGoalMutation } from "~/features/goals/queries/use-create-goal-mutation";
 import {
   FINANCIAMENTO_TABLE_YEAR,
   calculateFinanciamento,
@@ -26,6 +18,7 @@ import {
   type FinanciamentoFormState,
   type FinanciamentoResult,
 } from "~/features/tools/model/financiamento-imobiliario";
+import { useToolPage } from "~/features/tools/composables/use-tool-page";
 import CalculatorFormSection from "~/components/tool/CalculatorFormSection/CalculatorFormSection.vue";
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
@@ -37,10 +30,36 @@ import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
 
 definePageMeta({ layout: false });
 
-const { t, n } = useI18n();
-const toast = useMessage();
-const { getErrorMessage } = useApiError();
-const sessionStore = useSessionStore();
+const {
+  t,
+  isAuthenticated, hasPremiumAccess, formatBrl,
+  form, validationError, isDirty, patch, reset, setValidationError,
+  result, savedSimulationId, goalAdded,
+  saveSimulationMutation, createGoalMutation,
+  handleSaveSimulation, handleAddAsGoal,
+  isBridging, isSaved,
+} = useToolPage<FinanciamentoFormState, FinanciamentoResult>({
+  createDefaultState: createDefaultFinanciamentoFormState,
+  buildSimulationPayload: ({ form, result, t }) => ({
+    name: t("financiamentoImobiliario.simulation.defaultName", { year: new Date().getFullYear() }),
+    toolSlug: "financiamento_imobiliario",
+    inputs: { ...form },
+    result: {
+      loanAmount: result.loanAmount,
+      downPayment: result.downPayment,
+      sacFirstPayment: result.sac.firstPayment,
+      sacLastPayment: result.sac.lastPayment,
+      sacTotalInterest: result.sac.totalInterest,
+      pricePayment: result.price.firstPayment,
+      priceTotalInterest: result.price.totalInterest,
+      cetEstimatedPct: result.cetEstimatedPct,
+    },
+  }),
+  getGoalPayload: ({ result, t }) => ({
+    name: t("financiamentoImobiliario.simulation.goalName"),
+    target_amount: result.loanAmount,
+  }),
+});
 
 useSeoMeta({
   title: t("financiamentoImobiliario.seo.title"),
@@ -49,45 +68,6 @@ useSeoMeta({
   ogDescription: t("financiamentoImobiliario.seo.ogDescription"),
   twitterCard: "summary_large_image",
 });
-
-// ─── Session & access ─────────────────────────────────────────────────────────
-
-const isAuthenticated = computed<boolean>(() => sessionStore.isAuthenticated);
-
-const premiumAccessQuery = useEntitlementQuery("advanced_simulations");
-
-/**
- * True when the authenticated user holds a premium subscription.
- */
-const hasPremiumAccess = computed<boolean>(
-  () => premiumAccessQuery.data.value === true,
-);
-
-// ─── Calculator form state ────────────────────────────────────────────────────
-
-const { form, validationError, isDirty, patch, reset, setValidationError } =
-  useCalculatorFormState<FinanciamentoFormState>(createDefaultFinanciamentoFormState);
-
-const result = ref<FinanciamentoResult | null>(null);
-const savedSimulationId = ref<string | null>(null);
-const goalAdded = ref(false);
-
-// ─── Mutations ────────────────────────────────────────────────────────────────
-
-const saveSimulationMutation = useSaveSimulationMutation();
-const createGoalMutation = useCreateGoalMutation();
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-/**
- * Formats a numeric value as Brazilian Real currency string.
- *
- * @param value Number to format.
- * @returns Formatted BRL string.
- */
-function formatBrl(value: number): string {
-  return n(value, "currency");
-}
 
 // ─── Calculation ──────────────────────────────────────────────────────────────
 
@@ -140,79 +120,6 @@ const summaryMetrics = computed(() => {
     },
   ];
 });
-
-// ─── Save simulation ──────────────────────────────────────────────────────────
-
-/**
- * Saves the current simulation and returns its id.
- *
- * @returns Simulation id or null on failure.
- */
-async function ensureSimulationSaved(): Promise<string | null> {
-  if (savedSimulationId.value) { return savedSimulationId.value; }
-  if (!result.value) { return null; }
-
-  try {
-    const simulation = await saveSimulationMutation.mutateAsync({
-      name: t("financiamentoImobiliario.simulation.defaultName", { year: new Date().getFullYear() }),
-      toolSlug: "financiamento_imobiliario",
-      inputs: { ...form.value },
-      result: {
-        loanAmount: result.value.loanAmount,
-        downPayment: result.value.downPayment,
-        sacFirstPayment: result.value.sac.firstPayment,
-        sacLastPayment: result.value.sac.lastPayment,
-        sacTotalInterest: result.value.sac.totalInterest,
-        pricePayment: result.value.price.firstPayment,
-        priceTotalInterest: result.value.price.totalInterest,
-        cetEstimatedPct: result.value.cetEstimatedPct,
-      },
-    });
-    savedSimulationId.value = simulation.id;
-    return simulation.id;
-  } catch (err) {
-    captureException(err, { context: "financiamento-imobiliario/save-simulation" });
-    toast.error(getErrorMessage(err));
-    return null;
-  }
-}
-
-/**
- * Handles the Save Simulation button click.
- */
-async function handleSaveSimulation(): Promise<void> {
-  await ensureSimulationSaved();
-}
-
-// ─── Goal bridge (premium) ────────────────────────────────────────────────────
-
-/**
- * Saves the simulation then creates a goal from the loan amount.
- */
-async function handleAddAsGoal(): Promise<void> {
-  if (!result.value) { return; }
-
-  await ensureSimulationSaved();
-
-  try {
-    await createGoalMutation.mutateAsync({
-      name: t("financiamentoImobiliario.simulation.goalName"),
-      target_amount: result.value.loanAmount,
-    });
-    goalAdded.value = true;
-  } catch (err) {
-    captureException(err, { context: "financiamento-imobiliario/add-as-goal" });
-    toast.error(getErrorMessage(err));
-  }
-}
-
-// ─── Derived states ───────────────────────────────────────────────────────────
-
-const isBridging = computed(
-  () => saveSimulationMutation.isPending.value || createGoalMutation.isPending.value,
-);
-
-const isSaved = computed(() => savedSimulationId.value !== null);
 </script>
 
 <template>

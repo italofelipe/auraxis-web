@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import {
   NAlert,
   NButton,
@@ -10,18 +10,9 @@ import {
   NSpace,
   NThing,
   NTooltip,
-  useMessage,
 } from "naive-ui";
 import { Info } from "lucide-vue-next";
-import { useRouter } from "#app";
 
-import { captureException } from "~/core/observability";
-import { useApiError } from "~/composables/useApiError";
-import { useCalculatorFormState } from "~/features/tools/composables/use-calculator-form-state";
-import { useSessionStore } from "~/stores/session";
-import { useEntitlementQuery } from "~/features/paywall/queries/use-entitlement-query";
-import { useSaveSimulationMutation } from "~/features/simulations/queries/use-save-simulation-mutation";
-import { useCreateGoalMutation } from "~/features/goals/queries/use-create-goal-mutation";
 import {
   PJ_REGIMES,
   PJ_TABLE_YEAR,
@@ -31,6 +22,7 @@ import {
   type CltVsPjFormState,
   type CltVsPjResult,
 } from "~/features/tools/model/clt-vs-pj";
+import { useToolPage } from "~/features/tools/composables/use-tool-page";
 import CalculatorFormSection from "~/components/tool/CalculatorFormSection/CalculatorFormSection.vue";
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
@@ -42,11 +34,7 @@ import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
 
 definePageMeta({ layout: false });
 
-const { t, n } = useI18n();
-const toast = useMessage();
-const { getErrorMessage } = useApiError();
-const router = useRouter();
-const sessionStore = useSessionStore();
+const { t } = useI18n();
 
 useSeoMeta({
   title: t("cltVsPj.seo.title"),
@@ -56,27 +44,37 @@ useSeoMeta({
   twitterCard: "summary_large_image",
 });
 
-// ─── Session & access ─────────────────────────────────────────────────────────
-
-const isAuthenticated = computed<boolean>(() => sessionStore.isAuthenticated);
-
-const premiumAccessQuery = useEntitlementQuery("advanced_simulations");
-
-/**
- * True when the authenticated user holds a premium subscription.
- */
-const hasPremiumAccess = computed<boolean>(
-  () => premiumAccessQuery.data.value === true,
-);
-
-// ─── Calculator form state ────────────────────────────────────────────────────
-
-const { form, validationError, isDirty, patch, reset, setValidationError } =
-  useCalculatorFormState<CltVsPjFormState>(createDefaultCltVsPjFormState);
-
-const result = ref<CltVsPjResult | null>(null);
-const savedSimulationId = ref<string | null>(null);
-const goalCreated = ref(false);
+const {
+  router,
+  isAuthenticated,
+  hasPremiumAccess,
+  formatBrl,
+  form,
+  validationError,
+  isDirty,
+  patch,
+  reset,
+  setValidationError,
+  result,
+  savedSimulationId,
+  goalAdded,
+  saveSimulationMutation,
+  createGoalMutation,
+  handleSaveSimulation,
+  handleAddAsGoal,
+} = useToolPage<CltVsPjFormState, CltVsPjResult>({
+  createDefaultState: createDefaultCltVsPjFormState,
+  buildSimulationPayload: ({ form, result, t }) => ({
+    name: t("cltVsPj.simulation.defaultName", { year: new Date().getFullYear() }),
+    toolSlug: "clt_vs_pj",
+    inputs: { ...form },
+    result: { ...result },
+  }),
+  getGoalPayload: ({ result, t }) => ({
+    name: t("cltVsPj.simulation.goalName"),
+    target_amount: result.pjIsMoreProfitable ? result.pjNetMonthly : result.cltNetMonthly,
+  }),
+});
 
 // ─── Select options ───────────────────────────────────────────────────────────
 
@@ -86,23 +84,6 @@ const pjRegimeOptions = computed(() =>
     value: regime,
   })),
 );
-
-// ─── Mutations ────────────────────────────────────────────────────────────────
-
-const saveSimulationMutation = useSaveSimulationMutation();
-const createGoalMutation = useCreateGoalMutation();
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-/**
- * Formats a numeric value as Brazilian Real currency string.
- *
- * @param value Number to format.
- * @returns Formatted BRL string.
- */
-function formatBrl(value: number): string {
-  return n(value, "currency");
-}
 
 // ─── Calculation ──────────────────────────────────────────────────────────────
 
@@ -118,7 +99,7 @@ function handleCalculate(): void {
   }
   setValidationError(null);
   savedSimulationId.value = null;
-  goalCreated.value = false;
+  goalAdded.value = false;
   result.value = calculateCltVsPj(form.value);
 }
 
@@ -129,7 +110,7 @@ function handleReset(): void {
   reset();
   result.value = null;
   savedSimulationId.value = null;
-  goalCreated.value = false;
+  goalAdded.value = false;
 }
 
 // ─── Summary metrics ──────────────────────────────────────────────────────────
@@ -151,60 +132,6 @@ const summaryMetrics = computed(() => {
     },
   ];
 });
-
-// ─── Save simulation ──────────────────────────────────────────────────────────
-
-/**
- * Saves the current simulation and returns its id.
- *
- * @returns Simulation id or null on failure.
- */
-async function ensureSimulationSaved(): Promise<string | null> {
-  if (savedSimulationId.value) { return savedSimulationId.value; }
-  if (!result.value) { return null; }
-
-  try {
-    const simulation = await saveSimulationMutation.mutateAsync({
-      name: t("cltVsPj.simulation.defaultName", { year: new Date().getFullYear() }),
-      toolSlug: "clt_vs_pj",
-      inputs: { ...form.value },
-      result: { ...result.value },
-    });
-    savedSimulationId.value = simulation.id;
-    return simulation.id;
-  } catch (err) {
-    captureException(err, { context: "clt-vs-pj/save-simulation" });
-    toast.error(getErrorMessage(err));
-    return null;
-  }
-}
-
-/**
- * Handles the Save Simulation button click.
- */
-async function handleSaveSimulation(): Promise<void> {
-  await ensureSimulationSaved();
-}
-
-/**
- * Handles the Add as Goal button click (premium).
- */
-async function handleAddAsGoal(): Promise<void> {
-  if (!result.value || goalCreated.value) { return; }
-  const targetAmount = result.value.pjIsMoreProfitable
-    ? result.value.pjNetMonthly
-    : result.value.cltNetMonthly;
-  try {
-    await createGoalMutation.mutateAsync({
-      name: t("cltVsPj.simulation.goalName"),
-      target_amount: targetAmount,
-    });
-    goalCreated.value = true;
-  } catch (err) {
-    captureException(err, { context: "clt-vs-pj/create-goal" });
-    toast.error(getErrorMessage(err));
-  }
-}
 </script>
 
 <template>
@@ -400,10 +327,10 @@ async function handleAddAsGoal(): Promise<void> {
                   block
                   type="primary"
                   :loading="createGoalMutation.isPending.value"
-                  :disabled="goalCreated || createGoalMutation.isPending.value"
+                  :disabled="goalAdded || createGoalMutation.isPending.value"
                   @click="handleAddAsGoal"
                 >
-                  {{ goalCreated ? t('cltVsPj.actions.goalAdded') : t('cltVsPj.actions.addAsGoal') }}
+                  {{ goalAdded ? t('cltVsPj.actions.goalAdded') : t('cltVsPj.actions.addAsGoal') }}
                 </NButton>
 
                 <NThing
