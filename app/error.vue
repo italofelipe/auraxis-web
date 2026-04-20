@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { onMounted } from "vue";
 import { PieChart } from "lucide-vue-next";
 import type { NuxtError } from "nuxt/app";
+import * as Sentry from "@sentry/nuxt";
 
 const props = defineProps<{
   error: NuxtError;
@@ -9,6 +11,12 @@ const props = defineProps<{
 const { t } = useI18n();
 
 const is404 = computed(() => props.error.statusCode === 404);
+
+onMounted(() => {
+  if (props.error && !is404.value) {
+    try { Sentry.captureException(props.error); } catch { /* degrade silently */ }
+  }
+});
 
 /**
  * Clears the error and navigates the user back to the home page.
