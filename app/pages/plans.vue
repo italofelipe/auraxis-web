@@ -305,7 +305,7 @@ const annualDiscountPercent = computed(() =>
 
 .plans-page__trial-badge {
   background: var(--color-success);
-  color: #fff;
+  color: var(--color-bg-base);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
   text-align: center;
