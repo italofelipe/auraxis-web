@@ -5,6 +5,7 @@ import axios, {
 
 import { registerResponseInterceptors } from "~/core/api/interceptors";
 import type { ResponseInterceptorOptions } from "~/core/api/types";
+import { axiosRetry, DEFAULT_RETRY_CONFIG } from "./retry-config";
 
 /**
  * Removes trailing slashes from a base URL to avoid duplicated separators.
@@ -74,6 +75,7 @@ export const createHttpClient = (
   });
 
   client.interceptors.request.use(createAuthInterceptor(getAccessToken));
+  axiosRetry(client, DEFAULT_RETRY_CONFIG);
 
   if (interceptorOptions !== undefined) {
     registerResponseInterceptors(client, interceptorOptions);
