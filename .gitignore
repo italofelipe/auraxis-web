@@ -39,3 +39,18 @@ test-results/
 
 bundle-report.json
 stats.html
+
+# Stryker mutation testing
+.stryker-tmp/
+mutation-report/
+
+# Storybook test artifacts
+storybook-static/
+storybook-test-results/
+
+# Claude Code agent worktrees and session data
+.claude/worktrees/
+.claude/
+
+# pnpm patch files
+*.patch
