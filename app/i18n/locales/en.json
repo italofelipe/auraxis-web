@@ -32,6 +32,28 @@
     "name": {
       "minLength": "Name must be at least {min} characters.",
       "maxLength": "Name can be at most {max} characters."
+    },
+    "cpf": {
+      "required": "CPF is required.",
+      "format": "CPF must contain 11 digits.",
+      "invalid": "Invalid CPF."
+    },
+    "cnpj": {
+      "required": "CNPJ is required.",
+      "format": "CNPJ must contain 14 digits.",
+      "invalid": "Invalid CNPJ."
+    },
+    "phone": {
+      "required": "Phone number is required.",
+      "invalid": "Invalid phone number."
+    },
+    "currency": {
+      "required": "Please enter a value.",
+      "invalid": "Please enter a valid numeric value.",
+      "negative": "Value cannot be negative."
+    },
+    "isoDate": {
+      "format": "Date must be in YYYY-MM-DD format."
     }
   },
   "nav": {
@@ -3145,7 +3167,12 @@
     "fieldMayNotBeNull": "This field cannot be empty",
     "fieldRequired": "This field is required",
     "invalidEmail": "Invalid email address",
-    "invalidDate": "Invalid date"
+    "invalidDate": "Invalid date",
+    "featureBoundary": {
+      "title": "Error in this section",
+      "description": "Something went wrong in this section.",
+      "retry": "Try again"
+    }
   },
   "components": {
     "publicHeader": {
