@@ -36,4 +36,10 @@
 
   --border-subtle: var(--color-outline-soft);
   --border-strong: rgba(68, 212, 255, 0.4);
+
+  /* DS v3 semantic aliases — map legacy names to canonical tokens */
+  --color-success: var(--color-positive);
+  --color-error:   var(--color-negative);
+  --warning-color: var(--color-warning);
+  --color-border:  var(--color-outline-subtle);
 }

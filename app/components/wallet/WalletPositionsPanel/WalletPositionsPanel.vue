@@ -81,8 +81,8 @@ const formatPercent = (value: number): string => {
  */
 const changeColor = (value: number | null): string => {
   if (value === null) { return "var(--color-text-muted)"; }
-  if (value > 0) { return "var(--color-success, #18a058)"; }
-  if (value < 0) { return "var(--color-error, #d03050)"; }
+  if (value > 0) { return "var(--color-positive)"; }
+  if (value < 0) { return "var(--color-negative)"; }
   return "var(--color-text-primary)";
 };
 </script>
@@ -219,9 +219,9 @@ const changeColor = (value: number | null): string => {
   display: inline-block;
   margin-top: var(--space-1);
   font-size: var(--font-size-xs, 0.75rem);
-  color: var(--color-warning, #f0a020);
+  color: var(--color-warning);
   font-weight: var(--font-weight-semibold);
-  border: 1px solid var(--color-warning, #f0a020);
+  border: 1px solid var(--color-warning);
   border-radius: var(--radius-sm, 4px);
   padding: 0 var(--space-1);
   cursor: help;

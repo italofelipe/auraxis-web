@@ -26,8 +26,8 @@ const formatPercent = (value: number): string => {
  */
 const percentColor = (value: number | null): string => {
   if (value === null) {return "var(--color-text-muted)";}
-  if (value > 0) {return "var(--color-success, #18a058)";}
-  if (value < 0) {return "var(--color-error, #d03050)";}
+  if (value > 0) {return "var(--color-positive)";}
+  if (value < 0) {return "var(--color-negative)";}
   return "var(--color-text-primary)";
 };
 </script>

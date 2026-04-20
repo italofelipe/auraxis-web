@@ -50,11 +50,13 @@ const statusTagType = (
  * @returns CSS color string for the progress rail.
  */
 const progressColor = (status: GoalStatus): string => {
+  // Uses DS v3 semantic tokens: --color-positive (on-track/completed),
+  // --color-warning (at-risk/paused), --color-negative (off-track/cancelled)
   const map: Record<GoalStatus, string> = {
-    completed: "var(--color-success)",
+    completed: "var(--color-positive)",
     paused: "var(--color-warning)",
     active: "var(--color-brand-600)",
-    cancelled: "var(--color-error)",
+    cancelled: "var(--color-negative)",
   };
   return map[status];
 };
@@ -296,11 +298,11 @@ const healthLabel = computed((): string => {
 }
 
 .goal-card__health--completed {
-  color: var(--color-success);
+  color: var(--color-positive);
 }
 
 .goal-card__health--on_track {
-  color: var(--color-success);
+  color: var(--color-positive);
 }
 
 .goal-card__health--off_track {
@@ -308,7 +310,7 @@ const healthLabel = computed((): string => {
 }
 
 .goal-card__health--at_risk {
-  color: var(--color-error);
+  color: var(--color-negative);
 }
 
 .goal-card__health--unknown {

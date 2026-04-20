@@ -120,6 +120,15 @@
   /* Motion */
   --motion-fast: 140ms ease;
   --motion-standard: 220ms ease;
+
+  /* ── DS Wave-3 semantic aliases ─────────────────────────────────── */
+  /* Map legacy --color-success / --color-error to v3 semantic tokens */
+  --color-success:       var(--color-positive);
+  --color-error:         var(--color-negative);
+  --color-bg-subtle:     var(--color-bg-elevated);
+  --color-border-subtle: var(--color-outline-subtle);
+  /* --font-size-base is the body/md step (same as --font-size-md) */
+  --font-size-base: var(--font-size-md);
 }
 
 /* Reset and base */
