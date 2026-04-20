@@ -140,7 +140,7 @@ const currentRoute = computed(() => route.path);
 .ui-app-shell__logo-mark {
   width: 32px;
   height: 32px;
-  background: linear-gradient(145deg, var(--accent-cyan, #44d4ff), var(--accent-violet, #8b7dff));
+  background: linear-gradient(145deg, var(--color-brand-500), var(--color-accent));
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;

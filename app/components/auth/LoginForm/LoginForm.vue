@@ -141,7 +141,7 @@ const isPending = computed(() => props.loading || isSubmitting.value);
 
 .auth-card__input:focus {
   outline: none;
-  border-color: var(--accent-cyan, #44d4ff);
+  border-color: var(--color-brand-500);
   box-shadow: 0 0 0 3px rgba(68, 212, 255, 0.18);
 }
 
@@ -162,7 +162,7 @@ const isPending = computed(() => props.loading || isSubmitting.value);
 }
 
 .auth-card__link {
-  color: var(--accent-cyan, #44d4ff);
+  color: var(--color-brand-500);
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-sm);
   text-decoration: none;
@@ -170,7 +170,7 @@ const isPending = computed(() => props.loading || isSubmitting.value);
 }
 
 .auth-card__link:hover {
-  color: var(--accent-lime, #42e8a9);
+  color: var(--color-positive);
 }
 
 .auth-card__submit {

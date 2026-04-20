@@ -51,6 +51,9 @@
   --color-brand-700: #1598be;
   --color-brand-800: #1598be;
 
+  /* Accent — secondary (violet) */
+  --color-accent: #8b7dff;
+
   /* Brand glows (cyan-based) */
   --color-brand-glow-lg:  rgba(68, 212, 255, 0.4);
   --color-brand-glow-md:  rgba(68, 212, 255, 0.3);

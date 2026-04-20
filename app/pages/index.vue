@@ -82,7 +82,7 @@ function tItemPrice(prefix: string): { title: string; price: string; description
           <p class="landing-kpi landing-kpi--info">{{ t('pages.home.hero.previewValue') }}</p>
           <p class="landing-hero__card-desc">{{ t('pages.home.hero.previewDesc') }}</p>
           <svg class="landing-sparkline" viewBox="0 0 600 180" role="img" aria-hidden="true">
-            <polyline fill="none" stroke="var(--accent-cyan, #44d4ff)" stroke-width="4" points="10,128 90,112 170,96 250,88 330,71 410,66 490,58 590,38" />
+            <polyline fill="none" stroke="var(--color-brand-500)" stroke-width="4" points="10,128 90,112 170,96 250,88 330,71 410,66 490,58 590,38" />
             <polyline fill="none" stroke="var(--color-negative, #ff6f79)" stroke-width="4" points="10,145 90,133 170,125 250,114 330,106 410,111 490,103 590,99" opacity="0.9" />
           </svg>
         </article>
@@ -180,7 +180,7 @@ function tItemPrice(prefix: string): { title: string; price: string; description
   font-size: var(--font-size-xs);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--accent-cyan, #44d4ff);
+  color: var(--color-brand-500);
   background: rgba(68, 212, 255, 0.1);
   font-weight: var(--font-weight-semibold);
 }
@@ -218,7 +218,7 @@ function tItemPrice(prefix: string): { title: string; price: string; description
 }
 
 .landing-btn--secondary:hover {
-  border-color: var(--accent-cyan, #44d4ff);
+  border-color: var(--color-brand-500);
   color: var(--color-text-primary);
 }
 
@@ -320,7 +320,7 @@ function tItemPrice(prefix: string): { title: string; price: string; description
 }
 
 .landing-kpi--info {
-  color: var(--accent-cyan, #44d4ff);
+  color: var(--color-brand-500);
 }
 
 .landing-kpi--profit {
