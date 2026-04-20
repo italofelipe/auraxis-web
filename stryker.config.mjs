@@ -7,6 +7,10 @@ export default {
 
   vitest: {
     configFile: "vitest.stryker.config.ts",
+    // Disable related-file detection: use all included tests for each mutant.
+    // This avoids "no test files found" when vitest.related can't trace imports
+    // through Nuxt auto-import resolution (which isn't available in the plain config).
+    related: false,
   },
 
   /**
@@ -68,13 +72,15 @@ export default {
   incrementalFile: ".stryker-tmp/incremental.json",
 
   /**
-   * Exclude directories that Stryker cannot safely copy into its sandbox.
-   * - dist: symlink to .output/public — copyfile fails on sockets/symlinks (ENOTSUP)
-   * - .nuxt / .output: build artifacts, not needed for unit test sandboxes
+   * Run in-place (no sandbox): avoids the ALWAYS_IGNORE of .nuxt/ by Stryker.
+   * Stryker's sandbox always excludes .nuxt/, but the root tsconfig.json references
+   * .nuxt/tsconfig.app.json, causing Vite's TSConfck to fail in sandboxed runs.
+   * inPlace=true mutates source files directly (backed up and restored by Stryker).
    */
+  inPlace: true,
+
   tempDirName: ".stryker-tmp",
   ignorePatterns: [
-    // dist is a symlink to .output/public — copyfile fails with ENOTSUP
     "dist",
     ".output",
     ".nitro",

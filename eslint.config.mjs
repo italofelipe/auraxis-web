@@ -20,9 +20,11 @@ export default withNuxt(
       "app/shared/types/generated/**",
       // Platform tooling scripts — not product code, follow their own conventions.
       "scripts/**",
-      // Stryker mutation testing sandbox — generated, not product code.
+      // Stryker mutation testing artifacts — generated, not product code.
       ".stryker-tmp/**",
       "mutation-report/**",
+      // Stryker in-place mode copies worker setup scripts to project root.
+      "stryker-setup-*.js",
     ],
   },
   // ── SonarJS: code-smell and reliability rules ────────────────────────────
