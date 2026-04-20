@@ -25,10 +25,11 @@ const props = defineProps<{
 
 // ── History sparkline ─────────────────────────────────────────────────────────
 
+// ECharts does not resolve CSS variables — use token values directly.
 const TIER_COLORS: Record<"good" | "fair" | "poor", string> = {
-  good: "#42e8a9",
-  fair: "#ffb861",
-  poor: "#ff6f79",
+  good: "#42e8a9",   // DS v3 lime  (--color-positive)
+  fair: "#ffb861",   // DS v3 orange (--color-warning)
+  poor: "#ff6f79",   // DS v3 red   (--color-negative)
 };
 
 const historyOption = computed((): EChartsOption => {
@@ -275,9 +276,9 @@ function pillarTierClass(pillar: HealthPillar): string {
   transition: width 0.4s ease;
 }
 
-.fhs__pillar-bar--good    { background: #42e8a9; }
-.fhs__pillar-bar--fair    { background: #f59e0b; }
-.fhs__pillar-bar--poor    { background: #ff6f79; }
+.fhs__pillar-bar--good    { background: var(--color-positive); }
+.fhs__pillar-bar--fair    { background: var(--color-warning); }
+.fhs__pillar-bar--poor    { background: var(--color-negative); }
 .fhs__pillar-bar--unknown { background: var(--color-outline-soft); }
 
 .fhs__pillar-tip {

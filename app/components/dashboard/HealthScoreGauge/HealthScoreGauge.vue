@@ -24,10 +24,11 @@ const props = defineProps<{
 
 // ── Colour mapping ────────────────────────────────────────────────────────────
 
+// ECharts does not resolve CSS variables — use token values directly.
 const TIER_COLORS: Record<"good" | "fair" | "poor", string> = {
-  good: "#42e8a9",  // var(--color-positive) — DS v3 lime
-  fair: "#ffb861",  // var(--color-warning) — DS v3 orange
-  poor: "#ff6f79",  // var(--color-negative) — DS v3 red
+  good: "#42e8a9",   // DS v3 lime  (--color-positive)
+  fair: "#ffb861",   // DS v3 orange (--color-warning)
+  poor: "#ff6f79",   // DS v3 red   (--color-negative)
 };
 
 const gaugeColor = computed(() => TIER_COLORS[props.tier]);
@@ -118,7 +119,7 @@ const chartOption = computed((): EChartsOption => ({
   letter-spacing: 0.08em;
 }
 
-.hsg__tier--good  { color: #42e8a9; }
-.hsg__tier--fair  { color: #f59e0b; }
-.hsg__tier--poor  { color: #ff6f79; }
+.hsg__tier--good  { color: var(--color-positive); }
+.hsg__tier--fair  { color: var(--color-warning); }
+.hsg__tier--poor  { color: var(--color-negative); }
 </style>

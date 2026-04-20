@@ -75,6 +75,12 @@
   --color-negative-bg:   rgba(255, 111, 121, 0.1);
   --color-negative-glow: rgba(255, 111, 121, 0.2);
 
+  /* Semantic — warning (orange) */
+  --color-warning:      #ffb861;
+  --color-warning-dark: #e89e47;
+  --color-warning-bg:   rgba(255, 184, 97, 0.1);
+  --color-warning-glow: rgba(255, 184, 97, 0.2);
+
   /* Borders */
   --color-outline-hard:   rgba(255, 255, 255, 0.2);
   --color-outline-soft:   rgba(255, 255, 255, 0.1);
