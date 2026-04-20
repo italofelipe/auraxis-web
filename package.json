@@ -29,7 +29,8 @@
     "ci:local": "bash scripts/run_ci_like_actions_local.sh",
     "storybook": "storybook dev -p 6006",
     "storybook:build": "storybook build",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "test-storybook": "test-storybook --url http://localhost:6006 --testTimeout 15000"
   },
   "dependencies": {
     "@bubblesortt/nuxt-es-toolkit": "1.0.10",
@@ -73,6 +74,7 @@
     "@nuxtjs/storybook": "9.0.1",
     "@playwright/test": "^1.59.1",
     "@storybook/addon-a11y": "9.1.20",
+    "@storybook/test-runner": "^0.24.3",
     "@storybook/vue3": "9.1.20",
     "@testing-library/vue": "^8.1.0",
     "@vite-pwa/nuxt": "^1.1.1",
