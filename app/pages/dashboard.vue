@@ -107,6 +107,7 @@ const emptyMessage = computed(() =>
 </script>
 
 <template>
+  <ErrorBoundary feature="dashboard">
   <div class="dashboard-page">
 
     <!-- ── Quick-add bar ──────────────────────────────────────────────────── -->
@@ -277,6 +278,7 @@ const emptyMessage = computed(() =>
       </UiSurfaceCard>
     </template>
   </div>
+  </ErrorBoundary>
 </template>
 
 <style scoped>

@@ -104,6 +104,7 @@ const onSelectEntry = (id: string): void => {
 </script>
 
 <template>
+  <ErrorBoundary feature="wallet">
   <div class="portfolio-page">
     <div class="portfolio-page__header">
       <div class="portfolio-page__title-block">
@@ -166,6 +167,7 @@ const onSelectEntry = (id: string): void => {
       </template>
     </template>
   </div>
+  </ErrorBoundary>
 </template>
 
 <style scoped>
@@ -229,3 +231,4 @@ const onSelectEntry = (id: string): void => {
   background: var(--color-bg-elevated);
 }
 </style>
+

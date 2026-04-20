@@ -125,6 +125,7 @@ const onDeleteGoal = (id: string): void => {
 </script>
 
 <template>
+  <ErrorBoundary feature="goals">
   <div class="goals-page">
     <div class="goals-page__header">
       <div class="goals-page__title-block">
@@ -212,6 +213,7 @@ const onDeleteGoal = (id: string): void => {
       @submit="onCreateOrUpdate"
     />
   </div>
+  </ErrorBoundary>
 </template>
 
 <style scoped>
