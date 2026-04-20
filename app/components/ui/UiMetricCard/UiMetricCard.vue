@@ -31,7 +31,15 @@ withDefaults(defineProps<UiMetricCardProps>(), {
 </template>
 
 <style scoped>
-.ui-metric-card { display: flex; flex-direction: column; gap: var(--space-1); }
+.ui-metric-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  transition: box-shadow var(--motion-standard);
+}
+.ui-metric-card:hover {
+  box-shadow: 0 0 18px var(--color-brand-glow-xs);
+}
 .ui-metric-card__header {
   display: flex;
   justify-content: space-between;
@@ -46,7 +54,7 @@ withDefaults(defineProps<UiMetricCardProps>(), {
 }
 .ui-metric-card__icon { color: var(--color-text-muted); }
 .ui-metric-card__value {
-  font-family: var(--font-heading);
+  font-family: var(--font-mono);
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
   color: var(--color-text-primary);

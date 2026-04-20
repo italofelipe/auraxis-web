@@ -194,6 +194,6 @@ const chartOption = computed((): EChartsOption => {
 .trends-month-btn--active {
   background: var(--color-brand-600);
   border-color: var(--color-brand-600);
-  color: #fff;
+  color: var(--color-bg-base);
 }
 </style>

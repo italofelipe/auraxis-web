@@ -84,7 +84,7 @@ const alertToneClass = (alert: DashboardAlert): string => {
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-outline-soft);
   padding: var(--space-2);
-  background: rgba(255, 255, 255, 0.45);
+  background: var(--color-bg-elevated);
   display: grid;
   gap: 6px;
 }
@@ -98,16 +98,16 @@ const alertToneClass = (alert: DashboardAlert): string => {
 .alert-card p,
 .alert-card small {
   margin: 0;
-  color: var(--color-neutral-700);
+  color: var(--color-text-muted);
 }
 
 .alert-card--warning {
-  border-color: rgba(199, 91, 57, 0.38);
-  background: rgba(199, 91, 57, 0.08);
+  border-color: var(--color-negative-bg);
+  background: var(--color-negative-bg);
 }
 
 .alert-card--info {
-  border-color: rgba(255, 171, 26, 0.36);
-  background: rgba(255, 190, 77, 0.12);
+  border-color: var(--color-warning-bg);
+  background: var(--color-warning-bg);
 }
 </style>

@@ -55,24 +55,24 @@ const handleSelect = (period: DashboardPeriod): void => {
   padding-inline: var(--space-2);
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-outline-soft);
-  background: var(--color-surface-50);
+  background: var(--color-bg-elevated);
   font: inherit;
-  font-size: var(--font-size-body-sm);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-neutral-700);
+  color: var(--color-text-secondary);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  transition: background var(--motion-fast), color var(--motion-fast), border-color var(--motion-fast);
 }
 
 .period-selector__btn:hover {
-  background: var(--color-brand-50, rgba(255, 171, 26, 0.1));
-  border-color: var(--color-brand-300, rgba(255, 171, 26, 0.5));
-  color: var(--color-neutral-900);
+  background: var(--color-bg-surface);
+  border-color: var(--color-text-muted);
+  color: var(--color-text-primary);
 }
 
 .period-selector__btn--active {
-  background: var(--color-brand-500, #44d4ff);
-  border-color: var(--color-brand-500, #44d4ff);
-  color: #05070d;
+  background: var(--color-brand-500);
+  border-color: var(--color-brand-500);
+  color: var(--color-bg-base);
 }
 </style>
