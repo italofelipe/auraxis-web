@@ -16,6 +16,8 @@ import {
 import { captureException } from "~/core/observability";
 import { useApiError } from "~/composables/useApiError";
 import { useCalculatorFormState } from "~/features/tools/composables/use-calculator-form-state";
+import { useToolPageStructuredData } from "~/features/tools/composables/useToolPageStructuredData";
+import { JUROS_COMPOSTOS_FAQS } from "~/features/tools/content/juros-compostos-faqs";
 import { useSessionStore } from "~/stores/session";
 import { useEntitlementQuery } from "~/features/paywall/queries/use-entitlement-query";
 import { useSaveSimulationMutation } from "~/features/simulations/queries/use-save-simulation-mutation";
@@ -51,6 +53,13 @@ useSeoMeta({
   ogTitle: t("jurosCompostos.seo.ogTitle"),
   ogDescription: t("jurosCompostos.seo.ogDescription"),
   twitterCard: "summary_large_image",
+});
+
+useToolPageStructuredData({
+  slug: "juros-compostos",
+  name: t("jurosCompostos.seo.title"),
+  description: t("jurosCompostos.seo.description"),
+  faqs: JUROS_COMPOSTOS_FAQS,
 });
 
 // ─── Session & access ─────────────────────────────────────────────────────────

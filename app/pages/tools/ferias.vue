@@ -26,6 +26,8 @@ import {
   type VacationDaysOption,
 } from "~/features/tools/model/ferias";
 import { useToolPage } from "~/features/tools/composables/use-tool-page";
+import { useToolPageStructuredData } from "~/features/tools/composables/useToolPageStructuredData";
+import { FERIAS_FAQS } from "~/features/tools/content/ferias-faqs";
 import CalculatorFormSection from "~/components/tool/CalculatorFormSection/CalculatorFormSection.vue";
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
@@ -60,6 +62,13 @@ useSeoMeta({
   ogTitle: t("ferias.seo.ogTitle"),
   ogDescription: t("ferias.seo.ogDescription"),
   twitterCard: "summary_large_image",
+});
+
+useToolPageStructuredData({
+  slug: "ferias",
+  name: t("ferias.seo.title"),
+  description: t("ferias.seo.description"),
+  faqs: FERIAS_FAQS,
 });
 
 // ─── Vacation days select options ─────────────────────────────────────────────

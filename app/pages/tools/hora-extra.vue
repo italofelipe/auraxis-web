@@ -6,15 +6,26 @@
  *   app/features/tools/hora-extra/page.vue
  */
 import HoraExtraPage from "~/features/tools/hora-extra/page.vue";
+import { useToolPageStructuredData } from "~/features/tools/composables/useToolPageStructuredData";
+import { HORA_EXTRA_FAQS } from "~/features/tools/content/hora-extra-faqs";
 
 definePageMeta({ layout: false });
 
+const { t } = useI18n();
+
 useSeoMeta({
-  title: useI18n().t("horaExtra.seo.title"),
-  description: useI18n().t("horaExtra.seo.description"),
-  ogTitle: useI18n().t("horaExtra.seo.ogTitle"),
-  ogDescription: useI18n().t("horaExtra.seo.ogDescription"),
+  title: t("horaExtra.seo.title"),
+  description: t("horaExtra.seo.description"),
+  ogTitle: t("horaExtra.seo.ogTitle"),
+  ogDescription: t("horaExtra.seo.ogDescription"),
   twitterCard: "summary_large_image",
+});
+
+useToolPageStructuredData({
+  slug: "hora-extra",
+  name: t("horaExtra.seo.title"),
+  description: t("horaExtra.seo.description"),
+  faqs: HORA_EXTRA_FAQS,
 });
 </script>
 

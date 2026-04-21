@@ -23,6 +23,8 @@ import {
   type CltVsPjResult,
 } from "~/features/tools/model/clt-vs-pj";
 import { useToolPage } from "~/features/tools/composables/use-tool-page";
+import { useToolPageStructuredData } from "~/features/tools/composables/useToolPageStructuredData";
+import { CLT_VS_PJ_FAQS } from "~/features/tools/content/clt-vs-pj-faqs";
 import CalculatorFormSection from "~/components/tool/CalculatorFormSection/CalculatorFormSection.vue";
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
@@ -42,6 +44,13 @@ useSeoMeta({
   ogTitle: t("cltVsPj.seo.ogTitle"),
   ogDescription: t("cltVsPj.seo.ogDescription"),
   twitterCard: "summary_large_image",
+});
+
+useToolPageStructuredData({
+  slug: "clt-vs-pj",
+  name: t("cltVsPj.seo.title"),
+  description: t("cltVsPj.seo.description"),
+  faqs: CLT_VS_PJ_FAQS,
 });
 
 const {

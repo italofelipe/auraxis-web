@@ -25,6 +25,8 @@ import {
   type TerminationType,
 } from "~/features/tools/model/rescisao";
 import { useToolPage } from "~/features/tools/composables/use-tool-page";
+import { useToolPageStructuredData } from "~/features/tools/composables/useToolPageStructuredData";
+import { RESCISAO_FAQS } from "~/features/tools/content/rescisao-faqs";
 import CalculatorFormSection from "~/components/tool/CalculatorFormSection/CalculatorFormSection.vue";
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
@@ -44,6 +46,13 @@ useSeoMeta({
   ogTitle: t("rescisao.seo.ogTitle"),
   ogDescription: t("rescisao.seo.ogDescription"),
   twitterCard: "summary_large_image",
+});
+
+useToolPageStructuredData({
+  slug: "rescisao",
+  name: t("rescisao.seo.title"),
+  description: t("rescisao.seo.description"),
+  faqs: RESCISAO_FAQS,
 });
 
 const {
