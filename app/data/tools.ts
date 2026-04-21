@@ -207,6 +207,57 @@ export const TOOLS: ToolEntry[] = [
     category: "utility",
     accessLevel: "public",
   },
+
+  // ── Payroll extras (feature-flagged) ──────────────────────────────────
+  {
+    slug: "salario-liquido",
+    titleKey: "tools.salarioLiquido.title",
+    descriptionKey: "tools.salarioLiquido.description",
+    category: "payroll",
+    accessLevel: "public",
+  },
+
+  // ── Planning extras (feature-flagged) ─────────────────────────────────
+  {
+    slug: "reserva-emergencia",
+    titleKey: "tools.reservaEmergencia.title",
+    descriptionKey: "tools.reservaEmergencia.description",
+    category: "planning",
+    accessLevel: "public",
+    relatedGoalType: "emergency",
+  },
+  {
+    slug: "orcamento-50-30-20",
+    titleKey: "tools.orcamento503020.title",
+    descriptionKey: "tools.orcamento503020.description",
+    category: "planning",
+    accessLevel: "public",
+    relatedGoalType: "budget",
+  },
+  {
+    slug: "custo-estilo-vida",
+    titleKey: "tools.custoEstiloVida.title",
+    descriptionKey: "tools.custoEstiloVida.description",
+    category: "planning",
+    accessLevel: "public",
+  },
+
+  // ── Debt / Credit (feature-flagged) ───────────────────────────────────
+  {
+    slug: "cet",
+    titleKey: "tools.cet.title",
+    descriptionKey: "tools.cet.description",
+    category: "utility",
+    accessLevel: "public",
+  },
+  {
+    slug: "quitacao-dividas",
+    titleKey: "tools.quitacaoDividas.title",
+    descriptionKey: "tools.quitacaoDividas.description",
+    category: "utility",
+    accessLevel: "public",
+    relatedGoalType: "debt_payoff",
+  },
 ];
 
 /** All tool slugs, derived from the catalog. Used by nuxt.config.ts. */
