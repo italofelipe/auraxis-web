@@ -109,7 +109,7 @@ export default defineNuxtConfig({
       ],
     },
   },
-  css: ["~/assets/css/main.css", "~/assets/css/ds-bridge.css"],
+  css: ["~/assets/css/main.css"],
 
   // ── @nuxtjs/seo — site-wide defaults ─────────────────────────────────────
   // Used by nuxt-site-config (bundled in @nuxtjs/seo) to auto-generate

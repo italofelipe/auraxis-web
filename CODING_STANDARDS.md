@@ -43,8 +43,8 @@ Contrato tipado obrigatório (OpenAPI + packs):
 
 ## 1.1 Design System e UI Stack (obrigatório)
 
-- Paleta oficial: `#262121`, `#ffbe4d`, `#413939`, `#0b0909`, `#ffd180`, `#ffab1a`.
-- Tipografia oficial: `Playfair Display` (headings) + `Raleway` (body).
+- Paleta oficial: DS v3 "Market Pulse" — tokens canônicos definidos em `app/assets/css/main.css` (`--color-bg-*`, `--color-text-*`, `--color-brand-*`, `--color-positive`, `--color-negative`, `--color-warning`). Proibido usar valores hex diretamente em componentes/páginas.
+- Tipografia oficial: `Inter` (UI/body/headings) + `IBM Plex Mono` (valores monetários e código). Declaradas via `--font-body`, `--font-heading`, `--font-mono` em `main.css`.
 - Grid base: `8px` (spacing de layout sempre em múltiplos de 8).
 - Componentes base devem derivar de Naive UI (wrappers internos com tema Auraxis).
 - Componentes de produto devem usar primariamente componentes da library oficial; criar componente do zero só quando houver lacuna real e com wrapper padronizado.
