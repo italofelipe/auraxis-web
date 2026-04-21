@@ -1,264 +1,41 @@
 /**
- * tools.ts — Static tool catalog
+ * tools.ts — Build-time slug list for prerender + routeRules.
  *
- * Single source of truth for all public financial calculator routes.
- * This file drives:
- *   1. `nuxt.config.ts` → routeRules + nitro.prerender.routes (auto-generated)
- *   2. The /tools listing page
- *   3. Sitemap generation
+ * Kept intentionally minimal: `nuxt.config.ts` is evaluated before the
+ * `~/*` alias resolves, so it cannot import the richer catalog from
+ * `~/features/tools/model/tools-catalog.ts`. This file exists only to
+ * feed the slugs into `routeRules` and `nitro.prerender.routes`.
  *
- * To add a new tool:
- *   1. Add a `ToolEntry` here.
- *   2. Create `app/pages/tools/<slug>.vue`.
- *   3. Done — routing, prerendering and the tools index update automatically.
- *
- * DO NOT add tool slugs manually to nuxt.config.ts.
+ * The authoritative per-tool metadata (category, access level, feature
+ * flag, description, etc.) lives in `app/features/tools/model/tools-catalog.ts`.
+ * Keep this slug list in sync with `TOOLS_CATALOG[].id` entries — a CI
+ * guard in `tools-catalog.spec.ts` asserts parity so drift fails loudly.
  */
-
-/** Access level a tool requires from the viewer. */
-export type ToolAccessLevel = "public" | "authenticated" | "premium";
-
-/** Category grouping for display and filtering. */
-export type ToolCategory =
-  | "payroll"        // Folha: INSS, IR, 13o, hora-extra, ferias, rescisao
-  | "tax"            // Impostos: MEI, CLT vs PJ
-  | "investments"    // Investimentos: juros compostos, CDB, Tesouro, FII
-  | "planning"       // Planejamento: aposentadoria, FIRE, financiamento, aluguel
-  | "utility";       // Utilitários: dividir conta, desconto, conversor, parcelado
-
-/** A single tool entry in the static catalog. */
-export interface ToolEntry {
-  /** URL slug (without /tools/ prefix). Must match the .vue filename. */
-  slug: string;
-  /** i18n key for the tool name. */
-  titleKey: string;
-  /** i18n key for the short description. */
-  descriptionKey: string;
-  /** Category for grouping. */
-  category: ToolCategory;
-  /** Whether the tool requires authentication or premium subscription. */
-  accessLevel: ToolAccessLevel;
-  /**
-   * Type of meta/goal this tool can create when connected to the platform.
-   * Used by ToolResultCta to pre-fill goal creation.
-   */
-  relatedGoalType?: string;
-}
-
-/**
- * All public financial calculators available on the platform.
- * Ordered by category and then by perceived relevance/traffic.
- */
-export const TOOLS: ToolEntry[] = [
-  // ── Payroll / Folha de pagamento ──────────────────────────────────────
-  {
-    slug: "inss-ir-folha",
-    titleKey: "tools.inssIrFolha.title",
-    descriptionKey: "tools.inssIrFolha.description",
-    category: "payroll",
-    accessLevel: "public",
-  },
-  {
-    slug: "thirteenth-salary",
-    titleKey: "tools.thirteenthSalary.title",
-    descriptionKey: "tools.thirteenthSalary.description",
-    category: "payroll",
-    accessLevel: "public",
-  },
-  {
-    slug: "hora-extra",
-    titleKey: "tools.horaExtra.title",
-    descriptionKey: "tools.horaExtra.description",
-    category: "payroll",
-    accessLevel: "public",
-  },
-  {
-    slug: "ferias",
-    titleKey: "tools.ferias.title",
-    descriptionKey: "tools.ferias.description",
-    category: "payroll",
-    accessLevel: "public",
-  },
-  {
-    slug: "rescisao",
-    titleKey: "tools.rescisao.title",
-    descriptionKey: "tools.rescisao.description",
-    category: "payroll",
-    accessLevel: "public",
-  },
-  {
-    slug: "fgts",
-    titleKey: "tools.fgts.title",
-    descriptionKey: "tools.fgts.description",
-    category: "payroll",
-    accessLevel: "public",
-  },
-
-  // ── Tax / Impostos ────────────────────────────────────────────────────
-  {
-    slug: "mei",
-    titleKey: "tools.mei.title",
-    descriptionKey: "tools.mei.description",
-    category: "tax",
-    accessLevel: "public",
-  },
-  {
-    slug: "clt-vs-pj",
-    titleKey: "tools.cltVsPj.title",
-    descriptionKey: "tools.cltVsPj.description",
-    category: "tax",
-    accessLevel: "public",
-  },
-
-  // ── Investments / Investimentos ───────────────────────────────────────
-  {
-    slug: "juros-compostos",
-    titleKey: "tools.jurosCompostos.title",
-    descriptionKey: "tools.jurosCompostos.description",
-    category: "investments",
-    accessLevel: "public",
-    relatedGoalType: "investment",
-  },
-  {
-    slug: "cdb-lci-lca",
-    titleKey: "tools.cdbLciLca.title",
-    descriptionKey: "tools.cdbLciLca.description",
-    category: "investments",
-    accessLevel: "public",
-    relatedGoalType: "investment",
-  },
-  {
-    slug: "tesouro-direto",
-    titleKey: "tools.tesouroDireto.title",
-    descriptionKey: "tools.tesouroDireto.description",
-    category: "investments",
-    accessLevel: "public",
-    relatedGoalType: "investment",
-  },
-  {
-    slug: "fii",
-    titleKey: "tools.fii.title",
-    descriptionKey: "tools.fii.description",
-    category: "investments",
-    accessLevel: "public",
-    relatedGoalType: "investment",
-  },
-
-  // ── Planning / Planejamento ───────────────────────────────────────────
-  {
-    slug: "aposentadoria",
-    titleKey: "tools.aposentadoria.title",
-    descriptionKey: "tools.aposentadoria.description",
-    category: "planning",
-    accessLevel: "public",
-    relatedGoalType: "retirement",
-  },
-  {
-    slug: "fire",
-    titleKey: "tools.fire.title",
-    descriptionKey: "tools.fire.description",
-    category: "planning",
-    accessLevel: "public",
-    relatedGoalType: "fire",
-  },
-  {
-    slug: "financiamento-imobiliario",
-    titleKey: "tools.financiamentoImobiliario.title",
-    descriptionKey: "tools.financiamentoImobiliario.description",
-    category: "planning",
-    accessLevel: "public",
-    relatedGoalType: "real_estate",
-  },
-  {
-    slug: "aluguel-vs-compra",
-    titleKey: "tools.aluguelVsCompra.title",
-    descriptionKey: "tools.aluguelVsCompra.description",
-    category: "planning",
-    accessLevel: "public",
-    relatedGoalType: "real_estate",
-  },
-
-  // ── Utility / Utilitários ─────────────────────────────────────────────
-  {
-    slug: "dividir-conta",
-    titleKey: "tools.dividirConta.title",
-    descriptionKey: "tools.dividirConta.description",
-    category: "utility",
-    accessLevel: "public",
-  },
-  {
-    slug: "desconto-markup",
-    titleKey: "tools.descontoMarkup.title",
-    descriptionKey: "tools.descontoMarkup.description",
-    category: "utility",
-    accessLevel: "public",
-  },
-  {
-    slug: "conversor-moeda",
-    titleKey: "tools.conversorMoeda.title",
-    descriptionKey: "tools.conversorMoeda.description",
-    category: "utility",
-    accessLevel: "public",
-  },
-  {
-    slug: "installment-vs-cash",
-    titleKey: "tools.installmentVsCash.title",
-    descriptionKey: "tools.installmentVsCash.description",
-    category: "utility",
-    accessLevel: "public",
-  },
-
-  // ── Payroll extras (feature-flagged) ──────────────────────────────────
-  {
-    slug: "salario-liquido",
-    titleKey: "tools.salarioLiquido.title",
-    descriptionKey: "tools.salarioLiquido.description",
-    category: "payroll",
-    accessLevel: "public",
-  },
-
-  // ── Planning extras (feature-flagged) ─────────────────────────────────
-  {
-    slug: "reserva-emergencia",
-    titleKey: "tools.reservaEmergencia.title",
-    descriptionKey: "tools.reservaEmergencia.description",
-    category: "planning",
-    accessLevel: "public",
-    relatedGoalType: "emergency",
-  },
-  {
-    slug: "orcamento-50-30-20",
-    titleKey: "tools.orcamento503020.title",
-    descriptionKey: "tools.orcamento503020.description",
-    category: "planning",
-    accessLevel: "public",
-    relatedGoalType: "budget",
-  },
-  {
-    slug: "custo-estilo-vida",
-    titleKey: "tools.custoEstiloVida.title",
-    descriptionKey: "tools.custoEstiloVida.description",
-    category: "planning",
-    accessLevel: "public",
-  },
-
-  // ── Debt / Credit (feature-flagged) ───────────────────────────────────
-  {
-    slug: "cet",
-    titleKey: "tools.cet.title",
-    descriptionKey: "tools.cet.description",
-    category: "utility",
-    accessLevel: "public",
-  },
-  {
-    slug: "quitacao-dividas",
-    titleKey: "tools.quitacaoDividas.title",
-    descriptionKey: "tools.quitacaoDividas.description",
-    category: "utility",
-    accessLevel: "public",
-    relatedGoalType: "debt_payoff",
-  },
+export const TOOL_SLUGS: readonly string[] = [
+  "aluguel-vs-compra",
+  "aposentadoria",
+  "cdb-lci-lca",
+  "cet",
+  "clt-vs-pj",
+  "conversor-moeda",
+  "custo-estilo-vida",
+  "desconto-markup",
+  "dividir-conta",
+  "ferias",
+  "fgts",
+  "fii",
+  "financiamento-imobiliario",
+  "fire",
+  "hora-extra",
+  "inss-ir-folha",
+  "installment-vs-cash",
+  "juros-compostos",
+  "mei",
+  "orcamento-50-30-20",
+  "quitacao-dividas",
+  "rescisao",
+  "reserva-emergencia",
+  "salario-liquido",
+  "tesouro-direto",
+  "thirteenth-salary",
 ];
-
-/** All tool slugs, derived from the catalog. Used by nuxt.config.ts. */
-export const TOOL_SLUGS: string[] = TOOLS.map((t) => t.slug);

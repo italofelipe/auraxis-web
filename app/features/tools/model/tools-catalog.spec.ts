@@ -8,6 +8,7 @@ import {
 } from "./tools-catalog";
 import { mapToolDtoToModel } from "./tools";
 import type { ToolDto } from "~/features/tools/contracts/tools.dto";
+import { TOOL_SLUGS } from "~/data/tools";
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 
@@ -32,6 +33,12 @@ const makeToolDto = (overrides: Partial<ToolDto> = {}): ToolDto => ({
 describe("TOOLS_CATALOG", () => {
   it("contains at least one tool", () => {
     expect(TOOLS_CATALOG.length).toBeGreaterThan(0);
+  });
+
+  it("stays in parity with TOOL_SLUGS used by nuxt.config prerender", () => {
+    const catalogIds = [...TOOLS_CATALOG.map((t) => t.id)].sort();
+    const slugList = [...TOOL_SLUGS].sort();
+    expect(slugList).toEqual(catalogIds);
   });
 
   it("each tool has a non-empty id", () => {

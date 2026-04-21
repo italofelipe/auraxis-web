@@ -125,10 +125,8 @@
     },
     "tools": {
       "meta": {
-        "title": "Free Financial Calculators",
-        "description": "27 free Brazilian financial calculators: payroll, investments, real estate, debt, personal planning. Net salary, FGTS, compound interest, FIRE and more.",
-        "h1": "Free Financial Calculators",
-        "lead": "Specialized calculators for smarter financial decisions — no signup, no limits."
+        "title": "Financial Tools",
+        "description": "Calculators and utilities to make better financial decisions."
       },
       "accessLevel": {
         "public": "Public",
@@ -147,15 +145,7 @@
           "public": "Public"
         }
       },
-      "empty": "No tools available at this time.",
-      "categories": {
-        "clt-trabalho": "Payroll & Work",
-        "investimentos": "Investments",
-        "imoveis": "Real Estate",
-        "dividas-credito": "Debt & Credit",
-        "planejamento": "Personal Planning",
-        "utilidades": "Utilities"
-      }
+      "empty": "No tools available at this time."
     },
     "income": {
       "tabs": {
