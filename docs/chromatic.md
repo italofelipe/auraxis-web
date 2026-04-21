@@ -6,8 +6,11 @@ Publicar o Storybook do `auraxis-web` no Chromatic como trilha oficial de visual
 
 ## Superfícies oficiais
 
-- domínio alvo: `https://v1.design-system.auraxis.com.br`
+- domínio alvo (Chromatic, visual review): `https://v1.design-system.auraxis.com.br`
 - fallback operacional: URL nativa do Chromatic gerada em cada build
+- domínio público do Storybook (S3 + CloudFront): `https://design.auraxis.com.br`
+  — operado por este repositório; rollout descrito em
+  `docs/web/design-system-deploy.md`.
 
 ## Workflow
 
@@ -31,7 +34,7 @@ Comportamento:
 
 Observação importante:
 
-- para reprodutibilidade, a action fica pinada em `chromaui/action@v1`, evitando drift silencioso de `@latest`
+- para reprodutibilidade, a action fica pinada em `chromaui/action@v16`, evitando drift silencioso de `@latest`
 
 ## Build canônico
 
