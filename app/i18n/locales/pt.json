@@ -125,8 +125,10 @@
     },
     "tools": {
       "meta": {
-        "title": "Ferramentas Financeiras",
-        "description": "Calculadoras e utilitários para tomar melhores decisões financeiras."
+        "title": "Ferramentas Financeiras Gratuitas",
+        "description": "27 calculadoras gratuitas de CLT, investimentos, imóveis, dívidas e planejamento pessoal. Salário líquido, FGTS, CET, juros compostos, FIRE e mais.",
+        "h1": "Ferramentas Financeiras Gratuitas",
+        "lead": "Calculadoras especializadas para decisões financeiras mais inteligentes — sem cadastro, sem limites."
       },
       "accessLevel": {
         "public": "Público",
@@ -145,7 +147,15 @@
           "public": "Público"
         }
       },
-      "empty": "Nenhuma ferramenta disponível no momento."
+      "empty": "Nenhuma ferramenta disponível no momento.",
+      "categories": {
+        "clt-trabalho": "CLT & Trabalho",
+        "investimentos": "Investimentos",
+        "imoveis": "Imóveis",
+        "dividas-credito": "Dívidas & Crédito",
+        "planejamento": "Planejamento Pessoal",
+        "utilidades": "Utilidades"
+      }
     },
     "income": {
       "tabs": {

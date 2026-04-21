@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { getEnabledTools, TOOLS_CATALOG } from "./tools-catalog";
+import {
+  getEnabledTools,
+  getEnabledToolsByCategory,
+  TOOL_CATEGORY_ORDER,
+  TOOLS_CATALOG,
+} from "./tools-catalog";
 import { mapToolDtoToModel } from "./tools";
 import type { ToolDto } from "~/features/tools/contracts/tools.dto";
 
@@ -71,6 +76,45 @@ describe("getEnabledTools", () => {
     const enabled = getEnabledTools();
     const ids = enabled.map((t) => t.id);
     expect(ids).toContain("installment-vs-cash");
+  });
+});
+
+describe("getEnabledToolsByCategory", () => {
+  it("groups enabled tools by declared category", () => {
+    const groups = getEnabledToolsByCategory();
+    for (const group of groups) {
+      for (const tool of group.tools) {
+        expect(tool.category ?? "utilidades").toBe(group.category);
+      }
+    }
+  });
+
+  it("orders groups according to TOOL_CATEGORY_ORDER", () => {
+    const groups = getEnabledToolsByCategory();
+    const categories = groups.map((g) => g.category);
+    const expected = TOOL_CATEGORY_ORDER.filter((c) => categories.includes(c));
+    expect(categories).toEqual(expected);
+  });
+
+  it("preserves the full set of enabled tools", () => {
+    const enabled = getEnabledTools();
+    const flattened = getEnabledToolsByCategory().flatMap((g) => g.tools);
+    expect(flattened.length).toBe(enabled.length);
+  });
+
+  it("omits categories that have no enabled tool", () => {
+    const groups = getEnabledToolsByCategory();
+    for (const group of groups) {
+      expect(group.tools.length).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe("TOOLS_CATALOG categories", () => {
+  it("every entry declares a category", () => {
+    for (const tool of TOOLS_CATALOG) {
+      expect(tool.category).toBeDefined();
+    }
   });
 });
 
