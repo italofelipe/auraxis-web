@@ -1,5 +1,15 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+const posthogMock = vi.hoisted(() => ({
+  __loaded: false,
+  isFeatureEnabled: vi.fn<(flagKey: string) => boolean | undefined>(),
+}));
+
+vi.mock("posthog-js", () => ({
+  default: posthogMock,
+}));
+
+// eslint-disable-next-line import/first
 import {
   fetchUnleashSnapshot,
   getLocalFlag,
@@ -9,6 +19,7 @@ import {
   isStatusEnabledForEnv,
   resetProviderCache,
   resolveEnvOverride,
+  resolvePostHogDecision,
   resolveProviderDecision,
   toEnvSuffix,
 } from "./service";
@@ -18,6 +29,8 @@ describe("feature flag service", () => {
     vi.unstubAllEnvs();
     vi.unstubAllGlobals();
     resetProviderCache();
+    posthogMock.__loaded = false;
+    posthogMock.isFeatureEnabled.mockReset();
   });
 
   it("normaliza sufixo de env var a partir da chave da flag", () => {
@@ -124,6 +137,52 @@ describe("feature flag service", () => {
   it("aceita provider canônico AURAXIS_FLAG_PROVIDER como fallback", () => {
     vi.stubEnv("AURAXIS_FLAG_PROVIDER", "unleash");
     expect(getProviderMode()).toBe("unleash");
+  });
+
+  it("reconhece modo posthog via NUXT_PUBLIC_FLAG_PROVIDER", () => {
+    vi.stubEnv("NUXT_PUBLIC_FLAG_PROVIDER", "posthog");
+    expect(getProviderMode()).toBe("posthog");
+  });
+
+  it("ignora provider remoto quando modo é local (mesmo com Unleash URL definido)", async () => {
+    vi.stubEnv("NUXT_PUBLIC_FLAG_PROVIDER", "local");
+    vi.stubEnv("NUXT_PUBLIC_UNLEASH_PROXY_URL", "https://flags.local");
+    const providerDecision = await resolveProviderDecision(
+      "web.pages.investor-profile",
+    );
+    expect(providerDecision).toBeUndefined();
+  });
+
+  it("retorna decisão do PostHog quando SDK está carregado", async () => {
+    posthogMock.__loaded = true;
+    posthogMock.isFeatureEnabled.mockReturnValue(true);
+    const decision = await resolvePostHogDecision("web.premium.paywall-enabled");
+    expect(decision).toBe(true);
+    expect(posthogMock.isFeatureEnabled).toHaveBeenCalledWith(
+      "web.premium.paywall-enabled",
+    );
+  });
+
+  it("retorna undefined quando PostHog ainda não inicializou (plugin inerte)", async () => {
+    posthogMock.__loaded = false;
+    const decision = await resolvePostHogDecision("web.premium.paywall-enabled");
+    expect(decision).toBeUndefined();
+    expect(posthogMock.isFeatureEnabled).not.toHaveBeenCalled();
+  });
+
+  it("retorna undefined quando PostHog responde com valor não-boolean", async () => {
+    posthogMock.__loaded = true;
+    posthogMock.isFeatureEnabled.mockReturnValue(undefined);
+    const decision = await resolvePostHogDecision("web.flag-desconhecida");
+    expect(decision).toBeUndefined();
+  });
+
+  it("resolveProviderDecision despacha para PostHog quando modo é posthog", async () => {
+    vi.stubEnv("NUXT_PUBLIC_FLAG_PROVIDER", "posthog");
+    posthogMock.__loaded = true;
+    posthogMock.isFeatureEnabled.mockReturnValue(false);
+    const decision = await resolveProviderDecision("web.premium.paywall-enabled");
+    expect(decision).toBe(false);
   });
 
   it("aceita URL canônica AURAXIS_UNLEASH_URL para snapshot remoto", async () => {

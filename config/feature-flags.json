@@ -399,6 +399,36 @@
       "status": "draft",
       "description": "Custo do estilo de vida: custo de oportunidade de gastos recorrentes.",
       "repositories": ["auraxis-web"]
+    },
+    {
+      "key": "web.premium.paywall-enabled",
+      "owner": "growth",
+      "createdAt": "2026-04-21",
+      "removeBy": "2027-12-31",
+      "type": "experiment",
+      "status": "enabled-staging",
+      "description": "Exibe paywall para recursos premium. Off em produção até validarmos funil de upgrade.",
+      "repositories": ["auraxis-web"]
+    },
+    {
+      "key": "web.onboarding.wizard-enabled",
+      "owner": "growth",
+      "createdAt": "2026-04-21",
+      "removeBy": "2027-12-31",
+      "type": "experiment",
+      "status": "enabled-staging",
+      "description": "Wizard de onboarding pós-registro. Off em produção enquanto iteramos no fluxo guiado.",
+      "repositories": ["auraxis-web"]
+    },
+    {
+      "key": "web.dashboard.new-layout",
+      "owner": "growth",
+      "createdAt": "2026-04-21",
+      "removeBy": "2027-12-31",
+      "type": "experiment",
+      "status": "enabled-dev",
+      "description": "A/B test do novo layout de dashboard. Provider runtime (PostHog) decide variante em staging/prod.",
+      "repositories": ["auraxis-web"]
     }
   ]
 }
