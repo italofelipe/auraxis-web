@@ -114,6 +114,12 @@ export default defineNuxtConfig({
   // ── @nuxtjs/seo — site-wide defaults ─────────────────────────────────────
   // Used by nuxt-site-config (bundled in @nuxtjs/seo) to auto-generate
   // canonical URLs, og:url, sitemap entries and locale alternate links.
+  //
+  // `indexable` é desligado nos builds de preview por PR (NUXT_PUBLIC_APP_ENV=
+  // "preview") para garantir que @nuxtjs/robots emita `Disallow: /` e cada HTML
+  // estático receba `<meta name="robots" content="noindex,nofollow">`. Sem isso,
+  // previews em `app.auraxis.com.br/_preview/pr-N/` poderiam ser indexados pelo
+  // Google e competir com a versão de produção.
   site: {
     url: process.env.NUXT_PUBLIC_SITE_URL ?? "https://app.auraxis.com.br",
     name: "Auraxis",
@@ -121,7 +127,7 @@ export default defineNuxtConfig({
       "Planner financeiro inteligente para gerenciar carteira de investimentos, "
       + "metas financeiras e finanças pessoais.",
     defaultLocale: "pt-BR",
-    indexable: true,
+    indexable: process.env.NUXT_PUBLIC_APP_ENV !== "preview",
   },
 
   // ── Módulos ──────────────────────────────────────────────────────────
