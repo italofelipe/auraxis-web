@@ -1,6 +1,6 @@
 import { isFeatureEnabled } from "~/shared/feature-flags";
 
-import type { Tool } from "./tools";
+import type { Tool, ToolCategory } from "./tools";
 
 /**
  * Frontend-defined static catalog of all tools in the platform.
@@ -24,6 +24,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/installment-vs-cash",
     featureFlag: "web.tools.installment-vs-cash",
     saveIntent: "goal",
+    category: "dividas-credito",
   },
   {
     id: "thirteenth-salary",
@@ -35,6 +36,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/thirteenth-salary",
     featureFlag: "web.tools.thirteenth-salary",
     saveIntent: "receivable",
+    category: "clt-trabalho",
   },
   {
     id: "inss-ir-folha",
@@ -46,6 +48,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/inss-ir-folha",
     featureFlag: "web.tools.inss-ir-folha",
     saveIntent: "expense",
+    category: "clt-trabalho",
   },
   {
     id: "hora-extra",
@@ -57,6 +60,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/hora-extra",
     featureFlag: "web.tools.hora-extra",
     saveIntent: "receivable",
+    category: "clt-trabalho",
   },
   {
     id: "ferias",
@@ -68,6 +72,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/ferias",
     featureFlag: "web.tools.ferias",
     saveIntent: "receivable",
+    category: "clt-trabalho",
   },
   {
     id: "rescisao",
@@ -79,6 +84,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/rescisao",
     featureFlag: "web.tools.rescisao",
     saveIntent: "receivable",
+    category: "clt-trabalho",
   },
   {
     id: "dividir-conta",
@@ -90,6 +96,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/dividir-conta",
     featureFlag: "web.tools.dividir-conta",
     saveIntent: "none",
+    category: "utilidades",
   },
   {
     id: "desconto-markup",
@@ -101,6 +108,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/desconto-markup",
     featureFlag: "web.tools.desconto-markup",
     saveIntent: "none",
+    category: "utilidades",
   },
   {
     id: "juros-compostos",
@@ -112,6 +120,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/juros-compostos",
     featureFlag: "web.tools.juros-compostos",
     saveIntent: "goal",
+    category: "investimentos",
   },
   {
     id: "fgts",
@@ -123,6 +132,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/fgts",
     featureFlag: "web.tools.fgts",
     saveIntent: "receivable",
+    category: "clt-trabalho",
   },
   {
     id: "clt-vs-pj",
@@ -134,6 +144,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/clt-vs-pj",
     featureFlag: "web.tools.clt-vs-pj",
     saveIntent: "receivable",
+    category: "clt-trabalho",
   },
   {
     id: "mei",
@@ -145,6 +156,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/mei",
     featureFlag: "web.tools.mei",
     saveIntent: "expense",
+    category: "clt-trabalho",
   },
   {
     id: "cdb-lci-lca",
@@ -156,6 +168,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/cdb-lci-lca",
     featureFlag: "web.tools.cdb-lci-lca",
     saveIntent: "goal",
+    category: "investimentos",
   },
   {
     id: "tesouro-direto",
@@ -167,6 +180,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/tesouro-direto",
     featureFlag: "web.tools.tesouro-direto",
     saveIntent: "goal",
+    category: "investimentos",
   },
   {
     id: "aposentadoria",
@@ -178,6 +192,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/aposentadoria",
     featureFlag: "web.tools.aposentadoria",
     saveIntent: "goal",
+    category: "investimentos",
   },
   {
     id: "fire",
@@ -189,6 +204,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/fire",
     featureFlag: "web.tools.fire",
     saveIntent: "goal",
+    category: "investimentos",
   },
   {
     id: "financiamento-imobiliario",
@@ -200,6 +216,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/financiamento-imobiliario",
     featureFlag: "web.tools.financiamento-imobiliario",
     saveIntent: "goal",
+    category: "imoveis",
   },
   {
     id: "aluguel-vs-compra",
@@ -211,6 +228,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/aluguel-vs-compra",
     featureFlag: "web.tools.aluguel-vs-compra",
     saveIntent: "goal",
+    category: "imoveis",
   },
   {
     id: "conversor-moeda",
@@ -222,6 +240,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/conversor-moeda",
     featureFlag: "web.tools.conversor-moeda",
     saveIntent: "none",
+    category: "utilidades",
   },
   {
     id: "fii",
@@ -233,6 +252,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/fii",
     featureFlag: "web.tools.fii",
     saveIntent: "goal",
+    category: "investimentos",
   },
   {
     id: "salario-liquido",
@@ -244,6 +264,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/salario-liquido",
     featureFlag: "web.tools.salario-liquido",
     saveIntent: "receivable",
+    category: "clt-trabalho",
   },
   {
     id: "reserva-emergencia",
@@ -255,6 +276,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/reserva-emergencia",
     featureFlag: "web.tools.reserva-emergencia",
     saveIntent: "goal",
+    category: "planejamento",
   },
   {
     id: "orcamento-50-30-20",
@@ -266,6 +288,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/orcamento-50-30-20",
     featureFlag: "web.tools.orcamento-50-30-20",
     saveIntent: "goal",
+    category: "planejamento",
   },
   {
     id: "cet",
@@ -277,6 +300,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/cet",
     featureFlag: "web.tools.cet",
     saveIntent: "expense",
+    category: "dividas-credito",
   },
   {
     id: "quitacao-dividas",
@@ -288,6 +312,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/quitacao-dividas",
     featureFlag: "web.tools.quitacao-dividas",
     saveIntent: "goal",
+    category: "dividas-credito",
   },
   {
     id: "custo-estilo-vida",
@@ -299,6 +324,7 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     route: "/tools/custo-estilo-vida",
     featureFlag: "web.tools.custo-estilo-vida",
     saveIntent: "goal",
+    category: "planejamento",
   },
 ];
 
@@ -318,3 +344,39 @@ export const getEnabledTools = (): readonly Tool[] =>
     if (!t.featureFlag) {return true;}
     return isFeatureEnabled(t.featureFlag);
   });
+
+/**
+ * Order used by the public catalog page when rendering category sections.
+ * Declared explicitly so the grouping is stable across locales and renders.
+ */
+export const TOOL_CATEGORY_ORDER: readonly ToolCategory[] = [
+  "clt-trabalho",
+  "investimentos",
+  "imoveis",
+  "dividas-credito",
+  "planejamento",
+  "utilidades",
+];
+
+/**
+ * Returns enabled tools grouped by category, respecting TOOL_CATEGORY_ORDER.
+ * Categories without any enabled tool are omitted from the result.
+ *
+ * @returns Readonly array of `{ category, tools }` groups in canonical order.
+ */
+export const getEnabledToolsByCategory = (): ReadonlyArray<{
+  category: ToolCategory;
+  tools: readonly Tool[];
+}> => {
+  const enabled = getEnabledTools();
+  const buckets = new Map<ToolCategory, Tool[]>();
+  for (const tool of enabled) {
+    const key = tool.category ?? "utilidades";
+    const bucket = buckets.get(key) ?? [];
+    bucket.push(tool);
+    buckets.set(key, bucket);
+  }
+  return TOOL_CATEGORY_ORDER
+    .filter((category) => buckets.has(category))
+    .map((category) => ({ category, tools: buckets.get(category) ?? [] }));
+};

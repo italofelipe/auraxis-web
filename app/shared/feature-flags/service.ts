@@ -122,9 +122,9 @@ export const resetProviderCache = (): void => {
 
 /**
  * Retorna o modo de provider configurado para runtime.
- * @returns Modo do provider (`local` ou `unleash`).
+ * @returns Modo do provider (`local`, `unleash` ou `posthog`).
  */
-export const getProviderMode = (): "local" | "unleash" => {
+export const getProviderMode = (): "local" | "unleash" | "posthog" => {
   const providerModeEnv = readRuntimeEnv(
     ["NUXT_PUBLIC_FLAG_PROVIDER", "AURAXIS_FLAG_PROVIDER"],
     "local",
@@ -133,6 +133,9 @@ export const getProviderMode = (): "local" | "unleash" => {
     .toLowerCase();
   if (providerModeEnv === "unleash") {
     return "unleash";
+  }
+  if (providerModeEnv === "posthog") {
+    return "posthog";
   }
   return "local";
 };
@@ -241,14 +244,50 @@ export const fetchUnleashSnapshot = async (): Promise<Record<string, boolean>> =
 };
 
 /**
+ * Consulta a decisão de uma flag no cliente PostHog já inicializado pelo
+ * plugin `posthog.client.ts`. Retorna `undefined` quando o SDK não está
+ * carregado (plugin inerte sem `NUXT_PUBLIC_POSTHOG_API_KEY`, execução em
+ * SSR ou flag ainda não resolvida pelo primeiro fetch).
+ *
+ * Import dinâmico intencional: mantém `posthog-js` fora do bundle SSR e
+ * permite fallback silencioso quando o módulo falha ao carregar.
+ * @param flagKey Chave lógica da flag.
+ * @returns Valor booleano da flag ou `undefined` quando indisponível.
+ */
+export const resolvePostHogDecision = async (
+  flagKey: string,
+): Promise<boolean | undefined> => {
+  try {
+    const posthogModule = (await import("posthog-js")) as {
+      default?: { __loaded?: boolean; isFeatureEnabled?: (k: string) => boolean | undefined };
+    };
+    const posthog = posthogModule.default;
+    if (!posthog || posthog.__loaded !== true || typeof posthog.isFeatureEnabled !== "function") {
+      return undefined;
+    }
+    const value = posthog.isFeatureEnabled(flagKey);
+    return typeof value === "boolean" ? value : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+/**
  * Resolve decisão do provider remoto para uma flag.
+ * Despacha para Unleash ou PostHog conforme o modo configurado.
  * @param flagKey Chave lógica da flag.
  * @returns Valor booleano do provider quando disponível.
  */
 export const resolveProviderDecision = async (
   flagKey: string,
 ): Promise<boolean | undefined> => {
-  if (getProviderMode() !== "unleash") {
+  const mode = getProviderMode();
+
+  if (mode === "posthog") {
+    return resolvePostHogDecision(flagKey);
+  }
+
+  if (mode !== "unleash") {
     return undefined;
   }
 

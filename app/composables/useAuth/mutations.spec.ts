@@ -13,6 +13,9 @@ const useMutationMock = vi.hoisted(() => vi.fn());
 const useHttpMock = vi.hoisted(() => vi.fn());
 const createAuthApiMock = vi.hoisted(() => vi.fn());
 const signInMock = vi.hoisted(() => vi.fn());
+const captureMock = vi.hoisted(() => vi.fn());
+const identifyMock = vi.hoisted(() => vi.fn());
+const resetMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@tanstack/vue-query", () => ({
   useMutation: useMutationMock,
@@ -20,6 +23,14 @@ vi.mock("@tanstack/vue-query", () => ({
 
 vi.mock("~/composables/useHttp", () => ({
   useHttp: useHttpMock,
+}));
+
+vi.mock("~/composables/useAnalytics", () => ({
+  useAnalytics: (): { capture: typeof captureMock; identify: typeof identifyMock; reset: typeof resetMock } => ({
+    capture: captureMock,
+    identify: identifyMock,
+    reset: resetMock,
+  }),
 }));
 
 vi.mock("~/stores/session", () => ({
@@ -65,6 +76,10 @@ describe("useAuth/mutations", () => {
       userEmail: "login@auraxis.com",
       emailConfirmed: true,
     });
+    expect(identifyMock).toHaveBeenCalledWith("login@auraxis.com");
+    expect(captureMock).toHaveBeenCalledWith("user_signed_in", {
+      email_confirmed: true,
+    });
   });
 
   it("usa API injetada em useRegisterMutation e dispara signIn no sucesso", () => {
@@ -93,6 +108,10 @@ describe("useAuth/mutations", () => {
       refreshToken: "register-refresh",
       userEmail: "register@auraxis.com",
       emailConfirmed: false,
+    });
+    expect(identifyMock).toHaveBeenCalledWith("register@auraxis.com");
+    expect(captureMock).toHaveBeenCalledWith("user_registered", {
+      email_confirmed: false,
     });
   });
 

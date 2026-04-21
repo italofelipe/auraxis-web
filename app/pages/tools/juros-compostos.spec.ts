@@ -41,6 +41,10 @@ vi.mock("#app", () => ({
   useRouter: (): { push: typeof mockPush } => ({ push: mockPush }),
 }));
 
+vi.mock("~/features/tools/composables/useToolPageStructuredData", () => ({
+  useToolPageStructuredData: vi.fn(),
+}));
+
 vi.mock("naive-ui", () => ({
   NAlert: {
     props: ["type"],

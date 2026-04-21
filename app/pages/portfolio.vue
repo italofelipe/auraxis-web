@@ -223,7 +223,7 @@ const onSelectEntry = (id: string): void => {
 }
 
 .portfolio-history-chart {
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-outline-subtle);
   border-radius: var(--radius-md);
   padding: var(--space-3);
   background: var(--color-bg-elevated);

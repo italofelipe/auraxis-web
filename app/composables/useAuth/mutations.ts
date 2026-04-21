@@ -4,6 +4,7 @@ import type {
   LoginResponse,
   RegisterResponse,
 } from "~/types/contracts";
+import { useAnalytics } from "~/composables/useAnalytics";
 import { useHttp } from "~/composables/useHttp";
 import { useSessionStore } from "~/stores/session";
 
@@ -36,6 +37,7 @@ const resolveAuthApi = (providedAuthApi?: AuthApi): AuthApi => {
  */
 export const useLoginMutation = (authApi?: AuthApi): LoginMutation => {
   const sessionStore = useSessionStore();
+  const analytics = useAnalytics();
   const resolvedAuthApi = resolveAuthApi(authApi);
 
   return useMutation({
@@ -46,6 +48,10 @@ export const useLoginMutation = (authApi?: AuthApi): LoginMutation => {
         refreshToken: response.refreshToken ?? null,
         userEmail: response.user.email,
         emailConfirmed: response.user.emailConfirmed,
+      });
+      analytics.identify(response.user.email);
+      analytics.capture("user_signed_in", {
+        email_confirmed: response.user.emailConfirmed,
       });
     },
   });
@@ -58,6 +64,7 @@ export const useLoginMutation = (authApi?: AuthApi): LoginMutation => {
  */
 export const useRegisterMutation = (authApi?: AuthApi): RegisterMutation => {
   const sessionStore = useSessionStore();
+  const analytics = useAnalytics();
   const resolvedAuthApi = resolveAuthApi(authApi);
 
   return useMutation({
@@ -68,6 +75,10 @@ export const useRegisterMutation = (authApi?: AuthApi): RegisterMutation => {
         refreshToken: response.refreshToken ?? null,
         userEmail: response.user.email,
         emailConfirmed: response.user.emailConfirmed,
+      });
+      analytics.identify(response.user.email);
+      analytics.capture("user_registered", {
+        email_confirmed: response.user.emailConfirmed,
       });
     },
   });

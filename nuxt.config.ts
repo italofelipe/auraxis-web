@@ -109,11 +109,17 @@ export default defineNuxtConfig({
       ],
     },
   },
-  css: ["~/assets/css/main.css", "~/assets/css/ds-bridge.css"],
+  css: ["~/assets/css/main.css"],
 
   // ── @nuxtjs/seo — site-wide defaults ─────────────────────────────────────
   // Used by nuxt-site-config (bundled in @nuxtjs/seo) to auto-generate
   // canonical URLs, og:url, sitemap entries and locale alternate links.
+  //
+  // `indexable` é desligado nos builds de preview por PR (NUXT_PUBLIC_APP_ENV=
+  // "preview") para garantir que @nuxtjs/robots emita `Disallow: /` e cada HTML
+  // estático receba `<meta name="robots" content="noindex,nofollow">`. Sem isso,
+  // previews em `app.auraxis.com.br/_preview/pr-N/` poderiam ser indexados pelo
+  // Google e competir com a versão de produção.
   site: {
     url: process.env.NUXT_PUBLIC_SITE_URL ?? "https://app.auraxis.com.br",
     name: "Auraxis",
@@ -121,7 +127,7 @@ export default defineNuxtConfig({
       "Planner financeiro inteligente para gerenciar carteira de investimentos, "
       + "metas financeiras e finanças pessoais.",
     defaultLocale: "pt-BR",
-    indexable: true,
+    indexable: process.env.NUXT_PUBLIC_APP_ENV !== "preview",
   },
 
   // ── Módulos ──────────────────────────────────────────────────────────
@@ -182,6 +188,12 @@ export default defineNuxtConfig({
       // (local dev without a key) useCaptcha() resolves to null — the form
       // still submits and the backend accepts a null captchaToken in dev mode.
       turnstileSiteKey: process.env.CLOUDFLARE_TURNSTILE_SITE_KEY ?? "",
+      // PostHog analytics. When `posthogApiKey` is empty the plugin installs a
+      // no-op `$analytics` client — the app runs identically without telemetry.
+      // Host defaults to the EU ingest; override only if the project lives in
+      // another region.
+      posthogApiKey: process.env.NUXT_PUBLIC_POSTHOG_API_KEY ?? "",
+      posthogApiHost: process.env.NUXT_PUBLIC_POSTHOG_API_HOST ?? "https://eu.i.posthog.com",
     },
   },
 

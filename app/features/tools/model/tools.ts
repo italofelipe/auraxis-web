@@ -10,6 +10,18 @@ import type { SaveIntent } from "~/components/tool/ToolSaveResult/ToolSaveResult
 export type ToolAccessLevel = "public" | "authenticated" | "premium";
 
 /**
+ * Functional category used to group tools in the public listing for SEO
+ * and human navigation. Keep in sync with i18n keys `pages.tools.categories.*`.
+ */
+export type ToolCategory =
+  | "clt-trabalho"
+  | "investimentos"
+  | "imoveis"
+  | "dividas-credito"
+  | "planejamento"
+  | "utilidades";
+
+/**
  * Domain model for a single tool, derived from ToolDto with camelCase naming.
  */
 export interface Tool {
@@ -28,6 +40,8 @@ export interface Tool {
   featureFlag?: string;
   /** What kind of financial record the tool result can be saved as. */
   saveIntent?: SaveIntent;
+  /** Functional grouping used by the public catalog page. */
+  category?: ToolCategory;
 }
 
 /**

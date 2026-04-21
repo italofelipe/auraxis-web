@@ -12,6 +12,8 @@ const mockClearProfile = vi.hoisted(() => vi.fn());
 const mockFiltersReset = vi.hoisted(() => vi.fn());
 const mockUiReset = vi.hoisted(() => vi.fn());
 const mockToolContextClear = vi.hoisted(() => vi.fn());
+const mockAnalyticsCapture = vi.hoisted(() => vi.fn());
+const mockAnalyticsReset = vi.hoisted(() => vi.fn());
 
 // ── Module mocks ──────────────────────────────────────────────────────────
 // vi.mock() calls are hoisted above imports by Vite's transform plugin, so
@@ -41,6 +43,14 @@ vi.mock("~/stores/ui", () => ({
 }));
 vi.mock("~/stores/toolContext", () => ({
   useToolContextStore: vi.fn(() => ({ clear: mockToolContextClear })),
+}));
+
+vi.mock("~/composables/useAnalytics", () => ({
+  useAnalytics: vi.fn(() => ({
+    capture: mockAnalyticsCapture,
+    identify: vi.fn(),
+    reset: mockAnalyticsReset,
+  })),
 }));
 
 // ── Subject under test ────────────────────────────────────────────────────
@@ -123,5 +133,24 @@ describe("useLogout", () => {
     expect(mockToolContextClear).toHaveBeenCalledOnce();
     expect(mockSignOut).toHaveBeenCalledOnce();
     expect(mockNavigateTo).toHaveBeenCalledOnce();
+  });
+
+  it("emits user_signed_out and resets the analytics session on logout", () => {
+    const { logout } = useLogout();
+    logout();
+
+    expect(mockAnalyticsCapture).toHaveBeenCalledWith("user_signed_out");
+    expect(mockAnalyticsReset).toHaveBeenCalledOnce();
+  });
+
+  it("captures user_signed_out BEFORE resetting analytics (preserves identity)", () => {
+    const order: string[] = [];
+    mockAnalyticsCapture.mockImplementation(() => order.push("capture"));
+    mockAnalyticsReset.mockImplementation(() => order.push("reset"));
+
+    const { logout } = useLogout();
+    logout();
+
+    expect(order.indexOf("capture")).toBeLessThan(order.indexOf("reset"));
   });
 });

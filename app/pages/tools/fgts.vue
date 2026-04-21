@@ -23,6 +23,8 @@ import {
   type FgtsResult,
 } from "~/features/tools/model/fgts";
 import { useToolPage } from "~/features/tools/composables/use-tool-page";
+import { useToolPageStructuredData } from "~/features/tools/composables/useToolPageStructuredData";
+import { FGTS_FAQS } from "~/features/tools/content/fgts-faqs";
 import CalculatorFormSection from "~/components/tool/CalculatorFormSection/CalculatorFormSection.vue";
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
@@ -42,6 +44,13 @@ useSeoMeta({
   ogTitle: t("fgts.seo.ogTitle"),
   ogDescription: t("fgts.seo.ogDescription"),
   twitterCard: "summary_large_image",
+});
+
+useToolPageStructuredData({
+  slug: "fgts",
+  name: t("fgts.seo.title"),
+  description: t("fgts.seo.description"),
+  faqs: FGTS_FAQS,
 });
 
 const {
