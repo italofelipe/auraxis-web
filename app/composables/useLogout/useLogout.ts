@@ -1,5 +1,6 @@
 import { navigateTo } from "#app";
 import { useQueryClient } from "@tanstack/vue-query";
+import { useAnalytics } from "~/composables/useAnalytics";
 import { useSessionStore } from "~/stores/session";
 import { useUserStore } from "~/stores/user";
 import { useFiltersStore } from "~/stores/filters";
@@ -28,6 +29,7 @@ export const useLogout = (): { logout: () => void } => {
   const filtersStore = useFiltersStore();
   const uiStore = useUiStore();
   const toolContextStore = useToolContextStore();
+  const analytics = useAnalytics();
 
   /**
    * Executes the full logout sequence and redirects to `/login`.
@@ -43,12 +45,18 @@ export const useLogout = (): { logout: () => void } => {
     uiStore.$reset();
     toolContextStore.clear();
 
-    // 3. Clear the session cookie and nullify auth state in the session store.
+    // 3. Emit sign-out event and disassociate the analytics session before
+    //    clearing the auth state (so the event still carries the identified
+    //    user id that PostHog uses for funnel attribution).
+    analytics.capture("user_signed_out");
+    analytics.reset();
+
+    // 4. Clear the session cookie and nullify auth state in the session store.
     //    Done last so the stores above can still read user data if they need to
     //    perform cleanup that depends on identity.
     sessionStore.signOut();
 
-    // 4. Redirect to login page.
+    // 5. Redirect to login page.
     navigateTo("/login");
   };
 

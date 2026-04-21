@@ -182,6 +182,12 @@ export default defineNuxtConfig({
       // (local dev without a key) useCaptcha() resolves to null — the form
       // still submits and the backend accepts a null captchaToken in dev mode.
       turnstileSiteKey: process.env.CLOUDFLARE_TURNSTILE_SITE_KEY ?? "",
+      // PostHog analytics. When `posthogApiKey` is empty the plugin installs a
+      // no-op `$analytics` client — the app runs identically without telemetry.
+      // Host defaults to the EU ingest; override only if the project lives in
+      // another region.
+      posthogApiKey: process.env.NUXT_PUBLIC_POSTHOG_API_KEY ?? "",
+      posthogApiHost: process.env.NUXT_PUBLIC_POSTHOG_API_HOST ?? "https://eu.i.posthog.com",
     },
   },
 
