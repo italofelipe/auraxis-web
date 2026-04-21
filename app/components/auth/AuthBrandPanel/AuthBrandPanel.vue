@@ -60,7 +60,7 @@ import { PieChart } from "lucide-vue-next";
   border-radius: var(--radius-sm);
   display: grid;
   place-items: center;
-  background: linear-gradient(145deg, var(--accent-cyan, #44d4ff), var(--accent-violet, #8b7dff));
+  background: linear-gradient(145deg, var(--color-brand-500), var(--color-accent));
   color: #0b1626;
   font-weight: var(--font-weight-extrabold);
 }
@@ -76,13 +76,13 @@ import { PieChart } from "lucide-vue-next";
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  border: 1px solid var(--border-strong, rgba(68, 212, 255, 0.4));
+  border: 1px solid var(--color-brand-glow-lg);
   border-radius: var(--radius-full);
   padding: 7px 12px;
   font-size: var(--font-size-xs);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--accent-cyan, #44d4ff);
+  color: var(--color-brand-500);
   background: rgba(68, 212, 255, 0.1);
 }
 
