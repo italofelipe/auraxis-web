@@ -40,9 +40,10 @@ test-results/
 bundle-report.json
 stats.html
 
-# Stryker mutation testing
+# Stryker mutation testing artifacts
 .stryker-tmp/
 mutation-report/
+stryker-setup-*.js
 
 # Storybook test artifacts
 storybook-static/

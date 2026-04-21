@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowImportingTsExtensions": true,
+    "paths": {
+      "~/*": ["./app/*"],
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["app/**/*.ts", "vitest.stryker.config.ts", "vitest.setup.ts"],
+  "exclude": ["node_modules", ".nuxt", ".output", "dist"]
+}
