@@ -182,6 +182,6 @@ const form = inject<WalletEntryFormState>(WALLET_ENTRY_FORM_KEY)!;
 }
 
 .wallet-entry-form__hint--warning {
-  color: var(--warning-color, #f0a020);
+  color: var(--color-warning);
 }
 </style>

@@ -22,6 +22,8 @@
     "analyze:report": "node scripts/analyze-bundle.cjs",
     "policy:check": "node scripts/check-frontend-governance.cjs",
     "quality-check": "pnpm flags:check && pnpm i18n:check && pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm policy:check && pnpm contracts:check && pnpm build",
+    "mutation": "stryker run",
+    "mutation:quick": "stryker run --mutate 'app/schemas/validators.ts'",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",

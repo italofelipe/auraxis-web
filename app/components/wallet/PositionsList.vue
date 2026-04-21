@@ -102,7 +102,7 @@ const variationClass = (value: number): string => {
   justify-content: space-between;
   gap: var(--space-3, 12px);
   padding: var(--space-3, 12px) 0;
-  border-bottom: 1px solid var(--color-outline-subtle, #eee);
+  border-bottom: 1px solid var(--color-outline-subtle);
   flex-wrap: wrap;
 }
 
@@ -147,7 +147,7 @@ const variationClass = (value: number): string => {
 
 .positions-list__amount-label {
   font-size: var(--font-size-body-sm, 0.75rem);
-  color: var(--color-text-subtle, #888);
+  color: var(--color-text-subtle);
 }
 
 .positions-list__amount-value {
@@ -161,14 +161,14 @@ const variationClass = (value: number): string => {
 }
 
 .positions-list__variation--positive {
-  color: var(--color-success, #18a058);
+  color: var(--color-positive);
 }
 
 .positions-list__variation--negative {
-  color: var(--color-error, #d03050);
+  color: var(--color-negative);
 }
 
 .positions-list__variation--neutral {
-  color: var(--color-text-subtle, #888);
+  color: var(--color-text-subtle);
 }
 </style>

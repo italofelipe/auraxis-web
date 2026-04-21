@@ -41,7 +41,8 @@ const chartOption = computed((): EChartsOption => {
         type: "line",
         data: points.map((p) => p.total_value),
         smooth: true,
-        itemStyle: { color: "var(--color-brand-600)" },
+        // DS v3 token: --color-brand-600 = #24beea (ECharts cannot resolve CSS vars)
+        itemStyle: { color: "#24beea" },
       },
       {
         name: "Investido",
@@ -49,7 +50,8 @@ const chartOption = computed((): EChartsOption => {
         data: points.map((p) => p.invested_amount),
         smooth: true,
         lineStyle: { type: "dashed" },
-        itemStyle: { color: "var(--color-text-muted)" },
+        // DS v3 token: --color-text-muted = #94a3bf (ECharts cannot resolve CSS vars)
+        itemStyle: { color: "#94a3bf" },
       },
     ],
   };

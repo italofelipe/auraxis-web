@@ -125,6 +125,6 @@ const lastUpdatedLabel = computed((): string => {
 .wallet-summary-card__updated {
   margin: 0;
   font-size: var(--font-size-body-sm, 0.75rem);
-  color: var(--color-text-subtle, #888);
+  color: var(--color-text-subtle);
 }
 </style>
