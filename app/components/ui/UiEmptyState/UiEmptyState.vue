@@ -32,6 +32,9 @@ const iconSize = computed(() => (props.compact ? 24 : 40));
     :class="{ 'ui-empty-state--compact': compact }"
     role="status"
   >
+    <div v-if="$slots.illustration && !compact" class="ui-empty-state__illustration" aria-hidden="true">
+      <slot name="illustration" />
+    </div>
     <div v-if="resolvedIcon" class="ui-empty-state__icon-wrap" aria-hidden="true">
       <component :is="resolvedIcon" :size="iconSize" />
     </div>
@@ -117,5 +120,15 @@ const iconSize = computed(() => (props.compact ? 24 : 40));
 
 .ui-empty-state__action:hover {
   background: var(--color-brand-500);
+}
+
+.ui-empty-state__illustration {
+  width: 100%;
+  max-width: 200px;
+}
+
+.ui-empty-state__illustration-svg {
+  width: 100%;
+  height: auto;
 }
 </style>

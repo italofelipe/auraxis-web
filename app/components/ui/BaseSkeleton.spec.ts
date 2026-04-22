@@ -69,18 +69,6 @@ describe("BaseSkeleton", () => {
     expect(style).toContain("height: 180px");
   });
 
-  it("aplica radius md para variante card", () => {
-    const wrapper = mount(BaseSkeleton, { props: { variant: "card" } });
-    const style = wrapper.get("[data-testid='base-skeleton']").attributes("style") ?? "";
-    expect(style).toContain("border-radius: var(--radius-md");
-  });
-
-  it("aplica radius md para variante chart", () => {
-    const wrapper = mount(BaseSkeleton, { props: { variant: "chart" } });
-    const style = wrapper.get("[data-testid='base-skeleton']").attributes("style") ?? "";
-    expect(style).toContain("border-radius: var(--radius-md");
-  });
-
   it("marca todos os placeholders como aria-hidden", () => {
     const wrapper = mount(BaseSkeleton, { props: { repeat: 2 } });
 

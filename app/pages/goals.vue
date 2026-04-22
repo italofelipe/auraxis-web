@@ -172,7 +172,11 @@ const onDeleteGoal = (id: string): void => {
           :description="activeFilter === 'all' ? $t('pages.goals.emptyAllDescription') : undefined"
           :action-label="activeFilter === 'all' ? $t('pages.goals.emptyCreate') : undefined"
           @action="onNewGoal"
-        />
+        >
+          <template #illustration>
+            <IllustrationEmptyGoals />
+          </template>
+        </UiEmptyState>
 
         <div v-else class="goals-page__grid">
           <GoalCard

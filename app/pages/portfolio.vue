@@ -141,7 +141,11 @@ const onSelectEntry = (id: string): void => {
           :description="$t('pages.portfolio.emptyBody')"
           :action-label="$t('pages.portfolio.emptyAction')"
           @action="showEntryForm = true"
-        />
+        >
+          <template #illustration>
+            <IllustrationEmptyWallet />
+          </template>
+        </UiEmptyState>
       </template>
 
       <template v-else>

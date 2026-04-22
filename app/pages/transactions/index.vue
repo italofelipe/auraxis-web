@@ -156,6 +156,9 @@ const {
     <UiInlineError v-if="isError" :title="$t('transactions.loadError')" :message="$t('transactions.loadErrorMessage')" />
     <UiPageLoader v-else-if="isLoading" :rows="5" />
     <UiEmptyState v-else-if="tableData.length === 0" icon="transactions" :title="$t('transactions.empty.title')" :description="$t('transactions.empty.description')">
+      <template #illustration>
+        <IllustrationEmptyTransactions />
+      </template>
       <template #action>
         <NButton type="primary" size="small" @click="showIncome = true">{{ $t('transactions.addIncome') }}</NButton>
       </template>

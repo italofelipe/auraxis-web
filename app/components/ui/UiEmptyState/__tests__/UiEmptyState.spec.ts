@@ -139,6 +139,28 @@ describe("UiEmptyState", () => {
     expect(wrapper.html()).toMatchSnapshot();
   });
 
+  it("renders illustration slot when provided and not compact", () => {
+    const wrapper = mount(UiEmptyState, {
+      props: { title: "Vazio" },
+      slots: { illustration: "<svg data-testid=\"illus\" />" },
+    });
+    expect(wrapper.find(".ui-empty-state__illustration").exists()).toBe(true);
+    expect(wrapper.find("[data-testid='illus']").exists()).toBe(true);
+  });
+
+  it("does not render illustration slot when compact=true", () => {
+    const wrapper = mount(UiEmptyState, {
+      props: { title: "Vazio", compact: true },
+      slots: { illustration: "<svg data-testid=\"illus\" />" },
+    });
+    expect(wrapper.find(".ui-empty-state__illustration").exists()).toBe(false);
+  });
+
+  it("does not render illustration wrap when slot not provided", () => {
+    const wrapper = mount(UiEmptyState, { props: { title: "Vazio" } });
+    expect(wrapper.find(".ui-empty-state__illustration").exists()).toBe(false);
+  });
+
   it("matches snapshot in compact mode", () => {
     const wrapper = mount(UiEmptyState, {
       props: {
