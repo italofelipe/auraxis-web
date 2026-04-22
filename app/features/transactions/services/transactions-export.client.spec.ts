@@ -1,6 +1,9 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { TransactionsExportClient } from "~/features/transactions/services/transactions-export.client";
+import {
+  TransactionsExportClient,
+  clearTransactionsExportCache,
+} from "~/features/transactions/services/transactions-export.client";
 
 /**
  * Creates a minimal HTTP mock for the transactions-export client.
@@ -12,6 +15,10 @@ const createHttpMock = (): { get: ReturnType<typeof vi.fn> } => {
 };
 
 describe("TransactionsExportClient", () => {
+  beforeEach(() => {
+    clearTransactionsExportCache();
+  });
+
   it("requests /transactions/export with params and responseType blob", async () => {
     const http = createHttpMock();
     http.get.mockResolvedValue({
@@ -60,5 +67,72 @@ describe("TransactionsExportClient", () => {
     await expect(
       client.exportTransactions({ format: "csv" }),
     ).rejects.toThrow("paywall");
+  });
+
+  it("returns cached result on repeated calls with identical filters", async () => {
+    const http = createHttpMock();
+    http.get.mockResolvedValue({
+      data: new Blob(["hello"], { type: "text/csv" }),
+      headers: {
+        "content-disposition": "attachment; filename=\"auraxis.csv\"",
+        "content-type": "text/csv",
+      },
+    });
+
+    const client = new TransactionsExportClient(http as never);
+    const filters = { format: "csv" as const, start_date: "2026-01-01", end_date: "2026-01-31" };
+
+    const first = await client.exportTransactions(filters);
+    const second = await client.exportTransactions(filters);
+
+    expect(http.get).toHaveBeenCalledTimes(1);
+    expect(second).toBe(first);
+  });
+
+  it("treats different filter combinations as independent cache entries", async () => {
+    const http = createHttpMock();
+    http.get.mockResolvedValue({
+      data: new Blob(["payload"], { type: "text/csv" }),
+      headers: { "content-type": "text/csv" },
+    });
+
+    const client = new TransactionsExportClient(http as never);
+    await client.exportTransactions({ format: "csv", start_date: "2026-01-01" });
+    await client.exportTransactions({ format: "pdf", start_date: "2026-01-01" });
+    await client.exportTransactions({ format: "csv", start_date: "2026-02-01" });
+
+    expect(http.get).toHaveBeenCalledTimes(3);
+  });
+
+  it("does not cache errored responses — next call retries the backend", async () => {
+    const http = createHttpMock();
+    http.get
+      .mockRejectedValueOnce(new Error("network down"))
+      .mockResolvedValueOnce({
+        data: new Blob(["ok"], { type: "text/csv" }),
+        headers: { "content-type": "text/csv" },
+      });
+
+    const client = new TransactionsExportClient(http as never);
+    await expect(client.exportTransactions({ format: "csv" })).rejects.toThrow("network down");
+    const retry = await client.exportTransactions({ format: "csv" });
+
+    expect(retry.contentType).toBe("text/csv");
+    expect(http.get).toHaveBeenCalledTimes(2);
+  });
+
+  it("clearTransactionsExportCache drops all entries", async () => {
+    const http = createHttpMock();
+    http.get.mockResolvedValue({
+      data: new Blob(["x"], { type: "text/csv" }),
+      headers: { "content-type": "text/csv" },
+    });
+
+    const client = new TransactionsExportClient(http as never);
+    await client.exportTransactions({ format: "csv" });
+    clearTransactionsExportCache();
+    await client.exportTransactions({ format: "csv" });
+
+    expect(http.get).toHaveBeenCalledTimes(2);
   });
 });
