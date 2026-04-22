@@ -34,6 +34,8 @@ const { isDark, toggle: toggleTheme } = useTheme();
     </div>
 
     <div class="ui-topbar__right">
+      <slot name="extras" />
+
       <button
         v-for="action in props.actions"
         :key="action.key"
