@@ -8,7 +8,7 @@ import { computed } from "vue";
  * feature uses the same visual rhythm. Prefer this over direct `NSkeleton`
  * imports — it lets us tune the animation, color, and radius in one place.
  */
-type SkeletonVariant = "text" | "line" | "block" | "button" | "circle";
+type SkeletonVariant = "text" | "line" | "block" | "button" | "circle" | "card" | "chart";
 
 interface Props {
   /** Visual shape. Defaults to "line" (a horizontal bar). */
@@ -37,6 +37,8 @@ const computedHeight = computed<string>((): string => {
   if (props.variant === "text") { return "14px"; }
   if (props.variant === "button") { return "36px"; }
   if (props.variant === "block") { return "80px"; }
+  if (props.variant === "card") { return "100px"; }
+  if (props.variant === "chart") { return "180px"; }
   return "20px";
 });
 
@@ -48,6 +50,8 @@ const computedWidth = computed<string>((): string => {
 const radiusToken = computed<string>((): string => {
   if (props.variant === "circle") { return "9999px"; }
   if (props.variant === "button") { return "var(--radius-md, 8px)"; }
+  if (props.variant === "card") { return "var(--radius-md, 8px)"; }
+  if (props.variant === "chart") { return "var(--radius-md, 8px)"; }
   return "var(--radius-sm, 4px)";
 });
 
