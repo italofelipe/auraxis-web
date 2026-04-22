@@ -199,6 +199,12 @@ export default defineNuxtConfig({
       // settings UI displays a disabled state. The private key lives only
       // on the backend and is never exposed to the client.
       vapidPublicKey: process.env.NUXT_PUBLIC_VAPID_PUBLIC_KEY ?? "",
+      // Feature flag for Web Push notifications. Defaults to "false" — the
+      // /settings/notifications page renders a "coming soon" state until the
+      // backend endpoints (POST /notifications/subscribe, unsubscribe) ship.
+      // Flip to "true" once auraxis-api issue is resolved.
+      pushNotificationsEnabled:
+        (process.env.NUXT_PUBLIC_PUSH_NOTIFICATIONS_ENABLED ?? "false") === "true",
     },
   },
 

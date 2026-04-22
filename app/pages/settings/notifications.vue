@@ -14,6 +14,10 @@ definePageMeta({
 useHead({ title: "Notificações | Auraxis" });
 
 const { t } = useI18n();
+const runtimeConfig = useRuntimeConfig();
+const isFeatureEnabled = computed<boolean>(
+  (): boolean => runtimeConfig.public.pushNotificationsEnabled === true,
+);
 
 const {
   state,
@@ -26,10 +30,16 @@ const {
 } = usePushSubscription();
 
 const isUnsupported = computed<boolean>(() => state.value === "unsupported");
-const isUnconfigured = computed<boolean>(() => state.value === "unconfigured");
+const isUnconfigured = computed<boolean>(
+  (): boolean => !isFeatureEnabled.value || state.value === "unconfigured",
+);
 const isPermissionDenied = computed<boolean>(() => permission.value === "denied");
 const canToggle = computed<boolean>(
-  () => !isUnsupported.value && !isUnconfigured.value && !isPermissionDenied.value,
+  () =>
+    isFeatureEnabled.value
+    && !isUnsupported.value
+    && state.value !== "unconfigured"
+    && !isPermissionDenied.value,
 );
 
 /**
@@ -38,6 +48,7 @@ const canToggle = computed<boolean>(
  * @param value - Desired switch state after the click.
  */
 const onToggle = async (value: boolean): Promise<void> => {
+  if (!isFeatureEnabled.value) { return; }
   if (value) {
     await subscribe();
   } else {
