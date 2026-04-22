@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`UiEmptyState > matches snapshot in compact mode 1`] = `
+exports[`UiEmptyState > snapshots > matches snapshot in compact mode 1`] = `
 "<div data-v-1eb04e1a="" class="ui-empty-state ui-empty-state--compact" role="status">
   <!--v-if-->
   <div data-v-1eb04e1a="" class="ui-empty-state__icon-wrap" aria-hidden="true"><svg data-v-1eb04e1a="" class="mock-icon"></svg></div>
@@ -10,11 +10,12 @@ exports[`UiEmptyState > matches snapshot in compact mode 1`] = `
 </div>"
 `;
 
-exports[`UiEmptyState > matches snapshot with all props 1`] = `
+exports[`UiEmptyState > snapshots > matches snapshot with all props 1`] = `
 "<div data-v-1eb04e1a="" class="ui-empty-state" role="status">
   <!--v-if-->
   <div data-v-1eb04e1a="" class="ui-empty-state__icon-wrap" aria-hidden="true"><svg data-v-1eb04e1a="" class="mock-icon"></svg></div>
   <h3 data-v-1eb04e1a="" class="ui-empty-state__title">Nenhum item</h3>
-  <p data-v-1eb04e1a="" class="ui-empty-state__description">Adicione itens para ver aqui.</p><button data-v-1eb04e1a="" class="ui-empty-state__action" type="button">Adicionar</button>
+  <p data-v-1eb04e1a="" class="ui-empty-state__description">Adicione itens para ver aqui.</p>
+  <div data-v-1eb04e1a="" class="ui-empty-state__actions"><button data-v-1eb04e1a="" class="ui-empty-state__action" type="button">Adicionar</button><a data-v-1eb04e1a="" class="ui-empty-state__secondary" href="/docs">Saiba mais</a></div>
 </div>"
 `;

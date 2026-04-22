@@ -57,7 +57,9 @@ const mockAuthAndDashboard = async (page: Page): Promise<void> => {
 		});
 	});
 
-	await page.route("**/dashboard/overview", (route) => {
+	// Trailing ** required — Playwright globs are anchored; without it the
+	// pattern does not match URLs with query strings (?month=2026-04).
+	await page.route("**/dashboard/overview**", (route) => {
 		route.fulfill({
 			status: 200,
 			contentType: "application/json",
@@ -65,7 +67,7 @@ const mockAuthAndDashboard = async (page: Page): Promise<void> => {
 		});
 	});
 
-	await page.route("**/dashboard/trends", (route) => {
+	await page.route("**/dashboard/trends**", (route) => {
 		route.fulfill({
 			status: 200,
 			contentType: "application/json",

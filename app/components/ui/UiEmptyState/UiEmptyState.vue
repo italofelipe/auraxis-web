@@ -8,6 +8,8 @@ const props = withDefaults(defineProps<UiEmptyStateProps>(), {
   icon: undefined,
   description: undefined,
   actionLabel: undefined,
+  secondaryLabel: undefined,
+  secondaryHref: undefined,
   compact: false,
 });
 
@@ -16,6 +18,8 @@ const emit = defineEmits<UiEmptyStateEmits>();
 /**
  * Resolves the icon prop to a renderable component.
  * Accepts either a string key from ICON_MAP or a Component reference directly.
+ *
+ * @returns Vue component reference, or undefined when no icon is set.
  */
 const resolvedIcon = computed(() => {
   if (!props.icon) { return undefined; }
@@ -24,6 +28,18 @@ const resolvedIcon = computed(() => {
 });
 
 const iconSize = computed(() => (props.compact ? 24 : 40));
+
+const hasPrimary = computed(() => Boolean(props.actionLabel));
+const hasSecondary = computed(() => Boolean(props.secondaryLabel));
+const hasActions = computed(() => hasPrimary.value || hasSecondary.value);
+
+/**
+ * Handles secondary action click. When `secondaryHref` is set the anchor
+ * navigates naturally; the emit still fires so parents can track analytics.
+ */
+const onSecondary = (): void => {
+  emit("secondary-action");
+};
 </script>
 
 <template>
@@ -35,19 +51,49 @@ const iconSize = computed(() => (props.compact ? 24 : 40));
     <div v-if="$slots.illustration && !compact" class="ui-empty-state__illustration" aria-hidden="true">
       <slot name="illustration" />
     </div>
-    <div v-if="resolvedIcon" class="ui-empty-state__icon-wrap" aria-hidden="true">
-      <component :is="resolvedIcon" :size="iconSize" />
-    </div>
-    <h3 class="ui-empty-state__title">{{ title }}</h3>
-    <p v-if="description" class="ui-empty-state__description">{{ description }}</p>
-    <button
-      v-if="actionLabel"
-      class="ui-empty-state__action"
-      type="button"
-      @click="emit('action')"
-    >
-      {{ actionLabel }}
-    </button>
+
+    <slot name="icon">
+      <div v-if="resolvedIcon" class="ui-empty-state__icon-wrap" aria-hidden="true">
+        <component :is="resolvedIcon" :size="iconSize" />
+      </div>
+    </slot>
+
+    <slot name="title">
+      <h3 class="ui-empty-state__title">{{ title }}</h3>
+    </slot>
+
+    <slot name="description">
+      <p v-if="description" class="ui-empty-state__description">{{ description }}</p>
+    </slot>
+
+    <slot name="actions">
+      <div v-if="hasActions" class="ui-empty-state__actions">
+        <button
+          v-if="hasPrimary"
+          class="ui-empty-state__action"
+          type="button"
+          @click="emit('action')"
+        >
+          {{ actionLabel }}
+        </button>
+        <a
+          v-if="hasSecondary && secondaryHref"
+          class="ui-empty-state__secondary"
+          :href="secondaryHref"
+          @click="onSecondary"
+        >
+          {{ secondaryLabel }}
+        </a>
+        <button
+          v-else-if="hasSecondary"
+          class="ui-empty-state__secondary"
+          type="button"
+          @click="onSecondary"
+        >
+          {{ secondaryLabel }}
+        </button>
+      </div>
+    </slot>
   </div>
 </template>
 
@@ -106,8 +152,15 @@ const iconSize = computed(() => (props.compact ? 24 : 40));
   font-size: var(--font-size-xs);
 }
 
-.ui-empty-state__action {
+.ui-empty-state__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
   margin-top: var(--space-1);
+}
+
+.ui-empty-state__action {
   padding: 10px var(--space-3);
   background: var(--color-brand-600);
   color: var(--color-bg-base);
@@ -120,6 +173,21 @@ const iconSize = computed(() => (props.compact ? 24 : 40));
 
 .ui-empty-state__action:hover {
   background: var(--color-brand-500);
+}
+
+.ui-empty-state__secondary {
+  background: transparent;
+  border: none;
+  color: var(--color-brand-500);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  text-decoration: none;
+  padding: 0;
+}
+
+.ui-empty-state__secondary:hover {
+  text-decoration: underline;
 }
 
 .ui-empty-state__illustration {
