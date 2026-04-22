@@ -8,12 +8,16 @@ export interface UiEmptyStateProps {
   title: string
   /** Descrição secundária */
   description?: string
-  /** Label do botão CTA */
+  /** Label do botão CTA primário */
   actionLabel?: string
+  /** Label do link secundário (renderizado abaixo do CTA) */
+  secondaryLabel?: string
+  /** Se fornecido, renderiza o secundário como `<a href>` em vez de `<button>` */
+  secondaryHref?: string
   /** Variante compacta — menor padding e ícone reduzido, para uso dentro de cards */
   compact?: boolean
 }
 
 export interface UiEmptyStateEmits {
-  (e: "action"): void
+  (e: "action" | "secondary-action"): void
 }

@@ -183,6 +183,8 @@
       "noData": "Sem dados para este período",
       "noDataCustom": "Nenhum dado encontrado para o período personalizado.",
       "noDataPeriod": "Ainda não encontramos movimentações para o período selecionado.",
+      "registerFirstTransaction": "Registre sua primeira transação",
+      "learnMore": "Saiba mais sobre o Auraxis",
       "featuredGoals": "Metas em destaque",
       "noGoals": "Sem metas",
       "noGoalsDesc": "Nenhuma meta ativa para o período selecionado.",

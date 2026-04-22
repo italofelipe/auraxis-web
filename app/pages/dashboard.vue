@@ -100,6 +100,18 @@ const isCustomPeriodIncomplete = computed(
   () => selectedPeriod.value === "custom" && (!customStartTs.value || !customEndTs.value),
 );
 
+const isEmptyStateQuickAddOpen = ref<boolean>(false);
+
+/** Opens the first-transaction quick-add modal from the dashboard empty state. */
+const openFirstTransactionForm = (): void => {
+  isEmptyStateQuickAddOpen.value = true;
+};
+
+/** Closes the empty-state quick-add modal (on dismiss or success). */
+const closeFirstTransactionForm = (): void => {
+  isEmptyStateQuickAddOpen.value = false;
+};
+
 const isQuickSelectPeriod = computed((): boolean =>
   ["1m", "3m", "6m", "12m"].includes(selectedPeriod.value),
 );
@@ -196,6 +208,10 @@ const emptyMessage = computed(() =>
           icon="chartLine"
           :title="$t('pages.dashboard.noData')"
           :description="emptyMessage"
+          :action-label="$t('pages.dashboard.registerFirstTransaction')"
+          :secondary-label="$t('pages.dashboard.learnMore')"
+          secondary-href="https://auraxis.com.br/sobre"
+          @action="openFirstTransactionForm"
         />
 
         <template v-else>
@@ -291,6 +307,13 @@ const emptyMessage = computed(() =>
         />
       </UiSurfaceCard>
     </template>
+
+    <QuickTransactionForm
+      :visible="isEmptyStateQuickAddOpen"
+      type="expense"
+      @update:visible="closeFirstTransactionForm"
+      @success="closeFirstTransactionForm"
+    />
   </div>
 </template>
 
