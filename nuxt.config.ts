@@ -194,6 +194,11 @@ export default defineNuxtConfig({
       // another region.
       posthogApiKey: process.env.NUXT_PUBLIC_POSTHOG_API_KEY ?? "",
       posthogApiHost: process.env.NUXT_PUBLIC_POSTHOG_API_HOST ?? "https://eu.i.posthog.com",
+      // Web Push VAPID public key (base64 URL-safe). When empty, the push
+      // subscription composable short-circuits with `unsupported` and the
+      // settings UI displays a disabled state. The private key lives only
+      // on the backend and is never exposed to the client.
+      vapidPublicKey: process.env.NUXT_PUBLIC_VAPID_PUBLIC_KEY ?? "",
     },
   },
 

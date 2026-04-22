@@ -367,6 +367,19 @@
       }
     },
     "settings": {
+      "notifications": {
+        "title": "Push notifications",
+        "subtitle": "Get reminders for due dates and financial alerts straight in your browser.",
+        "toggleTitle": "Enable push notifications",
+        "toggleHelp": "Used for D-1 reminders, completed goals and payment confirmations.",
+        "unsupportedTitle": "Browser not supported",
+        "unsupportedDescription": "Your current browser doesn't support Web Push. Use Chrome, Edge, Firefox or Safari 16.4+ to enable it.",
+        "unconfiguredTitle": "Push not available yet",
+        "unconfiguredDescription": "We're finishing the push server rollout. You'll keep receiving reminders by email in the meantime.",
+        "deniedTitle": "Permission blocked",
+        "deniedDescription": "You blocked notifications for this site in the browser. Update the browser permissions to re-enable.",
+        "managePreferences": "Manage preferences"
+      },
       "profile": {
         "title": "Personal Data",
         "subtitle": "Your profile and preferences",

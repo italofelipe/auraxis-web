@@ -377,6 +377,19 @@
       }
     },
     "settings": {
+      "notifications": {
+        "title": "Notificações push",
+        "subtitle": "Receba lembretes de vencimentos e alertas financeiros direto no navegador.",
+        "toggleTitle": "Ativar notificações push",
+        "toggleHelp": "Usado para lembretes D-1, metas atingidas e confirmações de pagamento.",
+        "unsupportedTitle": "Navegador incompatível",
+        "unsupportedDescription": "Seu navegador atual não suporta Web Push. Use Chrome, Edge, Firefox ou Safari 16.4+ para ativar.",
+        "unconfiguredTitle": "Push ainda não disponível",
+        "unconfiguredDescription": "Estamos finalizando a configuração do servidor de push. Você continuará recebendo lembretes por e-mail enquanto isso.",
+        "deniedTitle": "Permissão bloqueada",
+        "deniedDescription": "Você bloqueou as notificações deste site no navegador. Para reativar, ajuste as permissões nas configurações do navegador.",
+        "managePreferences": "Gerenciar preferências"
+      },
       "profile": {
         "title": "Dados Pessoais",
         "subtitle": "Seu perfil e preferências",
