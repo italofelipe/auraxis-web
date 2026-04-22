@@ -14,7 +14,7 @@ const meta: Meta<typeof BaseSkeleton> = {
     },
   },
   argTypes: {
-    variant: { control: "select", options: ["text", "line", "block", "button", "circle"] },
+    variant: { control: "select", options: ["text", "line", "block", "button", "circle", "card", "chart"] },
     height: { control: "text" },
     width: { control: "text" },
     size: { control: "text" },
@@ -48,4 +48,12 @@ export const Circle: Story = {
 export const RepeatedList: Story = {
   name: "Repeated (list placeholder)",
   args: { variant: "line", repeat: 5, width: "100%" },
+};
+
+export const Card: Story = {
+  args: { variant: "card", width: "100%" },
+};
+
+export const Chart: Story = {
+  args: { variant: "chart", width: "100%" },
 };

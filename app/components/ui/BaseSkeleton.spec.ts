@@ -57,6 +57,18 @@ describe("BaseSkeleton", () => {
     expect(wrapper.findAll("[data-testid='base-skeleton']")).toHaveLength(4);
   });
 
+  it("aplica preset de altura para variante card", () => {
+    const wrapper = mount(BaseSkeleton, { props: { variant: "card" } });
+    const style = wrapper.get("[data-testid='base-skeleton']").attributes("style") ?? "";
+    expect(style).toContain("height: 100px");
+  });
+
+  it("aplica preset de altura para variante chart", () => {
+    const wrapper = mount(BaseSkeleton, { props: { variant: "chart" } });
+    const style = wrapper.get("[data-testid='base-skeleton']").attributes("style") ?? "";
+    expect(style).toContain("height: 180px");
+  });
+
   it("marca todos os placeholders como aria-hidden", () => {
     const wrapper = mount(BaseSkeleton, { props: { repeat: 2 } });
 

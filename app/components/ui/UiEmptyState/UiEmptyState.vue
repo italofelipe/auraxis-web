@@ -48,6 +48,10 @@ const onSecondary = (): void => {
     :class="{ 'ui-empty-state--compact': compact }"
     role="status"
   >
+    <div v-if="$slots.illustration && !compact" class="ui-empty-state__illustration" aria-hidden="true">
+      <slot name="illustration" />
+    </div>
+
     <slot name="icon">
       <div v-if="resolvedIcon" class="ui-empty-state__icon-wrap" aria-hidden="true">
         <component :is="resolvedIcon" :size="iconSize" />
@@ -184,5 +188,15 @@ const onSecondary = (): void => {
 
 .ui-empty-state__secondary:hover {
   text-decoration: underline;
+}
+
+.ui-empty-state__illustration {
+  width: 100%;
+  max-width: 200px;
+}
+
+.ui-empty-state__illustration-svg {
+  width: 100%;
+  height: auto;
 }
 </style>

@@ -212,7 +212,11 @@ const emptyMessage = computed(() =>
           :secondary-label="$t('pages.dashboard.learnMore')"
           secondary-href="https://auraxis.com.br/sobre"
           @action="openFirstTransactionForm"
-        />
+        >
+          <template #illustration>
+            <IllustrationEmptyDashboard />
+          </template>
+        </UiEmptyState>
 
         <template v-else>
           <!-- ── Health Score (PROD-01) ────────────────────────────────────── -->
