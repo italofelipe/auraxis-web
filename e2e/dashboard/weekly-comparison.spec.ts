@@ -28,21 +28,39 @@ const MOCK_LOGIN_SUCCESS = {
   },
 };
 
+/**
+ * Must use the "rich contract" shape to trigger the mapper path that reads
+ * `comparison` — the mapper switches on the presence of `period`. Without it,
+ * `mapDashboardOverviewDto` falls through to the simplified path, which always
+ * sets comparison to null regardless of what the mock sends.
+ *
+ * Field names are snake_case to match the actual backend DTO.
+ */
 const MOCK_OVERVIEW_WITH_COMPARISON = {
-  income: 10000,
-  expense: 4000,
-  balance: 6000,
-  netWorth: 50000,
-  goals: [],
-  alerts: [],
-  upcomingDues: [],
-  expensesByCategory: [],
-  comparison: {
-    incomeVsPreviousMonthPercent: 20,
-    expenseVsPreviousMonthPercent: 10,
-    balanceVsPreviousMonthPercent: -5,
+  period: {
+    key: "current_month",
+    start: "2026-04-01",
+    end: "2026-04-30",
+    label: "abril 2026",
   },
-  portfolio: { currentValue: 25000, costBasis: 20000 },
+  summary: {
+    income: 10000,
+    expense: 4000,
+    balance: 6000,
+    upcoming_due_total: 500,
+    net_worth: 50000,
+  },
+  comparison: {
+    income_vs_previous_month_percent: 20,
+    expense_vs_previous_month_percent: 10,
+    balance_vs_previous_month_percent: -5,
+  },
+  timeseries: [],
+  expenses_by_category: [],
+  upcoming_dues: [],
+  goals: [],
+  portfolio: { current_value: 25000, change_percent: null },
+  alerts: [],
 };
 
 /**
@@ -87,6 +105,27 @@ const mockAuthAndDashboard = async (page: Page): Promise<void> => {
         subscription_plan: "free",
       }),
     });
+  });
+
+  await page.route("**/dashboard/survival-index", (route) => {
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        n_months: 3,
+        total_assets: 25000,
+        avg_monthly_expense: 4000,
+        classification: "ok",
+      }),
+    });
+  });
+
+  await page.route("**/wallet/entries**", (route) => {
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify([]) });
+  });
+
+  await page.route("**/transactions/due-range**", (route) => {
+    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ transactions: [], total: 0 }) });
   });
 };
 
