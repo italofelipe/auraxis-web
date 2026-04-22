@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { NButton, NDatePicker, NSelect, type SelectOption } from "naive-ui";
-import { Calendar, GripVertical, List, Tag, Trash2, TrendingDown, TrendingUp } from "lucide-vue-next";
+import { Calendar, Download, GripVertical, List, Tag, Trash2, TrendingDown, TrendingUp } from "lucide-vue-next";
 
 defineProps<{
   filterType: string;
@@ -29,6 +29,7 @@ const emit = defineEmits<{
   "add-expense": [];
   "create-tag": [];
   "open-trash": [];
+  "open-export": [];
 }>();
 </script>
 
@@ -117,6 +118,16 @@ const emit = defineEmits<{
     >
       <template #icon><Trash2 :size="14" /></template>
       {{ $t('transactions.trash.link') }}
+    </NButton>
+
+    <NButton
+      size="small"
+      secondary
+      :title="$t('transactions.export.title')"
+      @click="emit('open-export')"
+    >
+      <template #icon><Download :size="14" /></template>
+      {{ $t('transactions.export.action') }}
     </NButton>
 
     <NButton size="small" @click="emit('add-income')">

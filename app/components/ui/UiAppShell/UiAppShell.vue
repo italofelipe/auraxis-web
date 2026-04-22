@@ -78,7 +78,11 @@ const currentRoute = computed(() => route.path);
         @user-settings="emit('user-settings')"
         @user-logout="emit('user-logout')"
         @menu-toggle="openDrawer"
-      />
+      >
+        <template #extras>
+          <slot name="topbar-extras" />
+        </template>
+      </UiTopbar>
 
       <main class="ui-app-shell__content">
         <slot />

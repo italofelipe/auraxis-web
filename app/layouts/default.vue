@@ -124,6 +124,9 @@ function onLogout(): void {
     :page-subtitle="pageSubtitle"
     @user-logout="onLogout"
   >
+    <template #topbar-extras>
+      <TopbarSubscriptionBadge />
+    </template>
     <slot />
     <ProfileCompletionModal
       :open="showProfileModal"

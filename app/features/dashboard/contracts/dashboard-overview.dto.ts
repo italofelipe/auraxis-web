@@ -92,3 +92,12 @@ export interface DashboardTrendsResponseDto {
   readonly months: number;
   readonly series: DashboardTrendsMonthEntryDto[];
 }
+
+export type SurvivalClassificationDto = "critical" | "low" | "ok" | "comfortable";
+
+export interface DashboardSurvivalIndexResponseDto {
+  readonly n_months: number | null;
+  readonly total_assets: number;
+  readonly avg_monthly_expense: number;
+  readonly classification: SurvivalClassificationDto | null;
+}

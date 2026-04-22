@@ -203,6 +203,12 @@ const onDeleteGoal = (id: string): void => {
         :goal="filteredGoals.find(g => g.id === planGoalId)!"
         class="goals-page__simulate-panel"
       />
+
+      <div v-if="planGoalId !== null" class="goals-page__sandbox-cta">
+        <NButton secondary @click="navigateTo(`/goals/${planGoalId}/simulate`)">
+          Abrir simulador interativo
+        </NButton>
+      </div>
     </template>
 
     <GoalForm

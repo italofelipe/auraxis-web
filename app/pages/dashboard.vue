@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import { NButton, NDatePicker, NSelect } from "naive-ui";
 import { useDashboardOverviewQuery } from "~/features/dashboard/queries/use-dashboard-overview-query";
+import { useDashboardSurvivalIndexQuery } from "~/features/dashboard/queries/use-dashboard-survival-index-query";
 import { useDashboardTrendsQuery } from "~/features/dashboard/queries/use-dashboard-trends-query";
 import {
   DASHBOARD_PERIOD_OPTIONS,
@@ -14,6 +15,7 @@ import { useWalletEntriesQuery } from "~/features/wallet/queries/use-wallet-entr
 import { useFinancialHealthScore } from "~/features/dashboard/composables/useFinancialHealthScore";
 import { formatCurrency } from "~/utils/currency";
 import DashboardTopCategoriesChart from "~/components/dashboard/DashboardTopCategoriesChart/DashboardTopCategoriesChart.vue";
+import SurvivalIndexCard from "~/components/dashboard/SurvivalIndexCard/SurvivalIndexCard.vue";
 
 const { t } = useI18n();
 
@@ -54,6 +56,8 @@ const periodOptions = computed(() =>
 );
 
 const dashboardQuery = useDashboardOverviewQuery(filters);
+const survivalIndexQuery = useDashboardSurvivalIndexQuery();
+const survivalIndex = computed(() => survivalIndexQuery.data.value ?? null);
 
 // Trends — separate query for multi-month income/expense chart
 const trendsMonths = ref<number>(6);
@@ -196,11 +200,17 @@ const emptyMessage = computed(() =>
 
         <template v-else>
           <!-- ── Health Score (PROD-01) ────────────────────────────────────── -->
-          <FinancialHealthScore
-            :result="healthScore"
-            :loading="isHealthScoreLoading"
-            class="dashboard-health-score"
-          />
+          <section class="dashboard-health-grid">
+            <FinancialHealthScore
+              :result="healthScore"
+              :loading="isHealthScoreLoading"
+              class="dashboard-health-score"
+            />
+            <SurvivalIndexCard
+              :data="survivalIndex"
+              :loading="survivalIndexQuery.isLoading.value"
+            />
+          </section>
 
           <!-- ── ECharts panels ──────────────────────────────────────────────── -->
           <section class="dashboard-charts-grid">
@@ -294,6 +304,13 @@ const emptyMessage = computed(() =>
   width: 100%;
 }
 
+.dashboard-health-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-2);
+  align-items: stretch;
+}
+
 .dashboard-page__topbar {
   display: flex;
   align-items: center;
@@ -383,7 +400,8 @@ const emptyMessage = computed(() =>
 
 @media (max-width: 1024px) {
   .dashboard-charts-grid,
-  .dashboard-main-grid {
+  .dashboard-main-grid,
+  .dashboard-health-grid {
     grid-template-columns: 1fr;
   }
 }
