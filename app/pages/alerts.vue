@@ -125,7 +125,11 @@ const onDelete = (id: string): void => {
         icon="notifications"
         :title="activeFilter === 'all' ? $t('pages.alerts.emptyAllTitle') : $t('pages.alerts.empty')"
         :description="activeFilter === 'all' ? $t('pages.alerts.emptyAllDescription') : undefined"
-      />
+      >
+        <template #illustration>
+          <IllustrationEmptyAlerts />
+        </template>
+      </UiEmptyState>
 
       <div v-else class="alerts-page__list">
         <AlertItem

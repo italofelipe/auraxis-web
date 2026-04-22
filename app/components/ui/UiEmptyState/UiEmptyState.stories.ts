@@ -3,6 +3,8 @@ import type { Component } from "vue";
 import type { UiEmptyStateProps } from "./UiEmptyState.types";
 import { Inbox } from "lucide-vue-next";
 import UiEmptyState from "./UiEmptyState.vue";
+import IllustrationEmptyTransactions from "~/components/ui/illustrations/IllustrationEmptyTransactions.vue";
+import IllustrationEmptyGoals from "~/components/ui/illustrations/IllustrationEmptyGoals.vue";
 
 const meta: Meta<typeof UiEmptyState> = {
   title: "Design System/UiEmptyState",
@@ -64,5 +66,33 @@ export const TitleOnly: Story = {
     components: { UiEmptyState },
     setup(): { args: UiEmptyStateProps } { return { args }; },
     template: "<UiEmptyState v-bind=\"args\" />",
+  }),
+};
+
+export const WithIllustration: Story = {
+  name: "With illustration (transactions)",
+  args: {
+    title: "Nenhuma transação registrada",
+    description: "Adicione receitas ou despesas para começar a acompanhar suas finanças.",
+    actionLabel: "Adicionar transação",
+  },
+  render: (args) => ({
+    components: { UiEmptyState, IllustrationEmptyTransactions },
+    setup(): { args: UiEmptyStateProps } { return { args }; },
+    template: "<UiEmptyState v-bind=\"args\"><template #illustration><IllustrationEmptyTransactions style=\"max-width:160px\" /></template></UiEmptyState>",
+  }),
+};
+
+export const WithIllustrationGoals: Story = {
+  name: "With illustration (goals)",
+  args: {
+    title: "Nenhuma meta criada",
+    description: "Defina objetivos financeiros para acompanhar seu progresso.",
+    actionLabel: "Criar meta",
+  },
+  render: (args) => ({
+    components: { UiEmptyState, IllustrationEmptyGoals },
+    setup(): { args: UiEmptyStateProps } { return { args }; },
+    template: "<UiEmptyState v-bind=\"args\"><template #illustration><IllustrationEmptyGoals style=\"max-width:160px\" /></template></UiEmptyState>",
   }),
 };

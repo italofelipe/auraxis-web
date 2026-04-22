@@ -196,7 +196,11 @@ const emptyMessage = computed(() =>
           icon="chartLine"
           :title="$t('pages.dashboard.noData')"
           :description="emptyMessage"
-        />
+        >
+          <template #illustration>
+            <IllustrationEmptyDashboard />
+          </template>
+        </UiEmptyState>
 
         <template v-else>
           <!-- ── Health Score (PROD-01) ────────────────────────────────────── -->
