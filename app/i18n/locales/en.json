@@ -1701,6 +1701,14 @@
     "view": {
       "list": "List view",
       "calendar": "Calendar view"
+    },
+    "trash": {
+      "link": "Trash",
+      "title": "Transactions trash"
+    },
+    "export": {
+      "title": "Export transactions",
+      "action": "Export"
     }
   },
   "thirteenthSalary": {

@@ -8,6 +8,7 @@ import { useTransactionActions } from "~/features/transactions/composables/useTr
 import { useTransactionRecurrence } from "~/features/transactions/composables/useTransactionRecurrence";
 import { useTransactionTable } from "~/features/transactions/composables/useTransactionTable";
 import TransactionToolbar from "~/features/transactions/components/TransactionToolbar.vue";
+import TransactionExportModal from "~/features/transactions/components/TransactionExportModal.vue";
 import { formatCurrency } from "~/utils/currency";
 
 definePageMeta({
@@ -27,6 +28,7 @@ const {
 } = useTransactionFilters();
 
 const showCreateTag = ref(false);
+const showExportModal = ref(false);
 
 // ── Query ─────────────────────────────────────────────────────────────────────
 
@@ -137,7 +139,10 @@ const {
       @add-expense="showExpense = true"
       @create-tag="showCreateTag = true"
       @open-trash="navigateTo('/transactions/trash')"
+      @open-export="showExportModal = true"
     />
+
+    <TransactionExportModal :visible="showExportModal" @update:visible="showExportModal = $event" />
 
     <!-- ── Reorder / swipe hints ───────────────────────────────────────────── -->
     <p v-if="reorderMode" class="transactions-page__reorder-hint">

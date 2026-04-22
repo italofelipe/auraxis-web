@@ -1742,6 +1742,10 @@
       "restoreConfirmNo": "Cancelar",
       "restoreSuccess": "Transação restaurada",
       "restoreError": "Não foi possível restaurar a transação"
+    },
+    "export": {
+      "title": "Exportar transações",
+      "action": "Exportar"
     }
   },
   "thirteenthSalary": {
