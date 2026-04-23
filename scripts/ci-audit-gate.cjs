@@ -15,8 +15,13 @@ const allowedIds = new Set([
   // within the current nuxt major. Tracked for resolution on nuxt upgrade.
   "GHSA-3vj8-jmxq-cgj5",
   "GHSA-22cc-p3c6-wpvm",
-  // lodash / lodash-es — affects all 4.x; 4.17.23 is the latest patch available.
-  // No 5.x release exists. Tracked for resolution when a patched version ships.
+  // lodash / lodash-es — GHSA-r5fr-rjxr-66jc (HIGH) affects all 4.x; 4.17.23
+  // is the latest patch available and there is no 5.x release yet. Allowlisted
+  // because Auraxis does not use _.template directly and naive-ui's transitive
+  // usage is not reachable by user input. Tracked via:
+  //   - Issue: italofelipe/auraxis-platform#627 (SEC-AUD-11)
+  //   - ADR:   auraxis-platform/.context/adr/lodash_es_high_strategy.md
+  //   - Cron:  auraxis-platform/.github/workflows/lodash-es-upstream-check.yml
   "GHSA-r5fr-rjxr-66jc",
 ]);
 const isBlockingSeverity = (severity) => severity === "high" || severity === "critical";
