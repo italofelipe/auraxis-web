@@ -38,7 +38,7 @@
     "@bubblesortt/nuxt-es-toolkit": "1.0.10",
     "@css-render/vue3-ssr": "^0.15.14",
     "@nuxt/a11y": "1.0.0-alpha.1",
-    "@nuxt/content": "3.11.2",
+    "@nuxt/content": "3.13.0",
     "@nuxt/hints": "1.0.3",
     "@nuxt/scripts": "0.13.4",
     "@nuxtjs/device": "4.0.0",
