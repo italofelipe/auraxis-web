@@ -38,8 +38,9 @@ describe("PRODUCTION_CSP", () => {
     expect(PRODUCTION_CSP).toContain("default-src 'self'");
   });
 
-  it("inclui connect-src com a API do Auraxis, Sentry e PostHog", () => {
+  it("inclui connect-src com a API do Auraxis, Brapi, Sentry e PostHog", () => {
     expect(PRODUCTION_CSP).toContain("https://api.auraxis.com.br");
+    expect(PRODUCTION_CSP).toContain("https://brapi.dev");
     expect(PRODUCTION_CSP).toContain("https://*.sentry.io");
     expect(PRODUCTION_CSP).toContain("https://*.posthog.com");
   });
