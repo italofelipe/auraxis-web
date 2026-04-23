@@ -106,6 +106,8 @@ jobs:
           NUXT_PUBLIC_SITE_URL: ${{ steps.paths.outputs.preview_url }}
           NUXT_PUBLIC_BUILD_ID: "pr-${{ github.event.pull_request.number }}-${{ github.sha }}"
           NUXT_PUBLIC_SENTRY_DSN: ${{ secrets.NUXT_PUBLIC_SENTRY_DSN }}
+          # Brapi public market-data API key (see deploy.yml for rationale).
+          NUXT_PUBLIC_BRAPI_API_KEY: ${{ secrets.NUXT_PUBLIC_BRAPI_API_KEY }}
         run: pnpm generate
 
       - name: Validate output

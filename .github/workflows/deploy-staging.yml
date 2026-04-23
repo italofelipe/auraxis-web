@@ -86,6 +86,8 @@ jobs:
           NUXT_PUBLIC_APP_ENV: staging
           NUXT_PUBLIC_SITE_URL: https://${{ env.STAGING_HOSTNAME }}
           NUXT_PUBLIC_BUILD_ID: "${{ github.run_id }}-${{ github.sha }}"
+          # Brapi public market-data API key (see deploy.yml for rationale).
+          NUXT_PUBLIC_BRAPI_API_KEY: ${{ secrets.NUXT_PUBLIC_BRAPI_API_KEY }}
         run: pnpm generate
 
       - name: Validate output

@@ -88,6 +88,10 @@ jobs:
           # The smoke test reads this tag to confirm CloudFront is serving
           # the current build and not a stale cached snapshot.
           NUXT_PUBLIC_BUILD_ID: "${{ github.run_id }}-${{ github.sha }}"
+          # Brapi public market-data API key (wallet quotes, FII dividends,
+          # currency conversion). Without it brapi.dev replies 401 and the
+          # wallet + tools pages log Unauthorized errors in the browser.
+          NUXT_PUBLIC_BRAPI_API_KEY: ${{ secrets.NUXT_PUBLIC_BRAPI_API_KEY }}
         run: pnpm generate
 
       - name: Validate output
