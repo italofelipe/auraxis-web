@@ -65,7 +65,11 @@ const STAGING_CSP = [
  */
 export const PRODUCTION_CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  // SEC-AUD-01 (partial) — 'unsafe-eval' removed; Vue/Vite production
+  // bundles don't require eval. 'unsafe-inline' remains temporarily
+  // because Naive UI's @css-render/vue3-ssr emits inline <style> blocks;
+  // tracked by the follow-up issue for hash-based CSP migration.
+  "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self'",

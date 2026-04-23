@@ -65,6 +65,14 @@ describe("PRODUCTION_CSP", () => {
   it("bloqueia iframes via frame-ancestors 'none'", () => {
     expect(PRODUCTION_CSP).toContain("frame-ancestors 'none'");
   });
+
+  it("NÃO permite 'unsafe-eval' em script-src (SEC-AUD-01)", () => {
+    const scriptDirective = PRODUCTION_CSP.split(";")
+      .map((directive) => directive.trim())
+      .find((directive) => directive.startsWith("script-src"));
+    expect(scriptDirective).toBeDefined();
+    expect(scriptDirective).not.toContain("'unsafe-eval'");
+  });
 });
 
 describe("buildCsp — development", () => {
