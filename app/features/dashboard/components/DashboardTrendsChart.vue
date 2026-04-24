@@ -126,7 +126,7 @@ const chartOption = computed((): EChartsOption => {
     :loading="props.loading"
     chart-height="300px"
   >
-    <template #header-actions>
+    <template #actions>
       <div class="trends-month-selector">
         <button
           v-for="opt in MONTHS_OPTIONS"

@@ -199,6 +199,47 @@
         "expenses": "Despesas",
         "balance": "Saldo",
         "emptyState": "Sem dados de transações para o período selecionado"
+      },
+      "cashflow": {
+        "title": "Fluxo de caixa diário",
+        "subtitle": "Entradas, saídas e saldo ao longo do período",
+        "income": "Receitas",
+        "expense": "Despesas",
+        "balance": "Saldo",
+        "emptyTitle": "Ainda não há movimentações neste período",
+        "emptyDescription": "Registre receitas e despesas para ver sua curva de fluxo de caixa."
+      },
+      "comparisonStrip": {
+        "title": "Comparativo com o mês anterior",
+        "subtitle": "Variação de receitas, despesas e saldo contra o mesmo intervalo no mês passado",
+        "income": "Receitas",
+        "expense": "Despesas",
+        "balance": "Saldo",
+        "noData": "—"
+      },
+      "savingsRate": {
+        "title": "Taxa de poupança",
+        "healthy": "Excelente — você está poupando mais de 20% da sua receita.",
+        "acceptable": "Está no caminho — entre 10% e 20% da receita é uma base saudável.",
+        "tight": "Apertado — sobra menos de 10% da receita este mês.",
+        "deficit": "Déficit — suas despesas superaram a receita do período.",
+        "emptyHint": "Registre receitas e despesas para calcular sua taxa de poupança."
+      },
+      "investments": {
+        "title": "Investimentos",
+        "subtitle": "Distribuição por classe + retorno agregado da carteira",
+        "totalLabel": "Patrimônio",
+        "investedLabel": "Investido",
+        "profitLabel": "Lucro / Prejuízo",
+        "emptyTitle": "Sem ativos cadastrados",
+        "emptyDescription": "Cadastre sua primeira posição em Carteira para ver a alocação.",
+        "assetTypes": {
+          "stock": "Ações",
+          "fii": "Fundos imobiliários",
+          "crypto": "Cripto",
+          "fixed_income": "Renda fixa",
+          "other": "Outros"
+        }
       }
     },
     "goals": {

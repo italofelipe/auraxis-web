@@ -10,6 +10,12 @@ import {
 } from "~/features/dashboard/model/dashboard-overview";
 import type { DashboardPeriod } from "~/features/dashboard/model/dashboard-period";
 import DashboardControlBar from "~/features/dashboard/components/DashboardControlBar.vue";
+import DashboardCashflowTimeline from "~/features/dashboard/components/DashboardCashflowTimeline.vue";
+import DashboardIncomeExpenseChart from "~/features/dashboard/components/DashboardIncomeExpenseChart.vue";
+import DashboardInvestmentsPanel from "~/features/dashboard/components/DashboardInvestmentsPanel.vue";
+import DashboardPeriodComparisonStrip from "~/features/dashboard/components/DashboardPeriodComparisonStrip.vue";
+import DashboardSavingsRateCard from "~/features/dashboard/components/DashboardSavingsRateCard.vue";
+import DashboardTrendsChart from "~/features/dashboard/components/DashboardTrendsChart.vue";
 import OnboardingSkipNudge from "~/features/onboarding/components/OnboardingSkipNudge.vue";
 import { useDueRangeQuery } from "~/features/transactions/queries/use-due-range-query";
 import { useWalletEntriesQuery } from "~/features/wallet/queries/use-wallet-entries-query";
@@ -59,6 +65,7 @@ const periodOptions = computed(() =>
 const dashboardQuery = useDashboardOverviewQuery(filters);
 const survivalIndexQuery = useDashboardSurvivalIndexQuery();
 const survivalIndex = computed(() => survivalIndexQuery.data.value ?? null);
+const walletEntriesQuery = useWalletEntriesQuery();
 
 // Trends — separate query for multi-month income/expense chart
 const trendsMonths = ref<number>(6);
@@ -68,11 +75,49 @@ const trendsSeries = computed(() => trendsQuery.data.value?.series ?? []);
 const overview = computed(() => dashboardQuery.data.value);
 const summary = computed(() => overview.value?.summary ?? null);
 const comparison = computed(() => overview.value?.comparison ?? null);
+const timeseries = computed(() => overview.value?.timeseries ?? []);
 const upcomingDues = computed(() => overview.value?.upcomingDues ?? []);
 const expensesByCategory = computed(() => overview.value?.expensesByCategory ?? []);
 const goals = computed(() => overview.value?.goals ?? []);
 const alerts = computed(() => overview.value?.alerts ?? []);
 const portfolio = computed(() => overview.value?.portfolio ?? null);
+const walletEntries = computed(() => walletEntriesQuery.data.value ?? []);
+
+/**
+ * Reverse-engineers a previous-period summary from the current summary plus the
+ * backend-provided `comparison` percentages. Used by the savings-rate card to
+ * show period-over-period delta without a second round-trip.
+ */
+const previousSummary = computed(() => {
+  const s = summary.value;
+  const c = comparison.value;
+  if (!s || !c) {return null;}
+  /**
+   * Recovers the previous-period value for a metric given the current value
+   * and the percentage change reported by the backend.
+   *
+   * @param current Current-period value.
+   * @param pct Percentage change vs previous period (null when not available).
+   * @returns Previous-period value, or null when the percentage is missing.
+   */
+  const unwind = (current: number, pct: number | null): number | null => {
+    if (pct === null) {return null;}
+    const factor = 1 + pct / 100;
+    if (factor === 0) {return null;}
+    return current / factor;
+  };
+  const prevIncome = unwind(s.income, c.incomeVsPreviousMonthPercent);
+  const prevExpense = unwind(s.expense, c.expenseVsPreviousMonthPercent);
+  const prevBalance = unwind(s.balance, c.balanceVsPreviousMonthPercent);
+  if (prevIncome === null || prevBalance === null) {return null;}
+  return {
+    income: prevIncome,
+    expense: prevExpense ?? 0,
+    balance: prevBalance,
+    netWorth: 0,
+    upcomingDueTotal: 0,
+  };
+});
 
 // Due-range panel (PROD-14) — always shows next 30 days regardless of period selector.
 const dueRangeFilters = computed(() => {
@@ -84,13 +129,12 @@ const dueRangeQuery = useDueRangeQuery(dueRangeFilters);
 const dueTransactions = computed(() => dueRangeQuery.data.value?.transactions ?? []);
 
 // Health Score (PROD-01) — wallet entries + trends + dashboard summary + goals.
-const walletEntriesQuery = useWalletEntriesQuery();
 const healthScoreInput = computed(() => ({
   summary: summary.value,
   goals: goals.value,
   trends: trendsSeries.value,
   portfolioValue: portfolio.value?.currentValue ?? null,
-  walletEntries: walletEntriesQuery.data.value ?? [],
+  walletEntries: walletEntries.value,
 }));
 const { score: healthScore } = useFinancialHealthScore(healthScoreInput);
 const isHealthScoreLoading = computed(
@@ -222,6 +266,18 @@ const emptyMessage = computed(() =>
         </UiEmptyState>
 
         <template v-else>
+          <!-- ── Period-over-period comparison ────────────────────────────── -->
+          <DashboardPeriodComparisonStrip
+            :comparison="comparison"
+            :loading="dashboardQuery.isLoading.value"
+          />
+
+          <!-- ── Cashflow timeline (line chart from daily timeseries) ─────── -->
+          <DashboardCashflowTimeline
+            :points="timeseries"
+            :loading="dashboardQuery.isLoading.value"
+          />
+
           <!-- ── Health Score (PROD-01) ────────────────────────────────────── -->
           <section class="dashboard-health-grid">
             <FinancialHealthScore
@@ -232,6 +288,19 @@ const emptyMessage = computed(() =>
             <SurvivalIndexCard
               :data="survivalIndex"
               :loading="survivalIndexQuery.isLoading.value"
+            />
+          </section>
+
+          <!-- ── Savings rate + investments allocation ─────────────────────── -->
+          <section class="dashboard-insights-grid">
+            <DashboardSavingsRateCard
+              :summary="summary"
+              :previous-summary="previousSummary"
+              :loading="dashboardQuery.isLoading.value"
+            />
+            <DashboardInvestmentsPanel
+              :entries="walletEntries"
+              :loading="walletEntriesQuery.isLoading.value"
             />
           </section>
 
@@ -383,6 +452,13 @@ const emptyMessage = computed(() =>
   gap: var(--space-2);
 }
 
+.dashboard-insights-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: var(--space-2);
+  align-items: stretch;
+}
+
 .dashboard-main-grid {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
@@ -430,6 +506,7 @@ const emptyMessage = computed(() =>
 
 @media (max-width: 1024px) {
   .dashboard-charts-grid,
+  .dashboard-insights-grid,
   .dashboard-main-grid,
   .dashboard-health-grid {
     grid-template-columns: 1fr;
