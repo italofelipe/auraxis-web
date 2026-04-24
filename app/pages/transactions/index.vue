@@ -160,7 +160,7 @@ const {
         <IllustrationEmptyTransactions />
       </template>
       <template #action>
-        <NButton type="primary" size="small" @click="showIncome = true">{{ $t('transactions.addIncome') }}</NButton>
+        <NButton type="primary" size="small" data-testid="transactions-empty-cta" @click="showIncome = true">{{ $t('transactions.empty.action') }}</NButton>
       </template>
     </UiEmptyState>
 

@@ -204,9 +204,9 @@
         "paused": "Paused"
       },
       "empty": "No goals found for the selected filter.",
-      "emptyCreate": "Create first goal",
-      "emptyAllTitle": "Start by creating your first goal",
-      "emptyAllDescription": "Financial goals help you visualize and achieve your objectives with clarity and discipline."
+      "emptyCreate": "Create your first goal in 30 seconds",
+      "emptyAllTitle": "Set your first financial goal",
+      "emptyAllDescription": "Goals give direction to your money — the first step takes less than a minute."
     },
     "budgets": {
       "meta": {
@@ -261,9 +261,9 @@
       "addAsset": "Add asset",
       "loadError": "Could not load portfolio",
       "loadErrorMessage": "Please reload the page.",
-      "emptyTitle": "No assets in portfolio",
-      "emptyBody": "Add your first investment to start tracking your net worth.",
-      "emptyAction": "Add first asset"
+      "emptyTitle": "No assets in your portfolio",
+      "emptyBody": "Investing is the natural next step once the basics are set — start with a single asset.",
+      "emptyAction": "Add your first investment"
     },
     "alerts": {
       "title": "Alerts",
@@ -1662,8 +1662,9 @@
       "expense": "Total Expenses"
     },
     "empty": {
-      "title": "No transactions found",
-      "description": "Add your first income or expense to get started."
+      "title": "No transactions yet",
+      "description": "Start with the basics — a single income or expense unlocks the entire dashboard.",
+      "action": "Log your first income or expense"
     },
     "table": {
       "status": "Status",

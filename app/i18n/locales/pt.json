@@ -216,9 +216,9 @@
         "paused": "Pausadas"
       },
       "empty": "Nenhuma meta encontrada para o filtro selecionado.",
-      "emptyCreate": "Criar primeira meta",
-      "emptyAllTitle": "Comece criando sua primeira meta",
-      "emptyAllDescription": "Metas financeiras ajudam você a visualizar e alcançar seus objetivos com clareza e disciplina."
+      "emptyCreate": "Crie sua primeira meta em 30 segundos",
+      "emptyAllTitle": "Defina seu primeiro objetivo financeiro",
+      "emptyAllDescription": "Metas dão direção à sua rotina financeira — e o primeiro passo leva menos de um minuto."
     },
     "budgets": {
       "meta": {
@@ -274,8 +274,8 @@
       "loadError": "Não foi possível carregar a carteira",
       "loadErrorMessage": "Tente recarregar a página.",
       "emptyTitle": "Nenhum ativo na carteira",
-      "emptyBody": "Adicione seu primeiro investimento para começar a acompanhar seu patrimônio.",
-      "emptyAction": "Adicionar primeiro ativo"
+      "emptyBody": "Investir é o próximo passo depois de organizar o básico — começa com um único ativo.",
+      "emptyAction": "Adicione seu primeiro investimento"
     },
     "alerts": {
       "title": "Alertas",
@@ -1698,8 +1698,9 @@
       "expense": "Total Despesas"
     },
     "empty": {
-      "title": "Nenhuma transação encontrada",
-      "description": "Adicione sua primeira receita ou despesa para começar."
+      "title": "Nenhuma transação registrada",
+      "description": "Comece pelo básico: uma receita ou uma despesa já destrava todo o dashboard.",
+      "action": "Registre sua primeira receita ou despesa"
     },
     "table": {
       "status": "Status",
