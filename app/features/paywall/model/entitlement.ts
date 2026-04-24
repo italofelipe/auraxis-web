@@ -6,10 +6,12 @@
  * - advanced_simulations: requires premium subscription
  * - export_pdf: requires premium subscription
  * - shared_entries: requires premium subscription
+ * - focus_mode: requires premium subscription
  */
 export type FeatureKey =
   | "basic_simulations"
   | "advanced_simulations"
   | "export_pdf"
   | "shared_entries"
-  | "wallet_read";
+  | "wallet_read"
+  | "focus_mode";
