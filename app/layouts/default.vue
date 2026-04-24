@@ -11,14 +11,19 @@ import {
   User,
   ArrowLeftRight,
   PiggyBank,
+  Focus as FocusIcon,
 } from "lucide-vue-next";
 // UiAppShell and ProfileCompletionModal are auto-imported from app/components/.
+// Feature-owned components in app/features/*/components/ are NOT auto-imported
+// (flat-registry convention from #343) — must be imported explicitly.
 import type { AppShellNavItem, AppShellUser } from "~/components/ui/UiAppShell/UiAppShell.types";
 import { useUserProfileQuery } from "~/features/profile/composables/use-user-profile-query";
 import { useUserStore } from "~/stores/user";
 import { useLogout } from "~/composables/useLogout";
 import { isFeatureEnabled } from "~/shared/feature-flags";
 import { useOnboarding } from "~/features/onboarding/composables/useOnboarding";
+import OnboardingWizard from "~/features/onboarding/components/OnboardingWizard.vue";
+import OnboardingTriggerButton from "~/features/onboarding/components/OnboardingTriggerButton.vue";
 
 const { t } = useI18n();
 const route = useRoute();
@@ -42,6 +47,7 @@ interface NavItemDefinition extends AppShellNavItem {
 
 const ALL_NAV_ITEMS = computed<NavItemDefinition[]>(() => [
   { key: "dashboard", label: t("nav.dashboard"), to: "/dashboard", icon: LayoutDashboard },
+  { key: "focus", label: t("nav.focus"), to: "/focus", icon: FocusIcon, flagKey: "web.pages.focus" },
   { key: "transactions", label: t("nav.transactions"), to: "/transactions", icon: ArrowLeftRight },
   { key: "portfolio", label: t("nav.portfolio"), to: "/portfolio", icon: Briefcase, flagKey: "web.pages.portfolio" },
   { key: "goals", label: t("nav.goals"), to: "/goals", icon: Target, flagKey: "web.pages.goals" },

@@ -1,6 +1,6 @@
 import { type UseMutationReturnType, useMutation, useQueryClient } from "@tanstack/vue-query";
 import { useUserProfileApi, type UserProfileApi } from "~/features/profile/services/user-profile-api";
-import type { UpdateUserProfileRequest, UserProfileDto } from "~/features/profile/contracts/user-profile.dto";
+import type { PartialUpdateUserProfileRequest, UserProfileDto } from "~/features/profile/contracts/user-profile.dto";
 import { useUserStore } from "~/stores/user";
 import { USER_PROFILE_QUERY_KEY } from "./use-user-profile-query";
 
@@ -13,13 +13,13 @@ import { USER_PROFILE_QUERY_KEY } from "./use-user-profile-query";
  */
 export const useUpdateProfileMutation = (
   providedApi?: UserProfileApi,
-): UseMutationReturnType<UserProfileDto, Error, UpdateUserProfileRequest, unknown> => {
+): UseMutationReturnType<UserProfileDto, Error, PartialUpdateUserProfileRequest, unknown> => {
   const api = providedApi ?? useUserProfileApi();
   const userStore = useUserStore();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: UpdateUserProfileRequest): Promise<UserProfileDto> =>
+    mutationFn: (payload: PartialUpdateUserProfileRequest): Promise<UserProfileDto> =>
       api.updateProfile(payload),
     onSuccess: (updatedProfile: UserProfileDto): void => {
       userStore.setProfile(updatedProfile);

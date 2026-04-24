@@ -65,3 +65,9 @@ export interface UpdateUserProfileRequest {
   monthly_investment?: string;
   investment_goal_date?: string;
 }
+
+// Backend schema (app/schemas/user_schemas.py::UserProfileSchema) accepts every
+// field as optional — PUT behaves as a PATCH. Callers that only have a subset
+// of the profile (e.g., the 3-step onboarding wizard) use this partial alias
+// to stay type-safe without having to fake unknown fields.
+export type PartialUpdateUserProfileRequest = Partial<UpdateUserProfileRequest>;

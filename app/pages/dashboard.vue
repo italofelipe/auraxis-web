@@ -10,6 +10,7 @@ import {
 } from "~/features/dashboard/model/dashboard-overview";
 import type { DashboardPeriod } from "~/features/dashboard/model/dashboard-period";
 import DashboardControlBar from "~/features/dashboard/components/DashboardControlBar.vue";
+import OnboardingSkipNudge from "~/features/onboarding/components/OnboardingSkipNudge.vue";
 import { useDueRangeQuery } from "~/features/transactions/queries/use-due-range-query";
 import { useWalletEntriesQuery } from "~/features/wallet/queries/use-wallet-entries-query";
 import { useFinancialHealthScore } from "~/features/dashboard/composables/useFinancialHealthScore";
@@ -125,6 +126,8 @@ const emptyMessage = computed(() =>
 
 <template>
   <div class="dashboard-page">
+
+    <OnboardingSkipNudge />
 
     <!-- ── Global Control Bar (DS Wave-2 #728) ──────────────────────────── -->
     <div class="dashboard-page__topbar">

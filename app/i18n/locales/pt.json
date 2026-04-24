@@ -67,7 +67,8 @@
     "tools": "Ferramentas",
     "subscription": "Assinatura",
     "personalData": "Dados Pessoais",
-    "transactions": "Transações"
+    "transactions": "Transações",
+    "focus": "Foco"
   },
   "user": {
     "fallbackName": "Usuário",
@@ -3280,56 +3281,60 @@
     }
   },
   "onboarding": {
-    "ariaLabel": "Tour guiado do Auraxis",
-    "closeAriaLabel": "Fechar tour",
-    "triggerAriaLabel": "Abrir tour guiado do Auraxis",
-    "triggerTitle": "Ver tour guiado",
+    "ariaLabel": "Onboarding guiado do Auraxis",
+    "closeAriaLabel": "Fechar onboarding",
+    "triggerAriaLabel": "Abrir onboarding guiado do Auraxis",
+    "triggerTitle": "Refazer onboarding",
     "back": "Voltar",
-    "skip": "Pular tour",
+    "skip": "Pular por enquanto",
     "step1": {
-      "title": "Bem-vindo ao Auraxis",
-      "description": "Este tour rápido mostra os três pilares do app em menos de 1 minuto. Você pode reabrir a qualquer momento pelo botão de ajuda.",
-      "pillarTransactionsTitle": "Transações",
-      "pillarTransactionsBody": "Registre receitas e despesas para enxergar seu fluxo de caixa.",
-      "pillarGoalsTitle": "Metas e orçamentos",
-      "pillarGoalsBody": "Planeje o futuro com metas e controle o mês com orçamentos.",
-      "pillarToolsTitle": "Ferramentas",
-      "pillarToolsBody": "Calculadoras especializadas para decisões rápidas de carreira, imposto e investimento.",
-      "cta": "Começar"
+      "title": "Vamos começar pelos dados básicos",
+      "titleWithName": "Bem-vindo, {name}",
+      "description": "Em menos de 1 minuto configuramos seu contexto para o Auraxis entregar dashboards e metas mais precisos.",
+      "monthlyIncomeLabel": "Renda mensal líquida (R$)",
+      "monthlyIncomePlaceholder": "Ex.: 7500,00",
+      "investorProfileLabel": "Seu perfil como investidor",
+      "profileConservador": "Conservador — prioridade em segurança",
+      "profileExplorador": "Explorador — aceito risco moderado",
+      "profileEntusiasta": "Entusiasta — tolero alta volatilidade",
+      "cta": "Salvar e continuar",
+      "ctaLoading": "Salvando…",
+      "errorGeneric": "Não conseguimos salvar agora. Tente novamente em instantes."
     },
     "step2": {
-      "title": "Transações: o coração do Auraxis",
-      "description": "É daqui que saem os dados para dashboards, metas e orçamentos. Quanto mais fiel o lançamento, melhor a análise.",
-      "point1Title": "Registrar",
-      "point1Body": "Use o botão Nova transação em Transações. Classifique como receita ou despesa e escolha uma categoria.",
-      "point2Title": "Duplicar e repetir",
-      "point2Body": "Despesas recorrentes? Duplique uma transação existente em 2 cliques em vez de digitar tudo de novo.",
-      "point3Title": "Marcar como pago",
-      "point3Body": "Lançamentos futuros podem ser agendados. Marque como pago quando efetivar para manter o saldo correto.",
-      "cta": "Próximo"
+      "title": "Registre sua primeira transação",
+      "description": "Transações alimentam dashboards, metas e orçamentos. Comece com um lançamento recente — você pode editar depois.",
+      "typeLabel": "Tipo da transação",
+      "typeIncome": "Receita",
+      "typeExpense": "Despesa",
+      "titleLabel": "Descrição",
+      "titlePlaceholder": "Ex.: Salário, Aluguel, Mercado",
+      "amountLabel": "Valor (R$)",
+      "amountPlaceholder": "Ex.: 1500,00",
+      "dueDateLabel": "Data",
+      "cta": "Criar transação e continuar",
+      "ctaLoading": "Criando…",
+      "errorGeneric": "Não conseguimos registrar a transação agora. Tente novamente."
     },
     "step3": {
-      "title": "Metas vs. Orçamentos",
-      "description": "Dois conceitos parecidos que cumprem papéis diferentes. Vale entender a distinção antes de usar.",
-      "example": "Exemplo:",
-      "goalTitle": "Meta",
-      "goalDefinition": "Um objetivo financeiro de médio ou longo prazo, com valor e data-alvo.",
-      "goalExample": "Juntar R$ 30.000 para entrada de imóvel até dez/2027.",
-      "budgetTitle": "Orçamento",
-      "budgetDefinition": "Um teto de gastos recorrente por categoria em cada mês.",
-      "budgetExample": "Gastar no máximo R$ 800 em Alimentação por mês.",
-      "tip": "Dica: use metas para o que você quer alcançar e orçamentos para o que você quer controlar todo mês.",
-      "cta": "Próximo"
+      "title": "Defina sua primeira meta",
+      "description": "Metas destravam projeções, alertas e o índice de sobrevivência financeira. Comece com algo simples — dá para ajustar depois.",
+      "nameLabel": "Nome da meta",
+      "namePlaceholder": "Ex.: Reserva de emergência",
+      "targetAmountLabel": "Valor alvo (R$)",
+      "targetAmountPlaceholder": "Ex.: 10000,00",
+      "targetDateLabel": "Quando você quer atingir",
+      "cta": "Criar meta e concluir",
+      "ctaLoading": "Criando…",
+      "errorGeneric": "Não conseguimos salvar sua meta agora. Tente novamente."
     },
-    "step4": {
-      "title": "Ferramentas e Carteira",
-      "description": "Dois recursos complementares que vivem fora do fluxo de transações.",
-      "toolsTitle": "Ferramentas",
-      "toolsBody": "Mais de 20 calculadoras prontas (salário CLT, férias, 13º, imposto de renda, conversor de moedas) acessíveis em qualquer hora pelo menu Ferramentas.",
-      "portfolioTitle": "Carteira",
-      "portfolioBody": "Acompanhe seus investimentos e patrimônio total em um só lugar, com variação mês a mês.",
-      "tip": "Pode voltar a este tour pelo botão de ajuda no canto da tela.",
-      "cta": "Concluir"
+    "nudge": {
+      "ariaLabel": "Retomar onboarding",
+      "title": "Você parou no meio do onboarding",
+      "description": "Configure seus dados básicos, transação e meta para destravar o dashboard completo.",
+      "resume": "Retomar de onde parei",
+      "restart": "Começar do zero",
+      "dismissAriaLabel": "Dispensar aviso"
     }
   },
   "toolsSidebar": {
@@ -3642,6 +3647,56 @@
     },
     "disclaimer": {
       "note": "Simulação baseada em rentabilidade composta constante. Resultados reais podem variar."
+    }
+  },
+  "focus": {
+    "page": {
+      "title": "Foco",
+      "subtitle": "Um número. Aquele que importa agora.",
+      "change": "Trocar métrica",
+      "footerHint": "Escolha uma métrica para focar. A sua seleção fica salva neste navegador."
+    },
+    "display": {
+      "loading": "Calculando…",
+      "suffix": {
+        "days": "dias"
+      }
+    },
+    "selector": {
+      "title": "Escolha sua métrica-foco",
+      "description": "Apenas uma por vez. O resto do app continua ali para quando você precisar."
+    },
+    "paywall": {
+      "title": "Foco é uma feature Premium",
+      "description": "Tire todo o ruído do dashboard e deixe na tela só o número que move seu mês.",
+      "cta": "Ver planos"
+    },
+    "metrics": {
+      "daysUntilPrimaryGoal": {
+        "label": "Dias até a meta principal",
+        "caption": "Contagem até o prazo da sua meta ativa mais próxima.",
+        "unavailable": "Defina uma meta com data-alvo para acompanhar a contagem."
+      },
+      "monthlyBurnRate": {
+        "label": "Gasto do mês",
+        "caption": "Total de despesas no período atual.",
+        "unavailable": "Ainda não há despesas registradas neste período."
+      },
+      "freeBalanceAfterFixed": {
+        "label": "Saldo livre após fixos",
+        "caption": "Saldo atual menos o que ainda vence neste mês.",
+        "unavailable": "Registre receitas e despesas para ver seu saldo livre."
+      },
+      "primaryGoalProgress": {
+        "label": "Progresso da meta principal",
+        "caption": "Percentual da meta ativa mais próxima.",
+        "unavailable": "Crie uma meta para acompanhar o progresso."
+      },
+      "savingsVsPreviousMonth": {
+        "label": "Economia vs mês anterior",
+        "caption": "Variação do seu saldo em relação ao mês passado.",
+        "unavailable": "Ainda não há histórico suficiente para comparar meses."
+      }
     }
   }
 }

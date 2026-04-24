@@ -2,14 +2,14 @@ import type { AxiosInstance } from "axios";
 import { useHttp } from "~/composables/useHttp";
 import type {
   GetUserMeResponse,
-  UpdateUserProfileRequest,
+  PartialUpdateUserProfileRequest,
   UpdateUserProfileResponse,
   UserProfileDto,
 } from "../contracts/user-profile.dto";
 
 export interface UserProfileApi {
   getProfile(): Promise<UserProfileDto>;
-  updateProfile(payload: UpdateUserProfileRequest): Promise<UserProfileDto>;
+  updateProfile(payload: PartialUpdateUserProfileRequest): Promise<UserProfileDto>;
 }
 
 /**
@@ -24,7 +24,7 @@ export const createUserProfileApi = (http: AxiosInstance): UserProfileApi => ({
     return response.data.data.user;
   },
 
-  async updateProfile(payload: UpdateUserProfileRequest): Promise<UserProfileDto> {
+  async updateProfile(payload: PartialUpdateUserProfileRequest): Promise<UserProfileDto> {
     const response = await http.put<UpdateUserProfileResponse>("/user/profile", payload);
     return response.data.data.user;
   },

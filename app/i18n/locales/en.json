@@ -67,7 +67,8 @@
     "tools": "Tools",
     "subscription": "Subscription",
     "personalData": "Personal Data",
-    "transactions": "Transactions"
+    "transactions": "Transactions",
+    "focus": "Focus"
   },
   "user": {
     "fallbackName": "User",
@@ -3220,31 +3221,60 @@
     }
   },
   "onboarding": {
-    "ariaLabel": "Initial setup wizard",
-    "closeAriaLabel": "Close onboarding wizard",
+    "ariaLabel": "Auraxis guided onboarding",
+    "closeAriaLabel": "Close onboarding",
+    "triggerAriaLabel": "Reopen guided onboarding",
+    "triggerTitle": "Reopen onboarding",
     "back": "Back",
-    "skip": "Skip setup",
+    "skip": "Skip for now",
     "step1": {
-      "title": "Welcome to Auraxis!",
-      "description": "Before you start, let's set up your financial profile. This helps us personalize your experience.",
-      "benefit1": "Personalized analytics for your profile",
-      "benefit2": "Realistic goal recommendations",
-      "benefit3": "Reports tailored to your financial moment",
-      "cta": "Let's go"
+      "title": "Let's start with the basics",
+      "titleWithName": "Welcome, {name}",
+      "description": "In under a minute we'll configure your context so Auraxis can deliver sharper dashboards and goals.",
+      "monthlyIncomeLabel": "Monthly net income (BRL)",
+      "monthlyIncomePlaceholder": "e.g. 7500.00",
+      "investorProfileLabel": "Investor profile",
+      "profileConservador": "Conservative — safety first",
+      "profileExplorador": "Explorer — moderate risk",
+      "profileEntusiasta": "Enthusiast — high volatility tolerance",
+      "cta": "Save and continue",
+      "ctaLoading": "Saving…",
+      "errorGeneric": "We couldn't save right now. Try again in a moment."
     },
     "step2": {
       "title": "Record your first transaction",
-      "description": "Add income or an expense to start tracking your cash flow.",
-      "skipStep": "Skip this step"
+      "description": "Transactions drive dashboards, goals and budgets. Start with a recent entry — you can always edit it later.",
+      "typeLabel": "Transaction type",
+      "typeIncome": "Income",
+      "typeExpense": "Expense",
+      "titleLabel": "Description",
+      "titlePlaceholder": "e.g. Salary, Rent, Groceries",
+      "amountLabel": "Amount (BRL)",
+      "amountPlaceholder": "e.g. 1500.00",
+      "dueDateLabel": "Date",
+      "cta": "Create transaction and continue",
+      "ctaLoading": "Creating…",
+      "errorGeneric": "We couldn't record the transaction right now. Try again."
     },
     "step3": {
       "title": "Set your first goal",
-      "description": "Financial goals help you stay focused and visualize your progress over time.",
-      "benefit1": "Track progress month by month",
-      "benefit2": "Simulate different contribution scenarios",
-      "benefit3": "Get alerts when you're close to achieving it",
-      "ctaPrimary": "Create my first goal",
-      "ctaSecondary": "Do this later"
+      "description": "Goals unlock projections, alerts and the financial survival index. Start simple — you can fine-tune later.",
+      "nameLabel": "Goal name",
+      "namePlaceholder": "e.g. Emergency fund",
+      "targetAmountLabel": "Target amount (BRL)",
+      "targetAmountPlaceholder": "e.g. 10000.00",
+      "targetDateLabel": "When do you want to reach it",
+      "cta": "Create goal and finish",
+      "ctaLoading": "Creating…",
+      "errorGeneric": "We couldn't save your goal right now. Try again."
+    },
+    "nudge": {
+      "ariaLabel": "Resume onboarding",
+      "title": "You paused mid-onboarding",
+      "description": "Finish your basics, first transaction and first goal to unlock the full dashboard.",
+      "resume": "Resume where I left off",
+      "restart": "Start over",
+      "dismissAriaLabel": "Dismiss notice"
     }
   },
   "toolsSidebar": {
@@ -3557,6 +3587,56 @@
     },
     "disclaimer": {
       "note": "Based on constant compound return. Actual results may vary."
+    }
+  },
+  "focus": {
+    "page": {
+      "title": "Focus",
+      "subtitle": "One number. The one that matters right now.",
+      "change": "Change metric",
+      "footerHint": "Pick one metric to focus on. Your choice is saved in this browser."
+    },
+    "display": {
+      "loading": "Calculating…",
+      "suffix": {
+        "days": "days"
+      }
+    },
+    "selector": {
+      "title": "Pick your focus metric",
+      "description": "Just one at a time. The rest of the app stays put for when you need it."
+    },
+    "paywall": {
+      "title": "Focus is a Premium feature",
+      "description": "Strip away the dashboard noise and leave only the number that moves your month.",
+      "cta": "See plans"
+    },
+    "metrics": {
+      "daysUntilPrimaryGoal": {
+        "label": "Days until primary goal",
+        "caption": "Countdown to the target date of your nearest active goal.",
+        "unavailable": "Set a goal with a target date to see the countdown."
+      },
+      "monthlyBurnRate": {
+        "label": "Monthly burn rate",
+        "caption": "Total expenses in the current period.",
+        "unavailable": "No expenses recorded for this period yet."
+      },
+      "freeBalanceAfterFixed": {
+        "label": "Free balance after fixed",
+        "caption": "Current balance minus what's still due this month.",
+        "unavailable": "Log income and expenses to see your free balance."
+      },
+      "primaryGoalProgress": {
+        "label": "Primary goal progress",
+        "caption": "Percentage of your nearest active goal.",
+        "unavailable": "Create a goal to track its progress."
+      },
+      "savingsVsPreviousMonth": {
+        "label": "Savings vs previous month",
+        "caption": "Balance change compared to last month.",
+        "unavailable": "Not enough history yet to compare months."
+      }
     }
   }
 }
