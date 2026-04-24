@@ -126,6 +126,8 @@ const emptyMessage = computed(() =>
 <template>
   <div class="dashboard-page">
 
+    <OnboardingSkipNudge />
+
     <!-- ── Global Control Bar (DS Wave-2 #728) ──────────────────────────── -->
     <div class="dashboard-page__topbar">
       <DashboardControlBar

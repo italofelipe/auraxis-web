@@ -1,44 +1,102 @@
 <script setup lang="ts">
-import { ArrowLeftRight, Target, Wrench } from "lucide-vue-next";
+import { computed, ref } from "vue";
+import { UserRound } from "lucide-vue-next";
+import { useOnboarding, type OnboardingStep1Data } from "../composables/useOnboarding";
+import { useUpdateProfileMutation } from "~/features/profile/composables/use-update-profile-mutation";
+import { useUserStore } from "~/stores/user";
 
-defineEmits<{ (e: "next"): void }>();
+const emit = defineEmits<{ (e: "next"): void }>();
 
 const { t } = useI18n();
+const { getStepData, setStepData } = useOnboarding();
+const userStore = useUserStore();
+const mutation = useUpdateProfileMutation();
+
+const persisted = getStepData("step1");
+const monthlyIncome = ref<string>(persisted?.monthlyIncome ?? "");
+const investorProfile = ref<OnboardingStep1Data["investorProfile"]>(
+  persisted?.investorProfile ?? "conservador",
+);
+const submitError = ref<string>("");
+
+const displayName = computed((): string => userStore.profile?.name?.split(" ")[0] ?? "");
+const canSubmit = computed((): boolean => {
+  const income = Number(monthlyIncome.value.replace(",", "."));
+  return Number.isFinite(income) && income > 0 && !mutation.isPending.value;
+});
+
+/**
+ * Persists the collected basics to the user profile and advances the wizard.
+ * The backend accepts partial PUTs (see app/schemas/user_schemas.py), so we
+ * only send the fields the onboarding captured.
+ */
+async function onSubmit(): Promise<void> {
+  if (!canSubmit.value) { return; }
+  submitError.value = "";
+  const incomeStr = monthlyIncome.value.replace(",", ".");
+  const payload: OnboardingStep1Data = {
+    monthlyIncome: incomeStr,
+    investorProfile: investorProfile.value,
+  };
+  setStepData("step1", payload);
+
+  try {
+    await mutation.mutateAsync({
+      monthly_income: incomeStr,
+      investor_profile: investorProfile.value,
+    });
+    emit("next");
+  } catch (err) {
+    submitError.value = err instanceof Error ? err.message : t("onboarding.step1.errorGeneric");
+  }
+}
 </script>
 
 <template>
-  <div class="onboarding-step">
-    <h2 class="onboarding-step__title">{{ t("onboarding.step1.title") }}</h2>
+  <form class="onboarding-step" data-testid="onboarding-step1-form" @submit.prevent="onSubmit">
+    <div class="onboarding-step__icon-wrap" aria-hidden="true">
+      <UserRound :size="36" />
+    </div>
+    <h2 class="onboarding-step__title">
+      {{ displayName ? t("onboarding.step1.titleWithName", { name: displayName }) : t("onboarding.step1.title") }}
+    </h2>
     <p class="onboarding-step__description">{{ t("onboarding.step1.description") }}</p>
 
-    <ul class="onboarding-step__pillars" aria-label="Pilares do Auraxis">
-      <li class="onboarding-step__pillar">
-        <span class="onboarding-step__pillar-icon" aria-hidden="true"><ArrowLeftRight :size="22" /></span>
-        <div>
-          <strong>{{ t("onboarding.step1.pillarTransactionsTitle") }}</strong>
-          <p>{{ t("onboarding.step1.pillarTransactionsBody") }}</p>
-        </div>
-      </li>
-      <li class="onboarding-step__pillar">
-        <span class="onboarding-step__pillar-icon" aria-hidden="true"><Target :size="22" /></span>
-        <div>
-          <strong>{{ t("onboarding.step1.pillarGoalsTitle") }}</strong>
-          <p>{{ t("onboarding.step1.pillarGoalsBody") }}</p>
-        </div>
-      </li>
-      <li class="onboarding-step__pillar">
-        <span class="onboarding-step__pillar-icon" aria-hidden="true"><Wrench :size="22" /></span>
-        <div>
-          <strong>{{ t("onboarding.step1.pillarToolsTitle") }}</strong>
-          <p>{{ t("onboarding.step1.pillarToolsBody") }}</p>
-        </div>
-      </li>
-    </ul>
+    <label class="onboarding-step__field">
+      <span>{{ t("onboarding.step1.monthlyIncomeLabel") }}</span>
+      <input
+        v-model="monthlyIncome"
+        type="text"
+        inputmode="decimal"
+        autocomplete="off"
+        required
+        :placeholder="t('onboarding.step1.monthlyIncomePlaceholder')"
+        data-testid="onboarding-step1-income"
+      >
+    </label>
 
-    <button type="button" class="onboarding-step__cta" data-testid="step1-next" @click="$emit('next')">
-      {{ t("onboarding.step1.cta") }}
+    <label class="onboarding-step__field">
+      <span>{{ t("onboarding.step1.investorProfileLabel") }}</span>
+      <select v-model="investorProfile" data-testid="onboarding-step1-profile">
+        <option value="conservador">{{ t("onboarding.step1.profileConservador") }}</option>
+        <option value="explorador">{{ t("onboarding.step1.profileExplorador") }}</option>
+        <option value="entusiasta">{{ t("onboarding.step1.profileEntusiasta") }}</option>
+      </select>
+    </label>
+
+    <p v-if="submitError" class="onboarding-step__error" role="alert" data-testid="onboarding-step1-error">
+      {{ submitError }}
+    </p>
+
+    <button
+      type="submit"
+      class="onboarding-step__cta"
+      :disabled="!canSubmit"
+      data-testid="step1-next"
+    >
+      {{ mutation.isPending.value ? t("onboarding.step1.ctaLoading") : t("onboarding.step1.cta") }}
     </button>
-  </div>
+  </form>
 </template>
 
 <style scoped>
@@ -49,6 +107,17 @@ const { t } = useI18n();
   text-align: left;
   padding: var(--space-2) 0;
   width: 100%;
+}
+.onboarding-step__icon-wrap {
+  align-self: center;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-brand-glow-xs);
+  border-radius: var(--radius-full);
+  color: var(--color-brand-600);
 }
 .onboarding-step__title {
   font-family: var(--font-heading);
@@ -64,41 +133,30 @@ const { t } = useI18n();
   margin: 0;
   text-align: center;
 }
-.onboarding-step__pillars {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: var(--space-2);
+.onboarding-step__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
 }
-.onboarding-step__pillar {
-  display: grid;
-  grid-template-columns: 40px 1fr;
-  gap: var(--space-2);
-  align-items: start;
-  padding: var(--space-2);
+.onboarding-step__field input,
+.onboarding-step__field select {
+  padding: 10px var(--space-3);
   border: 1px solid var(--color-outline-soft);
   border-radius: var(--radius-md);
-  background: var(--color-bg-elevated);
-}
-.onboarding-step__pillar-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-full);
-  background: var(--color-brand-glow-xs);
-  color: var(--color-brand-600);
-}
-.onboarding-step__pillar strong {
-  display: block;
+  background: var(--color-bg-base);
   color: var(--color-text-primary);
   font-size: var(--font-size-sm);
 }
-.onboarding-step__pillar p {
-  margin: 2px 0 0;
-  color: var(--color-text-muted);
+.onboarding-step__field input:focus,
+.onboarding-step__field select:focus {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 1px;
+}
+.onboarding-step__error {
+  margin: 0;
+  color: var(--color-negative, #c0392b);
   font-size: var(--font-size-xs);
 }
 .onboarding-step__cta {
@@ -114,5 +172,6 @@ const { t } = useI18n();
   cursor: pointer;
   transition: background 0.15s ease;
 }
-.onboarding-step__cta:hover { background: var(--color-brand-500); }
+.onboarding-step__cta:hover:enabled { background: var(--color-brand-500); }
+.onboarding-step__cta:disabled { opacity: 0.55; cursor: not-allowed; }
 </style>
