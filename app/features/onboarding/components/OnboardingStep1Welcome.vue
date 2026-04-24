@@ -33,16 +33,16 @@ const canSubmit = computed((): boolean => {
 async function onSubmit(): Promise<void> {
   if (!canSubmit.value) { return; }
   submitError.value = "";
-  const incomeStr = monthlyIncome.value.replace(",", ".");
+  const incomeApi = monthlyIncome.value.replace(",", ".");
   const payload: OnboardingStep1Data = {
-    monthlyIncome: incomeStr,
+    monthlyIncome: monthlyIncome.value,
     investorProfile: investorProfile.value,
   };
   setStepData("step1", payload);
 
   try {
     await mutation.mutateAsync({
-      monthly_income: incomeStr,
+      monthly_income: incomeApi,
       investor_profile: investorProfile.value,
     });
     emit("next");
