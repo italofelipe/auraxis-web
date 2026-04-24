@@ -72,7 +72,7 @@ async function mockAuthAndOnboardingApis(page: Page): Promise<void> {
     route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify(MOCK_USER_ME),
+      body: JSON.stringify({ success: true, data: { user: MOCK_USER_ME } }),
     });
   });
 
