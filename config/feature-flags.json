@@ -421,6 +421,16 @@
       "repositories": ["auraxis-web"]
     },
     {
+      "key": "web.pages.focus",
+      "owner": "growth",
+      "createdAt": "2026-04-24",
+      "removeBy": "2027-12-31",
+      "type": "release",
+      "status": "enabled-prod",
+      "description": "Página Focus Mode: número único da jornada financeira do usuário. Gated por entitlement focus_mode.",
+      "repositories": ["auraxis-web"]
+    },
+    {
       "key": "web.dashboard.new-layout",
       "owner": "growth",
       "createdAt": "2026-04-21",

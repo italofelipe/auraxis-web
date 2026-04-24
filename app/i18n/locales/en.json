@@ -67,7 +67,8 @@
     "tools": "Tools",
     "subscription": "Subscription",
     "personalData": "Personal Data",
-    "transactions": "Transactions"
+    "transactions": "Transactions",
+    "focus": "Focus"
   },
   "user": {
     "fallbackName": "User",
@@ -3586,6 +3587,56 @@
     },
     "disclaimer": {
       "note": "Based on constant compound return. Actual results may vary."
+    }
+  },
+  "focus": {
+    "page": {
+      "title": "Focus",
+      "subtitle": "One number. The one that matters right now.",
+      "change": "Change metric",
+      "footerHint": "Pick one metric to focus on. Your choice is saved in this browser."
+    },
+    "display": {
+      "loading": "Calculating…",
+      "suffix": {
+        "days": "days"
+      }
+    },
+    "selector": {
+      "title": "Pick your focus metric",
+      "description": "Just one at a time. The rest of the app stays put for when you need it."
+    },
+    "paywall": {
+      "title": "Focus is a Premium feature",
+      "description": "Strip away the dashboard noise and leave only the number that moves your month.",
+      "cta": "See plans"
+    },
+    "metrics": {
+      "daysUntilPrimaryGoal": {
+        "label": "Days until primary goal",
+        "caption": "Countdown to the target date of your nearest active goal.",
+        "unavailable": "Set a goal with a target date to see the countdown."
+      },
+      "monthlyBurnRate": {
+        "label": "Monthly burn rate",
+        "caption": "Total expenses in the current period.",
+        "unavailable": "No expenses recorded for this period yet."
+      },
+      "freeBalanceAfterFixed": {
+        "label": "Free balance after fixed",
+        "caption": "Current balance minus what's still due this month.",
+        "unavailable": "Log income and expenses to see your free balance."
+      },
+      "primaryGoalProgress": {
+        "label": "Primary goal progress",
+        "caption": "Percentage of your nearest active goal.",
+        "unavailable": "Create a goal to track its progress."
+      },
+      "savingsVsPreviousMonth": {
+        "label": "Savings vs previous month",
+        "caption": "Balance change compared to last month.",
+        "unavailable": "Not enough history yet to compare months."
+      }
     }
   }
 }

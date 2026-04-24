@@ -67,7 +67,8 @@
     "tools": "Ferramentas",
     "subscription": "Assinatura",
     "personalData": "Dados Pessoais",
-    "transactions": "Transações"
+    "transactions": "Transações",
+    "focus": "Foco"
   },
   "user": {
     "fallbackName": "Usuário",
@@ -3646,6 +3647,56 @@
     },
     "disclaimer": {
       "note": "Simulação baseada em rentabilidade composta constante. Resultados reais podem variar."
+    }
+  },
+  "focus": {
+    "page": {
+      "title": "Foco",
+      "subtitle": "Um número. Aquele que importa agora.",
+      "change": "Trocar métrica",
+      "footerHint": "Escolha uma métrica para focar. A sua seleção fica salva neste navegador."
+    },
+    "display": {
+      "loading": "Calculando…",
+      "suffix": {
+        "days": "dias"
+      }
+    },
+    "selector": {
+      "title": "Escolha sua métrica-foco",
+      "description": "Apenas uma por vez. O resto do app continua ali para quando você precisar."
+    },
+    "paywall": {
+      "title": "Foco é uma feature Premium",
+      "description": "Tire todo o ruído do dashboard e deixe na tela só o número que move seu mês.",
+      "cta": "Ver planos"
+    },
+    "metrics": {
+      "daysUntilPrimaryGoal": {
+        "label": "Dias até a meta principal",
+        "caption": "Contagem até o prazo da sua meta ativa mais próxima.",
+        "unavailable": "Defina uma meta com data-alvo para acompanhar a contagem."
+      },
+      "monthlyBurnRate": {
+        "label": "Gasto do mês",
+        "caption": "Total de despesas no período atual.",
+        "unavailable": "Ainda não há despesas registradas neste período."
+      },
+      "freeBalanceAfterFixed": {
+        "label": "Saldo livre após fixos",
+        "caption": "Saldo atual menos o que ainda vence neste mês.",
+        "unavailable": "Registre receitas e despesas para ver seu saldo livre."
+      },
+      "primaryGoalProgress": {
+        "label": "Progresso da meta principal",
+        "caption": "Percentual da meta ativa mais próxima.",
+        "unavailable": "Crie uma meta para acompanhar o progresso."
+      },
+      "savingsVsPreviousMonth": {
+        "label": "Economia vs mês anterior",
+        "caption": "Variação do seu saldo em relação ao mês passado.",
+        "unavailable": "Ainda não há histórico suficiente para comparar meses."
+      }
     }
   }
 }
