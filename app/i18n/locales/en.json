@@ -187,6 +187,47 @@
         "expenses": "Expenses",
         "balance": "Balance",
         "emptyState": "No transaction data for the selected period"
+      },
+      "cashflow": {
+        "title": "Daily cashflow",
+        "subtitle": "Inflows, outflows and balance across the period",
+        "income": "Income",
+        "expense": "Expenses",
+        "balance": "Balance",
+        "emptyTitle": "No activity in this period yet",
+        "emptyDescription": "Record income and expenses to see your cashflow curve."
+      },
+      "comparisonStrip": {
+        "title": "Compared to last month",
+        "subtitle": "Delta of income, expenses and balance vs. the same window last month",
+        "income": "Income",
+        "expense": "Expenses",
+        "balance": "Balance",
+        "noData": "—"
+      },
+      "savingsRate": {
+        "title": "Savings rate",
+        "healthy": "Excellent — you're saving more than 20% of your income.",
+        "acceptable": "On track — between 10% and 20% of income is a healthy baseline.",
+        "tight": "Tight — less than 10% of income is left this month.",
+        "deficit": "Deficit — expenses exceeded income in this period.",
+        "emptyHint": "Register income and expenses to compute your savings rate."
+      },
+      "investments": {
+        "title": "Investments",
+        "subtitle": "Allocation by asset class + aggregate portfolio return",
+        "totalLabel": "Portfolio",
+        "investedLabel": "Invested",
+        "profitLabel": "Profit / Loss",
+        "emptyTitle": "No assets registered",
+        "emptyDescription": "Add your first position under Wallet to see the allocation.",
+        "assetTypes": {
+          "stock": "Stocks",
+          "fii": "Real estate funds",
+          "crypto": "Crypto",
+          "fixed_income": "Fixed income",
+          "other": "Other"
+        }
       }
     },
     "goals": {
