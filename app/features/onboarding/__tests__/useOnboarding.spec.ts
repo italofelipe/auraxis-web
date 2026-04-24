@@ -130,7 +130,7 @@ describe("useOnboarding", () => {
     const key = lastCall[0] as string;
     const value = JSON.parse(lastCall[1] as string) as { done: boolean; skipped: boolean };
     expect(key).toContain("auraxis:onboarding:");
-    expect(value).toEqual({ done: false, skipped: true });
+    expect(value).toMatchObject({ done: false, skipped: true });
   });
 
   it("persists complete to localStorage", () => {
@@ -144,7 +144,63 @@ describe("useOnboarding", () => {
 
     const lastCall = localStorageMock.setItem.mock.calls[localStorageMock.setItem.mock.calls.length - 1]!;
     const value = JSON.parse(lastCall[1] as string) as { done: boolean; skipped: boolean };
-    expect(value).toEqual({ done: true, skipped: false });
+    expect(value).toMatchObject({ done: true, skipped: false });
+  });
+
+  it("persists currentStep across setCurrentStep calls", () => {
+    const userStore = useUserStore();
+    const sessionStore = useSessionStore();
+    sessionStore.$patch({ emailConfirmed: true, userEmail: "user@test.com" });
+    userStore.$patch({ isLoaded: true, profile: { id: "u1", name: "Test", email: "user@test.com" } as unknown as UserProfileDto });
+
+    const { setCurrentStep, currentStep } = useOnboarding();
+    setCurrentStep(3);
+    expect(currentStep.value).toBe(3);
+
+    const lastCall = localStorageMock.setItem.mock.calls[localStorageMock.setItem.mock.calls.length - 1]!;
+    const value = JSON.parse(lastCall[1] as string) as { currentStep: number };
+    expect(value.currentStep).toBe(3);
+  });
+
+  it("persists setStepData and roundtrips via getStepData", () => {
+    const userStore = useUserStore();
+    const sessionStore = useSessionStore();
+    sessionStore.$patch({ emailConfirmed: true, userEmail: "user@test.com" });
+    userStore.$patch({ isLoaded: true, profile: { id: "u1", name: "Test", email: "user@test.com" } as unknown as UserProfileDto });
+
+    const { setStepData, getStepData } = useOnboarding();
+    setStepData("step2", { title: "Salário", amount: "5000", type: "income", dueDate: "2026-05-05" });
+
+    expect(getStepData("step2")).toEqual({
+      title: "Salário",
+      amount: "5000",
+      type: "income",
+      dueDate: "2026-05-05",
+    });
+    const lastCall = localStorageMock.setItem.mock.calls[localStorageMock.setItem.mock.calls.length - 1]!;
+    const value = JSON.parse(lastCall[1] as string) as { formData: { step2: { title: string } } };
+    expect(value.formData.step2.title).toBe("Salário");
+  });
+
+  // reason: these are composable API calls (skip/complete), not vitest test skips.
+  it("isSkipped reflects skip() and isDone reflects complete()", () => {
+    const userStore = useUserStore();
+    const sessionStore = useSessionStore();
+    sessionStore.$patch({ emailConfirmed: true, userEmail: "user@test.com" });
+    userStore.$patch({ isLoaded: true, profile: { id: "u1", name: "Test", email: "user@test.com" } as unknown as UserProfileDto });
+
+    const onboarding = useOnboarding();
+    expect(onboarding.isSkipped.value).toBe(false);
+    expect(onboarding.isDone.value).toBe(false);
+
+    onboarding.skip();
+    expect(onboarding.isSkipped.value).toBe(true);
+    expect(onboarding.isDone.value).toBe(false);
+
+    onboarding.reset();
+    onboarding.complete();
+    expect(onboarding.isDone.value).toBe(true);
+    expect(onboarding.isSkipped.value).toBe(false);
   });
 
   it("reset() restores shouldShow", () => {

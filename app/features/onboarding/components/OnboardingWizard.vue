@@ -1,28 +1,27 @@
 <script setup lang="ts">
 import { X } from "lucide-vue-next";
-import { useOnboarding } from "../composables/useOnboarding";
+import { useOnboarding, type OnboardingStepNumber } from "../composables/useOnboarding";
+import OnboardingStep1Welcome from "./OnboardingStep1Welcome.vue";
+import OnboardingStep2Transactions from "./OnboardingStep2Transactions.vue";
+import OnboardingStep3GoalsVsBudgets from "./OnboardingStep3GoalsVsBudgets.vue";
 
 const { t } = useI18n();
-const { shouldShow, complete, skip } = useOnboarding();
+const onboarding = useOnboarding();
+const { shouldShow, complete, skip, currentStep, setCurrentStep } = onboarding;
 
-const TOTAL_STEPS = 4;
-const currentStep = ref(1);
-
-watch(shouldShow, (open) => {
-  if (open) { currentStep.value = 1; }
-});
+const TOTAL_STEPS = 3;
 
 /** Advances the wizard to the next step when not on the last step. */
 function onNext(): void {
   if (currentStep.value < TOTAL_STEPS) {
-    currentStep.value++;
+    setCurrentStep((currentStep.value + 1) as OnboardingStepNumber);
   }
 }
 
 /** Returns the wizard to the previous step when not on the first step. */
 function onBack(): void {
   if (currentStep.value > 1) {
-    currentStep.value--;
+    setCurrentStep((currentStep.value - 1) as OnboardingStepNumber);
   }
 }
 
@@ -66,8 +65,7 @@ function onComplete(): void {
             <Transition name="onboarding-step" mode="out-in">
               <OnboardingStep1Welcome v-if="currentStep === 1" key="step1" @next="onNext" />
               <OnboardingStep2Transactions v-else-if="currentStep === 2" key="step2" @next="onNext" />
-              <OnboardingStep3GoalsVsBudgets v-else-if="currentStep === 3" key="step3" @next="onNext" />
-              <OnboardingStep4ToolsPortfolio v-else-if="currentStep === 4" key="step4" @complete="onComplete" />
+              <OnboardingStep3GoalsVsBudgets v-else-if="currentStep === 3" key="step3" @complete="onComplete" />
             </Transition>
           </div>
 

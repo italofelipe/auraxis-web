@@ -13,12 +13,16 @@ import {
   PiggyBank,
 } from "lucide-vue-next";
 // UiAppShell and ProfileCompletionModal are auto-imported from app/components/.
+// Feature-owned components in app/features/*/components/ are NOT auto-imported
+// (flat-registry convention from #343) — must be imported explicitly.
 import type { AppShellNavItem, AppShellUser } from "~/components/ui/UiAppShell/UiAppShell.types";
 import { useUserProfileQuery } from "~/features/profile/composables/use-user-profile-query";
 import { useUserStore } from "~/stores/user";
 import { useLogout } from "~/composables/useLogout";
 import { isFeatureEnabled } from "~/shared/feature-flags";
 import { useOnboarding } from "~/features/onboarding/composables/useOnboarding";
+import OnboardingWizard from "~/features/onboarding/components/OnboardingWizard.vue";
+import OnboardingTriggerButton from "~/features/onboarding/components/OnboardingTriggerButton.vue";
 
 const { t } = useI18n();
 const route = useRoute();
