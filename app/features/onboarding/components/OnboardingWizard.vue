@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { X } from "lucide-vue-next";
 import { useOnboarding, type OnboardingStepNumber } from "../composables/useOnboarding";
+import OnboardingStep1Welcome from "./OnboardingStep1Welcome.vue";
+import OnboardingStep2Transactions from "./OnboardingStep2Transactions.vue";
+import OnboardingStep3GoalsVsBudgets from "./OnboardingStep3GoalsVsBudgets.vue";
 
 const { t } = useI18n();
 const onboarding = useOnboarding();
