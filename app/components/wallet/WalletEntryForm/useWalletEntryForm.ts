@@ -239,19 +239,18 @@ export function useWalletEntryForm(opts: UseWalletEntryFormOptions) {
    * @returns CreateWalletEntryPayload for submission.
    */
   function buildPayload(): CreateWalletEntryPayload {
-    const computedValue =
-      showQuantity.value && form.quantity !== null && form.unit_price !== null
-        ? form.quantity * form.unit_price
-        : null;
-    return {
+    const base: CreateWalletEntryPayload = {
       name: form.name,
       asset_class: (form.asset_class as CreateWalletEntryPayload["asset_class"]) ?? undefined,
       ticker: hasTicker.value ? form.ticker || null : null,
       quantity: showQuantity.value ? form.quantity : null,
-      value: showValue.value ? form.value : computedValue,
       register_date: form.register_date ? tsToDateString(form.register_date) : "",
       should_be_on_wallet: form.should_be_on_wallet,
     };
+    // Backend rejects `value` when `ticker` is present — it recomputes the
+    // monetary value from quantity × historical price for the register_date.
+    if (hasTicker.value) { return base; }
+    return { ...base, value: form.value };
   }
 
   /** Restores every field and BRAPI-derived value to its default. */
