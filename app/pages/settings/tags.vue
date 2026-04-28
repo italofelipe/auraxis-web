@@ -19,6 +19,7 @@ import { useTagsQuery } from "~/features/tags/queries/use-tags-query";
 import { useCreateTagMutation } from "~/features/tags/queries/use-create-tag-mutation";
 import { useUpdateTagMutation } from "~/features/tags/queries/use-update-tag-mutation";
 import { useDeleteTagMutation } from "~/features/tags/queries/use-delete-tag-mutation";
+import { stripHexAlpha } from "~/features/tags/utils/normalize-color";
 
 const { t } = useI18n();
 
@@ -82,7 +83,7 @@ async function submitForm(): Promise<void> {
   const name = formName.value.trim();
   if (!name) {return;}
 
-  const color = formColor.value.trim() || null;
+  const color = stripHexAlpha(formColor.value.trim() || null);
   const icon = formIcon.value.trim() || null;
 
   if (editingTag.value) {
@@ -215,6 +216,7 @@ const columns = computed((): DataTableColumns<TagDto> => [
             v-model:value="formColor"
             :swatches="['#FF6B6B','#E67E22','#F1C40F','#2ECC71','#4ECDC4','#3498DB','#9B59B6','#DDA0DD','#96CEB4','#D3D3D3']"
             :modes="['hex']"
+            :show-alpha="false"
             size="small"
           />
         </NFormItem>
