@@ -9,6 +9,7 @@ import {
   NSpace,
 } from "naive-ui";
 import { useCreateTagMutation } from "~/features/tags/queries/use-create-tag-mutation";
+import { stripHexAlpha } from "~/features/tags/utils/normalize-color";
 
 const { t } = useI18n();
 
@@ -59,7 +60,7 @@ async function onSubmit(): Promise<void> {
 
   await createMutation.mutateAsync({
     name,
-    color: formColor.value || null,
+    color: stripHexAlpha(formColor.value),
     icon: formIcon.value.trim() || null,
   });
 
@@ -92,6 +93,7 @@ async function onSubmit(): Promise<void> {
             v-model:value="formColor"
             :swatches="TAG_COLOR_SWATCHES"
             :modes="['hex']"
+            :show-alpha="false"
             size="small"
           />
           <div v-if="formColor" class="create-tag-modal__preview">

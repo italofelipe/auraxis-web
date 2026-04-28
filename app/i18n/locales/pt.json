@@ -509,9 +509,9 @@
         "remove": "Remover",
         "placeholder": "Nome da tag",
         "fields": {
-          "color": "Cor",
+          "color": "Cor (opcional)",
           "colorPlaceholder": "#FF5733",
-          "icon": "Ícone",
+          "icon": "Ícone (opcional)",
           "iconPlaceholder": "🏷️"
         }
       },
@@ -1707,8 +1707,8 @@
       "title": "Nova Tag",
       "name": "Nome da tag",
       "namePlaceholder": "Ex: Urgência, Investimento...",
-      "color": "Cor",
-      "icon": "Ícone (emoji)",
+      "color": "Cor (opcional)",
+      "icon": "Ícone (opcional)",
       "iconPlaceholder": "🏷️",
       "previewLabel": "Exemplo",
       "create": "Criar tag"
