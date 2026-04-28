@@ -484,9 +484,9 @@
         "remove": "Remove",
         "placeholder": "Tag name",
         "fields": {
-          "color": "Color (optional)",
+          "color": "Color",
           "colorPlaceholder": "#FF5733",
-          "icon": "Icon (optional)",
+          "icon": "Icon",
           "iconPlaceholder": "🏷️"
         }
       },
