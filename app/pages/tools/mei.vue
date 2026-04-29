@@ -42,8 +42,9 @@ const {
 } = useToolPage<MeiFormState, MeiResult>({
   createDefaultState: createDefaultMeiFormState,
   buildSimulationPayload: ({ form, result, t }) => ({
-    name: t("mei.simulation.defaultName", { year: new Date().getFullYear() }),
-    toolSlug: "mei",
+    toolId: "mei-monthly",
+    ruleVersion: "2026.04",
+    metadata: { label: t("mei.simulation.defaultName", { year: new Date().getFullYear() }) },
     inputs: { ...form },
     result: { ...result },
   }),

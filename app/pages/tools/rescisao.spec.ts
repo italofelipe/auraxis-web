@@ -454,7 +454,7 @@ describe("RescisaoPage", () => {
 
       expect(mockSaveMutateAsync).toHaveBeenCalledOnce();
       expect(mockSaveMutateAsync).toHaveBeenCalledWith(
-        expect.objectContaining({ toolSlug: "rescisao_clt" }),
+        expect.objectContaining({ toolId: "termination" }),
       );
     });
 

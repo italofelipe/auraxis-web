@@ -8,17 +8,19 @@ import { useSaveSimulationMutation } from "~/features/simulations/queries/use-sa
 
 const props = withDefaults(
   defineProps<{
-    /** The tool identifier that produced this result. */
-    toolSlug: string;
-    /** The inputs passed to the tool. */
-    inputs: unknown;
-    /** The result produced by the tool. */
-    result: unknown;
-    /** Optional display name for the simulation. Defaults to the tool slug. */
-    name?: string;
+    /** Canonical kebab-case tool id from the registry (e.g. "compound-interest"). */
+    toolId: string;
+    /** Formula version declared by the client (e.g. "2026.04"). */
+    ruleVersion: string;
+    /** The inputs passed to the tool — must be a JSON object. */
+    inputs: Record<string, unknown>;
+    /** The result produced by the tool — must be a JSON object. */
+    result: Record<string, unknown>;
+    /** Optional human-friendly label persisted under metadata.label. */
+    label?: string;
   }>(),
   {
-    name: undefined,
+    label: undefined,
   },
 );
 
@@ -40,30 +42,24 @@ const isAuthenticated = computed<boolean>(() => {
   return sessionStore.isAuthenticated;
 });
 
-/**
- * The display name used for the simulation.
- * Falls back to the tool slug if no explicit name prop is provided.
- *
- * @returns The simulation name string.
- */
-const simulationName = computed<string>(() => props.name ?? props.toolSlug);
+const simulationLabel = computed<string | undefined>(() => props.label);
 
 /**
- * Handles the save action.
- *
- * When authenticated, calls the save mutation directly and shows a success
- * notification on completion. When not authenticated, saves the current tool
- * context to sessionStorage and redirects to the login page with a restore
- * redirect so the flow can resume after authentication.
+ * Saves the current simulation when authenticated; otherwise stores the
+ * tool context in sessionStorage and redirects to login so the flow can
+ * resume after authentication.
  */
 const handleSave = (): void => {
   if (isAuthenticated.value) {
     saveSimulationMutation.mutate(
       {
-        name: simulationName.value,
-        toolSlug: props.toolSlug,
+        toolId: props.toolId,
+        ruleVersion: props.ruleVersion,
         inputs: props.inputs,
         result: props.result,
+        ...(simulationLabel.value !== undefined && {
+          metadata: { label: simulationLabel.value },
+        }),
       },
       {
         onSuccess: (): void => {
@@ -77,9 +73,9 @@ const handleSave = (): void => {
     return;
   }
 
-  toolContextStore.save(props.toolSlug, props.result);
+  toolContextStore.save(props.toolId, props.result);
   const encodedResult = encodeURIComponent(JSON.stringify(props.result));
-  const redirectUrl = `/login?redirect=/tools&tool=${props.toolSlug}&result=${encodedResult}`;
+  const redirectUrl = `/login?redirect=/tools&tool=${props.toolId}&result=${encodedResult}`;
   void router.push(redirectUrl);
 };
 </script>

@@ -149,6 +149,6 @@ describe("QuitacaoDividasPage — save simulation", () => {
     const w = mountPage(); await w.find("form").trigger("submit"); await flushPromises();
     const btn = w.findAll(".n-button").find((b) => b.text().includes("quitacaoDividas.actions.save"));
     await btn!.trigger("click"); await flushPromises();
-    expect(mockSaveMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ toolSlug: "quitacao_dividas" }));
+    expect(mockSaveMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ toolId: "debt-payoff" }));
   });
 });

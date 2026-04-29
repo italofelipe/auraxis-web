@@ -376,7 +376,7 @@ describe("DividirContaPage — save simulation", () => {
 
     expect(mockSaveMutateAsync).toHaveBeenCalledOnce();
     expect(mockSaveMutateAsync).toHaveBeenCalledWith(
-      expect.objectContaining({ toolSlug: "dividir_conta" }),
+      expect.objectContaining({ toolId: "split-bill" }),
     );
   });
 

@@ -45,11 +45,14 @@ const {
 } = useToolPage<FireFormState, FireResult>({
   createDefaultState: createDefaultFireFormState,
   buildSimulationPayload: ({ form, result, t }) => ({
-    name: t("fire.simulation.defaultName", {
-      variant: t(`fire.variants.${form.variant}`),
-      retirementAge: form.retirementAge,
-    }),
-    toolSlug: "fire",
+    toolId: "fire",
+    ruleVersion: "2026.04",
+    metadata: {
+      label: t("fire.simulation.defaultName", {
+        variant: t(`fire.variants.${form.variant}`),
+        retirementAge: form.retirementAge,
+      }),
+    },
     inputs: { ...form },
     result: {
       requiredPatrimony: result.selectedVariant.requiredPatrimony,

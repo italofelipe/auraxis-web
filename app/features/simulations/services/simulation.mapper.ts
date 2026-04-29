@@ -2,19 +2,18 @@ import type { SimulationDto } from "~/features/simulations/contracts/simulation.
 import type { Simulation } from "~/features/simulations/model/simulation";
 
 /**
- * Maps a raw SimulationDto from the API into the domain Simulation model.
- *
- * @param dto Raw DTO from the API response.
- * @returns Typed domain model with camelCase fields.
- */
-export const mapSimulationDto = (dto: SimulationDto): Simulation => {
-  return {
-    id: dto.id,
-    name: dto.name,
-    toolSlug: dto.tool_slug,
-    inputs: dto.inputs,
-    result: dto.result,
-    goalId: dto.goal_id ?? null,
-    createdAt: dto.created_at,
-  };
-};
+ * Maps the canonical SimulationDto to the camelCase domain model used in UI.
+ * @param dto
+ * @returns The computed value.
+   */
+export const mapSimulationDto = (dto: SimulationDto): Simulation => ({
+  id: dto.id,
+  userId: dto.user_id,
+  toolId: dto.tool_id,
+  ruleVersion: dto.rule_version,
+  inputs: dto.inputs,
+  result: dto.result,
+  metadata: dto.metadata ?? null,
+  saved: dto.saved,
+  createdAt: dto.created_at,
+});

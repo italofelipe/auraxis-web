@@ -404,7 +404,7 @@ describe("MeiPage", () => {
       await flushPromises();
 
       expect(mockSaveMutateAsync).toHaveBeenCalledWith(
-        expect.objectContaining({ toolSlug: "mei" }),
+        expect.objectContaining({ toolId: "mei-monthly" }),
       );
     });
 

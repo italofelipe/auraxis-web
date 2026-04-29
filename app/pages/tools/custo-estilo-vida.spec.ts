@@ -149,7 +149,7 @@ describe("CustoEstiloVidaPage — save simulation", () => {
     const w = mountPage(); await w.find("form").trigger("submit"); await flushPromises();
     const btn = w.findAll(".n-button").find((b) => b.text().includes("custoEstiloVida.actions.save"));
     await btn!.trigger("click"); await flushPromises();
-    expect(mockSaveMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ toolSlug: "custo_estilo_vida" }));
+    expect(mockSaveMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ toolId: "cost-of-lifestyle" }));
   });
 });
 

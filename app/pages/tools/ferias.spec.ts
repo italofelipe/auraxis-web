@@ -446,7 +446,7 @@ describe("FeriasPage", () => {
 
       expect(mockSaveMutateAsync).toHaveBeenCalledOnce();
       expect(mockSaveMutateAsync).toHaveBeenCalledWith(
-        expect.objectContaining({ toolSlug: "ferias_clt" }),
+        expect.objectContaining({ toolId: "vacation" }),
       );
     });
 

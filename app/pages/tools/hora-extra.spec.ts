@@ -421,7 +421,7 @@ describe("HoraExtraPage", () => {
 
       expect(mockSaveMutateAsync).toHaveBeenCalledOnce();
       expect(mockSaveMutateAsync).toHaveBeenCalledWith(
-        expect.objectContaining({ toolSlug: "hora_extra" }),
+        expect.objectContaining({ toolId: "overtime" }),
       );
     });
 

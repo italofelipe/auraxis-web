@@ -100,8 +100,9 @@ async function handleSaveSimulation(): Promise<void> {
   if (savedSimulationId.value || !result.value) { return; }
   try {
     const sim = await saveSimulationMutation.mutateAsync({
-      name: t("salarioLiquido.simulation.defaultName"),
-      toolSlug: "salario_liquido",
+      toolId: "salary-net-clt",
+      ruleVersion: "2026.04",
+      metadata: { label: t("salarioLiquido.simulation.defaultName") },
       inputs: { ...form.value },
       result: {
         netSalary: result.value.netSalary,

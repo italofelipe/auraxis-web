@@ -404,7 +404,7 @@ describe("CltVsPjPage", () => {
       await flushPromises();
 
       expect(mockSaveMutateAsync).toHaveBeenCalledWith(
-        expect.objectContaining({ toolSlug: "clt_vs_pj" }),
+        expect.objectContaining({ toolId: "clt-vs-pj" }),
       );
     });
 

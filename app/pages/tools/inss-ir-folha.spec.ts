@@ -441,7 +441,7 @@ describe("InssIrFolhaPage", () => {
       expect(mockSaveMutateAsync).toHaveBeenCalledOnce();
       expect(mockSaveMutateAsync).toHaveBeenCalledWith(
         expect.objectContaining({
-          toolSlug: "inss_ir_folha",
+          toolId: "inss-ir-payroll",
         }),
       );
     });

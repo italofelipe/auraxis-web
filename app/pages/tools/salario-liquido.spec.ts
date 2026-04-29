@@ -239,7 +239,7 @@ describe("SalarioLiquidoPage — save simulation", () => {
     const btn = w.findAll(".n-button").find((b) => b.text().includes("salarioLiquido.actions.save"));
     expect(btn).toBeDefined();
     await btn!.trigger("click"); await flushPromises();
-    expect(mockSaveMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ toolSlug: "salario_liquido" }));
+    expect(mockSaveMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ toolId: "salary-net-clt" }));
   });
 
   it("captures exception on save failure", async () => {

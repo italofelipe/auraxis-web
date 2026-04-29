@@ -225,11 +225,14 @@ async function ensureSimulationSaved(): Promise<string | null> {
 
   try {
     const simulation = await saveSimulationMutation.mutateAsync({
-      name: t("jurosCompostos.simulation.defaultName", {
-        period: form.value.period,
-        unit: form.value.periodUnit,
-      }),
-      toolSlug: "juros_compostos",
+      toolId: "compound-interest",
+      ruleVersion: "2026.04",
+      metadata: {
+        label: t("jurosCompostos.simulation.defaultName", {
+          period: form.value.period,
+          unit: form.value.periodUnit,
+        }),
+      },
       inputs: { ...form.value },
       result: {
         finalAmountNominal: result.value.finalAmountNominal,

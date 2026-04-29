@@ -31,7 +31,7 @@ const SIMULATION_TYPE_ROUTES: Record<SimulationType, string> = {
   investment_return: "/tools/juros-compostos",
 };
 
-const { data: simulations, isLoading, isError } = useSimulationsQuery();
+const { data, isLoading, isError } = useSimulationsQuery();
 const deleteMutation = useDeleteSimulationMutation();
 
 const activeFilter = ref<FilterValue>("all");
@@ -50,7 +50,7 @@ const NEW_SIMULATION_OPTIONS = computed((): DropdownOption[] => [
   { key: "investment_return", label: t("pages.simulations.typeSelect.investmentReturn") },
 ]);
 
-const allSimulations = computed(() => simulations.value ?? []);
+const allSimulations = computed(() => data.value?.cards ?? []);
 
 const filteredSimulations = computed(() => {
   if (activeFilter.value === "all") {return allSimulations.value;}

@@ -70,10 +70,11 @@ function makeOptions(withGoal = false): UseToolPageOptions<TestForm, TestResult>
   return {
     createDefaultState,
     buildSimulationPayload: vi.fn(({ form, result, t }) => ({
-      name: t("test.simulation.name"),
-      toolSlug: "test_tool",
+      toolId: "compound-interest",
+      ruleVersion: "2026.04",
       inputs: { ...form },
       result: { netAmount: result.netAmount },
+      metadata: { label: t("test.simulation.name") },
     })),
     ...(withGoal
       ? {

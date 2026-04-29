@@ -416,7 +416,7 @@ describe("ConversorMoedaPage — save simulation", () => {
 
     expect(mockSaveMutateAsync).toHaveBeenCalledOnce();
     expect(mockSaveMutateAsync).toHaveBeenCalledWith(
-      expect.objectContaining({ toolSlug: "conversor_moeda" }),
+      expect.objectContaining({ toolId: "currency-converter" }),
     );
   });
 

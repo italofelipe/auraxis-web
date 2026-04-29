@@ -441,7 +441,7 @@ describe("AluguelVsCompraPage — save simulation", () => {
     await flushPromises();
     expect(mockSaveMutateAsync).toHaveBeenCalledOnce();
     expect(mockSaveMutateAsync).toHaveBeenCalledWith(
-      expect.objectContaining({ toolSlug: "aluguel_vs_compra" }),
+      expect.objectContaining({ toolId: "rent-vs-buy" }),
     );
   });
 

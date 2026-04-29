@@ -127,8 +127,9 @@ async function ensureSimulationSaved(): Promise<string | null> {
   if (!result.value) { return null; }
   try {
     const sim = await saveSimulationMutation.mutateAsync({
-      name: t("reservaEmergencia.simulation.defaultName"),
-      toolSlug: "reserva_emergencia",
+      toolId: "emergency-fund",
+      ruleVersion: "2026.04",
+      metadata: { label: t("reservaEmergencia.simulation.defaultName") },
       inputs: { ...form.value },
       result: { targetAmount: result.value.targetAmount, monthsToTarget: result.value.monthsToTarget, gap: result.value.gap },
     });

@@ -55,8 +55,9 @@ const {
 } = useToolPage<CdbLciLcaFormState, CdbLciLcaResult>({
   createDefaultState: createDefaultCdbLciLcaFormState,
   buildSimulationPayload: ({ form, result, t }) => ({
-    name: t("cdbLciLca.simulation.defaultName", { year: new Date().getFullYear() }),
-    toolSlug: "cdb_lci_lca",
+    toolId: "cdb-lci-lca",
+    ruleVersion: "2026.04",
+    metadata: { label: t("cdbLciLca.simulation.defaultName", { year: new Date().getFullYear() }) },
     inputs: { ...form },
     result: {
       bestOption: result.bestOption,

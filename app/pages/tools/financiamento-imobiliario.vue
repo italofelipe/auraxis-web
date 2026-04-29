@@ -41,8 +41,9 @@ const {
 } = useToolPage<FinanciamentoFormState, FinanciamentoResult>({
   createDefaultState: createDefaultFinanciamentoFormState,
   buildSimulationPayload: ({ form, result, t }) => ({
-    name: t("financiamentoImobiliario.simulation.defaultName", { year: new Date().getFullYear() }),
-    toolSlug: "financiamento_imobiliario",
+    toolId: "mortgage",
+    ruleVersion: "2026.04",
+    metadata: { label: t("financiamentoImobiliario.simulation.defaultName", { year: new Date().getFullYear() }) },
     inputs: { ...form },
     result: {
       loanAmount: result.loanAmount,

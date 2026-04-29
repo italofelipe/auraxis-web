@@ -31,7 +31,7 @@ export interface UseToolPageOptions<
   createDefaultState: () => TForm;
   buildSimulationPayload: (
     ctx: SimulationPayloadContext<TForm, TResult>,
-  ) => Omit<SaveSimulationPayload, "goalId">;
+  ) => SaveSimulationPayload;
   getGoalPayload?: (ctx: GoalPayloadContext<TResult>) => CreateGoalPayload;
 }
 

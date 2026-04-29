@@ -118,8 +118,9 @@ async function ensureSimulationSaved(): Promise<string | null> {
   if (!result.value) { return null; }
   try {
     const sim = await saveSimulationMutation.mutateAsync({
-      name: t("orcamento5030.simulation.defaultName"),
-      toolSlug: "orcamento_50_30_20",
+      toolId: "fifty-thirty-twenty",
+      ruleVersion: "2026.04",
+      metadata: { label: t("orcamento5030.simulation.defaultName") },
       inputs: { ...form.value },
       result: { netIncome: result.value.netIncome, slices: result.value.slices },
     });

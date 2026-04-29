@@ -43,11 +43,16 @@ const {
 } = useToolPage<AposentadoriaFormState, AposentadoriaResult>({
   createDefaultState: createDefaultAposentadoriaFormState,
   buildSimulationPayload: ({ form, result, t }) => ({
-    name: t("aposentadoria.simulation.defaultName", {
-      retirementAge: form.retirementAge,
-      year: new Date().getFullYear(),
-    }),
-    toolSlug: "aposentadoria",
+    // TODO(simulations-canonical): 'aposentadoria' is not in the registry yet (DEC-196).
+    // Save will return 422 until the id is added to TOOLS_REGISTRY.
+    toolId: "aposentadoria",
+    ruleVersion: "2026.04",
+    metadata: {
+      label: t("aposentadoria.simulation.defaultName", {
+        retirementAge: form.retirementAge,
+        year: new Date().getFullYear(),
+      }),
+    },
     inputs: { ...form },
     result: {
       requiredPatrimony: result.requiredPatrimony,
