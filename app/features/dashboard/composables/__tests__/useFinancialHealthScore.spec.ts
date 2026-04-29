@@ -84,7 +84,12 @@ function makeEntry(
  * @returns YYYY-MM-DD string.
  */
 function monthsAgo(n: number): string {
+  // Anchor to day 15 so subtracting months never overflows into a sibling
+  // month (e.g. 31-Mar - 1 month = 28-Feb but JS yields 03-Mar). That
+  // overflow caused two adjacent months to collide in the Set used by
+  // scoreInvestmentRegularity, dropping 6 unique months down to 5.
   const d = new Date();
+  d.setDate(15);
   d.setMonth(d.getMonth() - n);
   return d.toISOString().slice(0, 10);
 }
