@@ -74,8 +74,9 @@ const {
 } = useToolPage<CltVsPjFormState, CltVsPjResult>({
   createDefaultState: createDefaultCltVsPjFormState,
   buildSimulationPayload: ({ form, result, t }) => ({
-    name: t("cltVsPj.simulation.defaultName", { year: new Date().getFullYear() }),
-    toolSlug: "clt_vs_pj",
+    toolId: "clt-vs-pj",
+    ruleVersion: "2026.04",
+    metadata: { label: t("cltVsPj.simulation.defaultName", { year: new Date().getFullYear() }) },
     inputs: { ...form },
     result: { ...result },
   }),

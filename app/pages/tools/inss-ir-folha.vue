@@ -65,8 +65,9 @@ const {
 } = useToolPage<InssIrFormState, InssIrResult>({
   createDefaultState: createDefaultInssIrFormState,
   buildSimulationPayload: ({ form, result, t }) => ({
-    name: t("inssIrFolha.simulation.defaultName", { year: new Date().getFullYear() }),
-    toolSlug: "inss_ir_folha",
+    toolId: "inss-ir-payroll",
+    ruleVersion: "2026.04",
+    metadata: { label: t("inssIrFolha.simulation.defaultName", { year: new Date().getFullYear() }) },
     inputs: { ...form },
     result: { ...result },
   }),

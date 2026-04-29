@@ -62,8 +62,9 @@ const {
 } = useToolPage<FiiFormState, FiiResult>({
   createDefaultState: createDefaultFiiFormState,
   buildSimulationPayload: ({ form, result, t }) => ({
-    name: t("fii.simulation.defaultName", { ticker: form.ticker, year: new Date().getFullYear() }),
-    toolSlug: "fii_calculator",
+    toolId: "fii",
+    ruleVersion: "2026.04",
+    metadata: { label: t("fii.simulation.defaultName", { ticker: form.ticker, year: new Date().getFullYear() }) },
     inputs: { ...form },
     result: { ...result },
   }),

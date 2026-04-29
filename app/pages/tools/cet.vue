@@ -101,8 +101,9 @@ async function handleSaveSimulation(): Promise<void> {
   if (savedSimulationId.value || !result.value) { return; }
   try {
     const sim = await saveSimulationMutation.mutateAsync({
-      name: t("cet.simulation.defaultName"),
-      toolSlug: "cet",
+      toolId: "cet-calculator",
+      ruleVersion: "2026.04",
+      metadata: { label: t("cet.simulation.defaultName") },
       inputs: { ...form.value },
       result: {
         cetMonthlyPct: result.value.cetMonthlyPct,

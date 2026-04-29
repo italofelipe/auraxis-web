@@ -1,6 +1,7 @@
 import { computed, reactive, ref, type ComputedRef } from "vue";
 
 import { captureException } from "~/core/observability";
+import { useLeaveWithoutSavePrompt } from "~/composables/useLeaveWithoutSavePrompt";
 import { useCalculatorFormState } from "~/features/tools/composables/use-calculator-form-state";
 import { useToolPageContext } from "~/features/tools/composables/use-tool-page-context";
 import { useSaveSimulationMutation } from "~/features/simulations/queries/use-save-simulation-mutation";
@@ -109,10 +110,15 @@ export function useThirteenthSalaryPage() {
     if (!result.value) { return null; }
     try {
       const simulation = await saveSimulationMutation.mutateAsync({
-        name: t("thirteenthSalary.simulation.defaultName", { year: new Date().getFullYear() }),
-        toolSlug: "thirteenth_salary",
+        toolId: "thirteenth-salary",
+        ruleVersion: "2026.04",
         inputs: { ...form.value },
         result: { ...result.value },
+        metadata: {
+          label: t("thirteenthSalary.simulation.defaultName", {
+            year: new Date().getFullYear(),
+          }),
+        },
       });
       savedSimulationId.value = simulation.id;
       return simulation.id;
@@ -193,6 +199,23 @@ export function useThirteenthSalaryPage() {
     createReceivableMutation.isPending.value,
   );
 
+  // Fires when the user has a result on screen but has not yet saved it.
+  // The leave-prompt only triggers in this exact state (DEC-196 UX rules).
+  const hasUnsavedResult = computed(
+    (): boolean => result.value !== null && savedSimulationId.value === null,
+  );
+
+  const leavePrompt = useLeaveWithoutSavePrompt({
+    isDirty: hasUnsavedResult,
+    onSave: async () => {
+      await ensureSimulationSaved();
+    },
+    onDiscard: () => {
+      result.value = null;
+      reset();
+    },
+  });
+
   return {
     t, toast, router, isAuthenticated, hasPremiumAccess, formatBrl,
     form, validationError, isDirty, patch,
@@ -202,6 +225,8 @@ export function useThirteenthSalaryPage() {
     showGoalModal, goalForm, showBudgetModal,
     summaryMetrics,
     isBridging,
+    hasUnsavedResult,
+    leavePrompt,
     handleCalculate,
     handleReset,
     handleSaveSimulation,

@@ -49,8 +49,9 @@ const {
 } = useToolPage<FeriasFormState, FeriasResult>({
   createDefaultState: createDefaultFeriasFormState,
   buildSimulationPayload: ({ form, result, t }) => ({
-    name: t("ferias.simulation.defaultName", { year: new Date().getFullYear() }),
-    toolSlug: "ferias_clt",
+    toolId: "vacation",
+    ruleVersion: "2026.04",
+    metadata: { label: t("ferias.simulation.defaultName", { year: new Date().getFullYear() }) },
     inputs: { ...form },
     result: { ...result },
   }),

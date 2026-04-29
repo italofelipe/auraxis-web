@@ -205,8 +205,9 @@ async function ensureSimulationSaved(): Promise<string | null> {
 
   try {
     const simulation = await saveSimulationMutation.mutateAsync({
-      name: t("descontoMarkup.simulation.defaultName", { mode: form.value.mode }),
-      toolSlug: "desconto_markup",
+      // TODO(simulations-canonical): 'desconto_markup' is not in the registry yet (DEC-196)
+      toolId: "desconto_markup",
+      ruleVersion: "2026.04",
       inputs: { ...form.value },
       result: { ...result.value },
     });

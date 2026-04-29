@@ -183,8 +183,9 @@ async function ensureSimulationSaved(): Promise<string | null> {
 
   try {
     const simulation = await saveSimulationMutation.mutateAsync({
-      name: t("dividirConta.simulation.defaultName", { people: form.value.people }),
-      toolSlug: "dividir_conta",
+      toolId: "split-bill",
+      ruleVersion: "2026.04",
+      metadata: { label: t("dividirConta.simulation.defaultName", { people: form.value.people }) },
       inputs: { ...form.value },
       result: { ...result.value },
     });

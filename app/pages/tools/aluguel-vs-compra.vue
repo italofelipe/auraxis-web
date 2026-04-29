@@ -42,8 +42,9 @@ const {
 } = useToolPage<AluguelVsCompraFormState, AluguelVsCompraResult>({
   createDefaultState: createDefaultAluguelVsCompraFormState,
   buildSimulationPayload: ({ form, result, t }) => ({
-    name: t("aluguelVsCompra.simulation.defaultName", { year: new Date().getFullYear() }),
-    toolSlug: "aluguel_vs_compra",
+    toolId: "rent-vs-buy",
+    ruleVersion: "2026.04",
+    metadata: { label: t("aluguelVsCompra.simulation.defaultName", { year: new Date().getFullYear() }) },
     inputs: { ...form },
     result: {
       finalBuyNetWorth: result.finalBuyNetWorth,

@@ -81,10 +81,15 @@ async function handleSaveSimulation(): Promise<void> {
   if (savedSimulationId.value || !result.value) { return; }
   try {
     const simulation = await saveSimulationMutation.mutateAsync({
-      name: t("horaExtra.simulation.defaultName", { year: new Date().getFullYear() }),
-      toolSlug: "hora_extra",
+      toolId: "overtime",
+      ruleVersion: "2026.04",
       inputs: { ...form.value },
       result: { ...result.value },
+      metadata: {
+        label: t("horaExtra.simulation.defaultName", {
+          year: new Date().getFullYear(),
+        }),
+      },
     });
     savedSimulationId.value = simulation.id;
   } catch (err) {

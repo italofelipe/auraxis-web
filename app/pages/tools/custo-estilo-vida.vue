@@ -165,8 +165,9 @@ async function ensureSimulationSaved(): Promise<string | null> {
   if (!result.value) { return null; }
   try {
     const sim = await saveSimulationMutation.mutateAsync({
-      name: t("custoEstiloVida.simulation.defaultName"),
-      toolSlug: "custo_estilo_vida",
+      toolId: "cost-of-lifestyle",
+      ruleVersion: "2026.04",
+      metadata: { label: t("custoEstiloVida.simulation.defaultName") },
       inputs: { ...form.value },
       result: {
         totalOpportunityCost: result.value.totalOpportunityCost,

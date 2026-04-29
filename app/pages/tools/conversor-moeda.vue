@@ -60,8 +60,9 @@ const {
 } = useToolPage<ConversorMoedaFormState, ConversorMoedaResult>({
   createDefaultState: createDefaultConversorMoedaFormState,
   buildSimulationPayload: ({ form, result, t }) => ({
-    name: t("conversorMoeda.simulation.defaultName", { pair: form.pair, year: new Date().getFullYear() }),
-    toolSlug: "conversor_moeda",
+    toolId: "currency-converter",
+    ruleVersion: "2026.04",
+    metadata: { label: t("conversorMoeda.simulation.defaultName", { pair: form.pair, year: new Date().getFullYear() }) },
     inputs: { ...form },
     result: { ...result },
   }),

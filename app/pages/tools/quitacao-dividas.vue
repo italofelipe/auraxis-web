@@ -157,8 +157,9 @@ async function ensureSimulationSaved(): Promise<string | null> {
   if (!result.value) { return null; }
   try {
     const sim = await saveSimulationMutation.mutateAsync({
-      name: t("quitacaoDividas.simulation.defaultName"),
-      toolSlug: "quitacao_dividas",
+      toolId: "debt-payoff",
+      ruleVersion: "2026.04",
+      metadata: { label: t("quitacaoDividas.simulation.defaultName") },
       inputs: { ...form.value },
       result: {
         totalDebt: result.value.totalDebt,

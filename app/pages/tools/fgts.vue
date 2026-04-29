@@ -74,8 +74,9 @@ const {
 } = useToolPage<FgtsFormState, FgtsResult>({
   createDefaultState: createDefaultFgtsFormState,
   buildSimulationPayload: ({ form, result, t }) => ({
-    name: t("fgts.simulation.defaultName", { year: new Date().getFullYear() }),
-    toolSlug: "fgts",
+    toolId: "fgts-balance",
+    ruleVersion: "2026.04",
+    metadata: { label: t("fgts.simulation.defaultName", { year: new Date().getFullYear() }) },
     inputs: { ...form },
     result: { ...result },
   }),

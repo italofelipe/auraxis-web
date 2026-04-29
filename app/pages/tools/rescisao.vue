@@ -73,8 +73,11 @@ const {
 } = useToolPage<RescisaoFormState, RescisaoResult>({
   createDefaultState: createDefaultRescisaoFormState,
   buildSimulationPayload: ({ form, result, t }) => ({
-    name: t("rescisao.simulation.defaultName", { year: new Date().getFullYear() }),
-    toolSlug: "rescisao_clt",
+    toolId: "termination",
+    ruleVersion: "2026.04",
+    metadata: {
+      label: t("rescisao.simulation.defaultName", { year: new Date().getFullYear() }),
+    },
     inputs: { ...form },
     result: { ...result },
   }),

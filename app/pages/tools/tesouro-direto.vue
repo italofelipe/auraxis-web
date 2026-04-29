@@ -67,11 +67,14 @@ const {
 } = useToolPage<TesouroDiretoFormState, TesouroDiretoResult>({
   createDefaultState: createDefaultTesouroDiretoFormState,
   buildSimulationPayload: ({ form, result, t }) => ({
-    name: t("tesouroDireto.simulation.defaultName", {
-      type: form.type,
-      year: new Date().getFullYear(),
-    }),
-    toolSlug: "tesouro_direto",
+    toolId: "treasury",
+    ruleVersion: "2026.04",
+    metadata: {
+      label: t("tesouroDireto.simulation.defaultName", {
+        type: form.type,
+        year: new Date().getFullYear(),
+      }),
+    },
     inputs: { ...form },
     result: {
       netAmount: result.netAmount,
