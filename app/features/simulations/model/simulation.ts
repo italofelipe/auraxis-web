@@ -1,23 +1,47 @@
 /**
- * Domain model for a saved simulation.
+ * Domain models for simulations (DEC-196 / canonical generic endpoint).
+ *
+ * Shape mirrors the backend `SimulationSchema` in
+ * `auraxis-api/app/schemas/simulation_schema.py`. The DTO field names use
+ * snake_case, the domain types use camelCase.
  */
-export interface Simulation {
-  id: string;
-  name: string;
-  toolSlug: string;
-  inputs: unknown;
-  result: unknown;
-  goalId?: string | null;
-  createdAt: string;
+
+export interface SimulationMetadata {
+  readonly label?: string | null;
+  readonly notes?: string | null;
+  readonly [key: string]: unknown;
 }
 
-/**
- * Payload required to save a new simulation.
- */
+export interface Simulation {
+  readonly id: string;
+  readonly userId: string;
+  readonly toolId: string;
+  readonly ruleVersion: string;
+  readonly inputs: Record<string, unknown>;
+  readonly result: Record<string, unknown>;
+  readonly metadata: SimulationMetadata | null;
+  readonly saved: boolean;
+  readonly createdAt: string;
+}
+
 export interface SaveSimulationPayload {
-  name: string;
-  toolSlug: string;
-  inputs: unknown;
-  result: unknown;
-  goalId?: string | null;
+  readonly toolId: string;
+  readonly ruleVersion: string;
+  readonly inputs: Record<string, unknown>;
+  readonly result: Record<string, unknown>;
+  readonly metadata?: SimulationMetadata | null;
+}
+
+export interface ListSimulationsParams {
+  readonly page?: number;
+  readonly perPage?: number;
+  readonly toolId?: string;
+}
+
+export interface SimulationList {
+  readonly items: readonly Simulation[];
+  readonly page: number;
+  readonly perPage: number;
+  readonly total: number;
+  readonly pages: number;
 }
