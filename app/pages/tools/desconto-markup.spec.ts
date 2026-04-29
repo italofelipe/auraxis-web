@@ -382,7 +382,7 @@ describe("DescontoMarkupPage — save simulation", () => {
     await flushPromises();
 
     expect(mockSaveMutateAsync).toHaveBeenCalledWith(
-      expect.objectContaining({ toolSlug: "desconto_markup" }),
+      expect.objectContaining({ toolId: "desconto_markup" }),
     );
   });
 

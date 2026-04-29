@@ -345,7 +345,7 @@ describe("CdbLciLcaPage — save simulation", () => {
     await saveButton!.trigger("click");
     await flushPromises();
     expect(mockSaveMutateAsync).toHaveBeenCalledOnce();
-    expect(mockSaveMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ toolSlug: "cdb_lci_lca" }));
+    expect(mockSaveMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ toolId: "cdb-lci-lca" }));
   });
 
   it("captures exception when save simulation fails", async () => {

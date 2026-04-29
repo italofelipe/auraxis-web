@@ -352,7 +352,7 @@ describe("TesouroDiretoPage — save simulation", () => {
     await saveButton!.trigger("click");
     await flushPromises();
     expect(mockSaveMutateAsync).toHaveBeenCalledOnce();
-    expect(mockSaveMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ toolSlug: "tesouro_direto" }));
+    expect(mockSaveMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ toolId: "treasury" }));
   });
 
   it("captures exception when save simulation fails", async () => {

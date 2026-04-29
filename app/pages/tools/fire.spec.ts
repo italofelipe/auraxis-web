@@ -369,7 +369,7 @@ describe("FirePage — save simulation", () => {
     await saveButton!.trigger("click");
     await flushPromises();
     expect(mockSaveMutateAsync).toHaveBeenCalledOnce();
-    expect(mockSaveMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ toolSlug: "fire" }));
+    expect(mockSaveMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ toolId: "fire" }));
   });
 
   it("captures exception when save simulation fails", async () => {

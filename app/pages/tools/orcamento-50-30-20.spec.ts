@@ -148,7 +148,7 @@ describe("OrcamentoPage — save simulation", () => {
     const w = mountPage(); await w.find("form").trigger("submit"); await flushPromises();
     const btn = w.findAll(".n-button").find((b) => b.text().includes("orcamento5030.actions.save"));
     await btn!.trigger("click"); await flushPromises();
-    expect(mockSaveMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ toolSlug: "orcamento_50_30_20" }));
+    expect(mockSaveMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ toolId: "fifty-thirty-twenty" }));
   });
 });
 

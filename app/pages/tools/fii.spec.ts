@@ -441,7 +441,7 @@ describe("FiiPage — save simulation", () => {
     await flushPromises();
 
     expect(mockSaveMutateAsync).toHaveBeenCalledWith(
-      expect.objectContaining({ toolSlug: "fii_calculator" }),
+      expect.objectContaining({ toolId: "fii" }),
     );
   });
 

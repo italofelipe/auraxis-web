@@ -402,7 +402,7 @@ describe("FgtsPage", () => {
 
       expect(mockSaveMutateAsync).toHaveBeenCalledOnce();
       expect(mockSaveMutateAsync).toHaveBeenCalledWith(
-        expect.objectContaining({ toolSlug: "fgts" }),
+        expect.objectContaining({ toolId: "fgts-balance" }),
       );
     });
 

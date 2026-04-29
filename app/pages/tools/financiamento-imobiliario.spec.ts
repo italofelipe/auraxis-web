@@ -403,7 +403,7 @@ describe("FinanciamentoImobiliarioPage — save simulation", () => {
     await flushPromises();
     expect(mockSaveMutateAsync).toHaveBeenCalledOnce();
     expect(mockSaveMutateAsync).toHaveBeenCalledWith(
-      expect.objectContaining({ toolSlug: "financiamento_imobiliario" }),
+      expect.objectContaining({ toolId: "mortgage" }),
     );
   });
 

@@ -435,7 +435,7 @@ describe("JurosCompostosPage — save simulation", () => {
     await flushPromises();
 
     expect(mockSaveMutateAsync).toHaveBeenCalledWith(
-      expect.objectContaining({ toolSlug: "juros_compostos" }),
+      expect.objectContaining({ toolId: "compound-interest" }),
     );
   });
 

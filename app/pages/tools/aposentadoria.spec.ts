@@ -354,7 +354,7 @@ describe("AposentadoriaPage — save simulation", () => {
     await saveButton!.trigger("click");
     await flushPromises();
     expect(mockSaveMutateAsync).toHaveBeenCalledOnce();
-    expect(mockSaveMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ toolSlug: "aposentadoria" }));
+    expect(mockSaveMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ toolId: "aposentadoria" }));
   });
 
   it("captures exception when save simulation fails", async () => {

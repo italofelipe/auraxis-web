@@ -76,10 +76,11 @@ describe("SaveSimulationButton", () => {
 
     const wrapper = mount(SaveSimulationButton, {
       props: {
-        toolSlug: "raise-calculator",
+        toolId: "salary-raise",
+        ruleVersion: "2026.04",
         inputs: { current: 5000 },
         result: { recommended: 5500 },
-        name: "Minha simulação",
+        label: "Minha simulação",
       },
     });
 
@@ -88,10 +89,11 @@ describe("SaveSimulationButton", () => {
     expect(mockMutate).toHaveBeenCalledOnce();
     expect(mockMutate).toHaveBeenCalledWith(
       {
-        name: "Minha simulação",
-        toolSlug: "raise-calculator",
+        toolId: "salary-raise",
+        ruleVersion: "2026.04",
         inputs: { current: 5000 },
         result: { recommended: 5500 },
+        metadata: { label: "Minha simulação" },
       },
       expect.objectContaining({ onSuccess: expect.any(Function) }),
     );
@@ -103,7 +105,8 @@ describe("SaveSimulationButton", () => {
 
     const wrapper = mount(SaveSimulationButton, {
       props: {
-        toolSlug: "raise-calculator",
+        toolId: "salary-raise",
+        ruleVersion: "2026.04",
         inputs: { current: 5000 },
         result: { recommended: 5500 },
       },
@@ -111,11 +114,11 @@ describe("SaveSimulationButton", () => {
 
     await wrapper.find(".n-button").trigger("click");
 
-    expect(mockSave).toHaveBeenCalledWith("raise-calculator", { recommended: 5500 });
+    expect(mockSave).toHaveBeenCalledWith("salary-raise", { recommended: 5500 });
     expect(mockPush).toHaveBeenCalledOnce();
     const redirectArg = mockPush.mock.calls[0]?.[0] as string;
     expect(redirectArg).toContain("/login");
-    expect(redirectArg).toContain("raise-calculator");
+    expect(redirectArg).toContain("salary-raise");
     expect(mockMutate).not.toHaveBeenCalled();
   });
 });
