@@ -3259,6 +3259,12 @@
     "positiveText": "Sair sem salvar",
     "negativeText": "Continuar editando"
   },
+  "leaveWithoutSavePrompt": {
+    "title": "Salvar simulação?",
+    "content": "Você ainda não salvou esta simulação. Se sair agora, ela será descartada.",
+    "positiveText": "Salvar e sair",
+    "negativeText": "Descartar e sair"
+  },
   "errors": {
     "VALIDATION_ERROR": "Verifique os campos e tente novamente",
     "MISSING_TOKEN": "Sessão expirada. Faça login novamente",
