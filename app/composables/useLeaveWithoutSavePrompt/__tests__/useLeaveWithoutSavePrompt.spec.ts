@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { ref } from "vue";
+import { defineComponent, h, ref } from "vue";
+import { mount } from "@vue/test-utils";
 
 import { useLeaveWithoutSavePrompt } from "../useLeaveWithoutSavePrompt";
+import type { LeaveWithoutSavePromptReturn } from "../useLeaveWithoutSavePrompt.types";
 
 const mockWarning = vi.fn();
 let routeLeaveGuard: ((to: unknown, from: unknown, next: (proceed?: boolean) => void) => Promise<void> | void) | null = null;
@@ -127,5 +129,91 @@ describe("useLeaveWithoutSavePrompt", () => {
 
     expect(await confirmLeave()).toBe(true);
     expect(mockWarning).not.toHaveBeenCalled();
+  });
+
+  it("confirmLeave shows the prompt when dirty and resolves with the user choice", async () => {
+    const isDirty = ref(true);
+    const onSave = vi.fn().mockResolvedValue(undefined);
+    const { confirmLeave } = useLeaveWithoutSavePrompt({ isDirty, onSave });
+
+    mockWarning.mockImplementation((opts: { onPositiveClick: () => Promise<void> }) => {
+      void opts.onPositiveClick();
+    });
+
+    await expect(confirmLeave()).resolves.toBe(true);
+    expect(onSave).toHaveBeenCalledOnce();
+  });
+
+  it("registers a beforeunload listener on mount and removes it on unmount", () => {
+    const isDirty = ref(false);
+    const addSpy = vi.spyOn(window, "addEventListener");
+    const removeSpy = vi.spyOn(window, "removeEventListener");
+
+    const wrapper = mount(
+      defineComponent({
+        setup(): () => ReturnType<typeof h> {
+          useLeaveWithoutSavePrompt({ isDirty, onSave: vi.fn() });
+          return (): ReturnType<typeof h> => h("div");
+        },
+      }),
+    );
+
+    expect(addSpy).toHaveBeenCalledWith("beforeunload", expect.any(Function));
+    wrapper.unmount();
+    expect(removeSpy).toHaveBeenCalledWith("beforeunload", expect.any(Function));
+
+    addSpy.mockRestore();
+    removeSpy.mockRestore();
+  });
+
+  it("the beforeunload listener prevents navigation only when isDirty is true", () => {
+    const isDirty = ref(false);
+    const captured: { handler: ((e: BeforeUnloadEvent) => void) | null } = { handler: null };
+    const addSpy = vi
+      .spyOn(window, "addEventListener")
+      .mockImplementation((event: string, handler: EventListenerOrEventListenerObject) => {
+        if (event === "beforeunload") {
+          captured.handler = handler as (e: BeforeUnloadEvent) => void;
+        }
+      });
+
+    mount(
+      defineComponent({
+        setup(): () => ReturnType<typeof h> {
+          useLeaveWithoutSavePrompt({ isDirty, onSave: vi.fn() });
+          return (): ReturnType<typeof h> => h("div");
+        },
+      }),
+    );
+
+    const cleanEvent = { preventDefault: vi.fn(), returnValue: "" } as unknown as BeforeUnloadEvent;
+    captured.handler?.(cleanEvent);
+    expect(cleanEvent.preventDefault).not.toHaveBeenCalled();
+
+    isDirty.value = true;
+    const dirtyEvent = { preventDefault: vi.fn(), returnValue: "" } as unknown as BeforeUnloadEvent;
+    captured.handler?.(dirtyEvent);
+    expect(dirtyEvent.preventDefault).toHaveBeenCalledOnce();
+    expect(dirtyEvent.returnValue).not.toBe("");
+
+    addSpy.mockRestore();
+  });
+
+  it("isSaving toggles around onSave invocation", async () => {
+    const isDirty = ref(true);
+    let observedDuringSave: boolean | null = null;
+    const onSave = vi.fn().mockImplementation(async () => {
+      observedDuringSave = state.isSaving.value;
+    });
+    const state: LeaveWithoutSavePromptReturn = useLeaveWithoutSavePrompt({ isDirty, onSave });
+
+    mockWarning.mockImplementation((opts: { onPositiveClick: () => Promise<void> }) => {
+      void opts.onPositiveClick();
+    });
+
+    await routeLeaveGuard?.(null, null, vi.fn());
+
+    expect(observedDuringSave).toBe(true);
+    expect(state.isSaving.value).toBe(false);
   });
 });
