@@ -145,7 +145,9 @@ const TOOL_IDS = new Set(CANONICAL_TOOLS.map((tool) => tool.id));
 
 export const TOOLS_CATALOG: readonly ToolDefinition[] = CANONICAL_TOOLS;
 
-export const TOOL_IDS_LIST: readonly string[] = Array.from(TOOL_IDS).sort();
+export const TOOL_IDS_LIST: readonly string[] = Array.from(TOOL_IDS).sort(
+  (a, b) => a.localeCompare(b),
+);
 
 /**
  *
