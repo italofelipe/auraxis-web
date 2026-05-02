@@ -172,6 +172,29 @@ export default withNuxt(
       "no-restricted-syntax": "off",
     },
   },
+  // PERF-6 follow-up: every <img> must go through UiImage so that
+  // loading="lazy" + decoding="async" + intrinsic dims are baked in.
+  // Raw <img> in templates re-introduces CLS and eager-load regressions.
+  {
+    files: ["**/*.vue"],
+    rules: {
+      "vue/no-restricted-html-elements": [
+        "error",
+        {
+          element: "img",
+          message:
+            "Use UiImage from ~/components/ui/UiImage.vue (lazy + async decode + intrinsic dims by default).",
+        },
+      ],
+    },
+  },
+  // The UiImage wrapper itself emits a raw <img>.
+  {
+    files: ["app/components/ui/UiImage.vue"],
+    rules: {
+      "vue/no-restricted-html-elements": "off",
+    },
+  },
   {
     files: ["**/*.{test,spec,e2e}.{js,ts,tsx}", "**/__tests__/**/*.{js,ts,tsx}"],
     rules: {
