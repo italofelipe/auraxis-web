@@ -35,7 +35,7 @@ export interface paths {
                     /**
                      * @description Token de confirmacao recebido por email.
                      * @example {
-                     *       "token": "G9Q7zJ6lQ4Vwm6dXj6nQjzH8QqfUuBqbMTe4PmS7p8Q"
+                     *       "token": "example-token"
                      *     }
                      */
                     "application/json": components["schemas"]["app_schemas_auth_schema_ConfirmEmailSchema"];
@@ -47,7 +47,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -71,7 +71,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -97,7 +97,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -159,7 +159,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -183,7 +183,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -209,7 +209,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -296,7 +296,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -305,7 +305,7 @@ export interface paths {
                         /**
                          * @example {
                          *       "data": {
-                         *         "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                         *         "token": "jwt-example-token",
                          *         "user": {
                          *           "email": "italo@auraxis.com.br",
                          *           "id": "4b2ef64b-b35d-4ea2-a6f2-4ef3cfb295f1",
@@ -327,7 +327,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -353,7 +353,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -379,7 +379,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -408,7 +408,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -434,7 +434,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -498,7 +498,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -568,7 +568,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -592,7 +592,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -618,7 +618,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -644,7 +644,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -705,7 +705,7 @@ export interface paths {
                      * @description Token de recuperação e nova senha válida.
                      * @example {
                      *       "new_password": "NovaSenha@123",
-                     *       "token": "G9Q7zJ6lQ4Vwm6dXj6nQjzH8QqfUuBqbMTe4PmS7p8Q"
+                     *       "token": "example-token"
                      *     }
                      */
                     "application/json": components["schemas"]["app_schemas_auth_schema_ResetPasswordSchema"];
@@ -717,7 +717,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -741,7 +741,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -767,7 +767,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -840,7 +840,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -849,8 +849,8 @@ export interface paths {
                         /**
                          * @example {
                          *       "data": {
-                         *         "refresh_token": "<access_token>",
-                         *         "token": "<access_token>"
+                         *         "refresh_token": "refresh-token-example",
+                         *         "token": "example-token"
                          *       },
                          *       "message": "Token refreshed"
                          *     }
@@ -867,7 +867,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -893,7 +893,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -974,7 +974,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -1004,7 +1004,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -1030,7 +1030,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -1056,7 +1056,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -1443,7 +1443,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -1501,7 +1501,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -1527,7 +1527,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -1553,7 +1553,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -1615,7 +1615,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -1645,7 +1645,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -1671,7 +1671,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -1739,7 +1739,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -1773,7 +1773,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -1799,7 +1799,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -1825,7 +1825,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -1903,7 +1903,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -1963,7 +1963,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -1989,7 +1989,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -2015,7 +2015,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -3389,7 +3389,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -3450,7 +3450,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -3476,7 +3476,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -3544,7 +3544,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -3595,7 +3595,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -3621,7 +3621,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -3647,7 +3647,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -3733,7 +3733,7 @@ export interface paths {
                         "X-Auraxis-Successor-Method"?: string;
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -3767,7 +3767,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -3793,7 +3793,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -3819,7 +3819,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -3881,7 +3881,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -3934,7 +3934,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -3960,7 +3960,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -4022,7 +4022,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -4088,7 +4088,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -4114,7 +4114,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -4140,7 +4140,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -4222,7 +4222,7 @@ export interface paths {
                         "X-Auraxis-Successor-Method"?: string;
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -4288,7 +4288,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -4314,7 +4314,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -4340,7 +4340,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -4417,7 +4417,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -4443,7 +4443,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -4469,7 +4469,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -4551,7 +4551,7 @@ export interface paths {
                         "X-Auraxis-Successor-Method"?: string;
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -4612,7 +4612,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -4638,7 +4638,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -4712,7 +4712,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -4763,7 +4763,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -4789,7 +4789,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -4815,7 +4815,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -4877,7 +4877,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -4940,7 +4940,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -4966,7 +4966,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -4992,7 +4992,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5060,7 +5060,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5111,7 +5111,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5137,7 +5137,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5163,7 +5163,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5189,7 +5189,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5273,7 +5273,7 @@ export interface paths {
                         "X-Auraxis-Successor-Method"?: string;
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5324,7 +5324,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5350,7 +5350,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5376,7 +5376,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5402,7 +5402,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5428,7 +5428,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5482,7 +5482,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5508,7 +5508,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5534,7 +5534,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5560,7 +5560,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5586,7 +5586,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5652,7 +5652,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5703,7 +5703,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5729,7 +5729,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5755,7 +5755,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5781,7 +5781,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5807,7 +5807,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5872,7 +5872,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5898,7 +5898,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5924,7 +5924,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -5950,7 +5950,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -6017,7 +6017,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -6102,7 +6102,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -6128,7 +6128,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -6199,7 +6199,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -6255,7 +6255,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -6315,7 +6315,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -6339,7 +6339,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -6365,7 +6365,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -6391,7 +6391,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -6523,7 +6523,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -6555,7 +6555,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -6581,7 +6581,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -6669,7 +6669,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -6700,7 +6700,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -6726,7 +6726,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -6752,7 +6752,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -6778,7 +6778,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -6842,7 +6842,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -6886,7 +6886,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -6959,7 +6959,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -6986,7 +6986,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -7012,7 +7012,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -7038,7 +7038,7 @@ export interface paths {
                     headers: {
                         /**
                          * @description Identificador único da requisição gerado pela API.
-                         * @example 9fcd2e4f4d8747b4a7d8a2b1b930f52a
+                         * @example req-example-id
                          */
                         "X-Request-ID"?: string;
                         [name: string]: unknown;
@@ -9011,7 +9011,7 @@ export interface components {
             /**
              * @description Token Cloudflare Turnstile obtido pelo cliente. Obrigatório quando CAPTCHA está habilitado no servidor.
              * @default null
-             * @example 0.xxxxxxxxxxx
+             * @example captcha-token-example
              */
             captcha_token: string | null;
             /**
@@ -9029,7 +9029,7 @@ export interface components {
         app_schemas_auth_schema_ConfirmEmailSchema: {
             /**
              * @description Token de confirmacao recebido por email
-             * @example G9Q7zJ6lQ4Vwm6dXj6nQjzH8QqfUuBqbMTe4PmS7p8Q
+             * @example example-token
              */
             token: string;
         };
@@ -9049,7 +9049,7 @@ export interface components {
             new_password: string;
             /**
              * @description Token de recuperação recebido por email
-             * @example G9Q7zJ6lQ4Vwm6dXj6nQjzH8QqfUuBqbMTe4PmS7p8Q
+             * @example example-token
              */
             token: string;
         };
@@ -9177,7 +9177,7 @@ export interface components {
             /**
              * @description Token Cloudflare Turnstile obtido pelo cliente. Obrigatório quando CAPTCHA está habilitado no servidor.
              * @default null
-             * @example 0.xxxxxxxxxxx
+             * @example captcha-token-example
              */
             captcha_token: string | null;
             /**
