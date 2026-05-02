@@ -15,6 +15,14 @@ paths = [
 ]
 
 [[allowlists]]
+description = "Auto-generated OpenAPI artifacts — example values come from api spec, sanitized via scripts/openapi-secret-hygiene.cjs before snapshot is written"
+paths = [
+  '''contracts/openapi\.snapshot\.json''',
+  '''contracts/feature-contract-baseline\.json''',
+  '''app/shared/types/generated/.*''',
+]
+
+[[allowlists]]
 description = "Test fixture values — known mock credential patterns"
 regexTarget = "match"
 regexes = [
