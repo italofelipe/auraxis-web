@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useMessage } from "naive-ui";
 import { useRegisterMutation } from "~/composables/useAuth";
 import { useCaptcha } from "~/features/auth/composables/useCaptcha";
 import { useApiError } from "~/composables/useApiError";
+import { useToast } from "~/composables/useToast";
 import type { RegisterSchema } from "~/schemas/auth";
 
 definePageMeta({ layout: "auth", middleware: ["guest-only"] });
@@ -13,7 +13,7 @@ useSeoMeta({
   description: t("auth.register.metaDescription"),
   robots: "noindex, nofollow",
 });
-const message = useMessage();
+const toast = useToast();
 const registerMutation = useRegisterMutation();
 const captcha = useCaptcha();
 const { getErrorMessage } = useApiError();
@@ -33,12 +33,12 @@ const onSubmit = async (values: RegisterSchema): Promise<void> => {
   try {
     const captchaToken = await captcha.execute();
     await registerMutation.mutateAsync({ ...registerPayload, captchaToken });
-    message.success(t("auth.register.successToast"), { duration: 3000 });
+    toast.success(t("auth.register.successToast"), { duration: 3000 });
     // The mutation's onSuccess already calls sessionStore.signIn(), so the
     // user is authenticated. Redirect to the email-confirmation gate.
     await navigateTo("/confirm-email-pending");
   } catch (err) {
-    message.error(getErrorMessage(err), { duration: 5000 });
+    toast.error(getErrorMessage(err), { duration: 5000 });
   }
 };
 </script>

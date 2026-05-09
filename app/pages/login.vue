@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { useMessage } from "naive-ui";
 import { useLoginMutation } from "~/composables/useAuth";
 import { useAuthRedirectContext } from "~/composables/useAuthRedirectContext";
 import { useCaptcha } from "~/features/auth/composables/useCaptcha";
 import { useApiError } from "~/composables/useApiError";
+import { useToast } from "~/composables/useToast";
 import type { LoginSchema } from "~/schemas/auth";
 
 definePageMeta({ layout: "auth", middleware: ["guest-only"] });
@@ -15,7 +15,7 @@ useSeoMeta({
   robots: "noindex, nofollow",
 });
 
-const message = useMessage();
+const toast = useToast();
 const loginMutation = useLoginMutation();
 const { consumeRedirect } = useAuthRedirectContext();
 const captcha = useCaptcha();
@@ -40,7 +40,7 @@ const onSubmit = async (values: LoginSchema): Promise<void> => {
     const redirect = consumeRedirect();
     await navigateTo(redirect || "/dashboard");
   } catch (err) {
-    message.error(getErrorMessage(err), { duration: 5000 });
+    toast.error(getErrorMessage(err), { duration: 5000 });
   }
 };
 </script>

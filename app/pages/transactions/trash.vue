@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, h, ref, type VNode } from "vue";
-import { NButton, NDataTable, NModal, useMessage, type DataTableColumns } from "naive-ui";
+import { NButton, NDataTable, NModal, type DataTableColumns } from "naive-ui";
+import { useToast } from "~/composables/useToast";
 import { ArrowLeft, RotateCcw, TrendingDown, TrendingUp } from "lucide-vue-next";
 import { formatTransactionDate } from "~/features/transactions/composables/useTransactionTable";
 import type { TransactionDto } from "~/features/transactions/contracts/transaction.dto";
@@ -17,7 +18,7 @@ definePageMeta({
 useHead({ title: "Lixeira | Auraxis" });
 
 const { t } = useI18n();
-const message = useMessage();
+const toast = useToast();
 
 const { data, isLoading, isError } = useListDeletedTransactionsQuery();
 const restoreMutation = useRestoreTransactionMutation();
@@ -43,12 +44,12 @@ function onConfirmRestore(): void {
   if (!target) { return; }
   restoreMutation.mutate(target.id, {
     onSuccess: (): void => {
-      message.success(t("transactions.trash.restoreSuccess"));
+      toast.success(t("transactions.trash.restoreSuccess"));
       showRestoreConfirm.value = false;
       restoreTarget.value = null;
     },
     onError: (): void => {
-      message.error(t("transactions.trash.restoreError"));
+      toast.error(t("transactions.trash.restoreError"));
     },
   });
 }

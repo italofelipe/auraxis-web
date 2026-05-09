@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { useMessage } from "naive-ui";
+import { useToast } from "~/composables/useToast";
 import { useQuestionnaireQuery } from "~/features/investor-profile/queries/use-questionnaire-query";
 import { useSubmitAnswersMutation } from "~/features/investor-profile/mutations/use-submit-answers-mutation";
 import { useWizardState } from "~/features/investor-profile/composables/use-wizard-state";
@@ -15,7 +15,7 @@ definePageMeta({
 
 useHead({ title: "Perfil do Investidor | Auraxis" });
 
-const message = useMessage();
+const toast = useToast();
 
 const { data: questionnaire, isLoading, isError } = useQuestionnaireQuery();
 
@@ -81,7 +81,7 @@ const handleSubmit = (): void => {
         result.value = data;
       },
       onError: (): void => {
-        message.error("Erro ao enviar suas respostas. Tente novamente.", { duration: 5000 });
+        toast.error("Erro ao enviar suas respostas. Tente novamente.", { duration: 5000 });
       },
     },
   );
