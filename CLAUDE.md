@@ -180,6 +180,50 @@ Para modificá-lo é obrigatório:
 Nunca modificar `en.json` sem fazer os dois passos. O CI bloqueia no job
 `Locale EN Freeze (DEC-186)`.
 
+## TDD — obrigatório para lógica de negócio
+
+Antes de implementar qualquer função pura, composable ou query hook, escreva o teste que vai falhar primeiro.
+
+### Fluxo obrigatório
+
+1. Leia os critérios de aceite da issue
+2. Escreva o teste (deve falhar com `pnpm test`)
+3. Implemente o mínimo para o teste passar
+4. Refatore mantendo o teste verde
+
+### Onde TDD é obrigatório
+
+- `app/features/*/model/*.ts` — toda função de cálculo/transformação
+- `app/features/*/queries/*.ts` — comportamento de fetch e cache
+- `app/features/*/composables/*.ts` — lógica derivada e side effects
+- `app/features/*/services/*.ts` (se existir)
+
+### Onde TDD é recomendado (não obrigatório)
+
+- Componentes Vue puros (`.vue`) — testar via Storybook ou snapshot
+- Páginas de composição — testar via E2E
+
+### Onde TDD não se aplica
+
+- Arquivos de configuração
+- Tipos TypeScript puros
+- Storybook stories
+
+### Exemplo
+
+```typescript
+// ✅ CORRETO — teste primeiro
+// app/features/tools/model/orcamento-50-30-20.spec.ts
+it("distributes 50% to necessities for R$10.000", () => {
+  const result = calculateIdealDistribution(10000);
+  expect(result.necessities).toBe(5000);
+});
+// → implementar calculateIdealDistribution para passar
+
+// ❌ ERRADO — implementar primeiro, testar depois
+// (testa a implementação, não o comportamento esperado)
+```
+
 ## Integração com platform
 
 Este repo é orchestrado por `auraxis-platform`.
