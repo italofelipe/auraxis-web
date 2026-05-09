@@ -99,6 +99,15 @@ A migração é **incremental e sem big-bang**:
 - Placeholders só são aceitáveis em estado explicitamente transitório; não no fluxo nominal.
 - Sessão/autenticação precisa ser resiliente a refresh e navegação.
 
+## Decisões de arquitetura (ADRs)
+
+### ADR-001: TDD como prática canônica para lógica de negócio
+
+**Decisão:** Toda função de cálculo, composable com lógica derivada e query hook deve ter teste escrito antes da implementação.
+**Motivo:** Agentes tendem a escrever testes que validam a implementação incorreta (não o comportamento esperado). TDD inverte essa ordem.
+**Exceções:** Componentes puramente visuais, tipos, configurações.
+**Consequência:** `pnpm test` deve falhar antes de implementar, verde após.
+
 ## Qualidade
 
 - `pnpm quality-check` antes de commit
