@@ -97,6 +97,35 @@ Ver `.context/quality_gates.md` (local) e `auraxis-platform/.context/25_quality_
 - Commitar sem rodar quality gates
 - Usar `git add .` (sempre staged seletivamente)
 
+## CI — Armadilhas conhecidas
+
+### E2E job (Playwright) — NÃO usa download-artifact
+
+O job `e2e` no `ci.yml` faz **build local do Nuxt** antes de rodar o Playwright:
+
+```yaml
+- name: Build Nuxt app
+  run: pnpm build
+  env:
+    NODE_ENV: production
+```
+
+**Nunca substituir por `download-artifact@v4`.**
+O `download-artifact@v4` falha ao tentar buscar artifacts de jobs do mesmo run
+(bug confirmado com `upload-artifact@v4` — "Artifact not found" mesmo com upload bem-sucedido).
+Referência: PR #808, #809, #810.
+
+### Locale EN — congelado durante MVP1
+
+O arquivo `app/i18n/locales/en.json` está congelado (DEC-186).
+Para modificá-lo é obrigatório:
+
+1. Incluir `[en-freeze-bypass]` no subject do commit, E
+2. Atualizar `app/i18n/locales/.en-frozen.sha256` com o novo SHA-256.
+
+Nunca modificar `en.json` sem fazer os dois passos. O CI bloqueia no job
+`Locale EN Freeze (DEC-186)`.
+
 ## Integração com platform
 
 Este repo é orchestrado por `auraxis-platform`.
