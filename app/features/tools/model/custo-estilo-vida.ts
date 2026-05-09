@@ -10,6 +10,14 @@ import { round2 } from "./math-utils";
 
 export const CUSTO_ESTILO_VIDA_PUBLIC_PATH = "/tools/custo-estilo-vida";
 
+// ─── Constants ───────────────────────────────────────────────────────────────
+
+/** Default annual CDI/Selic return rate (%). */
+export const DEFAULT_ANNUAL_RETURN_PCT = 12;
+
+/** Default IPCA inflation rate for real-return adjustment (%). */
+export const DEFAULT_IPCA_PCT = 4;
+
 // ─── Expense entry ───────────────────────────────────────────────────────────
 
 export interface RecurringExpense {
@@ -38,7 +46,7 @@ export function createDefaultExpense(): RecurringExpense {
 export function createDefaultCustoEstiloVidaFormState(): CustoEstiloVidaFormState {
   return {
     expenses: [createDefaultExpense(), createDefaultExpense()],
-    annualReturnPct: 12,
+    annualReturnPct: DEFAULT_ANNUAL_RETURN_PCT,
     horizonYears: 10,
   };
 }
@@ -71,6 +79,72 @@ export function validateCustoEstiloVidaForm(
   return errors;
 }
 
+// ─── Opportunity cost per single expense ─────────────────────────────────────
+
+export interface OpportunityCostDetail {
+  directCost: number;
+  investedValue: number;
+  realReturn: number;
+}
+
+export interface OpportunityCostOptions {
+  /** Investment horizon in years. */
+  horizon: number;
+  /** Annual return rate as a percentage (e.g. 12 for 12%). */
+  rate: number;
+  /** Annual inflation rate as a percentage. Defaults to DEFAULT_IPCA_PCT. */
+  ipcaPct?: number;
+}
+
+/**
+ * Calculates the opportunity cost for a single recurring expense.
+ * @param expense Recurring expense with a monthly amount.
+ * @param options Calculation options: horizon, rate, and optional ipcaPct.
+ * @returns Direct cost, nominal invested value, and real (inflation-adjusted) return.
+ */
+export function calculateOpportunityCost(
+  expense: RecurringExpense,
+  options: OpportunityCostOptions,
+): OpportunityCostDetail {
+  const { horizon, rate, ipcaPct = DEFAULT_IPCA_PCT } = options;
+  const totalMonths = horizon * 12;
+  const monthlyRate = Math.pow(1 + rate / 100, 1 / 12) - 1;
+  const directCost = round2(expense.monthlyAmount * totalMonths);
+
+  let investedValue: number;
+  if (monthlyRate === 0) {
+    investedValue = round2(expense.monthlyAmount * totalMonths);
+  } else {
+    investedValue = round2(expense.monthlyAmount * ((Math.pow(1 + monthlyRate, totalMonths) - 1) / monthlyRate));
+  }
+
+  const cumulativeInflation = Math.pow(1 + ipcaPct / 100, horizon);
+  const realReturn = round2(investedValue / cumulativeInflation);
+
+  return { directCost, investedValue, realReturn };
+}
+
+// ─── Equivalences ────────────────────────────────────────────────────────────
+
+export interface EquivalenceItem {
+  label: string;
+  quantity: number;
+}
+
+/**
+ * Generates a set of didactic equivalences for a given invested value.
+ * @param investedValue Total nominal future value if invested.
+ * @returns List of equivalence items with a label and quantity (filtered to ≥ 1).
+ */
+export function calculateEquivalences(investedValue: number): EquivalenceItem[] {
+  return [
+    { label: "viagens internacionais (R$ 8.000 cada)", quantity: Math.floor(investedValue / 8000) },
+    { label: "meses sem trabalhar (salário R$ 5.000)", quantity: Math.floor(investedValue / 5000) },
+    { label: "anos de ensino universitário (R$ 25.000/ano)", quantity: Math.floor(investedValue / 25000) },
+    { label: "cafezinhos (R$ 6 cada)", quantity: Math.floor(investedValue / 6) },
+  ].filter((e) => e.quantity >= 1);
+}
+
 // ─── Result ──────────────────────────────────────────────────────────────────
 
 export interface ExpenseOpportunityCost {
@@ -78,6 +152,10 @@ export interface ExpenseOpportunityCost {
   monthlyAmount: number;
   annualCost: number;
   opportunityCost: number;
+  /** Nominal future value if invested. */
+  investedValue: number;
+  /** Inflation-adjusted (real) return. */
+  realReturn: number;
 }
 
 export interface CustoEstiloVidaResult {
@@ -86,6 +164,8 @@ export interface CustoEstiloVidaResult {
   totalOpportunityCost: number;
   expenses: ExpenseOpportunityCost[];
   horizonYears: number;
+  /** Equivalence cards for a viral/didactic display. */
+  equivalences: EquivalenceItem[];
 }
 
 // ─── Calculation ─────────────────────────────────────────────────────────────
@@ -110,23 +190,29 @@ export function calculateCustoEstiloVida(
 ): CustoEstiloVidaResult {
   const monthlyRate = Math.pow(1 + form.annualReturnPct / 100, 1 / 12) - 1;
   const totalMonths = form.horizonYears * 12;
+  const cumulativeInflation = Math.pow(1 + DEFAULT_IPCA_PCT / 100, form.horizonYears);
 
   const validExpenses = form.expenses.filter((e) => e.monthlyAmount > 0);
 
   const expenses: ExpenseOpportunityCost[] = validExpenses.map((e) => {
     const annualCost = round2(e.monthlyAmount * 12);
-    const opportunityCost = round2(futureValueOfAnnuity(e.monthlyAmount, monthlyRate, totalMonths));
+    const investedValue = round2(futureValueOfAnnuity(e.monthlyAmount, monthlyRate, totalMonths));
+    const opportunityCost = investedValue;
+    const realReturn = round2(investedValue / cumulativeInflation);
     return {
       name: e.name || "Sem nome",
       monthlyAmount: round2(e.monthlyAmount),
       annualCost,
       opportunityCost,
+      investedValue,
+      realReturn,
     };
   });
 
   const totalMonthlyCost = round2(expenses.reduce((s, e) => s + e.monthlyAmount, 0));
   const totalAnnualCost = round2(totalMonthlyCost * 12);
   const totalOpportunityCost = round2(expenses.reduce((s, e) => s + e.opportunityCost, 0));
+  const equivalences = calculateEquivalences(totalOpportunityCost);
 
   return {
     totalMonthlyCost,
@@ -134,6 +220,7 @@ export function calculateCustoEstiloVida(
     totalOpportunityCost,
     expenses,
     horizonYears: form.horizonYears,
+    equivalences,
   };
 }
 
@@ -169,7 +256,7 @@ export function decodeQueryToForm(encoded: string): Partial<CustoEstiloVidaFormS
     if (!data.e || !Array.isArray(data.e)) { return null; }
     return {
       expenses: data.e.map((e) => ({ name: e.n, monthlyAmount: e.v })),
-      annualReturnPct: data.r ?? 12,
+      annualReturnPct: data.r ?? DEFAULT_ANNUAL_RETURN_PCT,
       horizonYears: data.h ?? 10,
     };
   } catch {

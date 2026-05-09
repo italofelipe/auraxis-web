@@ -62,10 +62,14 @@ vi.mock("~/features/paywall/queries/use-entitlement-query", () => ({ useEntitlem
 const mockResult: CustoEstiloVidaResult = {
   totalMonthlyCost: 250, totalAnnualCost: 3000, totalOpportunityCost: 55000,
   expenses: [
-    { name: "Streaming", monthlyAmount: 50, annualCost: 600, opportunityCost: 11000 },
-    { name: "Café", monthlyAmount: 200, annualCost: 2400, opportunityCost: 44000 },
+    { name: "Streaming", monthlyAmount: 50, annualCost: 600, opportunityCost: 11000, investedValue: 11000, realReturn: 7500 },
+    { name: "Café", monthlyAmount: 200, annualCost: 2400, opportunityCost: 44000, investedValue: 44000, realReturn: 30000 },
   ],
   horizonYears: 10,
+  equivalences: [
+    { label: "viagens internacionais (R$ 8.000 cada)", quantity: 6 },
+    { label: "cafezinhos (R$ 6 cada)", quantity: 9166 },
+  ],
 };
 
 const globalStubs = {
@@ -78,6 +82,8 @@ const globalStubs = {
   CalculatorResultSummary: { props: ["label", "value", "metrics"], template: "<div class='calculator-result-summary'>{{ label }}: {{ value }}</div>" },
   ToolGuestCta: { template: "<div class='tool-guest-cta'>guest-cta</div>" },
   ToolSaveResult: { props: ["intent", "label", "amount", "description"], template: "<div class='tool-save-result-stub' />" },
+  UiChart: { props: ["option", "height"], template: "<div class='v-chart'></div>" },
+  NuxtLink: { props: ["to"], template: "<a class='nuxt-link'><slot /></a>" },
 };
 
 /**

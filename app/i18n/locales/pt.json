@@ -3594,10 +3594,10 @@
   },
   "quitacaoDividas": {
     "seo": {
-      "title": "Quitação de Dívidas — Auraxis",
-      "description": "Compare Snowball e Avalanche para quitar suas dívidas mais rápido e pagar menos juros.",
-      "ogTitle": "Quitação de Dívidas | Auraxis",
-      "ogDescription": "Descubra a melhor estratégia para quitar suas dívidas."
+      "title": "Simulador de Quitação de Dívidas | Auraxis",
+      "description": "Compare Snowball e Avalanche para quitar suas dívidas mais rápido e pagar menos juros. Simulação gratuita, sem cadastro.",
+      "ogTitle": "Simulador de Quitação de Dívidas | Auraxis",
+      "ogDescription": "Descubra a melhor estratégia para quitar suas dívidas e economize em juros."
     },
     "hero": {
       "title": "Quitação de Dívidas",
@@ -3621,14 +3621,30 @@
       "snowballMonths": "Snowball (meses)",
       "avalancheMonths": "Avalanche (meses)",
       "interestSaved": "Economia em juros",
+      "snowballInterest": "Juros totais (Snowball)",
+      "avalancheInterest": "Juros totais (Avalanche)",
+      "firstToPayoff": "Primeira dívida a quitar",
+      "recommendation": "Recomendação",
+      "amortizationTable": "Tabela de amortização",
+      "amortizationToggle": "Ver tabela completa",
+      "amortizationClose": "Ocultar tabela",
+      "amortizationMonth": "Mês",
+      "amortizationBalance": "Saldo total",
+      "amortizationPaid": "Total pago",
       "best": {
         "snowball": "Snowball é melhor",
         "avalanche": "Avalanche é melhor"
       },
       "goalDescription": "Meta: quitar todas as dívidas",
       "chart": {
-        "xAxis": "Mês"
+        "xAxis": "Mês",
+        "title": "Evolução do endividamento"
       }
+    },
+    "cta": {
+      "title": "Acompanhe sua jornada no Auraxis",
+      "description": "Registre suas dívidas, metas e evolução financeira em um só lugar.",
+      "button": "Criar conta grátis"
     },
     "actions": {
       "save": "Salvar simulação",
@@ -3646,14 +3662,39 @@
     },
     "disclaimer": {
       "note": "Simulação simplificada. Taxas compostas e encargos reais podem diferir."
+    },
+    "faq": {
+      "title": "Perguntas frequentes",
+      "items": [
+        {
+          "q": "O que é a estratégia Snowball?",
+          "a": "Snowball foca em quitar primeiro a dívida com menor saldo. Isso gera vitórias rápidas e mantém a motivação alta."
+        },
+        {
+          "q": "O que é a estratégia Avalanche?",
+          "a": "Avalanche prioriza a dívida com maior taxa de juros. Você paga menos juros no total, mesmo que demore mais para ver a primeira dívida zerada."
+        },
+        {
+          "q": "Qual estratégia é melhor?",
+          "a": "Depende do seu perfil. Se você precisa de motivação rápida, Snowball é ótima. Se quer economizar ao máximo em juros, Avalanche é a escolha financeiramente superior."
+        },
+        {
+          "q": "Posso adicionar mais de 2 dívidas?",
+          "a": "Sim! Clique em 'Adicionar dívida' para incluir quantas quiser."
+        },
+        {
+          "q": "O pagamento extra é obrigatório?",
+          "a": "Não. Se deixar zerado, a simulação usa apenas os pagamentos mínimos de cada dívida."
+        }
+      ]
     }
   },
   "custoEstiloVida": {
     "seo": {
-      "title": "Custo do Estilo de Vida — Auraxis",
-      "description": "Descubra o custo de oportunidade dos seus gastos recorrentes se investidos ao longo do tempo.",
-      "ogTitle": "Custo do Estilo de Vida | Auraxis",
-      "ogDescription": "Veja quanto seus gastos recorrentes custariam se fossem investidos."
+      "title": "Quanto Seu Cafezinho Custa em 20 Anos? | Auraxis",
+      "description": "Descubra o custo de oportunidade dos seus gastos recorrentes se investidos ao longo do tempo. Calcule grátis.",
+      "ogTitle": "Quanto Seu Cafezinho Custa em 20 Anos? | Auraxis",
+      "ogDescription": "Veja quanto seus gastos recorrentes custariam se fossem investidos. Compartilhe o resultado."
     },
     "hero": {
       "title": "Custo do Estilo de Vida",
@@ -3666,16 +3707,26 @@
       "monthlyAmount": "Valor mensal (R$)",
       "annualReturnPct": "Rentabilidade anual (%)",
       "horizonYears": "Horizonte (anos)",
+      "horizonHint": "Entre 5 e 30 anos",
       "addExpense": "Adicionar gasto",
       "removeExpense": "Remover",
       "calculate": "Calcular",
       "reset": "Limpar"
     },
     "results": {
-      "totalOpportunityCost": "Custo de oportunidade total",
+      "totalOpportunityCost": "Se você investisse, teria",
       "totalMonthly": "Custo mensal total",
       "totalAnnual": "Custo anual total",
-      "horizon": "Horizonte"
+      "horizon": "Horizonte",
+      "realReturn": "Valor real (ajustado pela inflação)",
+      "equivalencesTitle": "Isso equivale a...",
+      "perExpense": "Por gasto"
+    },
+    "cta": {
+      "title": "Transforme esse insight em ação",
+      "description": "Registre suas metas, acompanhe seus gastos e invista com inteligência no Auraxis.",
+      "button": "Criar conta grátis",
+      "share": "Compartilhar resultado"
     },
     "actions": {
       "save": "Salvar simulação",
@@ -3694,7 +3745,28 @@
       "horizonRequired": "Informe o horizonte em anos."
     },
     "disclaimer": {
-      "note": "Simulação baseada em rentabilidade composta constante. Resultados reais podem variar."
+      "note": "Simulação baseada em rentabilidade composta constante (CDI 12% a.a., IPCA 4% a.a. padrão). Resultados reais podem variar."
+    },
+    "faq": {
+      "title": "Perguntas frequentes",
+      "items": [
+        {
+          "q": "O que é custo de oportunidade?",
+          "a": "É o valor que você deixa de ganhar ao gastar em vez de investir. Se você investe R$ 15 por dia, em 20 anos a juros compostos pode ter muito mais do que os R$ 109.500 gastos."
+        },
+        {
+          "q": "Qual taxa de rentabilidade usar?",
+          "a": "A taxa padrão de 12% ao ano representa aproximadamente o CDI/Selic histórico. Você pode ajustar para simular Ibovespa (histórico ~15%) ou outros ativos."
+        },
+        {
+          "q": "O que é o ajuste pela inflação (IPCA)?",
+          "a": "O valor real descontado pelo IPCA mostra o poder de compra atual do seu investimento futuro. Usamos 4% ao ano como padrão histórico."
+        },
+        {
+          "q": "Posso compartilhar o resultado?",
+          "a": "Sim! Clique em 'Copiar link' após calcular. O link recria automaticamente sua simulação para quem abrir."
+        }
+      ]
     }
   },
   "focus": {

@@ -102,6 +102,15 @@ export interface QuitacaoDividasResult {
   bestStrategy: PayoffStrategy;
 }
 
+// ─── Comparison result ───────────────────────────────────────────────────────
+
+export interface CompareMethodsResult {
+  bestStrategy: PayoffStrategy;
+  interestSaved: number;
+  monthsSaved: number;
+  recommendation: string;
+}
+
 // ─── Simulation ──────────────────────────────────────────────────────────────
 
 interface SimDebt {
@@ -195,6 +204,66 @@ function simulateStrategy(debts: DebtEntry[], extraPayment: number, strategy: Pa
 }
 
 /**
+ * Simulates the Snowball strategy: pays smallest balance first.
+ * @param debts Valid debt entries (balance > 0, minimumPayment > 0).
+ * @param extraMonthly Extra monthly payment on top of minimums.
+ * @returns Strategy simulation result.
+ */
+export function simulateSnowball(debts: DebtEntry[], extraMonthly: number): StrategyResult {
+  return simulateStrategy(debts, extraMonthly, "snowball");
+}
+
+/**
+ * Simulates the Avalanche strategy: pays highest interest rate first.
+ * @param debts Valid debt entries (balance > 0, minimumPayment > 0).
+ * @param extraMonthly Extra monthly payment on top of minimums.
+ * @returns Strategy simulation result.
+ */
+export function simulateAvalanche(debts: DebtEntry[], extraMonthly: number): StrategyResult {
+  return simulateStrategy(debts, extraMonthly, "avalanche");
+}
+
+/**
+ * Compares Snowball vs Avalanche results and builds a recommendation.
+ * @param snowball Snowball simulation result.
+ * @param avalanche Avalanche simulation result.
+ * @returns Comparison with best strategy and recommendation text.
+ */
+export function compareMethods(snowball: StrategyResult, avalanche: StrategyResult): CompareMethodsResult {
+  const interestSaved = round2(Math.abs(snowball.totalInterest - avalanche.totalInterest));
+  const monthsSaved = Math.abs(snowball.totalMonths - avalanche.totalMonths);
+  const bestStrategy: PayoffStrategy =
+    avalanche.totalInterest <= snowball.totalInterest ? "avalanche" : "snowball";
+
+  const interestFormatted = interestSaved.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const monthsLabel = monthsSaved === 1 ? "mês" : "meses";
+
+  let recommendation: string;
+  if (interestSaved < 1) {
+    recommendation = "Ambas as estratégias têm resultado equivalente. Escolha a que te motiva mais.";
+  } else if (bestStrategy === "avalanche") {
+    const antecipation = monthsSaved > 0 ? ` e quita ${monthsSaved} ${monthsLabel} antes` : "";
+    recommendation = `A estratégia Avalanche economiza ${interestFormatted} em juros${antecipation}. Recomendada para maximizar a economia financeira.`;
+  } else {
+    recommendation = `A estratégia Snowball quita ${monthsSaved} ${monthsLabel} antes e oferece vitórias rápidas para manter a motivação. A diferença em juros é de ${interestFormatted}.`;
+  }
+
+  return { bestStrategy, interestSaved, monthsSaved, recommendation };
+}
+
+/**
+ * Checks whether a debt is payable given its minimum payment and monthly rate.
+ * A debt is unpayable if the minimum payment never exceeds the monthly interest.
+ * @param debt Debt entry to check.
+ * @returns true if the debt can eventually be paid off.
+ */
+export function isDebtPayable(debt: DebtEntry): boolean {
+  if (debt.balance <= 0) { return true; }
+  const monthlyInterest = debt.balance * (debt.monthlyRatePct / 100);
+  return debt.minimumPayment > monthlyInterest;
+}
+
+/**
  * @param form
  * @returns Debt payoff comparison result.
  */
@@ -204,13 +273,10 @@ export function calculateQuitacaoDividas(
   const validDebts = form.debts.filter((d) => d.balance > 0 && d.minimumPayment > 0);
   const totalDebt = round2(validDebts.reduce((s, d) => s + d.balance, 0));
 
-  const snowball = simulateStrategy(validDebts, form.extraPayment, "snowball");
-  const avalanche = simulateStrategy(validDebts, form.extraPayment, "avalanche");
+  const snowball = simulateSnowball(validDebts, form.extraPayment);
+  const avalanche = simulateAvalanche(validDebts, form.extraPayment);
 
-  const interestSaved = round2(Math.abs(snowball.totalInterest - avalanche.totalInterest));
-  const monthsSaved = Math.abs(snowball.totalMonths - avalanche.totalMonths);
-  const bestStrategy: PayoffStrategy =
-    avalanche.totalInterest <= snowball.totalInterest ? "avalanche" : "snowball";
+  const { interestSaved, monthsSaved, bestStrategy } = compareMethods(snowball, avalanche);
 
   return { totalDebt, snowball, avalanche, interestSaved, monthsSaved, bestStrategy };
 }
