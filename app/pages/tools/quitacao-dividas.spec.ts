@@ -52,6 +52,7 @@ vi.mock("~/features/tools/model/quitacao-dividas", () => ({
   createDefaultQuitacaoDividasFormState: (): object => ({ debts: [{ name: "", balance: 0, monthlyRatePct: 0, minimumPayment: 0 }, { name: "", balance: 0, monthlyRatePct: 0, minimumPayment: 0 }], extraPayment: 0 }),
   validateQuitacaoDividasForm: mockValidate,
   calculateQuitacaoDividas: mockCalculate,
+  compareMethods: vi.fn(() => ({ bestStrategy: "avalanche", interestSaved: 500, monthsSaved: 1, recommendation: "Avalanche economiza mais." })),
 }));
 
 vi.mock("~/features/simulations/queries/use-save-simulation-mutation", () => ({ useSaveSimulationMutation: (): { mutateAsync: typeof mockSaveMutateAsync; isPending: ReturnType<typeof ref<boolean>> } => ({ mutateAsync: mockSaveMutateAsync, isPending: ref(false) }) }));
@@ -76,6 +77,7 @@ const globalStubs = {
   ToolGuestCta: { template: "<div class='tool-guest-cta'>guest-cta</div>" },
   UiChart: { props: ["option", "height"], template: "<div class='v-chart'></div>" },
   ToolSaveResult: { props: ["intent", "label", "amount", "description"], template: "<div class='tool-save-result-stub' />" },
+  NuxtLink: { props: ["to"], template: "<a class='nuxt-link'><slot /></a>" },
 };
 
 /**

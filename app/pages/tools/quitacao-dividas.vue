@@ -23,6 +23,7 @@ import { useSaveSimulationMutation } from "~/features/simulations/queries/use-sa
 import { useCreateGoalMutation } from "~/features/goals/queries/use-create-goal-mutation";
 import {
   calculateQuitacaoDividas,
+  compareMethods,
   createDefaultDebtEntry,
   createDefaultQuitacaoDividasFormState,
   validateQuitacaoDividasForm,
@@ -64,6 +65,7 @@ const { form, validationError, patch, reset, setValidationError } =
 const result = ref<QuitacaoDividasResult | null>(null);
 const savedSimulationId = ref<string | null>(null);
 const goalAdded = ref(false);
+const showAmortizationTable = ref(false);
 
 const saveSimulationMutation = useSaveSimulationMutation();
 const createGoalMutation = useCreateGoalMutation();
@@ -121,6 +123,7 @@ function handleCalculate(): void {
   setValidationError(null);
   savedSimulationId.value = null;
   goalAdded.value = false;
+  showAmortizationTable.value = false;
   result.value = calculateQuitacaoDividas(form.value);
 }
 
@@ -132,7 +135,13 @@ function handleReset(): void {
   result.value = null;
   savedSimulationId.value = null;
   goalAdded.value = false;
+  showAmortizationTable.value = false;
 }
+
+const recommendation = computed<string>(() => {
+  if (!result.value) { return ""; }
+  return compareMethods(result.value.snowball, result.value.avalanche).recommendation;
+});
 
 const chartOption = computed<EChartsOption>(() => {
   if (!result.value) { return {} as EChartsOption; }
@@ -210,6 +219,13 @@ const summaryMetrics = computed(() => {
 
 const isSaved = computed(() => savedSimulationId.value !== null);
 const isBridging = computed(() => saveSimulationMutation.isPending.value || createGoalMutation.isPending.value);
+
+/** Combined timeline for amortization table display (shows best strategy). */
+const amortizationTimeline = computed(() => {
+  if (!result.value) { return []; }
+  const best = result.value.bestStrategy === "avalanche" ? result.value.avalanche : result.value.snowball;
+  return best.timeline;
+});
 </script>
 
 <template>
@@ -298,18 +314,86 @@ const isBridging = computed(() => saveSimulationMutation.isPending.value || crea
             </NSpace>
           </UiStickySummaryCard>
 
+          <!-- Comparative strategy cards -->
           <UiSurfaceCard>
-            <NThing :title="'Snowball'" :description="`${result.snowball.totalMonths} meses — ${formatBrl(result.snowball.totalInterest)} em juros`" />
-            <NThing :title="'Avalanche'" :description="`${result.avalanche.totalMonths} meses — ${formatBrl(result.avalanche.totalInterest)} em juros`" />
+            <div class="quitacao-dividas-page__strategy-cards">
+              <div class="quitacao-dividas-page__strategy-card">
+                <div class="quitacao-dividas-page__strategy-label">Snowball</div>
+                <NThing
+                  :title="`${result.snowball.totalMonths} meses`"
+                  :description="`${formatBrl(result.snowball.totalInterest)} em juros`"
+                />
+              </div>
+              <div class="quitacao-dividas-page__strategy-card">
+                <div class="quitacao-dividas-page__strategy-label">Avalanche</div>
+                <NThing
+                  :title="`${result.avalanche.totalMonths} meses`"
+                  :description="`${formatBrl(result.avalanche.totalInterest)} em juros`"
+                />
+              </div>
+            </div>
           </UiSurfaceCard>
 
+          <!-- Personalized recommendation -->
+          <UiSurfaceCard>
+            <p class="quitacao-dividas-page__recommendation-label">{{ t('quitacaoDividas.results.recommendation') }}</p>
+            <p class="quitacao-dividas-page__recommendation">{{ recommendation }}</p>
+          </UiSurfaceCard>
+
+          <!-- Debt evolution chart -->
           <UiSurfaceCard>
             <UiChart :option="chartOption" height="280px" />
+          </UiSurfaceCard>
+
+          <!-- Amortization table (expandable) -->
+          <UiSurfaceCard>
+            <NButton quaternary size="small" @click="showAmortizationTable = !showAmortizationTable">
+              {{ showAmortizationTable ? t('quitacaoDividas.results.amortizationClose') : t('quitacaoDividas.results.amortizationToggle') }}
+            </NButton>
+            <div v-if="showAmortizationTable" class="quitacao-dividas-page__amortization-table" role="table" aria-label="Tabela de amortização">
+              <div class="quitacao-dividas-page__amortization-header" role="row">
+                <span role="columnheader">{{ t('quitacaoDividas.results.amortizationMonth') }}</span>
+                <span role="columnheader">{{ t('quitacaoDividas.results.amortizationBalance') }}</span>
+                <span role="columnheader">{{ t('quitacaoDividas.results.amortizationPaid') }}</span>
+              </div>
+              <div
+                v-for="point in amortizationTimeline"
+                :key="point.month"
+                class="quitacao-dividas-page__amortization-row"
+                role="row"
+              >
+                <span role="cell">{{ point.month }}</span>
+                <span role="cell">{{ formatBrl(point.totalBalance) }}</span>
+                <span role="cell">{{ formatBrl(point.totalPaid) }}</span>
+              </div>
+            </div>
+          </UiSurfaceCard>
+
+          <!-- CTA: Acompanhar jornada no Auraxis -->
+          <UiSurfaceCard v-if="!isAuthenticated" class="quitacao-dividas-page__cta-card">
+            <p class="quitacao-dividas-page__cta-title">{{ t('quitacaoDividas.cta.title') }}</p>
+            <p class="quitacao-dividas-page__cta-desc">{{ t('quitacaoDividas.cta.description') }}</p>
+            <NuxtLink to="/auth/register">
+              <NButton type="primary" block>{{ t('quitacaoDividas.cta.button') }}</NButton>
+            </NuxtLink>
           </UiSurfaceCard>
 
           <p class="quitacao-dividas-page__disclaimer">{{ t('quitacaoDividas.disclaimer.note') }}</p>
         </div>
       </div>
+
+      <!-- FAQ for SEO -->
+      <section class="quitacao-dividas-page__faq" aria-label="FAQ">
+        <h2>{{ t('quitacaoDividas.faq.title') }}</h2>
+        <details
+          v-for="(item, i) in (t('quitacaoDividas.faq.items', []) as unknown as Array<{ q: string; a: string }>)"
+          :key="i"
+          class="quitacao-dividas-page__faq-item"
+        >
+          <summary>{{ item.q }}</summary>
+          <p>{{ item.a }}</p>
+        </details>
+      </section>
     </div>
     <ToolGuestCta v-if="!isAuthenticated" />
   </NuxtLayout>

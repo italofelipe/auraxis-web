@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from "vue";
+import type { EChartsOption } from "echarts";
 import {
   NAlert,
   NButton,
@@ -37,6 +38,7 @@ import UiStickySummaryCard from "~/components/ui/UiStickySummaryCard/UiStickySum
 import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
 import UiGlassPanel from "~/components/ui/UiGlassPanel/UiGlassPanel.vue";
 import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
+import UiChart from "~/components/ui/UiChart.vue";
 
 definePageMeta({ layout: false });
 
@@ -217,6 +219,42 @@ const summaryMetrics = computed(() => {
 
 const isSaved = computed(() => savedSimulationId.value !== null);
 const isBridging = computed(() => saveSimulationMutation.isPending.value || createGoalMutation.isPending.value);
+
+/** Area chart for growth timeline. */
+const growthChartOption = computed<EChartsOption>(() => {
+  if (!result.value) { return {} as EChartsOption; }
+  const totalMonths = result.value.horizonYears * 12;
+  const monthlyRate = Math.pow(1 + form.value.annualReturnPct / 100, 1 / 12) - 1;
+  const totalMonthly = result.value.totalMonthlyCost;
+
+  // Build cumulative growth data by month
+  const months: string[] = [];
+  const values: number[] = [];
+  let acc = 0;
+  for (let m = 1; m <= totalMonths; m++) {
+    acc = acc * (1 + monthlyRate) + totalMonthly;
+    if (m % 12 === 0 || m === totalMonths) {
+      months.push(`Ano ${Math.ceil(m / 12)}`);
+      values.push(Math.round(acc));
+    }
+  }
+
+  return {
+    tooltip: { trigger: "axis", formatter: (params: unknown): string => {
+      const p = params as Array<{ name: string; value: number }>;
+      return p.map((item) => `${item.name}: ${formatBrl(item.value)}`).join("<br/>");
+    } },
+    xAxis: { type: "category", data: months },
+    yAxis: { type: "value", axisLabel: { formatter: (val: number): string => formatBrl(val) } },
+    series: [{
+      name: "Valor investido",
+      type: "line",
+      areaStyle: {},
+      data: values,
+      smooth: true,
+    }],
+  } as unknown as EChartsOption;
+});
 </script>
 
 <template>
@@ -253,8 +291,8 @@ const isBridging = computed(() => saveSimulationMutation.isPending.value || crea
                   <NInputNumber :value="form.annualReturnPct" :min="0" :precision="2" style="width: 100%" @update:value="(v) => patch({ annualReturnPct: v ?? 12 })" />
                 </NFormItem>
 
-                <NFormItem :label="t('custoEstiloVida.form.horizonYears')">
-                  <NInputNumber :value="form.horizonYears" :min="1" :precision="0" style="width: 100%" @update:value="(v) => patch({ horizonYears: v ?? 10 })" />
+                <NFormItem :label="t('custoEstiloVida.form.horizonYears')" :feedback="t('custoEstiloVida.form.horizonHint')">
+                  <NInputNumber :value="form.horizonYears" :min="1" :max="30" :precision="0" style="width: 100%" @update:value="(v) => patch({ horizonYears: v ?? 10 })" />
                 </NFormItem>
               </CalculatorFormSection>
 
@@ -275,6 +313,7 @@ const isBridging = computed(() => saveSimulationMutation.isPending.value || crea
         </div>
 
         <div v-if="result" class="custo-estilo-vida-page__result-col">
+          <!-- Hero result: big opportunity cost -->
           <UiStickySummaryCard>
             <CalculatorResultSummary
               :label="t('custoEstiloVida.results.totalOpportunityCost')"
@@ -295,24 +334,68 @@ const isBridging = computed(() => saveSimulationMutation.isPending.value || crea
               <NButton v-if="hasPremiumAccess" type="primary" :loading="createGoalMutation.isPending.value" :disabled="goalAdded" block @click="handleAddAsGoal">
                 {{ goalAdded ? t('custoEstiloVida.actions.goalAdded') : t('custoEstiloVida.actions.addAsGoal') }}
               </NButton>
-              <NButton v-if="shareUrl" block quaternary @click="handleCopyShareUrl">
+              <NButton v-if="shareUrl" block quaternary data-testid="copy-share-url" @click="handleCopyShareUrl">
                 {{ t('custoEstiloVida.actions.copyShareUrl') }}
               </NButton>
             </NSpace>
           </UiStickySummaryCard>
 
+          <!-- Growth area chart -->
           <UiSurfaceCard>
+            <UiChart :option="growthChartOption" height="280px" />
+          </UiSurfaceCard>
+
+          <!-- Equivalence cards -->
+          <UiSurfaceCard v-if="result.equivalences.length > 0">
+            <p class="custo-estilo-vida-page__equivalences-title">{{ t('custoEstiloVida.results.equivalencesTitle') }}</p>
+            <div class="custo-estilo-vida-page__equivalences">
+              <div
+                v-for="eq in result.equivalences"
+                :key="eq.label"
+                class="custo-estilo-vida-page__equivalence-card"
+              >
+                <span class="custo-estilo-vida-page__equivalence-qty">{{ eq.quantity }}x</span>
+                <span class="custo-estilo-vida-page__equivalence-label">{{ eq.label }}</span>
+              </div>
+            </div>
+          </UiSurfaceCard>
+
+          <!-- Per-expense breakdown -->
+          <UiSurfaceCard>
+            <p class="custo-estilo-vida-page__per-expense-title">{{ t('custoEstiloVida.results.perExpense') }}</p>
             <NThing
               v-for="exp in result.expenses"
               :key="exp.name"
               :title="exp.name"
-              :description="`${formatBrl(exp.monthlyAmount)}/mês → ${formatBrl(exp.opportunityCost)} em ${result.horizonYears} anos`"
+              :description="`${formatBrl(exp.monthlyAmount)}/mês → ${formatBrl(exp.investedValue)} em ${result.horizonYears} anos (real: ${formatBrl(exp.realReturn)})`"
             />
+          </UiSurfaceCard>
+
+          <!-- Strong CTA -->
+          <UiSurfaceCard v-if="!isAuthenticated" class="custo-estilo-vida-page__cta-card">
+            <p class="custo-estilo-vida-page__cta-title">{{ t('custoEstiloVida.cta.title') }}</p>
+            <p class="custo-estilo-vida-page__cta-desc">{{ t('custoEstiloVida.cta.description') }}</p>
+            <NuxtLink to="/auth/register">
+              <NButton type="primary" block>{{ t('custoEstiloVida.cta.button') }}</NButton>
+            </NuxtLink>
           </UiSurfaceCard>
 
           <p class="custo-estilo-vida-page__disclaimer">{{ t('custoEstiloVida.disclaimer.note') }}</p>
         </div>
       </div>
+
+      <!-- FAQ for SEO -->
+      <section class="custo-estilo-vida-page__faq" aria-label="FAQ">
+        <h2>{{ t('custoEstiloVida.faq.title') }}</h2>
+        <details
+          v-for="(item, i) in (t('custoEstiloVida.faq.items', []) as unknown as Array<{ q: string; a: string }>)"
+          :key="i"
+          class="custo-estilo-vida-page__faq-item"
+        >
+          <summary>{{ item.q }}</summary>
+          <p>{{ item.a }}</p>
+        </details>
+      </section>
     </div>
     <ToolGuestCta v-if="!isAuthenticated" />
   </NuxtLayout>
