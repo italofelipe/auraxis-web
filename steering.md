@@ -2,6 +2,43 @@
 
 Documento canônico de direção técnica do `auraxis-web`.
 
+## Decisões de arquitetura
+
+### ADR-001: Nuxt 4 + Naive UI como stack canônico
+
+Stack: Nuxt 4, Vue 3 Composition API, Naive UI, TanStack Query, Pinia, TypeScript strict.
+Não adicionar UI libraries alternativas (Vuetify, PrimeVue, etc.).
+
+### ADR-002: Feature-based architecture
+
+Toda lógica de domínio fica em `app/features/<domain>/`.
+Imports laterais entre features são proibidos.
+Componentes reutilizáveis vão para `app/shared/`.
+
+### ADR-003: TanStack Query como server state
+
+Nunca sincronize dados da API com `ref()` ou Pinia manualmente.
+Use `useQuery`/`useMutation` de `app/features/*/queries/`.
+
+### ADR-004: Locale EN congelado (DEC-186)
+
+`app/i18n/locales/en.json` está congelado durante MVP1.
+Para editar: commit com `[en-freeze-bypass]` no subject + update de `.en-frozen.sha256`.
+
+### ADR-005: E2E job faz build local (não artifact download)
+
+O job `e2e` em `ci.yml` deve sempre fazer `pnpm build` localmente.
+`download-artifact@v4` falha no mesmo run — não re-introduzir.
+
+## Governança
+
+- Branch: `type/scope-description`
+- Quality gate: `pnpm quality-check` antes de todo commit
+- Coverage: ≥ 85% (nunca regredir)
+- PRs: incluir `Closes #<n>` no body
+- Nunca commitar direto em main
+- GitHub Projects é a fonte de backlog
+
 ## Referências obrigatórias
 
 Antes de qualquer trabalho neste repo, ler:

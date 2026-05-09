@@ -97,6 +97,60 @@ Ver `.context/quality_gates.md` (local) e `auraxis-platform/.context/25_quality_
 - Commitar sem rodar quality gates
 - Usar `git add .` (sempre staged seletivamente)
 
+## Mapa de estado
+
+| Responsabilidade                  | Solução                   | Localização                                    |
+| --------------------------------- | ------------------------- | ---------------------------------------------- |
+| Server state (dados da API)       | TanStack Query            | `app/features/*/queries/`                      |
+| UI state global (modais, sidebar) | Pinia stores              | `app/stores/` ou `app/features/*/composables/` |
+| Form state                        | `useForm` / Naive UI Form | dentro do componente ou composable             |
+| Session / auth                    | Pinia + localStorage      | `app/features/auth/`                           |
+
+**Regra:** nunca sincronize manualmente server state. Use `queryClient.invalidateQueries()`.
+
+## Design system — Naive UI disponível
+
+Todos os componentes Naive UI estão disponíveis globalmente.
+Antes de criar componente custom, verifique:
+
+- Naive UI docs: https://www.naiveui.com/en-US/os-theme/components
+- `app/shared/components/` — wrappers e extensões customizadas do projeto
+
+Wrappers customizados disponíveis (sempre prefira estes):
+
+- `UiButton`, `UiCard`, `UiMetricCard`, `UiEmptyState`, `UiInlineError`
+- `UiChart` — wrapper ECharts com tema Auraxis
+- `UiImage` — substituto de `<img>` (com lazy loading)
+- `AppSkeleton` — skeleton loader unificado
+- `useToast` — composable unificado para notificações (não use `useMessage` diretamente)
+
+## Padrão de feature layer
+
+```
+app/features/<domain>/
+  contracts/     # DTOs e tipos alinhados ao contrato REST/GraphQL
+  api/           # HTTP client + mapper DTO → domínio
+  queries/       # Vue Query hooks (useQuery / useMutation)
+  composables/   # Estado reativo e orquestração fina
+  components/    # Componentes Vue exclusivos da feature
+  services/      # Regras de negócio puras (sem Vue)
+  model/         # Tipos de domínio e view models
+```
+
+**Sem import lateral entre features.** Reutilizável → `app/shared/`.
+
+## Padrão de composable (Vue 3)
+
+```typescript
+// app/features/<domain>/composables/use<Domain>.ts
+export function use<Domain>() {
+  const query = use<Domain>Query();
+  const mutation = use<Domain>Mutation();
+  // derivar computed
+  return { data: computed(...), isLoading: query.isLoading, submit: mutation.mutate };
+}
+```
+
 ## Integração com platform
 
 Este repo é orchestrado por `auraxis-platform`.
