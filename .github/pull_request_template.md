@@ -1,32 +1,34 @@
-## Summary
+## Descrição
 
-<!-- What changed and why -->
+<!-- Explique o que foi implementado e por quê. -->
 
-## Task Reference
+Closes #<!-- número da issue -->
 
-- Task ID: `WEBx` / `PLTx` / `DSH-x` / `Bxx` (if integration)
-- GitHub Projects / issue updated: [ ] yes
+## Tipo de mudança
 
-## Validation
+- [ ] Feature nova
+- [ ] Bug fix
+- [ ] Refactor
+- [ ] Documentação / infraestrutura
+- [ ] Outros: \_\_\_
 
-- [ ] `pnpm quality-check`
-- [ ] `pnpm contracts:check`
-- [ ] `pnpm build`
+## Checklist de qualidade
 
-## Frontend Governance (Mandatory)
+- [ ] `pnpm quality-check` passou localmente (lint + typecheck + coverage + build)
+- [ ] Coverage **não** regrediu abaixo de 85%
+- [ ] Testes unitários criados ou atualizados para o código novo
+- [ ] Nenhum `xit()`, `xtest()` ou `skip()` sem `// reason:`
 
-- [ ] No `.js/.jsx` introduced in product code.
-- [ ] Shared/reusable code moved to `app/shared/*` or `app/core/*` when appropriate.
-- [ ] Feature-based organization respected.
-- [ ] No placeholder masks nominal integration failures.
+## Checklist de locale
 
-## Deploy checklist _(preencher apenas se `.github/workflows/deploy*.yml` ou `nuxt.config.ts` foram alterados)_
+- [ ] **Não modifiquei `en.json`** — OU —
+- [ ] Modifiquei `en.json` com `[en-freeze-bypass]` no commit subject E atualizei `.en-frozen.sha256`
 
-- [ ] `S3_BUCKET` bate com o origin da distribuição CloudFront? (run `aws cloudfront get-distribution --id <ID> --query '...Origins.Items[0].DomainName'`)
-- [ ] `AWS_WEB_CLOUDFRONT_DISTRIBUTION_ID` (secret/var) aponta para a distribuição correta?
-- [ ] Smoke test cobre o novo comportamento?
-- [ ] Consultar `.context/09_infra_map.md` no `auraxis-platform` antes de alterar qualquer valor de infra.
+## Checklist de CI
 
-## Risks / Follow-ups
+- [ ] O job E2E builda o Nuxt **localmente** (não usa `download-artifact@v4`)
+- [ ] Nenhum novo `download-artifact` adicionado ao `ci.yml`
 
-<!-- Residual risk, technical debt, and next action -->
+## Screenshots / evidência (se UI)
+
+<!-- Opcional — screenshot ou vídeo da mudança visual -->
