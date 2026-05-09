@@ -379,7 +379,8 @@ export default defineNuxtConfig({
         },
       ],
       // Never cache API calls — financial data must be real-time.
-      navigateFallback: null,
+      navigateFallback: "/offline.html",
+      navigateFallbackDenylist: [/^\/api\//],
     },
     client: {
       installPrompt: true,
