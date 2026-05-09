@@ -13,9 +13,11 @@ export const RESERVA_EMERGENCIA_PUBLIC_PATH = "/tools/reserva-emergencia";
 // ─── Profile multipliers ─────────────────────────────────────────────────────
 
 export const PROFILE_OPTIONS = [
-  { value: "clt", label: "CLT", months: 6 },
+  { value: "clt", label: "CLT Estável", months: 6 },
+  { value: "clt_instavel", label: "CLT Instável / Comissionista", months: 9 },
   { value: "pj", label: "PJ / Prestador", months: 12 },
   { value: "autonomo", label: "Autônomo", months: 12 },
+  { value: "aposentado", label: "Aposentado", months: 3 },
   { value: "empresario", label: "Empresário", months: 18 },
 ] as const;
 

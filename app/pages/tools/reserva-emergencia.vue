@@ -28,6 +28,8 @@ import {
   type ReservaEmergenciaFormState,
   type ReservaEmergenciaResult,
 } from "~/features/tools/model/reserva-emergencia";
+import { useToolPageStructuredData } from "~/features/tools/composables/useToolPageStructuredData";
+import { RESERVA_EMERGENCIA_FAQS } from "~/features/tools/content/reserva-emergencia-faqs";
 import CalculatorFormSection from "~/components/tool/CalculatorFormSection/CalculatorFormSection.vue";
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
@@ -51,6 +53,13 @@ useSeoMeta({
   ogTitle: t("reservaEmergencia.seo.ogTitle"),
   ogDescription: t("reservaEmergencia.seo.ogDescription"),
   twitterCard: "summary_large_image",
+});
+
+useToolPageStructuredData({
+  slug: "reserva-emergencia",
+  name: t("reservaEmergencia.seo.ogTitle"),
+  description: t("reservaEmergencia.seo.description"),
+  faqs: RESERVA_EMERGENCIA_FAQS,
 });
 
 const isAuthenticated = computed<boolean>(() => sessionStore.isAuthenticated);

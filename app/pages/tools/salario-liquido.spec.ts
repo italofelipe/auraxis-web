@@ -93,6 +93,14 @@ vi.mock("~/composables/useApiError", () => ({
 }));
 vi.mock("~/core/observability", () => ({ captureException: mockCaptureException }));
 
+vi.mock("~/features/tools/composables/useToolPageStructuredData", () => ({
+  useToolPageStructuredData: vi.fn(),
+}));
+
+vi.mock("~/features/tools/content/salario-liquido-faqs", () => ({
+  SALARIO_LIQUIDO_FAQS: [],
+}));
+
 vi.mock("~/features/tools/model/salario-liquido", () => ({
   BR_TAX_TABLE_YEAR: 2025,
   createDefaultSalarioLiquidoFormState: (): object => ({

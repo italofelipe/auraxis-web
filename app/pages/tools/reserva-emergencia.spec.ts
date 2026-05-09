@@ -54,6 +54,14 @@ vi.mock("~/features/tools/composables/useToolCta", () => ({ useToolCta: (): { sh
 vi.mock("~/composables/useApiError", () => ({ useApiError: (): { getErrorMessage: (err: unknown) => string } => ({ getErrorMessage: vi.fn((err: unknown): string => String(err)) }) }));
 vi.mock("~/core/observability", () => ({ captureException: mockCaptureException }));
 
+vi.mock("~/features/tools/composables/useToolPageStructuredData", () => ({
+  useToolPageStructuredData: vi.fn(),
+}));
+
+vi.mock("~/features/tools/content/reserva-emergencia-faqs", () => ({
+  RESERVA_EMERGENCIA_FAQS: [],
+}));
+
 vi.mock("~/features/tools/model/reserva-emergencia", () => ({
   PROFILE_OPTIONS: [{ value: "clt", label: "CLT", months: 6 }],
   createDefaultReservaEmergenciaFormState: (): object => ({ monthlyExpenses: null, profile: "clt", currentReserve: 0, monthlyContribution: null, annualReturnPct: 12.25 }),

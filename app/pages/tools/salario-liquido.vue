@@ -26,6 +26,8 @@ import {
   type SalarioLiquidoFormState,
   type SalarioLiquidoResult,
 } from "~/features/tools/model/salario-liquido";
+import { useToolPageStructuredData } from "~/features/tools/composables/useToolPageStructuredData";
+import { SALARIO_LIQUIDO_FAQS } from "~/features/tools/content/salario-liquido-faqs";
 import CalculatorFormSection from "~/components/tool/CalculatorFormSection/CalculatorFormSection.vue";
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
@@ -48,6 +50,13 @@ useSeoMeta({
   ogTitle: t("salarioLiquido.seo.ogTitle"),
   ogDescription: t("salarioLiquido.seo.ogDescription"),
   twitterCard: "summary_large_image",
+});
+
+useToolPageStructuredData({
+  slug: "salario-liquido",
+  name: t("salarioLiquido.seo.ogTitle"),
+  description: t("salarioLiquido.seo.description"),
+  faqs: SALARIO_LIQUIDO_FAQS,
 });
 
 const isAuthenticated = computed<boolean>(() => sessionStore.isAuthenticated);
