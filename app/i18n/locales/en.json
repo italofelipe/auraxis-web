@@ -3528,10 +3528,10 @@
   },
   "quitacaoDividas": {
     "seo": {
-      "title": "Debt Payoff Simulator | Auraxis",
-      "description": "Compare Snowball and Avalanche strategies to pay off debt faster and pay less interest.",
-      "ogTitle": "Debt Payoff Simulator | Auraxis",
-      "ogDescription": "Find the best strategy to pay off your debts and save on interest."
+      "title": "Debt Payoff — Auraxis",
+      "description": "Compare Snowball and Avalanche strategies to pay off debt faster.",
+      "ogTitle": "Debt Payoff | Auraxis",
+      "ogDescription": "Find the best strategy to pay off your debts."
     },
     "hero": {
       "title": "Debt Payoff",
@@ -3555,30 +3555,14 @@
       "snowballMonths": "Snowball (months)",
       "avalancheMonths": "Avalanche (months)",
       "interestSaved": "Interest saved",
-      "snowballInterest": "Total interest (Snowball)",
-      "avalancheInterest": "Total interest (Avalanche)",
-      "firstToPayoff": "First debt to pay off",
-      "recommendation": "Recommendation",
-      "amortizationTable": "Amortization table",
-      "amortizationToggle": "View full table",
-      "amortizationClose": "Hide table",
-      "amortizationMonth": "Month",
-      "amortizationBalance": "Total balance",
-      "amortizationPaid": "Total paid",
       "best": {
         "snowball": "Snowball is better",
         "avalanche": "Avalanche is better"
       },
       "goalDescription": "Goal: pay off all debts",
       "chart": {
-        "xAxis": "Month",
-        "title": "Debt evolution over time"
+        "xAxis": "Month"
       }
-    },
-    "cta": {
-      "title": "Track your journey on Auraxis",
-      "description": "Log your debts, goals, and financial progress in one place.",
-      "button": "Create free account"
     },
     "actions": {
       "save": "Save simulation",
@@ -3596,39 +3580,14 @@
     },
     "disclaimer": {
       "note": "Simplified simulation. Actual compound rates and fees may differ."
-    },
-    "faq": {
-      "title": "Frequently asked questions",
-      "items": [
-        {
-          "q": "What is the Snowball strategy?",
-          "a": "Snowball focuses on paying off the smallest balance first. This creates quick wins and keeps motivation high."
-        },
-        {
-          "q": "What is the Avalanche strategy?",
-          "a": "Avalanche prioritizes the highest interest rate debt. You pay less total interest, even if it takes longer to see the first debt cleared."
-        },
-        {
-          "q": "Which strategy is better?",
-          "a": "It depends on your profile. If you need quick motivation, Snowball is great. If you want to save as much as possible on interest, Avalanche is the financially superior choice."
-        },
-        {
-          "q": "Can I add more than 2 debts?",
-          "a": "Yes! Click 'Add debt' to include as many as you like."
-        },
-        {
-          "q": "Is the extra payment required?",
-          "a": "No. If left at zero, the simulation uses only the minimum payments for each debt."
-        }
-      ]
     }
   },
   "custoEstiloVida": {
     "seo": {
-      "title": "How Much Does Your Daily Coffee Cost in 20 Years? | Auraxis",
-      "description": "Discover the opportunity cost of your recurring expenses if invested over time. Free calculator.",
-      "ogTitle": "How Much Does Your Daily Coffee Cost in 20 Years? | Auraxis",
-      "ogDescription": "See how much your recurring expenses would be worth if invested. Share your result."
+      "title": "Lifestyle Cost — Auraxis",
+      "description": "Discover the opportunity cost of your recurring expenses if invested.",
+      "ogTitle": "Lifestyle Cost | Auraxis",
+      "ogDescription": "See how much your recurring expenses would be worth if invested."
     },
     "hero": {
       "title": "Lifestyle Cost",
@@ -3641,26 +3600,16 @@
       "monthlyAmount": "Monthly amount (R$)",
       "annualReturnPct": "Annual return (%)",
       "horizonYears": "Horizon (years)",
-      "horizonHint": "Between 5 and 30 years",
       "addExpense": "Add expense",
       "removeExpense": "Remove",
       "calculate": "Calculate",
       "reset": "Reset"
     },
     "results": {
-      "totalOpportunityCost": "If you invested, you would have",
+      "totalOpportunityCost": "Total opportunity cost",
       "totalMonthly": "Total monthly cost",
       "totalAnnual": "Total annual cost",
-      "horizon": "Horizon",
-      "realReturn": "Real value (inflation-adjusted)",
-      "equivalencesTitle": "That is equivalent to...",
-      "perExpense": "Per expense"
-    },
-    "cta": {
-      "title": "Turn this insight into action",
-      "description": "Track your goals, expenses, and invest smarter on Auraxis.",
-      "button": "Create free account",
-      "share": "Share result"
+      "horizon": "Horizon"
     },
     "actions": {
       "save": "Save simulation",
@@ -3679,28 +3628,7 @@
       "horizonRequired": "Enter the horizon in years."
     },
     "disclaimer": {
-      "note": "Based on constant compound return (default CDI 12% p.a., IPCA 4% p.a.). Actual results may vary."
-    },
-    "faq": {
-      "title": "Frequently asked questions",
-      "items": [
-        {
-          "q": "What is opportunity cost?",
-          "a": "It is the value you forgo by spending instead of investing. If you invest R$ 15 per day, at compound interest over 20 years you could have much more than the R$ 109,500 spent."
-        },
-        {
-          "q": "Which return rate should I use?",
-          "a": "The default 12% per year approximately represents the historical CDI/Selic rate. You can adjust it to simulate the stock market (historical ~15%) or other assets."
-        },
-        {
-          "q": "What is the inflation (IPCA) adjustment?",
-          "a": "The real value discounted by IPCA shows the current purchasing power of your future investment. We use 4% per year as the historical default."
-        },
-        {
-          "q": "Can I share the result?",
-          "a": "Yes! Click 'Copy link' after calculating. The link automatically recreates your simulation for anyone who opens it."
-        }
-      ]
+      "note": "Based on constant compound return. Actual results may vary."
     }
   },
   "focus": {
