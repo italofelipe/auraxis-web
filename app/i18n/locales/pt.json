@@ -182,6 +182,8 @@
       "unknownError": "Erro desconhecido de integração.",
       "retry": "Tentar novamente",
       "noData": "Sem dados para este período",
+      "noDataCurrentMonthTitle": "Nenhuma movimentação em {month}",
+      "noDataCurrentMonth": "Que tal registrar sua primeira receita ou despesa de {month}? Seus dados aparecem aqui assim que você lançar uma transação.",
       "noDataCustom": "Nenhum dado encontrado para o período personalizado.",
       "noDataPeriod": "Ainda não encontramos movimentações para o período selecionado.",
       "registerFirstTransaction": "Registre sua primeira transação",
