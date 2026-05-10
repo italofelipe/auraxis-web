@@ -1,4 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { existsSync } from "node:fs";
+import { createRequire } from "node:module";
 import { visualizer } from "rollup-plugin-visualizer";
 import { buildCsp, resolveCspEnvironment } from "./app/core/security/csp";
 import { TOOL_SLUGS } from "./app/data/tools";
@@ -10,6 +12,20 @@ import { TOOL_SLUGS } from "./app/data/tools";
 // injected in production to avoid double-specification.
 const cspEnvironment = resolveCspEnvironment(process.env.NUXT_PUBLIC_APP_ENV);
 const cspPolicy = buildCsp(cspEnvironment);
+const hasContentDirectory = existsSync(new URL("./content", import.meta.url));
+const shouldEnableContent =
+  process.env.NODE_ENV !== "test"
+  && (hasContentDirectory || process.env.NUXT_ENABLE_CONTENT === "1");
+const requireFromConfig = createRequire(import.meta.url);
+const requireFromVite = createRequire(requireFromConfig.resolve("vite/package.json"));
+
+/**
+ * Stops Vite's nested esbuild service after Nuxt finishes building.
+ */
+const stopViteEsbuildService = (): void => {
+  const esbuild = requireFromVite("esbuild") as { stop?: () => void };
+  esbuild.stop?.();
+};
 
 /**
  * Generates routeRules entries for all tool slugs (PT + EN locales).
@@ -33,7 +49,13 @@ const toolPrerenderRoutes: string[] = TOOL_SLUGS.flatMap((slug) => [
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
 
-  devtools: { enabled: true },
+  devtools: { enabled: process.env.NODE_ENV === "development" },
+
+  hooks: {
+    close: () => {
+      stopViteEsbuildService();
+    },
+  },
 
   // ── Rendering ─────────────────────────────────────────────────────────
   // SSR is enabled globally so that `prerender: true` route rules generate
@@ -134,10 +156,9 @@ export default defineNuxtConfig({
   modules: [
     "@sentry/nuxt/module", // Error tracking e source maps (opt-in via NUXT_PUBLIC_SENTRY_DSN)
     "@nuxt/eslint",       // Lint integrado ao Nuxt (gera eslint.config via `nuxt lint`)
-    // @nuxt/content excluded in test env: its SQLite init (better-sqlite3 native
-    // binding) fails in CI when pnpm store cache is cold. Content CMS is only
-    // needed at runtime and in dev; E2E tests cover any content-driven pages.
-    ...(process.env.NODE_ENV !== "test" ? ["@nuxt/content" as const] : []),
+    // Load @nuxt/content only when real content files exist. With only
+    // content.config.ts present, its SQLite cache stays open after build.
+    ...(shouldEnableContent ? ["@nuxt/content" as const] : []),
     "@nuxt/scripts",      // Carregamento otimizado de scripts de terceiros
     "@nuxt/a11y",         // Auditor de acessibilidade em dev
     // "@nuxt/hints" removed — its virtual config import returned 400 in the
