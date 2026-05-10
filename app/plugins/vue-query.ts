@@ -17,12 +17,14 @@ const queryRetryDelay = (attemptIndex: number): number =>
  * @returns QueryClient configured for the application.
  */
 const createQueryClient = (): QueryClient => {
+  const isServer = import.meta.server;
+
   return new QueryClient({
     defaultOptions: {
       queries: {
         staleTime: 30_000,
-        gcTime: 300_000,
-        retry: 2,
+        gcTime: isServer ? 0 : 300_000,
+        retry: isServer ? false : 2,
         retryDelay: queryRetryDelay,
         refetchOnWindowFocus: false,
       },

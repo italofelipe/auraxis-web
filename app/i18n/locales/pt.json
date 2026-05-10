@@ -1488,6 +1488,11 @@
     "periodSelector": {
       "ariaLabel": "Selecionar período"
     },
+    "controlBar": {
+      "ariaLabel": "Barra de controle do dashboard",
+      "periodAriaLabel": "Período",
+      "notificationsAriaLabel": "Notificações"
+    },
     "quickAdd": {
       "income": "Nova Receita",
       "expense": "Nova Despesa"

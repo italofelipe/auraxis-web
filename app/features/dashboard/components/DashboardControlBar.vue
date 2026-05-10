@@ -1,53 +1,53 @@
 <script setup lang="ts">
 /**
- * DashboardControlBar — DS Wave-2
+ * DashboardControlBar — Market Pulse dashboard command bar.
  *
- * Global control bar for the dashboard with period selector chips,
- * a mode toggle (Analítico / Essencial) and a notification icon.
- * Emits changes upward — does not hold state.
- *
- * Issues: #728
+ * Keeps period and reading-mode state outside the component so the page can
+ * coordinate queries, custom ranges and future saved views without hidden state.
  */
 
-import { Bell } from "lucide-vue-next";
-import type { DashboardPeriod } from "~/features/dashboard/model/dashboard-period";
+import { Bell, CalendarDays } from "lucide-vue-next";
+import type { DashboardPeriodPreset } from "~/features/dashboard/model/dashboard-overview";
 
-// ── Props ─────────────────────────────────────────────────────────────────────
+type DashboardViewMode = "analytical" | "essential";
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   /** Currently active period chip. */
-  period: DashboardPeriod;
+  period: DashboardPeriodPreset;
+  /** Active dashboard reading mode. */
+  mode?: DashboardViewMode;
   /** Whether the user has unread notifications. */
   hasNotifications?: boolean;
-}>();
-
-// ── Emits ─────────────────────────────────────────────────────────────────────
+}>(), {
+  mode: "analytical",
+  hasNotifications: false,
+});
 
 const emit = defineEmits<{
   /** Emitted when the user selects a new period chip. */
-  "update:period": [value: DashboardPeriod];
+  "update:period": [value: DashboardPeriodPreset];
+  /** Emitted when the user switches between analytical and essential modes. */
+  "update:mode": [value: DashboardViewMode];
   /** Emitted when the notification icon is clicked. */
   "open-notifications": [];
 }>();
 
-// ── Period chips ─────────────────────────────────────────────────────────────
-
 interface PeriodChip {
   readonly label: string;
-  readonly value: DashboardPeriod;
+  readonly value: DashboardPeriodPreset;
 }
 
 const PERIOD_CHIPS: ReadonlyArray<PeriodChip> = [
-  { label: "1m",   value: "1m"  },
-  { label: "3m",   value: "3m"  },
-  { label: "6m",   value: "6m"  },
-  { label: "12m",  value: "12m" },
+  { label: "Mês", value: "current_month" },
+  { label: "3m", value: "3m" },
+  { label: "6m", value: "6m" },
+  { label: "12m", value: "12m" },
+  { label: "Custom", value: "custom" },
 ];
 </script>
 
 <template>
   <div class="dcb" role="toolbar" :aria-label="$t('dashboard.controlBar.ariaLabel', 'Barra de controle do dashboard')">
-    <!-- Period chips -->
     <div class="dcb__periods" role="group" :aria-label="$t('dashboard.controlBar.periodAriaLabel', 'Período')">
       <button
         v-for="chip in PERIOD_CHIPS"
@@ -58,13 +58,38 @@ const PERIOD_CHIPS: ReadonlyArray<PeriodChip> = [
         :aria-pressed="props.period === chip.value"
         @click="emit('update:period', chip.value)"
       >
+        <CalendarDays
+          v-if="chip.value === 'custom'"
+          :size="14"
+          aria-hidden="true"
+        />
         {{ chip.label }}
       </button>
     </div>
 
     <div class="dcb__spacer" />
 
-    <!-- Notification icon -->
+    <div class="dcb__mode" role="group" aria-label="Modo de leitura">
+      <button
+        type="button"
+        class="dcb__mode-button"
+        :class="{ 'dcb__mode-button--active': props.mode === 'analytical' }"
+        :aria-pressed="props.mode === 'analytical'"
+        @click="emit('update:mode', 'analytical')"
+      >
+        Modo Analítico
+      </button>
+      <button
+        type="button"
+        class="dcb__mode-button"
+        :class="{ 'dcb__mode-button--active': props.mode === 'essential' }"
+        :aria-pressed="props.mode === 'essential'"
+        @click="emit('update:mode', 'essential')"
+      >
+        Modo Essencial
+      </button>
+    </div>
+
     <button
       type="button"
       class="dcb__notification"
@@ -85,7 +110,7 @@ const PERIOD_CHIPS: ReadonlyArray<PeriodChip> = [
 .dcb {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
   flex-wrap: wrap;
 }
 
@@ -93,18 +118,21 @@ const PERIOD_CHIPS: ReadonlyArray<PeriodChip> = [
   flex: 1;
 }
 
-/* ── Period chips ──────────────────────────────────────────────────────────── */
 .dcb__periods {
   display: flex;
-  gap: 4px;
+  gap: var(--space-2);
   flex-wrap: wrap;
 }
 
 .dcb__chip {
-  padding: 4px var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--space-6);
+  padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-sm);
-  border: 1px solid var(--color-outline-soft);
-  background: transparent;
+  border: var(--space-px) solid var(--color-outline-soft);
+  background: var(--color-bg-elevated);
   font: inherit;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
@@ -114,7 +142,7 @@ const PERIOD_CHIPS: ReadonlyArray<PeriodChip> = [
 }
 
 .dcb__chip:hover {
-  background: var(--color-bg-elevated);
+  background: var(--color-bg-surface);
   color: var(--color-text-primary);
   border-color: var(--color-text-muted);
 }
@@ -125,13 +153,45 @@ const PERIOD_CHIPS: ReadonlyArray<PeriodChip> = [
   color: var(--color-brand-500);
 }
 
-/* ── Notification ──────────────────────────────────────────────────────────── */
+.dcb__mode {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border: var(--space-px) solid var(--color-outline-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-elevated);
+}
+
+.dcb__mode-button {
+  min-height: var(--space-6);
+  padding: var(--space-1) var(--space-3);
+  border: var(--space-px) solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  transition: background var(--motion-fast), color var(--motion-fast), border-color var(--motion-fast);
+}
+
+.dcb__mode-button:hover {
+  color: var(--color-text-primary);
+}
+
+.dcb__mode-button--active {
+  border-color: var(--color-outline-soft);
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+}
+
 .dcb__notification {
   position: relative;
-  width: 32px;
-  height: 32px;
+  width: var(--space-6);
+  height: var(--space-6);
   border-radius: var(--radius-full);
-  border: 1px solid var(--color-outline-soft);
+  border: var(--space-px) solid var(--color-outline-soft);
   background: var(--color-bg-elevated);
   color: var(--color-text-muted);
   display: flex;
@@ -149,11 +209,31 @@ const PERIOD_CHIPS: ReadonlyArray<PeriodChip> = [
 
 .dcb__notification-dot {
   position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 7px;
-  height: 7px;
+  inset-block-start: var(--space-1);
+  inset-inline-end: var(--space-1);
+  width: var(--space-2);
+  height: var(--space-2);
   border-radius: var(--radius-full);
   background: var(--color-negative);
+}
+
+@media (max-width: 640px) {
+  .dcb__mode {
+    width: 100%;
+  }
+
+  .dcb__mode-button {
+    flex: 1;
+  }
+
+  .dcb__spacer {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .dcb__periods {
+    width: 100%;
+  }
 }
 </style>

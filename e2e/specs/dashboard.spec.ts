@@ -1,5 +1,4 @@
 import { test, expect, type Page } from "@playwright/test";
-import { waitForHydration } from "../helpers/auth";
 
 /**
  * E2E suite: Dashboard page — backed by MSW mock handlers.
@@ -31,16 +30,48 @@ const MOCK_LOGIN_SUCCESS = {
 
 /** Mock dashboard overview data. */
 const MOCK_OVERVIEW = {
-	income: 10000,
-	expense: 4000,
-	balance: 6000,
-	netWorth: 50000,
+	period: {
+		key: "current_month",
+		start: "2026-05-01",
+		end: "2026-05-31",
+		label: "maio de 2026",
+	},
+	summary: {
+		income: 124500,
+		expense: 82340.5,
+		balance: 42159.5,
+		upcoming_due_total: 15000,
+		net_worth: 220000,
+	},
+	comparison: {
+		income_vs_previous_month_percent: 12.5,
+		expense_vs_previous_month_percent: -4.2,
+		balance_vs_previous_month_percent: 28.4,
+	},
+	timeseries: [],
+	expenses_by_category: [
+		{ category: "Tecnologia & SaaS", amount: 12450, percentage: 15 },
+		{ category: "Infraestrutura", amount: 8230, percentage: 10 },
+	],
+	upcoming_dues: [
+		{
+			id: "due-1",
+			description: "Aluguel Escritório SP",
+			amount: 15000,
+			due_date: "2026-05-12",
+			category: "Infraestrutura",
+		},
+	],
 	goals: [],
-	alerts: [],
-	upcomingDues: [],
-	expensesByCategory: [],
-	comparison: null,
-	portfolio: { currentValue: 25000, costBasis: 20000 },
+	portfolio: { current_value: 220000, change_percent: 8.6 },
+	alerts: [
+		{
+			type: "warning",
+			title: "Gasto atípico: Marketing",
+			description: "Facebook Ads excedeu a média mensal nos últimos 3 dias.",
+			action_label: "Revisar Despesa",
+		},
+	],
 };
 
 /**
@@ -54,6 +85,14 @@ const mockAuthAndDashboard = async (page: Page): Promise<void> => {
 			status: 200,
 			contentType: "application/json",
 			body: JSON.stringify(MOCK_LOGIN_SUCCESS),
+		});
+	});
+
+	await page.route("**/auth/refresh", (route) => {
+		route.fulfill({
+			status: 200,
+			contentType: "application/json",
+			body: JSON.stringify({ success: true, data: { token: "mock-access-token-refreshed" } }),
 		});
 	});
 
@@ -92,17 +131,53 @@ const mockAuthAndDashboard = async (page: Page): Promise<void> => {
 			}),
 		});
 	});
+
+	await page.route("**/subscriptions/me", (route) => {
+		route.fulfill({
+			status: 200,
+			contentType: "application/json",
+			body: JSON.stringify({
+				id: "sub-free",
+				plan_slug: "free",
+				status: "active",
+				trial_ends_at: null,
+				current_period_end: null,
+				provider: null,
+				provider_subscription_id: null,
+			}),
+		});
+	});
+
+	await page.route("**/tags", (route) => {
+		route.fulfill({
+			status: 200,
+			contentType: "application/json",
+			body: JSON.stringify({ data: { tags: [] } }),
+		});
+	});
+
+	await page.route("**/accounts", (route) => {
+		route.fulfill({
+			status: 200,
+			contentType: "application/json",
+			body: JSON.stringify({ data: { accounts: [] } }),
+		});
+	});
+
+	await page.route("**/credit-cards", (route) => {
+		route.fulfill({
+			status: 200,
+			contentType: "application/json",
+			body: JSON.stringify({ data: { credit_cards: [] } }),
+		});
+	});
 };
 
 test.describe("Dashboard — MSW-backed flows", () => {
 	test("dashboard page loads with mocked data", async ({ page }) => {
 		await mockAuthAndDashboard(page);
 
-		await page.goto("/login");
-		await waitForHydration(page);
-		await page.locator("#login-email").fill("test@auraxis.com");
-		await page.locator("#login-password").fill("ValidPassword1!");
-		await page.getByRole("button", { name: /entrar/i }).click();
+		await page.goto("/dashboard");
 
 		await expect(page).toHaveURL(/\/dashboard/, { timeout: 10_000 });
 		await expect(page.locator("main, [role='main']")).toBeVisible();
@@ -111,30 +186,25 @@ test.describe("Dashboard — MSW-backed flows", () => {
 	test("page title contains Dashboard", async ({ page }) => {
 		await mockAuthAndDashboard(page);
 
-		await page.goto("/login");
-		await waitForHydration(page);
-		await page.locator("#login-email").fill("test@auraxis.com");
-		await page.locator("#login-password").fill("ValidPassword1!");
-		await page.getByRole("button", { name: /entrar/i }).click();
+		await page.goto("/dashboard");
 
 		await expect(page).toHaveURL(/\/dashboard/, { timeout: 10_000 });
 		await expect(page).toHaveTitle(/dashboard/i);
 	});
 
-	test("summary cards are rendered on the dashboard", async ({ page }) => {
+	test("market pulse dashboard renders prototype sections", async ({ page }) => {
 		await mockAuthAndDashboard(page);
 
-		await page.goto("/login");
-		await waitForHydration(page);
-		await page.locator("#login-email").fill("test@auraxis.com");
-		await page.locator("#login-password").fill("ValidPassword1!");
-		await page.getByRole("button", { name: /entrar/i }).click();
+		await page.goto("/dashboard");
 
 		await expect(page).toHaveURL(/\/dashboard/, { timeout: 10_000 });
 
-		// The summary grid section should be present with at least one metric card.
-		// DashboardSummaryGrid renders a <section class="summary-grid"> containing UiMetricCard children.
-		const summaryGrid = page.locator(".summary-grid, [data-testid='summary-grid']");
-		await expect(summaryGrid).toBeVisible({ timeout: 10_000 });
+		await expect(page.locator(".market-pulse")).toBeVisible({ timeout: 10_000 });
+		await expect(page.getByText("Receitas (Mês)")).toBeVisible();
+		await expect(page.getByText("Fluxo de Caixa Acumulado")).toBeVisible();
+		await expect(page.getByText("Gastos por Categoria")).toBeVisible();
+		await expect(page.getByText("Transações Recentes")).toBeVisible();
+		await expect(page.getByText("Anomalias Detectadas")).toBeVisible();
+		await expect(page.locator(".n-message")).toHaveCount(0);
 	});
 });
