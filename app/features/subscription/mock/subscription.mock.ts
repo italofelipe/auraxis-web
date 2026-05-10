@@ -31,7 +31,7 @@ export const MOCK_CURRENT_SUBSCRIPTION: SubscriptionDto = {
  *
  * Canonical pricing (2026):
  *   Free:    R$0
- *   Premium: R$27,90/mês ou R$220,00/ano (R$18,33/mês equivalente)
+ *   Premium: R$29,90/mês ou R$287,04/ano (R$23,92/mês equivalente — 20% off)
  */
 export const MOCK_ALL_PLANS: PlanDto[] = [
   {

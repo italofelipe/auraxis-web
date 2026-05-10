@@ -9,7 +9,7 @@ import { PRICING } from "~/shared/constants/pricing";
  * These tests act as a guardrail against accidental price or slug drift.
  * The canonical pricing (2026):
  *   Free:    R$0
- *   Premium: R$27,90/mês ou R$220,00/ano (R$18,33/mês equivalente — ~34% savings)
+ *   Premium: R$29,90/mês ou R$287,04/ano (R$23,92/mês equivalente — 20% off)
  */
 describe("subscription mock data", () => {
   describe("MOCK_ALL_PLANS", () => {
@@ -24,12 +24,12 @@ describe("subscription mock data", () => {
       expect(free.price_annual).toBe(0);
     });
 
-    it("premium plan has canonical monthly price of R$27.90", () => {
+    it("premium plan has canonical monthly price of R$29.90", () => {
       const premium = MOCK_ALL_PLANS.find((p) => p.slug === "premium")!;
       expect(premium.price_monthly).toBe(PRICING.MONTHLY_PRICE);
     });
 
-    it("premium plan annual per-month equivalent is R$18.33 (annual total R$220.00)", () => {
+    it("premium plan annual per-month equivalent is R$23.92 (annual total R$287.04)", () => {
       const premium = MOCK_ALL_PLANS.find((p) => p.slug === "premium")!;
       expect(premium.price_annual).toBe(PRICING.ANNUAL_MONTHLY_EQUIVALENT);
     });
@@ -39,7 +39,7 @@ describe("subscription mock data", () => {
       expect(premium.price_annual).toBeLessThan(premium.price_monthly);
     });
 
-    it("annual discount is approximately 34%", () => {
+    it("annual discount is approximately 20%", () => {
       const premium = MOCK_ALL_PLANS.find((p) => p.slug === "premium")!;
       const discount = Math.round(
         ((premium.price_monthly * 12 - PRICING.ANNUAL_PRICE) / (premium.price_monthly * 12)) * 100,

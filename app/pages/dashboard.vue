@@ -71,11 +71,25 @@ const isCustomPeriodIncomplete = computed(
   () => selectedPeriod.value === "custom" && (!customStartTs.value || !customEndTs.value),
 );
 
-const emptyMessage = computed(() =>
-  selectedPeriod.value === "custom"
-    ? t("pages.dashboard.noDataCustom")
-    : t("pages.dashboard.noDataPeriod"),
+const currentMonthLabel = computed(() =>
+  new Date().toLocaleDateString("pt-BR", { month: "long", year: "numeric" }),
 );
+
+const emptyStateTitle = computed(() =>
+  selectedPeriod.value === "current_month"
+    ? t("pages.dashboard.noDataCurrentMonthTitle", { month: currentMonthLabel.value })
+    : t("pages.dashboard.noData"),
+);
+
+const emptyMessage = computed(() => {
+  if (selectedPeriod.value === "custom") {
+    return t("pages.dashboard.noDataCustom");
+  }
+  if (selectedPeriod.value === "current_month") {
+    return t("pages.dashboard.noDataCurrentMonth", { month: currentMonthLabel.value });
+  }
+  return t("pages.dashboard.noDataPeriod");
+});
 
 /** Opens the first-transaction quick-add modal from the dashboard empty state. */
 const openFirstTransactionForm = (): void => {
@@ -159,7 +173,7 @@ const closeFirstTransactionForm = (): void => {
       <UiEmptyState
         v-if="!dashboardQuery.isLoading.value && !summary"
         icon="chartLine"
-        :title="$t('pages.dashboard.noData')"
+        :title="emptyStateTitle"
         :description="emptyMessage"
         :action-label="$t('pages.dashboard.registerFirstTransaction')"
         :secondary-label="$t('pages.dashboard.learnMore')"

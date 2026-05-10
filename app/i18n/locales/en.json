@@ -172,6 +172,8 @@
       "unknownError": "Unknown integration error.",
       "retry": "Try again",
       "noData": "No data for this period",
+      "noDataCurrentMonthTitle": "No transactions in {month}",
+      "noDataCurrentMonth": "Add your first income or expense for {month} — your data will show up here as soon as you record a transaction.",
       "noDataCustom": "No data found for the custom period.",
       "noDataPeriod": "No transactions found for the selected period.",
       "featuredGoals": "Featured goals",
