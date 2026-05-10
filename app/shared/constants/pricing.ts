@@ -1,15 +1,15 @@
 /**
  * Canonical Auraxis pricing constants.
- * Source of truth: DEC-168 + founder confirmation 2026-04-05
+ * Source of truth: ADR #669 — founder-confirmed 2026-05-10
  *
- * Monthly:  R$27,90/mês
- * Annual:   R$220,00/ano (~34% savings vs monthly: (27.90*12 - 220) / (27.90*12))
+ * Monthly:  R$29,90/mês
+ * Annual:   R$287,04/ano (20% off vs monthly: 29.90*12*0.80)
  */
 export const PRICING = {
-  MONTHLY_PRICE: 27.90,
-  ANNUAL_PRICE: 220.00,
-  ANNUAL_MONTHLY_EQUIVALENT: +(220 / 12).toFixed(2), // ~18.33
-  ANNUAL_SAVINGS_PERCENT: Math.round((27.90 * 12 - 220) / (27.90 * 12) * 100), // 34
+  MONTHLY_PRICE: 29.90,
+  ANNUAL_PRICE: 287.04,
+  ANNUAL_MONTHLY_EQUIVALENT: +(287.04 / 12).toFixed(2), // ~23.92
+  ANNUAL_SAVINGS_PERCENT: Math.round((29.90 * 12 - 287.04) / (29.90 * 12) * 100), // 20
   CURRENCY: "BRL",
   LOCALE: "pt-BR",
 } as const;
