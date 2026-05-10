@@ -1463,11 +1463,6 @@
     "periodSelector": {
       "ariaLabel": "Select period"
     },
-    "controlBar": {
-      "ariaLabel": "Dashboard control bar",
-      "periodAriaLabel": "Period",
-      "notificationsAriaLabel": "Notifications"
-    },
     "quickAdd": {
       "income": "New Income",
       "expense": "New Expense"
