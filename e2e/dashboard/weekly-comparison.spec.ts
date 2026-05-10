@@ -8,9 +8,8 @@ import { waitForHydration } from "../helpers/auth";
  * `DashboardComparison` schema exposes only month-over-previous-month deltas
  * (`incomeVsPreviousMonthPercent`, `expenseVsPreviousMonthPercent`,
  * `balanceVsPreviousMonthPercent`). This suite audits that when the overview
- * API returns a populated `comparison`, the dashboard summary grid renders a
- * `UiTrendBadge` for each metric that carries a delta, with the correct
- * direction modifier class.
+ * API returns a populated `comparison`, the redesigned dashboard renders
+ * trend pills in the KPI strip, with the correct direction modifier class.
  */
 
 const MOCK_LOGIN_SUCCESS = {
@@ -151,10 +150,10 @@ test.describe("Dashboard — period comparison (month-over-month)", () => {
     await mockAuthAndDashboard(page);
     await loginAndLandOnDashboard(page);
 
-    const summaryGrid = page.locator(".summary-grid");
-    await expect(summaryGrid).toBeVisible({ timeout: 10_000 });
+    const kpiStrip = page.getByLabel("Indicadores principais");
+    await expect(kpiStrip).toBeVisible({ timeout: 10_000 });
 
-    const trendBadges = summaryGrid.locator(".ui-trend-badge");
+    const trendBadges = kpiStrip.locator(".market-kpi__trend");
     await expect(trendBadges.first()).toBeVisible({ timeout: 10_000 });
     expect(await trendBadges.count()).toBeGreaterThanOrEqual(1);
   });
@@ -163,10 +162,10 @@ test.describe("Dashboard — period comparison (month-over-month)", () => {
     await mockAuthAndDashboard(page);
     await loginAndLandOnDashboard(page);
 
-    const summaryGrid = page.locator(".summary-grid");
-    await expect(summaryGrid).toBeVisible({ timeout: 10_000 });
+    const kpiStrip = page.getByLabel("Indicadores principais");
+    await expect(kpiStrip).toBeVisible({ timeout: 10_000 });
 
-    const positive = summaryGrid.locator(".ui-trend-badge--positive");
+    const positive = kpiStrip.locator(".market-kpi__trend--positive");
     await expect(positive.first()).toBeVisible({ timeout: 10_000 });
   });
 
@@ -174,10 +173,10 @@ test.describe("Dashboard — period comparison (month-over-month)", () => {
     await mockAuthAndDashboard(page);
     await loginAndLandOnDashboard(page);
 
-    const summaryGrid = page.locator(".summary-grid");
-    await expect(summaryGrid).toBeVisible({ timeout: 10_000 });
+    const kpiStrip = page.getByLabel("Indicadores principais");
+    await expect(kpiStrip).toBeVisible({ timeout: 10_000 });
 
-    const negative = summaryGrid.locator(".ui-trend-badge--negative");
+    const negative = kpiStrip.locator(".market-kpi__trend--negative");
     await expect(negative.first()).toBeVisible({ timeout: 10_000 });
   });
 });
