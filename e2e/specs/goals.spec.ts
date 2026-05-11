@@ -174,7 +174,11 @@ test.describe("Goals — MSW-backed flows", () => {
 		await mockAuthAndGoals(page);
 		await loginAndGoToGoals(page);
 
-		await expect(page.getByText("Reserva de emergência")).toBeVisible({ timeout: 10_000 });
+		await expect(
+			page
+				.locator("#goals-status")
+				.getByRole("heading", { name: "Reserva de emergência", exact: true }),
+		).toBeVisible({ timeout: 10_000 });
 	});
 
 	test("Nova Meta button is visible on the goals page", async ({ page }) => {
