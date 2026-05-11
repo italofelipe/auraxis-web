@@ -1030,7 +1030,7 @@
       "emailPlaceholder": "voce{'@'}exemplo.com",
       "passwordLabel": "Senha",
       "passwordPlaceholder": "Digite sua senha",
-      "forgotPassword": "Recuperar senha",
+      "forgotPassword": "Esqueceu a senha?",
       "submit": "Entrar na Auraxis",
       "submitLoading": "Entrando...",
       "noAccount": "Não tem conta?",
