@@ -56,14 +56,16 @@ describe("UiPublicHeader", () => {
     expect(wrapper.text()).toContain("Auraxis");
   });
 
-  it("renders navigation links for tools and plans", () => {
+  it("renders landing navigation links", () => {
     const wrapper = renderWithProviders(UiPublicHeader, {
       props: { authenticated: false },
       global: { stubs },
     });
 
-    expect(wrapper.text()).toContain("Ferramentas");
+    expect(wrapper.text()).toContain("Produto");
+    expect(wrapper.text()).toContain("Analytics");
     expect(wrapper.text()).toContain("Planos");
+    expect(wrapper.text()).toContain("FAQ");
   });
 
   it("shows login and register when not authenticated", () => {

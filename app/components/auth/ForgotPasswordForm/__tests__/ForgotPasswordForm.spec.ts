@@ -24,15 +24,20 @@ describe("ForgotPasswordForm", () => {
 
   it("shows title and instructions", () => {
     const wrapper = mount(ForgotPasswordForm, { global: globalConfig });
-    expect(wrapper.text()).toContain("Recuperar senha");
-    // Subtitle comes from i18n key auth.forgotPassword.subtitle
-    expect(wrapper.text()).toContain("Informe seu email");
+    expect(wrapper.text()).toContain("Recupere seu acesso");
+    expect(wrapper.text()).toContain("Digite o endereço de e-mail associado à sua conta");
+  });
+
+  it("matches the recovery prototype email field copy", () => {
+    const wrapper = mount(ForgotPasswordForm, { global: globalConfig });
+    expect(wrapper.text()).toContain("E-mail corporativo ou pessoal");
+    expect(wrapper.find("#forgot-email").attributes("placeholder")).toBe("nome@exemplo.com");
   });
 
   it("shows back-to-login link", () => {
     const wrapper = mount(ForgotPasswordForm, { global: globalConfig });
-    // Translation for auth.forgotPassword.backToLogin
     expect(wrapper.text()).toContain("Voltar ao login");
+    expect(wrapper.text()).toContain("Criar nova conta");
   });
 
   it("disables submit when loading", () => {

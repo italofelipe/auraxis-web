@@ -19,9 +19,18 @@
 
 <style scoped>
 .auth-layout {
+  position: relative;
   display: grid;
   grid-template-columns: 1.08fr 0.92fr;
   min-height: 100dvh;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(135deg, rgba(139, 125, 255, 0.1), transparent 34%),
+    linear-gradient(315deg, rgba(68, 212, 255, 0.1), transparent 32%),
+    var(--color-bg-base);
+  background-size: 44px 44px, 44px 44px, auto, auto, auto;
+  color: var(--color-text-primary);
 }
 
 /* Left column — brand panel */
@@ -36,7 +45,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-8) var(--space-5);
+  min-height: 100dvh;
+  padding: clamp(var(--space-5), 5vw, var(--space-9));
 }
 
 .auth-layout__form-inner {
@@ -55,7 +65,7 @@
 
   .auth-layout__form {
     min-height: 100dvh;
-    padding: var(--space-5) var(--space-4);
+    padding: var(--space-8) var(--space-4) var(--space-5);
   }
 }
 

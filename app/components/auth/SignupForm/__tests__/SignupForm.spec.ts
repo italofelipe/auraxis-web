@@ -41,9 +41,9 @@ describe("SignupForm", () => {
     expect(wrapper.text()).toContain("auth.register.submitLoading");
   });
 
-  it("renders social auth buttons", () => {
+  it("renders terms confirmation", () => {
     const wrapper = mount(SignupForm, { global: globalConfig });
-    expect(wrapper.find(".signup-form__social").exists()).toBe(true);
+    expect(wrapper.find("#signup-terms").exists()).toBe(true);
   });
 
   it("renders title and subtitle", () => {
@@ -52,7 +52,7 @@ describe("SignupForm", () => {
     expect(wrapper.text()).toContain("auth.register.subtitle");
   });
 
-  it("shows divider between social and email form", () => {
+  it("shows divider before the login link", () => {
     const wrapper = mount(SignupForm, { global: globalConfig });
     expect(wrapper.text()).toContain("auth.register.divider");
   });

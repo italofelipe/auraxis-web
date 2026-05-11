@@ -60,6 +60,10 @@ const isPending = computed(() => props.loading || isSubmitting.value);
       />
 
       <div class="auth-card__inline-row">
+        <label class="auth-card__remember" for="login-remember">
+          <input id="login-remember" type="checkbox" :disabled="isPending">
+          <span>Manter conectado</span>
+        </label>
         <NuxtLink to="/forgot-password" class="auth-card__link">
           {{ t('auth.login.forgotPassword') }}
         </NuxtLink>
@@ -157,8 +161,20 @@ const isPending = computed(() => props.loading || isSubmitting.value);
 .auth-card__inline-row {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: var(--space-4);
+}
+
+.auth-card__remember {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.auth-card__remember input {
+  accent-color: var(--color-brand-500);
 }
 
 .auth-card__link {
