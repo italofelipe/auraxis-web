@@ -36,18 +36,11 @@ const stubs = {
 };
 
 describe("UiPublicFooter", () => {
-  it("renders brand name and tagline", () => {
+  it("renders brand name and product signature", () => {
     const wrapper = renderWithProviders(UiPublicFooter, { global: { stubs } });
 
     expect(wrapper.text()).toContain("Auraxis");
-    expect(wrapper.text()).toContain("Controle financeiro inteligente.");
-  });
-
-  it("renders product navigation links", () => {
-    const wrapper = renderWithProviders(UiPublicFooter, { global: { stubs } });
-
-    expect(wrapper.text()).toContain("Ferramentas");
-    expect(wrapper.text()).toContain("Planos");
+    expect(wrapper.text()).toContain("Precision Layered Analytics");
   });
 
   it("renders legal navigation links", () => {
@@ -72,10 +65,9 @@ describe("UiPublicFooter", () => {
     expect(wrapper.text()).toContain(String(new Date().getFullYear()));
   });
 
-  it("renders column headings for product and legal sections", () => {
+  it("renders the legal navigation label for accessibility", () => {
     const wrapper = renderWithProviders(UiPublicFooter, { global: { stubs } });
 
-    expect(wrapper.text()).toContain("Produto");
-    expect(wrapper.text()).toContain("Legal");
+    expect(wrapper.find("nav").attributes("aria-label")).toBe("Legal");
   });
 });

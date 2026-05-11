@@ -71,7 +71,7 @@ function tItemPrice(prefix: string): { title: string; price: string; description
             <NuxtLink to="/register" class="landing-btn landing-btn--primary">
               {{ t('pages.home.hero.cta') }}
             </NuxtLink>
-            <NuxtLink to="/login" class="landing-btn landing-btn--secondary">
+            <NuxtLink to="/dashboard" class="landing-btn landing-btn--secondary">
               {{ t('pages.home.hero.ctaSecondary') }}
             </NuxtLink>
           </div>
@@ -90,7 +90,7 @@ function tItemPrice(prefix: string): { title: string; price: string; description
     </section>
 
     <!-- ── Product ───────────────────────────────────────────────────── -->
-    <section class="landing-section" aria-labelledby="product-title">
+    <section id="produto" class="landing-section" aria-labelledby="product-title">
       <div class="landing-container">
         <div class="landing-section__head">
           <h2 id="product-title" class="landing-section__title">{{ t('pages.home.product.title') }}</h2>
@@ -106,7 +106,7 @@ function tItemPrice(prefix: string): { title: string; price: string; description
     </section>
 
     <!-- ── Analytics ─────────────────────────────────────────────────── -->
-    <section class="landing-section" aria-labelledby="analytics-title">
+    <section id="analytics" class="landing-section" aria-labelledby="analytics-title">
       <div class="landing-container">
         <div class="landing-section__head">
           <h2 id="analytics-title" class="landing-section__title">{{ t('pages.home.analytics.title') }}</h2>
@@ -123,7 +123,7 @@ function tItemPrice(prefix: string): { title: string; price: string; description
     </section>
 
     <!-- ── Plans ─────────────────────────────────────────────────────── -->
-    <section class="landing-section" aria-labelledby="plans-title">
+    <section id="planos" class="landing-section" aria-labelledby="plans-title">
       <div class="landing-container">
         <div class="landing-section__head">
           <h2 id="plans-title" class="landing-section__title">{{ t('pages.home.plans.title') }}</h2>
@@ -139,23 +139,11 @@ function tItemPrice(prefix: string): { title: string; price: string; description
       </div>
     </section>
 
-    <!-- ── Final CTA ──────────────────────────────────────────────────── -->
-    <section class="landing-cta" aria-labelledby="cta-title">
-      <div class="landing-container landing-cta__inner">
-        <h2 id="cta-title" class="landing-cta__title">
-          {{ t('pages.home.cta.title') }}
-        </h2>
-        <p class="landing-cta__subtitle">
-          {{ t('pages.home.cta.subtitle') }}
-        </p>
-        <div class="landing-cta__actions">
-          <NuxtLink to="/register" class="landing-btn landing-btn--primary">
-            {{ t('pages.home.cta.button') }}
-          </NuxtLink>
-          <NuxtLink to="/login" class="landing-btn landing-btn--ghost">
-            {{ t('pages.home.cta.login') }}
-          </NuxtLink>
-        </div>
+    <section id="faq" class="landing-section landing-section--compact" aria-label="FAQ">
+      <div class="landing-container">
+        <article class="landing-feature-card landing-faq-card">
+          FAQ será atualizado na próxima iteração com dúvidas reais da rodada de teste.
+        </article>
       </div>
     </section>
   </div>
@@ -337,6 +325,10 @@ function tItemPrice(prefix: string): { title: string; price: string; description
   border-top: 1px solid var(--color-outline-soft);
 }
 
+.landing-section--compact {
+  padding-block: var(--space-6);
+}
+
 .landing-section__head {
   text-align: center;
   margin-bottom: var(--space-6);
@@ -398,47 +390,14 @@ function tItemPrice(prefix: string): { title: string; price: string; description
   line-height: var(--line-height-body-sm);
 }
 
+.landing-faq-card {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
 .landing-metric-card .landing-kpi,
 .landing-plan-card .landing-kpi {
   margin-bottom: var(--space-2);
-}
-
-/* ── CTA ───────────────────────────────────────────────────────────────────── */
-.landing-cta {
-  background: linear-gradient(140deg, rgba(68, 212, 255, 0.12), rgba(139, 125, 255, 0.08));
-  border-top: 1px solid var(--color-outline-soft);
-}
-
-.landing-cta__inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: var(--space-4);
-  padding-block: clamp(var(--space-8), 8vw, 100px);
-  max-width: 720px;
-}
-
-.landing-cta__title {
-  margin: 0;
-  font-family: var(--font-heading);
-  font-size: var(--font-size-heading-lg);
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-bold);
-}
-
-.landing-cta__subtitle {
-  margin: 0;
-  font-size: var(--font-size-md);
-  color: var(--color-text-secondary);
-  line-height: var(--line-height-body-md);
-}
-
-.landing-cta__actions {
-  display: flex;
-  gap: var(--space-3);
-  flex-wrap: wrap;
-  justify-content: center;
 }
 
 /* ── Responsive ────────────────────────────────────────────────────────────── */
@@ -455,14 +414,12 @@ function tItemPrice(prefix: string): { title: string; price: string; description
     grid-template-columns: 1fr;
   }
 
-  .landing-hero__actions,
-  .landing-cta__actions {
+  .landing-hero__actions {
     flex-direction: column;
     width: 100%;
   }
 
-  .landing-hero__actions .landing-btn,
-  .landing-cta__actions .landing-btn {
+  .landing-hero__actions .landing-btn {
     width: 100%;
     justify-content: center;
   }

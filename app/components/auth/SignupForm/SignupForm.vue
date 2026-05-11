@@ -25,16 +25,10 @@ const isPending = computed(() => props.loading || isSubmitting.value);
 </script>
 
 <template>
-  <div class="signup-form">
+  <div class="signup-form glass">
     <div class="signup-form__header">
       <h1 class="signup-form__title">{{ t('auth.register.title') }}</h1>
       <p class="signup-form__subtitle">{{ t('auth.register.subtitle') }}</p>
-    </div>
-
-    <UiSocialAuthButtons class="signup-form__social" />
-
-    <div class="signup-form__divider" aria-hidden="true">
-      <span class="signup-form__divider-text">{{ t('auth.register.divider') }}</span>
     </div>
 
     <form class="signup-form__fields" novalidate @submit.prevent="onSubmit">
@@ -103,6 +97,11 @@ const isPending = computed(() => props.loading || isSubmitting.value);
         v-bind="confirmPasswordAttrs"
       />
 
+      <label class="signup-form__terms" for="signup-terms">
+        <input id="signup-terms" type="checkbox" required :disabled="isPending">
+        <span>Concordo com termos e privacidade.</span>
+      </label>
+
       <button
         type="submit"
         class="signup-form__submit"
@@ -113,6 +112,10 @@ const isPending = computed(() => props.loading || isSubmitting.value);
         {{ isPending ? t('auth.register.submitLoading') : t('auth.register.submit') }}
       </button>
     </form>
+
+    <div class="signup-form__divider" aria-hidden="true">
+      <span class="signup-form__divider-text">{{ t('auth.register.divider') }}</span>
+    </div>
 
     <p class="signup-form__login">
       {{ t('auth.register.hasAccount') }}
@@ -127,9 +130,17 @@ const isPending = computed(() => props.loading || isSubmitting.value);
 .signup-form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-5);
   width: 100%;
-  max-width: 400px;
+  padding: var(--space-7);
+  border-radius: var(--radius-xl, 28px);
+}
+
+.glass {
+  background: linear-gradient(175deg, rgba(18, 26, 42, 0.86), rgba(10, 15, 26, 0.92));
+  border: 1px solid var(--color-outline-soft);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
 }
 
 .signup-form__header {
@@ -139,9 +150,8 @@ const isPending = computed(() => props.loading || isSubmitting.value);
 }
 
 .signup-form__title {
-  font-family: var(--font-heading);
-  font-size: var(--font-size-heading-md);
-  line-height: var(--line-height-heading-md);
+  font-size: clamp(var(--font-size-2xl), 3vw, var(--font-size-4xl));
+  line-height: var(--line-height-heading-lg);
   font-weight: var(--font-weight-bold);
   color: var(--color-text-primary);
   margin: 0;
@@ -151,10 +161,7 @@ const isPending = computed(() => props.loading || isSubmitting.value);
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
   margin: 0;
-}
-
-.signup-form__social {
-  width: 100%;
+  line-height: var(--line-height-body-sm);
 }
 
 .signup-form__divider {
@@ -181,7 +188,7 @@ const isPending = computed(() => props.loading || isSubmitting.value);
 .signup-form__fields {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .signup-form__password-block {
@@ -192,15 +199,15 @@ const isPending = computed(() => props.loading || isSubmitting.value);
 
 .signup-form__input {
   width: 100%;
-  padding: 10px var(--space-2);
-  background: var(--color-bg-elevated);
+  height: 44px;
+  padding: 0 12px;
+  background: rgba(5, 7, 13, 0.75);
   border: 1px solid var(--color-outline-soft);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   color: var(--color-text-primary);
-  font-size: var(--font-size-md);
-  font-family: var(--font-body);
+  font: inherit;
   outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
   box-sizing: border-box;
 }
 
@@ -209,8 +216,8 @@ const isPending = computed(() => props.loading || isSubmitting.value);
 }
 
 .signup-form__input:focus {
-  border-color: var(--color-brand-600);
-  box-shadow: 0 0 0 2px var(--color-brand-glow-xs);
+  border-color: var(--color-brand-500);
+  box-shadow: 0 0 0 3px rgba(68, 212, 255, 0.18);
 }
 
 .signup-form__input--error {
@@ -222,26 +229,41 @@ const isPending = computed(() => props.loading || isSubmitting.value);
   cursor: not-allowed;
 }
 
+.signup-form__terms {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-body-sm);
+}
+
+.signup-form__terms input {
+  accent-color: var(--color-brand-500);
+}
+
 .signup-form__submit {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  min-height: 48px;
+  height: 44px;
   width: 100%;
   border: none;
-  border-radius: var(--radius-md);
-  background: var(--color-brand-500);
-  color: var(--color-neutral-950);
-  font-size: var(--font-size-md);
+  border-radius: var(--radius-full);
+  background: linear-gradient(140deg, #44d4ff, #42e8a9);
+  box-shadow: 0 18px 44px rgba(68, 212, 255, 0.24);
+  color: #051220;
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
   font-family: var(--font-body);
   cursor: pointer;
-  transition: background 0.15s ease, opacity 0.15s ease;
+  transition: transform 220ms ease, filter 220ms ease;
 }
 
 .signup-form__submit:hover:not(:disabled) {
-  background: var(--color-brand-400);
+  transform: translateY(-1px);
+  filter: brightness(1.03);
 }
 
 .signup-form__submit:disabled {
@@ -253,7 +275,7 @@ const isPending = computed(() => props.loading || isSubmitting.value);
   width: 16px;
   height: 16px;
   border: 2px solid rgba(0, 0, 0, 0.2);
-  border-top-color: var(--color-neutral-950);
+  border-top-color: #051220;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
   flex-shrink: 0;

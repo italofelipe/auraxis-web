@@ -37,7 +37,8 @@ const closeMenu = (): void => {
         :aria-label="t('components.publicHeader.brand')"
         @click="closeMenu"
       >
-        {{ t('components.publicHeader.brand') }}
+        <span class="ui-public-header__brand-mark" aria-hidden="true">A</span>
+        <span>{{ t('components.publicHeader.brand') }}</span>
       </NuxtLink>
 
       <!-- Desktop navigation -->
@@ -46,18 +47,32 @@ const closeMenu = (): void => {
         :aria-label="t('components.publicHeader.navAriaLabel')"
       >
         <NuxtLink
-          to="/tools"
+          to="/#produto"
           class="ui-public-header__nav-link"
           active-class="ui-public-header__nav-link--active"
         >
-          {{ t('components.publicHeader.nav.tools') }}
+          Produto
         </NuxtLink>
         <NuxtLink
-          to="/plans"
+          to="/#analytics"
           class="ui-public-header__nav-link"
           active-class="ui-public-header__nav-link--active"
         >
-          {{ t('components.publicHeader.nav.plans') }}
+          Analytics
+        </NuxtLink>
+        <NuxtLink
+          to="/#planos"
+          class="ui-public-header__nav-link"
+          active-class="ui-public-header__nav-link--active"
+        >
+          Planos
+        </NuxtLink>
+        <NuxtLink
+          to="/#faq"
+          class="ui-public-header__nav-link"
+          active-class="ui-public-header__nav-link--active"
+        >
+          FAQ
         </NuxtLink>
       </nav>
 
@@ -103,20 +118,36 @@ const closeMenu = (): void => {
     >
       <nav class="ui-public-header__mobile-nav" :aria-label="t('components.publicHeader.navAriaLabel')">
         <NuxtLink
-          to="/tools"
+          to="/#produto"
           class="ui-public-header__mobile-link"
           active-class="ui-public-header__mobile-link--active"
           @click="closeMenu"
         >
-          {{ t('components.publicHeader.nav.tools') }}
+          Produto
         </NuxtLink>
         <NuxtLink
-          to="/plans"
+          to="/#analytics"
           class="ui-public-header__mobile-link"
           active-class="ui-public-header__mobile-link--active"
           @click="closeMenu"
         >
-          {{ t('components.publicHeader.nav.plans') }}
+          Analytics
+        </NuxtLink>
+        <NuxtLink
+          to="/#planos"
+          class="ui-public-header__mobile-link"
+          active-class="ui-public-header__mobile-link--active"
+          @click="closeMenu"
+        >
+          Planos
+        </NuxtLink>
+        <NuxtLink
+          to="/#faq"
+          class="ui-public-header__mobile-link"
+          active-class="ui-public-header__mobile-link--active"
+          @click="closeMenu"
+        >
+          FAQ
         </NuxtLink>
       </nav>
 
@@ -156,7 +187,7 @@ const closeMenu = (): void => {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: color-mix(in srgb, var(--color-bg-base) 92%, transparent);
+  background: color-mix(in srgb, var(--color-bg-base) 88%, transparent);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--color-outline-soft);
 }
@@ -164,18 +195,21 @@ const closeMenu = (): void => {
 .ui-public-header__container {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--space-5);
   max-width: 1200px;
   margin-inline: auto;
   padding-inline: var(--space-4);
-  padding-block: var(--space-3);
+  padding-block: 18px;
 }
 
 /* ── Brand ─────────────────────────────────────────────────────────────────── */
 .ui-public-header__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   font-family: var(--font-heading);
-  font-size: var(--font-size-heading-md);
-  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-extrabold);
   color: var(--color-text-primary);
   text-decoration: none;
   flex-shrink: 0;
@@ -185,16 +219,28 @@ const closeMenu = (): void => {
   color: var(--color-brand-500);
 }
 
+.ui-public-header__brand-mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(145deg, #44d4ff, #42e8a9);
+  color: #05070d;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-extrabold);
+}
+
 /* ── Desktop nav ────────────────────────────────────────────────────────────── */
 .ui-public-header__nav {
   display: flex;
   align-items: center;
-  gap: var(--space-1);
+  gap: var(--space-2);
   flex: 1;
 }
 
 .ui-public-header__nav-link {
-  padding: var(--space-1) var(--space-2);
+  padding: 8px 10px;
   border-radius: var(--radius-sm);
   text-decoration: none;
   font-size: var(--font-size-sm);
@@ -206,12 +252,12 @@ const closeMenu = (): void => {
 .ui-public-header__nav-link:hover,
 .ui-public-header__nav-link:focus-visible {
   color: var(--color-text-primary);
-  background: var(--color-neutral-100);
+  background: rgba(255, 255, 255, 0.06);
   outline: none;
 }
 
 .ui-public-header__nav-link--active {
-  color: var(--color-brand-600);
+  color: var(--color-brand-500);
   font-weight: var(--font-weight-semibold);
 }
 
@@ -227,8 +273,9 @@ const closeMenu = (): void => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: calc(var(--space-1) + 2px) var(--space-3);
-  border-radius: var(--radius-md);
+  min-height: 38px;
+  padding: 8px 18px;
+  border-radius: var(--radius-full);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   text-decoration: none;
@@ -241,12 +288,12 @@ const closeMenu = (): void => {
 .ui-public-header__btn--ghost {
   background: transparent;
   color: var(--color-text-secondary);
-  border: 1px solid transparent;
+  border: 1px solid var(--color-outline-soft);
 }
 
 .ui-public-header__btn--ghost:hover {
   color: var(--color-text-primary);
-  background: var(--color-neutral-100);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .ui-public-header__btn--primary {
@@ -256,7 +303,7 @@ const closeMenu = (): void => {
 
 .ui-public-header__btn--primary:hover {
   filter: brightness(1.05);
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-brand-500) 40%, transparent);
+  box-shadow: 0 14px 34px rgba(68, 212, 255, 0.18);
 }
 
 .ui-public-header__btn--full {
