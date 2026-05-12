@@ -162,11 +162,34 @@ jobs:
           # hit rate limits or 403 on private repos.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  # ── 4.2 GraphQL Codegen Check ──────────────────────────────────────────
+  graphql-codegen:
+    name: GraphQL Types (codegen check)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v6
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Check GraphQL types are in sync with schema
+        run: pnpm codegen:check
+        env:
+          # Pulls schema from the committed schema.graphql in auraxis-api (master branch).
+          # Update this URL when migrating to a different branch or registry.
+          GRAPHQL_SCHEMA_PATH: https://raw.githubusercontent.com/italofelipe/auraxis-api/master/schema.graphql
+
   # ── 5. Build check ─────────────────────────────────────────────────────
   build:
     name: Build (Nuxt)
     runs-on: ubuntu-latest
-    needs: [lint, typecheck, feature-flag-hygiene, i18n-parity, test, contract-smoke]
+    needs: [lint, typecheck, feature-flag-hygiene, i18n-parity, test, contract-smoke, graphql-codegen]
     permissions:
       contents: read
     steps:
