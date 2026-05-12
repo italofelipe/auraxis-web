@@ -68,7 +68,8 @@
     "subscription": "Subscription",
     "personalData": "Personal Data",
     "transactions": "Transactions",
-    "focus": "Focus"
+    "focus": "Focus",
+    "insights": "AI Insights"
   },
   "user": {
     "fallbackName": "User",

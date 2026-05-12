@@ -68,7 +68,8 @@
     "subscription": "Assinatura",
     "personalData": "Dados Pessoais",
     "transactions": "Transações",
-    "focus": "Foco"
+    "focus": "Foco",
+    "insights": "Insights IA"
   },
   "user": {
     "fallbackName": "Usuário",

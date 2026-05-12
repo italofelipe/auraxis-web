@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { waitForHydration } from "../helpers/auth";
+import { fillLoginForm, waitForHydration } from "../helpers/auth";
 
 /**
  * E2E suite: Navigation — MSW-backed flows.
@@ -84,6 +84,14 @@ const mockAuthRoutes = async (page: Page): Promise<void> => {
 			body: JSON.stringify({}),
 		});
 	});
+
+	await page.route("**/entitlements/check**", (route) => {
+		route.fulfill({
+			status: 200,
+			contentType: "application/json",
+			body: JSON.stringify({ has_access: true }),
+		});
+	});
 };
 
 test.describe("Navigation — MSW-backed flows", () => {
@@ -92,8 +100,7 @@ test.describe("Navigation — MSW-backed flows", () => {
 
 		await page.goto("/login");
 		await waitForHydration(page);
-		await page.locator("#login-email").fill("test@auraxis.com");
-		await page.locator("#login-password").fill("ValidPassword1!");
+		await fillLoginForm(page, "test@auraxis.com", "ValidPassword1!");
 		await page.getByRole("button", { name: /entrar/i }).click();
 
 		await expect(page).toHaveURL(/\/dashboard/, { timeout: 10_000 });
@@ -121,8 +128,7 @@ test.describe("Navigation — MSW-backed flows", () => {
 
 		await page.goto("/login");
 		await waitForHydration(page);
-		await page.locator("#login-email").fill("test@auraxis.com");
-		await page.locator("#login-password").fill("ValidPassword1!");
+		await fillLoginForm(page, "test@auraxis.com", "ValidPassword1!");
 		await page.getByRole("button", { name: /entrar/i }).click();
 
 		await expect(page).toHaveURL(/\/dashboard/, { timeout: 10_000 });

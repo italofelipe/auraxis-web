@@ -9,6 +9,9 @@ import { useTransactionRecurrence } from "~/features/transactions/composables/us
 import { useTransactionTable } from "~/features/transactions/composables/useTransactionTable";
 import TransactionToolbar from "~/features/transactions/components/TransactionToolbar.vue";
 import TransactionExportModal from "~/features/transactions/components/TransactionExportModal.vue";
+import AiInsightButton from "~/features/ai-insights/components/AiInsightButton.vue";
+import AiInsightSection from "~/features/ai-insights/components/AiInsightSection.vue";
+import { useAIInsights } from "~/features/ai-insights/composables/useAIInsights";
 import { formatCurrency } from "~/utils/currency";
 
 definePageMeta({
@@ -33,6 +36,13 @@ const showExportModal = ref(false);
 // ── Query ─────────────────────────────────────────────────────────────────────
 
 const { data, isLoading, isError, refetch } = useListTransactionsQuery(filters);
+const aiInsights = useAIInsights();
+const aiCurrentInsight = aiInsights.currentInsight;
+const aiInsightMonth = aiInsights.insightMonth;
+const aiInsightModel = aiInsights.insightModel;
+const aiInsightTokensUsed = aiInsights.tokensUsed;
+const aiInsightCostUsd = aiInsights.costUsd;
+const aiInsightIsStale = aiInsights.isStale;
 
 // ── Actions ───────────────────────────────────────────────────────────────────
 
@@ -170,6 +180,19 @@ const {
     <!-- ── Financial calendar ──────────────────────────────────────────────── -->
     <FinancialCalendar v-else-if="viewMode === 'calendar'" class="transactions-page__calendar" @day-click="onDayClick" />
 
+    <section class="transactions-page__ai-insights" aria-label="Insights de IA">
+      <AiInsightButton />
+      <AiInsightSection
+        v-if="aiCurrentInsight"
+        :insight="aiCurrentInsight"
+        :month="aiInsightMonth"
+        :is-stale="aiInsightIsStale"
+        :model="aiInsightModel"
+        :tokens-used="aiInsightTokensUsed"
+        :cost-usd="aiInsightCostUsd"
+      />
+    </section>
+
   </div>
 </template>
 
@@ -223,6 +246,12 @@ const {
   border-radius: var(--radius-md);
   border: 1px solid var(--color-outline-soft);
   overflow: hidden;
+}
+
+.transactions-page__ai-insights {
+  display: grid;
+  gap: var(--space-3);
+  align-items: start;
 }
 
 .transactions-page__table :deep(.tx-table-row) { cursor: default; transition: background-color 0.15s ease, transform 0.12s ease; }

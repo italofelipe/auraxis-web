@@ -148,6 +148,14 @@ const mockAuthAndDashboard = async (page: Page): Promise<void> => {
 		});
 	});
 
+	await page.route("**/entitlements/check**", (route) => {
+		route.fulfill({
+			status: 200,
+			contentType: "application/json",
+			body: JSON.stringify({ has_access: true }),
+		});
+	});
+
 	await page.route("**/tags", (route) => {
 		route.fulfill({
 			status: 200,

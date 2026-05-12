@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 
 /** Credentials for E2E test user. Must be set in CI via secrets. */
 const TEST_EMAIL = process.env.E2E_TEST_EMAIL ?? "";
@@ -29,6 +29,44 @@ export async function waitForHydration(page: Page): Promise<void> {
 }
 
 /**
+ * Fills the login form and verifies the values stuck before submitting.
+ *
+ * First page loads can still run session/bootstrap work after Vue hydration,
+ * which may remount the auth form and clear a field while tests are filling it.
+ * Retrying the two field values here keeps the UI login flow deterministic.
+ *
+ * @param page Playwright page instance.
+ * @param email E-mail credential.
+ * @param password Password credential.
+ */
+export async function fillLoginForm(
+  page: Page,
+  email: string,
+  password: string,
+): Promise<void> {
+  const emailInput = page.locator("#login-email");
+  const passwordInput = page.locator("#login-password");
+
+  await expect(emailInput).toBeEditable({ timeout: 5_000 });
+  await expect(passwordInput).toBeEditable({ timeout: 5_000 });
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await emailInput.fill(email);
+    await passwordInput.fill(password);
+    await page.waitForTimeout(75);
+
+    const emailValue = await emailInput.inputValue();
+    const passwordValue = await passwordInput.inputValue();
+    if (emailValue === email && passwordValue === password) {
+      return;
+    }
+  }
+
+  await expect(emailInput).toHaveValue(email);
+  await expect(passwordInput).toHaveValue(password);
+}
+
+/**
  * Performs a login via the UI and waits for the dashboard to load.
  * Uses the `E2E_TEST_EMAIL` and `E2E_TEST_PASSWORD` environment variables.
  *
@@ -44,8 +82,7 @@ export async function loginAsTestUser(page: Page): Promise<void> {
 
   await page.goto("/login");
   await waitForHydration(page);
-  await page.getByLabel(/e-?mail/i).fill(TEST_EMAIL);
-  await page.getByLabel(/senha/i).fill(TEST_PASSWORD);
+  await fillLoginForm(page, TEST_EMAIL, TEST_PASSWORD);
   await page.getByRole("button", { name: /entrar|login/i }).click();
   await page.waitForURL(/\/dashboard/, { timeout: 15_000 });
 }

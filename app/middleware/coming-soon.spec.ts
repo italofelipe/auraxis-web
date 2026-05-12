@@ -48,6 +48,14 @@ describe("coming-soon middleware", () => {
     expect(mockNavigateTo).toHaveBeenCalledWith("/coming-soon");
   });
 
+  it("guards /insights with the AI insights page flag", async () => {
+    mockIsFeatureEnabled.mockReturnValue(false);
+    const middleware = await import("./coming-soon");
+    (middleware.default as (to: { path: string }) => unknown)({ path: "/insights" });
+    expect(mockIsFeatureEnabled).toHaveBeenCalledWith("web.pages.insights");
+    expect(mockNavigateTo).toHaveBeenCalledWith("/coming-soon");
+  });
+
   it("allows /settings/accounts through when flag is enabled", async () => {
     mockIsFeatureEnabled.mockReturnValue(true);
     const middleware = await import("./coming-soon");

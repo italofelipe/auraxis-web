@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { waitForHydration } from "../helpers/auth";
+import { fillLoginForm, waitForHydration } from "../helpers/auth";
 
 /**
  * E2E suite: Goals — MSW-backed flows.
@@ -127,6 +127,14 @@ const mockAuthAndGoals = async (page: Page): Promise<void> => {
 		});
 	});
 
+	await page.route("**/entitlements/check**", (route) => {
+		route.fulfill({
+			status: 200,
+			contentType: "application/json",
+			body: JSON.stringify({ has_access: true }),
+		});
+	});
+
 	await page.route("**/goals**", async (route) => {
 		// Skip page navigation requests — only intercept API (fetch/xhr) calls.
 		// Without this check, the pattern also matches the /goals page URL,
@@ -151,8 +159,7 @@ const mockAuthAndGoals = async (page: Page): Promise<void> => {
 const loginAndGoToGoals = async (page: Page): Promise<void> => {
 	await page.goto("/login");
 	await waitForHydration(page);
-	await page.locator("#login-email").fill("test@auraxis.com");
-	await page.locator("#login-password").fill("ValidPassword1!");
+	await fillLoginForm(page, "test@auraxis.com", "ValidPassword1!");
 	await page.getByRole("button", { name: /entrar/i }).click();
 
 	await expect(page).toHaveURL(/\/dashboard/, { timeout: 10_000 });

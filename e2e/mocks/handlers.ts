@@ -130,6 +130,56 @@ const MOCK_TRANSACTIONS = {
 	},
 };
 
+const MOCK_AI_INSIGHT_ITEMS = [
+	{
+		type: "saude_financeira",
+		title: "Saldo saudável",
+		message: "Sua renda cobriu os gastos do período com margem positiva.",
+	},
+	{
+		type: "oportunidade_economia",
+		title: "Economia em assinaturas",
+		message: "Há assinaturas recorrentes que podem ser revisadas neste mês.",
+	},
+];
+
+const MOCK_AI_GENERATED_INSIGHT = {
+	success: true,
+	message: "Insights de gastos gerados com sucesso",
+	data: {
+		insights: JSON.stringify(MOCK_AI_INSIGHT_ITEMS),
+		tokens_used: 320,
+		cost_usd: 0.000048,
+		month: "2026-05",
+		model: "gpt-4o-mini",
+		cached: false,
+	},
+};
+
+const MOCK_AI_INSIGHT_HISTORY = {
+	success: true,
+	message: "Histórico de insights carregado",
+	data: {
+		items: [
+			{
+				id: "ai-1",
+				content: JSON.stringify(MOCK_AI_INSIGHT_ITEMS),
+				insight_type: "monthly",
+				period_label: "2026-05",
+				period_start: "2026-05-01",
+				period_end: "2026-05-31",
+				model: "gpt-4o-mini",
+				tokens_used: 320,
+				cost_usd: 0.000048,
+				created_at: "2026-05-12T08:15:00Z",
+			},
+		],
+		page: 1,
+		per_page: 20,
+		total: 1,
+	},
+};
+
 /**
  * MSW request handlers for all mocked API endpoints used in E2E tests.
  *
@@ -224,5 +274,20 @@ export const handlers = [
 	 */
 	http.get("*/transactions", () => {
 		return HttpResponse.json(MOCK_TRANSACTIONS, { status: 200 });
+	}),
+
+	http.get("*/entitlements/check", () => {
+		return HttpResponse.json({ has_access: true }, { status: 200 });
+	}),
+
+	http.get("*/ai/insights/spending", () => {
+		return HttpResponse.json(MOCK_AI_GENERATED_INSIGHT, {
+			status: 200,
+			headers: { "X-AI-Calls-Remaining": "1" },
+		});
+	}),
+
+	http.get("*/ai/insights/history", () => {
+		return HttpResponse.json(MOCK_AI_INSIGHT_HISTORY, { status: 200 });
 	}),
 ];
