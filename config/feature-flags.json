@@ -431,6 +431,16 @@
       "repositories": ["auraxis-web"]
     },
     {
+      "key": "web.pages.insights",
+      "owner": "growth",
+      "createdAt": "2026-05-12",
+      "removeBy": "2027-12-31",
+      "type": "release",
+      "status": "enabled-prod",
+      "description": "Página de histórico de insights financeiros gerados por IA.",
+      "repositories": ["auraxis-web"]
+    },
+    {
       "key": "web.dashboard.new-layout",
       "owner": "growth",
       "createdAt": "2026-04-21",

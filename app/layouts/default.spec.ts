@@ -119,6 +119,7 @@ describe("DefaultLayout", () => {
 
     expect(wrapper.text()).toContain("nav.dashboard");
     expect(wrapper.text()).toContain("nav.transactions");
+    expect(wrapper.text()).toContain("nav.insights");
     expect(wrapper.text()).toContain("nav.tools");
     expect(wrapper.text()).toContain("Conteudo");
     // Items with enabled-prod flags (portfolio, goals) are visible in the nav.
