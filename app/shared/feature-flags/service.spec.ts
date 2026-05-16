@@ -72,7 +72,7 @@ describe("feature flag service", () => {
   });
 
   it("considera flag desabilitada quando status local é draft", () => {
-    expect(isFeatureEnabled("web.pages.investor-profile")).toBe(false);
+    expect(isFeatureEnabled("web.pages.income")).toBe(false);
   });
 
   it("respeita decisão explícita do provider externo", () => {

@@ -16,7 +16,7 @@ describe("useFeatureFlag", () => {
     const wrapper = mount(
       defineComponent({
         setup() {
-          return { enabled: useFeatureFlag("web.pages.investor-profile") };
+          return { enabled: useFeatureFlag("web.pages.income") };
         },
         template: "<span>{{ enabled }}</span>",
       }),
@@ -56,7 +56,7 @@ describe("useFeatureFlagAsync", () => {
     const wrapper = mount(
       defineComponent({
         setup() {
-          return useFeatureFlagAsync("web.pages.investor-profile");
+          return useFeatureFlagAsync("web.pages.income");
         },
         template: "<span>{{ enabled }}</span>",
       }),

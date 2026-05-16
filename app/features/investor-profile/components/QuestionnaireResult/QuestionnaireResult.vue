@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRouter } from "vue-router";
+import { ArrowRight, Gauge, ShieldCheck, Target } from "lucide-vue-next";
 import type { QuestionnaireResultDto } from "~/features/investor-profile/contracts/investor-profile.dto";
 
 const props = defineProps<{
@@ -13,6 +14,8 @@ const router = useRouter();
 interface ProfileContent {
   readonly title: string;
   readonly description: string;
+  readonly range: string;
+  readonly focus: string;
 }
 
 const PROFILE_CONTENT: Record<QuestionnaireResultDto["suggested_profile"], ProfileContent> = {
@@ -20,16 +23,22 @@ const PROFILE_CONTENT: Record<QuestionnaireResultDto["suggested_profile"], Profi
     title: "Conservador",
     description:
       "Você prioriza a segurança do patrimônio. Prefere rentabilidade estável a riscos elevados.",
+    range: "Proteção",
+    focus: "Liquidez e previsibilidade",
   },
   explorador: {
     title: "Explorador",
     description:
       "Você busca equilíbrio entre segurança e crescimento, aceitando riscos moderados.",
+    range: "Balanceado",
+    focus: "Diversificação gradual",
   },
   entusiasta: {
     title: "Entusiasta",
     description:
       "Você tem alta tolerância ao risco e busca maximizar retornos no longo prazo.",
+    range: "Crescimento",
+    focus: "Horizonte longo",
   },
 };
 
@@ -46,18 +55,37 @@ const goToDashboard = (): void => {
 
 <template>
   <div class="questionnaire-result">
-    <div class="questionnaire-result__icon-wrap" aria-hidden="true">
-      <span class="questionnaire-result__icon">🎯</span>
-    </div>
+    <div class="questionnaire-result__summary">
+      <div class="questionnaire-result__icon-wrap" aria-hidden="true">
+        <Target :size="28" />
+      </div>
 
-    <div class="questionnaire-result__profile-badge">
-      {{ profileContent.title }}
+      <div>
+        <span class="questionnaire-result__label">Resultado calibrado</span>
+        <div class="questionnaire-result__profile-badge">
+          {{ profileContent.title }}
+        </div>
+      </div>
     </div>
 
     <p class="questionnaire-result__description">{{ profileContent.description }}</p>
 
-    <div class="questionnaire-result__score">
-      Pontuação: <strong>{{ result.score }}</strong>
+    <div class="questionnaire-result__grid">
+      <div class="questionnaire-result__metric questionnaire-result__score">
+        <Gauge :size="18" aria-hidden="true" />
+        <span>Pontuação</span>
+        <strong>{{ result.score }}</strong>
+      </div>
+      <div class="questionnaire-result__metric">
+        <ShieldCheck :size="18" aria-hidden="true" />
+        <span>Espectro</span>
+        <strong>{{ profileContent.range }}</strong>
+      </div>
+      <div class="questionnaire-result__metric">
+        <Target :size="18" aria-hidden="true" />
+        <span>Foco</span>
+        <strong>{{ profileContent.focus }}</strong>
+      </div>
     </div>
 
     <button
@@ -66,6 +94,7 @@ const goToDashboard = (): void => {
       @click="goToDashboard"
     >
       Ir para o Dashboard
+      <ArrowRight :size="16" aria-hidden="true" />
     </button>
   </div>
 </template>
@@ -74,57 +103,112 @@ const goToDashboard = (): void => {
 .questionnaire-result {
   display: flex;
   flex-direction: column;
+  gap: 20px;
+  padding: 8px;
+}
+
+.questionnaire-result__summary {
+  display: flex;
   align-items: center;
-  gap: var(--space-3, 12px);
-  text-align: center;
-  padding: var(--space-4, 24px) var(--space-3, 12px);
+  gap: 16px;
 }
 
 .questionnaire-result__icon-wrap {
-  font-size: var(--font-size-4xl, 3rem);
-  line-height: 1;
-}
-
-.questionnaire-result__icon {
-  display: block;
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  border: 1px solid var(--color-brand-glow-md);
+  border-radius: var(--radius-lg);
+  color: var(--color-brand-300);
+  background: var(--color-brand-glow-xs);
 }
 
 .questionnaire-result__profile-badge {
-  font-size: var(--font-size-xl, 1.5rem);
-  font-weight: var(--font-weight-bold, 700);
-  color: var(--color-brand-600, #6366f1);
-  background: var(--color-brand-50, #eef2ff);
-  padding: var(--space-1, 4px) var(--space-3, 12px);
-  border-radius: var(--radius-full, 9999px);
+  margin-top: 6px;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-extrabold);
+  line-height: 1;
+}
+
+.questionnaire-result__label {
+  color: var(--color-brand-300);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-extrabold);
+  text-transform: uppercase;
 }
 
 .questionnaire-result__description {
-  font-size: var(--font-size-sm, 0.875rem);
-  color: var(--color-text-secondary, #444);
-  max-width: 380px;
+  color: var(--color-text-secondary);
+  max-width: 680px;
   margin: 0;
   line-height: 1.6;
 }
 
-.questionnaire-result__score {
-  font-size: var(--font-size-sm, 0.875rem);
-  color: var(--color-text-muted, #888);
+.questionnaire-result__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.questionnaire-result__metric {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 118px;
+  padding: 16px;
+  border: 1px solid var(--color-outline-soft);
+  border-radius: var(--radius-md);
+  color: var(--color-brand-300);
+  background: rgba(5, 7, 13, 0.36);
+}
+
+.questionnaire-result__metric span {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-extrabold);
+  text-transform: uppercase;
+}
+
+.questionnaire-result__metric strong {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-lg);
 }
 
 .questionnaire-result__cta {
-  margin-top: var(--space-2, 8px);
-  padding: 12px var(--space-4, 24px);
-  background: var(--color-brand-600, #6366f1);
-  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: fit-content;
+  min-height: 44px;
+  padding: 0 18px;
+  background: linear-gradient(135deg, var(--color-brand-400), var(--color-brand-600));
+  color: #031019;
   border: none;
-  border-radius: var(--radius-md, 8px);
-  font-size: var(--font-size-sm, 0.875rem);
-  font-weight: var(--font-weight-semibold, 600);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-extrabold);
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: transform var(--motion-fast);
 }
 
 .questionnaire-result__cta:hover {
-  background: var(--color-brand-500, #818cf8);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 720px) {
+  .questionnaire-result__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .questionnaire-result__cta {
+    width: 100%;
+  }
+
+  .questionnaire-result__profile-badge {
+    font-size: var(--font-size-3xl);
+  }
 }
 </style>
