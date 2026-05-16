@@ -23,16 +23,25 @@ interface Props {
    * Falls back to the i18n value when omitted.
    */
   ctaLabel?: string;
+  /**
+   * Route used by the upgrade CTA.
+   */
+  to?: string;
 }
 
-defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  featureName: undefined,
+  description: undefined,
+  ctaLabel: undefined,
+  to: "/subscription",
+});
 
 const router = useRouter();
 const { t } = useI18n();
 
-/** Navigates the user to the plans page. */
+/** Navigates the user to the configured upgrade route. */
 const goToPlanos = (): void => {
-  void router.push("/plans");
+  void router.push(props.to);
 };
 </script>
 

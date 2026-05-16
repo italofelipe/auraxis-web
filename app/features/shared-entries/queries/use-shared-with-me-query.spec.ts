@@ -1,3 +1,4 @@
+import { ref } from "vue";
 import { describe, it, expect, vi } from "vitest";
 
 import { useSharedWithMeQuery } from "./use-shared-with-me-query";
@@ -45,6 +46,25 @@ describe("useSharedWithMeQuery", () => {
     };
 
     expect(result.queryKey).toEqual(["shared-entries", "with-me"]);
+  });
+
+  it("honors the enabled flag so premium gates can stop free-user fetches", () => {
+    const client = { getSharedWithMe: vi.fn().mockResolvedValue([]) };
+    const enabled = ref(false);
+
+    useQueryMock.mockImplementation((opts: Record<string, unknown>) => opts);
+
+    const result = useSharedWithMeQuery(client as never, enabled) as unknown as {
+      enabled: { value: boolean } | boolean;
+    };
+
+    const enabledValue =
+      typeof result.enabled === "object" && result.enabled !== null
+        ? result.enabled.value
+        : result.enabled;
+
+    expect(enabledValue).toBe(false);
+    expect(client.getSharedWithMe).not.toHaveBeenCalled();
   });
 
   it("delegates to client.getSharedWithMe when mock data is disabled", async () => {

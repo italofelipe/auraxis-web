@@ -81,10 +81,22 @@ describe("UiUpgradePrompt", () => {
     expect(wrapper.find(".n-button").text()).toBe("paywall.upgradePrompt.ctaLabel");
   });
 
-  it("navigates to /plans when CTA is clicked", async () => {
+  it("navigates to /subscription when CTA is clicked", async () => {
     pushMock.mockResolvedValue(undefined);
 
     const wrapper = mount(UiUpgradePrompt, {
+      global: { stubs },
+    });
+
+    await wrapper.find(".n-button").trigger("click");
+    expect(pushMock).toHaveBeenCalledWith("/subscription");
+  });
+
+  it("uses the custom upgrade route when provided", async () => {
+    pushMock.mockResolvedValue(undefined);
+
+    const wrapper = mount(UiUpgradePrompt, {
+      props: { to: "/plans" },
       global: { stubs },
     });
 

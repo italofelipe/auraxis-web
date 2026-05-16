@@ -10,6 +10,9 @@ import {
 import { useSimulationsQuery } from "~/features/simulations/queries/use-simulations-query";
 import { useDeleteSimulationMutation } from "~/features/simulations/queries/use-delete-simulation-mutation";
 import type { SimulationType } from "~/features/simulations/contracts/simulation-card.dto";
+import { useEntitlementQuery } from "~/features/paywall/queries/use-entitlement-query";
+import PaywallGate from "~/components/paywall/PaywallGate.vue";
+import UiUpgradePrompt from "~/components/paywall/UiUpgradePrompt.vue";
 
 const { t } = useI18n();
 
@@ -31,7 +34,14 @@ const SIMULATION_TYPE_ROUTES: Record<SimulationType, string> = {
   investment_return: "/tools/juros-compostos",
 };
 
-const { data, isLoading, isError } = useSimulationsQuery();
+const simulationsAccessQuery = useEntitlementQuery("advanced_simulations");
+const hasSimulationsAccess = computed(
+  () => simulationsAccessQuery.data.value === true,
+);
+
+const { data, isLoading, isError } = useSimulationsQuery({
+  enabled: hasSimulationsAccess,
+});
 const deleteMutation = useDeleteSimulationMutation();
 
 const activeFilter = ref<FilterValue>("all");
@@ -81,61 +91,77 @@ const onDelete = (id: string): void => {
 
 <template>
   <div class="simulations-page">
-    <div class="simulations-page__header">
-      <NPageHeader
-        :title="$t('pages.simulations.title')"
-        :subtitle="$t('pages.simulations.subtitle')"
-        class="simulations-page__page-header"
-      />
-      <NDropdown
-        :options="NEW_SIMULATION_OPTIONS"
-        trigger="click"
-        @select="onNewSimulation"
-      >
-        <NButton type="primary" size="medium">
-          {{ $t('pages.simulations.newSimulation') }}
-        </NButton>
-      </NDropdown>
-    </div>
-
-    <UiInlineError
-      v-if="isError"
-      :title="$t('pages.simulations.loadError')"
-      :message="$t('pages.simulations.loadErrorMessage')"
-    />
-
-    <template v-else>
-      <div class="simulations-page__filter-bar">
-        <NRadioGroup v-model:value="activeFilter" size="medium">
-          <NRadioButton
-            v-for="opt in FILTER_OPTIONS"
-            :key="opt.value"
-            :value="opt.value"
-            :label="opt.label"
-          />
-        </NRadioGroup>
+    <PaywallGate feature="advanced_simulations">
+      <div class="simulations-page__header">
+        <NPageHeader
+          :title="$t('pages.simulations.title')"
+          :subtitle="$t('pages.simulations.subtitle')"
+          class="simulations-page__page-header"
+        />
+        <NDropdown
+          :options="NEW_SIMULATION_OPTIONS"
+          trigger="click"
+          @select="onNewSimulation"
+        >
+          <NButton type="primary" size="medium">
+            {{ $t('pages.simulations.newSimulation') }}
+          </NButton>
+        </NDropdown>
       </div>
 
-      <UiPageLoader v-if="isLoading" :rows="3" />
+      <UiInlineError
+        v-if="isError"
+        :title="$t('pages.simulations.loadError')"
+        :message="$t('pages.simulations.loadErrorMessage')"
+      />
 
       <template v-else>
-        <UiEmptyState
-          v-if="filteredSimulations.length === 0"
-          icon="analytics"
-          :title="activeFilter === 'all' ? $t('pages.simulations.emptyAllTitle') : $t('pages.simulations.empty')"
-          :description="activeFilter === 'all' ? $t('pages.simulations.emptyAllDescription') : undefined"
-        />
-
-        <div v-else class="simulations-page__grid">
-          <SimulationCard
-            v-for="sim in filteredSimulations"
-            :key="sim.id"
-            :simulation="sim"
-            @delete="onDelete"
-          />
+        <div class="simulations-page__filter-bar">
+          <NRadioGroup v-model:value="activeFilter" size="medium">
+            <NRadioButton
+              v-for="opt in FILTER_OPTIONS"
+              :key="opt.value"
+              :value="opt.value"
+              :label="opt.label"
+            />
+          </NRadioGroup>
         </div>
+
+        <UiPageLoader v-if="isLoading" :rows="3" />
+
+        <template v-else>
+          <UiEmptyState
+            v-if="filteredSimulations.length === 0"
+            icon="analytics"
+            :title="activeFilter === 'all' ? $t('pages.simulations.emptyAllTitle') : $t('pages.simulations.empty')"
+            :description="activeFilter === 'all' ? $t('pages.simulations.emptyAllDescription') : undefined"
+          />
+
+          <div v-else class="simulations-page__grid">
+            <SimulationCard
+              v-for="sim in filteredSimulations"
+              :key="sim.id"
+              :simulation="sim"
+              @delete="onDelete"
+            />
+          </div>
+        </template>
       </template>
-    </template>
+
+      <template #locked>
+        <section class="simulations-page__paywall-card">
+          <NPageHeader
+            :title="$t('pages.simulations.title')"
+            :subtitle="$t('pages.simulations.subtitle')"
+            class="simulations-page__page-header"
+          />
+          <UiUpgradePrompt
+            :feature-name="$t('pages.simulations.title')"
+            :description="$t('pages.simulations.subtitle')"
+          />
+        </section>
+      </template>
+    </PaywallGate>
   </div>
 </template>
 
@@ -180,6 +206,15 @@ const onDelete = (id: string): void => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: var(--space-3);
+}
+
+.simulations-page__paywall-card {
+  display: grid;
+  gap: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+  padding: var(--space-3);
 }
 
 @media (max-width: 480px) {

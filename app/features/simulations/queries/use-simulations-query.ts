@@ -20,6 +20,7 @@ export type SimulationsQueryParams = ListSimulationsParams;
 export interface UseSimulationsQueryOptions {
   readonly params?: MaybeRef<SimulationsQueryParams | undefined>;
   readonly providedClient?: SimulationClient;
+  readonly enabled?: MaybeRef<boolean>;
 }
 
 interface SimulationsQueryResult {
@@ -54,6 +55,9 @@ export const useSimulationsQuery = (
 ): UseQueryReturnType<SimulationsQueryResult, Error> => {
   const client = options.providedClient ?? useSimulationClient();
   const params = computed(() => unref(options.params));
+  const isEnabled = computed(() =>
+    options.enabled === undefined ? true : unref(options.enabled),
+  );
 
   const queryKey = computed(
     () => ["simulations", params.value ?? {}] as const,
@@ -83,6 +87,7 @@ export const useSimulationsQuery = (
         pages: list.pages,
       };
     },
+    enabled: isEnabled,
     staleTime: STALE_TIME.STABLE,
   });
 };

@@ -256,8 +256,8 @@
       "createdAt": "2026-04-03",
       "removeBy": "2027-12-31",
       "type": "release",
-      "status": "draft",
-      "description": "Página de simulações salvas. Freezada para MVP — habilitar após validação da feature.",
+      "status": "enabled-prod",
+      "description": "Página de simulações salvas. Acesso liberado com gate premium por entitlement.",
       "repositories": ["auraxis-web"]
     },
     {
@@ -266,8 +266,8 @@
       "createdAt": "2026-04-03",
       "removeBy": "2027-12-31",
       "type": "release",
-      "status": "draft",
-      "description": "Página de entradas compartilhadas (divisão de contas). Freezada para MVP.",
+      "status": "enabled-prod",
+      "description": "Página de entradas compartilhadas (divisão de contas). Acesso liberado com gate premium por entitlement.",
       "repositories": ["auraxis-web"]
     },
     {
