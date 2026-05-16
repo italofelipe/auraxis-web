@@ -8,10 +8,20 @@ import type { Subscription } from "~/features/subscription/model/subscription";
  * @returns Mapped Subscription view model (camelCase).
  */
 export const mapSubscriptionDto = (dto: ApiSubscriptionDto): Subscription => {
+  let normalizedStatus: Subscription["status"];
+
+  if (dto.status === "expired") {
+    normalizedStatus = "canceled";
+  } else if (dto.status === "free") {
+    normalizedStatus = "active";
+  } else {
+    normalizedStatus = dto.status;
+  }
+
   return {
     id: dto.id,
-    planSlug: dto.plan_slug,
-    status: dto.status,
+    planSlug: dto.plan_slug ?? dto.plan_code ?? "free",
+    status: normalizedStatus,
     trialEndsAt: dto.trial_ends_at,
     currentPeriodEnd: dto.current_period_end,
     provider: dto.provider,

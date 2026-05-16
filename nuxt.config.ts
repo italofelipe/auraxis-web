@@ -374,8 +374,9 @@ export default defineNuxtConfig({
   // ── PWA (@vite-pwa/nuxt) ─────────────────────────────────────────────
   //
   // Strategy: generateSW — Workbox generates a service worker at build time.
-  // The SW pre-caches the app shell (HTML, CSS, JS bundles) so the dashboard
-  // loads instantly on repeat visits and remains accessible offline.
+  // Keep the eager precache small. Browser/CDN caching handles Nuxt chunks as
+  // users actually visit routes; pre-caching every lazy bundle/font causes
+  // hundreds of background requests after a dashboard refresh.
   //
   // API routes are NEVER cached — financial data must always be fresh.
   // The manifest is managed by the webmanifest file in /public/.
@@ -386,8 +387,14 @@ export default defineNuxtConfig({
     // Disable PWA's own manifest injection — we manage /public/manifest.webmanifest
     manifest: false,
     workbox: {
-      // Pre-cache the Nuxt app shell (JS, CSS, fonts).
-      globPatterns: ["**/*.{js,css,woff2}"],
+      // Pre-cache only install/offline shell assets, not the whole app bundle.
+      globPatterns: [
+        "offline.html",
+        "manifest.webmanifest",
+        "favicon.ico",
+        "apple-touch-icon.png",
+        "icons/*.{png,svg}",
+      ],
       // Network-first for HTML — always try to fetch fresh page shell.
       runtimeCaching: [
         {

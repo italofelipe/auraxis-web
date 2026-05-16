@@ -4,8 +4,8 @@ import { LayoutDashboard } from "lucide-vue-next";
 import UiSidebarNavItem from "../UiSidebarNavItem.vue";
 
 const NuxtLinkStub = {
-  template: "<a :href=\"to\" v-bind=\"$attrs\"><slot /></a>",
-  props: ["to"],
+  template: "<a :href=\"to\" :data-prefetch=\"String(prefetch)\" v-bind=\"$attrs\"><slot /></a>",
+  props: ["to", "prefetch"],
 };
 
 const globalConfig = {
@@ -83,5 +83,13 @@ describe("UiSidebarNavItem", () => {
       global: globalConfig,
     });
     expect(wrapper.find("a").attributes("href")).toBe("/carteira");
+  });
+
+  it("disables route prefetch to avoid eager dashboard chunk requests", () => {
+    const wrapper = mount(UiSidebarNavItem, {
+      props: { label: "Dashboard", to: "/dashboard" },
+      global: globalConfig,
+    });
+    expect(wrapper.find("a").attributes("data-prefetch")).toBe("false");
   });
 });

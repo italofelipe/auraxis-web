@@ -38,7 +38,7 @@ const onSelect = (id: FocusMetricId): void => {
   selectMetric(id);
 };
 
-const upgradeHref = computed<string>(() => "/plans");
+const upgradeHref = computed<string>(() => "/subscription");
 </script>
 
 <template>

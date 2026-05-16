@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ref } from "vue";
 
 import { useSimulationsQuery } from "./use-simulations-query";
 import type { Simulation, SimulationList } from "~/features/simulations/model/simulation";
@@ -70,6 +71,29 @@ describe("useSimulationsQuery", () => {
       type: "installment_vs_cash",
       name: "Minha simulação",
     });
+  });
+
+  it("honors the enabled flag so premium gates can stop free-user fetches", () => {
+    const client = {
+      listSimulations: vi.fn().mockResolvedValue(makeList([])),
+    };
+    const enabled = ref(false);
+    useQueryMock.mockImplementation((opts: Record<string, unknown>) => opts);
+
+    const query = useSimulationsQuery({
+      providedClient: client as never,
+      enabled,
+    }) as unknown as {
+      enabled: { value: boolean } | boolean;
+    };
+
+    const enabledValue =
+      typeof query.enabled === "object" && query.enabled !== null
+        ? query.enabled.value
+        : query.enabled;
+
+    expect(enabledValue).toBe(false);
+    expect(client.listSimulations).not.toHaveBeenCalled();
   });
 
   it("propagates error from client.listSimulations without catching it", async () => {

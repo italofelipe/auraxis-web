@@ -94,4 +94,28 @@ describe("PaywallGate", () => {
     expect(wrapper.find(".locked-slot").exists()).toBe(true);
     expect(wrapper.find(".default-slot").exists()).toBe(false);
   });
+
+  it("renders the default upgrade prompt when no locked slot is provided", () => {
+    useEntitlementQueryMock.mockReturnValue({
+      isLoading: ref(false),
+      data: ref(false),
+    });
+
+    const wrapper = mount(PaywallGate, {
+      props: { feature: "shared_entries" },
+      slots: {
+        default: defaultSlotContent,
+      },
+      global: {
+        stubs: {
+          UiUpgradePrompt: {
+            template: "<div data-testid='upgrade-prompt' />",
+          },
+        },
+      },
+    });
+
+    expect(wrapper.find("[data-testid='upgrade-prompt']").exists()).toBe(true);
+    expect(wrapper.find(".default-slot").exists()).toBe(false);
+  });
 });

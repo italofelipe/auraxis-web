@@ -1,3 +1,4 @@
+import { computed, type MaybeRef, unref } from "vue";
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
 import { isMockDataEnabled } from "~/core/config";
@@ -16,12 +17,15 @@ import type { SharedEntryDto } from "~/features/shared-entries/contracts/shared-
  * Errors propagate as query error state — no silent catch.
  *
  * @param providedClient Optional injected client for unit tests.
+ * @param enabled Reactive flag that controls whether the API query should run.
  * @returns Vue Query state with typed SharedEntryDto[] data.
  */
 export const useSharedByMeQuery = (
   providedClient?: SharedEntriesClient,
+  enabled: MaybeRef<boolean> = true,
 ): UseQueryReturnType<SharedEntryDto[], Error> => {
   const client = providedClient ?? useSharedEntriesClient();
+  const isEnabled = computed(() => unref(enabled));
 
   return useQuery({
     queryKey: ["shared-entries", "by-me"] as const,
@@ -31,6 +35,7 @@ export const useSharedByMeQuery = (
       }
       return client.getSharedByMe();
     },
+    enabled: isEnabled,
     staleTime: STALE_TIME.STABLE,
   });
 };
