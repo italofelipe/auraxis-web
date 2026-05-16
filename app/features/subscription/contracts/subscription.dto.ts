@@ -13,12 +13,19 @@
 
 // ── Original API-bound DTOs (used by subscription.client + subscription.mapper) ──
 
-export type SubscriptionStatusDto = "active" | "trialing" | "past_due" | "canceled";
+export type SubscriptionStatusDto =
+  | "active"
+  | "trialing"
+  | "past_due"
+  | "canceled"
+  | "free"
+  | "expired";
 
 /** @deprecated Use SubscriptionDto (view-layer) for page/component usage. */
 export interface ApiSubscriptionDto {
   readonly id: string;
-  readonly plan_slug: string;
+  readonly plan_slug?: string;
+  readonly plan_code?: string;
   readonly status: SubscriptionStatusDto;
   readonly trial_ends_at: string | null;
   readonly current_period_end: string | null;

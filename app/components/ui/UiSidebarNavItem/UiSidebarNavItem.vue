@@ -11,6 +11,7 @@ const props = withDefaults(defineProps<UiSidebarNavItemProps>(), {
 <template>
   <NuxtLink
     :to="props.to"
+    :prefetch="false"
     class="ui-sidebar-nav-item"
     :class="{
       'ui-sidebar-nav-item--active': props.active,

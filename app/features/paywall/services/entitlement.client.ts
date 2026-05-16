@@ -4,8 +4,63 @@ import { useHttp } from "~/composables/useHttp";
 import type { FeatureKey } from "~/features/paywall/model/entitlement";
 
 interface EntitlementCheckDto {
-  has_access: boolean;
+  readonly active?: boolean;
+  readonly has_access?: boolean;
 }
+
+interface EntitlementCheckEnvelopeDto {
+  readonly success?: boolean;
+  readonly message?: string;
+  readonly data?: EntitlementCheckDto | null;
+}
+
+type EntitlementCheckResponseDto = EntitlementCheckDto | EntitlementCheckEnvelopeDto;
+
+/**
+ * Detects the standard v2 response envelope used by the backend.
+ *
+ * @param payload Entitlement check response body.
+ * @returns True when the payload wraps data inside `data`.
+ */
+const isEntitlementEnvelope = (
+  payload: EntitlementCheckResponseDto,
+): payload is EntitlementCheckEnvelopeDto => {
+  return (
+    payload !== null &&
+    typeof payload === "object" &&
+    "data" in payload
+  );
+};
+
+/**
+ * Extracts the entitlement payload while preserving legacy flat responses.
+ *
+ * @param payload Entitlement check response body.
+ * @returns Flat entitlement payload.
+ */
+const unwrapEntitlementCheck = (
+  payload: EntitlementCheckResponseDto,
+): EntitlementCheckDto => {
+  if (isEntitlementEnvelope(payload)) {
+    return payload.data ?? {};
+  }
+
+  return payload;
+};
+
+/**
+ * Converts backend entitlement fields into the boolean consumed by UI gates.
+ *
+ * @param payload Flat entitlement payload.
+ * @returns True when the feature is available to the current user.
+ */
+const toAccessBoolean = (payload: EntitlementCheckDto): boolean => {
+  if (typeof payload.active === "boolean") {
+    return payload.active;
+  }
+
+  return payload.has_access === true;
+};
 
 /**
  * API client for the entitlements feature.
@@ -29,11 +84,12 @@ export class EntitlementClient {
    * @returns True when the user has access to the feature.
    */
   async checkEntitlement(featureKey: FeatureKey): Promise<boolean> {
-    const response = await this.#http.get<EntitlementCheckDto>(
+    const response = await this.#http.get<EntitlementCheckResponseDto>(
       "/entitlements/check",
       { params: { feature_key: featureKey } },
     );
-    return response.data.has_access;
+
+    return toAccessBoolean(unwrapEntitlementCheck(response.data));
   }
 }
 
