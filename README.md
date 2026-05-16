@@ -17,6 +17,7 @@ Aplicação web do Auraxis construída com Nuxt 4, TypeScript estrito e Vue 3 �
 - Regras locais do repo: `steering.md`
 - Regras de código: `CODING_STANDARDS.md`
 - Quality gates locais: `.context/quality_gates.md`
+- Paridade visual Web: [`docs/web/design-canonical-map.md`](./docs/web/design-canonical-map.md)
 
 ## Stack
 
