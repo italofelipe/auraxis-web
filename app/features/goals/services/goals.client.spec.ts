@@ -27,7 +27,7 @@ describe("GoalsClient", () => {
   let client: GoalsClient;
 
   beforeEach(() => {
-    http = { get: vi.fn() } as unknown as AxiosInstance;
+    http = { get: vi.fn(), post: vi.fn() } as unknown as AxiosInstance;
     client = new GoalsClient(http);
   });
 
@@ -48,6 +48,43 @@ describe("GoalsClient", () => {
       const result = await client.listGoals();
 
       expect(result).toEqual([]);
+    });
+  });
+
+  describe("generateGoalAIProjection", () => {
+    it("posts the AI context to POST /ai/goals/:id/projection and unwraps a v2 envelope", async () => {
+      const response = {
+        narrative: "Aumente o aporte para manter a meta no prazo.",
+        tokens_used: 431,
+        cost_usd: 0.000064,
+        model: "gpt-4o-mini",
+        projection: {
+          goal_id: "goal-001",
+          current_amount: "18500.00",
+          target_amount: "30000.00",
+          remaining_amount: "11500.00",
+          monthly_contribution: "1200.00",
+          portfolio_monthly_return_rate: "0.008",
+          portfolio_annual_return_rate_pct: "10.00",
+          months_to_completion: 9,
+          projected_completion_date: "2026-02-01",
+          on_track: true,
+          months_until_deadline: 10,
+          suggested_monthly_contribution: null,
+        },
+      };
+      vi.mocked(http.post).mockResolvedValueOnce({ data: { success: true, data: response } });
+
+      const result = await client.generateGoalAIProjection("goal-001", {
+        monthly_contribution: 1200,
+        user_context: "Contexto livre do usuário",
+      });
+
+      expect(http.post).toHaveBeenCalledWith("/ai/goals/goal-001/projection", {
+        monthly_contribution: 1200,
+        user_context: "Contexto livre do usuário",
+      });
+      expect(result).toEqual(response);
     });
   });
 });

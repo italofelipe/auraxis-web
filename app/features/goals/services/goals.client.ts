@@ -3,11 +3,37 @@ import type { AxiosInstance } from "axios";
 import { useHttp } from "~/composables/useHttp";
 import type {
   GoalDto,
+  GoalAIProjectionPayload,
+  GoalAIProjectionResponseDto,
   GoalPlanDto,
   GoalProjectionResponseDto,
   CreateGoalPayload,
   UpdateGoalPayload,
 } from "~/features/goals/contracts/goal.dto";
+
+type ApiEnvelope<T> = {
+  readonly data?: T;
+  readonly success?: boolean;
+};
+
+/**
+ * Extracts the payload from the v2 API envelope while accepting legacy flat mocks.
+ *
+ * @param payload Raw response body.
+ * @returns Unwrapped response payload.
+ */
+const unwrapApiEnvelope = <T>(payload: ApiEnvelope<T> | T): T => {
+  if (
+    payload !== null &&
+    typeof payload === "object" &&
+    "data" in payload &&
+    (payload as ApiEnvelope<T>).data !== undefined
+  ) {
+    return (payload as ApiEnvelope<T>).data as T;
+  }
+
+  return payload as T;
+};
 
 /**
  * API client for the goals feature.
@@ -93,6 +119,26 @@ export class GoalsClient {
       `/goals/${id}/projection`,
     );
     return response.data;
+  }
+
+  /**
+   * Generates a premium AI narrative for a goal projection.
+   *
+   * The backend endpoint is scoped by goal id and receives the free-form user
+   * context plus the monthly contribution used in the projection.
+   *
+   * @param id Goal identifier.
+   * @param payload Context and contribution sent to the AI projection endpoint.
+   * @returns Unwrapped AI projection response.
+   */
+  async generateGoalAIProjection(
+    id: string,
+    payload: GoalAIProjectionPayload,
+  ): Promise<GoalAIProjectionResponseDto> {
+    const response = await this.#http.post<
+      ApiEnvelope<GoalAIProjectionResponseDto> | GoalAIProjectionResponseDto
+    >(`/ai/goals/${id}/projection`, payload);
+    return unwrapApiEnvelope<GoalAIProjectionResponseDto>(response.data);
   }
 }
 

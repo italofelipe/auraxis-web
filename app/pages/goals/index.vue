@@ -252,6 +252,15 @@ const selectedGoal = computed(() => {
   return goalCards.value.find((goal) => goal.id === selectedGoalId.value) ?? goalCards.value[0] ?? null;
 });
 
+/**
+ * Opens the dedicated detail route for a selected goal card.
+ *
+ * @param goal Goal selected in the status grid.
+ */
+const openGoalDetails = (goal: GoalViewModel): void => {
+  void navigateTo(`/goals/${goal.id}`);
+};
+
 watch(
   goalCards,
   (items) => {
@@ -513,9 +522,19 @@ const simulatedImpact = computed(() => {
                 Aporte mensal atual:
                 <strong>{{ formatCurrency(goal.monthlyContribution) }}</strong>
               </span>
-              <button type="button" aria-label="Mais opções da meta">
-                <MoreVertical :size="16" aria-hidden="true" />
-              </button>
+              <div class="goal-status-card__footer-actions">
+                <button
+                  class="goal-status-card__details"
+                  type="button"
+                  @click.stop="openGoalDetails(goal)"
+                >
+                  <ArrowUpRight :size="15" aria-hidden="true" />
+                  Ver detalhes
+                </button>
+                <button type="button" aria-label="Mais opções da meta" @click.stop>
+                  <MoreVertical :size="16" aria-hidden="true" />
+                </button>
+              </div>
             </div>
           </article>
         </div>
@@ -1045,11 +1064,30 @@ const simulatedImpact = computed(() => {
   color: var(--mp-text);
 }
 
+.goal-status-card__footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .goal-status-card__footer button {
   border: 0;
   padding: 4px;
   background: transparent;
   color: var(--mp-muted);
+}
+
+.goal-status-card__details {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(68, 212, 255, 0.25) !important;
+  border-radius: var(--radius-full);
+  padding: 0 10px !important;
+  color: var(--mp-cyan) !important;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-extrabold);
 }
 
 .goals-analytics-grid {
