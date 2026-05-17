@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRegisterMutation } from "~/composables/useAuth";
+import { useLoginMutation, useRegisterMutation } from "~/composables/useAuth";
 import { useCaptcha } from "~/features/auth/composables/useCaptcha";
 import { useApiError } from "~/composables/useApiError";
 import { useToast } from "~/composables/useToast";
@@ -15,28 +15,40 @@ useSeoMeta({
 });
 const toast = useToast();
 const registerMutation = useRegisterMutation();
+const loginMutation = useLoginMutation();
 const captcha = useCaptcha();
 const { getErrorMessage } = useApiError();
+const isSubmitting = computed(
+  () => registerMutation.isPending.value || loginMutation.isPending.value,
+);
 
 /**
  * Submits the registration form.
  *
- * Obtains a Cloudflare Turnstile token before sending the request. After a successful
- * registration the user is already signed in via the mutation's onSuccess hook
- * (see useRegisterMutation). We redirect directly to the email-confirmation
- * landing page so the user can either confirm or skip.
+ * Obtains a Cloudflare Turnstile token before registration. After the account
+ * is created, signs in with the same submitted credentials and sends the user
+ * to the authenticated dashboard.
  *
  * @param values - Validated form data from SignupForm.
  */
 const onSubmit = async (values: RegisterSchema): Promise<void> => {
   const { confirmPassword: _discard, ...registerPayload } = values;
   try {
-    const captchaToken = await captcha.execute();
-    await registerMutation.mutateAsync({ ...registerPayload, captchaToken });
+    const registerCaptchaToken = await captcha.execute();
+    await registerMutation.mutateAsync({
+      ...registerPayload,
+      captchaToken: registerCaptchaToken,
+    });
+
+    const loginCaptchaToken = await captcha.execute();
+    await loginMutation.mutateAsync({
+      email: values.email,
+      password: values.password,
+      captchaToken: loginCaptchaToken,
+    });
+
     toast.success(t("auth.register.successToast"), { duration: 3000 });
-    // The mutation's onSuccess already calls sessionStore.signIn(), so the
-    // user is authenticated. Redirect to the email-confirmation gate.
-    await navigateTo("/confirm-email-pending");
+    await navigateTo("/dashboard");
   } catch (err) {
     toast.error(getErrorMessage(err), { duration: 5000 });
   }
@@ -44,5 +56,5 @@ const onSubmit = async (values: RegisterSchema): Promise<void> => {
 </script>
 
 <template>
-  <SignupForm :loading="registerMutation.isPending.value" @submit="onSubmit" />
+  <SignupForm :loading="isSubmitting" @submit="onSubmit" />
 </template>

@@ -20,19 +20,31 @@ type V2AuthUser = {
   readonly email_confirmed?: boolean;
 };
 
-/** v2 envelope data payload for login and register. */
-type V2AuthData = {
+/** v2 envelope data payload for login. */
+type V2LoginData = {
   readonly token: string;
   /** Refresh token returned since B18. Absent on older API versions. */
   readonly refresh_token?: string;
   readonly user: V2AuthUser;
 };
 
-/** Full v2/v3 standardized envelope for auth endpoints. */
-type V2AuthEnvelope = {
+/** Full v2/v3 standardized envelope for login endpoints. */
+type V2LoginEnvelope = {
   readonly success: boolean;
   readonly message: string;
-  readonly data: V2AuthData;
+  readonly data: V2LoginData;
+};
+
+/** v2 envelope data payload for registration. */
+type V2RegisterData = {
+  readonly user?: V2AuthUser;
+};
+
+/** Full v2/v3 standardized envelope for registration. */
+type V2RegisterEnvelope = {
+  readonly success: boolean;
+  readonly message: string;
+  readonly data?: V2RegisterData;
 };
 
 type ForgotPasswordLegacyResponse = {
@@ -49,7 +61,7 @@ type ForgotPasswordWireResponse =
  * @param envelope V2 auth response envelope.
  * @returns Normalized LoginResponse.
  */
-const normalizeAuthEnvelope = (envelope: V2AuthEnvelope): LoginResponse => ({
+const normalizeAuthEnvelope = (envelope: V2LoginEnvelope): LoginResponse => ({
   accessToken: envelope.data.token,
   refreshToken: envelope.data.refresh_token,
   user: {
@@ -57,6 +69,28 @@ const normalizeAuthEnvelope = (envelope: V2AuthEnvelope): LoginResponse => ({
     displayName: envelope.data.user.name,
     emailConfirmed: envelope.data.user.email_confirmed,
   },
+});
+
+/**
+ * Maps v2 registration envelope data to the canonical RegisterResponse.
+ *
+ * Registration does not create a frontend session. The page must call login
+ * with the submitted credentials after this response to obtain tokens.
+ *
+ * @param envelope V2 registration response envelope.
+ * @returns Normalized RegisterResponse.
+ */
+const normalizeRegisterEnvelope = (
+  envelope: V2RegisterEnvelope,
+): RegisterResponse => ({
+  message: envelope.message,
+  user: envelope.data?.user
+    ? {
+        email: envelope.data.user.email,
+        displayName: envelope.data.user.name,
+        emailConfirmed: envelope.data.user.email_confirmed,
+      }
+    : undefined,
 });
 
 /**
@@ -83,12 +117,15 @@ const normalizeForgotPasswordResponse = (
 export const createAuthApi = (http: HttpAdapter): AuthApi => {
   return {
     login: async (payload: LoginRequest): Promise<LoginResponse> => {
-      const response = await http.post<V2AuthEnvelope>("/auth/login", payload);
+      const response = await http.post<V2LoginEnvelope>("/auth/login", payload);
       return normalizeAuthEnvelope(response.data);
     },
     register: async (payload: RegisterRequest): Promise<RegisterResponse> => {
-      const response = await http.post<V2AuthEnvelope>("/auth/register", payload);
-      return normalizeAuthEnvelope(response.data);
+      const response = await http.post<V2RegisterEnvelope>(
+        "/auth/register",
+        payload,
+      );
+      return normalizeRegisterEnvelope(response.data);
     },
     forgotPassword: async (
       payload: ForgotPasswordRequest,

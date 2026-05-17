@@ -63,22 +63,14 @@ export const useLoginMutation = (authApi?: AuthApi): LoginMutation => {
  * @returns Mutation de registro.
  */
 export const useRegisterMutation = (authApi?: AuthApi): RegisterMutation => {
-  const sessionStore = useSessionStore();
   const analytics = useAnalytics();
   const resolvedAuthApi = resolveAuthApi(authApi);
 
   return useMutation({
     mutationFn: resolvedAuthApi.register,
     onSuccess: (response: RegisterResponse): void => {
-      sessionStore.signIn({
-        accessToken: response.accessToken,
-        refreshToken: response.refreshToken ?? null,
-        userEmail: response.user.email,
-        emailConfirmed: response.user.emailConfirmed,
-      });
-      analytics.identify(response.user.email);
       analytics.capture("user_registered", {
-        email_confirmed: response.user.emailConfirmed,
+        email_confirmed: response.user?.emailConfirmed ?? false,
       });
     },
   });

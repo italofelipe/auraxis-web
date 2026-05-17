@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
 import { waitForHydration } from "../helpers/auth";
 
@@ -12,6 +12,19 @@ import { waitForHydration } from "../helpers/auth";
 const MOCK_REGISTER_SUCCESS = {
   success: true,
   message: "Account created",
+  data: {
+    user: {
+      id: "user-new-456",
+      name: "New User",
+      email: "newuser@example.com",
+      email_confirmed: false,
+    },
+  },
+};
+
+const MOCK_LOGIN_SUCCESS = {
+  success: true,
+  message: "Authenticated",
   data: {
     token: "mock-access-token",
     refresh_token: "mock-refresh-token",
@@ -27,6 +40,18 @@ const MOCK_REGISTER_SUCCESS = {
 const MOCK_REGISTER_EMAIL_TAKEN = {
   message: "Este e-mail já está em uso. Tente fazer login.",
 };
+
+/**
+ * Dismisses the LGPD cookie banner when it is visible on auth pages.
+ *
+ * @param page Playwright page instance.
+ */
+async function acceptCookieBanner(page: Page): Promise<void> {
+  const acceptAll = page.getByTestId("cookie-accept-all");
+  if (await acceptAll.isVisible().catch(() => false)) {
+    await acceptAll.click();
+  }
+}
 
 test.describe("Auth — Register", () => {
   test("register page renders all form fields and submit button", async ({
@@ -51,9 +76,11 @@ test.describe("Auth — Register", () => {
     await expect(loginLink).toHaveAttribute("href", "/login");
   });
 
-  test("successful registration redirects to /confirm-email-pending", async ({
+  test("successful registration logs in with the submitted credentials and redirects to /dashboard", async ({
     page,
   }) => {
+    let loginPayload: Record<string, unknown> | undefined;
+
     await page.route("**/auth/register", (route) => {
       route.fulfill({
         status: 201,
@@ -61,18 +88,32 @@ test.describe("Auth — Register", () => {
         body: JSON.stringify(MOCK_REGISTER_SUCCESS),
       });
     });
+    await page.route("**/auth/login", async (route) => {
+      loginPayload = await route.request().postDataJSON();
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(MOCK_LOGIN_SUCCESS),
+      });
+    });
 
     await page.goto("/register");
     await waitForHydration(page);
+    await acceptCookieBanner(page);
     await page.locator("#signup-name").fill("New User");
     await page.locator("#signup-email").fill("newuser@example.com");
     await page.locator("#signup-password").fill("StrongPass1!");
     await page.locator("#signup-confirm-password").fill("StrongPass1!");
     await page.getByRole("button", { name: /criar conta/i }).click();
 
-    await expect(page).toHaveURL(/\/confirm-email-pending/, {
+    await expect(page).toHaveURL(/\/dashboard/, {
       timeout: 10_000,
     });
+    expect(loginPayload).toMatchObject({
+      email: "newuser@example.com",
+      password: "StrongPass1!",
+    });
+    await expect(page.getByText(/algo deu errado/i)).not.toBeVisible();
   });
 
   test("shows error message when email is already taken (409)", async ({
@@ -88,6 +129,7 @@ test.describe("Auth — Register", () => {
 
     await page.goto("/register");
     await waitForHydration(page);
+    await acceptCookieBanner(page);
     await page.locator("#signup-name").fill("Existing User");
     await page.locator("#signup-email").fill("taken@example.com");
     await page.locator("#signup-password").fill("StrongPass1!");
@@ -116,6 +158,7 @@ test.describe("Auth — Register", () => {
 
     await page.goto("/register");
     await waitForHydration(page);
+    await acceptCookieBanner(page);
     await page.locator("#signup-name").fill("New User");
     await page.locator("#signup-email").fill("newuser@example.com");
     await page.locator("#signup-password").fill("StrongPass1!");
@@ -132,6 +175,8 @@ test.describe("Auth — Register", () => {
     page,
   }) => {
     await page.goto("/register");
+    await waitForHydration(page);
+    await acceptCookieBanner(page);
 
     await page.getByRole("button", { name: /criar conta/i }).click();
 

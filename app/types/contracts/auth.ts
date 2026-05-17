@@ -26,10 +26,8 @@ export interface RegisterRequest {
 }
 
 export interface RegisterResponse {
-  readonly accessToken: string;
-  /** Opaque token used to obtain new access tokens without re-authenticating. */
-  readonly refreshToken?: string;
-  readonly user: {
+  readonly message: string;
+  readonly user?: {
     readonly email: string;
     readonly displayName: string;
     /** Whether the user's email address has been confirmed. Always false for new registrations. */
