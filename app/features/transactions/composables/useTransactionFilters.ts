@@ -9,6 +9,164 @@ import type { TransactionStatusDto, TransactionTypeDto } from "~/features/transa
 type FilterType = TransactionTypeDto | "all";
 type FilterStatus = TransactionStatusDto | "all";
 type ViewMode = "list" | "calendar";
+type PeriodMode = "month" | "custom";
+
+interface TransactionPeriodState {
+  filterStartDate: Ref<number | null>;
+  filterEndDate: Ref<number | null>;
+  periodMode: ComputedRef<PeriodMode>;
+  periodLabel: ComputedRef<string>;
+  periodRangeLabel: ComputedRef<string>;
+  goToPreviousMonth: () => void;
+  goToNextMonth: () => void;
+  resetToCurrentMonth: () => void;
+}
+
+interface TransactionFilterRefs {
+  filterType: Ref<FilterType>;
+  filterStatus: Ref<FilterStatus>;
+  filterStartDate: Ref<number | null>;
+  filterEndDate: Ref<number | null>;
+  filterTagId: Ref<string | "all">;
+}
+
+/**
+ * Returns the first calendar day for the month that contains the provided date.
+ *
+ * @param date Date inside the desired month.
+ * @returns Local Date set to the first day of that month.
+ */
+function startOfMonth(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), 1);
+}
+
+/**
+ * Returns the last calendar day for the month that contains the provided date.
+ *
+ * @param date Date inside the desired month.
+ * @returns Local Date set to the last day of that month.
+ */
+function endOfMonth(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+}
+
+/**
+ * Formats a local timestamp as the API date key expected by the transactions endpoint.
+ *
+ * @param timestamp Local date timestamp from Naive UI date picker.
+ * @returns Date string in YYYY-MM-DD format.
+ */
+function toDateKey(timestamp: number): string {
+  const date = new Date(timestamp);
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getDate()}`.padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Formats a local timestamp for Brazilian display.
+ *
+ * @param timestamp Local date timestamp from Naive UI date picker.
+ * @returns Date string in DD/MM/YYYY format.
+ */
+function formatBrazilianDate(timestamp: number): string {
+  const [year, month, day] = toDateKey(timestamp).split("-");
+  return `${day}/${month}/${year}`;
+}
+
+/**
+ * Formats a month/year label in pt-BR with title-case first letter.
+ *
+ * @param date Date inside the desired month.
+ * @returns Label such as "Maio de 2026".
+ */
+function formatMonthLabel(date: Date): string {
+  const label = new Intl.DateTimeFormat("pt-BR", {
+    month: "long",
+    year: "numeric",
+  }).format(date);
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+/**
+ * Creates all reactive period state used by the transactions list.
+ *
+ * @returns Date refs, labels and month navigation helpers.
+ */
+function useTransactionPeriod(): TransactionPeriodState {
+  const selectedMonth = ref(startOfMonth(new Date()));
+  const selectedMonthStart = computed(() => startOfMonth(selectedMonth.value).getTime());
+  const selectedMonthEnd = computed(() => endOfMonth(selectedMonth.value).getTime());
+  const filterStartDate = ref<number | null>(selectedMonthStart.value);
+  const filterEndDate = ref<number | null>(selectedMonthEnd.value);
+
+  const periodMode = computed<PeriodMode>(() =>
+    filterStartDate.value === selectedMonthStart.value && filterEndDate.value === selectedMonthEnd.value
+      ? "month"
+      : "custom",
+  );
+  const periodRangeLabel = computed(() => formatPeriodRange(filterStartDate.value, filterEndDate.value));
+  const periodLabel = computed(() => periodMode.value === "month" ? formatMonthLabel(selectedMonth.value) : periodRangeLabel.value);
+
+  /**
+   * Applies the month that contains the provided date to both date filters.
+   *
+   * @param date Date inside the month to select.
+   */
+  function applyMonth(date: Date): void {
+    selectedMonth.value = startOfMonth(date);
+    filterStartDate.value = selectedMonthStart.value;
+    filterEndDate.value = selectedMonthEnd.value;
+  }
+
+  return {
+    filterStartDate,
+    filterEndDate,
+    periodMode,
+    periodLabel,
+    periodRangeLabel,
+    goToPreviousMonth: () => applyMonth(new Date(selectedMonth.value.getFullYear(), selectedMonth.value.getMonth() - 1, 1)),
+    goToNextMonth: () => applyMonth(new Date(selectedMonth.value.getFullYear(), selectedMonth.value.getMonth() + 1, 1)),
+    resetToCurrentMonth: () => applyMonth(new Date()),
+  };
+}
+
+/**
+ * Formats the active period range for display.
+ *
+ * @param startDate Start timestamp or null.
+ * @param endDate End timestamp or null.
+ * @returns Display range or fallback label.
+ */
+function formatPeriodRange(startDate: number | null, endDate: number | null): string {
+  if (!startDate || !endDate) { return "Período customizado"; }
+  return `${formatBrazilianDate(startDate)} - ${formatBrazilianDate(endDate)}`;
+}
+
+/**
+ * Converts UI filter refs into API query parameters.
+ *
+ * @param refs Reactive filter refs from the transactions page.
+ * @returns API filters or undefined when no filter is active.
+ */
+function buildListFilters(refs: TransactionFilterRefs): ListTransactionsFilters | undefined {
+  const f: {
+    type?: ListTransactionsFilters["type"];
+    status?: ListTransactionsFilters["status"];
+    start_date?: string;
+    end_date?: string;
+    tag_id?: string;
+  } = {};
+
+  if (refs.filterType.value !== "all") { f.type = refs.filterType.value; }
+  if (refs.filterStatus.value !== "all") { f.status = refs.filterStatus.value; }
+  if (refs.filterStartDate.value) { f.start_date = toDateKey(refs.filterStartDate.value); }
+  if (refs.filterEndDate.value) { f.end_date = toDateKey(refs.filterEndDate.value); }
+  if (refs.filterTagId.value !== "all") { f.tag_id = refs.filterTagId.value; }
+
+  return Object.keys(f).length > 0 ? f : undefined;
+}
 
 /**
  * Calls tag and account queries; centralises lookup data access.
@@ -52,10 +210,15 @@ export type UseTransactionFiltersReturn = {
   filterStartDate: Ref<number | null>;
   filterEndDate: Ref<number | null>;
   filterTagId: Ref<string | "all">;
+  periodMode: ComputedRef<PeriodMode>;
+  periodLabel: ComputedRef<string>;
+  periodRangeLabel: ComputedRef<string>;
   viewMode: Ref<ViewMode>;
   selectedDay: Ref<CalendarDay | null>;
   showDayDetail: Ref<boolean>;
   onDayClick: (day: CalendarDay) => void;
+  goToPreviousMonth: () => void;
+  goToNextMonth: () => void;
   filters: ComputedRef<ListTransactionsFilters | undefined>;
   TYPE_OPTIONS: ComputedRef<SelectOption[]>;
   STATUS_OPTIONS: ComputedRef<SelectOption[]>;
@@ -78,11 +241,10 @@ export type UseTransactionFiltersReturn = {
  */
 export function useTransactionFilters(): UseTransactionFiltersReturn {
   const { t } = useI18n();
+  const period = useTransactionPeriod();
 
   const filterType = ref<FilterType>("all");
   const filterStatus = ref<FilterStatus>("all");
-  const filterStartDate = ref<number | null>(null);
-  const filterEndDate = ref<number | null>(null);
   const filterTagId = ref<string | "all">("all");
 
   const viewMode = ref<ViewMode>("list");
@@ -109,23 +271,15 @@ export function useTransactionFilters(): UseTransactionFiltersReturn {
    *
    * @returns ListTransactionsFilters or undefined when no active filters.
    */
-  const filters = computed((): ListTransactionsFilters | undefined => {
-    const f: {
-      type?: ListTransactionsFilters["type"];
-      status?: ListTransactionsFilters["status"];
-      start_date?: string;
-      end_date?: string;
-      tag_id?: string;
-    } = {};
-
-    if (filterType.value !== "all") { f.type = filterType.value; }
-    if (filterStatus.value !== "all") { f.status = filterStatus.value; }
-    if (filterStartDate.value) { f.start_date = new Date(filterStartDate.value).toISOString().slice(0, 10); }
-    if (filterEndDate.value) { f.end_date = new Date(filterEndDate.value).toISOString().slice(0, 10); }
-    if (filterTagId.value !== "all") { f.tag_id = filterTagId.value; }
-
-    return Object.keys(f).length > 0 ? f : undefined;
-  });
+  const filters = computed((): ListTransactionsFilters | undefined =>
+    buildListFilters({
+      filterType,
+      filterStatus,
+      filterStartDate: period.filterStartDate,
+      filterEndDate: period.filterEndDate,
+      filterTagId,
+    }),
+  );
 
   const TYPE_OPTIONS = computed((): SelectOption[] => [
     { label: t("transactions.filter.all"), value: "all" },
@@ -157,26 +311,30 @@ export function useTransactionFilters(): UseTransactionFiltersReturn {
   const { tagMap, tagDetailMap, accountMap } = buildLookupMaps(tags, accounts);
 
   /**
-   * Resets all active filters back to their default (unfiltered) state.
+   * Resets all active filters back to their default current-month state.
    */
   function clearFilters(): void {
     filterType.value = "all";
     filterStatus.value = "all";
-    filterStartDate.value = null;
-    filterEndDate.value = null;
+    period.resetToCurrentMonth();
     filterTagId.value = "all";
   }
 
   return {
     filterType,
     filterStatus,
-    filterStartDate,
-    filterEndDate,
+    filterStartDate: period.filterStartDate,
+    filterEndDate: period.filterEndDate,
     filterTagId,
+    periodMode: period.periodMode,
+    periodLabel: period.periodLabel,
+    periodRangeLabel: period.periodRangeLabel,
     viewMode,
     selectedDay,
     showDayDetail,
     onDayClick,
+    goToPreviousMonth: period.goToPreviousMonth,
+    goToNextMonth: period.goToNextMonth,
     filters,
     TYPE_OPTIONS,
     STATUS_OPTIONS,

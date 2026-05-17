@@ -54,22 +54,28 @@ describe("useMarkTransactionPaidMutation", () => {
 		useMutationMock.mockImplementation((opts: unknown) => opts);
 	});
 
-	it("calls client.updateStatus with status 'paid'", async () => {
+	it("calls client.updateTransaction with status 'paid' and paid_at", async () => {
 		const dto = makeTransactionDto();
-		const client = { updateStatus: vi.fn().mockResolvedValue(dto) };
+		const client = { updateTransaction: vi.fn().mockResolvedValue(dto) };
 
 		const mutation = useMarkTransactionPaidMutation(client as never) as unknown as {
-			mutationFn: (id: string) => Promise<TransactionDto>;
+			mutationFn: (args: { id: string; paidAt: string }) => Promise<TransactionDto>;
 		};
 
-		const result = await mutation.mutationFn("txn-99");
+		const result = await mutation.mutationFn({
+			id: "txn-99",
+			paidAt: "2026-04-05T00:00:00.000-03:00",
+		});
 
-		expect(client.updateStatus).toHaveBeenCalledWith("txn-99", "paid");
+		expect(client.updateTransaction).toHaveBeenCalledWith("txn-99", {
+			status: "paid",
+			paid_at: "2026-04-05T00:00:00.000-03:00",
+		});
 		expect(result).toEqual(dto);
 	});
 
 	it("invalidates the transactions list cache on success", async () => {
-		const client = { updateStatus: vi.fn().mockResolvedValue(makeTransactionDto()) };
+		const client = { updateTransaction: vi.fn().mockResolvedValue(makeTransactionDto()) };
 
 		const mutation = useMarkTransactionPaidMutation(client as never) as unknown as {
 			onSuccess: () => Promise<void>;
@@ -80,27 +86,33 @@ describe("useMarkTransactionPaidMutation", () => {
 		expect(invalidateQueriesMock).toHaveBeenCalledWith({ queryKey: ["transactions", "list"] });
 	});
 
-	it("propagates errors from client.updateStatus without catching", async () => {
+	it("propagates errors from client.updateTransaction without catching", async () => {
 		const client = {
-			updateStatus: vi.fn().mockRejectedValue(new Error("update status failed")),
+			updateTransaction: vi.fn().mockRejectedValue(new Error("update status failed")),
 		};
 
 		const mutation = useMarkTransactionPaidMutation(client as never) as unknown as {
-			mutationFn: (id: string) => Promise<TransactionDto>;
+			mutationFn: (args: { id: string; paidAt: string }) => Promise<TransactionDto>;
 		};
 
-		await expect(mutation.mutationFn("txn-99")).rejects.toThrow("update status failed");
+		await expect(mutation.mutationFn({
+			id: "txn-99",
+			paidAt: "2026-04-05T00:00:00.000-03:00",
+		})).rejects.toThrow("update status failed");
 	});
 
 	it("returns the updated TransactionDto with paid status", async () => {
 		const dto = makeTransactionDto();
-		const client = { updateStatus: vi.fn().mockResolvedValue(dto) };
+		const client = { updateTransaction: vi.fn().mockResolvedValue(dto) };
 
 		const mutation = useMarkTransactionPaidMutation(client as never) as unknown as {
-			mutationFn: (id: string) => Promise<TransactionDto>;
+			mutationFn: (args: { id: string; paidAt: string }) => Promise<TransactionDto>;
 		};
 
-		const result = await mutation.mutationFn("txn-99");
+		const result = await mutation.mutationFn({
+			id: "txn-99",
+			paidAt: "2026-04-05T00:00:00.000-03:00",
+		});
 
 		expect(result.status).toBe("paid");
 		expect(result.id).toBe("txn-99");

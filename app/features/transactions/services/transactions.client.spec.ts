@@ -189,6 +189,28 @@ describe("TransactionsClient", () => {
     });
   });
 
+  describe("updateTransaction", () => {
+    it("patches /transactions/:id with status and paid_at when marking as paid", async () => {
+      const txn = makeTransaction({
+        id: "txn-paid-1",
+        status: "paid",
+        paid_at: "2026-05-10T00:00:00.000-03:00",
+      });
+      httpPatchMock.mockResolvedValueOnce({ data: { data: { transaction: txn } } });
+
+      const result = await client.updateTransaction("txn-paid-1", {
+        status: "paid",
+        paid_at: "2026-05-10T00:00:00.000-03:00",
+      });
+
+      expect(httpPatchMock).toHaveBeenCalledWith("/transactions/txn-paid-1", {
+        status: "paid",
+        paid_at: "2026-05-10T00:00:00.000-03:00",
+      });
+      expect(result).toEqual(txn);
+    });
+  });
+
   describe("listDeletedTransactions", () => {
     it("gets /transactions/deleted", async () => {
       httpGetMock.mockResolvedValueOnce({ data: { data: { transactions: [] } } });

@@ -37,6 +37,15 @@ const MOCK_OVERVIEW = {
 	portfolio: { currentValue: 25000, costBasis: 20000 },
 };
 
+const E2E_BASE_URL = process.env.BASE_URL ?? "http://localhost:3000";
+const COOKIE_CONSENT_VALUE = encodeURIComponent(JSON.stringify({
+	version: 1,
+	necessary: true,
+	analytics: false,
+	marketing: false,
+	updatedAt: "2026-05-17T12:00:00.000Z",
+}));
+
 interface MockTransaction {
 	id: string;
 	title: string;
@@ -247,6 +256,12 @@ const mockAuthAndTransactions = async (page: Page): Promise<TxStore> => {
 
 	let sessionEstablished = false;
 
+	await page.context().addCookies([{
+		name: "auraxis_cookie_consent",
+		value: COOKIE_CONSENT_VALUE,
+		url: E2E_BASE_URL,
+	}]);
+
 	await page.route("**/auth/refresh", (route) => {
 		if (!sessionEstablished) {
 			route.fulfill({
@@ -363,6 +378,21 @@ const loginAndGoToTransactions = async (page: Page): Promise<void> => {
 };
 
 test.describe("Transactions — MSW-backed flows", () => {
+	test("shows the current month period by default", async ({ page }) => {
+		await mockAuthAndTransactions(page);
+		await loginAndGoToTransactions(page);
+
+		const monthLabel = new Intl.DateTimeFormat("pt-BR", {
+			month: "long",
+			year: "numeric",
+		}).format(new Date());
+		const expectedLabel = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
+
+		await expect(page.getByRole("heading", { name: expectedLabel })).toBeVisible({ timeout: 10_000 });
+		await expect(page.getByRole("button", { name: "Mês anterior" })).toBeVisible();
+		await expect(page.getByRole("button", { name: "Próximo mês" })).toBeVisible();
+	});
+
 	test("transactions page loads after login", async ({ page }) => {
 		await mockAuthAndTransactions(page);
 		await loginAndGoToTransactions(page);
@@ -457,6 +487,43 @@ test.describe("Transactions — MSW-backed flows", () => {
 
 		await expect.poll(() => store.active.length, { timeout: 5_000 }).toBe(0);
 		await expect.poll(() => store.deleted.length, { timeout: 5_000 }).toBe(1);
+	});
+
+	test("marking a pending expense as paid requires effective date and sends paid_at", async ({ page }) => {
+		const store = await mockAuthAndTransactions(page);
+		store.active = [
+			makeTx({
+				id: "tx-pending-expense",
+				title: "IPTU 2026",
+				type: "expense",
+				amount: "2580.00",
+				due_date: "2026-05-11",
+				status: "pending",
+				paid_at: null,
+			}),
+		];
+
+		await loginAndGoToTransactions(page);
+		await expect(page.getByText("IPTU 2026")).toBeVisible({ timeout: 10_000 });
+		await page.getByRole("button", { name: /^marcar como pago$/i }).click();
+
+		const dialog = page.getByRole("dialog");
+		await expect(dialog.getByTestId("transaction-payment-date")).toBeVisible({ timeout: 5_000 });
+		await expect(dialog.getByRole("button", { name: /^confirmar pagamento$/i })).toBeDisabled();
+
+		await dialog.getByPlaceholder("Data efetiva do pagamento").fill("10/05/2026");
+		await dialog.getByPlaceholder("Data efetiva do pagamento").press("Enter");
+
+		const patchRequest = page.waitForRequest(
+			(req) => req.url().includes("/transactions/tx-pending-expense") && req.method() === "PATCH",
+			{ timeout: 10_000 },
+		);
+		await dialog.getByRole("button", { name: /^confirmar pagamento$/i }).click();
+		const request = await patchRequest;
+		const payload = request.postDataJSON() as { status?: string; paid_at?: string };
+
+		expect(payload.status).toBe("paid");
+		expect(payload.paid_at).toContain("2026-05-10");
 	});
 
 	test("trash page lists soft-deleted transactions and restores them", async ({ page }) => {
