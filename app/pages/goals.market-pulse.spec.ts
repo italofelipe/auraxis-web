@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-const source = readFileSync(join(process.cwd(), "app/pages/goals.vue"), "utf8");
+const source = readFileSync(join(process.cwd(), "app/pages/goals/index.vue"), "utf8");
 
 describe("Goals page — Market Pulse anatomy", () => {
   it("renders the canonical action, status, projection and simulator sections", () => {
@@ -18,5 +18,10 @@ describe("Goals page — Market Pulse anatomy", () => {
     expect(source).toContain("Status das Metas");
     expect(source).toContain("Projeção de Evolução Patrimonial");
     expect(source).toContain("Simulador de Aporte");
+  });
+
+  it("links goal cards to the dedicated goal detail route", () => {
+    expect(source).toContain("Ver detalhes");
+    expect(source).toContain("navigateTo(`/goals/${goal.id}`)");
   });
 });

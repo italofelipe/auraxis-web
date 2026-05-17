@@ -286,6 +286,7 @@ const chartOption = computed((): EChartsOption => {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  min-width: 0;
 }
 
 .goal-projection-panel__header {
@@ -309,6 +310,7 @@ const chartOption = computed((): EChartsOption => {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: var(--space-3);
+  min-width: 0;
 }
 
 .goal-projection-panel__slider-section {

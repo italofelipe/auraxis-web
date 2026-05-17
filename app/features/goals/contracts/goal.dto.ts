@@ -29,6 +29,11 @@ export type CreateGoalPayload = {
 
 export type UpdateGoalPayload = Partial<CreateGoalPayload>;
 
+export type GoalAIProjectionPayload = {
+  readonly user_context: string;
+  readonly monthly_contribution: number;
+};
+
 /**
  * Compound-interest projection for a single goal.
  * Mirrors the API response from GET /goals/:id/projection.
@@ -66,4 +71,12 @@ export type GoalProjectionDto = {
 export type GoalProjectionResponseDto = {
   readonly goal: GoalDto;
   readonly projection: GoalProjectionDto;
+};
+
+export type GoalAIProjectionResponseDto = {
+  readonly narrative: string;
+  readonly tokens_used: number;
+  readonly cost_usd: number;
+  readonly projection: GoalProjectionDto;
+  readonly model: string;
 };
