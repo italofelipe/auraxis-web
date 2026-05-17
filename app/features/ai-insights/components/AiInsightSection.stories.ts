@@ -21,14 +21,14 @@ export const Default: Story = {
     costUsd: 0.000048,
     insight: [
       {
-        type: "gasto_elevado",
-        title: "Alimentação acima do padrão",
-        message: "Você gastou 28% acima da média em restaurantes neste mês.",
+        type: "orcamento_ultrapassado",
+        title: "Orçamento em atenção",
+        message: "A categoria Mercado passou do limite planejado.",
       },
       {
-        type: "oportunidade_economia",
-        title: "Assinaturas com potencial de corte",
-        message: "Três assinaturas recorrentes somam R$ 147 e não tiveram uso recente.",
+        type: "savings_rate_gap",
+        title: "Taxa de poupança abaixo do plano",
+        message: "Você precisa poupar mais 8% da renda para atingir o objetivo.",
       },
     ],
   },

@@ -132,14 +132,14 @@ const MOCK_TRANSACTIONS = {
 
 const MOCK_AI_INSIGHT_ITEMS = [
 	{
-		type: "saude_financeira",
-		title: "Saldo saudável",
-		message: "Sua renda cobriu os gastos do período com margem positiva.",
+		type: "orcamento_ultrapassado",
+		title: "Orçamento em atenção",
+		message: "A categoria Mercado passou do limite planejado.",
 	},
 	{
-		type: "oportunidade_economia",
-		title: "Economia em assinaturas",
-		message: "Há assinaturas recorrentes que podem ser revisadas neste mês.",
+		type: "savings_rate_gap",
+		title: "Taxa de poupança abaixo do plano",
+		message: "Você precisa poupar mais 8% da renda para atingir o objetivo.",
 	},
 ];
 
@@ -147,7 +147,8 @@ const MOCK_AI_GENERATED_INSIGHT = {
 	success: true,
 	message: "Insights de gastos gerados com sucesso",
 	data: {
-		insights: JSON.stringify(MOCK_AI_INSIGHT_ITEMS),
+		insights: `\`\`\`json\n${JSON.stringify(MOCK_AI_INSIGHT_ITEMS)}\n\`\`\``,
+		items: MOCK_AI_INSIGHT_ITEMS,
 		tokens_used: 320,
 		cost_usd: 0.000048,
 		month: "2026-05",
@@ -163,7 +164,8 @@ const MOCK_AI_INSIGHT_HISTORY = {
 		items: [
 			{
 				id: "ai-1",
-				content: JSON.stringify(MOCK_AI_INSIGHT_ITEMS),
+				content: `\`\`\`json\n${JSON.stringify(MOCK_AI_INSIGHT_ITEMS)}\n\`\`\``,
+				items: MOCK_AI_INSIGHT_ITEMS,
 				insight_type: "monthly",
 				period_label: "2026-05",
 				period_start: "2026-05-01",

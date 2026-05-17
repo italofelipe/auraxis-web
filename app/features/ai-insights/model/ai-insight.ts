@@ -51,6 +51,13 @@ const INSIGHT_PRESENTATION: Record<string, InsightPresentation> = {
   saude_financeira: { label: "Saúde financeira", tone: "info" },
   alerta_orcamento: { label: "Alerta", tone: "warning" },
   padrao_gasto: { label: "Padrão", tone: "neutral" },
+  alerta_meta: { label: "Alerta de meta", tone: "warning" },
+  progresso_meta: { label: "Progresso de meta", tone: "info" },
+  planejamento_meta: { label: "Planejamento de meta", tone: "info" },
+  orcamento_ultrapassado: { label: "Orçamento ultrapassado", tone: "danger" },
+  saude_orcamento_mensal: { label: "Saúde do orçamento", tone: "info" },
+  conquista_meta: { label: "Conquista de meta", tone: "success" },
+  savings_rate_gap: { label: "Taxa de poupança", tone: "danger" },
 };
 
 const TYPE_LABELS: Record<InsightType, string> = {
@@ -80,6 +87,48 @@ const isInsightItem = (value: unknown): value is InsightItem => {
 };
 
 /**
+ * Removes common Markdown code fences emitted by LLMs around JSON payloads.
+ *
+ * @param content Raw backend content.
+ * @returns Content ready for JSON.parse.
+ */
+const stripMarkdownJsonFence = (content: string): string => {
+  const trimmed = content.trim();
+  if (!trimmed.startsWith("```")) {
+    return trimmed;
+  }
+
+  const openingLineEnd = trimmed.indexOf("\n");
+  const closingFenceStart = trimmed.lastIndexOf("```");
+  if (openingLineEnd === -1 || closingFenceStart <= openingLineEnd) {
+    return trimmed;
+  }
+
+  const language = trimmed.slice(3, openingLineEnd).trim().toLowerCase();
+  if (language.length > 0 && language !== "json") {
+    return trimmed;
+  }
+
+  return trimmed.slice(openingLineEnd + 1, closingFenceStart).trim();
+};
+
+/**
+ * Returns valid structured items when present.
+ *
+ * @param items Candidate structured items.
+ * @returns Structured insight items or null when invalid/empty.
+ */
+const normalizeStructuredInsightItems = (
+  items: readonly InsightItem[] | undefined,
+): InsightItem[] | null => {
+  if (Array.isArray(items) && items.length > 0 && items.every(isInsightItem)) {
+    return [...items];
+  }
+
+  return null;
+};
+
+/**
  * Parses the JSON string stored by the backend into renderable insight items.
  *
  * @param content JSON string returned by the backend.
@@ -87,7 +136,7 @@ const isInsightItem = (value: unknown): value is InsightItem => {
  */
 export const parseInsightItems = (content: string): InsightItem[] => {
   try {
-    const parsed = JSON.parse(content) as unknown;
+    const parsed = JSON.parse(stripMarkdownJsonFence(content)) as unknown;
     if (Array.isArray(parsed) && parsed.every(isInsightItem) && parsed.length > 0) {
       return parsed;
     }
@@ -99,6 +148,18 @@ export const parseInsightItems = (content: string): InsightItem[] => {
 };
 
 /**
+ * Resolves insight items preferring typed backend items over legacy strings.
+ *
+ * @param items Structured backend items.
+ * @param legacyContent Legacy JSON string field.
+ * @returns Valid insight items or the deterministic fallback.
+ */
+const resolveInsightItems = (
+  items: readonly InsightItem[] | undefined,
+  legacyContent: string,
+): InsightItem[] => normalizeStructuredInsightItems(items) ?? parseInsightItems(legacyContent);
+
+/**
  * Maps an API history DTO into the frontend domain model.
  *
  * @param dto Raw backend DTO.
@@ -106,7 +167,7 @@ export const parseInsightItems = (content: string): InsightItem[] => {
  */
 export const mapAIInsightDto = (dto: AIInsightDTO): AIInsight => ({
   id: dto.id,
-  items: parseInsightItems(dto.content),
+  items: resolveInsightItems(dto.items, dto.content),
   insightType: dto.insight_type,
   periodLabel: dto.period_label,
   periodStart: dto.period_start,
@@ -126,7 +187,7 @@ export const mapAIInsightDto = (dto: AIInsightDTO): AIInsight => ({
 export const mapGeneratedInsight = (
   dto: GenerateInsightResponseWithMetaDTO,
 ): GeneratedAIInsight => ({
-  items: parseInsightItems(dto.insights),
+  items: resolveInsightItems(dto.items, dto.insights),
   month: dto.month,
   model: dto.model,
   tokensUsed: dto.tokens_used,
