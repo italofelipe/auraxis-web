@@ -22,6 +22,35 @@ import type { TagLookup } from "./useTransactionFilters";
 import { formatCurrency } from "~/utils/currency";
 
 const SWIPE_THRESHOLD = 72;
+const SWIPE_VERTICAL_SLOP = 32;
+const SWIPE_HORIZONTAL_DOMINANCE = 1.5;
+
+export type SwipeGestureAction = "delete" | "mark-paid" | null;
+
+/**
+ * Resolves whether a touch gesture is an intentional horizontal row action.
+ *
+ * Vertical scrolls often have some horizontal drift; the table only acts when
+ * the horizontal axis clearly dominates the gesture.
+ *
+ * @param deltaX Horizontal movement in pixels.
+ * @param deltaY Vertical movement in pixels.
+ * @returns Swipe action, or null when the gesture should be ignored.
+ */
+export function resolveSwipeGestureAction(deltaX: number, deltaY: number): SwipeGestureAction {
+  const absX = Math.abs(deltaX);
+  const absY = Math.abs(deltaY);
+
+  if (absX < SWIPE_THRESHOLD) {
+    return null;
+  }
+
+  if (absY > SWIPE_VERTICAL_SLOP && absX < absY * SWIPE_HORIZONTAL_DOMINANCE) {
+    return null;
+  }
+
+  return deltaX > 0 ? "mark-paid" : "delete";
+}
 
 /**
  * Formats an ISO date string (YYYY-MM-DD) as dd/MM/yyyy (pt-BR locale).
@@ -110,6 +139,7 @@ type DragState = {
   dragSourceId: Ref<string | null>;
   dragTargetId: Ref<string | null>;
   touchStartX: Ref<number>;
+  touchStartY: Ref<number>;
   swipingRowId: Ref<string | null>;
   swipeDir: Ref<"left" | "right" | null>;
 };
@@ -126,6 +156,7 @@ function createDragState(): DragState {
     dragSourceId: ref<string | null>(null),
     dragTargetId: ref<string | null>(null),
     touchStartX: ref(0),
+    touchStartY: ref(0),
     swipingRowId: ref<string | null>(null),
     swipeDir: ref<"left" | "right" | null>(null),
   };
@@ -143,7 +174,21 @@ function createDragState(): DragState {
  * @returns HTML attribute object for the NDataTable row element.
  */
 function buildRowProps(row: TransactionDto, drag: DragState, opts: Pick<UseTransactionTableOptions, "onMarkPaid" | "onDelete">): Record<string, unknown> {
-  const { reorderMode, localOrder, dragSourceId, dragTargetId, touchStartX, swipingRowId, swipeDir } = drag;
+  const { reorderMode, localOrder, dragSourceId, dragTargetId, touchStartX, touchStartY, swipingRowId, swipeDir } = drag;
+  /**
+   * Updates the transient row highlight based on the resolved swipe action.
+   *
+   * @param action Resolved swipe action.
+   */
+  const updateSwipeDirection = (action: SwipeGestureAction): void => {
+    if (action === null) {
+      swipeDir.value = null;
+      return;
+    }
+
+    swipeDir.value = action === "mark-paid" ? "right" : "left";
+  };
+
   return {
     class: ["tx-table-row", dragSourceId.value === row.id ? "tx-table-row--dragging" : "", dragTargetId.value === row.id && dragSourceId.value !== row.id ? "tx-table-row--drag-over" : "", swipingRowId.value === row.id && swipeDir.value === "right" ? "tx-table-row--swiping-right" : "", swipingRowId.value === row.id && swipeDir.value === "left" ? "tx-table-row--swiping-left" : ""].filter(Boolean).join(" "),
     draggable: reorderMode.value,
@@ -161,13 +206,22 @@ function buildRowProps(row: TransactionDto, drag: DragState, opts: Pick<UseTrans
       dragTargetId.value = null;
     },
     onDragend: (): void => { dragSourceId.value = null; dragTargetId.value = null; },
-    onTouchstart: (e: TouchEvent): void => { touchStartX.value = e.touches[0]?.clientX ?? 0; swipingRowId.value = row.id; swipeDir.value = null; },
-    onTouchmove: (e: TouchEvent): void => { if (swipingRowId.value !== row.id) { return; } const delta = (e.touches[0]?.clientX ?? 0) - touchStartX.value; if (Math.abs(delta) > 20) { swipeDir.value = delta > 0 ? "right" : "left"; } },
+    onTouchstart: (e: TouchEvent): void => { touchStartX.value = e.touches[0]?.clientX ?? 0; touchStartY.value = e.touches[0]?.clientY ?? 0; swipingRowId.value = row.id; swipeDir.value = null; },
+    onTouchmove: (e: TouchEvent): void => {
+      if (swipingRowId.value !== row.id) { return; }
+      const deltaX = (e.touches[0]?.clientX ?? 0) - touchStartX.value;
+      const deltaY = (e.touches[0]?.clientY ?? 0) - touchStartY.value;
+      const action = resolveSwipeGestureAction(deltaX, deltaY);
+      updateSwipeDirection(action);
+    },
     onTouchend: (e: TouchEvent): void => {
-      const delta = (e.changedTouches[0]?.clientX ?? 0) - touchStartX.value;
+      const deltaX = (e.changedTouches[0]?.clientX ?? 0) - touchStartX.value;
+      const deltaY = (e.changedTouches[0]?.clientY ?? 0) - touchStartY.value;
+      const action = resolveSwipeGestureAction(deltaX, deltaY);
       swipingRowId.value = null;
       swipeDir.value = null;
-      if (Math.abs(delta) >= SWIPE_THRESHOLD) { if (delta > 0) { opts.onMarkPaid(row); } else { opts.onDelete(row); } }
+      if (action === "mark-paid" && row.status !== "paid") { opts.onMarkPaid(row); }
+      if (action === "delete") { opts.onDelete(row); }
     },
   };
 }

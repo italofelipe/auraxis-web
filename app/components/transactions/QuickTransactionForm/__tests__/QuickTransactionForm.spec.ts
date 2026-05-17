@@ -1,6 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
-import { mount, type VueWrapper } from "@vue/test-utils";
+import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import QuickTransactionForm from "../QuickTransactionForm.vue";
 
 // ── Mock setup ─────────────────────────────────────────────────────────────────
@@ -11,12 +11,35 @@ vi.mock("naive-ui", async (importOriginal) => {
   const { NModalStub } = await import("~/test-utils/stubs");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const actual = await importOriginal<any>();
-  return { ...actual, NModal: NModalStub };
+  return {
+    ...actual,
+    NModal: NModalStub,
+    NInput: {
+      name: "NInput",
+      props: ["value"],
+      emits: ["update:value"],
+      template: "<input class='n-input' :value='value' @input='$emit(\"update:value\", $event.target.value)' />",
+    },
+    NInputNumber: {
+      name: "NInputNumber",
+      props: ["value", "parse", "format", "min", "precision", "showButton"],
+      emits: ["update:value"],
+      template: "<input class='n-input-number' :value='value' @input='$emit(\"update:value\", parse ? parse($event.target.value) : Number($event.target.value))' />",
+    },
+    NDatePicker: {
+      name: "NDatePicker",
+      props: ["value"],
+      emits: ["update:value"],
+      template: "<button class='n-date-picker' @click='$emit(\"update:value\", new Date(2026, 4, 17).getTime())'>date</button>",
+    },
+  };
 });
+
+const createTransactionMutate = vi.hoisted(() => vi.fn());
 
 vi.mock("~/features/transactions/queries/use-create-transaction-mutation", () => ({
   useCreateTransactionMutation: (): object => ({
-    mutate: vi.fn(),
+    mutate: createTransactionMutate,
     isPending: { value: false },
     isError: { value: false },
     error: { value: null },
@@ -57,6 +80,10 @@ const mountForm = (type: "income" | "expense" = "expense"): VueWrapper =>
   });
 
 describe("QuickTransactionForm", () => {
+  beforeEach(() => {
+    createTransactionMutate.mockClear();
+  });
+
   // ── Modal visibility ─────────────────────────────────────────────────────────
 
   it("renders modal content when visible is true", () => {
@@ -200,6 +227,29 @@ describe("QuickTransactionForm", () => {
     await nextTick();
     // handleSubmit ran (NForm stub resolves validate) → buildPayload called → mutation.mutate called
     expect(wrapper.exists()).toBe(true);
+  });
+
+  it("parses typed amount digits as cents and submits a two-decimal payload amount", async () => {
+    const wrapper = mountForm("income");
+    const titleInput = wrapper.findComponent({ name: "NInput" });
+    const amountInput = wrapper.findAllComponents({ name: "NInputNumber" })[0]!;
+    const dueDatePicker = wrapper.findComponent({ name: "NDatePicker" });
+    const parseAmount = amountInput.props("parse") as (input: string) => number | null;
+
+    expect(parseAmount("123456")).toBe(1234.56);
+
+    await titleInput.vm.$emit("update:value", "Venda de teste");
+    await amountInput.vm.$emit("update:value", parseAmount("123456"));
+    await dueDatePicker.vm.$emit("update:value", new Date(2026, 4, 17).getTime());
+
+    const saveButton = wrapper.findAll("button").find((b) => b.text() === "Salvar");
+    await saveButton?.trigger("click");
+    await flushPromises();
+
+    expect(createTransactionMutate).toHaveBeenCalledWith(
+      expect.objectContaining({ amount: "1234.56" }),
+      expect.any(Object),
+    );
   });
 
   it("covers buildInstallmentFields when installment is active on submit", async () => {

@@ -24,6 +24,11 @@ import {
 import { useTagsQuery } from "~/features/tags/queries/use-tags-query";
 import { useAccountsQuery } from "~/features/accounts/queries/use-accounts-query";
 import { useCreditCardsQuery } from "~/features/credit-cards/queries/use-credit-cards-query";
+import {
+  formatCurrencyCentsInput,
+  parseCurrencyCentsInput,
+  serializeCurrencyAmount,
+} from "~/utils/currencyInput";
 
 const { t } = useI18n();
 
@@ -218,7 +223,7 @@ const handleSubmit = async (): Promise<void> => {
     id: props.transaction.id,
     payload: {
       title: form.title,
-      amount: String(form.amount ?? 0),
+      amount: serializeCurrencyAmount(form.amount),
       due_date: form.due_date ? tsToDate(form.due_date) : undefined,
       status: form.status,
       tag_id: form.tag_id ?? null,
@@ -282,6 +287,9 @@ const handleClose = (): void => {
           :placeholder="$t('transaction.form.amount.placeholder')"
           :min="0.01"
           :precision="2"
+          :show-button="false"
+          :parse="parseCurrencyCentsInput"
+          :format="formatCurrencyCentsInput"
           style="width: 100%"
         />
       </NFormItem>

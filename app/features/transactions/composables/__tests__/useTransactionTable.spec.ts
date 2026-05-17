@@ -1,7 +1,14 @@
 import { computed } from "vue";
 import { describe, expect, it } from "vitest";
 import type { TransactionDto } from "~/features/transactions/contracts/transaction.dto";
-import { darkenHex, formatTransactionDate, isTransactionNearDue, isTransactionOverdue, renderTagBadge } from "../useTransactionTable";
+import {
+  darkenHex,
+  formatTransactionDate,
+  isTransactionNearDue,
+  isTransactionOverdue,
+  renderTagBadge,
+  resolveSwipeGestureAction,
+} from "../useTransactionTable";
 import type { TagLookup } from "../useTransactionFilters";
 
 describe("formatTransactionDate", () => {
@@ -112,5 +119,19 @@ describe("renderTagBadge", () => {
     expect(JSON.stringify(result)).toContain("Urgent");
     // Style string includes the background colour + 20 alpha suffix
     expect(JSON.stringify(result)).toContain("#FF6B6B20");
+  });
+});
+
+describe("resolveSwipeGestureAction", () => {
+  it("ignores mostly vertical scroll gestures even with horizontal drift", () => {
+    expect(resolveSwipeGestureAction(-96, 240)).toBeNull();
+  });
+
+  it("returns delete only for intentional left horizontal swipes", () => {
+    expect(resolveSwipeGestureAction(-96, 18)).toBe("delete");
+  });
+
+  it("returns mark-paid only for intentional right horizontal swipes", () => {
+    expect(resolveSwipeGestureAction(96, 18)).toBe("mark-paid");
   });
 });

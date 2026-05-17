@@ -282,6 +282,32 @@ export const handlers = [
 		return HttpResponse.json({ has_access: true }, { status: 200 });
 	}),
 
+	http.get("*/me/consents", () => {
+		return HttpResponse.json({
+			success: true,
+			data: {
+				items: [
+					{ kind: "ai", action: "granted", version: "1.0", source: "web" },
+				],
+				total: 1,
+			},
+		}, { status: 200 });
+	}),
+
+	http.post("*/me/consents", () => {
+		return HttpResponse.json({
+			success: true,
+			data: {
+				id: "consent-ai-1",
+				kind: "ai",
+				version: "1.0",
+				action: "granted",
+				source: "web",
+				created_at: "2026-05-17T12:00:00Z",
+			},
+		}, { status: 201 });
+	}),
+
 	http.get("*/ai/insights/spending", () => {
 		return HttpResponse.json(MOCK_AI_GENERATED_INSIGHT, {
 			status: 200,
