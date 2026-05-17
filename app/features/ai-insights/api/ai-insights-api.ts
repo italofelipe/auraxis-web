@@ -25,6 +25,17 @@ const parseCallsRemaining = (value: unknown): number | null => {
   return null;
 };
 
+const AI_CONSENT_VERSION = "1.0";
+
+interface ConsentRecordDTO {
+  readonly kind: string;
+  readonly action: string;
+}
+
+interface ConsentListDTO {
+  readonly items: readonly ConsentRecordDTO[];
+}
+
 /**
  * Extracts the typed payload from a v2 envelope while accepting legacy flat
  * payloads used in older mocks.
@@ -75,6 +86,30 @@ export class AIInsightsApiClient {
       ...data,
       callsRemaining: parseCallsRemaining(response.headers["x-ai-calls-remaining"]),
     };
+  }
+
+  /**
+   * Records explicit user consent for AI-powered financial insights.
+   */
+  async grantAIConsent(): Promise<void> {
+    await this.#http.post("/me/consents", {
+      kind: "ai",
+      version: AI_CONSENT_VERSION,
+      action: "granted",
+      source: "web",
+    });
+  }
+
+  /**
+   * Checks the latest consent state without triggering AI generation.
+   *
+   * @returns True when AI consent is currently granted.
+   */
+  async hasAIConsent(): Promise<boolean> {
+    const response = await this.#http.get<V2EnvelopeDTO<ConsentListDTO>>("/me/consents");
+    const data = unwrap<ConsentListDTO>(response.data);
+
+    return data.items.some((item) => item.kind === "ai" && item.action === "granted");
   }
 
   /**

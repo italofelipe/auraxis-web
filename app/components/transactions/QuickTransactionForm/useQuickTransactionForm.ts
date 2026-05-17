@@ -19,6 +19,7 @@ import { useAccountsQuery } from "~/features/accounts/queries/use-accounts-query
 import { useCreditCardsQuery } from "~/features/credit-cards/queries/use-credit-cards-query";
 import { useCreateTransactionMutation } from "~/features/transactions/queries/use-create-transaction-mutation";
 import { useTagsQuery } from "~/features/tags/queries/use-tags-query";
+import { serializeCurrencyAmount } from "~/utils/currencyInput";
 
 export const QUICK_TRANSACTION_FORM_KEY: InjectionKey<QuickTransactionFormState> =
   Symbol("QuickTransactionForm");
@@ -170,7 +171,7 @@ export function useQuickTransactionForm(opts: UseQuickTransactionFormOptions) {
   function buildPayload(): CreateTransactionPayload {
     return {
       title: form.title,
-      amount: String(form.amount ?? 0),
+      amount: serializeCurrencyAmount(form.amount),
       type: type.value,
       due_date: form.due_date ? tsToDate(form.due_date) : "",
       status: form.status,

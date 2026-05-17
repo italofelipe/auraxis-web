@@ -7,10 +7,43 @@ import AiInsightLoadingModal from "./AiInsightLoadingModal.vue";
 import UiUpgradePrompt from "~/components/paywall/UiUpgradePrompt.vue";
 import { useAIInsights } from "~/features/ai-insights/composables/useAIInsights";
 
-const { generate, hasPremium, isLoading, callsRemaining } = useAIInsights();
+const {
+  generate,
+  grantAIConsent,
+  hasAIConsent,
+  hasPremium,
+  isLoading,
+  isGrantingAIConsent,
+  callsRemaining,
+} = useAIInsights();
 
 const showLoadingModal = ref(false);
 const showPaywallModal = ref(false);
+const showConsentModal = ref(false);
+
+/**
+ * Detects the API error emitted when AI consent has not been granted yet.
+ *
+ * @param error Unknown thrown value.
+ * @returns True when the error is the backend AI consent gate.
+ */
+const isAIConsentRequiredError = (error: unknown): boolean =>
+  error !== null &&
+  typeof error === "object" &&
+  "code" in error &&
+  (error as { code?: string }).code === "AI_CONSENT_REQUIRED";
+
+/**
+ * Runs insight generation while keeping the loading modal lifecycle isolated.
+ */
+const generateWithLoading = async (): Promise<void> => {
+  showLoadingModal.value = true;
+  try {
+    await generate();
+  } finally {
+    showLoadingModal.value = false;
+  }
+};
 
 /**
  * Handles the AI insight trigger, gating free users behind the upgrade modal.
@@ -21,11 +54,37 @@ const handleClick = async (): Promise<void> => {
     return;
   }
 
-  showLoadingModal.value = true;
+  if (!(await hasAIConsent())) {
+    showConsentModal.value = true;
+    return;
+  }
+
   try {
-    await generate();
-  } finally {
-    showLoadingModal.value = false;
+    await generateWithLoading();
+  } catch (error) {
+    if (isAIConsentRequiredError(error)) {
+      showConsentModal.value = true;
+      return;
+    }
+    throw error;
+  }
+};
+
+/**
+ * Records AI consent explicitly and retries the generation request.
+ */
+const handleConsentAccept = async (): Promise<void> => {
+  await grantAIConsent();
+  showConsentModal.value = false;
+
+  try {
+    await generateWithLoading();
+  } catch (error) {
+    if (isAIConsentRequiredError(error)) {
+      showConsentModal.value = true;
+      return;
+    }
+    throw error;
   }
 };
 </script>
@@ -58,6 +117,7 @@ const handleClick = async (): Promise<void> => {
       v-model:show="showPaywallModal"
       preset="card"
       class="ai-insight-button__paywall"
+      style="width: min(440px, calc(100vw - 32px))"
       title="Insights com IA"
     >
       <UiUpgradePrompt
@@ -65,6 +125,36 @@ const handleClick = async (): Promise<void> => {
         description="Usuários free recebem 1 insight automático por mês. Para gerar novas análises quando quiser, assine o plano Premium."
         cta-label="Assinar Premium"
       />
+    </NModal>
+
+    <NModal
+      v-model:show="showConsentModal"
+      preset="card"
+      class="ai-insight-button__consent"
+      style="width: min(520px, calc(100vw - 32px))"
+      title="Consentimento para IA"
+    >
+      <section class="ai-insight-consent">
+        <p>
+          Para gerar insights, a Auraxis analisará suas transações, categorias e
+          valores financeiros do período selecionado. Esses dados serão usados
+          apenas para criar sua análise e não serão usados para treinar modelos.
+        </p>
+
+        <footer class="ai-insight-consent__actions">
+          <NButton :disabled="isGrantingAIConsent" @click="showConsentModal = false">
+            Cancelar
+          </NButton>
+          <NButton
+            type="primary"
+            :loading="isGrantingAIConsent"
+            data-testid="ai-consent-accept"
+            @click="handleConsentAccept"
+          >
+            Concordar e gerar
+          </NButton>
+        </footer>
+      </section>
     </NModal>
   </div>
 </template>
@@ -109,5 +199,26 @@ const handleClick = async (): Promise<void> => {
 
 .ai-insight-button__paywall {
   max-width: 440px;
+}
+
+.ai-insight-button__consent {
+  max-width: 520px;
+}
+
+.ai-insight-consent {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.ai-insight-consent p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.ai-insight-consent__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
 }
 </style>

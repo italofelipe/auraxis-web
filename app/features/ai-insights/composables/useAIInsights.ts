@@ -2,7 +2,9 @@ import { computed, ref, type ComputedRef, type Ref } from "vue";
 import { useState } from "#app";
 
 import { useEntitlementQuery } from "~/features/paywall/queries/use-entitlement-query";
+import { useAIInsightsApiClient } from "~/features/ai-insights/api/ai-insights-api";
 import { useGenerateAIInsight } from "~/features/ai-insights/queries/use-generate-ai-insight";
+import { useGrantAIConsent } from "~/features/ai-insights/queries/use-grant-ai-consent";
 import {
   isPreviousMonthInsight,
   mapGeneratedInsight,
@@ -22,9 +24,42 @@ interface MutationLike {
   readonly error: Ref<Error | null>;
 }
 
+interface ConsentMutationLike {
+  readonly mutateAsync: (variables?: undefined) => Promise<undefined>;
+  readonly isPending: Ref<boolean>;
+}
+
+interface ConsentStatusLike {
+  readonly hasAIConsent: () => Promise<boolean>;
+}
+
 interface UseAIInsightsDeps {
   readonly entitlement?: EntitlementLike;
   readonly mutation?: MutationLike;
+  readonly consentMutation?: ConsentMutationLike;
+  readonly consentStatus?: ConsentStatusLike;
+}
+
+type DerivedAIInsightState = Pick<
+  UseAIInsightsResult,
+  | "hasPremium"
+  | "entitlementLoading"
+  | "isLoading"
+  | "isGrantingAIConsent"
+  | "currentInsight"
+  | "insightMonth"
+  | "insightModel"
+  | "tokensUsed"
+  | "costUsd"
+  | "cached"
+  | "isStale"
+>;
+
+interface CreateDerivedStateArgs {
+  readonly entitlement: EntitlementLike;
+  readonly mutation: MutationLike;
+  readonly consentMutation: ConsentMutationLike;
+  readonly currentResult: Ref<GeneratedAIInsight | null>;
 }
 
 export interface UseAIInsightsResult {
@@ -35,6 +70,9 @@ export interface UseAIInsightsResult {
   readonly callsRemaining: Ref<number | null>;
   readonly hasPremium: ComputedRef<boolean>;
   readonly entitlementLoading: ComputedRef<boolean>;
+  readonly hasAIConsent: () => Promise<boolean>;
+  readonly grantAIConsent: () => Promise<void>;
+  readonly isGrantingAIConsent: ComputedRef<boolean>;
   readonly insightMonth: ComputedRef<string>;
   readonly insightModel: ComputedRef<string>;
   readonly tokensUsed: ComputedRef<number>;
@@ -84,27 +122,79 @@ const getCallsRemainingState = (isInjected: boolean): Ref<number | null> => {
 };
 
 /**
+ * Resolves the consent mutation for production or injected tests.
+ *
+ * @param deps Optional injected dependencies.
+ * @param apiClient Production API client, when available.
+ * @returns Consent mutation dependency.
+ */
+const resolveConsentMutation = (
+  deps: UseAIInsightsDeps | undefined,
+  apiClient: ReturnType<typeof useAIInsightsApiClient> | null,
+): ConsentMutationLike => {
+  if (deps) {
+    return deps.consentMutation ?? {
+      mutateAsync: async (): Promise<undefined> => undefined,
+      isPending: ref(false),
+    };
+  }
+
+  return useGrantAIConsent(apiClient ?? undefined);
+};
+
+/**
+ * Resolves the consent status reader for production or injected tests.
+ *
+ * @param deps Optional injected dependencies.
+ * @param apiClient Production API client, when available.
+ * @returns Consent status dependency.
+ */
+const resolveConsentStatus = (
+  deps: UseAIInsightsDeps | undefined,
+  apiClient: ReturnType<typeof useAIInsightsApiClient> | null,
+): ConsentStatusLike => {
+  if (deps) {
+    return deps.consentStatus ?? { hasAIConsent: async (): Promise<boolean> => true };
+  }
+
+  return { hasAIConsent: (): Promise<boolean> => apiClient!.hasAIConsent() };
+};
+
+/**
+ * Builds the computed presentation state for generated AI insights.
+ *
+ * @param args Entitlement, mutation and result state dependencies.
+ * @returns Computed state consumed by pages and the trigger button.
+ */
+const createDerivedState = (args: CreateDerivedStateArgs): DerivedAIInsightState => ({
+  hasPremium: computed(() => args.entitlement.data.value === true),
+  entitlementLoading: computed(() => args.entitlement.isLoading.value),
+  isLoading: computed(() => args.mutation.isPending.value),
+  isGrantingAIConsent: computed(() => args.consentMutation.isPending.value),
+  currentInsight: computed(() => args.currentResult.value?.items ?? null),
+  insightMonth: computed(() => args.currentResult.value?.month ?? getCurrentMonth()),
+  insightModel: computed(() => args.currentResult.value?.model ?? ""),
+  tokensUsed: computed(() => args.currentResult.value?.tokensUsed ?? 0),
+  costUsd: computed(() => args.currentResult.value?.costUsd ?? 0),
+  cached: computed(() => args.currentResult.value?.cached ?? false),
+  isStale: computed(() => isPreviousMonthInsight(args.currentResult.value?.month ?? getCurrentMonth())),
+});
+
+/**
  * Orchestrates AI insight entitlement, generation and current result state.
  *
  * @param deps Optional injected dependencies for unit tests.
  * @returns Reactive AI insight state and actions.
  */
 export const useAIInsights = (deps?: UseAIInsightsDeps): UseAIInsightsResult => {
+  const apiClient = deps ? null : useAIInsightsApiClient();
   const entitlement = deps?.entitlement ?? useEntitlementQuery("advanced_simulations");
   const mutation = deps?.mutation ?? useGenerateAIInsight();
+  const consentMutation = resolveConsentMutation(deps, apiClient);
+  const consentStatus = resolveConsentStatus(deps, apiClient);
   const currentResult = getCurrentResultState(Boolean(deps));
   const callsRemaining = getCallsRemainingState(Boolean(deps));
-
-  const hasPremium = computed(() => entitlement.data.value === true);
-  const entitlementLoading = computed(() => entitlement.isLoading.value);
-  const isLoading = computed(() => mutation.isPending.value);
-  const currentInsight = computed(() => currentResult.value?.items ?? null);
-  const insightMonth = computed(() => currentResult.value?.month ?? getCurrentMonth());
-  const insightModel = computed(() => currentResult.value?.model ?? "");
-  const tokensUsed = computed(() => currentResult.value?.tokensUsed ?? 0);
-  const costUsd = computed(() => currentResult.value?.costUsd ?? 0);
-  const cached = computed(() => currentResult.value?.cached ?? false);
-  const isStale = computed(() => isPreviousMonthInsight(insightMonth.value));
+  const state = createDerivedState({ entitlement, mutation, consentMutation, currentResult });
 
   /**
    * Generates an insight for the current user when premium access is available.
@@ -115,7 +205,7 @@ export const useAIInsights = (deps?: UseAIInsightsDeps): UseAIInsightsResult => 
   const generate = async (
     variables?: GenerateAIInsightVariables,
   ): Promise<GeneratedAIInsight | null> => {
-    if (!hasPremium.value) {
+    if (!state.hasPremium.value) {
       return null;
     }
 
@@ -125,20 +215,37 @@ export const useAIInsights = (deps?: UseAIInsightsDeps): UseAIInsightsResult => 
     return result;
   };
 
+  /**
+   * Records explicit AI consent before retrying insight generation.
+   */
+  const grantAIConsent = async (): Promise<void> => {
+    await consentMutation.mutateAsync(undefined);
+  };
+
+  /**
+   * Checks whether AI consent is already active.
+   *
+   * @returns Whether the user has an active AI consent grant.
+   */
+  const hasAIConsentStatus = async (): Promise<boolean> => consentStatus.hasAIConsent();
+
   return {
     generate,
-    isLoading,
-    currentInsight,
+    isLoading: state.isLoading,
+    currentInsight: state.currentInsight,
     currentResult,
     callsRemaining,
-    hasPremium,
-    entitlementLoading,
-    insightMonth,
-    insightModel,
-    tokensUsed,
-    costUsd,
-    isStale,
-    cached,
+    hasPremium: state.hasPremium,
+    entitlementLoading: state.entitlementLoading,
+    hasAIConsent: hasAIConsentStatus,
+    grantAIConsent,
+    isGrantingAIConsent: state.isGrantingAIConsent,
+    insightMonth: state.insightMonth,
+    insightModel: state.insightModel,
+    tokensUsed: state.tokensUsed,
+    costUsd: state.costUsd,
+    isStale: state.isStale,
+    cached: state.cached,
     error: mutation.error,
   };
 };

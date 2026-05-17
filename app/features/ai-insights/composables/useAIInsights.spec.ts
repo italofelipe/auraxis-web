@@ -45,4 +45,30 @@ describe("useAIInsights", () => {
     expect(composable.callsRemaining.value).toBe(1);
     expect(composable.insightModel.value).toBe("gpt-4o-mini");
   });
+
+  it("delegates AI consent grant to the consent mutation", async () => {
+    const grantConsent = vi.fn().mockResolvedValue(undefined);
+    const composable = useAIInsights({
+      entitlement: { data: ref(true), isLoading: ref(false) },
+      mutation: { mutateAsync: vi.fn(), isPending: ref(false), error: ref(null) },
+      consentMutation: { mutateAsync: grantConsent, isPending: ref(false) },
+    } as never);
+
+    await composable.grantAIConsent();
+
+    expect(grantConsent).toHaveBeenCalledOnce();
+  });
+
+  it("delegates AI consent status checks to the injected status dependency", async () => {
+    const hasAIConsent = vi.fn().mockResolvedValue(true);
+    const composable = useAIInsights({
+      entitlement: { data: ref(true), isLoading: ref(false) },
+      mutation: { mutateAsync: vi.fn(), isPending: ref(false), error: ref(null) },
+      consentStatus: { hasAIConsent },
+    } as never);
+
+    await expect(composable.hasAIConsent()).resolves.toBe(true);
+
+    expect(hasAIConsent).toHaveBeenCalledOnce();
+  });
 });

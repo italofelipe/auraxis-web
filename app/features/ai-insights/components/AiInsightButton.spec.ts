@@ -20,12 +20,12 @@ const stubs = {
     template: "<button :data-loading='loading' @click='$emit(\"click\")'><slot /></button>",
   },
   NModal: {
-    props: ["show"],
-    template: "<div v-if='show' data-testid='paywall-modal'><slot /></div>",
+    props: ["show", "title"],
+    template: "<div v-if='show' :data-testid='title === \"Consentimento para IA\" ? \"ai-consent-modal\" : \"paywall-modal\"'><slot /></div>",
   },
   Modal: {
-    props: ["show"],
-    template: "<div v-if='show' data-testid='paywall-modal'><slot /></div>",
+    props: ["show", "title"],
+    template: "<div v-if='show' :data-testid='title === \"Consentimento para IA\" ? \"ai-consent-modal\" : \"paywall-modal\"'><slot /></div>",
   },
   UiUpgradePrompt: {
     props: ["featureName", "description", "ctaLabel"],
@@ -44,6 +44,7 @@ describe("AiInsightButton", () => {
       hasPremium: ref(false),
       isLoading: ref(false),
       callsRemaining: ref(null),
+      hasAIConsent: vi.fn().mockResolvedValue(true),
       generate,
     });
 
@@ -67,6 +68,7 @@ describe("AiInsightButton", () => {
       hasPremium: ref(true),
       isLoading: ref(false),
       callsRemaining: ref(1),
+      hasAIConsent: vi.fn().mockResolvedValue(true),
       generate,
     });
 
@@ -81,5 +83,35 @@ describe("AiInsightButton", () => {
     resolveGenerate(null);
     await flushPromises();
     expect(wrapper.find("[data-testid='loading-modal']").exists()).toBe(false);
+  });
+
+  it("asks for AI consent when the backend requires it and retries after approval", async () => {
+    const generate = vi.fn().mockResolvedValue(null);
+    const grantAIConsent = vi.fn().mockResolvedValue(undefined);
+    const hasAIConsent = vi.fn().mockResolvedValue(false);
+    useAIInsightsMock.mockReturnValue({
+      hasPremium: ref(true),
+      isLoading: ref(false),
+      callsRemaining: ref(null),
+      hasAIConsent,
+      generate,
+      grantAIConsent,
+      isGrantingAIConsent: ref(false),
+    });
+
+    const wrapper = mount(AiInsightButton, { global: { stubs } });
+
+    await wrapper.find("button").trigger("click");
+    await flushPromises();
+
+    expect(wrapper.find("[data-testid='ai-consent-modal']").exists()).toBe(true);
+    expect(wrapper.text()).toContain("não serão usados para treinar modelos");
+    expect(generate).not.toHaveBeenCalled();
+
+    await wrapper.get("[data-testid='ai-consent-accept']").trigger("click");
+    await flushPromises();
+
+    expect(grantAIConsent).toHaveBeenCalledOnce();
+    expect(generate).toHaveBeenCalledOnce();
   });
 });
