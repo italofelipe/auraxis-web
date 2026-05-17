@@ -33,6 +33,22 @@ describe("useEntitlementQuery", () => {
     expect(query.queryKey).toEqual(["entitlements", "advanced_simulations"]);
   });
 
+  it("forwards the optional enabled gate to vue-query", () => {
+    const client: Partial<EntitlementClient> = {
+      checkEntitlement: vi.fn().mockResolvedValue(true),
+    };
+
+    useQueryMock.mockImplementation((opts: Record<string, unknown>) => opts);
+
+    const query = useEntitlementQuery(
+      "advanced_simulations",
+      client as EntitlementClient,
+      { enabled: false },
+    ) as unknown as { enabled: boolean };
+
+    expect(query.enabled).toBe(false);
+  });
+
   it("calls client.checkEntitlement and returns the boolean result", async () => {
     const client: Partial<EntitlementClient> = {
       checkEntitlement: vi.fn().mockResolvedValue(true),

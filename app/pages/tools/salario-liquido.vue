@@ -32,10 +32,9 @@ import CalculatorFormSection from "~/components/tool/CalculatorFormSection/Calcu
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
 import ToolSaveResult from "~/components/tool/ToolSaveResult/ToolSaveResult.vue";
-import UiStickySummaryCard from "~/components/ui/UiStickySummaryCard/UiStickySummaryCard.vue";
-import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
 import UiGlassPanel from "~/components/ui/UiGlassPanel/UiGlassPanel.vue";
 import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
+import LaborCalculatorMarketPulsePage from "~/components/tool/LaborCalculatorMarketPulse/LaborCalculatorMarketPulsePage.vue";
 
 definePageMeta({ layout: false });
 
@@ -144,13 +143,17 @@ const isBridging = computed(() => saveSimulationMutation.isPending.value || crea
   <div class="salario-liquido-root">
   <NuxtLayout :name="isAuthenticated ? 'default' : 'tools-public'">
     <div class="salario-liquido-page">
-      <div class="salario-liquido-page__layout">
-        <div class="salario-liquido-page__form-col">
-          <UiPageHeader
-            :title="t('salarioLiquido.hero.title')"
-            :subtitle="t('salarioLiquido.hero.subtitle')"
-          />
-
+      <LaborCalculatorMarketPulsePage
+        class="labor-calculator-market-pulse salario-liquido-page__market-pulse"
+        eyebrow="Calculadora trabalhista"
+        :title="t('salarioLiquido.hero.title')"
+        :subtitle="t('salarioLiquido.hero.subtitle')"
+        context-label="Visão CLT"
+        context-value="Líquido + custo"
+        context-helper="Mostra salário líquido, descontos do colaborador e custo mensal do empregador."
+        :has-result="Boolean(result)"
+      >
+        <template #form>
           <UiGlassPanel>
             <NForm @submit.prevent="handleCalculate">
               <CalculatorFormSection :title="t('salarioLiquido.form.title')">
@@ -240,16 +243,54 @@ const isBridging = computed(() => saveSimulationMutation.isPending.value || crea
           <p class="salario-liquido-page__disclaimer">
             {{ t('salarioLiquido.disclaimer.note', { year: BR_TAX_TABLE_YEAR }) }}
           </p>
-        </div>
+        </template>
 
-        <div v-if="result" class="salario-liquido-page__result-col">
-          <UiStickySummaryCard>
+        <template #results>
+          <div v-if="result" class="salario-liquido-page__summary-card">
             <CalculatorResultSummary
               :label="t('salarioLiquido.results.netSalary')"
               :value="formatBrl(result.netSalary)"
               :metrics="summaryMetrics"
             />
+          </div>
+        </template>
 
+        <template #breakdown>
+          <UiSurfaceCard v-if="result">
+            <div class="salario-liquido-page__deductions">
+              <div
+                v-for="d in result.deductions"
+                :key="d.label"
+                class="salario-liquido-page__deduction-row"
+              >
+                <span>{{ d.label }}</span>
+                <span class="salario-liquido-page__value--negative">− {{ formatBrl(d.amount) }}</span>
+              </div>
+              <div class="salario-liquido-page__deduction-row salario-liquido-page__deduction-row--net">
+                <span>{{ t('salarioLiquido.results.netSalary') }}</span>
+                <span class="salario-liquido-page__value--positive">{{ formatBrl(result.netSalary) }}</span>
+              </div>
+            </div>
+          </UiSurfaceCard>
+        </template>
+
+        <template #scenario>
+          <div class="salario-liquido-page__scenario-grid">
+            <span>{{ t('salarioLiquido.results.employerFgts') }}: {{ result ? formatBrl(result.employerFgts) : "R$ 0,00" }}</span>
+            <span>{{ t('salarioLiquido.results.employerInss') }}: {{ result ? formatBrl(result.employerInss) : "R$ 0,00" }}</span>
+          </div>
+        </template>
+
+        <template #formula>
+          <ul class="salario-liquido-page__formula-list">
+            <li>Descontos do colaborador: INSS, IRRF, vale-transporte e benefícios informados.</li>
+            <li>Salário líquido: bruto menos todos os descontos incidentes.</li>
+            <li>Custo empregador: salário bruto somado a FGTS e INSS patronal estimados.</li>
+          </ul>
+        </template>
+
+        <template #actions>
+          <template v-if="result">
             <ToolSaveResult
               intent="receivable"
               :label="t('salarioLiquido.hero.title')"
@@ -267,26 +308,91 @@ const isBridging = computed(() => saveSimulationMutation.isPending.value || crea
                 {{ isSaved ? t('salarioLiquido.actions.saved') : t('salarioLiquido.actions.save') }}
               </NButton>
             </NSpace>
-          </UiStickySummaryCard>
-
-          <UiSurfaceCard>
-            <NThing
-              v-for="d in result.deductions"
-              :key="d.label"
-              :title="d.label"
-              :description="formatBrl(d.amount)"
-            />
-          </UiSurfaceCard>
 
           <UiSurfaceCard>
             <NThing :title="t('salarioLiquido.results.employerFgts')" :description="formatBrl(result.employerFgts)" />
             <NThing :title="t('salarioLiquido.results.employerInss')" :description="formatBrl(result.employerInss)" />
             <NThing :title="t('salarioLiquido.results.employerTotal')" :description="formatBrl(result.employerTotal)" />
           </UiSurfaceCard>
-        </div>
-      </div>
+          </template>
+        </template>
+      </LaborCalculatorMarketPulsePage>
     </div>
     <ToolGuestCta v-if="!isAuthenticated" />
   </NuxtLayout>
   </div>
 </template>
+
+<style scoped>
+.salario-liquido-root {
+  display: contents;
+}
+
+.salario-liquido-page {
+  min-height: 100vh;
+  background: var(--color-bg-base);
+}
+
+.salario-liquido-page__summary-card {
+  display: contents;
+}
+
+.salario-liquido-page__disclaimer,
+.salario-liquido-page__formula-list,
+.salario-liquido-page__scenario-grid {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.55;
+}
+
+.salario-liquido-page__formula-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 18px;
+}
+
+.salario-liquido-page__scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  font-size: var(--font-size-sm);
+}
+
+.salario-liquido-page__deductions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.salario-liquido-page__deduction-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+}
+
+.salario-liquido-page__deduction-row--net {
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 2px solid var(--color-outline-soft);
+  font-weight: var(--font-weight-bold);
+}
+
+.salario-liquido-page__value--positive {
+  color: var(--color-semantic-positive, #22c55e);
+  font-variant-numeric: tabular-nums;
+}
+
+.salario-liquido-page__value--negative {
+  color: var(--color-semantic-negative, #ef4444);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 640px) {
+  .salario-liquido-page__scenario-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

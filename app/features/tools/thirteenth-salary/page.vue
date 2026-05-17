@@ -3,10 +3,9 @@ import { provide } from "vue";
 
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
-import UiStickySummaryCard from "~/components/ui/UiStickySummaryCard/UiStickySummaryCard.vue";
-import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
 import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
 import ToolSaveResult from "~/components/tool/ToolSaveResult/ToolSaveResult.vue";
+import LaborCalculatorMarketPulsePage from "~/components/tool/LaborCalculatorMarketPulse/LaborCalculatorMarketPulsePage.vue";
 
 import ThirteenthSalaryResultPanel from "./ThirteenthSalaryResult.vue";
 import ThirteenthSalaryForm from "./ThirteenthSalaryForm.vue";
@@ -31,13 +30,17 @@ function handleUpgrade(): void {
   <div class="thirteenth-salary-root">
     <NuxtLayout :name="page.isAuthenticated.value ? 'default' : 'tools-public'">
       <div class="thirteenth-salary-page thirteenth-salary-page--authenticated">
-        <div class="thirteenth-salary-page__layout">
-          <div class="thirteenth-salary-page__form-col">
-            <UiPageHeader
-              :title="page.t('thirteenthSalary.hero.title')"
-              :subtitle="page.t('thirteenthSalary.hero.subtitle')"
-            />
-
+        <LaborCalculatorMarketPulsePage
+          class="labor-calculator-market-pulse thirteenth-salary-page__market-pulse"
+          eyebrow="Calculadora trabalhista"
+          :title="page.t('thirteenthSalary.hero.title')"
+          :subtitle="page.t('thirteenthSalary.hero.subtitle')"
+          context-label="Base legal"
+          context-value="13º CLT"
+          context-helper="Simula parcelas, descontos e líquido estimado com tabela vigente."
+          :has-result="Boolean(page.result.value)"
+        >
+          <template #form>
             <ThirteenthSalaryForm
               :form="page.form.value"
               :validation-error="page.validationError.value"
@@ -48,23 +51,41 @@ function handleUpgrade(): void {
               @reset="page.handleReset"
               @submit="page.handleCalculate"
             />
-          </div>
+          </template>
 
-          <div class="thirteenth-salary-page__results-col">
-            <UiStickySummaryCard v-if="page.result.value">
+          <template #results>
+            <div v-if="page.result.value" class="thirteenth-salary-page__summary-card">
               <CalculatorResultSummary
                 :label="page.t('thirteenthSalary.results.totalNet')"
                 :value="page.formatBrl(page.result.value.totalNet)"
                 :reason="page.t('thirteenthSalary.results.totalNetNote')"
                 :metrics="page.summaryMetrics.value"
               />
-            </UiStickySummaryCard>
+            </div>
+          </template>
 
+          <template #breakdown>
+            <UiSurfaceCard v-if="page.result.value">
+              <ThirteenthSalaryResultPanel :result="page.result.value" />
+            </UiSurfaceCard>
+          </template>
+
+          <template #scenario>
+            <p class="thirteenth-salary-page__scenario-note">
+              Acompanhe a separação entre primeira parcela, segunda parcela e descontos legais.
+            </p>
+          </template>
+
+          <template #formula>
+            <ul class="thirteenth-salary-page__formula-list">
+              <li>Base proporcional: salário bruto dividido por 12 e multiplicado pelos meses trabalhados.</li>
+              <li>Primeira parcela: até 50% do bruto proporcional, sem retenções.</li>
+              <li>Segunda parcela: aplica INSS e IRRF conforme tabela vigente.</li>
+            </ul>
+          </template>
+
+          <template #actions>
             <template v-if="page.result.value">
-              <UiSurfaceCard>
-                <ThirteenthSalaryResultPanel :result="page.result.value" />
-              </UiSurfaceCard>
-
               <ToolSaveResult
                 intent="receivable"
                 :label="page.t('thirteenthSalary.hero.title')"
@@ -83,8 +104,8 @@ function handleUpgrade(): void {
                 @upgrade="handleUpgrade"
               />
             </template>
-          </div>
-        </div>
+          </template>
+        </LaborCalculatorMarketPulsePage>
       </div>
       <ToolGuestCta v-if="!page.isAuthenticated.value" />
     </NuxtLayout>
@@ -113,43 +134,23 @@ function handleUpgrade(): void {
 .thirteenth-salary-page {
   min-height: 100vh;
   background: var(--color-bg-base);
+}
+
+.thirteenth-salary-page__summary-card {
+  display: contents;
+}
+
+.thirteenth-salary-page__scenario-note,
+.thirteenth-salary-page__formula-list {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.55;
+}
+
+.thirteenth-salary-page__formula-list {
   display: flex;
   flex-direction: column;
-}
-
-.thirteenth-salary-page__layout {
-  display: flex;
-  gap: var(--space-4);
-  align-items: start;
-}
-
-.thirteenth-salary-page--authenticated .thirteenth-salary-page__layout {
-  padding: var(--space-4);
-}
-
-.thirteenth-salary-page__form-col {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.thirteenth-salary-page__results-col {
-  width: 340px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-@media (max-width: 900px) {
-  .thirteenth-salary-page__layout {
-    flex-direction: column;
-  }
-
-  .thirteenth-salary-page__results-col {
-    width: 100%;
-  }
+  gap: 8px;
+  padding-left: 18px;
 }
 </style>
