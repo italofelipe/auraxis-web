@@ -45,7 +45,9 @@ export function useToolPageContext(): ToolPageContext {
 
   const isAuthenticated = computed<boolean>(() => sessionStore.isAuthenticated);
 
-  const premiumAccessQuery = useEntitlementQuery("advanced_simulations");
+  const premiumAccessQuery = useEntitlementQuery("advanced_simulations", undefined, {
+    enabled: isAuthenticated,
+  });
 
   const hasPremiumAccess = computed<boolean>(
     () => premiumAccessQuery.data.value === true,
