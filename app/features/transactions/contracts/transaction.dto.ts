@@ -87,6 +87,9 @@ export interface UpdateTransactionPayload {
   /** Current lifecycle status. */
   readonly status?: TransactionStatusDto;
 
+  /** Effective payment/receipt timestamp in ISO 8601 format. Required when status is paid. */
+  readonly paid_at?: string | null;
+
   /** Whether this transaction repeats periodically. */
   readonly is_recurring?: boolean;
 

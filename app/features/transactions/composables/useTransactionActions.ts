@@ -38,6 +38,7 @@ export type UseTransactionActionsReturn = {
   showDeleteConfirm: Ref<boolean>;
   payTarget: Ref<TransactionDto | null>;
   showPayConfirm: Ref<boolean>;
+  paymentDate: Ref<string | null>;
   editTarget: Ref<TransactionDto | null>;
   showEditModal: Ref<boolean>;
   deleteMutation: ReturnType<typeof useDeleteTransactionMutation>;
@@ -46,7 +47,7 @@ export type UseTransactionActionsReturn = {
   handleDeleteClick: (row: TransactionDto) => void;
   confirmDelete: () => void;
   handleMarkPaid: (row: TransactionDto) => void;
-  confirmMarkPaid: () => void;
+  confirmMarkPaid: (paidAt?: string) => void;
   handleEdit: (row: TransactionDto) => void;
   handleDuplicate: (row: TransactionDto) => void;
   onTransactionCreated: () => void;
@@ -69,6 +70,7 @@ export function useTransactionActions(onRefetch: () => void): UseTransactionActi
 
   const deleteTarget = ref<TransactionDto | null>(null);
   const payTarget = ref<TransactionDto | null>(null);
+  const paymentDate = ref<string | null>(null);
   const editTarget = ref<TransactionDto | null>(null);
 
   const deleteMutation = useDeleteTransactionMutation();
@@ -109,18 +111,24 @@ export function useTransactionActions(onRefetch: () => void): UseTransactionActi
   function handleMarkPaid(row: TransactionDto): void {
     if (row.status === "paid") { return; }
     payTarget.value = row;
+    paymentDate.value = null;
     showPayConfirm.value = true;
   }
 
   /**
    * Confirms and executes the pending mark-as-paid mutation.
+   *
+   * @param paidAt Effective payment/receipt timestamp in ISO-8601 format.
    */
-  function confirmMarkPaid(): void {
-    if (!payTarget.value) { return; }
-    markPaidMutation.mutate(payTarget.value.id, {
+  function confirmMarkPaid(paidAt?: string): void {
+    if (!payTarget.value || !paidAt) { return; }
+    paymentDate.value = paidAt;
+    markPaidMutation.mutate({ id: payTarget.value.id, paidAt }, {
       onSuccess: () => {
         showPayConfirm.value = false;
         payTarget.value = null;
+        paymentDate.value = null;
+        onRefetch();
       },
     });
   }
@@ -159,6 +167,7 @@ export function useTransactionActions(onRefetch: () => void): UseTransactionActi
     showDeleteConfirm,
     payTarget,
     showPayConfirm,
+    paymentDate,
     editTarget,
     showEditModal,
     deleteMutation,

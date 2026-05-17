@@ -67,11 +67,35 @@ describe("useTransactionActions", () => {
   });
 
   it("handleMarkPaid opens pay confirm modal for unpaid transaction", () => {
-    const { showPayConfirm, payTarget, handleMarkPaid } = useTransactionActions(vi.fn());
+    const { showPayConfirm, payTarget, paymentDate, handleMarkPaid } = useTransactionActions(vi.fn());
     const tx = makeTransaction();
     handleMarkPaid(tx);
     expect(showPayConfirm.value).toBe(true);
     expect(payTarget.value).toStrictEqual(tx);
+    expect(paymentDate.value).toBeNull();
+  });
+
+  it("confirmMarkPaid does nothing until an effective payment date is provided", () => {
+    mockMarkPaidMutate.mockClear();
+    const { handleMarkPaid, confirmMarkPaid } = useTransactionActions(vi.fn());
+    handleMarkPaid(makeTransaction({ id: "tx-without-date" }));
+
+    confirmMarkPaid();
+
+    expect(mockMarkPaidMutate).not.toHaveBeenCalled();
+  });
+
+  it("confirmMarkPaid sends id and paidAt when an effective date is selected", () => {
+    mockMarkPaidMutate.mockClear();
+    const { handleMarkPaid, confirmMarkPaid } = useTransactionActions(vi.fn());
+    handleMarkPaid(makeTransaction({ id: "tx-paid-date" }));
+
+    confirmMarkPaid("2026-05-10T00:00:00.000-03:00");
+
+    expect(mockMarkPaidMutate).toHaveBeenCalledWith(
+      { id: "tx-paid-date", paidAt: "2026-05-10T00:00:00.000-03:00" },
+      expect.any(Object),
+    );
   });
 
   it("handleEdit opens edit modal with the target transaction", () => {

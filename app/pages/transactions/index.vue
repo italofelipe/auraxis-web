@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { NDataTable, NModal } from "naive-ui";
-import { GripVertical, TrendingDown, TrendingUp } from "lucide-vue-next";
+import { NButton, NDataTable, NModal } from "naive-ui";
+import { ChevronLeft, ChevronRight, GripVertical, TrendingDown, TrendingUp, WalletCards } from "lucide-vue-next";
 import { useListTransactionsQuery } from "~/features/transactions/queries/use-list-transactions-query";
 import { useTransactionFilters } from "~/features/transactions/composables/useTransactionFilters";
 import { useTransactionActions } from "~/features/transactions/composables/useTransactionActions";
@@ -9,6 +9,7 @@ import { useTransactionRecurrence } from "~/features/transactions/composables/us
 import { useTransactionTable } from "~/features/transactions/composables/useTransactionTable";
 import TransactionToolbar from "~/features/transactions/components/TransactionToolbar.vue";
 import TransactionExportModal from "~/features/transactions/components/TransactionExportModal.vue";
+import TransactionPaymentModal from "~/features/transactions/components/TransactionPaymentModal.vue";
 import AiInsightButton from "~/features/ai-insights/components/AiInsightButton.vue";
 import AiInsightSection from "~/features/ai-insights/components/AiInsightSection.vue";
 import { useAIInsights } from "~/features/ai-insights/composables/useAIInsights";
@@ -26,6 +27,7 @@ useHead({ title: "Transações | Auraxis" });
 
 const {
   filterType, filterStatus, filterStartDate, filterEndDate, filterTagId,
+  periodMode, periodLabel, periodRangeLabel, goToPreviousMonth, goToNextMonth,
   viewMode, selectedDay, showDayDetail, onDayClick,
   filters, TYPE_OPTIONS, STATUS_OPTIONS, tagOptions, tagMap, tagDetailMap, accountMap, clearFilters,
 } = useTransactionFilters();
@@ -83,6 +85,8 @@ const {
   onDelete: handleDeleteClick,
   onDuplicate: handleDuplicate,
 });
+
+const totalBalance = computed(() => totalIncome.value - totalExpense.value);
 </script>
 
 <template>
@@ -101,8 +105,14 @@ const {
     <!-- ── Delete confirmation ─────────────────────────────────────────────── -->
     <NModal :show="showDeleteConfirm" preset="dialog" type="error" :title="$t('transactions.action.delete')" :content="$t('transactions.action.deleteConfirm')" :positive-text="$t('transactions.action.deleteConfirmYes')" :negative-text="$t('transactions.action.deleteConfirmNo')" :loading="deleteMutation.isPending.value" @positive-click="confirmDelete" @negative-click="showDeleteConfirm = false" @close="showDeleteConfirm = false" />
 
-    <!-- ── Pay confirmation ────────────────────────────────────────────────── -->
-    <NModal :show="showPayConfirm" preset="dialog" type="success" :title="$t('transactions.action.markPaidConfirm')" :content="payTarget ? $t('transactions.action.markPaidConfirmDesc', { title: payTarget.title, amount: formatCurrency(parseFloat(payTarget.amount)) }) : ''" :positive-text="$t('transactions.action.markPaidConfirmYes')" :negative-text="$t('transactions.action.markPaidConfirmNo')" :loading="markPaidMutation.isPending.value" @positive-click="confirmMarkPaid" @negative-click="showPayConfirm = false" @close="showPayConfirm = false" />
+    <!-- ── Pay / receipt confirmation ─────────────────────────────────────── -->
+    <TransactionPaymentModal
+      :visible="showPayConfirm"
+      :transaction="payTarget"
+      :loading="markPaidMutation.isPending.value"
+      @update:visible="showPayConfirm = $event"
+      @confirm="confirmMarkPaid"
+    />
 
     <!-- ── Calendar day detail ─────────────────────────────────────────────── -->
     <CalendarDayDetail :day="selectedDay" :visible="showDayDetail" @update:visible="showDayDetail = $event" />
@@ -111,6 +121,27 @@ const {
     <div v-if="visiblePatterns.length > 0" class="transactions-page__recurrence" aria-label="Sugestões de recorrência">
       <RecurrenceSuggestionCard v-for="pattern in visiblePatterns" :key="pattern.groupKey" :pattern="pattern" @confirm="handleRecurrenceConfirm" @dismiss="handleRecurrenceDismiss" @never="handleRecurrenceNever" />
     </div>
+
+    <!-- ── Period header ───────────────────────────────────────────────────── -->
+    <section class="transactions-page__period" aria-label="Período das transações">
+      <div class="period-nav">
+        <NButton circle secondary size="small" aria-label="Mês anterior" @click="goToPreviousMonth">
+          <template #icon><ChevronLeft :size="18" /></template>
+        </NButton>
+        <div class="period-nav__body">
+          <h2>{{ periodLabel }}</h2>
+          <p>{{ periodMode === 'month' ? 'Período mensal selecionado' : 'Período customizado selecionado' }}</p>
+        </div>
+        <NButton circle secondary size="small" aria-label="Próximo mês" @click="goToNextMonth">
+          <template #icon><ChevronRight :size="18" /></template>
+        </NButton>
+      </div>
+
+      <div class="period-meta">
+        <span class="period-meta__pill">{{ periodRangeLabel }}</span>
+        <span class="period-meta__pill period-meta__pill--accent">{{ tableData.length }} transações</span>
+      </div>
+    </section>
 
     <!-- ── Summary strip ───────────────────────────────────────────────────── -->
     <div class="transactions-page__summary">
@@ -126,6 +157,13 @@ const {
         <div class="summary-card__body">
           <span class="summary-card__label">{{ $t('transactions.summary.expense') }}</span>
           <span class="summary-card__value">{{ formatCurrency(totalExpense) }}</span>
+        </div>
+      </div>
+      <div class="summary-card summary-card--balance">
+        <WalletCards :size="18" class="summary-card__icon" />
+        <div class="summary-card__body">
+          <span class="summary-card__label">Resultado do período</span>
+          <span class="summary-card__value" :class="{ 'summary-card__value--negative': totalBalance < 0 }">{{ formatCurrency(totalBalance) }}</span>
         </div>
       </div>
     </div>
@@ -200,17 +238,82 @@ const {
 .transactions-page {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-3);
+  gap: var(--space-4);
+  padding: var(--space-4);
 }
 
 .transactions-page__recurrence { display: grid; gap: var(--space-2); }
 .transactions-page__calendar { width: 100%; }
 
+.transactions-page__period {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-4);
+  border: 1px solid var(--color-outline-soft);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-bg-elevated) 92%, transparent), var(--color-bg-elevated)),
+    var(--color-bg-elevated);
+}
+
+.period-nav,
+.period-meta {
+  display: flex;
+  align-items: center;
+}
+
+.period-nav {
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.period-nav__body {
+  min-width: 0;
+}
+
+.period-nav__body h2 {
+  margin: 0;
+  font-size: clamp(1.4rem, 2vw, 2rem);
+  line-height: 1.1;
+  color: var(--color-text-primary);
+}
+
+.period-nav__body p {
+  margin: 6px 0 0;
+  color: var(--color-text-muted);
+}
+
+.period-meta {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.period-meta__pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-outline-soft);
+  border-radius: var(--radius-full, 999px);
+  color: var(--color-text-muted);
+  background: var(--color-bg-surface);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.period-meta__pill--accent {
+  color: var(--color-brand-400);
+  border-color: color-mix(in srgb, var(--color-brand-500) 42%, transparent);
+  background: color-mix(in srgb, var(--color-brand-500) 10%, transparent);
+}
+
 .transactions-page__summary {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-2);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
 }
 
 .summary-card {
@@ -225,9 +328,11 @@ const {
 
 .summary-card--income .summary-card__icon { color: var(--color-positive); }
 .summary-card--expense .summary-card__icon { color: var(--color-negative); }
+.summary-card--balance .summary-card__icon { color: var(--color-brand-400); }
 .summary-card__body { display: flex; flex-direction: column; gap: 2px; }
 .summary-card__label { font-size: var(--font-size-xs); color: var(--color-text-muted); }
 .summary-card__value { font-size: var(--font-size-base); font-weight: var(--font-weight-semibold); color: var(--color-text-primary); }
+.summary-card__value--negative { color: var(--color-negative); }
 
 .transactions-page__reorder-hint,
 .transactions-page__swipe-hint {
@@ -277,6 +382,20 @@ const {
 :deep(.tx-tag-badge) { display: inline-block; padding: 2px 8px; border-radius: var(--radius-full, 9999px); font-size: var(--font-size-xs); font-weight: var(--font-weight-medium, 500); line-height: 1.4; white-space: nowrap; }
 
 @media (max-width: 640px) {
+  .transactions-page {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .transactions-page__period {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .period-meta {
+    justify-content: flex-start;
+  }
+
   .transactions-page__summary { grid-template-columns: 1fr; }
 }
 </style>
