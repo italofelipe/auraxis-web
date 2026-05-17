@@ -19,10 +19,13 @@ import { useCreateWalletEntryMutation } from "~/features/wallet/queries/use-crea
 import { useUpdateWalletEntryMutation } from "~/features/wallet/queries/use-update-wallet-entry-mutation";
 import type { CreateWalletEntryPayload } from "~/features/wallet/services/wallet.client";
 import type { PortfolioSummaryDto, WalletEntryDto } from "~/features/portfolio/contracts/portfolio.dto";
+import NetWorthTimeline from "~/components/portfolio/NetWorthTimeline/NetWorthTimeline.vue";
 import {
   MOCK_PORTFOLIO_SUMMARY,
   MOCK_WALLET_ENTRIES,
 } from "~/features/portfolio/mock/portfolio.mock";
+import { MOCK_GOALS } from "~/features/goals/mock/goals.mock";
+import { useGoalsQuery } from "~/features/goals/queries/use-goals-query";
 import { formatCurrency } from "~/utils/currency";
 
 definePageMeta({
@@ -42,6 +45,7 @@ interface AllocationRow {
 
 const { data: summary, isError: isSummaryError } = usePortfolioSummaryQuery();
 const { data: entries, isError: isEntriesError } = useWalletEntriesQuery();
+const { data: goals } = useGoalsQuery();
 
 const createMutation = useCreateWalletEntryMutation();
 const updateMutation = useUpdateWalletEntryMutation();
@@ -175,6 +179,14 @@ function formatQuantity(value: number | null): string {
 const totalReturnAmount = computed(() => computedSummary.value.total_value - computedSummary.value.total_cost);
 const monthlyReturnAmount = computed(() => Math.round(computedSummary.value.total_value * 0.0365));
 const yearlyReturnAmount = computed(() => Math.round(Math.max(totalReturnAmount.value, computedSummary.value.total_value * 0.145)));
+const displayGoals = computed(() => {
+  if (goals.value?.length) {
+    return goals.value;
+  }
+
+  return isUsingSamplePortfolio.value ? MOCK_GOALS : [];
+});
+const projectedMonthlyContribution = computed(() => Math.max(500, Math.round(computedSummary.value.total_value * 0.012)));
 
 const allocationRows = computed<AllocationRow[]>(() => {
   const colors = ["#44d4ff", "#42e8a9", "#f59e0b", "#e11d48", "#9da8ff"];
@@ -413,6 +425,14 @@ const allocationChartOption = computed<EChartsOption>(() => ({
           </div>
         </article>
       </section>
+
+      <NetWorthTimeline
+        aria-label="Projeção Patrimonial"
+        :current-net-worth="computedSummary.total_value"
+        :invested-amount="computedSummary.total_cost"
+        :monthly-contribution="projectedMonthlyContribution"
+        :goals="displayGoals"
+      />
 
       <section class="portfolio-analytics-grid">
         <article id="portfolio-performance" class="mp-panel portfolio-performance">
