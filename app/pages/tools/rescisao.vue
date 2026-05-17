@@ -31,10 +31,9 @@ import CalculatorFormSection from "~/components/tool/CalculatorFormSection/Calcu
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
 import ToolSaveResult from "~/components/tool/ToolSaveResult/ToolSaveResult.vue";
-import UiStickySummaryCard from "~/components/ui/UiStickySummaryCard/UiStickySummaryCard.vue";
-import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
 import UiGlassPanel from "~/components/ui/UiGlassPanel/UiGlassPanel.vue";
 import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
+import LaborCalculatorMarketPulsePage from "~/components/tool/LaborCalculatorMarketPulse/LaborCalculatorMarketPulsePage.vue";
 
 definePageMeta({ layout: false });
 
@@ -171,14 +170,17 @@ const summaryMetrics = computed(() => {
   <!-- ═══ AUTHENTICATED — app shell ══════════════════════════════════════════ -->
   <NuxtLayout :name="isAuthenticated ? 'default' : 'tools-public'">
     <div class="rescisao-page rescisao-page--authenticated">
-      <div class="rescisao-page__layout">
-        <!-- Form column -->
-        <div class="rescisao-page__form-col">
-          <UiPageHeader
-            :title="t('rescisao.hero.title')"
-            :subtitle="t('rescisao.hero.subtitle')"
-          />
-
+      <LaborCalculatorMarketPulsePage
+        class="labor-calculator-market-pulse rescisao-page__market-pulse"
+        eyebrow="Calculadora trabalhista"
+        :title="t('rescisao.hero.title')"
+        :subtitle="t('rescisao.hero.subtitle')"
+        context-label="Prazo legal"
+        context-value="10 dias"
+        context-helper="Organiza verbas rescisórias, multa do FGTS, descontos e líquido estimado."
+        :has-result="Boolean(result)"
+      >
+        <template #form>
           <UiGlassPanel class="rescisao-page__form-panel">
             <NForm @submit.prevent="handleCalculate">
               <CalculatorFormSection :title="t('rescisao.form.title')">
@@ -350,72 +352,87 @@ const summaryMetrics = computed(() => {
               </div>
             </NForm>
           </UiGlassPanel>
-        </div>
+        </template>
 
-        <!-- Results column -->
-        <div class="rescisao-page__results-col">
-          <UiStickySummaryCard v-if="result">
+        <template #results>
+          <div v-if="result" class="rescisao-page__summary-card">
             <CalculatorResultSummary
               :label="t('rescisao.results.netTotal')"
               :value="formatBrl(result.netTotal)"
               :metrics="summaryMetrics"
             />
-          </UiStickySummaryCard>
+          </div>
+        </template>
 
-          <template v-if="result">
-            <!-- Breakdown card -->
-            <UiSurfaceCard>
-              <div class="rescisao-page__breakdown">
-                <div class="rescisao-page__breakdown-row">
-                  <span>{{ t('rescisao.results.saldoSalario') }}</span>
-                  <span>{{ formatBrl(result.saldoSalario) }}</span>
-                </div>
-                <div v-if="result.avisoPrevio > 0" class="rescisao-page__breakdown-row rescisao-page__breakdown-row--notice">
-                  <span>{{ t('rescisao.results.avisoPrevio', { days: result.noticeDays }) }}</span>
-                  <span>+ {{ formatBrl(result.avisoPrevio) }}</span>
-                </div>
-                <div v-if="result.decimoTerceiroProporcional > 0" class="rescisao-page__breakdown-row">
-                  <span>{{ t('rescisao.results.decimoTerceiro') }}</span>
-                  <span>+ {{ formatBrl(result.decimoTerceiroProporcional) }}</span>
-                </div>
-                <div v-if="result.feriasProporcionais > 0" class="rescisao-page__breakdown-row rescisao-page__breakdown-row--vacation">
-                  <span>{{ t('rescisao.results.feriasProporcionais') }}</span>
-                  <span>+ {{ formatBrl(result.feriasProporcionais) }}</span>
-                </div>
-                <div v-if="result.feriasVencidas > 0" class="rescisao-page__breakdown-row rescisao-page__breakdown-row--vacation">
-                  <span>{{ t('rescisao.results.feriasVencidas') }}</span>
-                  <span>+ {{ formatBrl(result.feriasVencidas) }}</span>
-                </div>
-                <div v-if="result.fgtsMulta > 0" class="rescisao-page__breakdown-row rescisao-page__breakdown-row--fgts">
-                  <span>{{ t('rescisao.results.fgtsMulta') }}</span>
-                  <span>+ {{ formatBrl(result.fgtsMulta) }}</span>
-                </div>
-                <div class="rescisao-page__breakdown-row rescisao-page__breakdown-row--total">
-                  <span>{{ t('rescisao.results.totalGross') }}</span>
-                  <span class="rescisao-page__value--gross">{{ formatBrl(result.totalGross) }}</span>
-                </div>
-                <div class="rescisao-page__breakdown-row rescisao-page__breakdown-row--deduction">
-                  <span>{{ t('rescisao.results.inss') }}</span>
-                  <span class="rescisao-page__value--negative">− {{ formatBrl(result.inss) }}</span>
-                </div>
-                <div v-if="result.irrf > 0" class="rescisao-page__breakdown-row rescisao-page__breakdown-row--deduction">
-                  <span>{{ t('rescisao.results.irrf') }}</span>
-                  <span class="rescisao-page__value--negative">− {{ formatBrl(result.irrf) }}</span>
-                </div>
-                <div class="rescisao-page__breakdown-row rescisao-page__breakdown-row--net">
-                  <span>{{ t('rescisao.results.netTotal') }}</span>
-                  <span class="rescisao-page__value--positive">{{ formatBrl(result.netTotal) }}</span>
-                </div>
+        <template #breakdown>
+          <UiSurfaceCard v-if="result">
+            <div class="rescisao-page__breakdown">
+              <div class="rescisao-page__breakdown-row">
+                <span>{{ t('rescisao.results.saldoSalario') }}</span>
+                <span>{{ formatBrl(result.saldoSalario) }}</span>
               </div>
-            </UiSurfaceCard>
+              <div v-if="result.avisoPrevio > 0" class="rescisao-page__breakdown-row rescisao-page__breakdown-row--notice">
+                <span>{{ t('rescisao.results.avisoPrevio', { days: result.noticeDays }) }}</span>
+                <span>+ {{ formatBrl(result.avisoPrevio) }}</span>
+              </div>
+              <div v-if="result.decimoTerceiroProporcional > 0" class="rescisao-page__breakdown-row">
+                <span>{{ t('rescisao.results.decimoTerceiro') }}</span>
+                <span>+ {{ formatBrl(result.decimoTerceiroProporcional) }}</span>
+              </div>
+              <div v-if="result.feriasProporcionais > 0" class="rescisao-page__breakdown-row rescisao-page__breakdown-row--vacation">
+                <span>{{ t('rescisao.results.feriasProporcionais') }}</span>
+                <span>+ {{ formatBrl(result.feriasProporcionais) }}</span>
+              </div>
+              <div v-if="result.feriasVencidas > 0" class="rescisao-page__breakdown-row rescisao-page__breakdown-row--vacation">
+                <span>{{ t('rescisao.results.feriasVencidas') }}</span>
+                <span>+ {{ formatBrl(result.feriasVencidas) }}</span>
+              </div>
+              <div v-if="result.fgtsMulta > 0" class="rescisao-page__breakdown-row rescisao-page__breakdown-row--fgts">
+                <span>{{ t('rescisao.results.fgtsMulta') }}</span>
+                <span>+ {{ formatBrl(result.fgtsMulta) }}</span>
+              </div>
+              <div class="rescisao-page__breakdown-row rescisao-page__breakdown-row--total">
+                <span>{{ t('rescisao.results.totalGross') }}</span>
+                <span class="rescisao-page__value--gross">{{ formatBrl(result.totalGross) }}</span>
+              </div>
+              <div class="rescisao-page__breakdown-row rescisao-page__breakdown-row--deduction">
+                <span>{{ t('rescisao.results.inss') }}</span>
+                <span class="rescisao-page__value--negative">− {{ formatBrl(result.inss) }}</span>
+              </div>
+              <div v-if="result.irrf > 0" class="rescisao-page__breakdown-row rescisao-page__breakdown-row--deduction">
+                <span>{{ t('rescisao.results.irrf') }}</span>
+                <span class="rescisao-page__value--negative">− {{ formatBrl(result.irrf) }}</span>
+              </div>
+              <div class="rescisao-page__breakdown-row rescisao-page__breakdown-row--net">
+                <span>{{ t('rescisao.results.netTotal') }}</span>
+                <span class="rescisao-page__value--positive">{{ formatBrl(result.netTotal) }}</span>
+              </div>
+            </div>
+          </UiSurfaceCard>
+        </template>
 
+        <template #scenario>
+          <p class="rescisao-page__scenario-note">
+            A projeção destaca saldo de salário, 13º proporcional, férias, aviso prévio e descontos.
+          </p>
+        </template>
+
+        <template #formula>
+          <ul class="rescisao-page__formula-list">
+            <li>Saldo de salário: diária salarial multiplicada pelos dias trabalhados no mês final.</li>
+            <li>Verbas proporcionais: 13º e férias calculados pelos meses informados.</li>
+            <li>Multa FGTS: 40% sem justa causa ou 20% em acordo, quando aplicável.</li>
+          </ul>
+        </template>
+
+        <template #actions>
+          <template v-if="result">
             <ToolSaveResult
               intent="receivable"
               :label="t('rescisao.hero.title')"
               :amount="result.netTotal"
             />
 
-            <!-- Action bar -->
             <UiSurfaceCard class="rescisao-page__action-bar">
               <NSpace vertical :size="8">
                 <NButton
@@ -441,7 +458,6 @@ const summaryMetrics = computed(() => {
               </NSpace>
             </UiSurfaceCard>
 
-            <!-- Disclaimer -->
             <UiSurfaceCard>
               <p class="rescisao-page__disclaimer">
                 {{ t('rescisao.disclaimer.tableYear', { year: BR_TAX_TABLE_YEAR }) }}
@@ -454,8 +470,8 @@ const summaryMetrics = computed(() => {
               </p>
             </UiSurfaceCard>
           </template>
-        </div>
-      </div>
+        </template>
+      </LaborCalculatorMarketPulsePage>
     </div>
         <!-- Guest CTA — shown below result for unauthenticated users -->
         <ToolGuestCta v-if="!isAuthenticated" />
@@ -474,32 +490,6 @@ const summaryMetrics = computed(() => {
   background: var(--color-bg-base);
 }
 
-/* ── Authenticated layout ─────────────────────────────────────────────────── */
-.rescisao-page--authenticated {
-  padding: var(--space-6, 24px);
-}
-
-.rescisao-page__layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-6, 24px);
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-@media (max-width: 768px) {
-  .rescisao-page__layout {
-    grid-template-columns: 1fr;
-  }
-}
-
-.rescisao-page__form-col,
-.rescisao-page__results-col {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4, 16px);
-}
-
 .rescisao-page__form-panel {
   width: 100%;
 }
@@ -511,87 +501,22 @@ const summaryMetrics = computed(() => {
   margin-top: var(--space-4, 16px);
 }
 
-/* ── Guest header ────────────────────────────────────────────────────────────── */
-.rescisao-page__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--space-4, 16px) var(--space-6, 24px);
-  border-bottom: 1px solid var(--color-outline-subtle);
-  background: var(--color-bg-elevated);
+.rescisao-page__summary-card {
+  display: contents;
 }
 
-.rescisao-page__brand {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2, 8px);
+.rescisao-page__scenario-note,
+.rescisao-page__formula-list {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.55;
 }
 
-.rescisao-page__brand-mark {
-  font-weight: var(--font-weight-bold, 700);
-  font-size: var(--font-size-body-md, 15px);
-  color: var(--color-text-primary);
-}
-
-.rescisao-page__brand-copy {
-  font-size: var(--font-size-body-xs, 11px);
-  color: var(--color-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.rescisao-page__header-actions {
-  display: flex;
-  gap: var(--space-2, 8px);
-}
-
-/* ── Guest hero ──────────────────────────────────────────────────────────────── */
-.rescisao-page__content {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: var(--space-8, 32px) var(--space-6, 24px);
-}
-
-.rescisao-page__hero {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-8, 32px);
-  align-items: start;
-  margin-bottom: var(--space-8, 32px);
-}
-
-@media (max-width: 768px) {
-  .rescisao-page__hero {
-    grid-template-columns: 1fr;
-  }
-}
-
-.rescisao-page__hero-copy {
+.rescisao-page__formula-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3, 12px);
-}
-
-/* ── Results section (guest) ─────────────────────────────────────────────────── */
-.rescisao-page__results-section {
-  margin-top: var(--space-6, 24px);
-}
-
-.rescisao-page__results-main,
-.rescisao-page__results-aside {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4, 16px);
-}
-
-/* ── Section title ───────────────────────────────────────────────────────────── */
-.rescisao-page__section-title {
-  font-weight: var(--font-weight-semibold, 600);
-  font-size: var(--font-size-body-sm, 13px);
-  color: var(--color-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 0 0 var(--space-3, 12px) 0;
+  gap: 8px;
+  padding-left: 18px;
 }
 
 /* ── Breakdown ───────────────────────────────────────────────────────────────── */

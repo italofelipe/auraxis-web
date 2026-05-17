@@ -32,10 +32,9 @@ import CalculatorFormSection from "~/components/tool/CalculatorFormSection/Calcu
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
 import ToolSaveResult from "~/components/tool/ToolSaveResult/ToolSaveResult.vue";
-import UiStickySummaryCard from "~/components/ui/UiStickySummaryCard/UiStickySummaryCard.vue";
-import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
 import UiGlassPanel from "~/components/ui/UiGlassPanel/UiGlassPanel.vue";
 import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
+import LaborCalculatorMarketPulsePage from "~/components/tool/LaborCalculatorMarketPulse/LaborCalculatorMarketPulsePage.vue";
 
 definePageMeta({ layout: false });
 
@@ -157,14 +156,17 @@ const summaryMetrics = computed(() => {
   <!-- ═══ AUTHENTICATED — app shell ══════════════════════════════════════════ -->
   <NuxtLayout :name="isAuthenticated ? 'default' : 'tools-public'">
     <div class="ferias-page ferias-page--authenticated">
-      <div class="ferias-page__layout">
-        <!-- Form column -->
-        <div class="ferias-page__form-col">
-          <UiPageHeader
-            :title="t('ferias.hero.title')"
-            :subtitle="t('ferias.hero.subtitle')"
-          />
-
+      <LaborCalculatorMarketPulsePage
+        class="labor-calculator-market-pulse ferias-page__market-pulse"
+        eyebrow="Calculadora trabalhista"
+        :title="t('ferias.hero.title')"
+        :subtitle="t('ferias.hero.subtitle')"
+        context-label="Composição"
+        context-value="Férias + 1/3"
+        context-helper="Calcula férias gozadas, abono, INSS, IRRF e líquido a receber."
+        :has-result="Boolean(result)"
+      >
+        <template #form>
           <UiGlassPanel class="ferias-page__form-panel">
             <NForm @submit.prevent="handleCalculate">
               <CalculatorFormSection :title="t('ferias.form.title')">
@@ -269,58 +271,73 @@ const summaryMetrics = computed(() => {
               </div>
             </NForm>
           </UiGlassPanel>
-        </div>
+        </template>
 
-        <!-- Results column -->
-        <div class="ferias-page__results-col">
-          <UiStickySummaryCard v-if="result">
+        <template #results>
+          <div v-if="result" class="ferias-page__summary-card">
             <CalculatorResultSummary
               :label="t('ferias.results.netTotal')"
               :value="formatBrl(result.netTotal)"
               :metrics="summaryMetrics"
             />
-          </UiStickySummaryCard>
+          </div>
+        </template>
 
-          <template v-if="result">
-            <!-- Breakdown card -->
-            <UiSurfaceCard>
-              <div class="ferias-page__breakdown">
-                <div class="ferias-page__breakdown-row">
-                  <span>{{ t('ferias.results.vacationBasePay') }} ({{ result.vacationDays }}d)</span>
-                  <span>{{ formatBrl(result.vacationBasePay) }}</span>
-                </div>
-                <div class="ferias-page__breakdown-row ferias-page__breakdown-row--bonus">
-                  <span>{{ t('ferias.results.constitutionalThird') }}</span>
-                  <span>+ {{ formatBrl(result.constitutionalThird) }}</span>
-                </div>
-                <div class="ferias-page__breakdown-row ferias-page__breakdown-row--subtotal">
-                  <span>{{ t('ferias.results.vacationGross') }}</span>
-                  <span>{{ formatBrl(result.vacationGross) }}</span>
-                </div>
-                <div v-if="result.abonoEnabled" class="ferias-page__breakdown-row ferias-page__breakdown-row--abono">
-                  <span>{{ t('ferias.results.abonoValue') }}</span>
-                  <span>+ {{ formatBrl(result.abonoValue) }}</span>
-                </div>
-                <div class="ferias-page__breakdown-row ferias-page__breakdown-row--total">
-                  <span>{{ t('ferias.results.totalGross') }}</span>
-                  <span class="ferias-page__value--gross">{{ formatBrl(result.totalGross) }}</span>
-                </div>
-                <div class="ferias-page__breakdown-row ferias-page__breakdown-row--deduction">
-                  <span>{{ t('ferias.results.inss') }}</span>
-                  <span class="ferias-page__value--negative">− {{ formatBrl(result.inss) }}</span>
-                </div>
-                <div v-if="result.irrf > 0" class="ferias-page__breakdown-row ferias-page__breakdown-row--deduction">
-                  <span>{{ t('ferias.results.irrf') }}</span>
-                  <span class="ferias-page__value--negative">− {{ formatBrl(result.irrf) }}</span>
-                </div>
-                <div class="ferias-page__breakdown-row ferias-page__breakdown-row--net">
-                  <span>{{ t('ferias.results.netTotal') }}</span>
-                  <span class="ferias-page__value--positive">{{ formatBrl(result.netTotal) }}</span>
-                </div>
+        <template #breakdown>
+          <UiSurfaceCard v-if="result">
+            <div class="ferias-page__breakdown">
+              <div class="ferias-page__breakdown-row">
+                <span>{{ t('ferias.results.vacationBasePay') }} ({{ result.vacationDays }}d)</span>
+                <span>{{ formatBrl(result.vacationBasePay) }}</span>
               </div>
-            </UiSurfaceCard>
+              <div class="ferias-page__breakdown-row ferias-page__breakdown-row--bonus">
+                <span>{{ t('ferias.results.constitutionalThird') }}</span>
+                <span>+ {{ formatBrl(result.constitutionalThird) }}</span>
+              </div>
+              <div class="ferias-page__breakdown-row ferias-page__breakdown-row--subtotal">
+                <span>{{ t('ferias.results.vacationGross') }}</span>
+                <span>{{ formatBrl(result.vacationGross) }}</span>
+              </div>
+              <div v-if="result.abonoEnabled" class="ferias-page__breakdown-row ferias-page__breakdown-row--abono">
+                <span>{{ t('ferias.results.abonoValue') }}</span>
+                <span>+ {{ formatBrl(result.abonoValue) }}</span>
+              </div>
+              <div class="ferias-page__breakdown-row ferias-page__breakdown-row--total">
+                <span>{{ t('ferias.results.totalGross') }}</span>
+                <span class="ferias-page__value--gross">{{ formatBrl(result.totalGross) }}</span>
+              </div>
+              <div class="ferias-page__breakdown-row ferias-page__breakdown-row--deduction">
+                <span>{{ t('ferias.results.inss') }}</span>
+                <span class="ferias-page__value--negative">− {{ formatBrl(result.inss) }}</span>
+              </div>
+              <div v-if="result.irrf > 0" class="ferias-page__breakdown-row ferias-page__breakdown-row--deduction">
+                <span>{{ t('ferias.results.irrf') }}</span>
+                <span class="ferias-page__value--negative">− {{ formatBrl(result.irrf) }}</span>
+              </div>
+              <div class="ferias-page__breakdown-row ferias-page__breakdown-row--net">
+                <span>{{ t('ferias.results.netTotal') }}</span>
+                <span class="ferias-page__value--positive">{{ formatBrl(result.netTotal) }}</span>
+              </div>
+            </div>
+          </UiSurfaceCard>
+        </template>
 
-            <!-- Best month tip -->
+        <template #scenario>
+          <p class="ferias-page__scenario-note">
+            Visualize o peso do adicional constitucional, abono opcional e descontos legais no líquido final.
+          </p>
+        </template>
+
+        <template #formula>
+          <ul class="ferias-page__formula-list">
+            <li>Base diária: salário bruto somado às médias habituais e dividido por 30.</li>
+            <li>Férias: diária multiplicada pelos dias de descanso, acrescida de 1/3 constitucional.</li>
+            <li>Descontos: INSS e IRRF aplicados conforme tabela vigente, com abono tratado separadamente.</li>
+          </ul>
+        </template>
+
+        <template #actions>
+          <template v-if="result">
             <UiSurfaceCard>
               <p class="ferias-page__tip">
                 {{ t('ferias.results.bestMonthNote') }}
@@ -333,7 +350,6 @@ const summaryMetrics = computed(() => {
               :amount="result.netTotal"
             />
 
-            <!-- Action bar -->
             <UiSurfaceCard class="ferias-page__action-bar">
               <NSpace vertical :size="8">
                 <NButton
@@ -359,7 +375,6 @@ const summaryMetrics = computed(() => {
               </NSpace>
             </UiSurfaceCard>
 
-            <!-- Disclaimer -->
             <UiSurfaceCard>
               <p class="ferias-page__disclaimer">
                 {{ t('ferias.disclaimer.tableYear', { year: BR_TAX_TABLE_YEAR }) }}
@@ -372,8 +387,8 @@ const summaryMetrics = computed(() => {
               </p>
             </UiSurfaceCard>
           </template>
-        </div>
-      </div>
+        </template>
+      </LaborCalculatorMarketPulsePage>
     </div>
         <!-- Guest CTA — shown below result for unauthenticated users -->
         <ToolGuestCta v-if="!isAuthenticated" />
@@ -392,32 +407,6 @@ const summaryMetrics = computed(() => {
   background: var(--color-bg-base);
 }
 
-/* ── Authenticated layout ─────────────────────────────────────────────────── */
-.ferias-page--authenticated {
-  padding: var(--space-6, 24px);
-}
-
-.ferias-page__layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-6, 24px);
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-@media (max-width: 768px) {
-  .ferias-page__layout {
-    grid-template-columns: 1fr;
-  }
-}
-
-.ferias-page__form-col,
-.ferias-page__results-col {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4, 16px);
-}
-
 .ferias-page__form-panel {
   width: 100%;
 }
@@ -429,87 +418,22 @@ const summaryMetrics = computed(() => {
   margin-top: var(--space-4, 16px);
 }
 
-/* ── Guest header ────────────────────────────────────────────────────────────── */
-.ferias-page__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--space-4, 16px) var(--space-6, 24px);
-  border-bottom: 1px solid var(--color-outline-subtle);
-  background: var(--color-bg-elevated);
+.ferias-page__summary-card {
+  display: contents;
 }
 
-.ferias-page__brand {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2, 8px);
+.ferias-page__scenario-note,
+.ferias-page__formula-list {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.55;
 }
 
-.ferias-page__brand-mark {
-  font-weight: var(--font-weight-bold, 700);
-  font-size: var(--font-size-body-md, 15px);
-  color: var(--color-text-primary);
-}
-
-.ferias-page__brand-copy {
-  font-size: var(--font-size-body-xs, 11px);
-  color: var(--color-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.ferias-page__header-actions {
-  display: flex;
-  gap: var(--space-2, 8px);
-}
-
-/* ── Guest hero ──────────────────────────────────────────────────────────────── */
-.ferias-page__content {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: var(--space-8, 32px) var(--space-6, 24px);
-}
-
-.ferias-page__hero {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-8, 32px);
-  align-items: start;
-  margin-bottom: var(--space-8, 32px);
-}
-
-@media (max-width: 768px) {
-  .ferias-page__hero {
-    grid-template-columns: 1fr;
-  }
-}
-
-.ferias-page__hero-copy {
+.ferias-page__formula-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3, 12px);
-}
-
-/* ── Results section (guest) ─────────────────────────────────────────────────── */
-.ferias-page__results-section {
-  margin-top: var(--space-6, 24px);
-}
-
-.ferias-page__results-main,
-.ferias-page__results-aside {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4, 16px);
-}
-
-/* ── Section title ───────────────────────────────────────────────────────────── */
-.ferias-page__section-title {
-  font-weight: var(--font-weight-semibold, 600);
-  font-size: var(--font-size-body-sm, 13px);
-  color: var(--color-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 0 0 var(--space-3, 12px) 0;
+  gap: 8px;
+  padding-left: 18px;
 }
 
 /* ── Breakdown ───────────────────────────────────────────────────────────────── */

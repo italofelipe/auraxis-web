@@ -29,10 +29,9 @@ import CalculatorFormSection from "~/components/tool/CalculatorFormSection/Calcu
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
 import ToolSaveResult from "~/components/tool/ToolSaveResult/ToolSaveResult.vue";
-import UiStickySummaryCard from "~/components/ui/UiStickySummaryCard/UiStickySummaryCard.vue";
-import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
 import UiGlassPanel from "~/components/ui/UiGlassPanel/UiGlassPanel.vue";
 import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
+import LaborCalculatorMarketPulsePage from "~/components/tool/LaborCalculatorMarketPulse/LaborCalculatorMarketPulsePage.vue";
 
 definePageMeta({ layout: false });
 
@@ -156,14 +155,17 @@ const summaryMetrics = computed(() => {
   <!-- ═══ AUTHENTICATED — app shell ══════════════════════════════════════════ -->
   <NuxtLayout :name="isAuthenticated ? 'default' : 'tools-public'">
     <div class="fgts-page fgts-page--authenticated">
-      <div class="fgts-page__layout">
-        <!-- Form column -->
-        <div class="fgts-page__form-col">
-          <UiPageHeader
-            :title="t('fgts.hero.title')"
-            :subtitle="t('fgts.hero.subtitle')"
-          />
-
+      <LaborCalculatorMarketPulsePage
+        class="labor-calculator-market-pulse fgts-page__market-pulse"
+        eyebrow="Calculadora trabalhista"
+        :title="t('fgts.hero.title')"
+        :subtitle="t('fgts.hero.subtitle')"
+        context-label="Depósito mensal"
+        context-value="8% CLT"
+        context-helper="Projeta saldo, correção e multa conforme o tipo de desligamento."
+        :has-result="Boolean(result)"
+      >
+        <template #form>
           <UiGlassPanel class="fgts-page__form-panel">
             <NForm @submit.prevent="handleCalculate">
               <CalculatorFormSection :title="t('fgts.form.title')">
@@ -264,62 +266,77 @@ const summaryMetrics = computed(() => {
               </div>
             </NForm>
           </UiGlassPanel>
-        </div>
+        </template>
 
-        <!-- Results column -->
-        <div class="fgts-page__results-col">
-          <UiStickySummaryCard v-if="result">
+        <template #results>
+          <div v-if="result" class="fgts-page__summary-card">
             <CalculatorResultSummary
               :label="t('fgts.results.projectedBalance')"
               :value="formatBrl(result.projectedBalance)"
               :metrics="summaryMetrics"
             />
-          </UiStickySummaryCard>
+          </div>
+        </template>
 
-          <template v-if="result">
-            <!-- Breakdown card -->
-            <UiSurfaceCard>
-              <div class="fgts-page__breakdown">
-                <div class="fgts-page__breakdown-row">
-                  <span>{{ t('fgts.results.monthlyDeposit') }}</span>
-                  <span>{{ formatBrl(result.monthlyDeposit) }}</span>
-                </div>
-                <div class="fgts-page__breakdown-row">
-                  <span>{{ t('fgts.results.totalDeposited') }}</span>
-                  <span>{{ formatBrl(result.totalDeposited) }}</span>
-                </div>
-                <div class="fgts-page__breakdown-row fgts-page__breakdown-row--bonus">
-                  <span>{{ t('fgts.results.correctionAmount') }}</span>
-                  <span>+ {{ formatBrl(result.correctionAmount) }}</span>
-                </div>
-                <div class="fgts-page__breakdown-row fgts-page__breakdown-row--total">
-                  <span>{{ t('fgts.results.projectedBalance') }}</span>
-                  <span class="fgts-page__value--gross">{{ formatBrl(result.projectedBalance) }}</span>
-                </div>
-                <div v-if="result.fineAmount > 0" class="fgts-page__breakdown-row fgts-page__breakdown-row--bonus">
-                  <span>{{ t('fgts.results.fineAmount') }}</span>
-                  <span>+ {{ formatBrl(result.fineAmount) }}</span>
-                </div>
-                <div v-if="result.governmentFineAmount > 0" class="fgts-page__breakdown-row">
-                  <span>{{ t('fgts.results.governmentFineAmount') }}</span>
-                  <span>{{ formatBrl(result.governmentFineAmount) }}</span>
-                </div>
-                <div class="fgts-page__breakdown-row fgts-page__breakdown-row--net">
-                  <span>{{ t('fgts.results.withdrawableAmount') }}</span>
-                  <span :class="result.canWithdraw ? 'fgts-page__value--positive' : 'fgts-page__value--muted'">
-                    {{ result.canWithdraw ? formatBrl(result.withdrawableAmount) : t('fgts.results.cannotWithdraw') }}
-                  </span>
-                </div>
+        <template #breakdown>
+          <UiSurfaceCard v-if="result">
+            <div class="fgts-page__breakdown">
+              <div class="fgts-page__breakdown-row">
+                <span>{{ t('fgts.results.monthlyDeposit') }}</span>
+                <span>{{ formatBrl(result.monthlyDeposit) }}</span>
               </div>
-            </UiSurfaceCard>
+              <div class="fgts-page__breakdown-row">
+                <span>{{ t('fgts.results.totalDeposited') }}</span>
+                <span>{{ formatBrl(result.totalDeposited) }}</span>
+              </div>
+              <div class="fgts-page__breakdown-row fgts-page__breakdown-row--bonus">
+                <span>{{ t('fgts.results.correctionAmount') }}</span>
+                <span>+ {{ formatBrl(result.correctionAmount) }}</span>
+              </div>
+              <div class="fgts-page__breakdown-row fgts-page__breakdown-row--total">
+                <span>{{ t('fgts.results.projectedBalance') }}</span>
+                <span class="fgts-page__value--gross">{{ formatBrl(result.projectedBalance) }}</span>
+              </div>
+              <div v-if="result.fineAmount > 0" class="fgts-page__breakdown-row fgts-page__breakdown-row--bonus">
+                <span>{{ t('fgts.results.fineAmount') }}</span>
+                <span>+ {{ formatBrl(result.fineAmount) }}</span>
+              </div>
+              <div v-if="result.governmentFineAmount > 0" class="fgts-page__breakdown-row">
+                <span>{{ t('fgts.results.governmentFineAmount') }}</span>
+                <span>{{ formatBrl(result.governmentFineAmount) }}</span>
+              </div>
+              <div class="fgts-page__breakdown-row fgts-page__breakdown-row--net">
+                <span>{{ t('fgts.results.withdrawableAmount') }}</span>
+                <span :class="result.canWithdraw ? 'fgts-page__value--positive' : 'fgts-page__value--muted'">
+                  {{ result.canWithdraw ? formatBrl(result.withdrawableAmount) : t('fgts.results.cannotWithdraw') }}
+                </span>
+              </div>
+            </div>
+          </UiSurfaceCard>
+        </template>
 
+        <template #scenario>
+          <p class="fgts-page__scenario-note">
+            A barra resume a composição entre saldo projetado, multa rescisória e saque disponível.
+          </p>
+        </template>
+
+        <template #formula>
+          <ul class="fgts-page__formula-list">
+            <li>Depósito mensal: salário bruto multiplicado por 8%.</li>
+            <li>Saldo projetado: saldo atual somado aos depósitos mensais com correção anual.</li>
+            <li>Multa: 40% sem justa causa, 20% por acordo e zero nas demais modalidades.</li>
+          </ul>
+        </template>
+
+        <template #actions>
+          <template v-if="result">
             <ToolSaveResult
               intent="receivable"
               :label="t('fgts.hero.title')"
               :amount="result.withdrawableAmount"
             />
 
-            <!-- Action bar -->
             <UiSurfaceCard class="fgts-page__action-bar">
               <NSpace vertical :size="8">
                 <NButton
@@ -356,15 +373,14 @@ const summaryMetrics = computed(() => {
               </NSpace>
             </UiSurfaceCard>
 
-            <!-- Disclaimer -->
             <UiSurfaceCard>
               <NAlert type="warning">
                 {{ t('fgts.disclaimer.legal', { year: FGTS_TABLE_YEAR }) }}
               </NAlert>
             </UiSurfaceCard>
           </template>
-        </div>
-      </div>
+        </template>
+      </LaborCalculatorMarketPulsePage>
     </div>
         <!-- Guest CTA — shown below result for unauthenticated users -->
         <ToolGuestCta v-if="!isAuthenticated" />
@@ -382,31 +398,6 @@ const summaryMetrics = computed(() => {
   background: var(--color-bg-base);
 }
 
-.fgts-page--authenticated {
-  padding: var(--space-6, 24px);
-}
-
-.fgts-page__layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-6, 24px);
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-@media (max-width: 768px) {
-  .fgts-page__layout {
-    grid-template-columns: 1fr;
-  }
-}
-
-.fgts-page__form-col,
-.fgts-page__results-col {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4, 16px);
-}
-
 .fgts-page__form-panel {
   width: 100%;
 }
@@ -417,83 +408,22 @@ const summaryMetrics = computed(() => {
   margin-top: var(--space-4, 16px);
 }
 
-.fgts-page__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--space-4, 16px) var(--space-6, 24px);
-  border-bottom: 1px solid var(--color-outline-subtle);
-  background: var(--color-bg-elevated);
+.fgts-page__summary-card {
+  display: contents;
 }
 
-.fgts-page__brand {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2, 8px);
+.fgts-page__scenario-note,
+.fgts-page__formula-list {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.55;
 }
 
-.fgts-page__brand-mark {
-  font-weight: var(--font-weight-bold, 700);
-  font-size: var(--font-size-body-md, 15px);
-  color: var(--color-text-primary);
-}
-
-.fgts-page__brand-copy {
-  font-size: var(--font-size-body-xs, 11px);
-  color: var(--color-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.fgts-page__header-actions {
-  display: flex;
-  gap: var(--space-2, 8px);
-}
-
-.fgts-page__content {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: var(--space-8, 32px) var(--space-6, 24px);
-}
-
-.fgts-page__hero {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-8, 32px);
-  align-items: start;
-  margin-bottom: var(--space-8, 32px);
-}
-
-@media (max-width: 768px) {
-  .fgts-page__hero {
-    grid-template-columns: 1fr;
-  }
-}
-
-.fgts-page__hero-copy {
+.fgts-page__formula-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3, 12px);
-}
-
-.fgts-page__results-section {
-  margin-top: var(--space-6, 24px);
-}
-
-.fgts-page__results-main,
-.fgts-page__results-aside {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4, 16px);
-}
-
-.fgts-page__section-title {
-  font-weight: var(--font-weight-semibold, 600);
-  font-size: var(--font-size-body-sm, 13px);
-  color: var(--color-text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 0 0 var(--space-3, 12px) 0;
+  gap: 8px;
+  padding-left: 18px;
 }
 
 .fgts-page__breakdown {
