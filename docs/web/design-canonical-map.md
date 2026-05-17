@@ -24,18 +24,18 @@ As evidências iniciais da auditoria estão anexadas na issue canônica:
 
 ## Superfícies principais
 
-| Rota/app surface    | Protótipo canônico                 | Status                  | Observação                                                                                      |
-| ------------------- | ---------------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------- |
-| `/`                 | `landing_page.html`                | Canônico                | Landing pública revamp com foundation compartilhada.                                            |
-| `/login`            | `login_page.html`                  | Canônico                | Usa `_revamp_foundation.css`; manter copy e painel simples.                                     |
-| `/register`         | `signup_page.html`                 | Canônico                | Usa `_revamp_foundation.css`; manter auth shell.                                                |
-| `/forgot-password`  | `financial_goals_page.html`        | Misnamed canonical      | O arquivo se chama metas, mas o conteúdo é recuperação de senha.                                |
-| `/dashboard`        | `dashboard_page.html`              | Canônico                | Dashboard Market Pulse. `forgot_password_page.html` é duplicado/misnamed do dashboard.          |
-| `/goals`            | `investments_wallet_page.html`     | Misnamed canonical      | O conteúdo real é Metas Financeiras. `tools_home_page.html` duplica esta superfície.            |
-| `/portfolio`        | `tools_net_salary_calculator.html` | Misnamed canonical      | O conteúdo real é Carteira de Investimentos; inclui acentos de alerta sem abandonar azul/ciano. |
-| `/investor-profile` | Nenhum                             | Sem canônico azul/ciano | `investor_questionnaire_page.html` é legado dourado/marrom e não deve guiar implementação.      |
-| `/about`            | `about_us_page.html`               | Canônico                | `platform_changelog.html` duplica o conteúdo de Sobre Nós.                                      |
-| `/changelog`        | Nenhum                             | Ausente                 | `platform_changelog.html` não é changelog real; tratar em issue própria.                        |
+| Rota/app surface    | Protótipo canônico                 | Status                | Observação                                                                                      |
+| ------------------- | ---------------------------------- | --------------------- | ----------------------------------------------------------------------------------------------- |
+| `/`                 | `landing_page.html`                | Canônico              | Landing pública revamp com foundation compartilhada.                                            |
+| `/login`            | `login_page.html`                  | Canônico              | Usa `_revamp_foundation.css`; manter copy e painel simples.                                     |
+| `/register`         | `signup_page.html`                 | Canônico              | Usa `_revamp_foundation.css`; manter auth shell.                                                |
+| `/forgot-password`  | `financial_goals_page.html`        | Misnamed canonical    | O arquivo se chama metas, mas o conteúdo é recuperação de senha.                                |
+| `/dashboard`        | `dashboard_page.html`              | Canônico              | Dashboard Market Pulse. `forgot_password_page.html` é duplicado/misnamed do dashboard.          |
+| `/goals`            | `investments_wallet_page.html`     | Misnamed canonical    | O conteúdo real é Metas Financeiras. `tools_home_page.html` duplica esta superfície.            |
+| `/portfolio`        | `tools_net_salary_calculator.html` | Misnamed canonical    | O conteúdo real é Carteira de Investimentos; inclui acentos de alerta sem abandonar azul/ciano. |
+| `/investor-profile` | `app/pages/investor-profile.vue`   | Canônico na aplicação | `investor_questionnaire_page.html` segue legado dourado/marrom e não deve guiar implementação.  |
+| `/about`            | `about_us_page.html`               | Canônico              | `platform_changelog.html` duplica o conteúdo de Sobre Nós.                                      |
+| `/changelog`        | Nenhum                             | Ausente               | `platform_changelog.html` não é changelog real; tratar em issue própria.                        |
 
 ## Ferramentas públicas
 
@@ -65,7 +65,7 @@ As evidências iniciais da auditoria estão anexadas na issue canônica:
 ## Ordem de execução das issues de paridade
 
 1. `auraxis-web#821` — manter este mapa como fonte operacional antes de iniciar novas telas.
-2. `auraxis-web#824` — Perfil do investidor: criar/implementar versão azul/ciano; não usar o protótipo dourado.
+2. `auraxis-web#824` — Perfil do investidor: versão azul/ciano Market Pulse implementada na aplicação; manter o protótipo dourado fora do escopo.
 3. `auraxis-web#825` — Calculadoras trabalhistas: alinhar Férias, FGTS, Rescisão, Hora Extra, Salário Líquido e 13º usando os arquivos misnamed acima.
 4. `auraxis-web#826` — Lacunas de rotas/designs: catálogo de ferramentas, changelog, installment-vs-cash, dividir conta e demais rotas sem HTML canônico.
 

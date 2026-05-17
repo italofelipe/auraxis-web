@@ -286,8 +286,8 @@
       "createdAt": "2026-04-03",
       "removeBy": "2027-12-31",
       "type": "release",
-      "status": "draft",
-      "description": "Página de perfil do investidor (questionário). Freezada para MVP.",
+      "status": "enabled-prod",
+      "description": "Página de perfil do investidor (questionário) no design canônico azul/ciano Market Pulse.",
       "repositories": ["auraxis-web"]
     },
     {
