@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { NConfigProvider, NMessageProvider, NDialogProvider } from "naive-ui";
+import CookieConsentBanner from "~/components/privacy/CookieConsentBanner.vue";
 import { useNaiveTheme } from "~/composables/useNaiveTheme";
 import { useTheme } from "~/composables/useTheme";
 
@@ -26,6 +27,7 @@ const { naiveTheme } = useTheme();
         <NuxtLayout>
           <NuxtPage />
         </NuxtLayout>
+        <CookieConsentBanner />
       </NDialogProvider>
     </NMessageProvider>
   </NConfigProvider>

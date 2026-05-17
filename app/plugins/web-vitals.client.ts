@@ -1,6 +1,10 @@
 import { onCLS, onFCP, onINP, onLCP, onTTFB, type Metric } from "web-vitals";
 import posthog from "posthog-js";
 import * as Sentry from "@sentry/nuxt";
+import {
+  canUseAnalyticsCookies,
+  subscribeToCookieConsentChanges,
+} from "~/shared/privacy/cookie-consent";
 
 /**
  * Core Web Vitals metric names we track.
@@ -100,11 +104,25 @@ export function reportToSentry(payload: WebVitalPayload): void {
  * Emits the metric to every configured sink. Exported for unit testing.
  *
  * @param metric Metric object from a web-vitals reporter.
+ * @param analyticsAllowed Whether analytics consent is currently granted.
  */
-export function emit(metric: Metric): void {
+export function emit(metric: Metric, analyticsAllowed = canUseAnalyticsCookies()): void {
+  if (!analyticsAllowed) {
+    return;
+  }
+
   const payload = toPayload(metric);
   reportToPostHog(payload);
   reportToSentry(payload);
+}
+
+/** Registers Core Web Vitals reporters with the consent-aware emitter. */
+export function registerWebVitalsReporters(): void {
+  onCLS(emit);
+  onLCP(emit);
+  onINP(emit);
+  onFCP(emit);
+  onTTFB(emit);
 }
 
 /**
@@ -115,10 +133,19 @@ export function emit(metric: Metric): void {
  */
 /* v8 ignore start */
 export default defineNuxtPlugin(() => {
-  onCLS(emit);
-  onLCP(emit);
-  onINP(emit);
-  onFCP(emit);
-  onTTFB(emit);
+  let registered = false;
+
+  /** Registers reporters once analytics consent is available. */
+  const registerWhenAllowed = (): void => {
+    if (registered || !canUseAnalyticsCookies()) {
+      return;
+    }
+
+    registered = true;
+    registerWebVitalsReporters();
+  };
+
+  registerWhenAllowed();
+  subscribeToCookieConsentChanges(registerWhenAllowed);
 });
 /* v8 ignore stop */

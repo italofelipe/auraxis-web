@@ -114,9 +114,9 @@ describe("emit", () => {
     mockSetTag.mockClear();
   });
 
-  it("forwards the metric to PostHog and Sentry", async () => {
+  it("forwards the metric to PostHog and Sentry when analytics consent is granted", async () => {
     const { emit } = await import("../../app/plugins/web-vitals.client");
-    emit(baseMetric({ name: "FCP", value: 900 }));
+    emit(baseMetric({ name: "FCP", value: 900 }), true);
     expect(mockCapture).toHaveBeenCalledTimes(1);
     expect(mockSetMeasurement).toHaveBeenCalledTimes(1);
     expect(mockSetTag).toHaveBeenCalledTimes(1);
