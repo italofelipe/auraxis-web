@@ -5,9 +5,10 @@ import {
   getInsightPresentation,
   isPreviousMonthInsight,
   mapAIInsightDto,
+  mapGeneratedInsight,
   parseInsightItems,
 } from "./ai-insight";
-import type { AIInsightDTO } from "~/features/ai-insights/contracts/ai-insight";
+import type { AIInsightDTO, InsightItem } from "~/features/ai-insights/contracts/ai-insight";
 
 /**
  * Builds a valid AIInsightDTO fixture for model tests.
@@ -48,6 +49,26 @@ describe("AI insight model", () => {
     ]);
   });
 
+  it("parses backend JSON content wrapped in a Markdown code fence", () => {
+    const items = parseInsightItems(`\`\`\`json
+[
+  {
+    "type": "orcamento_ultrapassado",
+    "title": "Orçamento em atenção",
+    "message": "A categoria Mercado passou do limite planejado."
+  }
+]
+\`\`\``);
+
+    expect(items).toEqual([
+      {
+        type: "orcamento_ultrapassado",
+        title: "Orçamento em atenção",
+        message: "A categoria Mercado passou do limite planejado.",
+      },
+    ]);
+  });
+
   it("returns a safe fallback when backend content is malformed", () => {
     const items = parseInsightItems("not-json");
 
@@ -74,6 +95,44 @@ describe("AI insight model", () => {
     expect(mapped.items[0]?.title).toBe("Delivery em alta");
   });
 
+  it("prefers structured history items when the backend includes them", () => {
+    const items: InsightItem[] = [
+      {
+        type: "alerta_meta",
+        title: "Meta em risco",
+        message: "Seu ritmo atual está abaixo do necessário para bater a meta.",
+      },
+    ];
+    const dto = { ...makeDto({ content: "not-json" }), items };
+
+    const mapped = mapAIInsightDto(dto);
+
+    expect(mapped.items).toEqual(items);
+  });
+
+  it("prefers structured generated items instead of parsing the legacy insights string", () => {
+    const items: InsightItem[] = [
+      {
+        type: "savings_rate_gap",
+        title: "Taxa de poupança abaixo do plano",
+        message: "Você precisa poupar mais 8% da renda para atingir o objetivo.",
+      },
+    ];
+
+    const mapped = mapGeneratedInsight({
+      insights: "not-json",
+      items,
+      month: "2026-05",
+      model: "gpt-4o-mini",
+      tokens_used: 180,
+      cost_usd: 0.00003,
+      cached: false,
+      callsRemaining: 1,
+    });
+
+    expect(mapped.items).toEqual(items);
+  });
+
   it("formats monthly and daily period labels for PT-BR UI", () => {
     expect(formatInsightPeriod("2026-05")).toBe("maio de 2026");
     expect(formatInsightPeriod("2026-05-12")).toBe("12/05/2026");
@@ -90,6 +149,14 @@ describe("AI insight model", () => {
     expect(getInsightPresentation("oportunidade_economia")).toMatchObject({
       tone: "success",
       label: "Oportunidade",
+    });
+    expect(getInsightPresentation("alerta_meta")).toMatchObject({
+      tone: "warning",
+      label: "Alerta de meta",
+    });
+    expect(getInsightPresentation("savings_rate_gap")).toMatchObject({
+      tone: "danger",
+      label: "Taxa de poupança",
     });
     expect(getInsightPresentation("unknown")).toMatchObject({
       tone: "neutral",

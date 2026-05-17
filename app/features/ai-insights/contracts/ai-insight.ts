@@ -9,6 +9,7 @@ export interface InsightItem {
 export interface AIInsightDTO {
   readonly id: string;
   readonly content: string;
+  readonly items?: InsightItem[];
   readonly insight_type: InsightType;
   readonly period_label: string;
   readonly period_start: string;
@@ -21,6 +22,7 @@ export interface AIInsightDTO {
 
 export interface GenerateInsightResponseDTO {
   readonly insights: string;
+  readonly items?: InsightItem[];
   readonly tokens_used: number;
   readonly cost_usd: number;
   readonly month: string;
