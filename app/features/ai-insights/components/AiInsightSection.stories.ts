@@ -14,7 +14,7 @@ type Story = StoryObj<typeof AiInsightSection>;
 
 export const Default: Story = {
   args: {
-    month: "2026-05",
+    periodLabel: "2026-05",
     isStale: false,
     model: "gpt-4o-mini",
     tokensUsed: 320,
@@ -22,11 +22,13 @@ export const Default: Story = {
     insight: [
       {
         type: "orcamento_ultrapassado",
+        dimension: "budgets",
         title: "Orçamento em atenção",
         message: "A categoria Mercado passou do limite planejado.",
       },
       {
         type: "savings_rate_gap",
+        dimension: "general",
         title: "Taxa de poupança abaixo do plano",
         message: "Você precisa poupar mais 8% da renda para atingir o objetivo.",
       },
@@ -37,7 +39,7 @@ export const Default: Story = {
 export const Stale: Story = {
   args: {
     ...Default.args,
-    month: "2026-04",
+    periodLabel: "2026-04",
     isStale: true,
   },
 };

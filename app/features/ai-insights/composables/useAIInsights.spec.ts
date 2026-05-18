@@ -21,10 +21,19 @@ describe("useAIInsights", () => {
 
   it("parses generated insights and stores metadata for rendering", async () => {
     const mutateAsync = vi.fn().mockResolvedValue({
-      insights: JSON.stringify([
-        { type: "saude_financeira", title: "Saldo positivo", message: "Seu saldo fechou no azul." },
-      ]),
-      month: "2026-05",
+      summary: "Resumo diário",
+      items: [
+        {
+          type: "saude_financeira",
+          dimension: "general",
+          title: "Saldo positivo",
+          message: "Seu saldo fechou no azul.",
+        },
+      ],
+      period_type: "daily",
+      period_label: "2026-05-18",
+      period_start: "2026-05-18",
+      period_end: "2026-05-18",
       model: "gpt-4o-mini",
       tokens_used: 180,
       cost_usd: 0.00003,
@@ -37,13 +46,14 @@ describe("useAIInsights", () => {
       mutation: { mutateAsync, isPending: ref(false), error: ref(null) },
     } as never);
 
-    const result = await composable.generate({ month: "2026-05" });
+    const result = await composable.generate({ periodType: "daily", anchorDate: "2026-05-18" });
 
-    expect(mutateAsync).toHaveBeenCalledWith({ month: "2026-05" });
+    expect(mutateAsync).toHaveBeenCalledWith({ periodType: "daily", anchorDate: "2026-05-18" });
     expect(result?.items[0]?.title).toBe("Saldo positivo");
     expect(composable.currentInsight.value?.[0]?.message).toContain("saldo");
     expect(composable.callsRemaining.value).toBe(1);
     expect(composable.insightModel.value).toBe("gpt-4o-mini");
+    expect(composable.insightPeriodLabel.value).toBe("2026-05-18");
   });
 
   it("delegates AI consent grant to the consent mutation", async () => {

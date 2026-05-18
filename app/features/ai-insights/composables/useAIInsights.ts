@@ -47,6 +47,7 @@ type DerivedAIInsightState = Pick<
   | "isLoading"
   | "isGrantingAIConsent"
   | "currentInsight"
+  | "insightPeriodLabel"
   | "insightMonth"
   | "insightModel"
   | "tokensUsed"
@@ -73,6 +74,7 @@ export interface UseAIInsightsResult {
   readonly hasAIConsent: () => Promise<boolean>;
   readonly grantAIConsent: () => Promise<void>;
   readonly isGrantingAIConsent: ComputedRef<boolean>;
+  readonly insightPeriodLabel: ComputedRef<string>;
   readonly insightMonth: ComputedRef<string>;
   readonly insightModel: ComputedRef<string>;
   readonly tokensUsed: ComputedRef<number>;
@@ -172,12 +174,13 @@ const createDerivedState = (args: CreateDerivedStateArgs): DerivedAIInsightState
   isLoading: computed(() => args.mutation.isPending.value),
   isGrantingAIConsent: computed(() => args.consentMutation.isPending.value),
   currentInsight: computed(() => args.currentResult.value?.items ?? null),
-  insightMonth: computed(() => args.currentResult.value?.month ?? getCurrentMonth()),
+  insightPeriodLabel: computed(() => args.currentResult.value?.periodLabel ?? getCurrentMonth()),
+  insightMonth: computed(() => args.currentResult.value?.periodLabel ?? getCurrentMonth()),
   insightModel: computed(() => args.currentResult.value?.model ?? ""),
   tokensUsed: computed(() => args.currentResult.value?.tokensUsed ?? 0),
   costUsd: computed(() => args.currentResult.value?.costUsd ?? 0),
   cached: computed(() => args.currentResult.value?.cached ?? false),
-  isStale: computed(() => isPreviousMonthInsight(args.currentResult.value?.month ?? getCurrentMonth())),
+  isStale: computed(() => isPreviousMonthInsight(args.currentResult.value?.periodLabel ?? getCurrentMonth())),
 });
 
 /**
@@ -240,6 +243,7 @@ export const useAIInsights = (deps?: UseAIInsightsDeps): UseAIInsightsResult => 
     hasAIConsent: hasAIConsentStatus,
     grantAIConsent,
     isGrantingAIConsent: state.isGrantingAIConsent,
+    insightPeriodLabel: state.insightPeriodLabel,
     insightMonth: state.insightMonth,
     insightModel: state.insightModel,
     tokensUsed: state.tokensUsed,

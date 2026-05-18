@@ -21,6 +21,7 @@ import { useCreateBudgetMutation } from "~/features/budgets/queries/use-create-b
 import { useUpdateBudgetMutation } from "~/features/budgets/queries/use-update-budget-mutation";
 import { useDeleteBudgetMutation } from "~/features/budgets/queries/use-delete-budget-mutation";
 import { useTagsQuery } from "~/features/tags/queries/use-tags-query";
+import AiInsightSurface from "~/features/ai-insights/components/AiInsightSurface.vue";
 import type { BudgetDto, CreateBudgetPayload, BudgetPeriod } from "~/features/budgets/contracts/budget.contracts";
 
 const { t } = useI18n();
@@ -224,6 +225,8 @@ const onDeleteBudget = (id: string): void => {
     />
 
     <template v-else>
+      <AiInsightSurface dimension="budgets" />
+
       <!-- Summary bar -->
       <NCard v-if="allBudgets.length > 0" class="budgets-page__summary-card" :bordered="true">
         <div class="budgets-page__summary-stats">

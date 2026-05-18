@@ -3,8 +3,10 @@ import type { AxiosInstance } from "axios";
 import { useHttp } from "~/composables/useHttp";
 import type {
   AIInsightHistoryDTO,
+  GenerateInsightRequestDTO,
   GenerateInsightResponseDTO,
   GenerateInsightResponseWithMetaDTO,
+  InsightPeriodType,
   V2EnvelopeDTO,
 } from "~/features/ai-insights/contracts/ai-insight";
 
@@ -70,15 +72,25 @@ export class AIInsightsApiClient {
   }
 
   /**
-   * Generates or retrieves the cached spending insight for the target month.
+   * Generates or retrieves the cached insight for the requested backend period.
    *
-   * @param month Optional YYYY-MM month filter.
+   * @param variables Period generation variables.
+   * @param variables.periodType Daily, weekly or monthly insight granularity.
+   * @param variables.anchorDate Optional YYYY-MM-DD anchor date for the period.
    * @returns Generated insight payload plus remaining daily call count.
    */
-  async generateSpendingInsight(month?: string): Promise<GenerateInsightResponseWithMetaDTO> {
-    const response = await this.#http.get<V2EnvelopeDTO<GenerateInsightResponseDTO>>(
-      "/ai/insights/spending",
-      { params: month ? { month } : undefined },
+  async generateInsight(variables: {
+    readonly periodType: InsightPeriodType;
+    readonly anchorDate?: string;
+  }): Promise<GenerateInsightResponseWithMetaDTO> {
+    const payload: GenerateInsightRequestDTO = {
+      period_type: variables.periodType,
+      ...(variables.anchorDate ? { anchor_date: variables.anchorDate } : {}),
+    };
+
+    const response = await this.#http.post<V2EnvelopeDTO<GenerateInsightResponseDTO>>(
+      "/ai/insights/generate",
+      payload,
     );
     const data = unwrap<GenerateInsightResponseDTO>(response.data);
 
@@ -86,6 +98,20 @@ export class AIInsightsApiClient {
       ...data,
       callsRemaining: parseCallsRemaining(response.headers["x-ai-calls-remaining"]),
     };
+  }
+
+  /**
+   * Legacy adapter kept for older callers while the UI migrates to period-aware
+   * insights. New surfaces should call {@link generateInsight}.
+   *
+   * @param month Optional YYYY-MM period label.
+   * @returns Monthly generated insight payload.
+   */
+  async generateSpendingInsight(month?: string): Promise<GenerateInsightResponseWithMetaDTO> {
+    return this.generateInsight({
+      periodType: "monthly",
+      ...(month ? { anchorDate: `${month}-01` } : {}),
+    });
   }
 
   /**

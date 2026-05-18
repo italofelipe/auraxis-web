@@ -21,6 +21,7 @@ const makeDto = (overrides: Partial<AIInsightDTO> = {}): AIInsightDTO => ({
   content: JSON.stringify([
     {
       type: "gasto_elevado",
+      dimension: "transactions",
       title: "Delivery em alta",
       message: "Pedidos por aplicativo subiram 32% no período.",
     },
@@ -43,6 +44,7 @@ describe("AI insight model", () => {
     expect(items).toEqual([
       {
         type: "gasto_elevado",
+        dimension: "transactions",
         title: "Delivery em alta",
         message: "Pedidos por aplicativo subiram 32% no período.",
       },
@@ -63,6 +65,7 @@ describe("AI insight model", () => {
     expect(items).toEqual([
       {
         type: "orcamento_ultrapassado",
+        dimension: "general",
         title: "Orçamento em atenção",
         message: "A categoria Mercado passou do limite planejado.",
       },
@@ -75,6 +78,7 @@ describe("AI insight model", () => {
     expect(items).toEqual([
       {
         type: "saude_financeira",
+        dimension: "general",
         title: "Insight indisponível",
         message: "Não conseguimos interpretar este insight agora.",
       },
@@ -87,6 +91,7 @@ describe("AI insight model", () => {
     expect(mapped).toMatchObject({
       id: "insight-1",
       insightType: "monthly",
+      periodType: "monthly",
       periodLabel: "2026-05",
       model: "gpt-4o-mini",
       tokensUsed: 320,
@@ -99,6 +104,7 @@ describe("AI insight model", () => {
     const items: InsightItem[] = [
       {
         type: "alerta_meta",
+        dimension: "goals",
         title: "Meta em risco",
         message: "Seu ritmo atual está abaixo do necessário para bater a meta.",
       },
@@ -114,15 +120,19 @@ describe("AI insight model", () => {
     const items: InsightItem[] = [
       {
         type: "savings_rate_gap",
+        dimension: "general",
         title: "Taxa de poupança abaixo do plano",
         message: "Você precisa poupar mais 8% da renda para atingir o objetivo.",
       },
     ];
 
     const mapped = mapGeneratedInsight({
-      insights: "not-json",
+      summary: "Resumo mensal",
       items,
-      month: "2026-05",
+      period_type: "monthly",
+      period_label: "2026-05",
+      period_start: "2026-05-01",
+      period_end: "2026-05-31",
       model: "gpt-4o-mini",
       tokens_used: 180,
       cost_usd: 0.00003,
@@ -131,6 +141,37 @@ describe("AI insight model", () => {
     });
 
     expect(mapped.items).toEqual(items);
+    expect(mapped.summary).toBe("Resumo mensal");
+    expect(mapped.periodType).toBe("monthly");
+    expect(mapped.periodLabel).toBe("2026-05");
+  });
+
+  it("falls back legacy items without dimension to general", () => {
+    const mapped = mapAIInsightDto(
+      makeDto({
+        content: JSON.stringify({
+          summary: "Resumo legado",
+          items: [
+            {
+              type: "padrao_gasto",
+              title: "Assinaturas recorrentes",
+              message: "Há cobranças recorrentes para revisar.",
+            },
+          ],
+        }),
+        items: undefined,
+      }),
+    );
+
+    expect(mapped.items).toEqual([
+      {
+        type: "padrao_gasto",
+        dimension: "general",
+        title: "Assinaturas recorrentes",
+        message: "Há cobranças recorrentes para revisar.",
+      },
+    ]);
+    expect(mapped.summary).toBe("Resumo legado");
   });
 
   it("formats monthly and daily period labels for PT-BR UI", () => {

@@ -18,7 +18,7 @@ const INVALIDATION_KEYS: QueryKey[] = [
 ];
 
 /**
- * Mutation hook for generating a spending insight with rate-limit metadata.
+ * Mutation hook for generating a period-aware insight with rate-limit metadata.
  *
  * @param providedClient Optional injected API client for tests.
  * @param options Optional invalidation adapter for tests.
@@ -51,7 +51,10 @@ export const useGenerateAIInsight = (
   };
 
   return useMutation<GenerateInsightResponseWithMetaDTO, ApiError, GenerateAIInsightVariables | undefined>({
-    mutationFn: (variables) => client.generateSpendingInsight(variables?.month),
+    mutationFn: (variables) => client.generateInsight({
+      periodType: variables?.periodType ?? "daily",
+      ...(variables?.anchorDate ? { anchorDate: variables.anchorDate } : {}),
+    }),
     onSuccess: async (): Promise<void> => {
       await Promise.all(INVALIDATION_KEYS.map((queryKey) => invalidate(queryKey)));
     },

@@ -1,6 +1,8 @@
 import type {
   AIInsightDTO,
+  InsightDimension,
   InsightItem,
+  InsightPeriodType,
   InsightType,
   GenerateInsightResponseWithMetaDTO,
 } from "~/features/ai-insights/contracts/ai-insight";
@@ -14,8 +16,10 @@ export interface InsightPresentation {
 
 export interface AIInsight {
   readonly id: string;
+  readonly summary: string;
   readonly items: InsightItem[];
   readonly insightType: InsightType;
+  readonly periodType: InsightPeriodType;
   readonly periodLabel: string;
   readonly periodStart: string;
   readonly periodEnd: string;
@@ -26,12 +30,17 @@ export interface AIInsight {
 }
 
 export interface GenerateAIInsightVariables {
-  readonly month?: string;
+  readonly periodType?: InsightPeriodType;
+  readonly anchorDate?: string;
 }
 
 export interface GeneratedAIInsight {
+  readonly summary: string;
   readonly items: InsightItem[];
-  readonly month: string;
+  readonly periodType: InsightPeriodType;
+  readonly periodLabel: string;
+  readonly periodStart: string;
+  readonly periodEnd: string;
   readonly model: string;
   readonly tokensUsed: number;
   readonly costUsd: number;
@@ -41,9 +50,20 @@ export interface GeneratedAIInsight {
 
 export const FALLBACK_INSIGHT_ITEM: InsightItem = {
   type: "saude_financeira",
+  dimension: "general",
   title: "Insight indisponível",
   message: "Não conseguimos interpretar este insight agora.",
 };
+
+const DEFAULT_INSIGHT_DIMENSION: InsightDimension = "general";
+
+const INSIGHT_DIMENSIONS = new Set<InsightDimension>([
+  "general",
+  "transactions",
+  "credit_cards",
+  "goals",
+  "budgets",
+]);
 
 const INSIGHT_PRESENTATION: Record<string, InsightPresentation> = {
   gasto_elevado: { label: "Gasto elevado", tone: "danger" },
@@ -73,7 +93,7 @@ const TYPE_LABELS: Record<InsightType, string> = {
  * @param value Candidate value parsed from JSON.
  * @returns True when the value is a valid InsightItem.
  */
-const isInsightItem = (value: unknown): value is InsightItem => {
+const isRawInsightItem = (value: unknown): value is InsightItem => {
   if (value === null || typeof value !== "object") {
     return false;
   }
@@ -84,6 +104,26 @@ const isInsightItem = (value: unknown): value is InsightItem => {
     typeof candidate.title === "string" &&
     typeof candidate.message === "string"
   );
+};
+
+/**
+ * Normalizes backend and legacy item payloads into the canonical UI contract.
+ *
+ * @param item Backend insight item, possibly missing dimension.
+ * @returns Insight item with a valid dimension.
+ */
+const normalizeInsightItem = (item: InsightItem): InsightItem => {
+  const dimension = INSIGHT_DIMENSIONS.has(item.dimension as InsightDimension)
+    ? item.dimension as InsightDimension
+    : DEFAULT_INSIGHT_DIMENSION;
+
+  return {
+    type: item.type,
+    dimension,
+    title: item.title,
+    message: item.message,
+    ...(item.evidence ? { evidence: [...item.evidence] } : {}),
+  };
 };
 
 /**
@@ -121,11 +161,61 @@ const stripMarkdownJsonFence = (content: string): string => {
 const normalizeStructuredInsightItems = (
   items: readonly InsightItem[] | undefined,
 ): InsightItem[] | null => {
-  if (Array.isArray(items) && items.length > 0 && items.every(isInsightItem)) {
-    return [...items];
+  if (Array.isArray(items) && items.length > 0 && items.every(isRawInsightItem)) {
+    return items.map(normalizeInsightItem);
   }
 
   return null;
+};
+
+interface ParsedInsightContent {
+  readonly summary: string;
+  readonly items: InsightItem[];
+}
+
+/**
+ * Extracts structured items from the JSON payload stored by older API paths.
+ *
+ * @param parsed Parsed JSON value.
+ * @returns Parsed content when it contains valid items.
+ */
+const resolveParsedContent = (parsed: unknown): ParsedInsightContent | null => {
+  if (Array.isArray(parsed) && parsed.every(isRawInsightItem) && parsed.length > 0) {
+    return { summary: "", items: parsed.map(normalizeInsightItem) };
+  }
+
+  if (parsed !== null && typeof parsed === "object") {
+    const candidate = parsed as Record<string, unknown>;
+    const items = normalizeStructuredInsightItems(candidate.items as InsightItem[] | undefined);
+    if (items) {
+      return {
+        summary: typeof candidate.summary === "string" ? candidate.summary : "",
+        items,
+      };
+    }
+  }
+
+  return null;
+};
+
+/**
+ * Parses the JSON string stored by the backend into summary + renderable items.
+ *
+ * @param content JSON string returned by the backend.
+ * @returns Parsed insight content or a safe fallback.
+ */
+const parseInsightContent = (content: string): ParsedInsightContent => {
+  try {
+    const parsed = JSON.parse(stripMarkdownJsonFence(content)) as unknown;
+    const resolved = resolveParsedContent(parsed);
+    if (resolved) {
+      return resolved;
+    }
+  } catch {
+    // Falls through to a deterministic UI-safe fallback.
+  }
+
+  return { summary: "", items: [FALLBACK_INSIGHT_ITEM] };
 };
 
 /**
@@ -135,16 +225,7 @@ const normalizeStructuredInsightItems = (
  * @returns Valid insight items or a safe fallback item.
  */
 export const parseInsightItems = (content: string): InsightItem[] => {
-  try {
-    const parsed = JSON.parse(stripMarkdownJsonFence(content)) as unknown;
-    if (Array.isArray(parsed) && parsed.every(isInsightItem) && parsed.length > 0) {
-      return parsed;
-    }
-  } catch {
-    // Falls through to a deterministic UI-safe fallback.
-  }
-
-  return [FALLBACK_INSIGHT_ITEM];
+  return parseInsightContent(content).items;
 };
 
 /**
@@ -167,8 +248,10 @@ const resolveInsightItems = (
  */
 export const mapAIInsightDto = (dto: AIInsightDTO): AIInsight => ({
   id: dto.id,
+  summary: typeof dto.content === "string" ? parseInsightContent(dto.content).summary : "",
   items: resolveInsightItems(dto.items, dto.content),
   insightType: dto.insight_type,
+  periodType: dto.period_type ?? (dto.insight_type === "recap" ? "monthly" : dto.insight_type),
   periodLabel: dto.period_label,
   periodStart: dto.period_start,
   periodEnd: dto.period_end,
@@ -187,8 +270,12 @@ export const mapAIInsightDto = (dto: AIInsightDTO): AIInsight => ({
 export const mapGeneratedInsight = (
   dto: GenerateInsightResponseWithMetaDTO,
 ): GeneratedAIInsight => ({
-  items: resolveInsightItems(dto.items, dto.insights),
-  month: dto.month,
+  summary: dto.summary,
+  items: normalizeStructuredInsightItems(dto.items) ?? [FALLBACK_INSIGHT_ITEM],
+  periodType: dto.period_type,
+  periodLabel: dto.period_label,
+  periodStart: dto.period_start,
+  periodEnd: dto.period_end,
   model: dto.model,
   tokensUsed: dto.tokens_used,
   costUsd: dto.cost_usd,

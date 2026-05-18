@@ -3,17 +3,29 @@ import { describe, expect, it, vi } from "vitest";
 import { AIInsightsApiClient } from "./ai-insights-api";
 
 describe("AIInsightsApiClient", () => {
-  it("requests spending insights with month params and exposes callsRemaining from header", async () => {
+  it("generates period-aware insights through the canonical endpoint", async () => {
     const http = {
-      get: vi.fn().mockResolvedValue({
+      post: vi.fn().mockResolvedValue({
         data: {
           success: true,
           message: "ok",
           data: {
-            insights: "[]",
+            summary: "Resumo do dia",
+            items: [
+              {
+                type: "saude_financeira",
+                dimension: "general",
+                title: "Saldo positivo",
+                message: "Você terminou o período no azul.",
+                evidence: ["current_period.paid.balance"],
+              },
+            ],
+            period_type: "daily",
+            period_label: "2026-05-18",
+            period_start: "2026-05-18",
+            period_end: "2026-05-18",
             tokens_used: 280,
             cost_usd: 0.000042,
-            month: "2026-05",
             model: "gpt-4o-mini",
             cached: false,
           },
@@ -23,24 +35,33 @@ describe("AIInsightsApiClient", () => {
     };
     const client = new AIInsightsApiClient(http as never);
 
-    const result = await client.generateSpendingInsight("2026-05");
+    const result = await client.generateInsight({
+      periodType: "daily",
+      anchorDate: "2026-05-18",
+    });
 
-    expect(http.get).toHaveBeenCalledWith("/ai/insights/spending", {
-      params: { month: "2026-05" },
+    expect(http.post).toHaveBeenCalledWith("/ai/insights/generate", {
+      period_type: "daily",
+      anchor_date: "2026-05-18",
     });
     expect(result.callsRemaining).toBe(1);
-    expect(result.insights).toBe("[]");
+    expect(result.period_type).toBe("daily");
+    expect(result.items[0]?.dimension).toBe("general");
   });
 
-  it("omits params when no month is provided", async () => {
+  it("does not send financial context from the browser when generating insights", async () => {
     const http = {
-      get: vi.fn().mockResolvedValue({
+      post: vi.fn().mockResolvedValue({
         data: {
           data: {
-            insights: "[]",
+            summary: "Resumo",
+            items: [],
+            period_type: "monthly",
+            period_label: "2026-05",
+            period_start: "2026-05-01",
+            period_end: "2026-05-31",
             tokens_used: 120,
             cost_usd: 0.00002,
-            month: "2026-05",
             model: "gpt-4o-mini",
             cached: true,
           },
@@ -50,11 +71,14 @@ describe("AIInsightsApiClient", () => {
     };
     const client = new AIInsightsApiClient(http as never);
 
-    await client.generateSpendingInsight();
+    await client.generateInsight({ periodType: "monthly" });
 
-    expect(http.get).toHaveBeenCalledWith("/ai/insights/spending", {
-      params: undefined,
+    expect(http.post).toHaveBeenCalledWith("/ai/insights/generate", {
+      period_type: "monthly",
     });
+    expect(http.post.mock.calls[0]?.[1]).not.toHaveProperty("transactions");
+    expect(http.post.mock.calls[0]?.[1]).not.toHaveProperty("accounts");
+    expect(http.post.mock.calls[0]?.[1]).not.toHaveProperty("context");
   });
 
   it("fetches paginated insight history from the backend envelope", async () => {
