@@ -1,0 +1,99 @@
+import { computed, toValue, type ComputedRef, type MaybeRefOrGetter } from "vue";
+
+import type { InsightDimension, InsightItem } from "~/features/ai-insights/contracts/ai-insight";
+
+export interface InsightDimensionGroup {
+  readonly dimension: InsightDimension;
+  readonly label: string;
+  readonly items: InsightItem[];
+}
+
+const DIMENSION_ORDER: readonly InsightDimension[] = [
+  "general",
+  "transactions",
+  "credit_cards",
+  "goals",
+  "budgets",
+];
+
+const DIMENSION_LABELS: Record<InsightDimension, string> = {
+  general: "Visão geral",
+  transactions: "Transações",
+  credit_cards: "Cartões",
+  goals: "Metas",
+  budgets: "Orçamentos",
+};
+
+/**
+ * Returns a safe insight item with a canonical dimension.
+ *
+ * @param item Insight item returned by backend or legacy mocks.
+ * @returns Item with dimension fallback.
+ */
+const normalizeDimension = (item: InsightItem): InsightItem => ({
+  ...item,
+  dimension: DIMENSION_ORDER.includes(item.dimension as InsightDimension)
+    ? item.dimension as InsightDimension
+    : "general",
+});
+
+/**
+ * Returns the display label for an insight dimension.
+ *
+ * @param dimension Insight dimension.
+ * @returns PT-BR dimension label.
+ */
+export const getInsightDimensionLabel = (dimension: InsightDimension): string => {
+  return DIMENSION_LABELS[dimension];
+};
+
+/**
+ * Filters insight items for a contextual surface. General insights are shown on
+ * every surface so global recommendations are not hidden.
+ *
+ * @param items Source insight items.
+ * @param dimension Contextual surface dimension.
+ * @returns Items matching general or the requested dimension.
+ */
+export const filterInsightItemsByDimension = (
+  items: readonly InsightItem[],
+  dimension: InsightDimension,
+): InsightItem[] => {
+  return items
+    .map(normalizeDimension)
+    .filter((item) => item.dimension === "general" || item.dimension === dimension);
+};
+
+/**
+ * Groups insight items for the hub in the product-defined canonical order.
+ *
+ * @param items Source insight items.
+ * @returns Non-empty groups in canonical order.
+ */
+export const groupInsightItemsByDimension = (
+  items: readonly InsightItem[],
+): InsightDimensionGroup[] => {
+  const normalized = items.map(normalizeDimension);
+
+  return DIMENSION_ORDER
+    .map((dimension) => ({
+      dimension,
+      label: getInsightDimensionLabel(dimension),
+      items: normalized.filter((item) => item.dimension === dimension),
+    }))
+    .filter((group) => group.items.length > 0);
+};
+
+/**
+ * Reactive adapter for pages/components that need contextual insight lists.
+ *
+ * @param items Source insight items ref/getter.
+ * @param dimension Target dimension ref/getter.
+ * @returns Computed filtered insight items.
+ */
+export const useInsightsByDimension = (
+  items: MaybeRefOrGetter<readonly InsightItem[]>,
+  dimension: MaybeRefOrGetter<InsightDimension>,
+): { readonly items: ComputedRef<InsightItem[]> } => ({
+  items: computed(() => filterInsightItemsByDimension(toValue(items), toValue(dimension))),
+});

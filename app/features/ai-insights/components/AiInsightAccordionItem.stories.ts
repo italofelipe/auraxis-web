@@ -22,7 +22,9 @@ export const Monthly: Story = {
   args: {
     item: {
       id: "insight-1",
+      summary: "Resumo mensal com saldo positivo e pontos de atenção.",
       insightType: "monthly",
+      periodType: "monthly",
       periodLabel: "2026-05",
       periodStart: "2026-05-01",
       periodEnd: "2026-05-31",
@@ -33,6 +35,7 @@ export const Monthly: Story = {
       items: [
         {
           type: "saude_financeira",
+          dimension: "general",
           title: "Saldo positivo",
           message: "Seu saldo do mês segue positivo, mesmo com aumento de gastos variáveis.",
         },

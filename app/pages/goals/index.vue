@@ -15,6 +15,7 @@ import { NButton } from "naive-ui";
 import { useGoalsQuery } from "~/features/goals/queries/use-goals-query";
 import { useCreateGoalMutation } from "~/features/goals/queries/use-create-goal-mutation";
 import { useUpdateGoalMutation } from "~/features/goals/queries/use-update-goal-mutation";
+import AiInsightSurface from "~/features/ai-insights/components/AiInsightSurface.vue";
 import type { GoalDto, GoalStatus, CreateGoalPayload } from "~/features/goals/contracts/goal.dto";
 import { formatCurrency } from "~/utils/currency";
 
@@ -433,6 +434,8 @@ const simulatedImpact = computed(() => {
     <UiPageLoader v-else-if="isLoading" :rows="4" :with-title="true" />
 
     <template v-else>
+      <AiInsightSurface dimension="goals" />
+
       <section id="action-highlights" class="mp-panel action-highlights">
         <div class="section-title">
           <span class="section-icon section-icon--cyan">

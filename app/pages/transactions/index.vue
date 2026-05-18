@@ -10,9 +10,7 @@ import { useTransactionTable } from "~/features/transactions/composables/useTran
 import TransactionToolbar from "~/features/transactions/components/TransactionToolbar.vue";
 import TransactionExportModal from "~/features/transactions/components/TransactionExportModal.vue";
 import TransactionPaymentModal from "~/features/transactions/components/TransactionPaymentModal.vue";
-import AiInsightButton from "~/features/ai-insights/components/AiInsightButton.vue";
-import AiInsightSection from "~/features/ai-insights/components/AiInsightSection.vue";
-import { useAIInsights } from "~/features/ai-insights/composables/useAIInsights";
+import AiInsightSurface from "~/features/ai-insights/components/AiInsightSurface.vue";
 import { formatCurrency } from "~/utils/currency";
 
 definePageMeta({
@@ -38,13 +36,6 @@ const showExportModal = ref(false);
 // ── Query ─────────────────────────────────────────────────────────────────────
 
 const { data, isLoading, isError, refetch } = useListTransactionsQuery(filters);
-const aiInsights = useAIInsights();
-const aiCurrentInsight = aiInsights.currentInsight;
-const aiInsightMonth = aiInsights.insightMonth;
-const aiInsightModel = aiInsights.insightModel;
-const aiInsightTokensUsed = aiInsights.tokensUsed;
-const aiInsightCostUsd = aiInsights.costUsd;
-const aiInsightIsStale = aiInsights.isStale;
 
 // ── Actions ───────────────────────────────────────────────────────────────────
 
@@ -218,18 +209,7 @@ const totalBalance = computed(() => totalIncome.value - totalExpense.value);
     <!-- ── Financial calendar ──────────────────────────────────────────────── -->
     <FinancialCalendar v-else-if="viewMode === 'calendar'" class="transactions-page__calendar" @day-click="onDayClick" />
 
-    <section class="transactions-page__ai-insights" aria-label="Insights de IA">
-      <AiInsightButton />
-      <AiInsightSection
-        v-if="aiCurrentInsight"
-        :insight="aiCurrentInsight"
-        :month="aiInsightMonth"
-        :is-stale="aiInsightIsStale"
-        :model="aiInsightModel"
-        :tokens-used="aiInsightTokensUsed"
-        :cost-usd="aiInsightCostUsd"
-      />
-    </section>
+    <AiInsightSurface class="transactions-page__ai-insights" dimension="transactions" />
 
   </div>
 </template>

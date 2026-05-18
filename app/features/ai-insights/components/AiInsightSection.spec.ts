@@ -15,11 +15,12 @@ describe("AiInsightSection", () => {
         insight: [
           {
             type: "alerta_orcamento",
+            dimension: "budgets",
             title: "Orçamento pressionado",
             message: "Moradia chegou a 48% da renda.",
           },
         ],
-        month: "2026-05",
+        periodLabel: "2026-05",
         isStale: false,
         model: "gpt-4o-mini",
         tokensUsed: 320,
@@ -39,7 +40,7 @@ describe("AiInsightSection", () => {
     const wrapper = mount(AiInsightSection, {
       props: {
         insight: [],
-        month: "2026-04",
+        periodLabel: "2026-04",
         isStale: true,
         model: "gpt-4o-mini",
         tokensUsed: 0,
@@ -49,5 +50,43 @@ describe("AiInsightSection", () => {
     });
 
     expect(wrapper.text()).toContain("podem estar desatualizados");
+  });
+
+  it("renders only general and requested dimension items", () => {
+    const wrapper = mount(AiInsightSection, {
+      props: {
+        insight: [
+          {
+            type: "saude_financeira",
+            dimension: "general",
+            title: "Visão geral",
+            message: "Resumo do período.",
+          },
+          {
+            type: "gasto_elevado",
+            dimension: "transactions",
+            title: "Transações em atenção",
+            message: "Há gastos incomuns.",
+          },
+          {
+            type: "alerta_meta",
+            dimension: "goals",
+            title: "Meta em atenção",
+            message: "O objetivo atrasou.",
+          },
+        ],
+        dimension: "transactions",
+        periodLabel: "2026-05-18",
+        isStale: false,
+        model: "gpt-4o-mini",
+        tokensUsed: 80,
+        costUsd: 0,
+      },
+      global: { stubs },
+    });
+
+    expect(wrapper.text()).toContain("Visão geral");
+    expect(wrapper.text()).toContain("Transações em atenção");
+    expect(wrapper.text()).not.toContain("Meta em atenção");
   });
 });
