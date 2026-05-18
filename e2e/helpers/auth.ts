@@ -74,6 +74,34 @@ export async function seedCookieConsent(page: Page): Promise<void> {
 }
 
 /**
+ * Fills an input and verifies the value survived potential post-hydration
+ * remounts before the test continues.
+ *
+ * @param page Playwright page instance.
+ * @param selector CSS selector for the target input.
+ * @param value Value expected to persist in the input.
+ */
+export async function fillInputAndVerify(
+  page: Page,
+  selector: string,
+  value: string,
+): Promise<void> {
+  const input = page.locator(selector);
+  await expect(input).toBeEditable({ timeout: 5_000 });
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await input.fill(value);
+    await page.waitForTimeout(75);
+
+    if (await input.inputValue() === value) {
+      return;
+    }
+  }
+
+  await expect(input).toHaveValue(value);
+}
+
+/**
  * Fills the login form and verifies the values stuck before submitting.
  *
  * First page loads can still run session/bootstrap work after Vue hydration,

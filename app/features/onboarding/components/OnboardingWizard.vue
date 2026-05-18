@@ -11,39 +11,24 @@ const onboarding = useOnboarding();
 const { shouldShow, complete, skip, currentStep, setCurrentStep } = onboarding;
 
 const TOTAL_STEPS = 6;
+const tourSections = ["welcome", "routine", "intelligence"] as const;
+const tourItemsBySection = {
+  welcome: ["control", "plan", "review"],
+  routine: ["dashboard", "transactions", "periods"],
+  intelligence: ["goals", "tools", "ai"],
+} as const;
 
 const tourSteps = computed(() => [
-  {
-    title: t("onboarding.tour.welcome.title"),
-    description: t("onboarding.tour.welcome.description"),
-    cta: t("onboarding.tour.welcome.cta"),
-    items: [
-      { title: t("onboarding.tour.welcome.items.control.title"), text: t("onboarding.tour.welcome.items.control.text") },
-      { title: t("onboarding.tour.welcome.items.plan.title"), text: t("onboarding.tour.welcome.items.plan.text") },
-      { title: t("onboarding.tour.welcome.items.review.title"), text: t("onboarding.tour.welcome.items.review.text") },
-    ],
-  },
-  {
-    title: t("onboarding.tour.routine.title"),
-    description: t("onboarding.tour.routine.description"),
-    cta: t("onboarding.tour.routine.cta"),
-    items: [
-      { title: t("onboarding.tour.routine.items.dashboard.title"), text: t("onboarding.tour.routine.items.dashboard.text") },
-      { title: t("onboarding.tour.routine.items.transactions.title"), text: t("onboarding.tour.routine.items.transactions.text") },
-      { title: t("onboarding.tour.routine.items.periods.title"), text: t("onboarding.tour.routine.items.periods.text") },
-    ],
-  },
-  {
-    title: t("onboarding.tour.intelligence.title"),
-    description: t("onboarding.tour.intelligence.description"),
-    cta: t("onboarding.tour.intelligence.cta"),
-    items: [
-      { title: t("onboarding.tour.intelligence.items.goals.title"), text: t("onboarding.tour.intelligence.items.goals.text") },
-      { title: t("onboarding.tour.intelligence.items.tools.title"), text: t("onboarding.tour.intelligence.items.tools.text") },
-      { title: t("onboarding.tour.intelligence.items.ai.title"), text: t("onboarding.tour.intelligence.items.ai.text") },
-    ],
-  },
-] as const);
+  ...tourSections.map((section) => ({
+    title: t(`onboarding.tour.${section}.title`),
+    description: t(`onboarding.tour.${section}.description`),
+    cta: t(`onboarding.tour.${section}.cta`),
+    items: tourItemsBySection[section].map((item) => ({
+      title: t(`onboarding.tour.${section}.items.${item}.title`),
+      text: t(`onboarding.tour.${section}.items.${item}.text`),
+    })),
+  })),
+]);
 
 const tourStep = computed(() => currentStep.value <= 3 ? tourSteps.value[currentStep.value - 1] : null);
 

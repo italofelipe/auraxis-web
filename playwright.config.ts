@@ -11,6 +11,14 @@ import { defineConfig, devices } from "@playwright/test";
  */
 
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:3000";
+const baseUrl = new URL(BASE_URL);
+const COOKIE_CONSENT_VALUE = encodeURIComponent(JSON.stringify({
+  version: 1,
+  necessary: true,
+  analytics: false,
+  marketing: false,
+  updatedAt: "2026-05-17T00:00:00.000Z",
+}));
 
 export default defineConfig({
   testDir: "./e2e",
@@ -37,6 +45,21 @@ export default defineConfig({
   // Configurações globais para todos os testes
   use: {
     baseURL: BASE_URL,
+    storageState: {
+      cookies: [
+        {
+          name: "auraxis_cookie_consent",
+          value: COOKIE_CONSENT_VALUE,
+          domain: baseUrl.hostname,
+          path: "/",
+          expires: -1,
+          httpOnly: false,
+          secure: baseUrl.protocol === "https:",
+          sameSite: "Lax",
+        },
+      ],
+      origins: [],
+    },
     // Grava trace em falhas (útil para debugging no CI)
     trace: "on-first-retry",
     // Screenshot automático em falhas

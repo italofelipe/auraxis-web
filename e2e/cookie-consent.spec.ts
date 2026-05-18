@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+test.use({ storageState: { cookies: [], origins: [] } });
+
 test.describe("Cookie consent", () => {
   test("blocks analytics requests before consent and saves granular choices", async ({ page }) => {
     const analyticsRequests: string[] = [];

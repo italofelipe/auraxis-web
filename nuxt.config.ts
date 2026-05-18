@@ -79,6 +79,7 @@ export default defineNuxtConfig({
       titleTemplate: "%s | Auraxis",
       link: [
         { rel: "manifest", href: "/manifest.webmanifest" },
+        { rel: "stylesheet", href: "/css/nuxt-google-fonts.css" },
       ],
       // ── Security meta tags ─────────────────────────────────────────
       // NOTE: X-Frame-Options and X-Content-Type-Options cannot be set
@@ -237,10 +238,12 @@ export default defineNuxtConfig({
 
   googleFonts: {
     families: {
-      Inter: [400, 500, 600, 700, 800],
+      Inter: [400, 500, 600, 700],
       "IBM Plex Mono": [400, 500, 600],
     },
+    subsets: ["latin", "latin-ext"],
     display: "swap",
+    inject: false,
     preload: true,
     preconnect: true,
     prefetch: true,
