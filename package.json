@@ -49,7 +49,7 @@
     "@nuxtjs/seo": "3.4.0",
     "@pinia/nuxt": "0.11.3",
     "@sentry/nuxt": "^10.52.0",
-    "@sentry/vue": "^10.52.0",
+    "@sentry/vue": "^10.53.1",
     "@tanstack/vue-query": "^5.100.11",
     "@vee-validate/zod": "^4.15.1",
     "axios": "^1.16.1",
