@@ -76,6 +76,7 @@ const currentRoute = computed(() => route.path);
         :show-menu-button="isMobile"
         @action="(key) => emit('topbar-action', key)"
         @user-settings="emit('user-settings')"
+        @user-onboarding="emit('user-onboarding')"
         @user-logout="emit('user-logout')"
         @menu-toggle="openDrawer"
       >

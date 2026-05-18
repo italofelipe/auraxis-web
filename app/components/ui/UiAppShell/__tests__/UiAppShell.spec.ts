@@ -62,7 +62,7 @@ const UiTopbarStub = {
     @click.self="$emit('menu-toggle')"
     data-testid="topbar"
   />`,
-  emits: ["action", "user-settings", "user-logout", "menu-toggle"],
+  emits: ["action", "user-settings", "user-onboarding", "user-logout", "menu-toggle"],
 };
 
 const globalConfig = {
@@ -95,7 +95,7 @@ const mountWithTopbarEmitting = (event: string, payload?: unknown): VueWrapper =
         ...globalConfig.stubs,
         UiTopbar: {
           template: "<header />",
-          emits: ["action", "user-settings", "user-logout", "menu-toggle"],
+          emits: ["action", "user-settings", "user-onboarding", "user-logout", "menu-toggle"],
           mounted() {
             (this as unknown as { $emit: (e: string, v?: unknown) => void }).$emit(event, payload);
           },
@@ -159,6 +159,11 @@ describe("UiAppShell", () => {
   it("emits user-settings when topbar emits user-settings", () => {
     const wrapper = mountWithTopbarEmitting("user-settings");
     expect(wrapper.emitted("user-settings")).toBeTruthy();
+  });
+
+  it("emits user-onboarding when topbar emits user-onboarding", () => {
+    const wrapper = mountWithTopbarEmitting("user-onboarding");
+    expect(wrapper.emitted("user-onboarding")).toBeTruthy();
   });
 
   it("emits user-logout when topbar emits user-logout", () => {

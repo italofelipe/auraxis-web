@@ -1,17 +1,26 @@
 <script setup lang="ts">
+import { tryUseNuxtApp } from "#app";
 import { useSessionStore } from "~/stores/session";
 import type { UiPublicHeaderProps } from "./UiPublicHeader.types";
 
 const props = withDefaults(defineProps<UiPublicHeaderProps>(), {
   authenticated: undefined,
+  surface: undefined,
 });
 
 const { t } = useI18n();
 const sessionStore = useSessionStore();
+const nuxtApp = tryUseNuxtApp();
 
 /** Whether the current visitor has an active session. */
 const isAuthenticated = computed<boolean>(() =>
   props.authenticated !== undefined ? props.authenticated : sessionStore.isAuthenticated,
+);
+const runtimeSurface = computed((): unknown =>
+  (nuxtApp?.$config.public as Record<string, unknown> | undefined)?.siteSurface,
+);
+const isMarketingSurface = computed<boolean>(() =>
+  props.surface !== undefined ? props.surface === "marketing" : runtimeSurface.value !== "app",
 );
 
 const menuOpen = ref(false);
@@ -43,6 +52,7 @@ const closeMenu = (): void => {
 
       <!-- Desktop navigation -->
       <nav
+        v-if="isMarketingSurface"
         class="ui-public-header__nav"
         :aria-label="t('components.publicHeader.navAriaLabel')"
       >
@@ -116,7 +126,7 @@ const closeMenu = (): void => {
       role="dialog"
       :aria-label="t('components.publicHeader.mobileMenuAriaLabel')"
     >
-      <nav class="ui-public-header__mobile-nav" :aria-label="t('components.publicHeader.navAriaLabel')">
+      <nav v-if="isMarketingSurface" class="ui-public-header__mobile-nav" :aria-label="t('components.publicHeader.navAriaLabel')">
         <NuxtLink
           to="/#produto"
           class="ui-public-header__mobile-link"

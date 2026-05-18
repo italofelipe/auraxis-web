@@ -3,6 +3,13 @@ import { expect, type Page } from "@playwright/test";
 /** Credentials for E2E test user. Must be set in CI via secrets. */
 const TEST_EMAIL = process.env.E2E_TEST_EMAIL ?? "";
 const TEST_PASSWORD = process.env.E2E_TEST_PASSWORD ?? "";
+const COOKIE_CONSENT_VALUE = encodeURIComponent(JSON.stringify({
+  version: 1,
+  necessary: true,
+  analytics: false,
+  marketing: false,
+  updatedAt: "2026-05-17T00:00:00.000Z",
+}));
 
 /**
  * Waits for the Nuxt/Vue app to finish hydrating on the current page.
@@ -29,6 +36,72 @@ export async function waitForHydration(page: Page): Promise<void> {
 }
 
 /**
+ * Dismisses the public cookie banner when it is present.
+ *
+ * Mobile auth flows can place the fixed banner over the login CTA. Clicking the
+ * explicit reject action keeps the test behavior aligned with a real visitor
+ * choice without enabling optional tracking categories.
+ *
+ * @param page Playwright page instance.
+ */
+export async function dismissCookieConsentBanner(page: Page): Promise<void> {
+  const banner = page.getByRole("region", { name: /preferências de cookies/i });
+  const isVisible = await banner.isVisible({ timeout: 500 }).catch(() => false);
+
+  if (!isVisible) {
+    return;
+  }
+
+  await page.getByRole("button", { name: /rejeitar opcionais/i }).click();
+  await expect(banner).toBeHidden({ timeout: 2_000 });
+}
+
+/**
+ * Seeds a necessary-only cookie preference before visiting auth pages.
+ *
+ * This keeps E2E login flows focused on authentication while preserving the
+ * dedicated cookie-consent spec as the place that verifies the banner itself.
+ *
+ * @param page Playwright page instance.
+ */
+export async function seedCookieConsent(page: Page): Promise<void> {
+  await page.context().addCookies([{
+    name: "auraxis_cookie_consent",
+    value: COOKIE_CONSENT_VALUE,
+    url: process.env.BASE_URL ?? "http://localhost:3000",
+    sameSite: "Lax",
+  }]);
+}
+
+/**
+ * Fills an input and verifies the value survived potential post-hydration
+ * remounts before the test continues.
+ *
+ * @param page Playwright page instance.
+ * @param selector CSS selector for the target input.
+ * @param value Value expected to persist in the input.
+ */
+export async function fillInputAndVerify(
+  page: Page,
+  selector: string,
+  value: string,
+): Promise<void> {
+  const input = page.locator(selector);
+  await expect(input).toBeEditable({ timeout: 5_000 });
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await input.fill(value);
+    await page.waitForTimeout(75);
+
+    if (await input.inputValue() === value) {
+      return;
+    }
+  }
+
+  await expect(input).toHaveValue(value);
+}
+
+/**
  * Fills the login form and verifies the values stuck before submitting.
  *
  * First page loads can still run session/bootstrap work after Vue hydration,
@@ -44,6 +117,8 @@ export async function fillLoginForm(
   email: string,
   password: string,
 ): Promise<void> {
+  await dismissCookieConsentBanner(page);
+
   const emailInput = page.locator("#login-email");
   const passwordInput = page.locator("#login-password");
 

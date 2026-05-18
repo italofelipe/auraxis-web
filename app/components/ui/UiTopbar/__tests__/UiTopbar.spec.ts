@@ -152,6 +152,15 @@ describe("UiTopbar", () => {
     expect(wrapper.emitted("user-settings")).toBeTruthy();
   });
 
+  it("emits user-onboarding when UiUserMenu emits onboarding", async () => {
+    const wrapper = mount(UiTopbar, {
+      props: { title: "Dashboard", userName: "João Silva" },
+    });
+    wrapper.findComponent({ name: "UiUserMenu" }).vm.$emit("onboarding");
+    await wrapper.vm.$nextTick();
+    expect(wrapper.emitted("user-onboarding")).toBeTruthy();
+  });
+
   it("emits user-logout when UiUserMenu emits logout", async () => {
     const wrapper = mount(UiTopbar, {
       props: { title: "Dashboard", userName: "João Silva" },

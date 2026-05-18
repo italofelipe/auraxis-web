@@ -67,6 +67,7 @@ const { isDark, toggle: toggleTheme } = useTheme();
         :description="props.userDescription"
         :avatar-url="props.userAvatarUrl"
         @settings="emit('user-settings')"
+        @onboarding="emit('user-onboarding')"
         @logout="emit('user-logout')"
       />
     </div>

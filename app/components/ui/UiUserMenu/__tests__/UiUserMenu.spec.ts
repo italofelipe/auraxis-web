@@ -49,8 +49,18 @@ describe("UiUserMenu", () => {
     });
     await wrapper.find(".ui-user-menu__trigger").trigger("click");
     const items = wrapper.findAll("[role=\"menuitem\"]");
-    await items[1]!.trigger("click");
+    await items[2]!.trigger("click");
     expect(wrapper.emitted("logout")).toBeTruthy();
+  });
+
+  it("emits onboarding when Onboarding guiado is clicked", async () => {
+    const wrapper = mount(UiUserMenu, {
+      props: { name: "João Silva" },
+    });
+    await wrapper.find(".ui-user-menu__trigger").trigger("click");
+    const items = wrapper.findAll("[role=\"menuitem\"]");
+    await items[1]!.trigger("click");
+    expect(wrapper.emitted("onboarding")).toBeTruthy();
   });
 
   it("closes dropdown after emitting settings", async () => {
@@ -69,7 +79,7 @@ describe("UiUserMenu", () => {
     });
     await wrapper.find(".ui-user-menu__trigger").trigger("click");
     const items = wrapper.findAll("[role=\"menuitem\"]");
-    await items[1]!.trigger("click");
+    await items[2]!.trigger("click");
     expect(wrapper.find("[role=\"menu\"]").exists()).toBe(false);
   });
 

@@ -36,5 +36,6 @@ export interface UiAppShellProps {
 export type UiAppShellEmits = {
   "topbar-action": [key: string];
   "user-settings": [];
+  "user-onboarding": [];
   "user-logout": [];
 };

@@ -4,12 +4,33 @@ import { useOnboarding, type OnboardingStepNumber } from "../composables/useOnbo
 import OnboardingStep1Welcome from "./OnboardingStep1Welcome.vue";
 import OnboardingStep2Transactions from "./OnboardingStep2Transactions.vue";
 import OnboardingStep3GoalsVsBudgets from "./OnboardingStep3GoalsVsBudgets.vue";
+import OnboardingTourStep from "./OnboardingTourStep.vue";
 
 const { t } = useI18n();
 const onboarding = useOnboarding();
 const { shouldShow, complete, skip, currentStep, setCurrentStep } = onboarding;
 
-const TOTAL_STEPS = 3;
+const TOTAL_STEPS = 6;
+const tourSections = ["welcome", "routine", "intelligence"] as const;
+const tourItemsBySection = {
+  welcome: ["control", "plan", "review"],
+  routine: ["dashboard", "transactions", "periods"],
+  intelligence: ["goals", "tools", "ai"],
+} as const;
+
+const tourSteps = computed(() => [
+  ...tourSections.map((section) => ({
+    title: t(`onboarding.tour.${section}.title`),
+    description: t(`onboarding.tour.${section}.description`),
+    cta: t(`onboarding.tour.${section}.cta`),
+    items: tourItemsBySection[section].map((item) => ({
+      title: t(`onboarding.tour.${section}.items.${item}.title`),
+      text: t(`onboarding.tour.${section}.items.${item}.text`),
+    })),
+  })),
+]);
+
+const tourStep = computed(() => currentStep.value <= 3 ? tourSteps.value[currentStep.value - 1] : null);
 
 /** Advances the wizard to the next step when not on the last step. */
 function onNext(): void {
@@ -63,9 +84,18 @@ function onComplete(): void {
           <!-- Step content -->
           <div class="onboarding-dialog__body">
             <Transition name="onboarding-step" mode="out-in">
-              <OnboardingStep1Welcome v-if="currentStep === 1" key="step1" @next="onNext" />
-              <OnboardingStep2Transactions v-else-if="currentStep === 2" key="step2" @next="onNext" />
-              <OnboardingStep3GoalsVsBudgets v-else-if="currentStep === 3" key="step3" @complete="onComplete" />
+              <OnboardingTourStep
+                v-if="tourStep"
+                :key="`tour-${currentStep}`"
+                :title="tourStep.title"
+                :description="tourStep.description"
+                :items="tourStep.items"
+                :cta="tourStep.cta"
+                @next="onNext"
+              />
+              <OnboardingStep1Welcome v-else-if="currentStep === 4" key="step4" @next="onNext" />
+              <OnboardingStep2Transactions v-else-if="currentStep === 5" key="step5" @next="onNext" />
+              <OnboardingStep3GoalsVsBudgets v-else-if="currentStep === 6" key="step6" @complete="onComplete" />
             </Transition>
           </div>
 
@@ -88,6 +118,9 @@ function onComplete(): void {
               {{ t("onboarding.skip") }}
             </button>
           </div>
+          <p class="onboarding-dialog__skip-note">
+            {{ t("onboarding.skipNote") }}
+          </p>
         </div>
       </div>
     </Transition>
@@ -119,7 +152,7 @@ function onComplete(): void {
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-xl, 16px);
   width: 100%;
-  max-width: 480px;
+  max-width: 560px;
   max-height: 90vh;
   overflow-y: auto;
   display: flex;
@@ -167,8 +200,8 @@ function onComplete(): void {
 
 .onboarding-dialog__body {
   padding: var(--space-2) var(--space-4);
-  flex: 1;
-  min-height: 280px;
+  flex: 0 0 auto;
+  min-height: 360px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -180,6 +213,15 @@ function onComplete(): void {
   justify-content: space-between;
   padding: var(--space-3) var(--space-4);
   border-top: 1px solid var(--color-border-subtle);
+}
+
+.onboarding-dialog__skip-note {
+  margin: 0;
+  padding: 0 var(--space-4) var(--space-3);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-body-sm);
+  text-align: right;
 }
 
 .onboarding-dialog__btn-back {

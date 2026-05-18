@@ -78,7 +78,7 @@ function nuxtContextPlugin(app: App): void {
 const globalStubs = {
   UiAppShell: {
     props: ["navItems", "user", "pageTitle", "pageSubtitle"],
-    emits: ["user-logout"],
+    emits: ["user-logout", "user-settings", "user-onboarding"],
     template: `
       <div>
         <span v-for="item in navItems" :key="item.key">{{ item.label }}</span>

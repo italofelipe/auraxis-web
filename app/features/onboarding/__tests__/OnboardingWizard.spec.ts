@@ -50,6 +50,11 @@ function mountWizard(): VueWrapper {
         Teleport: { template: "<div><slot /></div>" },
         Transition: { template: "<slot />" },
         UiWizardProgress: true,
+        OnboardingTourStep: {
+          name: "OnboardingTourStep",
+          template: "<div data-testid='tour-step'><button class='stub-next' @click=\"$emit('next')\">next</button></div>",
+          emits: ["next"],
+        },
         OnboardingStep1Welcome: {
           name: "OnboardingStep1Welcome",
           template: "<div data-testid='step1'><button class='stub-next' @click=\"$emit('next')\">next</button></div>",
@@ -76,19 +81,20 @@ describe("OnboardingWizard", () => {
     expect(wrapper.find(".onboarding-dialog").exists()).toBe(true);
   });
 
-  it("starts on step 1", () => {
+  it("starts on the narrative tour step", () => {
     const wrapper = mountWizard();
-    expect(wrapper.find("[data-testid='step1']").exists()).toBe(true);
-    expect(wrapper.find("[data-testid='step2']").exists()).toBe(false);
+    expect(wrapper.find("[data-testid='tour-step']").exists()).toBe(true);
+    expect(wrapper.find("[data-testid='step1']").exists()).toBe(false);
   });
 
-  it("advances through all three steps", async () => {
+  it("advances from the tour into the setup steps", async () => {
     const wrapper = mountWizard();
-    await wrapper.find("[data-testid='step1'] .stub-next").trigger("click");
-    expect(wrapper.find("[data-testid='step2']").exists()).toBe(true);
+    await wrapper.find("[data-testid='tour-step'] .stub-next").trigger("click");
+    expect(wrapper.find("[data-testid='tour-step']").exists()).toBe(true);
 
-    await wrapper.find("[data-testid='step2'] .stub-next").trigger("click");
-    expect(wrapper.find("[data-testid='step3']").exists()).toBe(true);
+    await wrapper.find("[data-testid='tour-step'] .stub-next").trigger("click");
+    await wrapper.find("[data-testid='tour-step'] .stub-next").trigger("click");
+    expect(wrapper.find("[data-testid='step1']").exists()).toBe(true);
   });
 
   it("does not show back button on step 1", () => {
@@ -98,19 +104,22 @@ describe("OnboardingWizard", () => {
 
   it("shows back button on step 2", async () => {
     const wrapper = mountWizard();
-    await wrapper.find("[data-testid='step1'] .stub-next").trigger("click");
+    await wrapper.find("[data-testid='tour-step'] .stub-next").trigger("click");
     expect(wrapper.find(".onboarding-dialog__btn-back").exists()).toBe(true);
   });
 
   it("back button returns to previous step", async () => {
     const wrapper = mountWizard();
-    await wrapper.find("[data-testid='step1'] .stub-next").trigger("click");
+    await wrapper.find("[data-testid='tour-step'] .stub-next").trigger("click");
     await wrapper.find(".onboarding-dialog__btn-back").trigger("click");
-    expect(wrapper.find("[data-testid='step1']").exists()).toBe(true);
+    expect(wrapper.find("[data-testid='tour-step']").exists()).toBe(true);
   });
 
-  it("calls complete() when step 3 emits complete", async () => {
+  it("calls complete() when the final setup step emits complete", async () => {
     const wrapper = mountWizard();
+    await wrapper.find("[data-testid='tour-step'] .stub-next").trigger("click");
+    await wrapper.find("[data-testid='tour-step'] .stub-next").trigger("click");
+    await wrapper.find("[data-testid='tour-step'] .stub-next").trigger("click");
     await wrapper.find("[data-testid='step1'] .stub-next").trigger("click");
     await wrapper.find("[data-testid='step2'] .stub-next").trigger("click");
     await wrapper.find("[data-testid='step3'] .stub-complete").trigger("click");
