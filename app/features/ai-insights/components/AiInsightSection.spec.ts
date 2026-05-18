@@ -52,7 +52,7 @@ describe("AiInsightSection", () => {
     expect(wrapper.text()).toContain("podem estar desatualizados");
   });
 
-  it("renders only general and requested dimension items", () => {
+  it("renders only requested dimension items", () => {
     const wrapper = mount(AiInsightSection, {
       props: {
         insight: [
@@ -85,7 +85,7 @@ describe("AiInsightSection", () => {
       global: { stubs },
     });
 
-    expect(wrapper.text()).toContain("Visão geral");
+    expect(wrapper.text()).not.toContain("Visão geral");
     expect(wrapper.text()).toContain("Transações em atenção");
     expect(wrapper.text()).not.toContain("Meta em atenção");
   });

@@ -20,6 +20,11 @@ const visibleInsight = computed<InsightItem[] | null>(() => {
 
   return props.dimension ? filterInsightItemsByDimension(items, props.dimension) : items;
 });
+
+const hasGeneratedInsight = computed(() => Boolean(aiInsights.currentInsight.value?.length));
+const shouldShowContextualEmptyState = computed(() =>
+  Boolean(props.dimension && hasGeneratedInsight.value && !visibleInsight.value?.length),
+);
 </script>
 
 <template>
@@ -34,6 +39,10 @@ const visibleInsight = computed<InsightItem[] | null>(() => {
       :tokens-used="aiInsights.tokensUsed.value"
       :cost-usd="aiInsights.costUsd.value"
     />
+    <p v-else-if="shouldShowContextualEmptyState" class="ai-insight-surface__empty">
+      Nenhum insight específico para esta área no período atual. A visão completa continua
+      disponível em Insights.
+    </p>
   </section>
 </template>
 
@@ -42,5 +51,14 @@ const visibleInsight = computed<InsightItem[] | null>(() => {
   display: grid;
   gap: var(--space-3);
   align-items: start;
+}
+
+.ai-insight-surface__empty {
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px dashed var(--color-outline-soft);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  background: color-mix(in srgb, var(--color-bg-elevated) 86%, transparent);
 }
 </style>

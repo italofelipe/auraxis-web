@@ -30,23 +30,18 @@ const items: InsightItem[] = [
 ];
 
 describe("useInsightsByDimension", () => {
-  it("includes general items with the requested contextual dimension", () => {
-    expect(filterInsightItemsByDimension(items, "transactions")).toEqual([
-      items[0],
-      items[1],
-    ]);
+  it("returns only items from the requested contextual dimension", () => {
+    expect(filterInsightItemsByDimension(items, "transactions")).toEqual([items[1]]);
   });
 
-  it("treats legacy items without a dimension as general", () => {
+  it("does not leak legacy general items into contextual surfaces", () => {
     const legacyItem = {
       type: "padrao_gasto",
       title: "Assinatura recorrente",
       message: "Revise sua assinatura.",
     } as InsightItem;
 
-    expect(filterInsightItemsByDimension([legacyItem], "budgets")).toEqual([
-      { ...legacyItem, dimension: "general" },
-    ]);
+    expect(filterInsightItemsByDimension([legacyItem], "budgets")).toEqual([]);
   });
 
   it("returns computed filtered items for reactive consumers", () => {
@@ -56,14 +51,12 @@ describe("useInsightsByDimension", () => {
     const result = useInsightsByDimension(computed(() => source.value), dimension);
 
     expect(result.items.value.map((item) => item.title)).toEqual([
-      "Saldo do período",
       "Despesa fora do padrão",
     ]);
 
     dimension.value = "goals";
 
     expect(result.items.value.map((item) => item.title)).toEqual([
-      "Saldo do período",
       "Meta em atenção",
     ]);
   });
