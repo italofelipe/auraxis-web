@@ -20,6 +20,7 @@ import { useCreditCardsQuery } from "~/features/credit-cards/queries/use-credit-
 import { useCreateCreditCardMutation } from "~/features/credit-cards/queries/use-create-credit-card-mutation";
 import { useUpdateCreditCardMutation } from "~/features/credit-cards/queries/use-update-credit-card-mutation";
 import { useDeleteCreditCardMutation } from "~/features/credit-cards/queries/use-delete-credit-card-mutation";
+import AiInsightSurface from "~/features/ai-insights/components/AiInsightSurface.vue";
 
 const { t } = useI18n();
 
@@ -209,6 +210,8 @@ const columns = computed((): DataTableColumns<CreditCardDto> => [
       </div>
       <NButton type="primary" size="medium" @click="openCreate">{{ $t('pages.settings.creditCards.newCard') }}</NButton>
     </div>
+
+    <AiInsightSurface dimension="credit_cards" />
 
     <NCard>
       <NSpin v-if="isLoading" />

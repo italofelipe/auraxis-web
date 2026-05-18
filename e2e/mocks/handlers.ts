@@ -133,25 +133,36 @@ const MOCK_TRANSACTIONS = {
 const MOCK_AI_INSIGHT_ITEMS = [
 	{
 		type: "orcamento_ultrapassado",
+		dimension: "budgets",
 		title: "Orçamento em atenção",
 		message: "A categoria Mercado passou do limite planejado.",
 	},
 	{
 		type: "savings_rate_gap",
+		dimension: "general",
 		title: "Taxa de poupança abaixo do plano",
 		message: "Você precisa poupar mais 8% da renda para atingir o objetivo.",
+	},
+	{
+		type: "gasto_elevado",
+		dimension: "transactions",
+		title: "Transações fora do padrão",
+		message: "Há despesas acima do esperado neste período.",
 	},
 ];
 
 const MOCK_AI_GENERATED_INSIGHT = {
 	success: true,
-	message: "Insights de gastos gerados com sucesso",
+	message: "Insight financeiro gerado com sucesso",
 	data: {
-		insights: `\`\`\`json\n${JSON.stringify(MOCK_AI_INSIGHT_ITEMS)}\n\`\`\``,
+		summary: "Resumo do período.",
 		items: MOCK_AI_INSIGHT_ITEMS,
 		tokens_used: 320,
 		cost_usd: 0.000048,
-		month: "2026-05",
+		period_type: "daily",
+		period_label: "2026-05-18",
+		period_start: "2026-05-18",
+		period_end: "2026-05-18",
 		model: "gpt-4o-mini",
 		cached: false,
 	},
@@ -164,9 +175,13 @@ const MOCK_AI_INSIGHT_HISTORY = {
 		items: [
 			{
 				id: "ai-1",
-				content: `\`\`\`json\n${JSON.stringify(MOCK_AI_INSIGHT_ITEMS)}\n\`\`\``,
+				content: JSON.stringify({
+					summary: "Resumo do período.",
+					items: MOCK_AI_INSIGHT_ITEMS,
+				}),
 				items: MOCK_AI_INSIGHT_ITEMS,
 				insight_type: "monthly",
+				period_type: "monthly",
 				period_label: "2026-05",
 				period_start: "2026-05-01",
 				period_end: "2026-05-31",
@@ -306,6 +321,13 @@ export const handlers = [
 				created_at: "2026-05-17T12:00:00Z",
 			},
 		}, { status: 201 });
+	}),
+
+	http.post("*/ai/insights/generate", () => {
+		return HttpResponse.json(MOCK_AI_GENERATED_INSIGHT, {
+			status: 200,
+			headers: { "X-AI-Calls-Remaining": "1" },
+		});
 	}),
 
 	http.get("*/ai/insights/spending", () => {

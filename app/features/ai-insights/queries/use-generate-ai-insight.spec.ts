@@ -19,9 +19,13 @@ describe("useGenerateAIInsight", () => {
 
   it("registers a mutation that calls the AI insights client", async () => {
     const client = {
-      generateSpendingInsight: vi.fn().mockResolvedValue({
-        insights: "[]",
-        month: "2026-05",
+      generateInsight: vi.fn().mockResolvedValue({
+        summary: "Resumo diário",
+        items: [],
+        period_type: "daily",
+        period_label: "2026-05-18",
+        period_start: "2026-05-18",
+        period_end: "2026-05-18",
         model: "gpt-4o-mini",
         tokens_used: 120,
         cost_usd: 0.00002,
@@ -34,14 +38,29 @@ describe("useGenerateAIInsight", () => {
       mutationFn: (variables?: GenerateAIInsightVariables) => Promise<unknown>;
     };
 
-    await mutation.mutationFn({ month: "2026-05" });
+    await mutation.mutationFn({ periodType: "daily", anchorDate: "2026-05-18" });
 
-    expect(client.generateSpendingInsight).toHaveBeenCalledWith("2026-05");
+    expect(client.generateInsight).toHaveBeenCalledWith({
+      periodType: "daily",
+      anchorDate: "2026-05-18",
+    });
+  });
+
+  it("defaults generation to a daily insight when no variables are provided", async () => {
+    const client = { generateInsight: vi.fn() };
+
+    const mutation = useGenerateAIInsight(client as never) as unknown as {
+      mutationFn: (variables?: GenerateAIInsightVariables) => Promise<unknown>;
+    };
+
+    await mutation.mutationFn();
+
+    expect(client.generateInsight).toHaveBeenCalledWith({ periodType: "daily" });
   });
 
   it("invalidates current insight surfaces after a successful generation", async () => {
     const invalidateQueries = vi.fn();
-    const client = { generateSpendingInsight: vi.fn() };
+    const client = { generateInsight: vi.fn() };
 
     const mutation = useGenerateAIInsight(client as never, { invalidateQueries }) as unknown as {
       onSuccess: () => Promise<void>;

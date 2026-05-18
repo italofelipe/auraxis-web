@@ -4,12 +4,10 @@ import { NButton, NDatePicker } from "naive-ui";
 
 import DashboardControlBar from "~/features/dashboard/components/DashboardControlBar.vue";
 import DashboardMarketPulseWorkspace from "~/features/dashboard/components/DashboardMarketPulseWorkspace.vue";
-import AiInsightButton from "~/features/ai-insights/components/AiInsightButton.vue";
-import AiInsightSection from "~/features/ai-insights/components/AiInsightSection.vue";
+import AiInsightSurface from "~/features/ai-insights/components/AiInsightSurface.vue";
 import OnboardingSkipNudge from "~/features/onboarding/components/OnboardingSkipNudge.vue";
 import { useDashboardOverviewQuery } from "~/features/dashboard/queries/use-dashboard-overview-query";
 import { useDashboardTrendsQuery } from "~/features/dashboard/queries/use-dashboard-trends-query";
-import { useAIInsights } from "~/features/ai-insights/composables/useAIInsights";
 import type {
   DashboardOverviewFilters,
   DashboardPeriodPreset,
@@ -69,13 +67,6 @@ const upcomingDues = computed(() => overview.value?.upcomingDues ?? []);
 const expensesByCategory = computed(() => overview.value?.expensesByCategory ?? []);
 const alerts = computed(() => overview.value?.alerts ?? []);
 const trendsSeries = computed(() => trendsQuery.data.value?.series ?? []);
-const aiInsights = useAIInsights();
-const aiCurrentInsight = aiInsights.currentInsight;
-const aiInsightMonth = aiInsights.insightMonth;
-const aiInsightModel = aiInsights.insightModel;
-const aiInsightTokensUsed = aiInsights.tokensUsed;
-const aiInsightCostUsd = aiInsights.costUsd;
-const aiInsightIsStale = aiInsights.isStale;
 
 const isCustomPeriodIncomplete = computed(
   () => selectedPeriod.value === "custom" && (!customStartTs.value || !customEndTs.value),
@@ -180,18 +171,7 @@ const closeFirstTransactionForm = (): void => {
         :loading="dashboardQuery.isLoading.value || trendsQuery.isLoading.value"
       />
 
-      <section class="dashboard-page__ai-insights" aria-label="Insights de IA">
-        <AiInsightButton />
-        <AiInsightSection
-          v-if="aiCurrentInsight"
-          :insight="aiCurrentInsight"
-          :month="aiInsightMonth"
-          :is-stale="aiInsightIsStale"
-          :model="aiInsightModel"
-          :tokens-used="aiInsightTokensUsed"
-          :cost-usd="aiInsightCostUsd"
-        />
-      </section>
+      <AiInsightSurface class="dashboard-page__ai-insights" />
 
       <UiEmptyState
         v-if="!dashboardQuery.isLoading.value && !summary"

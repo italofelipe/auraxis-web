@@ -13,18 +13,24 @@ import {
   formatInsightPeriod,
   getInsightPresentation,
 } from "~/features/ai-insights/model/ai-insight";
-import type { InsightItem } from "~/features/ai-insights/contracts/ai-insight";
+import { filterInsightItemsByDimension } from "~/features/ai-insights/composables/use-insights-by-dimension";
+import type { InsightDimension, InsightItem } from "~/features/ai-insights/contracts/ai-insight";
 
 const props = defineProps<{
   insight: InsightItem[] | null;
-  month: string;
+  periodLabel: string;
+  dimension?: InsightDimension;
   isStale: boolean;
   model: string;
   tokensUsed: number;
   costUsd: number;
 }>();
 
-const periodLabel = computed(() => formatInsightPeriod(props.month));
+const formattedPeriodLabel = computed(() => formatInsightPeriod(props.periodLabel));
+const visibleInsights = computed(() => {
+  const items = props.insight ?? [];
+  return props.dimension ? filterInsightItemsByDimension(items, props.dimension) : items;
+});
 const costLabel = computed(() =>
   props.costUsd.toLocaleString("pt-BR", {
     style: "currency",
@@ -58,7 +64,7 @@ const iconForType = (type: string): typeof BarChart2 => {
     <header class="ai-insight-section__header">
       <div>
         <span class="ai-insight-section__eyebrow">Análise inteligente</span>
-        <h2>Insights de IA — {{ periodLabel }}</h2>
+        <h2>Insights de IA — {{ formattedPeriodLabel }}</h2>
       </div>
       <NTag size="small" round class="ai-insight-section__meta">
         {{ model || 'modelo IA' }} · {{ tokensUsed }} tokens · {{ costLabel }}
@@ -66,12 +72,12 @@ const iconForType = (type: string): typeof BarChart2 => {
     </header>
 
     <NAlert v-if="isStale" type="warning" class="ai-insight-section__alert">
-      Dados de {{ periodLabel }} — os insights podem estar desatualizados.
+      Dados de {{ formattedPeriodLabel }} — os insights podem estar desatualizados.
     </NAlert>
 
     <div class="ai-insight-section__grid">
       <article
-        v-for="item in insight ?? []"
+        v-for="item in visibleInsights"
         :key="`${item.type}-${item.title}`"
         class="ai-insight-card"
         :class="`ai-insight-card--${getInsightPresentation(item.type).tone}`"
