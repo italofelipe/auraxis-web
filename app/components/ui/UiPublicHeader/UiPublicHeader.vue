@@ -16,8 +16,8 @@ const nuxtApp = tryUseNuxtApp();
 const isAuthenticated = computed<boolean>(() =>
   props.authenticated !== undefined ? props.authenticated : sessionStore.isAuthenticated,
 );
-const runtimeSurface = computed((): unknown =>
-  (nuxtApp?.$config.public as Record<string, unknown> | undefined)?.siteSurface,
+const runtimeSurface = computed(
+  (): unknown => (nuxtApp?.$config.public as Record<string, unknown> | undefined)?.siteSurface,
 );
 const isMarketingSurface = computed<boolean>(() =>
   props.surface !== undefined ? props.surface === "marketing" : runtimeSurface.value !== "app",
@@ -47,7 +47,7 @@ const closeMenu = (): void => {
         @click="closeMenu"
       >
         <span class="ui-public-header__brand-mark" aria-hidden="true">A</span>
-        <span>{{ t('components.publicHeader.brand') }}</span>
+        <span>{{ t("components.publicHeader.brand") }}</span>
       </NuxtLink>
 
       <!-- Desktop navigation -->
@@ -62,6 +62,13 @@ const closeMenu = (): void => {
           active-class="ui-public-header__nav-link--active"
         >
           Produto
+        </NuxtLink>
+        <NuxtLink
+          to="/controle-de-financas"
+          class="ui-public-header__nav-link"
+          active-class="ui-public-header__nav-link--active"
+        >
+          Soluções
         </NuxtLink>
         <NuxtLink
           to="/#analytics"
@@ -90,15 +97,15 @@ const closeMenu = (): void => {
       <div class="ui-public-header__actions">
         <template v-if="isAuthenticated">
           <NuxtLink to="/dashboard" class="ui-public-header__btn ui-public-header__btn--ghost">
-            {{ t('components.publicHeader.cta.dashboard') }}
+            {{ t("components.publicHeader.cta.dashboard") }}
           </NuxtLink>
         </template>
         <template v-else>
           <NuxtLink to="/login" class="ui-public-header__btn ui-public-header__btn--ghost">
-            {{ t('components.publicHeader.cta.login') }}
+            {{ t("components.publicHeader.cta.login") }}
           </NuxtLink>
           <NuxtLink to="/register" class="ui-public-header__btn ui-public-header__btn--primary">
-            {{ t('components.publicHeader.cta.register') }}
+            {{ t("components.publicHeader.cta.register") }}
           </NuxtLink>
         </template>
       </div>
@@ -108,9 +115,11 @@ const closeMenu = (): void => {
         class="ui-public-header__hamburger"
         type="button"
         :aria-expanded="menuOpen"
-        :aria-label="menuOpen
-          ? t('components.publicHeader.mobileMenuCloseAriaLabel')
-          : t('components.publicHeader.mobileMenuAriaLabel')"
+        :aria-label="
+          menuOpen
+            ? t('components.publicHeader.mobileMenuCloseAriaLabel')
+            : t('components.publicHeader.mobileMenuAriaLabel')
+        "
         @click="toggleMenu"
       >
         <span class="ui-public-header__hamburger-bar" />
@@ -126,7 +135,11 @@ const closeMenu = (): void => {
       role="dialog"
       :aria-label="t('components.publicHeader.mobileMenuAriaLabel')"
     >
-      <nav v-if="isMarketingSurface" class="ui-public-header__mobile-nav" :aria-label="t('components.publicHeader.navAriaLabel')">
+      <nav
+        v-if="isMarketingSurface"
+        class="ui-public-header__mobile-nav"
+        :aria-label="t('components.publicHeader.navAriaLabel')"
+      >
         <NuxtLink
           to="/#produto"
           class="ui-public-header__mobile-link"
@@ -134,6 +147,14 @@ const closeMenu = (): void => {
           @click="closeMenu"
         >
           Produto
+        </NuxtLink>
+        <NuxtLink
+          to="/controle-de-financas"
+          class="ui-public-header__mobile-link"
+          active-class="ui-public-header__mobile-link--active"
+          @click="closeMenu"
+        >
+          Soluções
         </NuxtLink>
         <NuxtLink
           to="/#analytics"
@@ -168,7 +189,7 @@ const closeMenu = (): void => {
             class="ui-public-header__btn ui-public-header__btn--primary ui-public-header__btn--full"
             @click="closeMenu"
           >
-            {{ t('components.publicHeader.cta.dashboard') }}
+            {{ t("components.publicHeader.cta.dashboard") }}
           </NuxtLink>
         </template>
         <template v-else>
@@ -177,14 +198,14 @@ const closeMenu = (): void => {
             class="ui-public-header__btn ui-public-header__btn--ghost ui-public-header__btn--full"
             @click="closeMenu"
           >
-            {{ t('components.publicHeader.cta.login') }}
+            {{ t("components.publicHeader.cta.login") }}
           </NuxtLink>
           <NuxtLink
             to="/register"
             class="ui-public-header__btn ui-public-header__btn--primary ui-public-header__btn--full"
             @click="closeMenu"
           >
-            {{ t('components.publicHeader.cta.register') }}
+            {{ t("components.publicHeader.cta.register") }}
           </NuxtLink>
         </template>
       </div>
@@ -256,7 +277,9 @@ const closeMenu = (): void => {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   color: var(--color-text-secondary);
-  transition: color 0.15s ease, background 0.15s ease;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
 }
 
 .ui-public-header__nav-link:hover,
@@ -290,7 +313,10 @@ const closeMenu = (): void => {
   font-weight: var(--font-weight-semibold);
   text-decoration: none;
   white-space: nowrap;
-  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease;
   cursor: pointer;
   border: none;
 }
@@ -367,7 +393,9 @@ const closeMenu = (): void => {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   color: var(--color-text-secondary);
-  transition: color 0.15s ease, background 0.15s ease;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
 }
 
 .ui-public-header__mobile-link:hover {

@@ -2,6 +2,8 @@
 
 Issues: #868, #869, #870, #847, #848
 
+Documento complementar: `docs/web/seo-public-architecture.md`.
+
 ## Voz e Tom
 
 Auraxis deve soar claro, direto e calmo. A escrita precisa ajudar uma pessoa sem vocabulário financeiro a entender o próximo passo, sem perder profundidade para quem quer analisar detalhes. O tom é educativo, confiante e prático.
