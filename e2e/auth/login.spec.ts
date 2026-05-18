@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-import { waitForHydration } from "../helpers/auth";
+import { dismissCookieConsentBanner, fillLoginForm, seedCookieConsent, waitForHydration } from "../helpers/auth";
 
 /**
  * E2E suite: Login flow
@@ -29,6 +29,10 @@ const MOCK_LOGIN_INVALID_CREDENTIALS = {
 };
 
 test.describe("Auth — Login", () => {
+  test.beforeEach(async ({ page }) => {
+    await seedCookieConsent(page);
+  });
+
   test("login page renders email, password fields and submit button", async ({
     page,
   }) => {
@@ -66,8 +70,7 @@ test.describe("Auth — Login", () => {
 
     await page.goto("/login");
     await waitForHydration(page);
-    await page.locator("#login-email").fill("test@example.com");
-    await page.locator("#login-password").fill("ValidPassword1!");
+    await fillLoginForm(page, "test@example.com", "ValidPassword1!");
     await page.getByRole("button", { name: /entrar/i }).click();
 
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 10_000 });
@@ -93,8 +96,7 @@ test.describe("Auth — Login", () => {
 
     await page.goto("/login");
     await waitForHydration(page);
-    await page.locator("#login-email").fill("wrong@example.com");
-    await page.locator("#login-password").fill("WrongPassword1!");
+    await fillLoginForm(page, "wrong@example.com", "WrongPassword1!");
     await page.getByRole("button", { name: /entrar/i }).click();
 
     // Should stay on /login
@@ -120,8 +122,7 @@ test.describe("Auth — Login", () => {
 
     await page.goto("/login");
     await waitForHydration(page);
-    await page.locator("#login-email").fill("test@example.com");
-    await page.locator("#login-password").fill("ValidPassword1!");
+    await fillLoginForm(page, "test@example.com", "ValidPassword1!");
 
     // Use a stable selector that persists even when the button text changes to
     // the loading label (e.g. "Entrando...") while isPending = true.
@@ -137,6 +138,8 @@ test.describe("Auth — Login", () => {
     page,
   }) => {
     await page.goto("/login");
+    await waitForHydration(page);
+    await dismissCookieConsentBanner(page);
 
     await page.getByRole("button", { name: /entrar/i }).click();
 

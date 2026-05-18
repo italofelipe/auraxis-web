@@ -77,7 +77,8 @@ const user = computed<AppShellUser>(() => ({
 const pageTitle = computed(() => (route.meta.pageTitle as string | undefined) ?? "Auraxis");
 const pageSubtitle = computed(() => route.meta.pageSubtitle as string | undefined);
 
-const { shouldShow: showOnboardingWizard } = useOnboarding();
+const onboarding = useOnboarding();
+const { shouldShow: showOnboardingWizard } = onboarding;
 
 const showProfileModal = ref(false);
 
@@ -119,6 +120,17 @@ function onProfileModalClose(): void {
 function onLogout(): void {
   logout();
 }
+
+/** Opens the primary settings page from the user menu. */
+function onUserSettings(): void {
+  void navigateTo("/settings/profile");
+}
+
+/** Restarts the guided onboarding from the user menu. */
+function onReplayOnboarding(): void {
+  onboarding.reset();
+  onboarding.start();
+}
 </script>
 
 <template>
@@ -131,6 +143,8 @@ function onLogout(): void {
     :page-title="pageTitle"
     :page-subtitle="pageSubtitle"
     @user-logout="onLogout"
+    @user-settings="onUserSettings"
+    @user-onboarding="onReplayOnboarding"
   >
     <template #topbar-extras>
       <TopbarSubscriptionBadge />

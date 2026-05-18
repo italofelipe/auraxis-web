@@ -1,11 +1,11 @@
 import { test, expect, type Page } from "@playwright/test";
-import { fillLoginForm, waitForHydration } from "../helpers/auth";
+import { fillLoginForm, seedCookieConsent, waitForHydration } from "../helpers/auth";
 
 /**
- * E2E suite: Onboarding wizard (3 passos — PROD-3).
+ * E2E suite: Guided onboarding wizard (tour narrativo + setup rápido).
  *
  * Covers:
- *   - Complete happy path (step1 → step2 → step3 → complete).
+ *   - Complete happy path (tour → setup step1 → step2 → step3 → complete).
  *   - Skip from inside the wizard surfaces the dashboard nudge.
  *   - Partial progress survives a reload (currentStep + formData persist via
  *     localStorage) and the nudge's "Retomar" reopens the wizard where the
@@ -134,6 +134,7 @@ async function mockAuthAndOnboardingApis(page: Page): Promise<void> {
  * @param page Playwright page instance.
  */
 async function loginAndReachWizard(page: Page): Promise<void> {
+  await seedCookieConsent(page);
   await page.goto("/login");
   await waitForHydration(page);
   await fillLoginForm(page, "ana@auraxis.com", "ValidPassword1!");
@@ -142,21 +143,37 @@ async function loginAndReachWizard(page: Page): Promise<void> {
   await expect(page.locator(".onboarding-dialog")).toBeVisible({ timeout: 10_000 });
 }
 
-test.describe("Onboarding wizard — 3 passos (PROD-3)", () => {
+/**
+ * Advances through the three narrative tour cards until the setup form starts.
+ *
+ * @param page Playwright page instance.
+ */
+async function advanceNarrativeTour(page: Page): Promise<void> {
+  for (let index = 0; index < 3; index += 1) {
+    await expect(page.locator("[data-testid='onboarding-tour-step']")).toBeVisible();
+    await page.locator("[data-testid='onboarding-tour-next']").click();
+    await page.waitForTimeout(300);
+  }
+
+  await expect(page.locator("[data-testid='onboarding-step1-form']")).toBeVisible();
+}
+
+test.describe("Guided onboarding wizard — tour narrativo + setup rápido", () => {
   test.beforeEach(async ({ page }) => {
     await mockAuthAndOnboardingApis(page);
   });
 
-  test("completes the full 3-step wizard end-to-end", async ({ page }) => {
+  test("completes the full guided wizard end-to-end", async ({ page }) => {
     await loginAndReachWizard(page);
+    await advanceNarrativeTour(page);
 
-    // Step 1 — dados básicos
+    // Setup step 1 — dados básicos
     await expect(page.locator("[data-testid='onboarding-step1-form']")).toBeVisible();
     await page.locator("[data-testid='onboarding-step1-income']").fill("7500,00");
     await page.locator("[data-testid='onboarding-step1-profile']").selectOption("conservador");
     await page.locator("[data-testid='step1-next']").click();
 
-    // Step 2 — primeira transação
+    // Setup step 2 — primeira transação
     await expect(page.locator("[data-testid='onboarding-step2-form']")).toBeVisible();
     await page.locator("[data-testid='onboarding-step2-type-income']").click();
     await page.locator("[data-testid='onboarding-step2-title']").fill("Salário");
@@ -164,7 +181,7 @@ test.describe("Onboarding wizard — 3 passos (PROD-3)", () => {
     // Date input already defaults to today; leave as-is.
     await page.locator("[data-testid='step2-next']").click();
 
-    // Step 3 — primeira meta
+    // Setup step 3 — primeira meta
     await expect(page.locator("[data-testid='onboarding-step3-form']")).toBeVisible();
     await page.locator("[data-testid='onboarding-step3-name']").fill("Reserva de emergência");
     await page.locator("[data-testid='onboarding-step3-amount']").fill("10000");
@@ -177,6 +194,7 @@ test.describe("Onboarding wizard — 3 passos (PROD-3)", () => {
 
   test("skipping the wizard surfaces the dashboard nudge and 'Retomar' reopens it mid-flow", async ({ page }) => {
     await loginAndReachWizard(page);
+    await advanceNarrativeTour(page);
 
     // Advance to step 2 so we have partial progress to resume.
     await page.locator("[data-testid='onboarding-step1-income']").fill("7500,00");
@@ -199,6 +217,7 @@ test.describe("Onboarding wizard — 3 passos (PROD-3)", () => {
 
   test("back/forward navigation preserves filled values and wizard is navigable", async ({ page }) => {
     await loginAndReachWizard(page);
+    await advanceNarrativeTour(page);
 
     await page.locator("[data-testid='onboarding-step1-income']").fill("4200,00");
     await page.locator("[data-testid='onboarding-step1-profile']").selectOption("explorador");

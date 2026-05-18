@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue";
-import { Settings, LogOut, ChevronRight } from "lucide-vue-next";
+import { Settings, LogOut, ChevronRight, RotateCcw } from "lucide-vue-next";
 import UiImage from "~/components/ui/UiImage.vue";
 import type { UiUserMenuProps, UiUserMenuEmits } from "./UiUserMenu.types";
 
@@ -89,6 +89,14 @@ onUnmounted(() => document.removeEventListener("mousedown", handleClickOutside))
       >
         <Settings :size="16" aria-hidden="true" />
         {{ $t('ui.userMenu.settings') }}
+      </button>
+      <button
+        class="ui-user-menu__item"
+        role="menuitem"
+        @click="emit('onboarding'); close()"
+      >
+        <RotateCcw :size="16" aria-hidden="true" />
+        {{ $t('ui.userMenu.onboarding') }}
       </button>
       <button
         class="ui-user-menu__item ui-user-menu__item--danger"

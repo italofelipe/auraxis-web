@@ -8,6 +8,7 @@ export interface AuraxisPublicConfig {
   apiBase: string;
   mockData: string;
   sentryDsn: string;
+  siteSurface: "app" | "marketing";
   siteUrl: string;
 }
 
@@ -23,6 +24,7 @@ export const useAuraxisConfig = (): AuraxisPublicConfig => {
     apiBase: (pub.apiBase as string) ?? "",
     mockData: (pub.mockData as string) ?? "false",
     sentryDsn: (pub.sentryDsn as string) ?? "",
+    siteSurface: pub.siteSurface === "marketing" ? "marketing" : "app",
     siteUrl: (pub.siteUrl as string) ?? "",
   };
 };
