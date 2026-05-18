@@ -9,5 +9,6 @@ export interface UiUserMenuProps {
 
 export type UiUserMenuEmits = {
   settings: []
+  onboarding: []
   logout: []
 }

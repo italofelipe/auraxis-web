@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { waitForHydration } from "../helpers/auth";
+import { fillLoginForm, waitForHydration } from "../helpers/auth";
 
 /**
  * E2E suite: Auth flows — backed by MSW mock handlers.
@@ -47,8 +47,7 @@ test.describe("Auth — MSW-backed flows", () => {
 		await page.goto("/login");
 		await waitForHydration(page);
 
-		await page.locator("#login-email").fill(VALID_EMAIL);
-		await page.locator("#login-password").fill(VALID_PASSWORD);
+		await fillLoginForm(page, VALID_EMAIL, VALID_PASSWORD);
 		await page.getByRole("button", { name: /entrar/i }).click();
 
 		await expect(page).toHaveURL(/\/dashboard/, { timeout: 10_000 });
@@ -76,8 +75,7 @@ test.describe("Auth — MSW-backed flows", () => {
 		await page.goto("/login");
 		await waitForHydration(page);
 
-		await page.locator("#login-email").fill("wrong@auraxis.com");
-		await page.locator("#login-password").fill("WrongPassword1!");
+		await fillLoginForm(page, "wrong@auraxis.com", "WrongPassword1!");
 		await page.getByRole("button", { name: /entrar/i }).click();
 
 		await expect(page).toHaveURL(/\/login/);

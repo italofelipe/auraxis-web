@@ -2,7 +2,7 @@ import { computed, onMounted, ref, watch, type ComputedRef, type Ref } from "vue
 import { useSessionStore } from "~/stores/session";
 import { useUserStore } from "~/stores/user";
 
-export type OnboardingStepNumber = 1 | 2 | 3;
+export type OnboardingStepNumber = 1 | 2 | 3 | 4 | 5 | 6;
 
 /** Shape captured from step 1 (dados básicos). */
 export interface OnboardingStep1Data {
@@ -44,6 +44,7 @@ const DEFAULT_STATE: Readonly<OnboardingState> = {
   currentStep: 1,
   formData: {},
 };
+const VALID_STEPS = new Set<unknown>([1, 2, 3, 4, 5, 6]);
 
 const _state = ref<OnboardingState>({ ...DEFAULT_STATE, formData: {} });
 const _openedManually = ref<boolean>(false);
@@ -74,8 +75,7 @@ function _hydrateState(raw: unknown): OnboardingState {
   }
   const parsed = raw as Partial<OnboardingState>;
   const step = parsed.currentStep;
-  const validStep: OnboardingStepNumber =
-    step === 1 || step === 2 || step === 3 ? step : 1;
+  const validStep: OnboardingStepNumber = VALID_STEPS.has(step) ? step as OnboardingStepNumber : 1;
   return {
     done: parsed.done === true,
     skipped: parsed.skipped === true,
@@ -146,8 +146,7 @@ function _buildActions(persist: () => void): OnboardingActions {
 }
 
 /**
- * Guided onboarding wizard controller — 3 steps: dados básicos,
- * primeira transação, primeira meta.
+ * Guided onboarding wizard controller — tour narrativo + setup rápido.
  *
  * Shows automatically on the first session after email confirmation, and can
  * be re-opened at any time via {@link OnboardingActions.start}. Persists

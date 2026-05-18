@@ -1,6 +1,6 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 
-import { waitForHydration } from "../helpers/auth";
+import { fillInputAndVerify, waitForHydration } from "../helpers/auth";
 
 /**
  * E2E suite: Register flow
@@ -40,18 +40,6 @@ const MOCK_LOGIN_SUCCESS = {
 const MOCK_REGISTER_EMAIL_TAKEN = {
   message: "Este e-mail já está em uso. Tente fazer login.",
 };
-
-/**
- * Dismisses the LGPD cookie banner when it is visible on auth pages.
- *
- * @param page Playwright page instance.
- */
-async function acceptCookieBanner(page: Page): Promise<void> {
-  const acceptAll = page.getByTestId("cookie-accept-all");
-  if (await acceptAll.isVisible().catch(() => false)) {
-    await acceptAll.click();
-  }
-}
 
 test.describe("Auth — Register", () => {
   test("register page renders all form fields and submit button", async ({
@@ -99,11 +87,11 @@ test.describe("Auth — Register", () => {
 
     await page.goto("/register");
     await waitForHydration(page);
-    await acceptCookieBanner(page);
-    await page.locator("#signup-name").fill("New User");
-    await page.locator("#signup-email").fill("newuser@example.com");
-    await page.locator("#signup-password").fill("StrongPass1!");
-    await page.locator("#signup-confirm-password").fill("StrongPass1!");
+    await fillInputAndVerify(page, "#signup-name", "New User");
+    await fillInputAndVerify(page, "#signup-email", "newuser@example.com");
+    await fillInputAndVerify(page, "#signup-password", "StrongPass1!");
+    await fillInputAndVerify(page, "#signup-confirm-password", "StrongPass1!");
+    await page.locator("#signup-terms").check();
     await page.getByRole("button", { name: /criar conta/i }).click();
 
     await expect(page).toHaveURL(/\/dashboard/, {
@@ -129,11 +117,11 @@ test.describe("Auth — Register", () => {
 
     await page.goto("/register");
     await waitForHydration(page);
-    await acceptCookieBanner(page);
-    await page.locator("#signup-name").fill("Existing User");
-    await page.locator("#signup-email").fill("taken@example.com");
-    await page.locator("#signup-password").fill("StrongPass1!");
-    await page.locator("#signup-confirm-password").fill("StrongPass1!");
+    await fillInputAndVerify(page, "#signup-name", "Existing User");
+    await fillInputAndVerify(page, "#signup-email", "taken@example.com");
+    await fillInputAndVerify(page, "#signup-password", "StrongPass1!");
+    await fillInputAndVerify(page, "#signup-confirm-password", "StrongPass1!");
+    await page.locator("#signup-terms").check();
     await page.getByRole("button", { name: /criar conta/i }).click();
 
     // Should remain on /register
@@ -158,11 +146,11 @@ test.describe("Auth — Register", () => {
 
     await page.goto("/register");
     await waitForHydration(page);
-    await acceptCookieBanner(page);
-    await page.locator("#signup-name").fill("New User");
-    await page.locator("#signup-email").fill("newuser@example.com");
-    await page.locator("#signup-password").fill("StrongPass1!");
-    await page.locator("#signup-confirm-password").fill("StrongPass1!");
+    await fillInputAndVerify(page, "#signup-name", "New User");
+    await fillInputAndVerify(page, "#signup-email", "newuser@example.com");
+    await fillInputAndVerify(page, "#signup-password", "StrongPass1!");
+    await fillInputAndVerify(page, "#signup-confirm-password", "StrongPass1!");
+    await page.locator("#signup-terms").check();
 
     const submitButton = page.locator(".signup-form__submit");
     await submitButton.click();
@@ -176,7 +164,6 @@ test.describe("Auth — Register", () => {
   }) => {
     await page.goto("/register");
     await waitForHydration(page);
-    await acceptCookieBanner(page);
 
     await page.getByRole("button", { name: /criar conta/i }).click();
 

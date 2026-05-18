@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-import { waitForHydration } from "../helpers/auth";
+import { fillInputAndVerify, waitForHydration } from "../helpers/auth";
 
 /**
  * E2E suite: Forgot password flow
@@ -48,7 +48,7 @@ test.describe("Auth — Forgot Password", () => {
 
     await page.goto("/forgot-password");
     await waitForHydration(page);
-    await page.locator("#forgot-email").fill("user@example.com");
+    await fillInputAndVerify(page, "#forgot-email", "user@example.com");
     await page.getByRole("button", { name: /enviar link/i }).click();
 
     // Success screen should display after submission
@@ -70,7 +70,7 @@ test.describe("Auth — Forgot Password", () => {
 
     await page.goto("/forgot-password");
     await waitForHydration(page);
-    await page.locator("#forgot-email").fill("nonexistent@example.com");
+    await fillInputAndVerify(page, "#forgot-email", "nonexistent@example.com");
     await page.getByRole("button", { name: /enviar link/i }).click();
 
     // The app intentionally shows success regardless of the API result
@@ -91,7 +91,7 @@ test.describe("Auth — Forgot Password", () => {
 
     await page.goto("/forgot-password");
     await waitForHydration(page);
-    await page.locator("#forgot-email").fill("user@example.com");
+    await fillInputAndVerify(page, "#forgot-email", "user@example.com");
     await page.getByRole("button", { name: /enviar link/i }).click();
 
     await expect(page.getByText(/e-mail enviado/i)).toBeVisible({
@@ -116,7 +116,7 @@ test.describe("Auth — Forgot Password", () => {
 
     await page.goto("/forgot-password");
     await waitForHydration(page);
-    await page.locator("#forgot-email").fill("user@example.com");
+    await fillInputAndVerify(page, "#forgot-email", "user@example.com");
 
     const submitButton = page.locator(".forgot-form__submit");
     await submitButton.click();

@@ -22,6 +22,7 @@ export interface UiTopbarProps {
 export type UiTopbarEmits = {
   action: [key: string]
   "user-settings": []
+  "user-onboarding": []
   "user-logout": []
   "menu-toggle": []
 }

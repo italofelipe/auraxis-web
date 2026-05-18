@@ -1645,6 +1645,7 @@
     },
     "userMenu": {
       "settings": "Configurações",
+      "onboarding": "Onboarding guiado",
       "logout": "Sair"
     },
     "topbar": {
@@ -3343,6 +3344,66 @@
     "triggerTitle": "Refazer onboarding",
     "back": "Voltar",
     "skip": "Pular por enquanto",
+    "skipNote": "Tudo bem pular agora. Você pode refazer este onboarding em Configurações > Onboarding guiado.",
+    "tour": {
+      "welcome": {
+        "title": "Vamos entender o Auraxis antes de configurar",
+        "description": "Em poucos passos você verá como o app organiza rotina, planejamento e análise financeira sem exigir que você aprenda jargões.",
+        "cta": "Ver como o app funciona",
+        "items": {
+          "control": {
+            "title": "Controle diário",
+            "text": "Registre receitas e despesas para saber o que entrou, o que saiu e onde o mês apertou."
+          },
+          "plan": {
+            "title": "Planejamento com metas",
+            "text": "Crie objetivos e acompanhe quanto falta, quando chegar lá e quais hábitos ajudam."
+          },
+          "review": {
+            "title": "Revisão guiada",
+            "text": "Use gráficos, filtros e sinais de IA para encontrar pontos que merecem atenção."
+          }
+        }
+      },
+      "routine": {
+        "title": "Sua rotina começa no dashboard",
+        "description": "O dashboard resume o período atual, mas cada número leva a uma camada mais detalhada quando você quiser investigar.",
+        "cta": "Continuar para planejamento",
+        "items": {
+          "dashboard": {
+            "title": "Dashboard",
+            "text": "Mostra saldo, receitas, despesas, comparação com o período anterior e alertas de revisão."
+          },
+          "transactions": {
+            "title": "Transações",
+            "text": "É onde você registra, paga, recebe, filtra por mês e entende a origem de cada valor."
+          },
+          "periods": {
+            "title": "Períodos",
+            "text": "Você pode olhar o mês atual, navegar entre meses ou selecionar um intervalo personalizado."
+          }
+        }
+      },
+      "intelligence": {
+        "title": "Planeje, compare e use IA com transparência",
+        "description": "Depois do básico, o Auraxis conecta metas, ferramentas e insights para transformar dados em próximos passos.",
+        "cta": "Configurar meu painel",
+        "items": {
+          "goals": {
+            "title": "Metas e orçamento",
+            "text": "Acompanhe objetivos, reservas e limites para saber se o plano ainda cabe na realidade do mês."
+          },
+          "tools": {
+            "title": "Ferramentas",
+            "text": "Use calculadoras públicas e simuladores para comparar cenários antes de decidir."
+          },
+          "ai": {
+            "title": "Insights de IA",
+            "text": "Com consentimento ativo, a IA analisa padrões. Seus dados não são usados para treinar modelos."
+          }
+        }
+      }
+    },
     "step1": {
       "title": "Vamos começar pelos dados básicos",
       "titleWithName": "Bem-vindo, {name}",

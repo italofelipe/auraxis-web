@@ -68,6 +68,18 @@ describe("UiPublicHeader", () => {
     expect(wrapper.text()).toContain("FAQ");
   });
 
+  it("hides landing navigation on the app surface", () => {
+    const wrapper = renderWithProviders(UiPublicHeader, {
+      props: { authenticated: false, surface: "app" },
+      global: { stubs },
+    });
+
+    expect(wrapper.text()).not.toContain("Produto");
+    expect(wrapper.text()).not.toContain("Analytics");
+    expect(wrapper.text()).toContain("Entrar");
+    expect(wrapper.text()).toContain("Criar conta");
+  });
+
   it("shows login and register when not authenticated", () => {
     const wrapper = renderWithProviders(UiPublicHeader, {
       props: { authenticated: false },

@@ -18,6 +18,10 @@ const shouldEnableContent =
   && (hasContentDirectory || process.env.NUXT_ENABLE_CONTENT === "1");
 const requireFromConfig = createRequire(import.meta.url);
 const requireFromVite = createRequire(requireFromConfig.resolve("vite/package.json"));
+const siteSurface = process.env.NUXT_PUBLIC_SITE_SURFACE === "marketing" ? "marketing" : "app";
+const isMarketingSurface = siteSurface === "marketing";
+const siteUrl = process.env.NUXT_PUBLIC_SITE_URL
+  ?? (isMarketingSurface ? "https://www.auraxis.com.br" : "https://app.auraxis.com.br");
 
 /**
  * Stops Vite's nested esbuild service after Nuxt finishes building.
@@ -75,6 +79,7 @@ export default defineNuxtConfig({
       titleTemplate: "%s | Auraxis",
       link: [
         { rel: "manifest", href: "/manifest.webmanifest" },
+        { rel: "stylesheet", href: "/css/nuxt-google-fonts.css" },
       ],
       // ── Security meta tags ─────────────────────────────────────────
       // NOTE: X-Frame-Options and X-Content-Type-Options cannot be set
@@ -143,13 +148,13 @@ export default defineNuxtConfig({
   // previews em `app.auraxis.com.br/_preview/pr-N/` poderiam ser indexados pelo
   // Google e competir com a versão de produção.
   site: {
-    url: process.env.NUXT_PUBLIC_SITE_URL ?? "https://app.auraxis.com.br",
+    url: siteUrl,
     name: "Auraxis",
     description:
       "Planner financeiro inteligente para gerenciar carteira de investimentos, "
       + "metas financeiras e finanças pessoais.",
     defaultLocale: "pt-BR",
-    indexable: process.env.NUXT_PUBLIC_APP_ENV !== "preview",
+    indexable: process.env.NUXT_PUBLIC_APP_ENV !== "preview" && isMarketingSurface,
   },
 
   // ── Módulos ──────────────────────────────────────────────────────────
@@ -197,6 +202,8 @@ export default defineNuxtConfig({
       apiBase: process.env.NUXT_PUBLIC_API_BASE ?? "http://localhost:5000",
       sentryDsn: process.env.NUXT_PUBLIC_SENTRY_DSN ?? "",
       appEnv: process.env.NUXT_PUBLIC_APP_ENV ?? process.env.NODE_ENV ?? "development",
+      siteSurface,
+      siteUrl,
       // Injected by CI as "<run_id>-<sha>". Baked into the HTML meta tag
       // `x-build-id` during SSG so the smoke test can verify that CloudFront
       // is serving the freshly-deployed build rather than a stale snapshot.
@@ -231,10 +238,12 @@ export default defineNuxtConfig({
 
   googleFonts: {
     families: {
-      Inter: [400, 500, 600, 700, 800],
+      Inter: [400, 500, 600, 700],
       "IBM Plex Mono": [400, 500, 600],
     },
+    subsets: ["latin", "latin-ext"],
     display: "swap",
+    inject: false,
     preload: true,
     preconnect: true,
     prefetch: true,
@@ -324,6 +333,7 @@ export default defineNuxtConfig({
     // Explicitly exclude private SPA routes (ssr: false in routeRules).
     // @nuxtjs/sitemap normally skips them, but listing is belt-and-suspenders.
     exclude: [
+      ...(isMarketingSurface ? [] : ["/", "/en"]),
       "/dashboard",
       "/portfolio",
       "/goals",
