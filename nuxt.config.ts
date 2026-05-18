@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import { createRequire } from "node:module";
 import { visualizer } from "rollup-plugin-visualizer";
 import { buildCsp, resolveCspEnvironment } from "./app/core/security/csp";
+import { SEO_LANDING_SLUGS } from "./app/data/seoLandings";
 import { TOOL_SLUGS } from "./app/data/tools";
 
 // Resolve Content Security Policy at build time based on NUXT_PUBLIC_APP_ENV.
@@ -14,14 +15,15 @@ const cspEnvironment = resolveCspEnvironment(process.env.NUXT_PUBLIC_APP_ENV);
 const cspPolicy = buildCsp(cspEnvironment);
 const hasContentDirectory = existsSync(new URL("./content", import.meta.url));
 const shouldEnableContent =
-  process.env.NODE_ENV !== "test"
-  && (hasContentDirectory || process.env.NUXT_ENABLE_CONTENT === "1");
+  process.env.NODE_ENV !== "test" &&
+  (hasContentDirectory || process.env.NUXT_ENABLE_CONTENT === "1");
 const requireFromConfig = createRequire(import.meta.url);
 const requireFromVite = createRequire(requireFromConfig.resolve("vite/package.json"));
 const siteSurface = process.env.NUXT_PUBLIC_SITE_SURFACE === "marketing" ? "marketing" : "app";
 const isMarketingSurface = siteSurface === "marketing";
-const siteUrl = process.env.NUXT_PUBLIC_SITE_URL
-  ?? (isMarketingSurface ? "https://www.auraxis.com.br" : "https://app.auraxis.com.br");
+const siteUrl =
+  process.env.NUXT_PUBLIC_SITE_URL ??
+  (isMarketingSurface ? "https://www.auraxis.com.br" : "https://app.auraxis.com.br");
 
 /**
  * Stops Vite's nested esbuild service after Nuxt finishes building.
@@ -48,6 +50,16 @@ const toolRouteRules = Object.fromEntries(
 const toolPrerenderRoutes: string[] = TOOL_SLUGS.flatMap((slug) => [
   `/tools/${slug}`,
   `/en/tools/${slug}`,
+]);
+
+const seoLandingRouteRules = Object.fromEntries(
+  SEO_LANDING_SLUGS.map((slug) => [`/${slug}`, { prerender: true }]),
+) as Record<string, { prerender: boolean }>;
+
+const seoLandingPrerenderRoutes: string[] = SEO_LANDING_SLUGS.map((slug) => `/${slug}`);
+const seoLandingSitemapExclusions: string[] = SEO_LANDING_SLUGS.flatMap((slug) => [
+  `/${slug}`,
+  `/en/${slug}`,
 ]);
 
 export default defineNuxtConfig({
@@ -92,8 +104,8 @@ export default defineNuxtConfig({
         {
           name: "description",
           content:
-            "Gerencie carteira, metas e finanças pessoais em um só lugar. "
-            + "Acompanhe investimentos, simule cenários e tome decisões financeiras com inteligência.",
+            "Gerencie carteira, metas e finanças pessoais em um só lugar. " +
+            "Acompanhe investimentos, simule cenários e tome decisões financeiras com inteligência.",
         },
         { property: "og:type", content: "website" },
         { property: "og:site_name", content: "Auraxis" },
@@ -104,8 +116,8 @@ export default defineNuxtConfig({
         {
           property: "og:description",
           content:
-            "Gerencie carteira, metas e finanças pessoais em um só lugar. "
-            + "Acompanhe investimentos, simule cenários e tome decisões financeiras com inteligência.",
+            "Gerencie carteira, metas e finanças pessoais em um só lugar. " +
+            "Acompanhe investimentos, simule cenários e tome decisões financeiras com inteligência.",
         },
         { property: "og:locale", content: "pt_BR" },
         { name: "twitter:card", content: "summary_large_image" },
@@ -116,8 +128,8 @@ export default defineNuxtConfig({
         {
           name: "twitter:description",
           content:
-            "Gerencie carteira, metas e finanças pessoais em um só lugar. "
-            + "Acompanhe investimentos, simule cenários e tome decisões financeiras com inteligência.",
+            "Gerencie carteira, metas e finanças pessoais em um só lugar. " +
+            "Acompanhe investimentos, simule cenários e tome decisões financeiras com inteligência.",
         },
         // ── Security ──────────────────────────────────────────────────
         { name: "theme-color", content: "#44d4ff" },
@@ -130,9 +142,7 @@ export default defineNuxtConfig({
         { name: "x-build-id", content: process.env.NUXT_PUBLIC_BUILD_ID ?? "" },
         // Env-aware CSP. In production the header comes from CloudFront, so
         // `cspPolicy` is null and this entry is filtered out.
-        ...(cspPolicy
-          ? [{ "http-equiv": "Content-Security-Policy", content: cspPolicy }]
-          : []),
+        ...(cspPolicy ? [{ "http-equiv": "Content-Security-Policy", content: cspPolicy }] : []),
       ],
     },
   },
@@ -151,8 +161,8 @@ export default defineNuxtConfig({
     url: siteUrl,
     name: "Auraxis",
     description:
-      "Planner financeiro inteligente para gerenciar carteira de investimentos, "
-      + "metas financeiras e finanças pessoais.",
+      "Planner financeiro inteligente para gerenciar carteira de investimentos, " +
+      "metas financeiras e finanças pessoais.",
     defaultLocale: "pt-BR",
     indexable: process.env.NUXT_PUBLIC_APP_ENV !== "preview" && isMarketingSurface,
   },
@@ -160,22 +170,22 @@ export default defineNuxtConfig({
   // ── Módulos ──────────────────────────────────────────────────────────
   modules: [
     "@sentry/nuxt/module", // Error tracking e source maps (opt-in via NUXT_PUBLIC_SENTRY_DSN)
-    "@nuxt/eslint",       // Lint integrado ao Nuxt (gera eslint.config via `nuxt lint`)
+    "@nuxt/eslint", // Lint integrado ao Nuxt (gera eslint.config via `nuxt lint`)
     // Load @nuxt/content only when real content files exist. With only
     // content.config.ts present, its SQLite cache stays open after build.
     ...(shouldEnableContent ? ["@nuxt/content" as const] : []),
-    "@nuxt/scripts",      // Carregamento otimizado de scripts de terceiros
-    "@nuxt/a11y",         // Auditor de acessibilidade em dev
+    "@nuxt/scripts", // Carregamento otimizado de scripts de terceiros
+    "@nuxt/a11y", // Auditor de acessibilidade em dev
     // "@nuxt/hints" removed — its virtual config import returned 400 in the
     // dev server, causing a cascade that broke the dynamic import of entry.js
     // and made the Vue app fail to hydrate on page load.
-    "@pinia/nuxt",        // State management
-    "@nuxtjs/i18n",       // Internacionalização
-    "@nuxtjs/seo",        // Meta tags, sitemap, robots automáticos
-    "@nuxtjs/device",     // Detecção de device (mobile/desktop/tablet)
+    "@pinia/nuxt", // State management
+    "@nuxtjs/i18n", // Internacionalização
+    "@nuxtjs/seo", // Meta tags, sitemap, robots automáticos
+    "@nuxtjs/device", // Detecção de device (mobile/desktop/tablet)
     "@nuxtjs/google-fonts",
     "dayjs-nuxt",
-    "@vite-pwa/nuxt",     // PWA: service worker + install prompt
+    "@vite-pwa/nuxt", // PWA: service worker + install prompt
     // @nuxt/image dropped — substituted by ~/components/ui/UiImage.vue (PERF-6)
     // '@nuxtjs/apollo',   // ⚠️ Incompatível com Nuxt 4 — aguarda versão estável
     //                       Adicionar de volta quando disponível: https://github.com/nuxt-modules/apollo
@@ -187,9 +197,7 @@ export default defineNuxtConfig({
   // pathPrefix: false → Nuxt uses the filename as the component name,
   // not the directory path. So components/alert/AlertItem.vue → <AlertItem>
   // and components/ui/UiAppShell/UiAppShell.vue → <UiAppShell>.
-  components: [
-    { path: "~/components", pathPrefix: false },
-  ],
+  components: [{ path: "~/components", pathPrefix: false }],
 
   // ── TypeScript ────────────────────────────────────────────────────────
   typescript: {
@@ -333,7 +341,7 @@ export default defineNuxtConfig({
     // Explicitly exclude private SPA routes (ssr: false in routeRules).
     // @nuxtjs/sitemap normally skips them, but listing is belt-and-suspenders.
     exclude: [
-      ...(isMarketingSurface ? [] : ["/", "/en"]),
+      ...(isMarketingSurface ? [] : ["/", "/en", ...seoLandingSitemapExclusions]),
       "/dashboard",
       "/portfolio",
       "/goals",
@@ -449,9 +457,17 @@ export default defineNuxtConfig({
     },
     // Bundle visualizer — active only when ANALYZE=true (set by CI bundle-analysis job).
     // Generates stats.html at the project root for upload as a CI artifact.
-    plugins: process.env.ANALYZE === "true"
-      ? [visualizer({ open: false, filename: "stats.html", gzipSize: true, brotliSize: true }) as never]
-      : [],
+    plugins:
+      process.env.ANALYZE === "true"
+        ? [
+            visualizer({
+              open: false,
+              filename: "stats.html",
+              gzipSize: true,
+              brotliSize: true,
+            }) as never,
+          ]
+        : [],
   },
 
   // ── Route Rules ───────────────────────────────────────────────────────
@@ -471,82 +487,83 @@ export default defineNuxtConfig({
   //
   routeRules: {
     // ── Public — SSG (indexed, shareable) ─────────────────────────────
-    "/":                          { prerender: true },
-    "/plans":                     { prerender: true },
-    "/tools":                     { prerender: true },
+    "/": { prerender: true },
+    "/plans": { prerender: true },
+    "/tools": { prerender: true },
     // Tool routes are generated automatically from app/data/tools.ts
     // DO NOT add individual tool routes here — edit app/data/tools.ts instead.
     ...toolRouteRules,
-    "/privacy-policy":            { prerender: true },
-    "/terms-of-service":          { prerender: true },
+    ...seoLandingRouteRules,
+    "/privacy-policy": { prerender: true },
+    "/terms-of-service": { prerender: true },
 
     // ── Auth — SSG (noindex enforced via noindex middleware) ───────────
-    "/login":                  { prerender: true },
-    "/register":               { prerender: true },
-    "/forgot-password":        { prerender: true },
-    "/reset-password":         { prerender: true },
-    "/confirm-email":          { prerender: true },
-    "/confirm-email-pending":  { ssr: false },
+    "/login": { prerender: true },
+    "/register": { prerender: true },
+    "/forgot-password": { prerender: true },
+    "/reset-password": { prerender: true },
+    "/confirm-email": { prerender: true },
+    "/confirm-email-pending": { ssr: false },
     // resend-confirmation requires authentication (logged-in user resending
     // their verification email) — must be SPA, not prerendered.
-    "/resend-confirmation":    { ssr: false },
-    "/checkout/success":       { ssr: false },
-    "/checkout/cancel":        { prerender: true },
+    "/resend-confirmation": { ssr: false },
+    "/checkout/success": { ssr: false },
+    "/checkout/cancel": { prerender: true },
 
     // ── EN locale variants — SSG ───────────────────────────────────────
-    "/en":                           { prerender: true },
-    "/en/plans":                     { prerender: true },
-    "/en/tools":                     { prerender: true },
+    "/en": { prerender: true },
+    "/en/plans": { prerender: true },
+    "/en/tools": { prerender: true },
     // EN tool routes are included in toolRouteRules above (spread into routeRules).
-    "/en/privacy-policy":            { prerender: true },
-    "/en/terms-of-service":          { prerender: true },
-    "/en/login":                     { prerender: true },
-    "/en/register":                  { prerender: true },
-    "/en/forgot-password":           { prerender: true },
-    "/en/reset-password":            { prerender: true },
-    "/en/confirm-email":             { prerender: true },
-    "/en/confirm-email-pending":     { ssr: false },
-    "/en/resend-confirmation":       { ssr: false },
-    "/en/checkout/success":          { ssr: false },
-    "/en/checkout/cancel":           { prerender: true },
+    "/en/privacy-policy": { prerender: true },
+    "/en/terms-of-service": { prerender: true },
+    "/en/login": { prerender: true },
+    "/en/register": { prerender: true },
+    "/en/forgot-password": { prerender: true },
+    "/en/reset-password": { prerender: true },
+    "/en/confirm-email": { prerender: true },
+    "/en/confirm-email-pending": { ssr: false },
+    "/en/resend-confirmation": { ssr: false },
+    "/en/checkout/success": { ssr: false },
+    "/en/checkout/cancel": { prerender: true },
 
     // ── Private app — SPA (no prerender, no server HTML) ──────────────
     // Auth middleware enforces access. No financial data in static HTML.
     // IMPORTANT: Every authenticated route MUST be listed here. Without
     // `ssr: false`, Nuxt falls back to full SSR where `document` is
     // undefined and route middlewares crash → 500 during prerender.
-    "/dashboard":      { ssr: false },
-    "/portfolio":      { ssr: false },
-    "/goals":          { ssr: false },
-    "/transactions":   { ssr: false },
-    "/alerts":         { ssr: false },
-    "/simulations":    { ssr: false },
+    "/dashboard": { ssr: false },
+    "/portfolio": { ssr: false },
+    "/goals": { ssr: false },
+    "/transactions": { ssr: false },
+    "/alerts": { ssr: false },
+    "/simulations": { ssr: false },
     "/shared-entries": { ssr: false },
-    "/income":         { ssr: false },
-    "/subscription":   { ssr: false },
-    "/budgets":        { ssr: false },
-    "/investor-profile":        { ssr: false },
-    "/settings/accounts":       { ssr: false },
-    "/settings/credit-cards":   { ssr: false },
-    "/settings/tags":           { ssr: false },
-    "/settings/profile":        { ssr: false },
-    "/settings/danger-zone":    { ssr: false },
-    "/en/dashboard":      { ssr: false },
-    "/en/portfolio":      { ssr: false },
-    "/en/goals":          { ssr: false },
-    "/en/transactions":   { ssr: false },
-    "/en/alerts":         { ssr: false },
-    "/en/simulations":    { ssr: false },
+    "/income": { ssr: false },
+    "/subscription": { ssr: false },
+    "/budgets": { ssr: false },
+    "/investor-profile": { ssr: false },
+    "/settings/accounts": { ssr: false },
+    "/settings/credit-cards": { ssr: false },
+    "/settings/tags": { ssr: false },
+    "/settings/profile": { ssr: false },
+    "/settings/danger-zone": { ssr: false },
+    "/en/dashboard": { ssr: false },
+    "/en/portfolio": { ssr: false },
+    "/en/goals": { ssr: false },
+    "/en/transactions": { ssr: false },
+    "/en/alerts": { ssr: false },
+    "/en/simulations": { ssr: false },
     "/en/shared-entries": { ssr: false },
-    "/en/income":         { ssr: false },
-    "/en/subscription":   { ssr: false },
-    "/en/budgets":        { ssr: false },
-    "/en/investor-profile":        { ssr: false },
-    "/en/settings/accounts":       { ssr: false },
-    "/en/settings/credit-cards":   { ssr: false },
-    "/en/settings/tags":           { ssr: false },
-    "/en/settings/profile":        { ssr: false },
-    "/en/settings/danger-zone":    { ssr: false },
+    "/en/income": { ssr: false },
+    "/en/subscription": { ssr: false },
+    "/en/budgets": { ssr: false },
+    "/en/investor-profile": { ssr: false },
+    "/en/settings/accounts": { ssr: false },
+    "/en/settings/credit-cards": { ssr: false },
+    "/en/settings/tags": { ssr: false },
+    "/en/settings/profile": { ssr: false },
+    "/en/settings/danger-zone": { ssr: false },
   },
 
   // ── Experimental flags ────────────────────────────────────────────────
@@ -591,6 +608,8 @@ export default defineNuxtConfig({
         // ── Tool routes — auto-generated from app/data/tools.ts ────────
         // DO NOT add individual tool routes here. Edit app/data/tools.ts.
         ...toolPrerenderRoutes,
+        // ── Commercial SEO landing routes — auto-generated from seoLandings.ts
+        ...seoLandingPrerenderRoutes,
         // ── SEO assets ────────────────────────────────────────────────
         "/sitemap.xml",
       ],
