@@ -45,6 +45,16 @@ export type AiInsightHistoryResultType = {
   total: Scalars['Int']['output'];
 };
 
+/** A single LLM-produced insight item, tagged by dimension. */
+export type AiInsightItemType = {
+  __typename?: 'AIInsightItemType';
+  dimension: Scalars['String']['output'];
+  evidence?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  message: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+};
+
 export type AiInsightType = {
   __typename?: 'AIInsightType';
   content: Scalars['String']['output'];
@@ -451,6 +461,22 @@ export type FiscalDocumentType = {
   type: Scalars['String']['output'];
 };
 
+export type GenerateAiInsightPayload = {
+  __typename?: 'GenerateAiInsightPayload';
+  cached?: Maybe<Scalars['Boolean']['output']>;
+  contextVersion?: Maybe<Scalars['String']['output']>;
+  costUsd?: Maybe<Scalars['Float']['output']>;
+  items?: Maybe<Array<Maybe<AiInsightItemType>>>;
+  model?: Maybe<Scalars['String']['output']>;
+  ok: Scalars['Boolean']['output'];
+  periodEnd?: Maybe<Scalars['String']['output']>;
+  periodLabel?: Maybe<Scalars['String']['output']>;
+  periodStart?: Maybe<Scalars['String']['output']>;
+  periodType?: Maybe<Scalars['String']['output']>;
+  summary?: Maybe<Scalars['String']['output']>;
+  tokensUsed?: Maybe<Scalars['Int']['output']>;
+};
+
 export type GoalListPayloadType = {
   __typename?: 'GoalListPayloadType';
   items: Array<Maybe<GoalTypeObject>>;
@@ -749,6 +775,14 @@ export type Mutation = {
   /** @deprecated ADR-0002: use DELETE /wallet/{id} */
   deleteWalletEntry?: Maybe<DeleteWalletEntryMutation>;
   forgotPassword?: Maybe<AuthPayloadType>;
+  /**
+   * GraphQL parity for POST /ai/insights/generate.
+   *
+   * Reuses AIAdvisoryService — quota (2x/day Premium), entitlement gate and
+   * LGPD consent are enforced inside the service. GraphQL surface exposes the
+   * same payload shape so the frontend hub can render either path identically.
+   */
+  generateAiInsight?: Maybe<GenerateAiInsightPayload>;
   login?: Maybe<AuthPayloadType>;
   logout?: Maybe<LogoutMutation>;
   /** @deprecated ADR-0002: use PATCH /fiscal/receivables/{id}/receive */
@@ -989,6 +1023,12 @@ export type MutationDeleteWalletEntryArgs = {
 
 export type MutationForgotPasswordArgs = {
   email: Scalars['String']['input'];
+};
+
+
+export type MutationGenerateAiInsightArgs = {
+  anchorDate?: InputMaybe<Scalars['String']['input']>;
+  periodType: Scalars['String']['input'];
 };
 
 
