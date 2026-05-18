@@ -48,8 +48,8 @@ export const getInsightDimensionLabel = (dimension: InsightDimension): string =>
 };
 
 /**
- * Filters insight items for a contextual surface. General insights are shown on
- * every surface so global recommendations are not hidden.
+ * Filters insight items for a contextual surface. Global/general insights stay
+ * available on dashboard and hub, but do not leak into feature-specific pages.
  *
  * @param items Source insight items.
  * @param dimension Contextual surface dimension.
@@ -61,7 +61,7 @@ export const filterInsightItemsByDimension = (
 ): InsightItem[] => {
   return items
     .map(normalizeDimension)
-    .filter((item) => item.dimension === "general" || item.dimension === dimension);
+    .filter((item) => item.dimension === dimension);
 };
 
 /**
