@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { createAuthApi } from "./api";
 
 /**
- * Builds a minimal v2 auth envelope mock for login and register responses.
+ * Builds a minimal v2 auth envelope mock for login responses.
  *
  * @param email User email.
  * @param name User display name.
@@ -22,6 +22,36 @@ function makeV2AuthResponse(
       success: true,
       message: "OK",
       data: { token, refresh_token: refreshToken, user: { id: "uuid-1", name, email } },
+    },
+  };
+}
+
+/**
+ * Builds the v2 registration envelope returned by POST /auth/register.
+ *
+ * Registration creates the account only. The frontend must authenticate with
+ * POST /auth/login after this response to obtain session tokens.
+ *
+ * @param email User email.
+ * @param name User display name.
+ * @returns Mock resolved Axios-like response with v2 registration envelope.
+ */
+function makeV2RegisterResponse(
+  email: string,
+  name: string,
+): { data: unknown } {
+  return {
+    data: {
+      success: true,
+      message: "User created successfully",
+      data: {
+        user: {
+          id: "uuid-1",
+          name,
+          email,
+          email_confirmed: false,
+        },
+      },
     },
   };
 }
@@ -46,8 +76,8 @@ describe("createAuthApi", () => {
     expect(response.user.displayName).toBe("Auraxis User");
   });
 
-  it("register calls POST /auth/register and normalizes v2 envelope to RegisterResponse", async () => {
-    const post = vi.fn().mockResolvedValue(makeV2AuthResponse("new@auraxis.com", "New User", "register-token"));
+  it("register calls POST /auth/register and normalizes account creation without session tokens", async () => {
+    const post = vi.fn().mockResolvedValue(makeV2RegisterResponse("new@auraxis.com", "New User"));
     const authApi = createAuthApi({ post });
 
     const response = await authApi.register({
@@ -61,10 +91,34 @@ describe("createAuthApi", () => {
       email: "new@auraxis.com",
       password: "Senha@12345",
     });
-    expect(response.accessToken).toBe("register-token");
-    expect(response.refreshToken).toBe("mock-refresh");
-    expect(response.user.email).toBe("new@auraxis.com");
-    expect(response.user.displayName).toBe("New User");
+    expect(response.message).toBe("User created successfully");
+    expect(response.user).toMatchObject({
+      email: "new@auraxis.com",
+      displayName: "New User",
+      emailConfirmed: false,
+    });
+  });
+
+  it("register accepts a neutral registration response without user data", async () => {
+    const post = vi.fn().mockResolvedValue({
+      data: {
+        success: true,
+        message: "Registration request accepted.",
+        data: {},
+      },
+    });
+    const authApi = createAuthApi({ post });
+
+    const response = await authApi.register({
+      name: "Existing User",
+      email: "existing@auraxis.com",
+      password: "Senha@12345",
+    });
+
+    expect(response).toEqual({
+      message: "Registration request accepted.",
+      user: undefined,
+    });
   });
 
   it("forgotPassword calls POST /auth/password/forgot and normalizes legacy response", async () => {

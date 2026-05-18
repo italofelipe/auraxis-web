@@ -82,7 +82,7 @@ describe("useAuth/mutations", () => {
     });
   });
 
-  it("usa API injetada em useRegisterMutation e dispara signIn no sucesso", () => {
+  it("usa API injetada em useRegisterMutation sem autenticar antes do login", () => {
     const authApi: AuthApi = {
       login: vi.fn(),
       register: vi.fn(),
@@ -92,24 +92,18 @@ describe("useAuth/mutations", () => {
 
     const mutation = useRegisterMutation(authApi) as unknown as {
       mutationFn: unknown;
-      onSuccess: (response: { accessToken: string; refreshToken?: string; user: { email: string; emailConfirmed?: boolean } }) => void;
+      onSuccess: (response: { message: string; user: { email: string; emailConfirmed?: boolean } }) => void;
     };
 
     expect(mutation.mutationFn).toBe(authApi.register);
 
     mutation.onSuccess({
-      accessToken: "register-token",
-      refreshToken: "register-refresh",
+      message: "User created successfully",
       user: { email: "register@auraxis.com", emailConfirmed: false },
     });
 
-    expect(signInMock).toHaveBeenCalledWith({
-      accessToken: "register-token",
-      refreshToken: "register-refresh",
-      userEmail: "register@auraxis.com",
-      emailConfirmed: false,
-    });
-    expect(identifyMock).toHaveBeenCalledWith("register@auraxis.com");
+    expect(signInMock).not.toHaveBeenCalled();
+    expect(identifyMock).not.toHaveBeenCalled();
     expect(captureMock).toHaveBeenCalledWith("user_registered", {
       email_confirmed: false,
     });
@@ -155,7 +149,7 @@ describe("useAuth/mutations", () => {
     });
   });
 
-  it("usa null como refreshToken quando nao e fornecido em useRegisterMutation", () => {
+  it("captura registro mesmo quando a resposta nao expoe dados do usuario", () => {
     const authApi: AuthApi = {
       login: vi.fn(),
       register: vi.fn(),
@@ -164,19 +158,16 @@ describe("useAuth/mutations", () => {
     };
 
     const mutation = useRegisterMutation(authApi) as unknown as {
-      onSuccess: (response: { accessToken: string; refreshToken?: string; user: { email: string; emailConfirmed?: boolean } }) => void;
+      onSuccess: (response: { message: string; user?: { email: string; emailConfirmed?: boolean } }) => void;
     };
 
     mutation.onSuccess({
-      accessToken: "register-no-refresh",
-      user: { email: "new@auraxis.com", emailConfirmed: false },
+      message: "Registration request accepted.",
     });
 
-    expect(signInMock).toHaveBeenCalledWith({
-      accessToken: "register-no-refresh",
-      refreshToken: null,
-      userEmail: "new@auraxis.com",
-      emailConfirmed: false,
+    expect(signInMock).not.toHaveBeenCalled();
+    expect(captureMock).toHaveBeenCalledWith("user_registered", {
+      email_confirmed: false,
     });
   });
 

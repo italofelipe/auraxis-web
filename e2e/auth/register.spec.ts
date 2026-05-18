@@ -13,6 +13,19 @@ const MOCK_REGISTER_SUCCESS = {
   success: true,
   message: "Account created",
   data: {
+    user: {
+      id: "user-new-456",
+      name: "New User",
+      email: "newuser@example.com",
+      email_confirmed: false,
+    },
+  },
+};
+
+const MOCK_LOGIN_SUCCESS = {
+  success: true,
+  message: "Authenticated",
+  data: {
     token: "mock-access-token",
     refresh_token: "mock-refresh-token",
     user: {
@@ -51,14 +64,24 @@ test.describe("Auth — Register", () => {
     await expect(loginLink).toHaveAttribute("href", "/login");
   });
 
-  test("successful registration redirects to /confirm-email-pending", async ({
+  test("successful registration logs in with the submitted credentials and redirects to /dashboard", async ({
     page,
   }) => {
+    let loginPayload: Record<string, unknown> | undefined;
+
     await page.route("**/auth/register", (route) => {
       route.fulfill({
         status: 201,
         contentType: "application/json",
         body: JSON.stringify(MOCK_REGISTER_SUCCESS),
+      });
+    });
+    await page.route("**/auth/login", async (route) => {
+      loginPayload = await route.request().postDataJSON();
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(MOCK_LOGIN_SUCCESS),
       });
     });
 
@@ -71,9 +94,14 @@ test.describe("Auth — Register", () => {
     await page.locator("#signup-terms").check();
     await page.getByRole("button", { name: /criar conta/i }).click();
 
-    await expect(page).toHaveURL(/\/confirm-email-pending/, {
+    await expect(page).toHaveURL(/\/dashboard/, {
       timeout: 10_000,
     });
+    expect(loginPayload).toMatchObject({
+      email: "newuser@example.com",
+      password: "StrongPass1!",
+    });
+    await expect(page.getByText(/algo deu errado/i)).not.toBeVisible();
   });
 
   test("shows error message when email is already taken (409)", async ({
@@ -135,6 +163,7 @@ test.describe("Auth — Register", () => {
     page,
   }) => {
     await page.goto("/register");
+    await waitForHydration(page);
 
     await page.getByRole("button", { name: /criar conta/i }).click();
 
