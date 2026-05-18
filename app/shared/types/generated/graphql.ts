@@ -171,6 +171,24 @@ export type BankImportPreviewType = {
   totalEntries: Scalars['Int']['output'];
 };
 
+export type BillCycleType = {
+  __typename?: 'BillCycleType';
+  dueDate: Scalars['String']['output'];
+  endDate: Scalars['String']['output'];
+  startDate: Scalars['String']['output'];
+  status: Scalars['String']['output'];
+};
+
+export type BillTransactionType = {
+  __typename?: 'BillTransactionType';
+  amount: Scalars['DecimalScalar']['output'];
+  dueDate?: Maybe<Scalars['String']['output']>;
+  id: Scalars['String']['output'];
+  status?: Maybe<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+  type?: Maybe<Scalars['String']['output']>;
+};
+
 /** An enumeration. */
 export type BillingCycle =
   | 'ANNUAL'
@@ -280,6 +298,47 @@ export type CreateTransactionMutation = {
   __typename?: 'CreateTransactionMutation';
   items: Array<Maybe<TransactionTypeObject>>;
   message: Scalars['String']['output'];
+};
+
+export type CreditCardBillType = {
+  __typename?: 'CreditCardBillType';
+  cycle: BillCycleType;
+  paidAmount: Scalars['DecimalScalar']['output'];
+  pendingAmount: Scalars['DecimalScalar']['output'];
+  totalAmount: Scalars['DecimalScalar']['output'];
+  transactions?: Maybe<Array<Maybe<BillTransactionType>>>;
+};
+
+export type CreditCardListType = {
+  __typename?: 'CreditCardListType';
+  creditCards?: Maybe<Array<Maybe<CreditCardType>>>;
+  total?: Maybe<Scalars['Int']['output']>;
+};
+
+export type CreditCardType = {
+  __typename?: 'CreditCardType';
+  bank?: Maybe<Scalars['String']['output']>;
+  benefits?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  brand?: Maybe<Scalars['String']['output']>;
+  closingDay?: Maybe<Scalars['Int']['output']>;
+  createdAt?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  dueDay?: Maybe<Scalars['Int']['output']>;
+  id: Scalars['String']['output'];
+  lastFourDigits?: Maybe<Scalars['String']['output']>;
+  limitAmount?: Maybe<Scalars['DecimalScalar']['output']>;
+  name: Scalars['String']['output'];
+  updatedAt?: Maybe<Scalars['String']['output']>;
+  validityDate?: Maybe<Scalars['String']['output']>;
+};
+
+export type CreditCardUtilizationType = {
+  __typename?: 'CreditCardUtilizationType';
+  availableAmount?: Maybe<Scalars['DecimalScalar']['output']>;
+  committedAmount: Scalars['DecimalScalar']['output'];
+  cycle: BillCycleType;
+  limitAmount?: Maybe<Scalars['DecimalScalar']['output']>;
+  utilizationPct?: Maybe<Scalars['Float']['output']>;
 };
 
 export type DashboardCategoriesType = {
@@ -1213,6 +1272,9 @@ export type Query = {
   budget?: Maybe<BudgetType>;
   budgetSummary?: Maybe<BudgetSummaryType>;
   budgets?: Maybe<BudgetListPayloadType>;
+  creditCardBill?: Maybe<CreditCardBillType>;
+  creditCardUtilization?: Maybe<CreditCardUtilizationType>;
+  creditCards?: Maybe<CreditCardListType>;
   dashboardOverview?: Maybe<TransactionDashboardPayloadType>;
   fiscalDocuments?: Maybe<FiscalDocumentListType>;
   goal?: Maybe<GoalTypeObject>;
@@ -1261,6 +1323,17 @@ export type QueryAiInsightHistoryArgs = {
 
 export type QueryBudgetArgs = {
   budgetId: Scalars['UUID']['input'];
+};
+
+
+export type QueryCreditCardBillArgs = {
+  cardId: Scalars['UUID']['input'];
+  month: Scalars['String']['input'];
+};
+
+
+export type QueryCreditCardUtilizationArgs = {
+  cardId: Scalars['UUID']['input'];
 };
 
 
