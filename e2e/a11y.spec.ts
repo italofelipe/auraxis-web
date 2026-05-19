@@ -21,6 +21,7 @@ const PUBLIC_PAGES = [
   { path: "/plans", name: "Plans" },
   { path: "/privacy-policy", name: "Privacy Policy" },
   { path: "/terms-of-service", name: "Terms of Service" },
+  { path: "/cookies", name: "Cookies Policy" },
 ];
 
 for (const { path, name } of PUBLIC_PAGES) {

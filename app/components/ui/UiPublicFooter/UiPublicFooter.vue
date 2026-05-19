@@ -25,6 +25,9 @@ const copyrightYear = computed<number>(() =>
         <NuxtLink to="/terms-of-service" class="ui-public-footer__link">
           {{ t('components.publicFooter.columns.legal.links.terms') }}
         </NuxtLink>
+        <NuxtLink to="/cookies" class="ui-public-footer__link">
+          Cookies
+        </NuxtLink>
       </nav>
     </div>
   </footer>

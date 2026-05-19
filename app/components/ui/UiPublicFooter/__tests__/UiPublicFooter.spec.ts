@@ -15,6 +15,7 @@ vi.mock("vue-i18n", () => ({
         "components.publicFooter.columns.legal.title": "Legal",
         "components.publicFooter.columns.legal.links.terms": "Termos de Uso",
         "components.publicFooter.columns.legal.links.privacy": "Privacidade",
+        "components.publicFooter.columns.legal.links.cookies": "Cookies",
         "components.publicFooter.copyright": "© {year} Auraxis. Todos os direitos reservados.",
       };
       if (params) {
@@ -48,6 +49,8 @@ describe("UiPublicFooter", () => {
 
     expect(wrapper.text()).toContain("Termos de Uso");
     expect(wrapper.text()).toContain("Privacidade");
+    expect(wrapper.text()).toContain("Cookies");
+    expect(wrapper.find("a[href=\"/cookies\"]").exists()).toBe(true);
   });
 
   it("renders copyright with the provided year prop", () => {

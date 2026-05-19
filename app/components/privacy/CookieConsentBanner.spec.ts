@@ -26,6 +26,7 @@ describe("CookieConsentBanner", () => {
     expect(wrapper.get("[role='region']").text()).toContain("Controle seus cookies");
     expect(wrapper.text()).toContain("Aceitar todos");
     expect(wrapper.text()).toContain("Rejeitar opcionais");
+    expect(wrapper.get("a.cookie-consent__policy").attributes("href")).toBe("/cookies");
   });
 
   it("stays hidden when the visitor already chose preferences", () => {
