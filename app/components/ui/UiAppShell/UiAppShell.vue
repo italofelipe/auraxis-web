@@ -145,14 +145,14 @@ const currentRoute = computed(() => route.path);
 .ui-app-shell__logo-mark {
   width: 32px;
   height: 32px;
-  background: linear-gradient(145deg, var(--color-brand-500), var(--color-accent));
+  background: var(--gradient-brand);
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-bg-base);
+  color: var(--color-text-on-brand);
   flex-shrink: 0;
-  box-shadow: 0 0 12px rgba(68, 212, 255, 0.2);
+  box-shadow: var(--shadow-brand-glow-sm);
 }
 
 .ui-app-shell__logo-text {
@@ -174,7 +174,7 @@ const currentRoute = computed(() => route.path);
 .ui-app-shell__overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--color-overlay-scrim);
   z-index: 199;
 }
 

@@ -2,22 +2,20 @@
 import { NConfigProvider, NMessageProvider, NDialogProvider } from "naive-ui";
 import CookieConsentBanner from "~/components/privacy/CookieConsentBanner.vue";
 import { useNaiveTheme } from "~/composables/useNaiveTheme";
-import { useTheme } from "~/composables/useTheme";
 
-const { themeOverrides } = useNaiveTheme();
-const { naiveTheme } = useTheme();
+const { theme, themeOverrides } = useNaiveTheme();
 </script>
 
 <template>
   <!--
     NConfigProvider applies the Auraxis theme globally to all Naive UI components.
-    - naiveTheme: darkTheme or null (light), toggled via useTheme composable
-    - themeOverrides: token overrides from app/composables/useNaiveTheme.ts
+    - theme: darkTheme or null (light), toggled via useTheme composable
+    - themeOverrides: light/dark token overrides from app/composables/useNaiveTheme.ts
     - preflight-style-disabled: prevents Naive UI from injecting a CSS reset
       that would conflict with our own global styles in assets/css/main.css
   -->
   <NConfigProvider
-    :theme="naiveTheme"
+    :theme="theme"
     :theme-overrides="themeOverrides"
     :preflight-style-disabled="true"
   >

@@ -174,12 +174,12 @@ const currentRoute = computed(() => route.path);
 .ui-tools-shell__logo-mark {
   width: 32px;
   height: 32px;
-  background: var(--color-brand-600);
+  background: var(--gradient-brand);
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-bg-base);
+  color: var(--color-text-on-brand);
   flex-shrink: 0;
   box-shadow: var(--shadow-brand-glow-sm);
 }
@@ -232,7 +232,7 @@ const currentRoute = computed(() => route.path);
 .ui-tools-shell__overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--color-overlay-scrim);
   z-index: 199;
 }
 

@@ -67,9 +67,9 @@ const handleKeydown = (event: KeyboardEvent): void => {
   align-items: center;
   gap: var(--space-2, 8px);
   padding: var(--space-3, 12px) var(--space-3, 12px);
-  border: 2px solid var(--color-outline-soft, #e0e0e0);
+  border: 2px solid var(--color-outline-soft);
   border-radius: var(--radius-md, 8px);
-  background: var(--color-bg-surface, #fff);
+  background: var(--color-bg-surface);
   cursor: pointer;
   user-select: none;
   transition:
@@ -79,16 +79,16 @@ const handleKeydown = (event: KeyboardEvent): void => {
 }
 
 .ui-option-card-radio:hover:not(.ui-option-card-radio--disabled) {
-  border-color: var(--color-brand-600, #6366f1);
+  border-color: var(--color-brand-600);
 }
 
 .ui-option-card-radio:focus-visible {
-  box-shadow: 0 0 0 3px var(--color-brand-200, #c7d2fe);
+  box-shadow: 0 0 0 3px var(--color-brand-glow-sm);
 }
 
 .ui-option-card-radio--selected {
-  border-color: var(--color-brand-600, #6366f1);
-  background: var(--color-brand-50, #eef2ff);
+  border-color: var(--color-brand-600);
+  background: var(--color-brand-glow-xs);
 }
 
 .ui-option-card-radio--disabled {
@@ -102,7 +102,7 @@ const handleKeydown = (event: KeyboardEvent): void => {
   height: 18px;
   min-width: 18px;
   border-radius: 50%;
-  border: 2px solid var(--color-outline-soft, #e0e0e0);
+  border: 2px solid var(--color-outline-soft);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -110,14 +110,14 @@ const handleKeydown = (event: KeyboardEvent): void => {
 }
 
 .ui-option-card-radio--selected .ui-option-card-radio__indicator {
-  border-color: var(--color-brand-600, #6366f1);
-  background: var(--color-brand-600, #6366f1);
-  box-shadow: inset 0 0 0 3px var(--color-bg-surface, #fff);
+  border-color: var(--color-brand-600);
+  background: var(--color-brand-600);
+  box-shadow: inset 0 0 0 3px var(--color-bg-surface);
 }
 
 .ui-option-card-radio__text {
   font-size: var(--font-size-sm, 0.875rem);
-  color: var(--color-text-primary, #111);
+  color: var(--color-text-primary);
   line-height: 1.4;
 }
 </style>

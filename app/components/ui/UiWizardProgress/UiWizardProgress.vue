@@ -47,20 +47,20 @@ const label = computed<string>(() => `Pergunta ${props.current} de ${props.total
 .ui-wizard-progress__label {
   font-size: var(--font-size-sm, 0.875rem);
   font-weight: var(--font-weight-semibold, 600);
-  color: var(--color-text-muted, #888);
+  color: var(--color-text-muted);
 }
 
 .ui-wizard-progress__track {
   width: 100%;
   height: 6px;
-  background: var(--color-bg-elevated, #e0e0e0);
+  background: var(--color-bg-elevated);
   border-radius: var(--radius-full, 9999px);
   overflow: hidden;
 }
 
 .ui-wizard-progress__fill {
   height: 100%;
-  background: var(--color-brand-600, #6366f1);
+  background: var(--color-brand-600);
   border-radius: var(--radius-full, 9999px);
   transition: width 0.25s ease;
 }

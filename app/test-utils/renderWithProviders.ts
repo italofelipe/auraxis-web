@@ -64,7 +64,7 @@ export function renderWithProviders(
   const Wrapper = defineComponent({
     setup(): () => ReturnType<typeof h> {
       return (): ReturnType<typeof h> =>
-        h(NConfigProvider, { theme, themeOverrides }, (): ReturnType<typeof h> =>
+        h(NConfigProvider, { theme: theme.value, themeOverrides: themeOverrides.value }, (): ReturnType<typeof h> =>
           h(NMessageProvider, {}, (): ReturnType<typeof h> =>
             h(NDialogProvider, {}, (): ReturnType<typeof h> =>
               h(component, (mountOptions.props ?? {}) as AnyRecord)

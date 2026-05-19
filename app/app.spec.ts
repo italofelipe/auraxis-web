@@ -1,15 +1,19 @@
 import { mount } from "@vue/test-utils";
-import { NConfigProvider, type GlobalTheme } from "naive-ui";
-import { computed, ref, type ComputedRef } from "vue";
+import { NConfigProvider, type GlobalTheme, type GlobalThemeOverrides } from "naive-ui";
+import { computed, type ComputedRef } from "vue";
 import { describe, expect, it, vi } from "vitest";
 
 import App from "./app.vue";
 
-vi.mock("~/composables/useTheme", () => ({
-  useTheme: (): { isDark: ReturnType<typeof ref<boolean>>; toggle: () => void; naiveTheme: ComputedRef<GlobalTheme | null> } => ({
-    isDark: ref(true),
-    toggle: vi.fn(),
-    naiveTheme: computed<GlobalTheme | null>(() => null),
+vi.mock("~/composables/useNaiveTheme", () => ({
+  useNaiveTheme: (): {
+    theme: ComputedRef<GlobalTheme | null>;
+    themeOverrides: ComputedRef<GlobalThemeOverrides>;
+  } => ({
+    theme: computed<GlobalTheme | null>(() => null),
+    themeOverrides: computed<GlobalThemeOverrides>(() => ({
+      common: { primaryColor: "#087FA7" },
+    })),
   }),
 }));
 
@@ -39,7 +43,7 @@ describe("App bootstrap", () => {
     expect(wrapper.html()).toContain("nuxt-page-stub");
   });
 
-  it("passa darkTheme e auraxisThemeOverrides para o NConfigProvider", () => {
+  it("passa tema e overrides Auraxis para o NConfigProvider", () => {
     const wrapper = mount(App, {
       global: {
         stubs: {
