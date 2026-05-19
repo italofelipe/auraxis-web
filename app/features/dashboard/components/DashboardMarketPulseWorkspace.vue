@@ -21,8 +21,9 @@ import {
 import { NButton, NInput } from "naive-ui";
 
 import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
-import { colors } from "~/theme/tokens/colors";
 import { formatCurrency } from "~/utils/currency";
+import { useTheme } from "~/composables/useTheme";
+import { buildChartThemeTokens, type ChartThemeTokens, withAlpha } from "~/utils/chart-theme";
 import type {
   DashboardAlert,
   DashboardComparison,
@@ -117,6 +118,9 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false,
   mode: "analytical",
 });
+
+const { resolvedTheme } = useTheme();
+const chartTokens = computed(() => buildChartThemeTokens(resolvedTheme.value));
 
 /**
  * Formats a percentage delta with an explicit sign.
@@ -420,16 +424,17 @@ function buildKpiCards(
  * Builds the x-axis option for the combined cashflow chart.
  *
  * @param points Normalized cashflow points.
+ * @param tokens Theme-aware chart tokens.
  * @returns ECharts category axis option.
  */
-function buildCashflowXAxis(points: CashflowPoint[]): EChartsOption["xAxis"] {
+function buildCashflowXAxis(points: CashflowPoint[], tokens: ChartThemeTokens): EChartsOption["xAxis"] {
   return {
     type: "category",
     data: points.map((point) => point.label),
     axisTick: { show: false },
-    axisLine: { lineStyle: { color: colors.border.subtle } },
+    axisLine: { lineStyle: { color: tokens.border } },
     axisLabel: {
-      color: colors.text.muted,
+      color: tokens.mutedText,
       fontFamily: "Inter",
       fontSize: 11,
     },
@@ -439,19 +444,20 @@ function buildCashflowXAxis(points: CashflowPoint[]): EChartsOption["xAxis"] {
 /**
  * Builds the y-axis option for the combined cashflow chart.
  *
+ * @param tokens Theme-aware chart tokens.
  * @returns ECharts value axis option.
  */
-function buildCashflowYAxis(): EChartsOption["yAxis"] {
+function buildCashflowYAxis(tokens: ChartThemeTokens): EChartsOption["yAxis"] {
   return {
     type: "value",
     splitLine: {
       lineStyle: {
-        color: colors.border.subtle,
+        color: tokens.grid,
         type: "dashed",
       },
     },
     axisLabel: {
-      color: colors.text.muted,
+      color: tokens.mutedText,
       fontFamily: "IBM Plex Mono",
       fontSize: 10,
       formatter: (value: number): string => formatCurrency(value).replace(",00", ""),
@@ -463,9 +469,10 @@ function buildCashflowYAxis(): EChartsOption["yAxis"] {
  * Builds the series option for the combined cashflow chart.
  *
  * @param points Normalized cashflow points.
+ * @param tokens Theme-aware chart tokens.
  * @returns ECharts series option.
  */
-function buildCashflowSeries(points: CashflowPoint[]): EChartsOption["series"] {
+function buildCashflowSeries(points: CashflowPoint[], tokens: ChartThemeTokens): EChartsOption["series"] {
   return [
     {
       name: "Receitas",
@@ -474,7 +481,7 @@ function buildCashflowSeries(points: CashflowPoint[]): EChartsOption["series"] {
       barMaxWidth: 34,
       data: points.map((point) => point.income),
       itemStyle: {
-        color: colors.lime[500],
+        color: tokens.income,
         borderRadius: [6, 6, 0, 0],
         opacity: 0.86,
       },
@@ -486,7 +493,7 @@ function buildCashflowSeries(points: CashflowPoint[]): EChartsOption["series"] {
       barMaxWidth: 34,
       data: points.map((point) => -point.expense),
       itemStyle: {
-        color: colors.red[500],
+        color: tokens.expense,
         borderRadius: [0, 0, 6, 6],
         opacity: 0.86,
       },
@@ -499,14 +506,14 @@ function buildCashflowSeries(points: CashflowPoint[]): EChartsOption["series"] {
       symbol: "circle",
       symbolSize: 7,
       lineStyle: {
-        color: colors.cyan[500],
+        color: tokens.balance,
         width: 3,
       },
       itemStyle: {
-        color: colors.cyan[500],
+        color: tokens.balance,
       },
       areaStyle: {
-        color: "rgba(68, 212, 255, 0.10)",
+        color: withAlpha(tokens.balance, 0.12),
       },
     },
   ];
@@ -516,14 +523,18 @@ function buildCashflowSeries(points: CashflowPoint[]): EChartsOption["series"] {
  * Builds the combined cashflow chart option.
  *
  * @param points Normalized cashflow points.
+ * @param tokens Theme-aware chart tokens.
  * @returns ECharts option for bars and accumulated balance line.
  */
-function buildCashflowOption(points: CashflowPoint[]): EChartsOption {
+function buildCashflowOption(points: CashflowPoint[], tokens: ChartThemeTokens): EChartsOption {
   return {
     backgroundColor: "transparent",
-    color: [colors.lime[500], colors.red[500], colors.cyan[500]],
+    color: [tokens.income, tokens.expense, tokens.balance],
     tooltip: {
       trigger: "axis",
+      backgroundColor: tokens.tooltipBackground,
+      borderColor: tokens.tooltipBorder,
+      textStyle: { color: tokens.tooltipText },
     },
     legend: {
       show: false,
@@ -535,9 +546,9 @@ function buildCashflowOption(points: CashflowPoint[]): EChartsOption {
       bottom: 8,
       containLabel: true,
     },
-    xAxis: buildCashflowXAxis(points),
-    yAxis: buildCashflowYAxis(),
-    series: buildCashflowSeries(points),
+    xAxis: buildCashflowXAxis(points, tokens),
+    yAxis: buildCashflowYAxis(tokens),
+    series: buildCashflowSeries(points, tokens),
   };
 }
 
@@ -552,7 +563,7 @@ const cashflowPoints = computed<CashflowPoint[]>(() =>
 );
 
 const cashflowOption = computed<EChartsOption>(() =>
-  buildCashflowOption(cashflowPoints.value),
+  buildCashflowOption(cashflowPoints.value, chartTokens.value),
 );
 
 const categoryRows = computed<CategoryRow[]>(() =>

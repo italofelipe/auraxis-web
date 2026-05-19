@@ -13,6 +13,9 @@
 import { computed } from "vue";
 import type { EChartsOption } from "echarts";
 import type { FinancialHealthScoreResult, HealthPillar } from "~/features/dashboard/composables/useFinancialHealthScore";
+import { useTheme } from "~/composables/useTheme";
+import { themePalettes } from "~/theme/tokens/semantic";
+import { withAlpha } from "~/utils/chart-theme";
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
@@ -25,16 +28,22 @@ const props = defineProps<{
 
 // ── History sparkline ─────────────────────────────────────────────────────────
 
-// ECharts does not resolve CSS variables — use token values directly.
-const TIER_COLORS: Record<"good" | "fair" | "poor", string> = {
-  good: "#42e8a9",   // DS v3 lime  (--color-positive)
-  fair: "#ffb861",   // DS v3 orange (--color-warning)
-  poor: "#ff6f79",   // DS v3 red   (--color-negative)
-};
+const { resolvedTheme } = useTheme();
+
+const tierColors = computed<Record<"good" | "fair" | "poor", string>>(() => {
+  const feedback = themePalettes[resolvedTheme.value].feedback;
+
+  return {
+    good: feedback.positive,
+    fair: feedback.warning,
+    poor: feedback.negative,
+  };
+});
 
 const historyOption = computed((): EChartsOption => {
   const history = props.result?.history ?? [];
   const tier = props.result?.tier ?? "poor";
+  const tierColor = tierColors.value[tier];
 
   return {
     grid: { left: 0, right: 0, top: 4, bottom: 0, containLabel: false },
@@ -50,14 +59,14 @@ const historyOption = computed((): EChartsOption => {
         data: history.map((h) => h.score),
         smooth: true,
         symbol: "none",
-        lineStyle: { color: TIER_COLORS[tier], width: 2 },
+        lineStyle: { color: tierColor, width: 2 },
         areaStyle: {
           color: {
             type: "linear",
             x: 0, y: 0, x2: 0, y2: 1,
             colorStops: [
-              { offset: 0, color: `${TIER_COLORS[tier]}40` },
-              { offset: 1, color: `${TIER_COLORS[tier]}00` },
+              { offset: 0, color: withAlpha(tierColor, resolvedTheme.value === "dark" ? 0.26 : 0.18) },
+              { offset: 1, color: withAlpha(tierColor, 0) },
             ],
           },
         },

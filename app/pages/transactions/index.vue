@@ -349,7 +349,7 @@ const totalBalance = computed(() => totalIncome.value - totalExpense.value);
 :deep(.tx-status-icon) { display: block; }
 :deep(.tx-status-icon--paid) { color: var(--color-positive); }
 :deep(.tx-status-icon--overdue) { color: var(--color-negative); }
-:deep(.tx-status-icon--near-due) { color: var(--color-warning, #f0a020); }
+:deep(.tx-status-icon--near-due) { color: var(--color-warning); }
 :deep(.tx-status-icon--pending) { color: var(--color-text-muted); }
 :deep(.tx-amount) { font-weight: var(--font-weight-semibold); white-space: nowrap; }
 :deep(.tx-amount--income) { color: var(--color-positive); }
