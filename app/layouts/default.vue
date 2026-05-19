@@ -14,6 +14,7 @@ import {
   PiggyBank,
   Focus as FocusIcon,
   ShieldCheck,
+  LockKeyhole,
 } from "lucide-vue-next";
 // UiAppShell and ProfileCompletionModal are auto-imported from app/components/.
 // Feature-owned components in app/features/*/components/ are NOT auto-imported
@@ -64,6 +65,7 @@ const ALL_NAV_ITEMS = computed<NavItemDefinition[]>(() => [
   { key: "tools", label: t("nav.tools"), to: "/tools", icon: Wrench },
   { key: "subscription", label: t("nav.subscription"), to: "/subscription", icon: CreditCard },
   { key: "personalData", label: t("nav.personalData"), to: "/settings/profile", icon: User },
+  { key: "privacyCenter", label: "Privacidade", to: "/settings/privacy", icon: LockKeyhole, flagKey: "web.pages.settings.privacy-center" },
   ...(isAdmin.value ? [{ key: "admin", label: "Admin", to: "/admin", icon: ShieldCheck }] : []),
 ]);
 

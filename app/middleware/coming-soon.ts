@@ -22,6 +22,7 @@ const ROUTE_FLAG_MAP: Record<string, string> = {
   "/settings/accounts": "web.pages.settings.accounts",
   "/settings/credit-cards": "web.pages.settings.credit-cards",
   "/settings/tags": "web.pages.settings.tags",
+  "/settings/privacy": "web.pages.settings.privacy-center",
   "/transactions": "web.pages.transactions",
   "/insights": "web.pages.insights",
 };
