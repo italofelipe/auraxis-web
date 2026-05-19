@@ -66,7 +66,12 @@ para pelo menos uma tool e anexar o print no PR:
 
 ## Tools-piloto (cobertas hoje)
 
-- `juros-compostos`, `fgts`, `hora-extra`, `ferias`, `rescisao`, `clt-vs-pj`
+- `juros-compostos`, `orcamento-50-30-20`, `reserva-emergencia`,
+  `fgts`, `hora-extra`, `ferias`, `rescisao`, `clt-vs-pj`
+
+As tools prioritárias de aquisição também renderizam um bloco visível com
+FAQ, CTA e links internos usando `ToolSeoContent`, para que `FAQPage` nunca
+descreva conteúdo invisível ou enganoso.
 
 As demais tools da catálogo já herdam `WebApplication` + `BreadcrumbList`
 quando chamarem `useToolPageStructuredData`; só precisam criar o arquivo

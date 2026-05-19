@@ -18,6 +18,10 @@ import { useApiError } from "~/composables/useApiError";
 import { useCalculatorFormState } from "~/features/tools/composables/use-calculator-form-state";
 import { useToolPageStructuredData } from "~/features/tools/composables/useToolPageStructuredData";
 import { JUROS_COMPOSTOS_FAQS } from "~/features/tools/content/juros-compostos-faqs";
+import {
+  JUROS_COMPOSTOS_RELATED_LINKS,
+  TOOL_SEO_CTA,
+} from "~/features/tools/content/tool-seo-links";
 import { useSessionStore } from "~/stores/session";
 import { useEntitlementQuery } from "~/features/paywall/queries/use-entitlement-query";
 import { useSaveSimulationMutation } from "~/features/simulations/queries/use-save-simulation-mutation";
@@ -34,6 +38,7 @@ import CalculatorFormSection from "~/components/tool/CalculatorFormSection/Calcu
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
 import ToolSaveResult from "~/components/tool/ToolSaveResult/ToolSaveResult.vue";
+import ToolSeoContent from "~/components/tool/ToolSeoContent/ToolSeoContent.vue";
 import UiStickySummaryCard from "~/components/ui/UiStickySummaryCard/UiStickySummaryCard.vue";
 import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
 import UiGlassPanel from "~/components/ui/UiGlassPanel/UiGlassPanel.vue";
@@ -460,6 +465,13 @@ const isSaved = computed(() => savedSimulationId.value !== null);
         </div>
       </div>
     </div>
+        <ToolSeoContent
+          title="Como interpretar juros compostos"
+          description="Compare aporte, prazo, taxa nominal e inflação para transformar uma simulação em decisão financeira mais clara."
+          :faqs="JUROS_COMPOSTOS_FAQS"
+          :related-links="JUROS_COMPOSTOS_RELATED_LINKS"
+          :cta="TOOL_SEO_CTA"
+        />
         <!-- Guest CTA — shown below result for unauthenticated users -->
         <ToolGuestCta v-if="!isAuthenticated" />
   </NuxtLayout>

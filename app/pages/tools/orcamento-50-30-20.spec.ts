@@ -12,6 +12,7 @@ const mockCreateGoalMutateAsync = vi.hoisted(() => vi.fn());
 const mockCaptureException = vi.hoisted(() => vi.fn());
 const mockValidate = vi.hoisted(() => vi.fn().mockReturnValue([]));
 const mockCalculate = vi.hoisted(() => vi.fn());
+const mockUseToolPageStructuredData = vi.hoisted(() => vi.fn());
 const mockIsAuthenticated = ref(false);
 const mockHasPremiumAccess = ref(false);
 
@@ -46,6 +47,16 @@ vi.mock("~/stores/session", () => ({ useSessionStore: (): { isAuthenticated: boo
 vi.mock("~/features/tools/composables/useToolCta", () => ({ useToolCta: (): { showCta: ComputedRef<boolean> } => ({ showCta: computed(() => !mockIsAuthenticated.value) }) }));
 vi.mock("~/composables/useApiError", () => ({ useApiError: (): { getErrorMessage: (err: unknown) => string } => ({ getErrorMessage: vi.fn((err: unknown): string => String(err)) }) }));
 vi.mock("~/core/observability", () => ({ captureException: mockCaptureException }));
+vi.mock("~/features/tools/composables/useToolPageStructuredData", () => ({
+  useToolPageStructuredData: mockUseToolPageStructuredData,
+}));
+vi.mock("~/features/tools/content/orcamento-50-30-20-faqs", () => ({
+  ORCAMENTO_5030_FAQS: [
+    { question: "Como funciona a regra 50/30/20?", answer: "Resposta 1" },
+    { question: "O que entra em necessidades?", answer: "Resposta 2" },
+    { question: "Posso adaptar os percentuais?", answer: "Resposta 3" },
+  ],
+}));
 
 vi.mock("~/features/tools/model/orcamento-50-30-20", () => ({
   createDefaultOrcamentoFormState: (): object => ({ netIncome: null, mode: "simple", actualNeeds: 0, actualWants: 0, actualInvestments: 0 }),
@@ -77,6 +88,7 @@ const globalStubs = {
   CalculatorResultSummary: { props: ["label", "value", "metrics"], template: "<div class='calculator-result-summary'>{{ label }}: {{ value }}</div>" },
   ToolGuestCta: { template: "<div class='tool-guest-cta'>guest-cta</div>" },
   ToolSaveResult: { props: ["intent", "label", "amount", "description"], template: "<div class='tool-save-result-stub' />" },
+  NuxtLink: { props: ["to"], template: "<a :href='to'><slot /></a>" },
 };
 
 /**
@@ -104,6 +116,7 @@ function mountPage(): ReturnType<typeof mount> { return mount(OrcamentoPage, { g
 function resetState(): void {
   setActivePinia(createPinia()); mockPush.mockClear(); mockSaveMutateAsync.mockReset();
   mockCreateGoalMutateAsync.mockReset(); mockCaptureException.mockClear();
+  mockUseToolPageStructuredData.mockClear();
   mockValidate.mockReturnValue([]); mockCalculate.mockReset();
   mockIsAuthenticated.value = false; mockHasPremiumAccess.value = false;
 }
@@ -111,6 +124,27 @@ function resetState(): void {
 describe("OrcamentoPage — guest layout", () => {
   beforeEach(resetState);
   it("renders NuxtLayout", () => { expect(mountPage().find(".nuxt-layout").exists()).toBe(true); });
+  it("renders visible SEO FAQs, related links and CTA", () => {
+    const wrapper = mountPage();
+
+    expect(wrapper.find(".tool-seo-content").exists()).toBe(true);
+    expect(wrapper.text()).toContain("Como funciona a regra 50/30/20?");
+    const hrefs = wrapper.findAll(".tool-seo-content a").map((link) => link.attributes("href"));
+    expect(hrefs).toContain("/tools/juros-compostos");
+    expect(hrefs).toContain("/tools/reserva-emergencia");
+  });
+  it("registers FAQ structured data for the page", () => {
+    mountPage();
+
+    expect(mockUseToolPageStructuredData).toHaveBeenCalledWith(
+      expect.objectContaining({
+        slug: "orcamento-50-30-20",
+        faqs: expect.arrayContaining([
+          expect.objectContaining({ question: "Como funciona a regra 50/30/20?" }),
+        ]),
+      }),
+    );
+  });
   it("shows guest CTA after calculation", async () => {
     mockCalculate.mockReturnValue(mockResult); const w = mountPage();
     await w.find("form").trigger("submit"); await flushPromises();

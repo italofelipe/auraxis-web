@@ -20,6 +20,12 @@ import { useSessionStore } from "~/stores/session";
 import { useEntitlementQuery } from "~/features/paywall/queries/use-entitlement-query";
 import { useSaveSimulationMutation } from "~/features/simulations/queries/use-save-simulation-mutation";
 import { useCreateGoalMutation } from "~/features/goals/queries/use-create-goal-mutation";
+import { useToolPageStructuredData } from "~/features/tools/composables/useToolPageStructuredData";
+import { ORCAMENTO_5030_FAQS } from "~/features/tools/content/orcamento-50-30-20-faqs";
+import {
+  ORCAMENTO_5030_RELATED_LINKS,
+  TOOL_SEO_CTA,
+} from "~/features/tools/content/tool-seo-links";
 import {
   calculateOrcamento,
   createDefaultOrcamentoFormState,
@@ -31,6 +37,7 @@ import CalculatorFormSection from "~/components/tool/CalculatorFormSection/Calcu
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
 import ToolSaveResult from "~/components/tool/ToolSaveResult/ToolSaveResult.vue";
+import ToolSeoContent from "~/components/tool/ToolSeoContent/ToolSeoContent.vue";
 import UiStickySummaryCard from "~/components/ui/UiStickySummaryCard/UiStickySummaryCard.vue";
 import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
 import UiGlassPanel from "~/components/ui/UiGlassPanel/UiGlassPanel.vue";
@@ -49,6 +56,13 @@ useSeoMeta({
   ogTitle: t("orcamento5030.seo.ogTitle"),
   ogDescription: t("orcamento5030.seo.ogDescription"),
   twitterCard: "summary_large_image",
+});
+
+useToolPageStructuredData({
+  slug: "orcamento-50-30-20",
+  name: t("orcamento5030.seo.title"),
+  description: t("orcamento5030.seo.description"),
+  faqs: ORCAMENTO_5030_FAQS,
 });
 
 const isAuthenticated = computed<boolean>(() => sessionStore.isAuthenticated);
@@ -262,6 +276,13 @@ const isBridging = computed(() => saveSimulationMutation.isPending.value || crea
         </div>
       </div>
     </div>
+    <ToolSeoContent
+      title="Como usar a regra 50/30/20 na prática"
+      description="Use a calculadora para definir uma referência simples e, depois, conecte esse orçamento a reserva, investimentos e revisão de gastos."
+      :faqs="ORCAMENTO_5030_FAQS"
+      :related-links="ORCAMENTO_5030_RELATED_LINKS"
+      :cta="TOOL_SEO_CTA"
+    />
     <ToolGuestCta v-if="!isAuthenticated" />
   </NuxtLayout>
   </div>
