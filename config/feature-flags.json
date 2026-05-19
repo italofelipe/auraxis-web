@@ -451,6 +451,16 @@
       "repositories": ["auraxis-web"]
     },
     {
+      "key": "web.admin.feature-flag-mutations",
+      "owner": "platform",
+      "createdAt": "2026-05-19",
+      "removeBy": "2027-12-31",
+      "type": "release",
+      "status": "enabled-prod",
+      "description": "Permite alteração auditável de feature flags pelo painel administrativo.",
+      "repositories": ["auraxis-web"]
+    },
+    {
       "key": "web.dashboard.new-layout",
       "owner": "growth",
       "createdAt": "2026-04-21",

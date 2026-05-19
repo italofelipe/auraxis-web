@@ -3,7 +3,7 @@ import {
   Activity,
   ArrowLeft,
   BadgeCheck,
-  ClipboardList,
+  Eye,
   Flag,
   LogOut,
   Search,
@@ -12,6 +12,7 @@ import {
   Users,
 } from "lucide-vue-next";
 import { useLogout } from "~/composables/useLogout";
+import AdminImpersonationBanner from "~/features/admin/impersonation/components/AdminImpersonationBanner.vue";
 import { useUserProfileQuery } from "~/features/profile/composables/use-user-profile-query";
 import { useSessionStore } from "~/stores/session";
 import { useUserStore } from "~/stores/user";
@@ -26,9 +27,9 @@ useUserProfileQuery();
 const navItems = [
   { key: "overview", label: "Visão geral", to: "/admin", icon: Activity, disabled: false },
   { key: "users", label: "Usuários", to: "/admin/users", icon: Users, disabled: false },
-  { key: "insights", label: "Insights IA", to: "/admin/insights", icon: Sparkles, disabled: true },
-  { key: "flags", label: "Feature flags", to: "/admin/flags", icon: Flag, disabled: true },
-  { key: "audit", label: "Auditoria", to: "/admin/audit", icon: ClipboardList, disabled: true },
+  { key: "insights", label: "Insights IA", to: "/admin/insights", icon: Sparkles, disabled: false },
+  { key: "flags", label: "Feature flags", to: "/admin/flags", icon: Flag, disabled: false },
+  { key: "impersonation", label: "Impersonação", to: "/admin/impersonation", icon: Eye, disabled: false },
 ] as const;
 
 const adminName = computed(() => userStore.profile?.name || sessionStore.userEmail || "Admin");
@@ -44,6 +45,7 @@ const onLogout = (): void => {
 
 <template>
   <div class="admin-layout">
+    <AdminImpersonationBanner />
     <aside class="admin-layout__sidebar">
       <NuxtLink class="admin-layout__brand" to="/admin">
         <span class="admin-layout__brand-mark" aria-hidden="true">
@@ -126,6 +128,10 @@ const onLogout = (): void => {
   overflow-x: hidden;
   background: var(--color-bg-base);
   color: var(--color-text-primary);
+}
+
+.admin-layout :deep(.admin-impersonation-banner) {
+  grid-column: 1 / -1;
 }
 
 .admin-layout *,

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AlertTriangle, Database, LockKeyhole, ShieldCheck } from "lucide-vue-next";
+import { Database, Eye, Flag, ShieldCheck } from "lucide-vue-next";
 
 definePageMeta({
   layout: "admin",
@@ -13,21 +13,27 @@ useHead({ title: "Admin | Auraxis" });
 const readinessCards = [
   {
     label: "Usuários e assinaturas",
-    value: "Preparado",
-    text: "O shell já reserva o módulo para busca, detalhe e ações auditáveis assim que a API v2 expor os endpoints.",
+    value: "Ativo",
+    text: "Busca operacional, detalhe de assinatura, entitlements e mutações auditáveis.",
     icon: ShieldCheck,
   },
   {
     label: "Insights IA",
-    value: "Preparado",
-    text: "A área admin separa histórico, consentimento, modelo, tokens e custo para a próxima etapa.",
+    value: "Ativo",
+    text: "Histórico, custo, tokens, modelo, consentimento e evidências redigidas.",
     icon: Database,
   },
   {
-    label: "Ações sensíveis",
-    value: "Bloqueadas",
-    text: "Nenhuma mutação administrativa é exposta enquanto RBAC e audit trail não estiverem completos.",
-    icon: LockKeyhole,
+    label: "Feature flags",
+    value: "Ativo",
+    text: "Consulta de flags, resumo operacional e link seguro para Grafana Cloud.",
+    icon: Flag,
+  },
+  {
+    label: "Impersonação",
+    value: "Read-only",
+    text: "Visualização como usuário com banner persistente, sessão curta e bloqueio local de mutações.",
+    icon: Eye,
   },
 ] as const;
 </script>
@@ -39,8 +45,9 @@ const readinessCards = [
         <p class="admin-overview__eyebrow">Operação interna</p>
         <h2 id="admin-overview-title">Visão operacional da plataforma</h2>
         <p>
-          Esta primeira versão entrega a estrutura segura do painel admin: rota protegida,
-          navegação própria e estados explícitos enquanto os módulos de dados chegam pela API v2.
+          O painel reúne as superfícies operacionais mais sensíveis: usuários, insights de IA,
+          flags e visualização read-only. Todas as ações foram desenhadas para depender de RBAC
+          e trilha de auditoria na API.
         </p>
       </div>
       <div class="admin-overview__hero-badge" aria-label="Acesso validado">
@@ -66,13 +73,13 @@ const readinessCards = [
       </article>
     </div>
 
-    <section class="admin-overview__notice" aria-label="Próximos módulos admin">
-      <AlertTriangle :size="22" aria-hidden="true" />
+    <section class="admin-overview__notice" aria-label="Governança admin">
+      <ShieldCheck :size="22" aria-hidden="true" />
       <div>
-        <h3>Módulos em modo leitura estrutural</h3>
+        <h3>Admin sem atalhos perigosos</h3>
         <p>
-          Usuários, insights, feature flags e auditoria aparecem na navegação como próximos passos,
-          mas permanecem inativos para evitar qualquer promessa de controle antes dos endpoints admin.
+          Mutações pedem motivo, impersonação é somente leitura e dados de IA aparecem com
+          evidências redigidas por padrão.
         </p>
       </div>
     </section>
@@ -138,7 +145,7 @@ const readinessCards = [
 
 .admin-overview__grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--space-3);
 }
 
