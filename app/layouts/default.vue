@@ -13,6 +13,7 @@ import {
   ArrowLeftRight,
   PiggyBank,
   Focus as FocusIcon,
+  ShieldCheck,
 } from "lucide-vue-next";
 // UiAppShell and ProfileCompletionModal are auto-imported from app/components/.
 // Feature-owned components in app/features/*/components/ are NOT auto-imported
@@ -23,6 +24,7 @@ import { useUserStore } from "~/stores/user";
 import { useLogout } from "~/composables/useLogout";
 import { isFeatureEnabled } from "~/shared/feature-flags";
 import { useOnboarding } from "~/features/onboarding/composables/useOnboarding";
+import { useAdminAccess } from "~/features/admin/model/admin-access";
 import OnboardingWizard from "~/features/onboarding/components/OnboardingWizard.vue";
 import OnboardingTriggerButton from "~/features/onboarding/components/OnboardingTriggerButton.vue";
 
@@ -31,6 +33,7 @@ const route = useRoute();
 const sessionStore = useSessionStore();
 const userStore = useUserStore();
 const { logout } = useLogout();
+const { isAdmin } = useAdminAccess();
 
 useUserProfileQuery();
 
@@ -60,6 +63,7 @@ const ALL_NAV_ITEMS = computed<NavItemDefinition[]>(() => [
   { key: "tools", label: t("nav.tools"), to: "/tools", icon: Wrench },
   { key: "subscription", label: t("nav.subscription"), to: "/subscription", icon: CreditCard },
   { key: "personalData", label: t("nav.personalData"), to: "/settings/profile", icon: User },
+  ...(isAdmin.value ? [{ key: "admin", label: "Admin", to: "/admin", icon: ShieldCheck }] : []),
 ]);
 
 const NAV_ITEMS = computed<AppShellNavItem[]>(() =>
