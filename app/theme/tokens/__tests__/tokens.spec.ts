@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { colors } from "../colors";
 import { shadows } from "../shadows";
-import { semantic } from "../semantic";
+import { defaultThemePreference, semantic, themePalettes } from "../semantic";
 
 describe("design tokens", () => {
   it("cyan.500 is the canonical CTA color", () => {
@@ -28,6 +28,18 @@ describe("design tokens", () => {
     expect(semantic.action.primary).toBe(colors.cyan[500]);
     expect(semantic.surface.card).toBe(colors.bg.surface);
     expect(semantic.financial.positive).toBe(colors.positive.DEFAULT);
+  });
+
+  it("defines light and dark semantic palettes", () => {
+    expect(themePalettes.light.bg.canvas).toBe("#F4F8FB");
+    expect(themePalettes.light.bg.surface).toBe("#FFFFFF");
+    expect(themePalettes.light.text.primary).toBe("#0A1628");
+    expect(themePalettes.dark.bg.canvas).toBe("#05070d");
+    expect(themePalettes.dark.text.primary).toBe("#f1f5ff");
+  });
+
+  it("uses light as the default theme preference for new users", () => {
+    expect(defaultThemePreference).toBe("light");
   });
 
   it("no cyan value is undefined or empty", () => {

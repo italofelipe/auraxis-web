@@ -183,7 +183,7 @@ const annualDiscountPercent = computed(() =>
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: var(--font-size-xs);
-  color: var(--color-brand-500);
+  color: var(--color-brand-600);
   font-weight: var(--font-weight-semibold);
 }
 
