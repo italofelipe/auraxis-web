@@ -102,6 +102,7 @@ const globalStubs = {
   },
   BillingStatusBanner: true,
   EmailConfirmationBanner: true,
+  AdminImpersonationBanner: true,
 };
 
 describe("DefaultLayout", () => {
