@@ -1,20 +1,38 @@
 import { useI18n } from "vue-i18n";
 import type { DashboardTimeseriesPoint } from "~/features/dashboard/model/dashboard-overview";
-import { colors } from "~/theme/tokens/colors";
+import { useTheme } from "~/composables/useTheme";
+import { themePalettes } from "~/theme/tokens/semantic";
 import type { ChartSeries, ChartSeriesResult } from "./useChartSeriesMapper.types";
 
 type TimeseriesKey = "income" | "expense" | "balance";
 
 interface SeriesMeta {
   readonly name: string;
-  readonly color: string;
 }
 
 const TIMESERIES_SERIES: Record<TimeseriesKey, SeriesMeta> = {
-  income:  { name: "Receitas",  color: colors.positive.DEFAULT },
-  expense: { name: "Despesas",  color: colors.negative.DEFAULT },
-  balance: { name: "Saldo",     color: colors.cyan[500] },
+  income:  { name: "Receitas" },
+  expense: { name: "Despesas" },
+  balance: { name: "Saldo" },
 };
+
+/**
+ * Resolves the theme-aware chart colour for a timeseries key.
+ *
+ * @param key Timeseries key.
+ * @param theme Current resolved theme.
+ * @returns Hex colour from semantic chart tokens.
+ */
+function resolveSeriesColor(key: TimeseriesKey, theme: keyof typeof themePalettes): string {
+  const palette = themePalettes[theme].chart;
+  const colors: Record<TimeseriesKey, string> = {
+    income:  palette.income,
+    expense: palette.expense,
+    balance: palette.balance,
+  };
+
+  return colors[key];
+}
 
 /**
  * Formats an ISO calendar date to a compact localized label.
@@ -55,6 +73,7 @@ export interface ChartSeriesMapperResult {
  */
 export function useChartSeriesMapper(): ChartSeriesMapperResult {
   const { locale } = useI18n();
+  const { resolvedTheme } = useTheme();
 
   /**
    * Maps an array of dashboard timeseries points to normalized chart series.
@@ -65,7 +84,11 @@ export function useChartSeriesMapper(): ChartSeriesMapperResult {
   const mapTimeseries = (points: DashboardTimeseriesPoint[]): ChartSeriesResult => {
     if (points.length === 0) {
       const emptySeries: ChartSeries[] = (["income", "expense", "balance"] as TimeseriesKey[]).map(
-        (key) => ({ name: TIMESERIES_SERIES[key].name, data: [], color: TIMESERIES_SERIES[key].color }),
+        (key) => ({
+          name: TIMESERIES_SERIES[key].name,
+          data: [],
+          color: resolveSeriesColor(key, resolvedTheme.value),
+        }),
       );
       return { labels: [], series: emptySeries, isEmpty: true };
     }
@@ -76,7 +99,7 @@ export function useChartSeriesMapper(): ChartSeriesMapperResult {
       (key) => ({
         name: TIMESERIES_SERIES[key].name,
         data: points.map((p) => p[key]),
-        color: TIMESERIES_SERIES[key].color,
+        color: resolveSeriesColor(key, resolvedTheme.value),
       }),
     );
 

@@ -98,9 +98,9 @@ const isPending = computed(() => props.loading || isSubmitting.value);
 }
 
 .glass {
-  background: linear-gradient(175deg, rgba(18, 26, 42, 0.86), rgba(10, 15, 26, 0.92));
+  background: linear-gradient(175deg, var(--color-bg-glass), var(--color-bg-surface));
   border: 1px solid var(--color-outline-soft);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-card);
   backdrop-filter: blur(8px);
 }
 
@@ -127,7 +127,7 @@ const isPending = computed(() => props.loading || isSubmitting.value);
   height: 44px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-outline-soft);
-  background: rgba(5, 7, 13, 0.75);
+  background: var(--color-bg-elevated);
   color: var(--color-text-primary);
   padding: 0 12px;
   font: inherit;
@@ -140,13 +140,13 @@ const isPending = computed(() => props.loading || isSubmitting.value);
 }
 
 .auth-card__input:hover {
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: var(--color-outline-hard);
 }
 
 .auth-card__input:focus {
   outline: none;
   border-color: var(--color-brand-500);
-  box-shadow: 0 0 0 3px rgba(68, 212, 255, 0.18);
+  box-shadow: 0 0 0 3px var(--color-brand-glow-sm);
 }
 
 .auth-card__input--error {
@@ -198,9 +198,9 @@ const isPending = computed(() => props.loading || isSubmitting.value);
   width: 100%;
   border: none;
   border-radius: var(--radius-full);
-  background: linear-gradient(140deg, #44d4ff, #42e8a9);
-  box-shadow: 0 18px 44px rgba(68, 212, 255, 0.24);
-  color: #051220;
+  background: var(--gradient-brand);
+  box-shadow: var(--shadow-brand-glow);
+  color: var(--color-text-on-brand);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
   font-family: var(--font-body);
@@ -221,8 +221,8 @@ const isPending = computed(() => props.loading || isSubmitting.value);
 .auth-card__spinner {
   width: 16px;
   height: 16px;
-  border: 2px solid rgba(0, 0, 0, 0.2);
-  border-top-color: #051220;
+  border: 2px solid color-mix(in srgb, currentColor 24%, transparent);
+  border-top-color: currentColor;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
   flex-shrink: 0;

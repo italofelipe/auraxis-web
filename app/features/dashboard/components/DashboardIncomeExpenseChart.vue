@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { EChartsOption } from "echarts";
 import type { DashboardSummary } from "~/features/dashboard/model/dashboard-overview";
-import { colors } from "~/theme/tokens/colors";
 import { formatCurrency } from "~/utils/currency";
+import { useTheme } from "~/composables/useTheme";
+import { buildChartThemeTokens } from "~/utils/chart-theme";
 
 /** Props */
 const props = defineProps<{
@@ -13,6 +14,8 @@ const props = defineProps<{
 }>();
 
 const { t } = useI18n();
+const { resolvedTheme } = useTheme();
+const chartTokens = computed(() => buildChartThemeTokens(resolvedTheme.value));
 
 /**
  * Builds the ECharts option for the income vs expense bar chart.
@@ -23,6 +26,9 @@ const { t } = useI18n();
 const chartOption = computed((): EChartsOption => ({
   tooltip: {
     trigger: "axis",
+    backgroundColor: chartTokens.value.tooltipBackground,
+    borderColor: chartTokens.value.tooltipBorder,
+    textStyle: { color: chartTokens.value.tooltipText },
     formatter: (params: unknown): string => {
       const p = (Array.isArray(params) ? params[0] : params) as {
         name: string;
@@ -37,14 +43,16 @@ const chartOption = computed((): EChartsOption => ({
     data: [t("dashboard.charts.income"), t("dashboard.charts.expense")],
     axisLine: { show: false },
     axisTick: { show: false },
+    axisLabel: { color: chartTokens.value.mutedText },
   },
   yAxis: {
     type: "value",
     axisLabel: {
+      color: chartTokens.value.mutedText,
       formatter: (v: number) => formatCurrency(v),
       fontSize: 10,
     },
-    splitLine: { lineStyle: { type: "dashed" } },
+    splitLine: { lineStyle: { color: chartTokens.value.grid, type: "dashed" } },
   },
   series: [
     {
@@ -53,11 +61,11 @@ const chartOption = computed((): EChartsOption => ({
       data: [
         {
           value: props.summary?.income ?? 0,
-          itemStyle: { color: colors.positive.DEFAULT, borderRadius: [4, 4, 0, 0] },
+          itemStyle: { color: chartTokens.value.income, borderRadius: [4, 4, 0, 0] },
         },
         {
           value: props.summary?.expense ?? 0,
-          itemStyle: { color: colors.negative.DEFAULT, borderRadius: [4, 4, 0, 0] },
+          itemStyle: { color: chartTokens.value.expense, borderRadius: [4, 4, 0, 0] },
         },
       ],
     },

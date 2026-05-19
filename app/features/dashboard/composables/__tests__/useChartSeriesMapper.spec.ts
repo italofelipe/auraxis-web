@@ -2,11 +2,15 @@ import { describe, it, expect, vi } from "vitest";
 import { ref } from "vue";
 
 import { useChartSeriesMapper } from "../useChartSeriesMapper";
-import { colors } from "~/theme/tokens/colors";
+import { themePalettes } from "~/theme/tokens/semantic";
 import type { DashboardTimeseriesPoint } from "~/features/dashboard/model/dashboard-overview";
 
 vi.mock("vue-i18n", () => ({
   useI18n: (): { locale: ReturnType<typeof ref<string>> } => ({ locale: ref("pt-BR") }),
+}));
+
+vi.mock("~/composables/useTheme", () => ({
+  useTheme: (): { resolvedTheme: ReturnType<typeof ref<"light">> } => ({ resolvedTheme: ref("light") }),
 }));
 
 /**
@@ -120,9 +124,9 @@ describe("useChartSeriesMapper", () => {
       const result = mapTimeseries([makePoint({ income: 100, expense: 50, balance: 50 })]);
       const [incomeSeries, expenseSeries, balanceSeries] = result.series;
 
-      expect(incomeSeries?.color).toBe(colors.positive.DEFAULT);
-      expect(expenseSeries?.color).toBe(colors.negative.DEFAULT);
-      expect(balanceSeries?.color).toBe(colors.cyan[500]);
+      expect(incomeSeries?.color).toBe(themePalettes.light.chart.income);
+      expect(expenseSeries?.color).toBe(themePalettes.light.chart.expense);
+      expect(balanceSeries?.color).toBe(themePalettes.light.chart.balance);
     });
 
     it("assigns correct design-token colors in empty case too", () => {
@@ -130,9 +134,9 @@ describe("useChartSeriesMapper", () => {
       const result = mapTimeseries([]);
       const [incomeSeries, expenseSeries, balanceSeries] = result.series;
 
-      expect(incomeSeries?.color).toBe(colors.positive.DEFAULT);
-      expect(expenseSeries?.color).toBe(colors.negative.DEFAULT);
-      expect(balanceSeries?.color).toBe(colors.cyan[500]);
+      expect(incomeSeries?.color).toBe(themePalettes.light.chart.income);
+      expect(expenseSeries?.color).toBe(themePalettes.light.chart.expense);
+      expect(balanceSeries?.color).toBe(themePalettes.light.chart.balance);
     });
 
     it("generates a PT-BR formatted label for a known date", () => {

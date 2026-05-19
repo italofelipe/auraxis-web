@@ -209,12 +209,12 @@ const saveGeneratedProjection = (): void => {
   gap: 20px;
   min-width: 0;
   padding: 24px;
-  border: 1px solid rgba(68, 212, 255, 0.18);
+  border: 1px solid var(--color-brand-glow-sm);
   border-radius: var(--radius-lg);
   background:
-    linear-gradient(135deg, rgba(68, 212, 255, 0.08), transparent 38%),
-    #111827;
-  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.26);
+    linear-gradient(135deg, var(--color-brand-glow-2xs), transparent 38%),
+    var(--color-bg-surface);
+  box-shadow: var(--shadow-card);
 }
 
 .goal-ai-panel__header {
@@ -231,10 +231,10 @@ const saveGeneratedProjection = (): void => {
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  border: 1px solid rgba(68, 212, 255, 0.26);
+  border: 1px solid var(--color-brand-glow-md);
   border-radius: var(--radius-sm);
-  color: #44d4ff;
-  background: rgba(68, 212, 255, 0.1);
+  color: var(--color-brand-500);
+  background: var(--color-brand-hover-surface);
 }
 
 .goal-ai-panel h2,
@@ -243,14 +243,14 @@ const saveGeneratedProjection = (): void => {
 }
 
 .goal-ai-panel h2 {
-  color: #f7fbff;
+  color: var(--color-text-primary);
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-extrabold);
 }
 
 .goal-ai-panel__header p {
   margin-top: 4px;
-  color: #8da2bf;
+  color: var(--color-text-muted);
   line-height: 1.5;
 }
 
@@ -261,7 +261,7 @@ const saveGeneratedProjection = (): void => {
 }
 
 .goal-ai-panel__form label {
-  color: #dce8f8;
+  color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
   text-transform: uppercase;
@@ -273,17 +273,17 @@ const saveGeneratedProjection = (): void => {
   min-height: 92px;
   padding: 14px 16px;
   resize: vertical;
-  border: 1px solid rgba(141, 162, 191, 0.26);
+  border: 1px solid var(--color-outline-soft);
   border-radius: var(--radius-sm);
-  color: #f7fbff;
-  background: rgba(8, 13, 24, 0.72);
+  color: var(--color-text-primary);
+  background: var(--color-bg-elevated);
   line-height: 1.5;
   outline: none;
 }
 
 .goal-ai-panel textarea:focus {
-  border-color: rgba(68, 212, 255, 0.68);
-  box-shadow: 0 0 0 3px rgba(68, 212, 255, 0.12);
+  border-color: var(--color-brand-500);
+  box-shadow: 0 0 0 3px var(--color-brand-glow-sm);
 }
 
 .goal-ai-panel__form-footer {
@@ -294,12 +294,12 @@ const saveGeneratedProjection = (): void => {
 }
 
 .goal-ai-panel__form-footer span {
-  color: #8da2bf;
+  color: var(--color-text-muted);
   font-size: var(--font-size-sm);
 }
 
 .goal-ai-panel__form-footer .is-danger {
-  color: #ff7a8a;
+  color: var(--color-negative);
 }
 
 .goal-ai-panel__submit,
@@ -317,8 +317,8 @@ const saveGeneratedProjection = (): void => {
 
 .goal-ai-panel__submit {
   padding: 0 18px;
-  color: #06111f;
-  background: linear-gradient(135deg, #44d4ff, #42e8a9);
+  color: var(--color-text-on-brand);
+  background: var(--gradient-brand);
 }
 
 .goal-ai-panel__submit:disabled {
@@ -336,7 +336,7 @@ const saveGeneratedProjection = (): void => {
 .goal-ai-panel__skeleton span {
   height: 16px;
   border-radius: var(--radius-full);
-  background: linear-gradient(90deg, rgba(141, 162, 191, 0.12), rgba(141, 162, 191, 0.25), rgba(141, 162, 191, 0.12));
+  background: linear-gradient(90deg, var(--color-skeleton-start), var(--color-skeleton-mid), var(--color-skeleton-end));
 }
 
 .goal-ai-panel__loading span:nth-child(2),
@@ -354,10 +354,10 @@ const saveGeneratedProjection = (): void => {
   align-items: center;
   gap: 10px;
   padding: 12px 14px;
-  border: 1px solid rgba(255, 122, 138, 0.28);
+  border: 1px solid var(--color-negative-border);
   border-radius: var(--radius-sm);
-  color: #ffd1d7;
-  background: rgba(255, 122, 138, 0.08);
+  color: var(--color-negative);
+  background: var(--color-negative-bg);
 }
 
 .goal-ai-result {
@@ -365,9 +365,9 @@ const saveGeneratedProjection = (): void => {
   gap: 16px;
   min-width: 0;
   padding: 18px;
-  border: 1px solid rgba(141, 162, 191, 0.18);
+  border: 1px solid var(--color-outline-soft);
   border-radius: var(--radius-md);
-  background: rgba(8, 13, 24, 0.54);
+  background: var(--color-bg-elevated);
 }
 
 .goal-ai-result__topline,
@@ -379,20 +379,20 @@ const saveGeneratedProjection = (): void => {
 }
 
 .goal-ai-result__topline span {
-  color: #42e8a9;
+  color: var(--color-positive);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-extrabold);
   text-transform: uppercase;
 }
 
 .goal-ai-result__topline strong {
-  color: #8da2bf;
+  color: var(--color-text-muted);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
 }
 
 .goal-ai-result__narrative {
-  color: #dce8f8;
+  color: var(--color-text-secondary);
   line-height: 1.62;
 }
 
@@ -406,11 +406,11 @@ const saveGeneratedProjection = (): void => {
   min-width: 0;
   padding: 12px;
   border-radius: var(--radius-sm);
-  background: rgba(141, 162, 191, 0.08);
+  background: var(--color-bg-subtle);
 }
 
 .goal-ai-result__metrics dt {
-  color: #8da2bf;
+  color: var(--color-text-muted);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
   text-transform: uppercase;
@@ -418,15 +418,15 @@ const saveGeneratedProjection = (): void => {
 
 .goal-ai-result__metrics dd {
   margin: 6px 0 0;
-  color: #f7fbff;
+  color: var(--color-text-primary);
   font-weight: var(--font-weight-extrabold);
 }
 
 .goal-ai-result__note {
   width: fit-content;
   padding: 0 16px;
-  color: #dce8f8;
-  background: rgba(141, 162, 191, 0.12);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-subtle);
 }
 
 @media (max-width: 700px) {

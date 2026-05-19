@@ -23,11 +23,12 @@
   display: grid;
   grid-template-columns: 1.08fr 0.92fr;
   min-height: 100dvh;
+  --auth-grid-line: color-mix(in srgb, var(--color-text-primary) 4%, transparent);
   background:
-    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(135deg, rgba(139, 125, 255, 0.1), transparent 34%),
-    linear-gradient(315deg, rgba(68, 212, 255, 0.1), transparent 32%),
+    linear-gradient(var(--auth-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--auth-grid-line) 1px, transparent 1px),
+    linear-gradient(135deg, var(--color-brand-glow-2xs), transparent 34%),
+    linear-gradient(315deg, var(--color-brand-glow-xs), transparent 32%),
     var(--color-bg-base);
   background-size: 44px 44px, 44px 44px, auto, auto, auto;
   color: var(--color-text-primary);
