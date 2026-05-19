@@ -1,10 +1,25 @@
-import axios, { type AxiosInstance } from "axios";
+import axios, { type AxiosInstance, type RawAxiosRequestHeaders } from "axios";
 import { useDialog, useMessage } from "naive-ui";
 
 import { createHttpClient } from "~/core/http/http-client";
 import { useSessionStore } from "~/stores/session";
 
 const DEFAULT_API_BASE = "http://localhost:5000";
+
+/**
+ * Name of the non-HttpOnly CSRF cookie set by the backend when
+ * `JWT_COOKIE_CSRF_PROTECT` is enabled (SEC-AUD-03). The cookie holds the
+ * double-submit token that the client mirrors back on refresh requests as
+ * the `X-CSRF-TOKEN` header. Must stay in sync with
+ * `JWT_REFRESH_CSRF_COOKIE_NAME` in `repos/auraxis-api/config/__init__.py`.
+ */
+export const CSRF_REFRESH_COOKIE_NAME = "auraxis_csrf_refresh";
+
+/**
+ * Header name expected by the backend for CSRF double-submit validation.
+ * Must stay in sync with `JWT_REFRESH_CSRF_HEADER_NAME` in the API config.
+ */
+export const CSRF_HEADER_NAME = "X-CSRF-TOKEN";
 
 export {
   createHttpClient,
@@ -23,12 +38,48 @@ interface RefreshEnvelope {
 }
 
 /**
+ * Reads a cookie value from `document.cookie` by exact name match.
+ *
+ * Returns null on the server (no document) and when the cookie is absent
+ * or empty. The match is exact — no decoding heuristics, no partial-prefix
+ * matches — because both sides own the cookie name and we don't want a
+ * subtly malformed cookie to be mistaken for a valid token.
+ *
+ * @param name Cookie name (case-sensitive).
+ * @returns Cookie value, or null when not available.
+ */
+export const readCookieValue = (name: string): string | null => {
+  if (typeof document === "undefined" || !document.cookie) {
+    return null;
+  }
+  const target = `${name}=`;
+  const pairs = document.cookie.split(";");
+  for (const raw of pairs) {
+    const pair = raw.trimStart();
+    if (pair.startsWith(target)) {
+      const value = pair.slice(target.length);
+      return value === "" ? null : value;
+    }
+  }
+  return null;
+};
+
+/**
  * Exchanges the httpOnly refresh cookie for a new access token.
  *
  * SEC-GAP-01: The refresh token is no longer passed via Authorization header.
  * The browser sends the `auraxis_refresh` httpOnly cookie automatically when
- * `withCredentials: true` is set. On success the access token is updated in
- * the session store. On failure the user is signed out.
+ * `withCredentials: true` is set.
+ *
+ * SEC-AUD-03: When the backend sets the `auraxis_csrf_refresh` companion
+ * cookie (active only when `AURAXIS_CSRF_ENFORCE=true` is flipped server-side),
+ * we mirror its value into the `X-CSRF-TOKEN` request header so the backend's
+ * double-submit check passes. We send the header proactively whenever the
+ * cookie is present — backend silently ignores it while the flag is OFF,
+ * validates it when ON. Same canary pattern as SEC-AUD-07 cookie-only flip.
+ *
+ * On success the access token is updated in the session store. On failure the
+ * user is signed out.
  *
  * @param apiBase Absolute base URL of the Auraxis API.
  * @param sessionStore Active session Pinia store instance.
@@ -38,13 +89,19 @@ export const refreshAccessToken = async (
   apiBase: string,
   sessionStore: ReturnType<typeof useSessionStore>,
 ): Promise<string | null> => {
+  const headers: RawAxiosRequestHeaders = { "X-API-Contract": "v2" };
+  const csrfToken = readCookieValue(CSRF_REFRESH_COOKIE_NAME);
+  if (csrfToken) {
+    headers[CSRF_HEADER_NAME] = csrfToken;
+  }
+
   try {
     const response = await axios.post<RefreshEnvelope>(
       `${apiBase}/auth/refresh`,
       {},
       {
         withCredentials: true, // sends the httpOnly auraxis_refresh cookie
-        headers: { "X-API-Contract": "v2" },
+        headers,
       },
     );
     const { token } = response.data.data;
