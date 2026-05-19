@@ -5,13 +5,19 @@ import type { EChartsOption } from "echarts";
 import type { DashboardSummary } from "~/features/dashboard/model/dashboard-overview";
 import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
 import UiTrendBadge from "~/components/ui/UiTrendBadge/UiTrendBadge.vue";
-import { colors } from "~/theme/tokens/colors";
+import { useTheme } from "~/composables/useTheme";
+import { themePalettes } from "~/theme/tokens/semantic";
 
 const props = defineProps<{
   summary: DashboardSummary | null;
   previousSummary?: DashboardSummary | null;
   loading?: boolean;
 }>();
+
+const { resolvedTheme } = useTheme();
+
+const feedbackTokens = computed(() => themePalettes[resolvedTheme.value].feedback);
+const actionTokens = computed(() => themePalettes[resolvedTheme.value].action);
 
 /**
  * Computes the savings rate as `balance / income * 100`.
@@ -51,10 +57,10 @@ const healthCopy = computed(() => {
 });
 
 const gaugeColor = computed((): string => {
-  if (healthCopy.value.tone === "positive") {return colors.positive.DEFAULT;}
-  if (healthCopy.value.tone === "warning") {return colors.orange[500];}
-  if (healthCopy.value.tone === "negative") {return colors.negative.DEFAULT;}
-  return colors.cyan[500];
+  if (healthCopy.value.tone === "positive") {return feedbackTokens.value.positive;}
+  if (healthCopy.value.tone === "warning") {return feedbackTokens.value.warning;}
+  if (healthCopy.value.tone === "negative") {return feedbackTokens.value.negative;}
+  return actionTokens.value.primary;
 });
 
 const gaugeOption = computed((): EChartsOption => {
@@ -72,9 +78,9 @@ const gaugeOption = computed((): EChartsOption => {
           lineStyle: {
             width: 12,
             color: [
-              [0.3, colors.negative.DEFAULT],
-              [0.5, colors.orange[500]],
-              [1, colors.positive.DEFAULT],
+              [0.3, feedbackTokens.value.negative],
+              [0.5, feedbackTokens.value.warning],
+              [1, feedbackTokens.value.positive],
             ],
           },
         },
@@ -175,7 +181,7 @@ const gaugeOption = computed((): EChartsOption => {
   margin: 0;
 }
 .savings-rate-card__value--positive { color: var(--color-positive); }
-.savings-rate-card__value--warning  { color: var(--color-warning, #ffb861); }
+.savings-rate-card__value--warning  { color: var(--color-warning); }
 .savings-rate-card__value--negative { color: var(--color-negative); }
 .savings-rate-card__value--neutral  { color: var(--color-text-primary); }
 .savings-rate-card__helper {

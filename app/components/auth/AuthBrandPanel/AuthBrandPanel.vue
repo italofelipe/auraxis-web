@@ -104,8 +104,8 @@ const panel = computed<AuthPanelCopy>(() => {
         <svg class="auth-brand__security-chart" viewBox="0 0 520 140" role="img" aria-label="Curva de mitigação de ameaças">
           <defs>
             <linearGradient id="securityStroke" x1="0" x2="1" y1="0" y2="0">
-              <stop offset="0%" stop-color="#44d4ff" />
-              <stop offset="100%" stop-color="#8b7dff" />
+              <stop offset="0%" stop-color="var(--color-brand-500)" />
+              <stop offset="100%" stop-color="var(--color-accent)" />
             </linearGradient>
           </defs>
           <polyline
@@ -119,7 +119,7 @@ const panel = computed<AuthPanelCopy>(() => {
           <polyline
             points="4,122 48,112 92,116 136,104 180,98 224,88 268,94 312,80 356,83 400,67 444,72 516,54"
             fill="none"
-            stroke="#42e8a9"
+            stroke="var(--color-positive)"
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -161,12 +161,13 @@ const panel = computed<AuthPanelCopy>(() => {
   justify-content: space-between;
   height: 100%;
   min-height: 100dvh;
+  --auth-panel-grid-line: color-mix(in srgb, var(--color-text-primary) 4%, transparent);
   padding: var(--space-8);
   border-right: 1px solid var(--color-outline-soft);
   background:
-    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(170deg, rgba(18, 26, 42, 0.9), rgba(5, 7, 13, 0.96));
+    linear-gradient(var(--auth-panel-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--auth-panel-grid-line) 1px, transparent 1px),
+    linear-gradient(170deg, var(--color-bg-surface), var(--color-bg-elevated));
   background-size: 44px 44px, 44px 44px, auto;
   color: var(--color-text-primary);
   overflow: hidden;
@@ -199,7 +200,7 @@ const panel = computed<AuthPanelCopy>(() => {
   display: grid;
   place-items: center;
   background: linear-gradient(145deg, var(--color-brand-500), var(--color-accent));
-  color: #0b1626;
+  color: var(--color-text-on-brand);
   font-weight: var(--font-weight-extrabold);
 }
 
@@ -207,7 +208,7 @@ const panel = computed<AuthPanelCopy>(() => {
   width: 40px;
   height: 40px;
   border-radius: var(--radius-md);
-  box-shadow: 0 0 28px rgba(68, 212, 255, 0.2);
+  box-shadow: var(--shadow-brand-glow-sm);
 }
 
 .auth-brand__logo-name {
@@ -228,7 +229,7 @@ const panel = computed<AuthPanelCopy>(() => {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--color-brand-500);
-  background: rgba(68, 212, 255, 0.1);
+  background: var(--color-brand-hover-surface);
 }
 
 .auth-brand__security-badge {
@@ -236,10 +237,10 @@ const panel = computed<AuthPanelCopy>(() => {
   align-items: center;
   gap: var(--space-2);
   width: fit-content;
-  border: 1px solid rgba(68, 212, 255, 0.2);
+  border: 1px solid var(--color-brand-glow-sm);
   border-radius: var(--radius-full);
   padding: 6px 12px;
-  background: rgba(68, 212, 255, 0.1);
+  background: var(--color-brand-hover-surface);
   color: var(--color-brand-500);
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
@@ -252,7 +253,7 @@ const panel = computed<AuthPanelCopy>(() => {
   height: 8px;
   border-radius: var(--radius-full);
   background: var(--color-brand-500);
-  box-shadow: 0 0 14px rgba(68, 212, 255, 0.8);
+  box-shadow: var(--shadow-brand-glow-sm);
 }
 
 /* Copy */
@@ -274,7 +275,7 @@ const panel = computed<AuthPanelCopy>(() => {
   max-width: 18ch;
   font-size: clamp(2.5rem, 4vw, 3rem);
   line-height: 1.08;
-  background: linear-gradient(90deg, #ffffff, #aeb8d4);
+  background: linear-gradient(90deg, var(--color-text-primary), var(--color-text-secondary));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -303,9 +304,9 @@ const panel = computed<AuthPanelCopy>(() => {
 }
 
 .glass {
-  background: linear-gradient(175deg, rgba(18, 26, 42, 0.82), rgba(10, 15, 26, 0.9));
+  background: linear-gradient(175deg, var(--color-bg-glass), var(--color-bg-surface));
   border: 1px solid var(--color-outline-soft);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
+  box-shadow: var(--shadow-card);
   backdrop-filter: blur(8px);
 }
 
@@ -329,7 +330,7 @@ const panel = computed<AuthPanelCopy>(() => {
   align-self: center;
   border-radius: var(--radius-sm);
   padding: var(--space-1) var(--space-2);
-  background: rgba(139, 125, 255, 0.12);
+  background: color-mix(in srgb, var(--color-accent) 14%, transparent);
   color: var(--color-brand-500);
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
@@ -348,7 +349,7 @@ const panel = computed<AuthPanelCopy>(() => {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.03), transparent 52%);
+  background: linear-gradient(145deg, var(--color-outline-ghost), transparent 52%);
   pointer-events: none;
 }
 
@@ -389,7 +390,7 @@ const panel = computed<AuthPanelCopy>(() => {
   gap: var(--space-1);
   border-radius: var(--radius-sm);
   padding: var(--space-1) var(--space-2);
-  background: rgba(139, 125, 255, 0.12);
+  background: color-mix(in srgb, var(--color-accent) 14%, transparent);
   color: var(--color-accent);
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
@@ -409,7 +410,7 @@ const panel = computed<AuthPanelCopy>(() => {
   gap: var(--space-4);
   margin-top: var(--space-4);
   padding-top: var(--space-4);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--color-outline-subtle);
 }
 
 .auth-brand__security-grid strong {

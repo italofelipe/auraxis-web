@@ -242,12 +242,19 @@ const onSaveNote = (projection: { narrative: string }): void => {
 
 <style scoped>
 .goal-detail-page {
+  --goal-surface: var(--color-bg-surface);
+  --goal-surface-strong: var(--color-bg-elevated);
+  --goal-border: var(--color-outline-soft);
+  --goal-text: var(--color-text-primary);
+  --goal-muted: var(--color-text-muted);
+  --goal-brand: var(--color-brand-500);
+  --goal-track: color-mix(in srgb, var(--color-text-muted) 16%, transparent);
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 24px;
   width: 100%;
   min-width: 0;
-  color: #f7fbff;
+  color: var(--goal-text);
 }
 
 .goal-detail-page > * {
@@ -260,11 +267,11 @@ const onSaveNote = (projection: { narrative: string }): void => {
   min-height: 38px;
   align-items: center;
   gap: 8px;
-  border: 1px solid rgba(130, 157, 198, 0.24);
+  border: 1px solid var(--goal-border);
   border-radius: var(--radius-full);
   padding: 0 14px;
-  color: #8da2bf;
-  background: #111827;
+  color: var(--goal-muted);
+  background: var(--goal-surface);
   font-weight: var(--font-weight-extrabold);
   cursor: pointer;
 }
@@ -275,10 +282,10 @@ const onSaveNote = (projection: { narrative: string }): void => {
 .goal-detail-ai,
 .goal-detail-note {
   min-width: 0;
-  border: 1px solid rgba(130, 157, 198, 0.22);
+  border: 1px solid var(--goal-border);
   border-radius: var(--radius-lg);
-  background: #111827;
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+  background: var(--goal-surface);
+  box-shadow: var(--shadow-card);
 }
 
 .goal-detail-hero {
@@ -288,12 +295,12 @@ const onSaveNote = (projection: { narrative: string }): void => {
   gap: 24px;
   padding: 28px;
   background:
-    radial-gradient(circle at 100% 0%, rgba(68, 212, 255, 0.12), transparent 30%),
-    #111827;
+    radial-gradient(circle at 100% 0%, var(--color-brand-glow-xs), transparent 30%),
+    var(--goal-surface);
 }
 
 .goal-detail-hero__eyebrow {
-  color: #44d4ff;
+  color: var(--goal-brand);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-extrabold);
   text-transform: uppercase;
@@ -302,7 +309,7 @@ const onSaveNote = (projection: { narrative: string }): void => {
 .goal-detail-hero h1,
 .goal-detail-note h2 {
   margin: 8px 0 0;
-  color: #f7fbff;
+  color: var(--goal-text);
   font-weight: var(--font-weight-extrabold);
   letter-spacing: 0;
 }
@@ -316,7 +323,7 @@ const onSaveNote = (projection: { narrative: string }): void => {
 .goal-detail-note p {
   max-width: 680px;
   margin: 10px 0 0;
-  color: #8da2bf;
+  color: var(--goal-muted);
   font-size: var(--font-size-md);
   line-height: 1.6;
 }
@@ -325,20 +332,20 @@ const onSaveNote = (projection: { narrative: string }): void => {
   display: grid;
   min-width: 132px;
   place-items: center;
-  border: 1px solid rgba(66, 232, 169, 0.28);
+  border: 1px solid var(--color-positive-border);
   border-radius: var(--radius-md);
   padding: 18px;
-  background: rgba(66, 232, 169, 0.08);
+  background: var(--color-positive-bg);
 }
 
 .goal-detail-hero__progress strong {
-  color: #42e8a9;
+  color: var(--color-positive);
   font-family: "IBM Plex Mono", ui-monospace, monospace;
   font-size: var(--font-size-heading-xl);
 }
 
 .goal-detail-hero__progress span {
-  color: #8da2bf;
+  color: var(--goal-muted);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-extrabold);
   text-transform: uppercase;
@@ -358,18 +365,18 @@ const onSaveNote = (projection: { narrative: string }): void => {
 }
 
 .goal-detail-metrics svg {
-  color: #44d4ff;
+  color: var(--goal-brand);
 }
 
 .goal-detail-metrics span {
-  color: #8da2bf;
+  color: var(--goal-muted);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-extrabold);
   text-transform: uppercase;
 }
 
 .goal-detail-metrics strong {
-  color: #f7fbff;
+  color: var(--goal-text);
   font-family: "IBM Plex Mono", ui-monospace, monospace;
   font-size: var(--font-size-lg);
 }
@@ -384,26 +391,26 @@ const onSaveNote = (projection: { narrative: string }): void => {
   overflow: hidden;
   height: 10px;
   border-radius: var(--radius-full);
-  background: #202b3e;
+  background: var(--goal-track);
 }
 
 .goal-detail-progress__track span {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #44d4ff, #42e8a9);
+  background: var(--gradient-brand);
 }
 
 .goal-detail-progress div:last-child {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  color: #8da2bf;
+  color: var(--goal-muted);
   font-size: var(--font-size-sm);
 }
 
 .goal-detail-progress strong {
-  color: #dce8f8;
+  color: var(--color-text-secondary);
 }
 
 .goal-detail-ai {
@@ -414,9 +421,9 @@ const onSaveNote = (projection: { narrative: string }): void => {
   display: flex;
   min-height: 58px;
   align-items: center;
-  border-bottom: 1px solid rgba(130, 157, 198, 0.2);
+  border-bottom: 1px solid var(--goal-border);
   padding: 0 24px;
-  color: #dce8f8;
+  color: var(--color-text-secondary);
   font-weight: var(--font-weight-extrabold);
   cursor: pointer;
 }

@@ -10,6 +10,9 @@
 
 import { computed } from "vue";
 import type { EChartsOption } from "echarts";
+import { useTheme } from "~/composables/useTheme";
+import { themePalettes } from "~/theme/tokens/semantic";
+import { buildChartThemeTokens, withAlpha } from "~/utils/chart-theme";
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
@@ -24,14 +27,21 @@ const props = defineProps<{
 
 // ── Colour mapping ────────────────────────────────────────────────────────────
 
-// ECharts does not resolve CSS variables — use token values directly.
-const TIER_COLORS: Record<"good" | "fair" | "poor", string> = {
-  good: "#42e8a9",   // DS v3 lime  (--color-positive)
-  fair: "#ffb861",   // DS v3 orange (--color-warning)
-  poor: "#ff6f79",   // DS v3 red   (--color-negative)
-};
+const { resolvedTheme } = useTheme();
 
-const gaugeColor = computed(() => TIER_COLORS[props.tier]);
+const chartTokens = computed(() => buildChartThemeTokens(resolvedTheme.value));
+
+const tierColors = computed<Record<"good" | "fair" | "poor", string>>(() => {
+  const feedback = themePalettes[resolvedTheme.value].feedback;
+
+  return {
+    good: feedback.positive,
+    fair: feedback.warning,
+    poor: feedback.negative,
+  };
+});
+
+const gaugeColor = computed(() => tierColors.value[props.tier]);
 
 // ── ECharts option ────────────────────────────────────────────────────────────
 
@@ -54,7 +64,7 @@ const chartOption = computed((): EChartsOption => ({
       axisLine: {
         lineStyle: {
           width: 12,
-          color: [[1, "rgba(65, 57, 57, 0.5)"]],
+          color: [[1, withAlpha(chartTokens.value.grid, resolvedTheme.value === "dark" ? 0.5 : 0.9)]],
         },
       },
       axisTick: { show: false },

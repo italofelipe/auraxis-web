@@ -2,6 +2,7 @@ import axios, { type AxiosInstance, type RawAxiosRequestHeaders } from "axios";
 import { useDialog, useMessage } from "naive-ui";
 
 import { createHttpClient } from "~/core/http/http-client";
+import { isAdminImpersonationReadOnlyActive } from "~/features/admin/impersonation/composables/use-admin-impersonation-session";
 import { useSessionStore } from "~/stores/session";
 
 const DEFAULT_API_BASE = "http://localhost:5000";
@@ -138,7 +139,7 @@ export const useHttp = (): AxiosInstance => {
 
   const apiBase = String(runtimeConfig.public.apiBase ?? DEFAULT_API_BASE);
 
-  return createHttpClient(
+  const client = createHttpClient(
     apiBase,
     () => sessionStore.getAccessToken(),
     {
@@ -170,5 +171,24 @@ export const useHttp = (): AxiosInstance => {
       },
     },
   );
+
+  client.interceptors.request.use((config) => {
+    const method = config.method?.toLowerCase() ?? "get";
+    const mutatingMethods = new Set(["post", "put", "patch", "delete"]);
+    const requestPath = String(config.url ?? "");
+
+    if (
+      import.meta.client &&
+      mutatingMethods.has(method) &&
+      isAdminImpersonationReadOnlyActive() &&
+      !requestPath.startsWith("/admin/impersonation")
+    ) {
+      return Promise.reject(new Error("Modo de impersonação somente leitura bloqueou esta mutação."));
+    }
+
+    return config;
+  });
+
+  return client;
 };
 /* v8 ignore stop */

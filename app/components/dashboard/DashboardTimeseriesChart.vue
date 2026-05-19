@@ -129,7 +129,7 @@ const formatDate = (value: string): string => {
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-outline-soft);
   padding: var(--space-2);
-  background: rgba(255, 255, 255, 0.45);
+  background: var(--color-bg-elevated);
 }
 
 .series-item__header {

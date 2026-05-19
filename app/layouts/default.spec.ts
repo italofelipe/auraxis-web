@@ -28,6 +28,7 @@ vi.mock("#imports", async (importOriginal) => {
 const mockIsLoaded = ref(false);
 const mockIsProfileComplete = ref(true);
 const mockProfile = ref<{ id?: string; name?: string } | null>(null);
+const mockIsAdmin = ref(false);
 
 vi.mock("~/stores/user", () => ({
   useUserStore: vi.fn(() => ({
@@ -42,6 +43,13 @@ vi.mock("~/stores/user", () => ({
 
 vi.mock("~/features/profile/composables/use-user-profile-query", () => ({
   useUserProfileQuery: vi.fn(() => ({ data: null, isLoading: false })),
+}));
+
+vi.mock("~/features/admin/model/admin-access", () => ({
+  useAdminAccess: vi.fn(() => ({
+    isAdmin: mockIsAdmin,
+    claims: ref({ isAdmin: mockIsAdmin.value, roles: [], permissions: [] }),
+  })),
 }));
 
 /**
@@ -94,6 +102,7 @@ const globalStubs = {
   },
   BillingStatusBanner: true,
   EmailConfirmationBanner: true,
+  AdminImpersonationBanner: true,
 };
 
 describe("DefaultLayout", () => {
@@ -101,6 +110,7 @@ describe("DefaultLayout", () => {
     mockIsLoaded.value = false;
     mockIsProfileComplete.value = true;
     mockProfile.value = null;
+    mockIsAdmin.value = false;
     localStorage.clear();
   });
 
@@ -126,6 +136,21 @@ describe("DefaultLayout", () => {
     // Items still in draft (alerts, simulations, sharedEntries) remain hidden.
     expect(wrapper.text()).toContain("nav.portfolio");
     expect(wrapper.text()).toContain("nav.goals");
+    expect(wrapper.text()).not.toContain("Admin");
+  });
+
+  it("adds the admin route to the sidebar only for users with admin claims", () => {
+    setActivePinia(createPinia());
+    mockIsAdmin.value = true;
+
+    const wrapper = mount(DefaultLayout, {
+      global: {
+        plugins: [{ install: nuxtContextPlugin }],
+        stubs: globalStubs,
+      },
+    });
+
+    expect(wrapper.text()).toContain("Admin");
   });
 
   it("calls logout when UiAppShell emits user-logout", async () => {

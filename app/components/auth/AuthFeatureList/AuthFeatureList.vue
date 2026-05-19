@@ -57,7 +57,7 @@ const features = computed(() => props.features ?? DEFAULT_FEATURES.value);
 .auth-highlight {
   border: 1px solid var(--color-outline-soft);
   border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--color-bg-elevated);
   padding: var(--space-4);
 }
 

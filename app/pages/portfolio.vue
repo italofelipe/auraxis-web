@@ -27,6 +27,8 @@ import {
 import { MOCK_GOALS } from "~/features/goals/mock/goals.mock";
 import { useGoalsQuery } from "~/features/goals/queries/use-goals-query";
 import { formatCurrency } from "~/utils/currency";
+import { useTheme } from "~/composables/useTheme";
+import { buildChartThemeTokens, withAlpha } from "~/utils/chart-theme";
 
 definePageMeta({
   middleware: ["authenticated", "coming-soon"],
@@ -46,6 +48,7 @@ interface AllocationRow {
 const { data: summary, isError: isSummaryError } = usePortfolioSummaryQuery();
 const { data: entries, isError: isEntriesError } = useWalletEntriesQuery();
 const { data: goals } = useGoalsQuery();
+const { resolvedTheme } = useTheme();
 
 const createMutation = useCreateWalletEntryMutation();
 const updateMutation = useUpdateWalletEntryMutation();
@@ -53,6 +56,7 @@ const updateMutation = useUpdateWalletEntryMutation();
 const isError = computed(() => isSummaryError.value || isEntriesError.value);
 const showEntryForm = ref(false);
 const editingEntry = ref<WalletEntryDto | null>(null);
+const chartTokens = computed(() => buildChartThemeTokens(resolvedTheme.value));
 
 const rawEntries = computed(() => entries.value ?? []);
 const isUsingSamplePortfolio = computed(() => rawEntries.value.length === 0);
@@ -189,7 +193,14 @@ const displayGoals = computed(() => {
 const projectedMonthlyContribution = computed(() => Math.max(500, Math.round(computedSummary.value.total_value * 0.012)));
 
 const allocationRows = computed<AllocationRow[]>(() => {
-  const colors = ["#44d4ff", "#42e8a9", "#f59e0b", "#e11d48", "#9da8ff"];
+  const tokens = chartTokens.value;
+  const colors = [
+    tokens.balance,
+    tokens.income,
+    tokens.investment,
+    tokens.expense,
+    tokens.series[4],
+  ];
   const totals = new Map<string, number>();
 
   for (const entry of displayEntries.value) {
@@ -204,11 +215,12 @@ const allocationRows = computed<AllocationRow[]>(() => {
       label,
       value,
       percentage: Math.round((value / total) * 100),
-      color: colors[index] ?? "#8da2bf",
+      color: colors[index] ?? tokens.mutedText,
     }));
 });
 
 const performanceChartOption = computed<EChartsOption>(() => {
+  const tokens = chartTokens.value;
   const months = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
   const base = Math.max(computedSummary.value.total_cost, 1000);
   const portfolio = months.map((_, index) => Math.round(base * (1 + index * 0.031 + Math.sin(index) * 0.012)));
@@ -216,19 +228,19 @@ const performanceChartOption = computed<EChartsOption>(() => {
 
   return {
     backgroundColor: "transparent",
-    color: ["#44d4ff", "#42e8a9"],
+    color: [tokens.balance, tokens.income],
     grid: { top: 24, right: 20, bottom: 32, left: 62 },
     tooltip: {
       trigger: "axis",
-      backgroundColor: "rgba(11, 18, 32, 0.95)",
-      borderColor: "rgba(68, 212, 255, 0.24)",
-      textStyle: { color: "#f8fbff" },
+      backgroundColor: tokens.tooltipBackground,
+      borderColor: tokens.tooltipBorder,
+      textStyle: { color: tokens.tooltipText },
       valueFormatter: (value): string => formatCurrency(Number(value)),
     },
     legend: {
       top: 0,
       right: 0,
-      textStyle: { color: "#8da2bf" },
+      textStyle: { color: tokens.mutedText },
     },
     media: [
       {
@@ -242,7 +254,7 @@ const performanceChartOption = computed<EChartsOption>(() => {
             itemGap: 8,
             itemHeight: 6,
             itemWidth: 10,
-            textStyle: { color: "#8da2bf", fontSize: 10 },
+            textStyle: { color: tokens.mutedText, fontSize: 10 },
           },
         },
       },
@@ -250,15 +262,15 @@ const performanceChartOption = computed<EChartsOption>(() => {
     xAxis: {
       type: "category",
       data: months,
-      axisLine: { lineStyle: { color: "rgba(141, 162, 191, 0.25)" } },
+      axisLine: { lineStyle: { color: tokens.border } },
       axisTick: { show: false },
-      axisLabel: { color: "#8da2bf" },
+      axisLabel: { color: tokens.mutedText },
     },
     yAxis: {
       type: "value",
-      splitLine: { lineStyle: { color: "rgba(141, 162, 191, 0.12)" } },
+      splitLine: { lineStyle: { color: tokens.grid } },
       axisLabel: {
-        color: "#8da2bf",
+        color: tokens.mutedText,
         formatter: (value: number): string => `${Math.round(value / 1000)}k`,
       },
     },
@@ -269,7 +281,7 @@ const performanceChartOption = computed<EChartsOption>(() => {
         smooth: true,
         symbol: "none",
         lineStyle: { width: 3 },
-        areaStyle: { color: "rgba(68, 212, 255, 0.1)" },
+        areaStyle: { color: withAlpha(tokens.balance, resolvedTheme.value === "dark" ? 0.1 : 0.16) },
         data: portfolio,
       },
       {
@@ -284,36 +296,40 @@ const performanceChartOption = computed<EChartsOption>(() => {
   };
 });
 
-const allocationChartOption = computed<EChartsOption>(() => ({
-  backgroundColor: "transparent",
-  color: allocationRows.value.map((row) => row.color),
-  tooltip: {
-    trigger: "item",
-    backgroundColor: "rgba(11, 18, 32, 0.95)",
-    borderColor: "rgba(68, 212, 255, 0.24)",
-    textStyle: { color: "#f8fbff" },
-    formatter: "{b}: {d}%",
-  },
-  series: [
-    {
-      name: "Alocação",
-      type: "pie",
-      radius: ["58%", "78%"],
-      center: ["50%", "50%"],
-      avoidLabelOverlap: true,
-      label: { show: false },
-      labelLine: { show: false },
-      itemStyle: {
-        borderColor: "#111827",
-        borderWidth: 4,
-      },
-      data: allocationRows.value.map((row) => ({
-        name: row.label,
-        value: row.value,
-      })),
+const allocationChartOption = computed<EChartsOption>(() => {
+  const tokens = chartTokens.value;
+
+  return {
+    backgroundColor: "transparent",
+    color: allocationRows.value.map((row) => row.color),
+    tooltip: {
+      trigger: "item",
+      backgroundColor: tokens.tooltipBackground,
+      borderColor: tokens.tooltipBorder,
+      textStyle: { color: tokens.tooltipText },
+      formatter: "{b}: {d}%",
     },
-  ],
-}));
+    series: [
+      {
+        name: "Alocação",
+        type: "pie",
+        radius: ["58%", "78%"],
+        center: ["50%", "50%"],
+        avoidLabelOverlap: true,
+        label: { show: false },
+        labelLine: { show: false },
+        itemStyle: {
+          borderColor: tokens.pieBorder,
+          borderWidth: 4,
+        },
+        data: allocationRows.value.map((row) => ({
+          name: row.label,
+          value: row.value,
+        })),
+      },
+    ],
+  };
+});
 </script>
 
 <template>
@@ -558,15 +574,20 @@ const allocationChartOption = computed<EChartsOption>(() => ({
 
 <style scoped>
 .portfolio-market-pulse {
-  --mp-surface: #111827;
-  --mp-card: #151f31;
-  --mp-border: rgba(130, 157, 198, 0.22);
-  --mp-border-strong: rgba(130, 157, 198, 0.34);
-  --mp-text: #f7fbff;
-  --mp-muted: #8da2bf;
-  --mp-cyan: #44d4ff;
-  --mp-lime: #42e8a9;
-  --mp-red: #ff6f79;
+  --mp-surface: var(--color-bg-surface);
+  --mp-card: var(--color-bg-surface);
+  --mp-card-strong: var(--color-bg-elevated);
+  --mp-border: var(--color-outline-soft);
+  --mp-border-strong: var(--color-outline-hard);
+  --mp-text: var(--color-text-primary);
+  --mp-muted: var(--color-text-muted);
+  --mp-cyan: var(--color-brand-500);
+  --mp-lime: var(--color-positive);
+  --mp-red: var(--color-negative);
+  --mp-brand-soft: var(--color-brand-hover-surface);
+  --mp-neutral-soft: var(--color-bg-subtle);
+  --mp-track: color-mix(in srgb, var(--color-text-muted) 16%, transparent);
+  --mp-panel-shadow: var(--shadow-card);
   display: grid;
   gap: 32px;
   color: var(--mp-text);
@@ -620,11 +641,11 @@ const allocationChartOption = computed<EChartsOption>(() => ({
 .sample-pill {
   display: inline-flex;
   margin-top: 12px;
-  border: 1px solid rgba(68, 212, 255, 0.26);
+  border: 1px solid var(--color-brand-glow-md);
   border-radius: var(--radius-full);
   padding: 6px 10px;
   color: var(--mp-cyan);
-  background: rgba(68, 212, 255, 0.08);
+  background: var(--mp-brand-soft);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
 }
@@ -684,16 +705,16 @@ const allocationChartOption = computed<EChartsOption>(() => ({
 }
 
 .mp-button--primary {
-  border-color: rgba(68, 212, 255, 0.36);
+  border-color: var(--color-brand-glow-md);
   background: var(--mp-cyan);
-  color: #07101b;
-  box-shadow: 0 0 20px rgba(68, 212, 255, 0.22);
+  color: var(--color-text-on-brand);
+  box-shadow: var(--shadow-brand-glow-sm);
 }
 
 .mp-button--ghost {
-  border-color: rgba(68, 212, 255, 0.25);
+  border-color: var(--color-brand-glow-sm);
   color: var(--mp-cyan);
-  background: rgba(68, 212, 255, 0.08);
+  background: var(--mp-brand-soft);
 }
 
 .icon-button {
@@ -725,7 +746,7 @@ const allocationChartOption = computed<EChartsOption>(() => ({
   border: 1px solid var(--mp-border);
   border-radius: var(--radius-lg);
   background: var(--mp-card);
-  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.22);
+  box-shadow: var(--mp-panel-shadow);
 }
 
 .portfolio-kpi {
@@ -736,7 +757,7 @@ const allocationChartOption = computed<EChartsOption>(() => ({
 
 .portfolio-kpi--hero {
   background:
-    radial-gradient(circle at 100% 0%, rgba(68, 212, 255, 0.1), transparent 36%),
+    radial-gradient(circle at 100% 0%, var(--color-brand-glow-xs), transparent 36%),
     var(--mp-card);
 }
 
@@ -799,7 +820,7 @@ const allocationChartOption = computed<EChartsOption>(() => ({
 
 .trend-pill--positive {
   color: var(--mp-lime);
-  background: rgba(66, 232, 169, 0.1);
+  background: var(--color-positive-bg);
 }
 
 .comparison-line {
@@ -855,8 +876,8 @@ const allocationChartOption = computed<EChartsOption>(() => ({
 }
 
 .range-tabs button.is-active {
-  border-color: rgba(68, 212, 255, 0.36);
-  background: rgba(68, 212, 255, 0.1);
+  border-color: var(--color-brand-glow-md);
+  background: var(--mp-brand-soft);
   color: var(--mp-cyan);
 }
 
@@ -928,7 +949,7 @@ const allocationChartOption = computed<EChartsOption>(() => ({
   justify-content: space-between;
   border-bottom: 1px solid var(--mp-border);
   padding: 24px;
-  background: rgba(17, 24, 39, 0.42);
+  background: var(--mp-card-strong);
 }
 
 .position-filter {
@@ -939,7 +960,7 @@ const allocationChartOption = computed<EChartsOption>(() => ({
   border: 1px solid var(--mp-border);
   border-radius: var(--radius-xs);
   padding: 0 10px;
-  background: #0e1625;
+  background: var(--mp-card-strong);
   color: var(--mp-muted);
 }
 
@@ -970,7 +991,7 @@ td {
 
 th {
   color: var(--mp-muted);
-  background: rgba(10, 16, 29, 0.45);
+  background: var(--mp-card-strong);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-extrabold);
   letter-spacing: 0.05em;
@@ -984,7 +1005,7 @@ td {
 }
 
 tbody tr:hover {
-  background: rgba(130, 157, 198, 0.07);
+  background: var(--mp-neutral-soft);
 }
 
 .is-numeric {
@@ -1012,7 +1033,7 @@ td.is-numeric.is-negative {
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-xs);
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--mp-neutral-soft);
   color: var(--mp-text);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-extrabold);
@@ -1045,7 +1066,7 @@ td.is-numeric.is-negative {
   width: 48px;
   height: 6px;
   border-radius: var(--radius-full);
-  background: #0e1625;
+  background: var(--mp-track);
 }
 
 .allocation-mini b {
