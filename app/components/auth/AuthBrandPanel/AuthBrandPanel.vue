@@ -149,6 +149,7 @@ const panel = computed<AuthPanelCopy>(() => {
       <span>© 2026 Auraxis Fintech</span>
       <NuxtLink to="/privacy-policy">Privacidade</NuxtLink>
       <NuxtLink to="/terms-of-service">Termos</NuxtLink>
+      <NuxtLink to="/cookies">Cookies</NuxtLink>
       <span class="auth-brand__version">SYS.VER.4.2.9</span>
     </footer>
   </aside>

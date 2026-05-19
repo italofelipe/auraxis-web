@@ -79,8 +79,8 @@ onBeforeUnmount(() => {
         Usamos cookies necessários para manter o Auraxis seguro. Analytics e
         marketing só ficam ativos com o seu consentimento.
       </p>
-      <a class="cookie-consent__policy" href="/privacy-policy">
-        Ver política de privacidade
+      <a class="cookie-consent__policy" href="/cookies">
+        Ver política de cookies
       </a>
     </div>
 

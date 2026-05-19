@@ -66,6 +66,7 @@ describe("AuthBrandPanel", () => {
     expect(wrapper.text()).toContain("Taxa de Mitigação de Ameaças");
     expect(wrapper.text()).toContain("AES-256-GCM");
     expect(wrapper.text()).toContain("2,408 Ativos");
+    expect(wrapper.find("a[href=\"/cookies\"]").exists()).toBe(true);
     expect(wrapper.text()).toContain("SYS.VER.4.2.9");
   });
 });
