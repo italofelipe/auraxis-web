@@ -321,6 +321,16 @@
       "repositories": ["auraxis-web"]
     },
     {
+      "key": "web.pages.settings.privacy-center",
+      "owner": "platform",
+      "createdAt": "2026-05-19",
+      "removeBy": "2026-08-31",
+      "type": "release",
+      "status": "enabled-dev",
+      "description": "Central autenticada de privacidade LGPD: consentimentos, exportação e solicitação de exclusão.",
+      "repositories": ["auraxis-web"]
+    },
+    {
       "key": "web.pages.transactions",
       "owner": "platform",
       "createdAt": "2026-04-05",

@@ -323,6 +323,37 @@ export const handlers = [
 		}, { status: 201 });
 	}),
 
+	http.post("*/me/data-export", () => {
+		return HttpResponse.json({
+			success: true,
+			data: {
+				request_id: "export-e2e-1",
+				status: "queued",
+				download_url: null,
+				expires_at: null,
+			},
+		}, { status: 202 });
+	}),
+
+	http.post("*/me/deletion-requests", async ({ request }) => {
+		const body = await request.json() as Record<string, unknown>;
+		if (!body.password) {
+			return HttpResponse.json(
+				{ success: false, message: "Password is required" },
+				{ status: 422 },
+			);
+		}
+
+		return HttpResponse.json({
+			success: true,
+			data: {
+				request_id: "delete-e2e-1",
+				status: "scheduled",
+				scheduled_for: "2026-05-20T00:00:00Z",
+			},
+		}, { status: 202 });
+	}),
+
 	http.post("*/ai/insights/generate", () => {
 		return HttpResponse.json(MOCK_AI_GENERATED_INSIGHT, {
 			status: 200,
