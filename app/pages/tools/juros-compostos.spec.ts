@@ -239,6 +239,7 @@ const globalStubs = {
     props: ["intent", "label", "amount", "description"],
     template: "<div class='tool-save-result-stub' />",
   },
+  NuxtLink: { props: ["to"], template: "<a :href='to'><slot /></a>" },
 };
 
 /**
@@ -309,6 +310,16 @@ describe("JurosCompostosPage — guest layout", () => {
 
     expect(wrapper.find(".nuxt-layout").exists()).toBe(true);
     expect(wrapper.text()).toContain("jurosCompostos.hero.title");
+  });
+
+  it("renders visible SEO FAQs, related links and CTA", () => {
+    const wrapper = mountPage();
+
+    expect(wrapper.find(".tool-seo-content").exists()).toBe(true);
+    expect(wrapper.text()).toContain("Qual a diferença entre juros compostos e juros simples?");
+    const hrefs = wrapper.findAll(".tool-seo-content a").map((link) => link.attributes("href"));
+    expect(hrefs).toContain("/tools/orcamento-50-30-20");
+    expect(hrefs).toContain("/tools/reserva-emergencia");
   });
 
   it("shows the guest CTA after calculation", async () => {

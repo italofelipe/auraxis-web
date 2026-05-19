@@ -59,7 +59,11 @@ vi.mock("~/features/tools/composables/useToolPageStructuredData", () => ({
 }));
 
 vi.mock("~/features/tools/content/reserva-emergencia-faqs", () => ({
-  RESERVA_EMERGENCIA_FAQS: [],
+  RESERVA_EMERGENCIA_FAQS: [
+    { question: "Quanto devo guardar na reserva de emergência?", answer: "Resposta 1" },
+    { question: "Onde investir a reserva de emergência?", answer: "Resposta 2" },
+    { question: "Posso usar a reserva de emergência para investir?", answer: "Resposta 3" },
+  ],
 }));
 
 vi.mock("~/features/tools/model/reserva-emergencia", () => ({
@@ -90,6 +94,7 @@ const globalStubs = {
   ToolGuestCta: { template: "<div class='tool-guest-cta'>guest-cta</div>" },
   UiChart: { props: ["option", "height"], template: "<div class='v-chart'></div>" },
   ToolSaveResult: { props: ["intent", "label", "amount", "description"], template: "<div class='tool-save-result-stub' />" },
+  NuxtLink: { props: ["to"], template: "<a :href='to'><slot /></a>" },
 };
 
 /**
@@ -124,6 +129,15 @@ function resetState(): void {
 describe("ReservaEmergenciaPage — guest layout", () => {
   beforeEach(resetState);
   it("renders NuxtLayout", () => { expect(mountPage().find(".nuxt-layout").exists()).toBe(true); });
+  it("renders visible SEO FAQs, related links and CTA", () => {
+    const wrapper = mountPage();
+
+    expect(wrapper.find(".tool-seo-content").exists()).toBe(true);
+    expect(wrapper.text()).toContain("Quanto devo guardar na reserva de emergência?");
+    const hrefs = wrapper.findAll(".tool-seo-content a").map((link) => link.attributes("href"));
+    expect(hrefs).toContain("/tools/orcamento-50-30-20");
+    expect(hrefs).toContain("/tools/juros-compostos");
+  });
   it("shows guest CTA after calculation", async () => {
     mockCalculate.mockReturnValue(mockResult); const w = mountPage();
     await w.find("form").trigger("submit"); await flushPromises();

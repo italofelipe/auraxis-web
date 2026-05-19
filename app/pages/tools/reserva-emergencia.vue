@@ -30,10 +30,15 @@ import {
 } from "~/features/tools/model/reserva-emergencia";
 import { useToolPageStructuredData } from "~/features/tools/composables/useToolPageStructuredData";
 import { RESERVA_EMERGENCIA_FAQS } from "~/features/tools/content/reserva-emergencia-faqs";
+import {
+  RESERVA_EMERGENCIA_RELATED_LINKS,
+  TOOL_SEO_CTA,
+} from "~/features/tools/content/tool-seo-links";
 import CalculatorFormSection from "~/components/tool/CalculatorFormSection/CalculatorFormSection.vue";
 import CalculatorResultSummary from "~/components/tool/CalculatorResultSummary/CalculatorResultSummary.vue";
 import ToolGuestCta from "~/components/tool/ToolGuestCta/ToolGuestCta.vue";
 import ToolSaveResult from "~/components/tool/ToolSaveResult/ToolSaveResult.vue";
+import ToolSeoContent from "~/components/tool/ToolSeoContent/ToolSeoContent.vue";
 import UiStickySummaryCard from "~/components/ui/UiStickySummaryCard/UiStickySummaryCard.vue";
 import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
 import UiGlassPanel from "~/components/ui/UiGlassPanel/UiGlassPanel.vue";
@@ -274,6 +279,13 @@ const isBridging = computed(() => saveSimulationMutation.isPending.value || crea
         </div>
       </div>
     </div>
+    <ToolSeoContent
+      title="Como montar uma reserva de emergência"
+      description="Entenda quanto guardar, onde manter o dinheiro e como transformar a meta em um plano mensal realista."
+      :faqs="RESERVA_EMERGENCIA_FAQS"
+      :related-links="RESERVA_EMERGENCIA_RELATED_LINKS"
+      :cta="TOOL_SEO_CTA"
+    />
     <ToolGuestCta v-if="!isAuthenticated" />
   </NuxtLayout>
   </div>
