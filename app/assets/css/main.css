@@ -86,6 +86,19 @@
   --color-warning-bg:   rgba(183, 121, 31, 0.14);
   --color-warning-glow: rgba(183, 121, 31, 0.2);
 
+  /* Interaction surfaces */
+  --color-text-on-brand:      #FFFFFF;
+  --color-overlay-scrim:      rgba(10, 22, 40, 0.42);
+  --color-brand-hover-surface: rgba(8, 127, 167, 0.08);
+  --color-positive-border:    rgba(8, 127, 91, 0.22);
+  --color-positive-hover:     rgba(8, 127, 91, 0.16);
+  --color-negative-border:    rgba(194, 65, 77, 0.22);
+  --color-negative-hover:     rgba(194, 65, 77, 0.16);
+  --color-skeleton-start:     rgba(10, 22, 40, 0.06);
+  --color-skeleton-mid:       rgba(10, 22, 40, 0.12);
+  --color-skeleton-end:       rgba(10, 22, 40, 0.06);
+  --gradient-brand:           linear-gradient(145deg, var(--color-brand-500), var(--color-positive));
+
   /* Borders */
   --color-outline-hard:   rgba(10, 22, 40, 0.2);
   --color-outline-soft:   rgba(10, 22, 40, 0.12);
@@ -191,6 +204,18 @@
   --color-warning-dark: #e89e47;
   --color-warning-bg:   rgba(255, 184, 97, 0.1);
   --color-warning-glow: rgba(255, 184, 97, 0.2);
+
+  /* Interaction surfaces */
+  --color-text-on-brand:      #05070d;
+  --color-overlay-scrim:      rgba(0, 0, 0, 0.62);
+  --color-brand-hover-surface: rgba(255, 255, 255, 0.06);
+  --color-positive-border:    rgba(66, 232, 169, 0.2);
+  --color-positive-hover:     rgba(66, 232, 169, 0.15);
+  --color-negative-border:    rgba(255, 111, 121, 0.2);
+  --color-negative-hover:     rgba(255, 111, 121, 0.15);
+  --color-skeleton-start:     rgba(255, 255, 255, 0.06);
+  --color-skeleton-mid:       rgba(255, 255, 255, 0.12);
+  --color-skeleton-end:       rgba(255, 255, 255, 0.06);
 
   /* Borders */
   --color-outline-hard:   rgba(255, 255, 255, 0.2);

@@ -256,8 +256,8 @@ const closeMenu = (): void => {
   width: 34px;
   height: 34px;
   border-radius: var(--radius-sm);
-  background: linear-gradient(145deg, #44d4ff, #42e8a9);
-  color: #05070d;
+  background: var(--gradient-brand);
+  color: var(--color-text-on-brand);
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-extrabold);
 }
@@ -285,7 +285,7 @@ const closeMenu = (): void => {
 .ui-public-header__nav-link:hover,
 .ui-public-header__nav-link:focus-visible {
   color: var(--color-text-primary);
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--color-brand-hover-surface);
   outline: none;
 }
 
@@ -329,17 +329,17 @@ const closeMenu = (): void => {
 
 .ui-public-header__btn--ghost:hover {
   color: var(--color-text-primary);
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--color-brand-hover-surface);
 }
 
 .ui-public-header__btn--primary {
-  background: linear-gradient(140deg, #44d4ff, #42e8a9);
-  color: #05070d;
+  background: var(--gradient-brand);
+  color: var(--color-text-on-brand);
 }
 
 .ui-public-header__btn--primary:hover {
   filter: brightness(1.05);
-  box-shadow: 0 14px 34px rgba(68, 212, 255, 0.18);
+  box-shadow: var(--shadow-brand-glow);
 }
 
 .ui-public-header__btn--full {

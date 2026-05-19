@@ -86,9 +86,9 @@ const count = computed<number>((): number => Math.max(1, props.repeat));
   display: block;
   background: linear-gradient(
     90deg,
-    rgba(65, 57, 57, 0.12) 0%,
-    rgba(65, 57, 57, 0.22) 50%,
-    rgba(65, 57, 57, 0.12) 100%
+    var(--color-skeleton-start) 0%,
+    var(--color-skeleton-mid) 50%,
+    var(--color-skeleton-end) 100%
   );
   background-size: 200% 100%;
   animation: base-skeleton-shimmer 1.6s infinite;

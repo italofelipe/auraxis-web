@@ -1,93 +1,103 @@
-import { type Preview, type StoryFn, setup } from "@storybook/vue3";
+import { type Preview, type StoryContext, type StoryFn, setup } from "@storybook/vue3";
 import { darkTheme, NConfigProvider, NMessageProvider, NDialogProvider } from "naive-ui";
 import { defineComponent, h } from "vue";
-import { colors } from "../app/theme/tokens/colors";
+import { buildNaiveThemeOverrides } from "../app/utils/naive-theme";
+import { themePalettes, type ResolvedTheme } from "../app/theme/tokens/semantic";
 import { fonts } from "../app/theme/tokens/typography";
-import { radii } from "../app/theme/tokens/radii";
 
-// Mesmo themeOverrides do useNaiveTheme — mantido em sync
-// (o composable real usa a mesma paleta — este é o provider de story)
-const auraxisOverrides = {
-  common: {
-    primaryColor:        colors.cyan[600],
-    primaryColorHover:   colors.cyan[500],
-    primaryColorPressed: colors.cyan[700],
-    primaryColorSuppl:   colors.cyan[400],
-    bodyColor:           colors.bg.app,
-    cardColor:           colors.bg.surface,
-    modalColor:          colors.bg.surface,
-    popoverColor:        colors.bg.elevated,
-    inputColor:          colors.bg.elevated,
-    borderColor:         colors.border.subtle,
-    dividerColor:        colors.border.subtle,
-    textColorBase:       colors.text.primary,
-    textColor1:          colors.text.primary,
-    textColor2:          colors.text.secondary,
-    textColor3:          colors.text.muted,
-    placeholderColor:    colors.text.subtle,
-    errorColor:          colors.negative.DEFAULT,
-    successColor:        colors.positive.DEFAULT,
-    fontFamily:          fonts.body,
-    borderRadius:        radii.md,
-    borderRadiusSmall:   radii.sm,
-  },
-};
-
-// Registrar providers globais para todas as stories
 setup((app) => {
-  // Registrar componentes Naive UI globalmente nas stories
   app.component("NConfigProvider", NConfigProvider);
   app.component("NMessageProvider", NMessageProvider);
   app.component("NDialogProvider", NDialogProvider);
 });
 
 const preview: Preview = {
+  globalTypes: {
+    themeMode: {
+      name: "Tema",
+      description: "Tema Auraxis usado nas stories",
+      defaultValue: "light",
+      toolbar: {
+        icon: "mirror",
+        items: [
+          { value: "light", title: "Light" },
+          { value: "dark", title: "Dark" },
+        ],
+      },
+    },
+  },
   decorators: [
-    (story: StoryFn): ReturnType<typeof defineComponent> =>
+    (story: StoryFn, context: StoryContext): ReturnType<typeof defineComponent> =>
       defineComponent({
         components: { NConfigProvider, NMessageProvider, NDialogProvider },
         setup(): () => ReturnType<typeof h> {
-          return () =>
-            h(
-              NConfigProvider,
-              { theme: darkTheme, themeOverrides: auraxisOverrides },
-              () =>
-                h(NMessageProvider, {}, () =>
-                  h(NDialogProvider, {}, () => h(story(), {}))
-                )
+          return () => {
+            const themeMode: ResolvedTheme = context.globals.themeMode === "dark" ? "dark" : "light";
+            const palette = themePalettes[themeMode];
+
+            if (typeof document !== "undefined") {
+              document.documentElement.dataset.theme = themeMode;
+              document.documentElement.style.colorScheme = themeMode;
+            }
+
+            return h(
+              "div",
+              {
+                style: {
+                  minHeight: "100vh",
+                  padding: "24px",
+                  background: palette.bg.canvas,
+                  color: palette.text.primary,
+                  fontFamily: fonts.body,
+                },
+              },
+              [
+                h(
+                  NConfigProvider,
+                  {
+                    theme: themeMode === "dark" ? darkTheme : null,
+                    themeOverrides: buildNaiveThemeOverrides(themeMode),
+                  },
+                  () =>
+                    h(NMessageProvider, {}, () =>
+                      h(NDialogProvider, {}, () => h(story(), {})),
+                    ),
+                ),
+              ],
             );
+          };
         },
       }),
   ],
-
   parameters: {
     backgrounds: {
-      default: "auraxis-dark",
+      default: "auraxis-light",
       values: [
-        { name: "auraxis-dark", value: colors.bg.app },
-        { name: "surface", value: colors.bg.surface },
-        { name: "elevated", value: colors.bg.elevated },
+        { name: "auraxis-light", value: themePalettes.light.bg.canvas },
+        { name: "auraxis-dark", value: themePalettes.dark.bg.canvas },
+        { name: "light-surface", value: themePalettes.light.bg.surface },
+        { name: "dark-surface", value: themePalettes.dark.bg.surface },
       ],
     },
     layout: "centered",
     docs: {
       theme: {
-        base: "dark",
+        base: "light",
         brandTitle: "Auraxis Design System",
         brandUrl: "/",
-        colorPrimary: colors.cyan[600],
-        colorSecondary: colors.cyan[500],
-        appBg: colors.bg.app,
-        appContentBg: colors.bg.surface,
-        textColor: colors.text.primary,
-        textMutedColor: colors.text.muted,
-        barBg: colors.bg.elevated,
-        barTextColor: colors.text.secondary,
-        barHoverColor: colors.cyan[500],
-        barSelectedColor: colors.cyan[600],
-        inputBg: colors.bg.elevated,
-        inputBorder: colors.border.subtle,
-        inputTextColor: colors.text.primary,
+        colorPrimary: themePalettes.light.action.primary,
+        colorSecondary: themePalettes.light.chart.investment,
+        appBg: themePalettes.light.bg.canvas,
+        appContentBg: themePalettes.light.bg.surface,
+        textColor: themePalettes.light.text.primary,
+        textMutedColor: themePalettes.light.text.muted,
+        barBg: themePalettes.light.bg.elevated,
+        barTextColor: themePalettes.light.text.secondary,
+        barHoverColor: themePalettes.light.action.primaryHover,
+        barSelectedColor: themePalettes.light.action.primary,
+        inputBg: themePalettes.light.bg.elevated,
+        inputBorder: themePalettes.light.border.subtle,
+        inputTextColor: themePalettes.light.text.primary,
         inputBorderRadius: 8,
         fontBase: fonts.body,
       },
