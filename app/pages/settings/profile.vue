@@ -32,9 +32,9 @@ const investorProfileLabel = computed((): string => {
 /** Returns the CSS color for the investor profile badge. */
 const investorProfileColor = computed((): string => {
   switch (userStore.profile?.investor_profile) {
-    case "conservador": return "var(--color-info, #3b82f6)";
+    case "conservador": return "var(--color-info)";
     case "explorador": return "var(--color-brand-500)";
-    case "entusiasta": return "var(--color-positive, #22c55e)";
+    case "entusiasta": return "var(--color-positive)";
     default: return "var(--color-text-muted)";
   }
 });
@@ -212,7 +212,7 @@ function displayValue(value: string | null | undefined): string {
 
 .profile-page__edit-btn:hover {
   background: var(--color-brand-500);
-  color: var(--color-text-on-brand, #fff);
+  color: var(--color-text-on-brand);
 }
 
 .profile-page__warning {
@@ -222,22 +222,22 @@ function displayValue(value: string | null | undefined): string {
   gap: var(--space-2);
   flex-wrap: wrap;
   padding: var(--space-2) var(--space-3);
-  background: var(--color-warning-bg, rgba(255, 184, 97, 0.1));
-  border: 1px solid var(--color-warning, #ffb861);
+  background: var(--color-warning-bg);
+  border: 1px solid var(--color-warning);
   border-radius: var(--radius-md);
 }
 
 .profile-page__warning-text {
   font-size: var(--font-size-sm);
-  color: var(--color-warning-text, #ffb861);
+  color: var(--color-warning-text);
 }
 
 .profile-page__warning-cta {
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
-  border: 1px solid var(--color-warning, #ffb861);
+  border: 1px solid var(--color-warning);
   background: transparent;
-  color: var(--color-warning-text, #ffb861);
+  color: var(--color-warning-text);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   cursor: pointer;
@@ -245,8 +245,8 @@ function displayValue(value: string | null | undefined): string {
 }
 
 .profile-page__warning-cta:hover {
-  background: var(--color-warning, #ffb861);
-  color: #fff;
+  background: var(--color-warning);
+  color: var(--color-text-on-brand);
 }
 
 .profile-page__identity {
@@ -280,7 +280,7 @@ function displayValue(value: string | null | undefined): string {
   border-radius: var(--radius-full, 9999px);
   border: 2px solid;
   background: transparent;
-  color: #fff;
+  color: var(--color-text-on-brand);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;

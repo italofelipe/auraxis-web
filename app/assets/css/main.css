@@ -85,6 +85,9 @@
   --color-warning-dark: #8E5E13;
   --color-warning-bg:   rgba(183, 121, 31, 0.14);
   --color-warning-glow: rgba(183, 121, 31, 0.2);
+  --color-warning-text: #8E5E13;
+  --color-info:         #2563EB;
+  --color-info-bg:      rgba(37, 99, 235, 0.12);
 
   /* Interaction surfaces */
   --color-text-on-brand:      #FFFFFF;
@@ -204,6 +207,9 @@
   --color-warning-dark: #e89e47;
   --color-warning-bg:   rgba(255, 184, 97, 0.1);
   --color-warning-glow: rgba(255, 184, 97, 0.2);
+  --color-warning-text: #ffb861;
+  --color-info:         #8b7dff;
+  --color-info-bg:      rgba(139, 125, 255, 0.12);
 
   /* Interaction surfaces */
   --color-text-on-brand:      #05070d;

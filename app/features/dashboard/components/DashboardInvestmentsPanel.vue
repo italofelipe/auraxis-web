@@ -6,7 +6,8 @@ import type { WalletEntryDto } from "~/features/portfolio/contracts/portfolio.dt
 import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
 import UiTrendBadge from "~/components/ui/UiTrendBadge/UiTrendBadge.vue";
 import { formatCurrency } from "~/utils/currency";
-import { colors } from "~/theme/tokens/colors";
+import { useTheme } from "~/composables/useTheme";
+import { buildChartThemeTokens, type ChartThemeTokens } from "~/utils/chart-theme";
 
 const props = defineProps<{
   entries: readonly WalletEntryDto[];
@@ -14,20 +15,34 @@ const props = defineProps<{
 }>();
 
 const { t } = useI18n();
+const { resolvedTheme } = useTheme();
 
-const ASSET_COLORS: Record<WalletEntryDto["asset_type"], string> = {
-  stock: colors.cyan[500],
-  fii: colors.violet[500],
-  crypto: colors.orange[500],
-  fixed_income: colors.lime[500],
-  other: colors.neutral[650],
-};
+const chartTokens = computed(() => buildChartThemeTokens(resolvedTheme.value));
 
 interface AllocationBucket {
   readonly key: WalletEntryDto["asset_type"];
   readonly label: string;
   readonly value: number;
   readonly color: string;
+}
+
+/**
+ * Maps wallet asset classes to chart tokens for the active theme.
+ *
+ * @param key Asset type returned by the portfolio API.
+ * @param tokens Theme-aware chart token set.
+ * @returns Colour used in pie slices and legend swatches.
+ */
+function assetColor(key: WalletEntryDto["asset_type"], tokens: ChartThemeTokens): string {
+  const assetColors: Record<WalletEntryDto["asset_type"], string> = {
+    stock:        tokens.balance,
+    fii:          tokens.investment,
+    crypto:       tokens.debt,
+    fixed_income: tokens.income,
+    other:        tokens.mutedText,
+  };
+
+  return assetColors[key];
 }
 
 const allocation = computed<AllocationBucket[]>(() => {
@@ -42,7 +57,7 @@ const allocation = computed<AllocationBucket[]>(() => {
       key,
       label: t(`pages.dashboard.investments.assetTypes.${key}`),
       value: buckets.get(key) ?? 0,
-      color: ASSET_COLORS[key],
+      color: assetColor(key, chartTokens.value),
     }))
     .filter((b) => b.value > 0);
 });
@@ -64,6 +79,9 @@ const hasData = computed(() => allocation.value.length > 0);
 const chartOption = computed((): EChartsOption => ({
   tooltip: {
     trigger: "item",
+    backgroundColor: chartTokens.value.tooltipBackground,
+    borderColor: chartTokens.value.tooltipBorder,
+    textStyle: { color: chartTokens.value.tooltipText },
     formatter: (params: unknown): string => {
       const p = params as { name: string; value: number; percent: number };
       return `${p.name}: ${formatCurrency(p.value)} (${p.percent.toFixed(1)}%)`;
@@ -80,7 +98,7 @@ const chartOption = computed((): EChartsOption => ({
       data: allocation.value.map((b) => ({
         name: b.label,
         value: b.value,
-        itemStyle: { color: b.color, borderRadius: 4, borderWidth: 2, borderColor: colors.bg.surface },
+        itemStyle: { color: b.color, borderRadius: 4, borderWidth: 2, borderColor: chartTokens.value.pieBorder },
       })),
     },
   ],

@@ -162,7 +162,7 @@ function handleConfirm(): void {
 .danger-zone-page__title {
   font-size: var(--font-size-lg, 1.25rem);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-negative, #ef4444);
+  color: var(--color-negative);
 }
 
 .danger-zone-page__subtitle {
@@ -171,7 +171,7 @@ function handleConfirm(): void {
 }
 
 .danger-zone-page__card {
-  border: 1px solid var(--color-negative, #ef4444) !important;
+  border: 1px solid var(--color-negative) !important;
 }
 
 .danger-zone-page__content {
@@ -227,7 +227,7 @@ function handleConfirm(): void {
 
 .danger-zone-modal__error {
   font-size: var(--font-size-sm);
-  color: var(--color-negative, #ef4444);
+  color: var(--color-negative);
   margin: 0;
 }
 

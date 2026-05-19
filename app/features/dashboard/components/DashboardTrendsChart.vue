@@ -2,9 +2,10 @@
 import { NButton } from "naive-ui";
 import type { EChartsOption } from "echarts";
 import type { DashboardTrendsMonthEntry } from "~/features/dashboard/model/dashboard-overview";
-import { colors } from "~/theme/tokens/colors";
 import { formatCurrency } from "~/utils/currency";
 import { useLocaleDateFormat } from "~/composables/useLocaleDateFormat";
+import { useTheme } from "~/composables/useTheme";
+import { buildChartThemeTokens, withAlpha } from "~/utils/chart-theme";
 
 /** Props */
 const props = defineProps<{
@@ -27,6 +28,9 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const { formatMonthYear } = useLocaleDateFormat();
+const { resolvedTheme } = useTheme();
+
+const chartTokens = computed(() => buildChartThemeTokens(resolvedTheme.value));
 
 const MONTHS_OPTIONS = [
   { label: t("pages.dashboard.trends.months3"), value: 3 },
@@ -57,6 +61,9 @@ const chartOption = computed((): EChartsOption => {
   return {
     tooltip: {
       trigger: "axis",
+      backgroundColor: chartTokens.value.tooltipBackground,
+      borderColor: chartTokens.value.tooltipBorder,
+      textStyle: { color: chartTokens.value.tooltipText },
       formatter: (params: unknown): string => {
         const items = Array.isArray(params) ? params : [params];
         const lines = (items as Array<{ seriesName: string; value: number; marker: string }>).map(
@@ -72,19 +79,21 @@ const chartOption = computed((): EChartsOption => {
         t("pages.dashboard.trends.expenses"),
         t("pages.dashboard.trends.balance"),
       ],
-      textStyle: { fontSize: 11 },
+      textStyle: { color: chartTokens.value.mutedText, fontSize: 11 },
     },
     grid: { left: 8, right: 8, top: 16, bottom: 36, containLabel: true },
     xAxis: {
       type: "category",
       data: labels,
-      axisLabel: { fontSize: 10 },
+      axisLabel: { color: chartTokens.value.mutedText, fontSize: 10 },
       axisTick: { show: false },
+      axisLine: { lineStyle: { color: chartTokens.value.border } },
     },
     yAxis: {
       type: "value",
-      splitLine: { lineStyle: { type: "dashed" } },
+      splitLine: { lineStyle: { color: chartTokens.value.grid, type: "dashed" } },
       axisLabel: {
+        color: chartTokens.value.mutedText,
         fontSize: 10,
         formatter: (v: number) => formatCurrency(v),
       },
@@ -95,14 +104,14 @@ const chartOption = computed((): EChartsOption => {
         type: "bar",
         barMaxWidth: 24,
         data: props.series.map((p) => p.income),
-        itemStyle: { color: colors.positive.DEFAULT, borderRadius: [4, 4, 0, 0] },
+        itemStyle: { color: chartTokens.value.income, borderRadius: [4, 4, 0, 0] },
       },
       {
         name: t("pages.dashboard.trends.expenses"),
         type: "bar",
         barMaxWidth: 24,
         data: props.series.map((p) => p.expenses),
-        itemStyle: { color: colors.negative.DEFAULT, borderRadius: [4, 4, 0, 0] },
+        itemStyle: { color: chartTokens.value.expense, borderRadius: [4, 4, 0, 0] },
       },
       {
         name: t("pages.dashboard.trends.balance"),
@@ -111,9 +120,9 @@ const chartOption = computed((): EChartsOption => {
         smooth: true,
         symbol: "circle",
         symbolSize: 5,
-        lineStyle: { color: colors.cyan[500], width: 2 },
-        itemStyle: { color: colors.cyan[500] },
-        areaStyle: { color: colors.cyan[500], opacity: 0.06 },
+        lineStyle: { color: chartTokens.value.balance, width: 2 },
+        itemStyle: { color: chartTokens.value.balance },
+        areaStyle: { color: withAlpha(chartTokens.value.balance, 0.06) },
       },
     ],
   };

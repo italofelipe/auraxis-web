@@ -18,6 +18,8 @@ import { useUpdateGoalMutation } from "~/features/goals/queries/use-update-goal-
 import AiInsightSurface from "~/features/ai-insights/components/AiInsightSurface.vue";
 import type { GoalDto, GoalStatus, CreateGoalPayload } from "~/features/goals/contracts/goal.dto";
 import { formatCurrency } from "~/utils/currency";
+import { buildChartThemeTokens, withAlpha } from "~/utils/chart-theme";
+import { useTheme } from "~/composables/useTheme";
 
 const { t } = useI18n();
 
@@ -87,12 +89,14 @@ const MARKET_PULSE_GOALS: GoalDto[] = [
 const { data: goals, isLoading, isError } = useGoalsQuery();
 const createMutation = useCreateGoalMutation();
 const updateMutation = useUpdateGoalMutation();
+const { resolvedTheme } = useTheme();
 
 const activeFilter = ref<FilterValue>("all");
 const showForm = ref<boolean>(false);
 const editingGoal = ref<GoalDto | null>(null);
 const selectedGoalId = ref<string>("market-pulse-car");
 const simulatedContribution = ref<number>(2500);
+const chartTokens = computed(() => buildChartThemeTokens(resolvedTheme.value));
 
 const filterOptions = computed((): Array<{ value: FilterValue; label: string }> => [
   { value: "all", label: "Todas" },
@@ -297,6 +301,7 @@ const actionHighlights = computed<ActionHighlight[]>(() => [
 ]);
 
 const timelineChartOption = computed<EChartsOption>(() => {
+  const tokens = chartTokens.value;
   const labels = ["Hoje", "6m", "12m", "18m", "24m", "30m", "36m"];
   const invested = labels.map((_, index) =>
     Math.round(goalCards.value.reduce((sum, goal) => sum + goal.current_amount + goal.monthlyContribution * index * 6, 0)),
@@ -305,19 +310,19 @@ const timelineChartOption = computed<EChartsOption>(() => {
 
   return {
     backgroundColor: "transparent",
-    color: ["#44d4ff", "#42e8a9"],
+    color: [tokens.balance, tokens.income],
     grid: { top: 24, right: 22, bottom: 32, left: 60 },
     tooltip: {
       trigger: "axis",
-      backgroundColor: "rgba(11, 18, 32, 0.95)",
-      borderColor: "rgba(68, 212, 255, 0.22)",
-      textStyle: { color: "#f8fbff" },
+      backgroundColor: tokens.tooltipBackground,
+      borderColor: tokens.tooltipBorder,
+      textStyle: { color: tokens.tooltipText },
       valueFormatter: (value): string => formatCurrency(Number(value)),
     },
     legend: {
       top: 0,
       right: 0,
-      textStyle: { color: "#8da2bf" },
+      textStyle: { color: tokens.mutedText },
     },
     media: [
       {
@@ -331,7 +336,7 @@ const timelineChartOption = computed<EChartsOption>(() => {
             itemGap: 8,
             itemHeight: 6,
             itemWidth: 10,
-            textStyle: { color: "#8da2bf", fontSize: 10 },
+            textStyle: { color: tokens.mutedText, fontSize: 10 },
           },
         },
       },
@@ -339,15 +344,15 @@ const timelineChartOption = computed<EChartsOption>(() => {
     xAxis: {
       type: "category",
       data: labels,
-      axisLine: { lineStyle: { color: "rgba(141, 162, 191, 0.24)" } },
+      axisLine: { lineStyle: { color: tokens.border } },
       axisTick: { show: false },
-      axisLabel: { color: "#8da2bf" },
+      axisLabel: { color: tokens.mutedText },
     },
     yAxis: {
       type: "value",
-      splitLine: { lineStyle: { color: "rgba(141, 162, 191, 0.12)" } },
+      splitLine: { lineStyle: { color: tokens.grid } },
       axisLabel: {
-        color: "#8da2bf",
+        color: tokens.mutedText,
         formatter: (value: number): string => `${Math.round(value / 1000)}k`,
       },
     },
@@ -369,7 +374,7 @@ const timelineChartOption = computed<EChartsOption>(() => {
         symbol: "circle",
         symbolSize: 6,
         lineStyle: { width: 3 },
-        areaStyle: { color: "rgba(66, 232, 169, 0.08)" },
+        areaStyle: { color: withAlpha(tokens.income, resolvedTheme.value === "dark" ? 0.08 : 0.14) },
       },
     ],
   };
@@ -630,17 +635,22 @@ const simulatedImpact = computed(() => {
 
 <style scoped>
 .goals-market-pulse {
-  --mp-bg: #0a101d;
-  --mp-surface: #111827;
-  --mp-surface-strong: #151f31;
-  --mp-border: rgba(130, 157, 198, 0.22);
-  --mp-border-strong: rgba(130, 157, 198, 0.34);
-  --mp-text: #f7fbff;
-  --mp-muted: #8da2bf;
-  --mp-cyan: #44d4ff;
-  --mp-lime: #42e8a9;
-  --mp-orange: #ffb861;
-  --mp-red: #ff6f79;
+  --mp-surface: var(--color-bg-surface);
+  --mp-surface-strong: var(--color-bg-elevated);
+  --mp-border: var(--color-outline-soft);
+  --mp-border-strong: var(--color-outline-hard);
+  --mp-text: var(--color-text-primary);
+  --mp-muted: var(--color-text-muted);
+  --mp-cyan: var(--color-brand-500);
+  --mp-lime: var(--color-positive);
+  --mp-orange: var(--color-warning);
+  --mp-red: var(--color-negative);
+  --mp-brand-soft: var(--color-brand-hover-surface);
+  --mp-neutral-soft: var(--color-bg-subtle);
+  --mp-panel-bg:
+    radial-gradient(circle at 100% 0%, var(--color-brand-glow-2xs), transparent 30%),
+    var(--mp-surface);
+  --mp-track: color-mix(in srgb, var(--color-text-muted) 16%, transparent);
   display: grid;
   gap: 32px;
   color: var(--mp-text);
@@ -675,11 +685,11 @@ const simulatedImpact = computed(() => {
 .sample-pill {
   display: inline-flex;
   margin-top: 14px;
-  border: 1px solid rgba(68, 212, 255, 0.26);
+  border: 1px solid var(--color-brand-glow-md);
   border-radius: var(--radius-full);
   padding: 6px 10px;
   color: var(--mp-cyan);
-  background: rgba(68, 212, 255, 0.08);
+  background: var(--mp-brand-soft);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
 }
@@ -717,10 +727,10 @@ const simulatedImpact = computed(() => {
 }
 
 .mp-button--primary {
-  border-color: rgba(68, 212, 255, 0.35);
+  border-color: var(--color-brand-glow-md);
   background: var(--mp-cyan);
-  color: #07101b;
-  box-shadow: 0 0 22px rgba(68, 212, 255, 0.24);
+  color: var(--color-text-on-brand);
+  box-shadow: var(--shadow-brand-glow-sm);
 }
 
 .mp-button--secondary:hover,
@@ -728,7 +738,7 @@ const simulatedImpact = computed(() => {
 .filter-tabs button:hover,
 .range-tabs button:hover {
   border-color: var(--mp-border-strong);
-  background: #182235;
+  background: var(--mp-neutral-soft);
 }
 
 .mp-button--wide {
@@ -736,7 +746,7 @@ const simulatedImpact = computed(() => {
   min-height: 46px;
   margin-top: 22px;
   border-color: var(--mp-border-strong);
-  background: #202b3e;
+  background: var(--mp-surface-strong);
 }
 
 .mp-panel {
@@ -744,10 +754,8 @@ const simulatedImpact = computed(() => {
   overflow: hidden;
   border: 1px solid var(--mp-border);
   border-radius: var(--radius-lg);
-  background:
-    radial-gradient(circle at 100% 0%, rgba(68, 212, 255, 0.08), transparent 30%),
-    rgba(17, 24, 39, 0.92);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
+  background: var(--mp-panel-bg);
+  box-shadow: var(--shadow-card);
 }
 
 .action-highlights,
@@ -786,7 +794,7 @@ const simulatedImpact = computed(() => {
 
 .section-icon--cyan {
   color: var(--mp-cyan);
-  background: rgba(68, 212, 255, 0.1);
+  background: var(--mp-brand-soft);
 }
 
 .section-icon--plain {
@@ -807,7 +815,7 @@ const simulatedImpact = computed(() => {
   border: 1px solid var(--mp-border);
   border-radius: var(--radius-md);
   background: var(--mp-surface);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--shadow-card);
 }
 
 .action-card {
@@ -831,21 +839,21 @@ const simulatedImpact = computed(() => {
   border: 1px solid var(--mp-border);
   border-radius: var(--radius-xs);
   padding: 4px 8px;
-  background: rgba(141, 162, 191, 0.08);
-  color: #c4d3e7;
+  background: var(--mp-neutral-soft);
+  color: var(--mp-muted);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-extrabold);
 }
 
 .action-card--orange .action-card__topline span {
-  border-color: rgba(255, 184, 97, 0.26);
-  background: rgba(255, 184, 97, 0.1);
+  border-color: var(--color-warning-glow);
+  background: var(--color-warning-bg);
   color: var(--mp-orange);
 }
 
 .action-card--lime .action-card__topline span {
-  border-color: rgba(66, 232, 169, 0.26);
-  background: rgba(66, 232, 169, 0.1);
+  border-color: var(--color-positive-border);
+  background: var(--color-positive-bg);
   color: var(--mp-lime);
 }
 
@@ -887,7 +895,7 @@ const simulatedImpact = computed(() => {
   border: 1px solid var(--mp-border);
   border-radius: var(--radius-sm);
   padding: 4px;
-  background: rgba(17, 24, 39, 0.7);
+  background: var(--mp-surface-strong);
 }
 
 .filter-tabs button,
@@ -903,7 +911,7 @@ const simulatedImpact = computed(() => {
 .filter-tabs button.is-active,
 .range-tabs button.is-active {
   border-color: var(--mp-border-strong);
-  background: #202b3e;
+  background: var(--mp-neutral-soft);
   color: var(--mp-text);
 }
 
@@ -981,7 +989,7 @@ const simulatedImpact = computed(() => {
   border: 1px solid var(--mp-border);
   border-radius: var(--radius-full);
   padding: 7px 10px;
-  background: #202b3e;
+  background: var(--mp-surface-strong);
   color: var(--mp-muted);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-extrabold);
@@ -1030,7 +1038,7 @@ const simulatedImpact = computed(() => {
   height: 8px;
   margin: 12px 0 9px;
   border-radius: var(--radius-full);
-  background: #202b3e;
+  background: var(--mp-track);
 }
 
 .progress-track span {
@@ -1085,7 +1093,7 @@ const simulatedImpact = computed(() => {
   min-height: 32px;
   align-items: center;
   gap: 6px;
-  border: 1px solid rgba(68, 212, 255, 0.25) !important;
+  border: 1px solid var(--color-brand-glow-md) !important;
   border-radius: var(--radius-full);
   padding: 0 10px !important;
   color: var(--mp-cyan) !important;
