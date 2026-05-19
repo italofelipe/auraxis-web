@@ -25,7 +25,7 @@ useUserProfileQuery();
 
 const navItems = [
   { key: "overview", label: "Visão geral", to: "/admin", icon: Activity, disabled: false },
-  { key: "users", label: "Usuários", to: "/admin/users", icon: Users, disabled: true },
+  { key: "users", label: "Usuários", to: "/admin/users", icon: Users, disabled: false },
   { key: "insights", label: "Insights IA", to: "/admin/insights", icon: Sparkles, disabled: true },
   { key: "flags", label: "Feature flags", to: "/admin/flags", icon: Flag, disabled: true },
   { key: "audit", label: "Auditoria", to: "/admin/audit", icon: ClipboardList, disabled: true },
@@ -117,11 +117,21 @@ const onLogout = (): void => {
 
 <style scoped>
 .admin-layout {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100vw;
   min-height: 100vh;
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
+  overflow-x: hidden;
   background: var(--color-bg-base);
   color: var(--color-text-primary);
+}
+
+.admin-layout *,
+.admin-layout *::before,
+.admin-layout *::after {
+  box-sizing: border-box;
 }
 
 .admin-layout__sidebar {
@@ -220,11 +230,14 @@ const onLogout = (): void => {
 
 .admin-layout__main {
   min-width: 0;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
 }
 
 .admin-layout__topbar {
+  min-width: 0;
+  max-width: 100%;
   min-height: 96px;
   display: flex;
   align-items: center;
@@ -236,6 +249,7 @@ const onLogout = (): void => {
 }
 
 .admin-layout__title-block {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -256,14 +270,18 @@ const onLogout = (): void => {
   margin: 0;
   font-family: var(--font-heading);
   font-size: var(--font-size-2xl);
+  overflow-wrap: anywhere;
 }
 
 .admin-layout__title-block p {
   margin: 0;
   color: var(--color-text-muted);
+  overflow-wrap: anywhere;
 }
 
 .admin-layout__actions {
+  min-width: 0;
+  max-width: 100%;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -290,10 +308,13 @@ const onLogout = (): void => {
 
 .admin-layout__identity {
   min-width: 160px;
+  max-width: 100%;
 }
 
 .admin-layout__content {
   flex: 1;
+  min-width: 0;
+  max-width: 100%;
   padding: var(--space-5);
   overflow: auto;
 }
@@ -301,6 +322,12 @@ const onLogout = (): void => {
 @media (max-width: 920px) {
   .admin-layout {
     grid-template-columns: 1fr;
+  }
+
+  .admin-layout__main {
+    width: 100vw;
+    max-width: 100vw;
+    overflow-x: hidden;
   }
 
   .admin-layout__sidebar {
@@ -324,17 +351,33 @@ const onLogout = (): void => {
   }
 
   .admin-layout__topbar {
+    width: 100%;
+    max-width: 100%;
     align-items: flex-start;
     flex-direction: column;
     padding: var(--space-3);
+    overflow-x: hidden;
   }
 
   .admin-layout__actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
     justify-content: flex-start;
   }
 
+  .admin-layout__search,
+  .admin-layout__logout,
+  .admin-layout__identity {
+    width: 100%;
+    min-width: 0;
+  }
+
   .admin-layout__content {
+    width: 100%;
+    max-width: 100%;
     padding: var(--space-3);
+    overflow-x: hidden;
   }
 }
 </style>
