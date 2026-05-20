@@ -26,6 +26,15 @@ vi.mock("~/composables/useApiError", () => ({
   useApiError: (): { getErrorMessage: (err: unknown) => string } => ({ getErrorMessage: vi.fn((err: unknown): string => (err instanceof Error ? err.message : String(err))) }),
 }));
 
+const captureMock = vi.hoisted(() => vi.fn());
+vi.mock("~/composables/useAnalytics/useAnalytics", () => ({
+  useAnalytics: (): { capture: typeof captureMock; identify: ReturnType<typeof vi.fn>; reset: ReturnType<typeof vi.fn> } => ({
+    capture: captureMock,
+    identify: vi.fn(),
+    reset: vi.fn(),
+  }),
+}));
+
 const stubs = {};
 
 describe("CheckoutButton", () => {

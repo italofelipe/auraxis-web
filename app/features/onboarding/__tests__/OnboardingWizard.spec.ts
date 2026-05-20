@@ -6,6 +6,15 @@ import type { OnboardingStepNumber } from "../composables/useOnboarding";
 
 vi.mock("vue-i18n");
 
+const captureMock = vi.hoisted(() => vi.fn());
+vi.mock("~/composables/useAnalytics/useAnalytics", () => ({
+  useAnalytics: (): { capture: typeof captureMock; identify: ReturnType<typeof vi.fn>; reset: ReturnType<typeof vi.fn> } => ({
+    capture: captureMock,
+    identify: vi.fn(),
+    reset: vi.fn(),
+  }),
+}));
+
 const mockSkip = vi.fn();
 const mockComplete = vi.fn();
 

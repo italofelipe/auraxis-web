@@ -5,9 +5,18 @@ import { describe, expect, it, vi } from "vitest";
 import UiPaywallGate from "./UiPaywallGate.vue";
 
 const useEntitlementQueryMock = vi.hoisted(() => vi.fn());
+const captureMock = vi.hoisted(() => vi.fn());
 
 vi.mock("~/features/paywall/queries/use-entitlement-query", () => ({
   useEntitlementQuery: useEntitlementQueryMock,
+}));
+
+vi.mock("~/composables/useAnalytics/useAnalytics", () => ({
+  useAnalytics: (): { capture: typeof captureMock; identify: ReturnType<typeof vi.fn>; reset: ReturnType<typeof vi.fn> } => ({
+    capture: captureMock,
+    identify: vi.fn(),
+    reset: vi.fn(),
+  }),
 }));
 
 const stubs = {};
