@@ -29,8 +29,8 @@ const supportEmail = "suporte@auraxis.com.br";
 
 export const privacyPolicyDocument: LegalDocument = {
   title: "Política de Privacidade",
-  versionLabel: "Versão 2.0.0-draft",
-  updatedAtLabel: "Atualizado em 2026-05-16",
+  versionLabel: "Versão 2.1.0",
+  updatedAtLabel: "Atualizado em 2026-05-20",
   contactEmail: supportEmail,
   navLinks: [
     { label: "Termos de Uso", to: "/terms-of-service" },
@@ -112,6 +112,26 @@ export const privacyPolicyDocument: LegalDocument = {
       paragraphs: [
         "O Auraxis pode compartilhar dados com fornecedores necessários à operação, como hospedagem, observabilidade, analytics, IA, cobrança, email, suporte, CI/CD e dados de mercado.",
         "O compartilhamento deve seguir minimização, finalidade específica, controles de acesso e registro na matriz de subprocessadores.",
+        "Subprocessadores ativos:",
+      ],
+      items: [
+        "AWS — hospedagem, storage, CDN, DNS;",
+        "Sentry — observabilidade de erros frontend/backend, com scrubber de PII;",
+        "GitHub — CI/CD, gerenciamento de código e issues;",
+        "SonarCloud — análise estática de qualidade;",
+        "BRAPI — cotações e dados de mercado;",
+        "PostHog Cloud — analytics de produto, eventos minimizados, sob consentimento;",
+        "OpenAI — geração de insights financeiros com IA (apenas para usuários que utilizam o recurso, com dados minimizados);",
+        "Asaas — processamento de cobrança recorrente do plano Premium (compartilhados: nome, email, CPF ou CNPJ, valor, plano contratado);",
+        "Resend — envio de emails transacionais (cadastro, recibos, lembretes).",
+      ],
+    },
+    {
+      title: "7.1 Dados financeiros não armazenados pelo Auraxis",
+      paragraphs: [
+        "O Auraxis NÃO armazena número de cartão de crédito, CVV, senha de cartão ou qualquer credencial bancária. O processamento desses dados ocorre exclusivamente no provedor de pagamento (Asaas) durante o checkout hospedado.",
+        "O Auraxis armazena apenas: identificador de assinatura, identificador de transação, status (active/canceled/past_due), histórico de cobranças com valor e data, plano vigente e período de validade.",
+        "Detalhes específicos do tratamento por Asaas: https://www.asaas.com/politica-de-privacidade.",
       ],
     },
     {
@@ -161,8 +181,8 @@ export const privacyPolicyDocument: LegalDocument = {
 
 export const termsOfUseDocument: LegalDocument = {
   title: "Termos de Uso",
-  versionLabel: "Versão 2.0.0-draft",
-  updatedAtLabel: "Atualizado em 2026-05-16",
+  versionLabel: "Versão 2.1.0",
+  updatedAtLabel: "Atualizado em 2026-05-20",
   contactEmail: supportEmail,
   navLinks: [
     { label: "Política de Privacidade", to: "/privacy-policy" },
@@ -229,9 +249,39 @@ export const termsOfUseDocument: LegalDocument = {
       ],
     },
     {
-      title: "9. Planos e recursos premium",
+      title: "9. Planos, preços e cobrança",
       paragraphs: [
-        "Alguns recursos podem depender de assinatura, trial, entitlements ou limites de uso. O Auraxis pode alterar composição de planos mediante atualização de comunicação e termos aplicáveis.",
+        "O Auraxis oferece um plano gratuito (Free) e planos pagos (Premium) com funcionalidades adicionais. Os preços vigentes do Premium são:",
+      ],
+      items: [
+        "Premium Mensal — R$ 29,90 por mês, renovação automática até cancelamento;",
+        "Premium Anual — R$ 287,04 por ano (equivalente a R$ 23,92/mês, 20% de desconto), renovação automática até cancelamento;",
+        "Trial — 7 dias de acesso Premium gratuito após o primeiro cadastro elegível, conforme disponibilidade do produto.",
+      ],
+    },
+    {
+      title: "9.1 Processamento de pagamento",
+      paragraphs: [
+        "O processamento de cobrança é realizado pela Asaas, provedor de pagamento brasileiro regulado. O Auraxis não armazena dados de cartão de crédito. Tributos eventualmente aplicáveis seguem a legislação vigente.",
+        "Preços podem ser alterados mediante aviso prévio razoável e atualização desta seção. Renovações em andamento permanecem com o preço vigente no momento da contratação até o término do ciclo.",
+      ],
+    },
+    {
+      title: "9.2 Cancelamento e direito de arrependimento (CDC art. 49)",
+      items: [
+        "O usuário pode cancelar a assinatura Premium a qualquer momento pela área de configurações ou pelo canal oficial de suporte.",
+        "Após cancelamento, o acesso Premium permanece ativo até o final do período já pago. Não há cobrança no próximo ciclo.",
+        "Direito de arrependimento: o usuário tem 7 dias corridos contados da primeira contratação para desistir do plano pago e receber reembolso integral, conforme art. 49 do Código de Defesa do Consumidor. O pedido deve ser enviado para suporte@auraxis.com.br dentro desse prazo.",
+        "Após 7 dias da primeira contratação, não há reembolso parcial proporcional ao período não utilizado, salvo nas hipóteses previstas em lei.",
+      ],
+    },
+    {
+      title: "9.3 Falha de pagamento, reembolso e disputas",
+      items: [
+        "Em caso de falha na cobrança automática (cartão expirado, saldo insuficiente, etc.), o provedor de pagamento pode tentar a cobrança novamente conforme regras próprias.",
+        "Após confirmação de falha definitiva, o usuário será notificado por email e poderá atualizar o método de pagamento ou cancelar o plano. Durante o período de carência (3 dias), o acesso Premium continua ativo.",
+        "Após a carência sem regularização, o plano é rebaixado para Free e funcionalidades Premium ficam indisponíveis. Os dados do usuário permanecem preservados.",
+        "Para disputas envolvendo cobranças, o usuário deve entrar em contato pelo canal oficial de suporte. O Auraxis colabora com a Asaas para investigação e resolução conforme normas do setor.",
       ],
     },
     {

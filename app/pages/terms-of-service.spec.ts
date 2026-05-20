@@ -28,8 +28,8 @@ describe("TermsOfServicePage (/terms-of-service)", () => {
 
   it("displays document version and effective date", () => {
     const wrapper = mountPage();
-    expect(wrapper.text()).toContain("2.0.0-draft");
-    expect(wrapper.text()).toContain("2026-05-16");
+    expect(wrapper.text()).toContain("2.1.0");
+    expect(wrapper.text()).toContain("2026-05-20");
   });
 
   it("displays the support email", () => {
