@@ -1,17 +1,74 @@
 <script setup lang="ts">
-import { ArrowUp, ShieldCheck } from "lucide-vue-next";
+import {
+  ArrowUp,
+  Coins,
+  Flag,
+  Leaf,
+  ShieldCheck,
+  TrendingUp,
+} from "lucide-vue-next";
 import { useRoute } from "#app";
 import type { AuthFeature } from "../AuthFeatureList/AuthFeatureList.types";
 
 const route = useRoute();
 
 interface AuthPanelCopy {
-  variant: "simple" | "security"
+  variant: "simple" | "security" | "growth"
   badge: string
   headline: string
   sub: string
   features: AuthFeature[]
 }
+
+const growthMetrics = [
+  {
+    label: "Patrimônio em evolução",
+    value: "R$ 100.290,00",
+    note: "+15,81% este mês",
+    tone: "positive",
+  },
+  {
+    label: "Próxima meta",
+    value: "Viagem dos sonhos",
+    note: "R$ 8.450,00 / R$ 15.000",
+    tone: "goal",
+  },
+  {
+    label: "Reserva de emergência",
+    value: "R$ 13.423,38",
+    note: "67% concluído",
+    tone: "safe",
+  },
+  {
+    label: "Investimentos",
+    value: "+14,50%",
+    note: "Rentabilidade em 12 meses",
+    tone: "positive",
+  },
+] as const;
+
+const growthValues = [
+  {
+    icon: Flag,
+    title: "Crescimento com propósito",
+    description: "Metas claras para cada sonho que importa.",
+  },
+  {
+    icon: TrendingUp,
+    title: "Progresso visível",
+    description: "Acompanhe sua evolução passo a passo.",
+  },
+  {
+    icon: Coins,
+    title: "Decisões que constroem",
+    description: "Planeje, invista e ajuste com inteligência.",
+  },
+  {
+    icon: Leaf,
+    title: "Liberdade financeira",
+    description: "Mais tempo, tranquilidade e escolhas para você.",
+  },
+] as const;
 
 const panel = computed<AuthPanelCopy>(() => {
   if (route.path.includes("register")) {
@@ -40,16 +97,11 @@ const panel = computed<AuthPanelCopy>(() => {
   }
 
   return {
-    variant: "simple",
-    badge: "Acesso seguro",
-    headline: "Volte ao seu painel de analytics em segundos.",
-    sub: "Resumo executivo para decisões rápidas e profundidade analítica para investigar cada variação.",
-    features: [
-      { icon: "", title: "Visão rápida", description: "Saldo, variação e ação recomendada." },
-      { icon: "", title: "Profundidade", description: "Drill-down por categoria e transação." },
-      { icon: "", title: "Consistência", description: "Mesmo padrão visual do dashboard." },
-      { icon: "", title: "Controle", description: "Dados claros para decisões precisas." },
-    ],
+    variant: "growth",
+    badge: "Acesso seguro e protegido",
+    headline: "Transforme controle em liberdade para crescer.",
+    sub: "Organize hoje, planeje amanhã e acompanhe cada conquista financeira com clareza.",
+    features: [],
   };
 });
 </script>
@@ -57,13 +109,19 @@ const panel = computed<AuthPanelCopy>(() => {
 <template>
   <aside
     class="auth-brand"
-    :class="{ 'auth-brand--security': panel.variant === 'security' }"
+    :class="{
+      'auth-brand--security': panel.variant === 'security',
+      'auth-brand--growth': panel.variant === 'growth',
+    }"
     :aria-label="$t('authBrandPanel.ariaLabel')"
   >
     <!-- Logo -->
     <a class="auth-brand__logo" href="/">
       <span class="auth-brand__logo-mark" aria-hidden="true">
         <ShieldCheck v-if="panel.variant === 'security'" :size="22" />
+        <template v-else-if="panel.variant === 'growth'">
+          A
+        </template>
         <template v-else>
           A
         </template>
@@ -82,6 +140,97 @@ const panel = computed<AuthPanelCopy>(() => {
         {{ panel.headline }}
       </h1>
       <p class="auth-brand__sub">{{ panel.sub }}</p>
+
+      <section
+        v-if="panel.variant === 'growth'"
+        class="auth-brand__growth-card"
+        aria-label="Prévia de crescimento financeiro"
+      >
+        <span class="auth-brand__secure-pill">
+          <ShieldCheck :size="14" aria-hidden="true" />
+          {{ panel.badge }}
+        </span>
+
+        <div class="auth-brand__journey" aria-hidden="true">
+          <svg class="auth-brand__journey-scene" viewBox="0 0 680 420">
+            <defs>
+              <linearGradient id="journeySky" x1="0" x2="1" y1="0" y2="1">
+                <stop offset="0%" stop-color="#f7fcff" />
+                <stop offset="58%" stop-color="#e5f7ff" />
+                <stop offset="100%" stop-color="#d8f6ef" />
+              </linearGradient>
+              <linearGradient id="journeyMountain" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#7fd6f1" />
+                <stop offset="100%" stop-color="#1d7fa3" />
+              </linearGradient>
+              <linearGradient id="journeyForest" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#5ccda9" />
+                <stop offset="100%" stop-color="#0b5f4a" />
+              </linearGradient>
+              <filter id="journeyGlow" x="-40%" y="-40%" width="180%" height="180%">
+                <feGaussianBlur stdDeviation="6" result="blur" />
+                <feColorMatrix
+                  in="blur"
+                  type="matrix"
+                  values="0 0 0 0 0.99 0 0 0 0 0.72 0 0 0 0 0.22 0 0 0 0.62 0"
+                />
+                <feBlend in="SourceGraphic" />
+              </filter>
+            </defs>
+            <rect width="680" height="420" rx="28" fill="url(#journeySky)" />
+            <circle cx="558" cy="76" r="42" fill="#fff7d8" opacity="0.86" />
+            <path
+              d="M236 296 L402 86 L616 296 Z"
+              fill="url(#journeyMountain)"
+              opacity="0.88"
+            />
+            <path
+              d="M402 86 L450 198 L370 158 Z"
+              fill="#f7fcff"
+              opacity="0.92"
+            />
+            <path
+              d="M30 316 C92 266 144 246 210 256 C280 268 320 320 398 300 C476 280 534 246 650 286 L650 420 L30 420 Z"
+              fill="url(#journeyForest)"
+              opacity="0.86"
+            />
+            <path
+              d="M346 354 C436 314 506 282 496 238 C486 196 406 206 424 164 C438 130 496 116 538 94"
+              fill="none"
+              stroke="#f6c24b"
+              stroke-linecap="round"
+              stroke-width="10"
+              filter="url(#journeyGlow)"
+            />
+            <path
+              d="M346 354 C436 314 506 282 496 238 C486 196 406 206 424 164 C438 130 496 116 538 94"
+              fill="none"
+              stroke="#fff6cb"
+              stroke-dasharray="18 18"
+              stroke-linecap="round"
+              stroke-width="4"
+            />
+            <path d="M538 94 V52" stroke="#087fa7" stroke-linecap="round" stroke-width="5" />
+            <path d="M540 54 L588 70 L540 88 Z" fill="#36c8ea" />
+            <circle cx="538" cy="94" r="9" fill="#087fa7" />
+            <circle cx="354" cy="356" r="18" fill="#061527" opacity="0.9" />
+            <path d="M354 374 L336 420 H378 Z" fill="#123b5d" opacity="0.9" />
+          </svg>
+        </div>
+
+        <div class="auth-brand__growth-metrics">
+          <article
+            v-for="metric in growthMetrics"
+            :key="metric.label"
+            class="auth-brand__growth-metric"
+            :class="`auth-brand__growth-metric--${metric.tone}`"
+          >
+            <span>{{ metric.label }}</span>
+            <strong>{{ metric.value }}</strong>
+            <small>{{ metric.note }}</small>
+          </article>
+        </div>
+      </section>
 
       <article
         v-if="panel.variant === 'security'"
@@ -145,6 +294,14 @@ const panel = computed<AuthPanelCopy>(() => {
       <AuthFeatureList :features="panel.features" />
     </div>
 
+    <div v-if="panel.variant === 'growth'" class="auth-brand__growth-values">
+      <article v-for="item in growthValues" :key="item.title" class="auth-brand__growth-value">
+        <component :is="item.icon" :size="20" aria-hidden="true" />
+        <h2>{{ item.title }}</h2>
+        <p>{{ item.description }}</p>
+      </article>
+    </div>
+
     <footer v-if="panel.variant === 'security'" class="auth-brand__footer">
       <span>© 2026 Auraxis Fintech</span>
       <NuxtLink to="/privacy-policy">Privacidade</NuxtLink>
@@ -181,6 +338,19 @@ const panel = computed<AuthPanelCopy>(() => {
 .auth-brand:not(.auth-brand--security) {
   justify-content: flex-start;
   gap: clamp(var(--space-7), 8vh, var(--space-10));
+}
+
+.auth-brand--growth {
+  gap: var(--space-5);
+  padding: var(--space-7);
+  border-right-color: color-mix(in srgb, var(--color-brand-500) 14%, transparent);
+  background:
+    radial-gradient(circle at 78% 16%, rgba(246, 194, 75, 0.22), transparent 24%),
+    radial-gradient(circle at 24% 72%, rgba(66, 232, 169, 0.18), transparent 28%),
+    linear-gradient(var(--auth-panel-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--auth-panel-grid-line) 1px, transparent 1px),
+    linear-gradient(160deg, #ffffff, #f4fbff 46%, #eefaf4);
+  background-size: auto, auto, 44px 44px, 44px 44px, auto;
 }
 
 /* Logo */
@@ -291,6 +461,158 @@ const panel = computed<AuthPanelCopy>(() => {
   color: var(--color-text-secondary);
   max-width: 48ch;
   margin: 0;
+}
+
+.auth-brand--growth .auth-brand__copy {
+  max-width: 620px;
+}
+
+.auth-brand--growth .auth-brand__headline {
+  max-width: 13ch;
+  font-size: var(--font-size-heading-lg);
+  letter-spacing: 0;
+}
+
+.auth-brand--growth .auth-brand__sub {
+  max-width: 52ch;
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-body-md);
+}
+
+.auth-brand__growth-card {
+  position: relative;
+  display: grid;
+  min-height: 480px;
+  margin-top: var(--space-2);
+  border: 1px solid color-mix(in srgb, var(--color-brand-500) 16%, var(--color-outline-soft));
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(255, 255, 255, 0.42)),
+    var(--color-bg-surface);
+  box-shadow: 0 26px 80px rgba(6, 21, 39, 0.14);
+  overflow: hidden;
+}
+
+.auth-brand__secure-pill {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 34px;
+  padding: 0 var(--space-3);
+  border: 1px solid color-mix(in srgb, var(--color-positive) 24%, var(--color-outline-soft));
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--color-positive);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  box-shadow: 0 12px 30px rgba(6, 21, 39, 0.08);
+  backdrop-filter: blur(8px);
+}
+
+.auth-brand__journey {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.auth-brand__journey-scene {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.auth-brand__growth-metrics {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  align-content: center;
+  gap: var(--space-3);
+  width: min(310px, 48%);
+  padding: var(--space-7) 0 var(--space-7) var(--space-5);
+}
+
+.auth-brand__growth-metric {
+  display: grid;
+  gap: var(--space-1);
+  min-height: 88px;
+  padding: var(--space-3);
+  border: 1px solid rgba(255, 255, 255, 0.76);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 16px 38px rgba(6, 21, 39, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.auth-brand__growth-metric span,
+.auth-brand__growth-metric small {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-body-sm);
+}
+
+.auth-brand__growth-metric strong {
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-lg);
+  line-height: 1.1;
+}
+
+.auth-brand__growth-metric--positive small,
+.auth-brand__growth-metric--positive strong {
+  color: var(--color-positive);
+}
+
+.auth-brand__growth-metric--goal small {
+  color: var(--color-brand-600);
+}
+
+.auth-brand__growth-metric--safe strong {
+  color: var(--color-brand-700);
+}
+
+.auth-brand__growth-values {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid color-mix(in srgb, var(--color-brand-500) 10%, var(--color-outline-soft));
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 18px 46px rgba(6, 21, 39, 0.08);
+}
+
+.auth-brand__growth-value {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  text-align: center;
+}
+
+.auth-brand__growth-value svg {
+  width: 42px;
+  height: 42px;
+  padding: 10px;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--color-positive) 10%, #ffffff);
+  color: var(--color-positive);
+}
+
+.auth-brand__growth-value h2 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+}
+
+.auth-brand__growth-value p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-body-sm);
 }
 
 .auth-brand__metric {
@@ -460,5 +782,50 @@ const panel = computed<AuthPanelCopy>(() => {
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   opacity: 0.55;
+}
+
+@media (max-width: 1280px) {
+  .auth-brand__growth-values {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 860px) {
+  .auth-brand {
+    min-height: auto;
+    height: auto;
+    padding: var(--space-5) var(--space-4) 0;
+    border-right: none;
+    overflow: visible;
+  }
+
+  .auth-brand--growth {
+    gap: var(--space-4);
+    background:
+      radial-gradient(circle at 74% 8%, rgba(246, 194, 75, 0.18), transparent 24%),
+      linear-gradient(160deg, #ffffff, #f4fbff 54%, #eefaf4);
+  }
+
+  .auth-brand:not(.auth-brand--security) {
+    gap: var(--space-4);
+  }
+
+  .auth-brand__headline,
+  .auth-brand--growth .auth-brand__headline {
+    max-width: 12ch;
+    font-size: var(--font-size-heading-md);
+  }
+
+  .auth-brand__sub {
+    font-size: var(--font-size-sm);
+  }
+
+  .auth-brand__growth-card,
+  .auth-brand__growth-values,
+  .auth-brand__highlights,
+  .auth-brand__security-card,
+  .auth-brand__footer {
+    display: none;
+  }
 }
 </style>

@@ -36,13 +36,18 @@ const globalConfig = {
 };
 
 describe("AuthBrandPanel", () => {
-  it("matches the login prototype copy without the recovery metric panel", () => {
+  it("renders the growth journey login panel instead of the old analytics copy", () => {
     mockRoutePath.value = "/login";
 
     const wrapper = mount(AuthBrandPanel, { global: globalConfig });
 
-    expect(wrapper.text()).toContain("Volte ao seu painel de analytics em segundos.");
-    expect(wrapper.text()).toContain("Resumo executivo para decisões rápidas e profundidade analítica para investigar cada variação.");
+    expect(wrapper.text()).toContain("Transforme controle em liberdade para crescer.");
+    expect(wrapper.text()).toContain("Organize hoje, planeje amanhã e acompanhe cada conquista financeira com clareza.");
+    expect(wrapper.text()).toContain("Patrimônio em evolução");
+    expect(wrapper.text()).toContain("Próxima meta");
+    expect(wrapper.text()).toContain("Crescimento com propósito");
+    expect(wrapper.text()).not.toContain("Volte ao seu painel de analytics em segundos.");
+    expect(wrapper.find(".auth-brand--growth").exists()).toBe(true);
     expect(wrapper.find(".auth-brand__metric").exists()).toBe(false);
     expect(wrapper.text()).not.toContain("SYS.VER.4.2.9");
   });
