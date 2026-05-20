@@ -20,11 +20,6 @@ import { useUpdateWalletEntryMutation } from "~/features/wallet/queries/use-upda
 import type { CreateWalletEntryPayload } from "~/features/wallet/services/wallet.client";
 import type { PortfolioSummaryDto, WalletEntryDto } from "~/features/portfolio/contracts/portfolio.dto";
 import NetWorthTimeline from "~/components/portfolio/NetWorthTimeline/NetWorthTimeline.vue";
-import {
-  MOCK_PORTFOLIO_SUMMARY,
-  MOCK_WALLET_ENTRIES,
-} from "~/features/portfolio/mock/portfolio.mock";
-import { MOCK_GOALS } from "~/features/goals/mock/goals.mock";
 import { useGoalsQuery } from "~/features/goals/queries/use-goals-query";
 import { formatCurrency } from "~/utils/currency";
 import { useTheme } from "~/composables/useTheme";
@@ -45,8 +40,8 @@ interface AllocationRow {
   readonly color: string;
 }
 
-const { data: summary, isError: isSummaryError } = usePortfolioSummaryQuery();
-const { data: entries, isError: isEntriesError } = useWalletEntriesQuery();
+const { data: summary, isLoading: isSummaryLoading, isError: isSummaryError } = usePortfolioSummaryQuery();
+const { data: entries, isLoading: isEntriesLoading, isError: isEntriesError } = useWalletEntriesQuery();
 const { data: goals } = useGoalsQuery();
 const { resolvedTheme } = useTheme();
 
@@ -59,19 +54,26 @@ const editingEntry = ref<WalletEntryDto | null>(null);
 const chartTokens = computed(() => buildChartThemeTokens(resolvedTheme.value));
 
 const rawEntries = computed(() => entries.value ?? []);
-const isUsingSamplePortfolio = computed(() => rawEntries.value.length === 0);
-const displayEntries = computed(() => (isUsingSamplePortfolio.value ? MOCK_WALLET_ENTRIES : rawEntries.value));
+const displayEntries = computed(() => rawEntries.value);
+const isLoading = computed(() => isSummaryLoading.value || isEntriesLoading.value);
+const isPortfolioEmpty = computed(() => !isLoading.value && rawEntries.value.length === 0);
 const shouldShowPortfolioError = computed(
-  () => isError.value && rawEntries.value.length === 0 && MOCK_WALLET_ENTRIES.length === 0,
+  () => isError.value && rawEntries.value.length === 0,
 );
 
 const computedSummary = computed<PortfolioSummaryDto>(() => {
-  if (summary.value && !isUsingSamplePortfolio.value) {
+  if (summary.value) {
     return summary.value;
   }
 
   if (displayEntries.value.length === 0) {
-    return MOCK_PORTFOLIO_SUMMARY;
+    return {
+      total_value: 0,
+      total_cost: 0,
+      day_change_percent: null,
+      total_return_percent: 0,
+      asset_count: 0,
+    };
   }
 
   const totalValue = displayEntries.value.reduce((sum, entry) => sum + entry.current_value, 0);
@@ -188,7 +190,7 @@ const displayGoals = computed(() => {
     return goals.value;
   }
 
-  return isUsingSamplePortfolio.value ? MOCK_GOALS : [];
+  return [];
 });
 const projectedMonthlyContribution = computed(() => Math.max(500, Math.round(computedSummary.value.total_value * 0.012)));
 
@@ -342,9 +344,6 @@ const allocationChartOption = computed<EChartsOption>(() => {
         <div>
           <h1>Visão Geral da Carteira</h1>
           <p>Acompanhamento técnico da carteira, alocação e posições.</p>
-          <span v-if="isUsingSamplePortfolio" class="sample-pill">
-            Carteira demonstrativa para validar o layout Market Pulse
-          </span>
         </div>
       </div>
 
@@ -377,6 +376,31 @@ const allocationChartOption = computed<EChartsOption>(() => {
       :title="$t('pages.portfolio.loadError')"
       :message="$t('pages.portfolio.loadErrorMessage')"
     />
+
+    <UiPageLoader v-else-if="isLoading" :rows="4" :with-title="true" />
+
+    <section v-else-if="isPortfolioEmpty" class="portfolio-empty-state" aria-label="Carteira vazia">
+      <UiEmptyState
+        icon="wallet"
+        title="Comece adicionando seu primeiro ativo"
+        description="Sua carteira mostra patrimônio, rentabilidade, alocação e evolução somente depois que você cadastrar ativos reais. Você pode começar por uma ação, fundo, renda fixa, cripto ou outro investimento que faça parte do seu planejamento."
+        action-label="Adicionar ativo"
+        secondary-label="Ver ferramentas de investimento"
+        secondary-href="/tools"
+        @action="showEntryForm = true"
+      >
+        <template #illustration>
+          <svg class="ui-empty-state__illustration-svg" viewBox="0 0 220 150" role="img" aria-label="Ilustração de uma carteira vazia">
+            <rect x="28" y="34" width="164" height="94" rx="18" fill="var(--color-bg-elevated)" stroke="var(--color-outline-soft)" stroke-width="3" />
+            <path d="M48 62h98c16 0 28 12 28 28v16H76c-15 0-28-12-28-28V62Z" fill="var(--color-brand-hover-surface)" />
+            <circle cx="168" cy="83" r="9" fill="var(--color-brand-500)" />
+            <path d="M72 42c7-14 20-22 38-22 19 0 34 9 43 26" fill="none" stroke="var(--color-positive)" stroke-width="6" stroke-linecap="round" />
+            <path d="M74 102h50" stroke="var(--color-outline-hard)" stroke-width="5" stroke-linecap="round" />
+            <path d="M74 82h34" stroke="var(--color-brand-500)" stroke-width="5" stroke-linecap="round" />
+          </svg>
+        </template>
+      </UiEmptyState>
+    </section>
 
     <template v-else>
       <section id="summary-kpis" class="summary-kpis">
@@ -638,20 +662,17 @@ const allocationChartOption = computed<EChartsOption>(() => {
   display: none;
 }
 
-.sample-pill {
-  display: inline-flex;
-  margin-top: 12px;
-  border: 1px solid var(--color-brand-glow-md);
-  border-radius: var(--radius-full);
-  padding: 6px 10px;
-  color: var(--mp-cyan);
-  background: var(--mp-brand-soft);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-}
-
 .portfolio-header__actions {
   align-items: center;
+}
+
+.portfolio-empty-state {
+  border: 1px solid var(--mp-border);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at 100% 0%, var(--color-brand-glow-2xs), transparent 34%),
+    var(--mp-card);
+  box-shadow: var(--mp-panel-shadow);
 }
 
 .search-field {

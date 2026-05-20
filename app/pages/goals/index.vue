@@ -53,39 +53,6 @@ interface ActionHighlight {
   readonly action: string;
 }
 
-const MARKET_PULSE_GOALS: GoalDto[] = [
-  {
-    id: "market-pulse-emergency",
-    name: "Reserva de Emergência",
-    description: "Liquidez para seis meses de despesas essenciais.",
-    target_amount: 30000,
-    current_amount: 24500,
-    target_date: "2026-12-31",
-    status: "active",
-    created_at: "2026-01-10T10:00:00Z",
-  },
-  {
-    id: "market-pulse-car",
-    name: "Carro Novo SUV",
-    description: "Entrada planejada com proteção contra inflação do veículo.",
-    target_amount: 120000,
-    current_amount: 45000,
-    target_date: "2027-03-31",
-    status: "active",
-    created_at: "2026-02-18T10:00:00Z",
-  },
-  {
-    id: "market-pulse-trip",
-    name: "Viagem Europa",
-    description: "Viagem familiar com passagens, hospedagem e reservas.",
-    target_amount: 35000,
-    current_amount: 15200,
-    target_date: "2026-07-31",
-    status: "paused",
-    created_at: "2026-03-12T10:00:00Z",
-  },
-];
-
 const { data: goals, isLoading, isError } = useGoalsQuery();
 const createMutation = useCreateGoalMutation();
 const updateMutation = useUpdateGoalMutation();
@@ -94,7 +61,7 @@ const { resolvedTheme } = useTheme();
 const activeFilter = ref<FilterValue>("all");
 const showForm = ref<boolean>(false);
 const editingGoal = ref<GoalDto | null>(null);
-const selectedGoalId = ref<string>("market-pulse-car");
+const selectedGoalId = ref<string>("");
 const simulatedContribution = ref<number>(2500);
 const chartTokens = computed(() => buildChartThemeTokens(resolvedTheme.value));
 
@@ -106,15 +73,13 @@ const filterOptions = computed((): Array<{ value: FilterValue; label: string }> 
 ]);
 
 const allGoals = computed(() => goals.value ?? []);
-const isUsingSampleGoals = computed(() => allGoals.value.length === 0);
-const sourceGoals = computed(() => (isUsingSampleGoals.value ? MARKET_PULSE_GOALS : allGoals.value));
 
 const filteredGoals = computed(() => {
   if (activeFilter.value === "all") {
-    return sourceGoals.value;
+    return allGoals.value;
   }
 
-  return sourceGoals.value.filter((goal) => goal.status === activeFilter.value);
+  return allGoals.value.filter((goal) => goal.status === activeFilter.value);
 });
 
 /**
@@ -276,29 +241,31 @@ watch(
   { immediate: true },
 );
 
-const actionHighlights = computed<ActionHighlight[]>(() => [
-  {
-    tone: "orange",
-    badge: "Atenção",
-    title: "Ajustar Aporte: Carro Novo",
-    description: "A inflação impactou o valor final do veículo. Recomendamos aumentar o aporte em R$ 350 para manter o prazo.",
-    action: "Simular ajuste",
-  },
-  {
-    tone: "lime",
-    badge: "Oportunidade",
-    title: "Acelerar: Reserva de Emergência",
-    description: "Seu rendimento extra de dividendos pode adiantar esta meta em 3 meses se reinvestido agora.",
-    action: "Aplicar dividendos",
-  },
-  {
-    tone: "neutral",
-    badge: "Revisão",
-    title: "Rebalanceamento de Carteira",
-    description: "A alocação da meta Aposentadoria desviou 5% do alvo ideal devido à alta recente do CDI.",
-    action: "Revisar portfólio",
-  },
-]);
+const actionHighlights = computed<ActionHighlight[]>(() => {
+  const [firstGoal, secondGoal] = goalCards.value;
+  if (!firstGoal) {
+    return [];
+  }
+
+  return [
+    {
+      tone: firstGoal.tone === "orange" || firstGoal.tone === "red" ? "orange" : "lime",
+      badge: firstGoal.tone === "orange" || firstGoal.tone === "red" ? "Atenção" : "Próximo passo",
+      title: `Revisar ritmo: ${firstGoal.name}`,
+      description: `Você já acumulou ${firstGoal.currentLabel} de ${firstGoal.targetLabel}. Ajuste o aporte ou o prazo para manter essa meta compatível com sua rotina.`,
+      action: "Simular ajuste",
+    },
+    {
+      tone: "neutral",
+      badge: "Organização",
+      title: secondGoal ? `Comparar prioridade: ${secondGoal.name}` : "Crie uma segunda meta para comparar prioridades",
+      description: secondGoal
+        ? "Compare prazo, esforço mensal e impacto no caixa antes de decidir qual objetivo acelerar."
+        : "Com mais de uma meta, o Auraxis ajuda você a enxergar qual objetivo pede atenção primeiro.",
+      action: secondGoal ? "Comparar metas" : "Criar outra meta",
+    },
+  ];
+});
 
 const timelineChartOption = computed<EChartsOption>(() => {
   const tokens = chartTokens.value;
@@ -411,9 +378,6 @@ const simulatedImpact = computed(() => {
       <div>
         <h1>Metas Financeiras</h1>
         <p>Acompanhe e simule o progresso dos seus objetivos de longo prazo.</p>
-        <span v-if="isUsingSampleGoals && !isLoading" class="sample-pill">
-          Dados demonstrativos para orientar sua primeira configuração
-        </span>
       </div>
 
       <div class="goals-market-pulse__actions">
@@ -441,7 +405,29 @@ const simulatedImpact = computed(() => {
     <template v-else>
       <AiInsightSurface dimension="goals" />
 
-      <section id="action-highlights" class="mp-panel action-highlights">
+      <section v-if="goalCards.length === 0" class="goals-empty-state" aria-label="Metas vazias">
+        <UiEmptyState
+          icon="target"
+          title="Suas metas começam aqui"
+          description="Metas transformam desejos em um plano acompanhável: você define o valor alvo, informa quanto já guardou e escolhe um prazo. A partir daí o Auraxis calcula progresso, ritmo de aporte e sinais de atenção."
+          action-label="Criar primeira meta"
+          secondary-label="Entender simulações"
+          secondary-href="/simulations"
+          @action="onNewGoal"
+        >
+          <template #illustration>
+            <svg class="ui-empty-state__illustration-svg" viewBox="0 0 220 150" role="img" aria-label="Ilustração de uma meta financeira">
+              <circle cx="110" cy="76" r="50" fill="var(--color-bg-elevated)" stroke="var(--color-outline-soft)" stroke-width="3" />
+              <circle cx="110" cy="76" r="31" fill="var(--color-brand-hover-surface)" stroke="var(--color-brand-500)" stroke-width="4" />
+              <circle cx="110" cy="76" r="12" fill="var(--color-positive)" />
+              <path d="M42 118c18-18 35-26 51-24m34 0c17 0 34 8 51 24" fill="none" stroke="var(--color-outline-hard)" stroke-width="6" stroke-linecap="round" />
+              <path d="M164 32l12-12m-2 29h18m-45-31V0" stroke="var(--color-brand-500)" stroke-width="5" stroke-linecap="round" />
+            </svg>
+          </template>
+        </UiEmptyState>
+      </section>
+
+      <section v-else id="action-highlights" class="mp-panel action-highlights">
         <div class="section-title">
           <span class="section-icon section-icon--cyan">
             <Bolt :size="17" aria-hidden="true" />
@@ -467,7 +453,7 @@ const simulatedImpact = computed(() => {
         </div>
       </section>
 
-      <section id="goals-status" class="goals-status">
+      <section v-if="goalCards.length > 0" id="goals-status" class="goals-status">
         <div class="section-toolbar">
           <h2>Status das Metas</h2>
           <div class="toolbar-actions">
@@ -548,7 +534,7 @@ const simulatedImpact = computed(() => {
         </div>
       </section>
 
-      <div class="goals-analytics-grid">
+      <div v-if="goalCards.length > 0" class="goals-analytics-grid">
         <section id="goals-timeline" class="mp-panel goals-timeline">
           <div class="chart-heading">
             <div>
@@ -576,7 +562,7 @@ const simulatedImpact = computed(() => {
           <label class="field-label" for="goal-selection">Meta Selecionada</label>
           <select id="goal-selection" v-model="selectedGoalId" class="mp-select">
             <option v-for="goal in goalCards" :key="goal.id" :value="goal.id">
-              {{ goal.name }}
+              Simular: {{ goal.name }}
             </option>
           </select>
 
@@ -682,18 +668,6 @@ const simulatedImpact = computed(() => {
   font-size: var(--font-size-md);
 }
 
-.sample-pill {
-  display: inline-flex;
-  margin-top: 14px;
-  border: 1px solid var(--color-brand-glow-md);
-  border-radius: var(--radius-full);
-  padding: 6px 10px;
-  color: var(--mp-cyan);
-  background: var(--mp-brand-soft);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-}
-
 .goals-market-pulse__actions,
 .toolbar-actions,
 .filter-tabs,
@@ -752,6 +726,13 @@ const simulatedImpact = computed(() => {
 .mp-panel {
   position: relative;
   overflow: hidden;
+  border: 1px solid var(--mp-border);
+  border-radius: var(--radius-lg);
+  background: var(--mp-panel-bg);
+  box-shadow: var(--shadow-card);
+}
+
+.goals-empty-state {
   border: 1px solid var(--mp-border);
   border-radius: var(--radius-lg);
   background: var(--mp-panel-bg);

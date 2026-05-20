@@ -4,7 +4,9 @@ FROM node:25-alpine AS deps
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
-RUN npm install -g pnpm@10.30.1 && pnpm install --frozen-lockfile
+# `postinstall` runs `nuxt prepare`; in Docker the source is copied only in the
+# builder stage, so lifecycle scripts here would generate an incomplete `.nuxt`.
+RUN npm install -g pnpm@10.30.1 && pnpm install --frozen-lockfile --ignore-scripts
 
 # ── Stage 2: builder ───────────────────────────────────────────────────────
 FROM deps AS builder
