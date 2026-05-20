@@ -109,6 +109,22 @@ const onDelete = (id: string): void => {
         </NDropdown>
       </div>
 
+      <section class="simulations-page__intro" aria-label="Como funcionam as simulações">
+        <div>
+          <h2>Simulações transformam perguntas financeiras em cenários salvos</h2>
+          <p>
+            Compare alternativas antes de se comprometer: parcelar ou pagar à vista, antecipar uma
+            meta, projetar rendimentos ou revisar uma decisão importante. Cada simulação fica
+            registrada para você voltar depois com mais contexto.
+          </p>
+        </div>
+        <ul>
+          <li>Use dados aproximados para testar possibilidades sem alterar sua carteira.</li>
+          <li>Salve os cenários que fazem sentido e acompanhe o impacto ao longo do tempo.</li>
+          <li>Trate o resultado como apoio de planejamento, não como recomendação financeira.</li>
+        </ul>
+      </section>
+
       <UiInlineError
         v-if="isError"
         :title="$t('pages.simulations.loadError')"
@@ -185,6 +201,46 @@ const onDelete = (id: string): void => {
   flex: 1 1 auto;
 }
 
+.simulations-page__intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+  gap: var(--space-3);
+  border: 1px solid var(--color-outline-soft);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at 100% 0%, var(--color-brand-glow-2xs), transparent 34%),
+    var(--color-bg-surface);
+  padding: var(--space-3);
+  box-shadow: var(--shadow-card);
+}
+
+.simulations-page__intro h2 {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0;
+}
+
+.simulations-page__intro p,
+.simulations-page__intro li {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: 1.65;
+}
+
+.simulations-page__intro p {
+  margin: var(--space-1) 0 0;
+  max-width: 720px;
+}
+
+.simulations-page__intro ul {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding-inline-start: 1.1rem;
+}
+
 .simulations-page__filter-bar {
   display: flex;
   align-items: center;
@@ -218,12 +274,20 @@ const onDelete = (id: string): void => {
 }
 
 @media (max-width: 480px) {
+  .simulations-page__intro {
+    grid-template-columns: 1fr;
+  }
+
   .simulations-page__grid {
     grid-template-columns: 1fr;
   }
 }
 
 @media (min-width: 481px) and (max-width: 900px) {
+  .simulations-page__intro {
+    grid-template-columns: 1fr;
+  }
+
   .simulations-page__grid {
     grid-template-columns: repeat(2, 1fr);
   }

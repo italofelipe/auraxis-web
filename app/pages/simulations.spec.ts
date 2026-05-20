@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import type { SimulationType } from "~/features/simulations/contracts/simulation-card.dto";
+
+const source = readFileSync(join(process.cwd(), "app/pages/simulations.vue"), "utf8");
 
 /**
  * Unit tests for the simulations page navigation logic.
@@ -53,5 +57,10 @@ describe("SimulationsPage — new simulation dropdown routing", () => {
     const routes = Object.values(SIMULATION_TYPE_ROUTES);
     const uniqueRoutes = new Set(routes);
     expect(uniqueRoutes.size).toBe(routes.length);
+  });
+
+  it("explains how simulations work before listing saved scenarios", () => {
+    expect(source).toContain("Simulações transformam perguntas financeiras em cenários salvos");
+    expect(source).toContain("Compare alternativas antes de se comprometer");
   });
 });

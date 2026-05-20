@@ -13,7 +13,6 @@ import {
   NSelect,
   NDatePicker,
   NStatistic,
-  NEmpty,
   NSpace,
 } from "naive-ui";
 import { useBudgetsQuery } from "~/features/budgets/queries/use-budgets-query";
@@ -256,17 +255,27 @@ const onDeleteBudget = (id: string): void => {
       <UiPageLoader v-if="isLoading" :rows="3" />
 
       <!-- Empty state -->
-      <NEmpty
+      <UiEmptyState
         v-else-if="allBudgets.length === 0"
         class="budgets-page__empty"
-        :description="$t('pages.budgets.emptyState')"
+        icon="pieChart"
+        title="Crie seu primeiro orçamento"
+        description="Orçamentos ajudam você a definir um limite por categoria, acompanhar quanto já foi usado e perceber desvios antes que o mês aperte. Comece por uma categoria simples, como mercado, moradia ou lazer."
+        action-label="Criar orçamento"
+        secondary-label="Ver transações"
+        secondary-href="/transactions"
+        @action="onNewBudget"
       >
-        <template #extra>
-          <NButton type="primary" @click="onNewBudget">
-            {{ $t('pages.budgets.newBudget') }}
-          </NButton>
+        <template #illustration>
+          <svg class="ui-empty-state__illustration-svg" viewBox="0 0 220 150" role="img" aria-label="Ilustração de orçamento vazio">
+            <rect x="34" y="28" width="152" height="98" rx="16" fill="var(--color-bg-elevated)" stroke="var(--color-outline-soft)" stroke-width="3" />
+            <path d="M62 100V74m32 26V55m32 45V66m32 34V45" stroke="var(--color-brand-500)" stroke-width="9" stroke-linecap="round" />
+            <path d="M58 116h104" stroke="var(--color-outline-hard)" stroke-width="5" stroke-linecap="round" />
+            <circle cx="168" cy="43" r="18" fill="var(--color-positive-bg)" stroke="var(--color-positive)" stroke-width="4" />
+            <path d="M160 43h16m-8-8v16" stroke="var(--color-positive)" stroke-width="4" stroke-linecap="round" />
+          </svg>
         </template>
-      </NEmpty>
+      </UiEmptyState>
 
       <!-- Budget cards -->
       <div v-else class="budgets-page__grid">

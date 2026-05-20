@@ -22,4 +22,11 @@ describe("Portfolio page — Market Pulse anatomy", () => {
     expect(source).toContain("Alocação por Classe");
     expect(source).toContain("Posição Detalhada de Ativos");
   });
+
+  it("does not fall back to demo assets when the authenticated wallet is empty", () => {
+    expect(source).not.toContain("MOCK_WALLET_ENTRIES");
+    expect(source).not.toContain("MOCK_PORTFOLIO_SUMMARY");
+    expect(source).not.toContain("Carteira demonstrativa");
+    expect(source).toContain("Comece adicionando seu primeiro ativo");
+  });
 });

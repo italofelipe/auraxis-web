@@ -24,4 +24,11 @@ describe("Goals page — Market Pulse anatomy", () => {
     expect(source).toContain("Ver detalhes");
     expect(source).toContain("navigateTo(`/goals/${goal.id}`)");
   });
+
+  it("does not replace an empty authenticated goals list with sample goals", () => {
+    expect(source).not.toContain("MARKET_PULSE_GOALS");
+    expect(source).not.toContain("Dados demonstrativos");
+    expect(source).toContain("Suas metas começam aqui");
+    expect(source).toContain("v-if=\"goalCards.length === 0\"");
+  });
 });

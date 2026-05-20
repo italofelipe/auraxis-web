@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 import type { BudgetDto } from "~/features/budgets/contracts/budget.contracts";
+
+const source = readFileSync(join(process.cwd(), "app/pages/budgets.vue"), "utf8");
 
 let _budgetCounter = 0;
 
@@ -173,5 +177,13 @@ describe("budgets page — clampedPct helper", () => {
   it("clamps values above 100 to 100", (): void => {
     expect(clampedPct(120)).toBe(100);
     expect(clampedPct(150.9)).toBe(100);
+  });
+});
+
+describe("budgets page — empty state UX writing", () => {
+  it("renders a friendly empty-state copy instead of a raw i18n key", () => {
+    expect(source).not.toContain("pages.budgets.emptyState");
+    expect(source).toContain("Crie seu primeiro orçamento");
+    expect(source).toContain("Orçamentos ajudam você a definir um limite por categoria");
   });
 });
