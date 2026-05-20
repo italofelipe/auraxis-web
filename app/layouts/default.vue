@@ -88,6 +88,7 @@ const onboarding = useOnboarding();
 const { shouldShow: showOnboardingWizard } = onboarding;
 
 const showProfileModal = ref(false);
+const shouldHoldSecondaryModals = computed(() => sessionStore.emailConfirmed === false);
 
 const _profileModalFlagKey = computed((): string => {
   const uid = userStore.profile?.id ?? sessionStore.userEmail ?? "guest";
@@ -108,7 +109,7 @@ const _dismissProfileModal = (): void => {
 watch(
   () => userStore.isLoaded && !userStore.isProfileComplete,
   (shouldShow) => {
-    if (shouldShow && !_isProfileModalDismissed.value && !showOnboardingWizard.value) {
+    if (shouldShow && !_isProfileModalDismissed.value && !showOnboardingWizard.value && !shouldHoldSecondaryModals.value) {
       showProfileModal.value = true;
     }
   },
@@ -143,7 +144,7 @@ function onReplayOnboarding(): void {
 <template>
   <div class="app-root">
     <AdminImpersonationBanner />
-    <EmailConfirmationBanner />
+    <EmailConfirmationModal />
     <BillingStatusBanner />
     <UiAppShell
     :nav-items="NAV_ITEMS"

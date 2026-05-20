@@ -59,7 +59,16 @@ describe("useAuth/mutations", () => {
 
     const mutation = useLoginMutation(authApi) as unknown as {
       mutationFn: unknown;
-      onSuccess: (response: { accessToken: string; refreshToken?: string; user: { email: string; emailConfirmed?: boolean } }) => void;
+      onSuccess: (response: {
+        accessToken: string;
+        refreshToken?: string;
+        user: {
+          email: string;
+          emailConfirmed?: boolean;
+          emailConfirmationDeadlineAt?: string | null;
+          emailConfirmationBlocked?: boolean;
+        };
+      }) => void;
     };
 
     expect(mutation.mutationFn).toBe(authApi.login);
@@ -67,7 +76,12 @@ describe("useAuth/mutations", () => {
     mutation.onSuccess({
       accessToken: "login-token",
       refreshToken: "login-refresh",
-      user: { email: "login@auraxis.com", emailConfirmed: true },
+      user: {
+        email: "login@auraxis.com",
+        emailConfirmed: true,
+        emailConfirmationDeadlineAt: "2026-06-03T10:00:00Z",
+        emailConfirmationBlocked: false,
+      },
     });
 
     expect(signInMock).toHaveBeenCalledWith({
@@ -75,6 +89,8 @@ describe("useAuth/mutations", () => {
       refreshToken: "login-refresh",
       userEmail: "login@auraxis.com",
       emailConfirmed: true,
+      emailConfirmationDeadlineAt: "2026-06-03T10:00:00Z",
+      emailConfirmationBlocked: false,
     });
     expect(identifyMock).toHaveBeenCalledWith("login@auraxis.com");
     expect(captureMock).toHaveBeenCalledWith("user_signed_in", {
@@ -133,7 +149,16 @@ describe("useAuth/mutations", () => {
     };
 
     const mutation = useLoginMutation(authApi) as unknown as {
-      onSuccess: (response: { accessToken: string; refreshToken?: string; user: { email: string; emailConfirmed?: boolean } }) => void;
+      onSuccess: (response: {
+        accessToken: string;
+        refreshToken?: string;
+        user: {
+          email: string;
+          emailConfirmed?: boolean;
+          emailConfirmationDeadlineAt?: string | null;
+          emailConfirmationBlocked?: boolean;
+        };
+      }) => void;
     };
 
     mutation.onSuccess({
@@ -146,6 +171,8 @@ describe("useAuth/mutations", () => {
       refreshToken: null,
       userEmail: "test@auraxis.com",
       emailConfirmed: false,
+      emailConfirmationDeadlineAt: null,
+      emailConfirmationBlocked: false,
     });
   });
 

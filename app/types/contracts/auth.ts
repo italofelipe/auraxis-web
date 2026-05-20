@@ -14,6 +14,10 @@ export interface LoginResponse {
     readonly displayName: string;
     /** Whether the user's email address has been confirmed. */
     readonly emailConfirmed?: boolean;
+    /** Backend-provided deadline for mandatory email confirmation. */
+    readonly emailConfirmationDeadlineAt?: string | null;
+    /** Whether the backend has blocked access until email confirmation. */
+    readonly emailConfirmationBlocked?: boolean;
   };
 }
 
@@ -32,6 +36,10 @@ export interface RegisterResponse {
     readonly displayName: string;
     /** Whether the user's email address has been confirmed. Always false for new registrations. */
     readonly emailConfirmed?: boolean;
+    /** Backend-provided deadline for mandatory email confirmation. */
+    readonly emailConfirmationDeadlineAt?: string | null;
+    /** Whether the backend has blocked access until email confirmation. */
+    readonly emailConfirmationBlocked?: boolean;
   };
 }
 

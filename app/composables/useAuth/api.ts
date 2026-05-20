@@ -18,6 +18,10 @@ type V2AuthUser = {
   readonly email: string;
   /** Whether the user's email address has been verified. */
   readonly email_confirmed?: boolean;
+  /** Backend deadline for mandatory email confirmation. */
+  readonly email_confirmation_deadline_at?: string | null;
+  /** Whether backend access is blocked until email confirmation. */
+  readonly email_confirmation_blocked?: boolean;
 };
 
 /** v2 envelope data payload for login. */
@@ -68,6 +72,8 @@ const normalizeAuthEnvelope = (envelope: V2LoginEnvelope): LoginResponse => ({
     email: envelope.data.user.email,
     displayName: envelope.data.user.name,
     emailConfirmed: envelope.data.user.email_confirmed,
+    emailConfirmationDeadlineAt: envelope.data.user.email_confirmation_deadline_at ?? null,
+    emailConfirmationBlocked: envelope.data.user.email_confirmation_blocked ?? false,
   },
 });
 
@@ -89,6 +95,8 @@ const normalizeRegisterEnvelope = (
         email: envelope.data.user.email,
         displayName: envelope.data.user.name,
         emailConfirmed: envelope.data.user.email_confirmed,
+        emailConfirmationDeadlineAt: envelope.data.user.email_confirmation_deadline_at ?? null,
+        emailConfirmationBlocked: envelope.data.user.email_confirmation_blocked ?? false,
       }
     : undefined,
 });

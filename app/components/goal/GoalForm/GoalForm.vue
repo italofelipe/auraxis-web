@@ -195,6 +195,7 @@ const onClose = (): void => {
     :title="isEditMode ? $t('goal.form.titleEdit') : $t('goal.form.titleCreate')"
     preset="card"
     class="goal-form-modal"
+    style="width: min(560px, calc(100vw - 32px)); max-height: min(720px, calc(100vh - 48px)); overflow: auto;"
     :mask-closable="true"
     @update:show="(v) => emit('update:visible', v)"
   >
@@ -223,25 +224,27 @@ const onClose = (): void => {
         />
       </NFormItem>
 
-      <NFormItem :label="$t('goal.form.targetAmount.label')" path="target_amount">
-        <NInputNumber
-          v-model:value="formModel.target_amount"
-          placeholder="0,00"
-          :min="0.01"
-          :precision="2"
-          style="width: 100%"
-        />
-      </NFormItem>
+      <div class="goal-form__amount-grid">
+        <NFormItem :label="$t('goal.form.targetAmount.label')" path="target_amount">
+          <NInputNumber
+            v-model:value="formModel.target_amount"
+            placeholder="0,00"
+            :min="0.01"
+            :precision="2"
+            style="width: 100%"
+          />
+        </NFormItem>
 
-      <NFormItem :label="$t('goal.form.currentAmount.label')" path="current_amount">
-        <NInputNumber
-          v-model:value="formModel.current_amount"
-          placeholder="0,00"
-          :min="0"
-          :precision="2"
-          style="width: 100%"
-        />
-      </NFormItem>
+        <NFormItem :label="$t('goal.form.currentAmount.label')" path="current_amount">
+          <NInputNumber
+            v-model:value="formModel.current_amount"
+            placeholder="0,00"
+            :min="0"
+            :precision="2"
+            style="width: 100%"
+          />
+        </NFormItem>
+      </div>
 
       <NFormItem :label="$t('goal.form.deadline.label')" path="target_date">
         <div class="goal-form__date-section">
@@ -290,7 +293,21 @@ const onClose = (): void => {
 
 <style scoped>
 .goal-form-modal {
-  width: min(540px, 95vw);
+  width: min(560px, calc(100vw - 32px));
+  max-height: min(720px, calc(100vh - 48px));
+  overflow: auto;
+}
+
+:deep(.goal-form-modal.n-card) {
+  width: min(560px, calc(100vw - 32px));
+  max-height: min(720px, calc(100vh - 48px));
+  overflow: auto;
+}
+
+.goal-form__amount-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
 }
 
 .goal-form__date-section {
@@ -302,5 +319,12 @@ const onClose = (): void => {
 
 .goal-form__date-picker {
   width: 100%;
+}
+
+@media (max-width: 560px) {
+  .goal-form__amount-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
 }
 </style>

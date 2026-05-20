@@ -341,6 +341,11 @@ const totalBalance = computed(() => totalIncome.value - totalExpense.value);
 
 .transactions-page__table :deep(.tx-table-row) { cursor: default; transition: background-color 0.15s ease, transform 0.12s ease; }
 .transactions-page__table :deep(.tx-table-row:hover) { background-color: var(--color-bg-elevated) !important; }
+.transactions-page__table :deep(.tx-table-row--paid) {
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--color-positive) 22%, transparent) 0 3px, transparent 3px),
+    color-mix(in srgb, var(--color-positive) 3%, transparent) !important;
+}
 .transactions-page__table :deep(.tx-table-row--dragging) { opacity: 0.45; cursor: grabbing; }
 .transactions-page__table :deep(.tx-table-row--drag-over) { background-color: color-mix(in srgb, var(--color-brand-500) 8%, transparent) !important; border-top: 2px solid var(--color-brand-500); }
 .transactions-page__table :deep(.tx-table-row--swiping-right) { background-color: color-mix(in srgb, var(--color-positive) 10%, transparent) !important; }
@@ -355,8 +360,22 @@ const totalBalance = computed(() => totalIncome.value - totalExpense.value);
 :deep(.tx-amount--income) { color: var(--color-positive); }
 :deep(.tx-amount--expense) { color: var(--color-negative); }
 :deep(.tx-title-cell) { display: flex; flex-direction: column; gap: 2px; }
+:deep(.tx-title-cell__heading) { display: inline-flex; align-items: center; gap: var(--space-2); min-width: 0; }
 :deep(.tx-title-cell__name) { font-size: var(--font-size-sm); color: var(--color-text-primary); }
 :deep(.tx-badge) { display: inline-flex; align-items: center; gap: 3px; font-size: var(--font-size-xs); color: var(--color-text-muted); }
+:deep(.tx-paid-chip) {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: var(--radius-full, 9999px);
+  border: 1px solid color-mix(in srgb, var(--color-positive) 26%, transparent);
+  background: color-mix(in srgb, var(--color-positive) 10%, transparent);
+  color: color-mix(in srgb, var(--color-positive) 78%, var(--color-text-primary));
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.45;
+  white-space: nowrap;
+}
 :deep(.tx-drag-handle) { display: flex; align-items: center; justify-content: center; cursor: grab; color: var(--color-text-muted); }
 :deep(.tx-drag-handle):active { cursor: grabbing; }
 :deep(.tx-tag-badge) { display: inline-block; padding: 2px 8px; border-radius: var(--radius-full, 9999px); font-size: var(--font-size-xs); font-weight: var(--font-weight-medium, 500); line-height: 1.4; white-space: nowrap; }
