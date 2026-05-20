@@ -8,12 +8,21 @@ import type {
 
 // ── Hoisted mocks ──────────────────────────────────────────────────────────────
 
-const { createApiMutationMock } = vi.hoisted(() => ({
+const { createApiMutationMock, captureMock } = vi.hoisted(() => ({
 	createApiMutationMock: vi.fn(),
+	captureMock: vi.fn(),
 }));
 
 vi.mock("~/core/query/use-api-mutation", () => ({
 	createApiMutation: createApiMutationMock,
+}));
+
+vi.mock("~/composables/useAnalytics/useAnalytics", () => ({
+	useAnalytics: (): { capture: typeof captureMock; identify: ReturnType<typeof vi.fn>; reset: ReturnType<typeof vi.fn> } => ({
+		capture: captureMock,
+		identify: vi.fn(),
+		reset: vi.fn(),
+	}),
 }));
 
 /**

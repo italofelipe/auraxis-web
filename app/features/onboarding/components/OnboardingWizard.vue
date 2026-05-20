@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { X } from "lucide-vue-next";
+import { useAnalytics } from "~/composables/useAnalytics/useAnalytics";
 import { useOnboarding, type OnboardingStepNumber } from "../composables/useOnboarding";
 import OnboardingStep1Welcome from "./OnboardingStep1Welcome.vue";
 import OnboardingStep2Transactions from "./OnboardingStep2Transactions.vue";
@@ -9,6 +10,7 @@ import OnboardingTourStep from "./OnboardingTourStep.vue";
 const { t } = useI18n();
 const onboarding = useOnboarding();
 const { shouldShow, complete, skip, currentStep, setCurrentStep } = onboarding;
+const analytics = useAnalytics();
 
 const TOTAL_STEPS = 6;
 const tourSections = ["welcome", "routine", "intelligence"] as const;
@@ -35,6 +37,15 @@ const tourStep = computed(() => currentStep.value <= 3 ? tourSteps.value[current
 /** Advances the wizard to the next step when not on the last step. */
 function onNext(): void {
   if (currentStep.value < TOTAL_STEPS) {
+    const completed = currentStep.value;
+    // #524 — emit on the step that's being LEFT, so consumers see steps
+    // 1..N-1 as "completed". The final step uses `onboarding_completed`
+    // semantics via the existing `complete()` storage write.
+    analytics.capture("onboarding_step_completed", {
+      step: completed,
+      total_steps: TOTAL_STEPS,
+      direction: "next",
+    });
     setCurrentStep((currentStep.value + 1) as OnboardingStepNumber);
   }
 }
@@ -48,11 +59,21 @@ function onBack(): void {
 
 /** Skips the wizard and marks it as dismissed in persistent storage. */
 function onSkip(): void {
+  analytics.capture("onboarding_step_completed", {
+    step: currentStep.value,
+    total_steps: TOTAL_STEPS,
+    direction: "skip",
+  });
   skip();
 }
 
 /** Completes the wizard and marks it as done in persistent storage. */
 function onComplete(): void {
+  analytics.capture("onboarding_step_completed", {
+    step: currentStep.value,
+    total_steps: TOTAL_STEPS,
+    direction: "complete",
+  });
   complete();
 }
 </script>

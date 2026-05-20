@@ -3,7 +3,10 @@ import { CheckCircle2 } from "lucide-vue-next";
 import { NButton } from "naive-ui";
 import { useQueryClient } from "@tanstack/vue-query";
 
+import { useAnalytics } from "~/composables/useAnalytics/useAnalytics";
+
 const { t } = useI18n();
+const analytics = useAnalytics();
 
 definePageMeta({
   middleware: ["authenticated"],
@@ -18,6 +21,13 @@ useSeoMeta({
 // plan without requiring a manual page refresh.
 const queryClient = useQueryClient();
 onMounted(async () => {
+  // #524 — Asaas redirects to this page after a confirmed payment. The
+  // webhook is the source-of-truth for entitlement state on the server;
+  // this client event mirrors that success so funnel time-to-conversion
+  // is computable from PostHog alone (without joining server logs).
+  analytics.capture("upgrade_completed", {
+    source: "checkout-success-page",
+  });
   await queryClient.invalidateQueries({ queryKey: ["subscription", "me"] });
 });
 </script>

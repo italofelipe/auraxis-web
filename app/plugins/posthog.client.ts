@@ -7,6 +7,11 @@ import {
 /**
  * Named analytics events emitted throughout the application.
  * Extending this union keeps the event catalog type-safe and discoverable.
+ *
+ * The conversion funnel events (onboarding → first transaction → paywall →
+ * upgrade) feed the PostHog dashboard tracked in issue #524. Their names
+ * are stable contracts — renaming requires migrating saved PostHog funnels
+ * + insights at the same time.
  */
 export type AuraxisEvent =
   | "user_signed_in"
@@ -17,7 +22,13 @@ export type AuraxisEvent =
   | "goals_viewed"
   | "simulations_viewed"
   | "subscription_viewed"
-  | "error_boundary_triggered";
+  | "error_boundary_triggered"
+  // ── Conversion funnel (#524) ──────────────────────────────────────────
+  | "onboarding_step_completed"
+  | "first_transaction_created"
+  | "paywall_shown"
+  | "upgrade_clicked"
+  | "upgrade_completed";
 
 /** Typed analytics client exposed as `$analytics` in the Nuxt app. */
 export interface AnalyticsClient {
