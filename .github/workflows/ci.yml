@@ -312,7 +312,7 @@ jobs:
             }
 
             const fmt = (b) => b === 0 ? 'N/A' : (b / 1024).toFixed(1) + ' KB';
-            const pub = getDirSize('.output/public');
+            const pub = getDirSize('.output/public/_nuxt');
             const srv = getDirSize('.output/server');
 
             const body = [
@@ -320,11 +320,11 @@ jobs:
               '',
               '| Asset | Size |',
               '|:------|-----:|',
-              `| Public (client JS/CSS) | ${fmt(pub)} |`,
+              `| Client assets (_nuxt) | ${fmt(pub)} |`,
               `| Server bundle | ${fmt(srv)} |`,
               `| **Total** | **${fmt(pub + srv)}** |`,
               '',
-              '> Thresholds: public ≤ 10 MB (aviso) · ≤ 12 MB (hard limit)',
+              '> Thresholds: client assets ≤ 10 MB (aviso) · ≤ 12 MB (hard limit)',
             ].join('\n');
 
             if (context.eventName === 'pull_request') {
@@ -344,10 +344,10 @@ jobs:
             }
 
             if (pub > 10 * 1024 * 1024) {
-              core.warning(`Public bundle above recommended size: ${fmt(pub)} (recommended: ≤ 10 MB)`);
+              core.warning(`Client assets above recommended size: ${fmt(pub)} (recommended: ≤ 10 MB)`);
             }
             if (pub > 12 * 1024 * 1024) {
-              core.setFailed(`Public bundle too large: ${fmt(pub)} (limit: 12 MB)`);
+              core.setFailed(`Client assets too large: ${fmt(pub)} (limit: 12 MB)`);
             }
 
   # ── 6. Secret Scan (Gitleaks) ──────────────────────────────────────────
@@ -525,6 +525,7 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+          overwrite: true
 
   # ── 12. Commit lint ────────────────────────────────────────────────────
   commitlint:
