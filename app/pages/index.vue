@@ -5,8 +5,11 @@ import {
   CalendarCheck,
   CheckCircle2,
   LockKeyhole,
+  PiggyBank,
+  ShieldCheck,
   Sparkles,
   Target,
+  TrendingUp,
   WalletCards,
 } from "lucide-vue-next";
 import { useLoginMutation } from "~/composables/useAuth";
@@ -44,19 +47,37 @@ const { getErrorMessage } = useApiError();
 
 const appHighlights = [
   {
-    icon: BarChart3,
-    title: "Dashboard claro",
-    text: "Veja saldo, entradas, saídas e sinais importantes sem garimpar planilhas.",
+    icon: CalendarCheck,
+    title: "Seu mês em ordem",
+    text: "Veja o que entrou, saiu e ainda precisa de atenção antes do fechamento.",
   },
   {
-    icon: CalendarCheck,
-    title: "Rotina organizada",
-    text: "Registre pagamentos, recebimentos e períodos para manter seu mês sob controle.",
+    icon: PiggyBank,
+    title: "Metas que saem do papel",
+    text: "Acompanhe objetivos, aportes e progresso com uma leitura simples.",
   },
   {
     icon: Sparkles,
-    title: "Insights com contexto",
-    text: "Quando autorizado, a IA ajuda a apontar padrões e próximos pontos de atenção.",
+    title: "Insights com consentimento",
+    text: "Use IA para encontrar padrões quando você quiser e autorizar.",
+  },
+] as const;
+
+const appPreviewStats = [
+  {
+    label: "Saldo previsto",
+    value: "R$ 8.420",
+    tone: "neutral",
+  },
+  {
+    label: "Meta reserva",
+    value: "78%",
+    tone: "positive",
+  },
+  {
+    label: "Atenções",
+    value: "3",
+    tone: "warning",
   },
 ] as const;
 
@@ -127,20 +148,83 @@ async function onLoginSubmit(values: LoginSchema): Promise<void> {
 <template>
   <div v-if="isAppSurface" class="app-home">
     <section class="app-home__shell" aria-labelledby="app-home-title">
-      <div class="app-home__copy">
-        <h1 id="app-home-title">Entre no Auraxis</h1>
-        <p class="app-home__lead">
-          Acesse seu painel financeiro, registre movimentações e acompanhe metas com clareza.
-        </p>
+      <div class="app-home__product">
+        <div class="app-home__copy">
+          <h1 id="app-home-title">Organize suas finanças com clareza.</h1>
+          <p class="app-home__lead">
+            Entre para acompanhar seu mês, revisar movimentações, cumprir metas e transformar dados financeiros em decisões mais tranquilas.
+          </p>
 
-        <div class="app-home__actions" aria-label="Ações de acesso">
-          <NuxtLink to="/register" class="app-home__link app-home__link--primary">
-            Criar conta gratuita
-            <ArrowRight :size="16" aria-hidden="true" />
-          </NuxtLink>
-          <NuxtLink to="/forgot-password" class="app-home__link">
-            Esqueci minha senha
-          </NuxtLink>
+          <div class="app-home__actions" aria-label="Ações de acesso">
+            <NuxtLink to="/register" class="app-home__link app-home__link--primary">
+              Criar conta gratuita
+              <ArrowRight :size="16" aria-hidden="true" />
+            </NuxtLink>
+            <NuxtLink to="/forgot-password" class="app-home__link">
+              Recuperar acesso
+            </NuxtLink>
+          </div>
+        </div>
+
+        <div class="app-home__preview" aria-label="Prévia do painel financeiro Auraxis">
+          <div class="app-home__preview-topbar">
+            <div>
+              <strong>Maio de 2026</strong>
+              <span>Resumo financeiro</span>
+            </div>
+            <span class="app-home__preview-chip">
+              <ShieldCheck :size="14" aria-hidden="true" />
+              Dados protegidos
+            </span>
+          </div>
+
+          <div class="app-home__preview-stats">
+            <article
+              v-for="item in appPreviewStats"
+              :key="item.label"
+              class="app-home__preview-stat"
+              :class="`app-home__preview-stat--${item.tone}`"
+            >
+              <span>{{ item.label }}</span>
+              <strong>{{ item.value }}</strong>
+            </article>
+          </div>
+
+          <div class="app-home__preview-chart" aria-hidden="true">
+            <svg viewBox="0 0 640 210" role="img">
+              <defs>
+                <linearGradient id="appHomeChartFill" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stop-color="#36c8ea" stop-opacity="0.28" />
+                  <stop offset="100%" stop-color="#36c8ea" stop-opacity="0" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M18 167 C90 144 120 126 184 134 C244 142 278 104 336 94 C410 80 444 118 506 92 C556 70 596 54 622 44"
+                fill="none"
+                stroke="#087fa7"
+                stroke-width="7"
+                stroke-linecap="round"
+              />
+              <path
+                d="M18 167 C90 144 120 126 184 134 C244 142 278 104 336 94 C410 80 444 118 506 92 C556 70 596 54 622 44 L622 196 L18 196 Z"
+                fill="url(#appHomeChartFill)"
+              />
+              <path
+                d="M24 52 H616 M24 100 H616 M24 148 H616 M24 196 H616"
+                stroke="currentColor"
+                stroke-dasharray="5 10"
+                stroke-width="1"
+              />
+            </svg>
+          </div>
+
+          <div class="app-home__preview-insight">
+            <Sparkles :size="18" aria-hidden="true" />
+            <div>
+              <strong>Insight recente</strong>
+              <span>Despesas fixas subiram 8% neste mês. Vale revisar assinaturas antes do fechamento.</span>
+            </div>
+          </div>
         </div>
 
         <div class="app-home__highlights" aria-label="O que você encontra no app">
@@ -155,6 +239,13 @@ async function onLoginSubmit(values: LoginSchema): Promise<void> {
       </div>
 
       <aside class="app-home__login" aria-label="Login no Auraxis">
+        <div class="app-home__login-head">
+          <TrendingUp :size="20" aria-hidden="true" />
+          <div>
+            <strong>Bom te ver de volta</strong>
+            <span>Continue sua rotina financeira no Auraxis.</span>
+          </div>
+        </div>
         <LoginForm :loading="loginMutation.isPending.value" @submit="onLoginSubmit" />
       </aside>
     </section>
@@ -291,19 +382,35 @@ async function onLoginSubmit(values: LoginSchema): Promise<void> {
 }
 
 .app-home {
-  padding-block: var(--space-8);
+  min-height: calc(100dvh - 74px);
+  padding-block: clamp(var(--space-6), 5vw, var(--space-10));
+  background:
+    linear-gradient(var(--app-home-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--app-home-grid-line) 1px, transparent 1px),
+    linear-gradient(115deg, rgba(8, 127, 167, 0.12), transparent 34%),
+    linear-gradient(245deg, rgba(8, 127, 91, 0.1), transparent 36%),
+    var(--color-bg-base);
+  background-size: 48px 48px, 48px 48px, auto, auto, auto;
+  --app-home-grid-line: color-mix(in srgb, var(--color-text-primary) 4%, transparent);
 }
 
 .app-home__shell {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(360px, 500px);
-  gap: var(--space-7);
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 450px);
+  gap: clamp(var(--space-6), 5vw, var(--space-10));
   align-items: center;
+}
+
+.app-home__product {
+  display: grid;
+  gap: clamp(var(--space-5), 4vw, var(--space-7));
+  min-width: 0;
 }
 
 .app-home__copy {
   display: grid;
-  gap: var(--space-5);
+  gap: var(--space-4);
+  max-width: 740px;
 }
 
 .app-home__copy h1,
@@ -317,7 +424,9 @@ async function onLoginSubmit(values: LoginSchema): Promise<void> {
 }
 
 .app-home__copy h1 {
-  font-size: var(--font-size-4xl);
+  max-width: 13ch;
+  font-size: clamp(2.5rem, 6vw, 5.4rem);
+  letter-spacing: -0.035em;
 }
 
 .app-home__lead,
@@ -366,12 +475,177 @@ async function onLoginSubmit(values: LoginSchema): Promise<void> {
   border-color: rgba(68, 212, 255, 0.45);
 }
 
+.app-home__link:focus-visible,
+.marketing-button:focus-visible {
+  outline: 3px solid var(--color-brand-glow-md);
+  outline-offset: 3px;
+}
+
 .app-home__link--primary,
 .marketing-button--primary {
   border-color: transparent;
   background: linear-gradient(135deg, #44d4ff, #42e8a9);
   color: #051220;
   box-shadow: 0 18px 44px rgba(68, 212, 255, 0.22);
+}
+
+.app-home__preview {
+  position: relative;
+  display: grid;
+  gap: var(--space-4);
+  width: min(100%, 820px);
+  padding: clamp(var(--space-4), 3vw, var(--space-6));
+  border: 1px solid color-mix(in srgb, var(--color-brand-500) 20%, var(--color-outline-soft));
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(248, 251, 255, 0.78)),
+    var(--color-bg-surface);
+  box-shadow:
+    0 26px 80px rgba(10, 22, 40, 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  overflow: hidden;
+}
+
+.app-home__preview::after {
+  content: "";
+  position: absolute;
+  inset: auto -18% -42% 34%;
+  height: 220px;
+  background: linear-gradient(90deg, rgba(54, 200, 234, 0.18), rgba(8, 127, 91, 0.13));
+  filter: blur(54px);
+  pointer-events: none;
+}
+
+.app-home__preview-topbar,
+.app-home__preview-stats,
+.app-home__preview-insight {
+  position: relative;
+  z-index: 1;
+}
+
+.app-home__preview-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.app-home__preview-topbar div,
+.app-home__preview-insight div {
+  display: grid;
+  gap: 2px;
+}
+
+.app-home__preview-topbar strong {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.app-home__preview-topbar span,
+.app-home__preview-stat span,
+.app-home__preview-insight span {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-body-sm);
+}
+
+.app-home__preview-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 0 0 auto;
+  min-height: 34px;
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-full);
+  background: var(--color-positive-bg);
+  color: var(--color-positive);
+  font-weight: var(--font-weight-semibold);
+}
+
+.app-home__preview-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.app-home__preview-stat {
+  display: grid;
+  gap: var(--space-2);
+  min-height: 116px;
+  padding: var(--space-4);
+  border: 1px solid var(--color-outline-soft);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.app-home__preview-stat strong {
+  align-self: end;
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  font-size: clamp(var(--font-size-2xl), 3vw, var(--font-size-3xl));
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.02em;
+}
+
+.app-home__preview-stat--positive strong {
+  color: var(--color-positive);
+}
+
+.app-home__preview-stat--warning strong {
+  color: var(--color-warning-text);
+}
+
+.app-home__preview-chart {
+  position: relative;
+  z-index: 1;
+  min-height: 190px;
+  border: 1px solid var(--color-outline-soft);
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(180deg, rgba(8, 127, 167, 0.08), rgba(8, 127, 167, 0.02)),
+    rgba(255, 255, 255, 0.64);
+  color: color-mix(in srgb, var(--color-text-muted) 22%, transparent);
+  overflow: hidden;
+}
+
+.app-home__preview-chart svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 190px;
+}
+
+.app-home__preview-insight {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+  width: min(100%, 560px);
+  margin-top: calc(var(--space-2) * -1);
+  margin-left: auto;
+  padding: var(--space-4);
+  border: 1px solid color-mix(in srgb, var(--color-brand-500) 18%, var(--color-outline-soft));
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-bg-surface) 88%, var(--color-brand-300));
+  box-shadow: 0 18px 46px rgba(10, 22, 40, 0.1);
+}
+
+.app-home__preview-insight svg {
+  display: grid;
+  place-self: center;
+  width: 42px;
+  height: 42px;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  background: var(--color-brand-hover-surface);
+  color: var(--color-brand-500);
+}
+
+.app-home__preview-insight strong {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
 }
 
 .marketing-button--secondary {
@@ -381,22 +655,28 @@ async function onLoginSubmit(values: LoginSchema): Promise<void> {
 
 .app-home__highlights {
   display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-3);
 }
 
 .app-home__highlight {
   display: grid;
-  grid-template-columns: 40px 1fr;
-  gap: var(--space-3);
-  align-items: start;
+  gap: var(--space-4);
+  align-content: start;
   padding: var(--space-4);
   border: 1px solid var(--color-outline-soft);
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.025);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-bg-surface) 84%, transparent);
+  box-shadow: 0 12px 30px rgba(10, 22, 40, 0.07);
 }
 
 .app-home__highlight svg {
-  margin-top: 2px;
+  display: grid;
+  width: 42px;
+  height: 42px;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  background: var(--color-brand-hover-surface);
   color: var(--color-brand-500);
 }
 
@@ -420,7 +700,51 @@ async function onLoginSubmit(values: LoginSchema): Promise<void> {
 }
 
 .app-home__login :deep(.auth-card) {
+  border-radius: var(--radius-xl);
+  box-shadow: 0 28px 80px rgba(10, 22, 40, 0.16);
+}
+
+.app-home__login {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.app-home__login-head {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-4);
+  border: 1px solid var(--color-outline-soft);
   border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-bg-surface) 84%, transparent);
+  box-shadow: 0 14px 36px rgba(10, 22, 40, 0.08);
+}
+
+.app-home__login-head svg {
+  width: 44px;
+  height: 44px;
+  padding: 11px;
+  border-radius: var(--radius-md);
+  background: var(--color-positive-bg);
+  color: var(--color-positive);
+}
+
+.app-home__login-head div {
+  display: grid;
+  gap: 2px;
+}
+
+.app-home__login-head strong {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+}
+
+.app-home__login-head span {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-body-sm);
 }
 
 .marketing-hero {
@@ -574,8 +898,33 @@ async function onLoginSubmit(values: LoginSchema): Promise<void> {
     grid-template-columns: 1fr;
   }
 
+  .app-home__shell {
+    align-items: start;
+  }
+
+  .app-home__product {
+    display: contents;
+  }
+
+  .app-home__copy h1 {
+    max-width: 16ch;
+  }
+
+  .app-home__copy {
+    order: 1;
+  }
+
   .app-home__login {
-    order: -1;
+    order: 2;
+  }
+
+  .app-home__preview {
+    order: 3;
+  }
+
+  .app-home__highlights {
+    order: 4;
+    grid-template-columns: 1fr;
   }
 
   .marketing-benefits,
@@ -593,9 +942,16 @@ async function onLoginSubmit(values: LoginSchema): Promise<void> {
     padding-block: var(--space-5);
   }
 
-  .app-home__copy h1,
+  .app-home__copy h1 {
+    font-size: clamp(2.35rem, 13vw, 3.4rem);
+  }
+
   .marketing-hero__copy h1 {
     font-size: var(--font-size-heading-xl);
+  }
+
+  .app-home__lead {
+    font-size: var(--font-size-md);
   }
 
   .app-home__actions,
@@ -606,6 +962,37 @@ async function onLoginSubmit(values: LoginSchema): Promise<void> {
   .app-home__link,
   .marketing-button {
     width: 100%;
+  }
+
+  .app-home__preview {
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+  }
+
+  .app-home__preview-topbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .app-home__preview-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .app-home__preview-stat {
+    min-height: 86px;
+  }
+
+  .app-home__preview-chart {
+    min-height: 160px;
+  }
+
+  .app-home__preview-chart svg {
+    min-height: 160px;
+  }
+
+  .app-home__preview-insight {
+    grid-template-columns: 1fr;
+    margin-left: 0;
   }
 
   .marketing-hero,
