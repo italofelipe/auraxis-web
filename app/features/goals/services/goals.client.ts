@@ -16,6 +16,15 @@ type ApiEnvelope<T> = {
   readonly success?: boolean;
 };
 
+type GoalWireDto = Omit<GoalDto, "name"> & {
+  readonly name?: string;
+  readonly title?: string;
+};
+
+type GoalWirePayload = Omit<UpdateGoalPayload, "name"> & {
+  readonly title?: string;
+};
+
 /**
  * Extracts the payload from the v2 API envelope while accepting legacy flat mocks.
  *
@@ -33,6 +42,35 @@ const unwrapApiEnvelope = <T>(payload: ApiEnvelope<T> | T): T => {
   }
 
   return payload as T;
+};
+
+/**
+ * Normalizes the goals API contract into the UI contract.
+ *
+ * The v2 API uses `title`; older mocks and UI components still use `name`.
+ * Keeping that translation at the client boundary avoids leaking wire details
+ * into the screen and form code.
+ *
+ * @param goal Raw goal returned by the API or tests.
+ * @returns GoalDto consumed by the UI.
+ */
+const normalizeGoal = (goal: GoalWireDto | GoalDto): GoalDto => {
+  const { title, name, ...rest } = goal as GoalWireDto;
+  return {
+    ...rest,
+    name: name ?? title ?? "",
+  };
+};
+
+/**
+ * Converts UI goal payloads to the v2 API payload shape.
+ *
+ * @param payload Goal payload produced by forms/composables.
+ * @returns Payload using `title` instead of the UI-only `name`.
+ */
+const toGoalWirePayload = (payload: CreateGoalPayload | UpdateGoalPayload): GoalWirePayload => {
+  const { name, ...rest } = payload;
+  return name === undefined ? rest : { ...rest, title: name };
 };
 
 /**
@@ -57,8 +95,8 @@ export class GoalsClient {
    * @returns Array of GoalDto objects.
    */
   async listGoals(): Promise<GoalDto[]> {
-    const response = await this.#http.get<GoalDto[]>("/goals");
-    return response.data;
+    const response = await this.#http.get<ApiEnvelope<GoalWireDto[]> | GoalWireDto[]>("/goals");
+    return unwrapApiEnvelope<GoalWireDto[]>(response.data).map(normalizeGoal);
   }
 
   /**
@@ -68,8 +106,11 @@ export class GoalsClient {
    * @returns Created GoalDto.
    */
   async createGoal(payload: CreateGoalPayload): Promise<GoalDto> {
-    const response = await this.#http.post<GoalDto>("/goals", payload);
-    return response.data;
+    const response = await this.#http.post<ApiEnvelope<GoalWireDto> | GoalWireDto>(
+      "/goals",
+      toGoalWirePayload(payload),
+    );
+    return normalizeGoal(unwrapApiEnvelope<GoalWireDto>(response.data));
   }
 
   /**
@@ -80,8 +121,11 @@ export class GoalsClient {
    * @returns Updated GoalDto.
    */
   async updateGoal(id: string, payload: UpdateGoalPayload): Promise<GoalDto> {
-    const response = await this.#http.patch<GoalDto>(`/goals/${id}`, payload);
-    return response.data;
+    const response = await this.#http.patch<ApiEnvelope<GoalWireDto> | GoalWireDto>(
+      `/goals/${id}`,
+      toGoalWirePayload(payload),
+    );
+    return normalizeGoal(unwrapApiEnvelope<GoalWireDto>(response.data));
   }
 
   /**

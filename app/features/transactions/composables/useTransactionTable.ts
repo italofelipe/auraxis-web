@@ -27,6 +27,11 @@ const SWIPE_HORIZONTAL_DOMINANCE = 1.5;
 
 export type SwipeGestureAction = "delete" | "mark-paid" | null;
 
+export interface PaidStatusFeedback {
+  readonly label: "Pago" | "Recebido";
+  readonly title: string;
+}
+
 /**
  * Resolves whether a touch gesture is an intentional horizontal row action.
  *
@@ -60,6 +65,26 @@ export function resolveSwipeGestureAction(deltaX: number, deltaY: number): Swipe
  */
 export function formatTransactionDate(isoDate: string): string {
   return new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(`${isoDate}T00:00:00`));
+}
+
+/**
+ * Builds the compact paid/received chip metadata used in transaction rows.
+ *
+ * @param row Transaction row data.
+ * @returns Label and tooltip title, or null when the transaction is not paid.
+ */
+export function buildPaidStatusFeedback(row: TransactionDto): PaidStatusFeedback | null {
+  if (row.status !== "paid") {
+    return null;
+  }
+
+  const label = row.type === "income" ? "Recebido" : "Pago";
+  if (!row.paid_at) {
+    return { label, title: label };
+  }
+
+  const paidDate = row.paid_at.slice(0, 10);
+  return { label, title: `${label} em ${formatTransactionDate(paidDate)}` };
 }
 
 /**
@@ -190,7 +215,14 @@ function buildRowProps(row: TransactionDto, drag: DragState, opts: Pick<UseTrans
   };
 
   return {
-    class: ["tx-table-row", dragSourceId.value === row.id ? "tx-table-row--dragging" : "", dragTargetId.value === row.id && dragSourceId.value !== row.id ? "tx-table-row--drag-over" : "", swipingRowId.value === row.id && swipeDir.value === "right" ? "tx-table-row--swiping-right" : "", swipingRowId.value === row.id && swipeDir.value === "left" ? "tx-table-row--swiping-left" : ""].filter(Boolean).join(" "),
+    class: [
+      "tx-table-row",
+      row.status === "paid" ? "tx-table-row--paid" : "",
+      dragSourceId.value === row.id ? "tx-table-row--dragging" : "",
+      dragTargetId.value === row.id && dragSourceId.value !== row.id ? "tx-table-row--drag-over" : "",
+      swipingRowId.value === row.id && swipeDir.value === "right" ? "tx-table-row--swiping-right" : "",
+      swipingRowId.value === row.id && swipeDir.value === "left" ? "tx-table-row--swiping-left" : "",
+    ].filter(Boolean).join(" "),
     draggable: reorderMode.value,
     onDragstart: (e: DragEvent): void => { if (!reorderMode.value) { e.preventDefault(); return; } dragSourceId.value = row.id; if (e.dataTransfer) { e.dataTransfer.effectAllowed = "move"; } },
     onDragover: (e: DragEvent): void => { if (!reorderMode.value) { return; } e.preventDefault(); dragTargetId.value = row.id; if (e.dataTransfer) { e.dataTransfer.dropEffect = "move"; } },
@@ -258,8 +290,14 @@ function renderAmount(row: TransactionDto): ReturnType<typeof h> {
  * @returns VNode for the title cell.
  */
 function renderTitle(row: TransactionDto, t: (key: string, ctx?: Record<string, unknown>) => string): ReturnType<typeof h> {
+  const paidFeedback = buildPaidStatusFeedback(row);
   return h("div", { class: "tx-title-cell" }, [
-    h("span", { class: "tx-title-cell__name" }, row.title),
+    h("span", { class: "tx-title-cell__heading" }, [
+      h("span", { class: "tx-title-cell__name" }, row.title),
+      paidFeedback
+        ? h("span", { class: "tx-paid-chip", title: paidFeedback.title }, paidFeedback.label)
+        : null,
+    ]),
     row.is_recurring ? h("span", { class: "tx-badge" }, [h(RefreshCw, { size: 9 }), t("transactions.recurring")]) : null,
     row.is_installment && row.installment_count ? h("span", { class: "tx-badge" }, t("transactions.installment", { count: row.installment_count })) : null,
   ]);
@@ -286,7 +324,9 @@ function renderActions(
     default: () => [
       h(NButton, { size: "tiny", quaternary: true, circle: true, title: editLabel, "aria-label": editLabel, onClick: () => opts.onEdit(row) }, { default: () => h(Pencil, { size: 13 }) }),
       h(NButton, { size: "tiny", quaternary: true, circle: true, title: duplicateLabel, "aria-label": duplicateLabel, loading: opts.duplicateMutation.isPending.value, onClick: () => opts.onDuplicate(row) }, { default: () => h(Copy, { size: 13 }) }),
-      h(NButton, { size: "tiny", quaternary: true, circle: true, type: "success", disabled: row.status === "paid" || opts.markPaidMutation.isPending.value, title: markPaidLabel, "aria-label": markPaidLabel, onClick: () => opts.onMarkPaid(row) }, { default: () => h(Check, { size: 13 }) }),
+      row.status === "paid"
+        ? null
+        : h(NButton, { size: "tiny", quaternary: true, circle: true, type: "success", disabled: opts.markPaidMutation.isPending.value, title: markPaidLabel, "aria-label": markPaidLabel, onClick: () => opts.onMarkPaid(row) }, { default: () => h(Check, { size: 13 }) }),
       h(NButton, { size: "tiny", quaternary: true, circle: true, type: "error", loading: opts.deleteMutation.isPending.value && opts.deleteTarget.value?.id === row.id, title: deleteLabel, "aria-label": deleteLabel, onClick: () => opts.onDelete(row) }, { default: () => h(Trash2, { size: 13 }) }),
     ],
   });

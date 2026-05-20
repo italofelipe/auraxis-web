@@ -101,7 +101,7 @@ const globalStubs = {
     template: "<div v-if=\"open\" data-testid=\"profile-modal\"><button data-testid=\"close-modal\" @click=\"$emit('close')\" /><button data-testid=\"saved-modal\" @click=\"$emit('saved')\" /></div>",
   },
   BillingStatusBanner: true,
-  EmailConfirmationBanner: true,
+  EmailConfirmationModal: true,
   AdminImpersonationBanner: true,
 };
 

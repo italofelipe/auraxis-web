@@ -4,6 +4,8 @@ interface SessionState {
   accessToken: string | null;
   userEmail: string | null;
   emailConfirmed: boolean | null;
+  emailConfirmationDeadlineAt: string | null;
+  emailConfirmationBlocked: boolean;
 }
 
 /** Parameters for the signIn action. */
@@ -14,6 +16,10 @@ export interface SignInParams {
   readonly userEmail: string;
   /** Whether the user's email has been verified. */
   readonly emailConfirmed?: boolean;
+  /** Deadline returned by the backend for mandatory email confirmation. */
+  readonly emailConfirmationDeadlineAt?: string | null;
+  /** True when the backend has blocked access until confirmation. */
+  readonly emailConfirmationBlocked?: boolean;
   /**
    * @deprecated Ignored since SEC-GAP-01. The refresh token is now managed as
    * an httpOnly cookie set server-side by POST /auth/login and
@@ -48,6 +54,8 @@ export const useSessionStore = defineStore("session", {
     accessToken: null,
     userEmail: null,
     emailConfirmed: null,
+    emailConfirmationDeadlineAt: null,
+    emailConfirmationBlocked: false,
   }),
   getters: {
     isAuthenticated: (state): boolean => state.accessToken !== null,
@@ -69,6 +77,8 @@ export const useSessionStore = defineStore("session", {
       this.accessToken = params.accessToken;
       this.userEmail = params.userEmail;
       this.emailConfirmed = params.emailConfirmed ?? null;
+      this.emailConfirmationDeadlineAt = params.emailConfirmationDeadlineAt ?? null;
+      this.emailConfirmationBlocked = params.emailConfirmationBlocked ?? false;
       // SEC-GAP-01 migration: wipe the old non-httpOnly cookie so tokens are
       // no longer stored in JavaScript-readable browser storage.
       clearLegacyCookie();
@@ -87,6 +97,8 @@ export const useSessionStore = defineStore("session", {
       this.accessToken = null;
       this.userEmail = null;
       this.emailConfirmed = null;
+      this.emailConfirmationDeadlineAt = null;
+      this.emailConfirmationBlocked = false;
       clearLegacyCookie();
     },
   },

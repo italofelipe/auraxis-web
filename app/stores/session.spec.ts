@@ -62,11 +62,15 @@ describe("session store (split-token, SEC-GAP-01)", () => {
         accessToken: "tok-123",
         userEmail: "user@auraxis.com",
         emailConfirmed: true,
+        emailConfirmationDeadlineAt: "2026-06-03T10:00:00Z",
+        emailConfirmationBlocked: false,
       });
 
       expect(store.accessToken).toBe("tok-123");
       expect(store.userEmail).toBe("user@auraxis.com");
       expect(store.emailConfirmed).toBe(true);
+      expect(store.emailConfirmationDeadlineAt).toBe("2026-06-03T10:00:00Z");
+      expect(store.emailConfirmationBlocked).toBe(false);
     });
 
     it("marks isAuthenticated as true after sign-in", () => {
@@ -113,15 +117,23 @@ describe("session store (split-token, SEC-GAP-01)", () => {
   // ─── signOut ──────────────────────────────────────────────────────────────
 
   describe("signOut", () => {
-    it("clears accessToken, userEmail and emailConfirmed from state", () => {
+    it("clears accessToken, userEmail and confirmation metadata from state", () => {
       const store = useSessionStore();
-      store.signIn({ accessToken: "tok-123", userEmail: "user@auraxis.com" });
+      store.signIn({
+        accessToken: "tok-123",
+        userEmail: "user@auraxis.com",
+        emailConfirmed: false,
+        emailConfirmationDeadlineAt: "2026-06-03T10:00:00Z",
+        emailConfirmationBlocked: true,
+      });
 
       store.signOut();
 
       expect(store.accessToken).toBeNull();
       expect(store.userEmail).toBeNull();
       expect(store.emailConfirmed).toBeNull();
+      expect(store.emailConfirmationDeadlineAt).toBeNull();
+      expect(store.emailConfirmationBlocked).toBe(false);
     });
 
     it("marks isAuthenticated as false after sign-out", () => {

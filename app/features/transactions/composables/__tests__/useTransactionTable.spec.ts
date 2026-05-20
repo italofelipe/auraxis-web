@@ -4,6 +4,7 @@ import type { TransactionDto } from "~/features/transactions/contracts/transacti
 import {
   darkenHex,
   formatTransactionDate,
+  buildPaidStatusFeedback,
   isTransactionNearDue,
   isTransactionOverdue,
   renderTagBadge,
@@ -119,6 +120,46 @@ describe("renderTagBadge", () => {
     expect(JSON.stringify(result)).toContain("Urgent");
     // Style string includes the background colour + 20 alpha suffix
     expect(JSON.stringify(result)).toContain("#FF6B6B20");
+  });
+});
+
+describe("buildPaidStatusFeedback", () => {
+  /**
+   * Builds a minimal transaction fixture for paid-feedback tests.
+   *
+   * @param overrides Transaction fields to override.
+   * @returns Transaction DTO fixture.
+   */
+  function buildTx(overrides: Partial<TransactionDto> = {}): TransactionDto {
+    return {
+      id: "tx-paid-1",
+      title: "IPTU",
+      amount: "2580.00",
+      type: "expense",
+      status: "paid",
+      due_date: "2026-05-11",
+      paid_at: "2026-05-10T00:00:00.000-03:00",
+      tag_id: null,
+      ...overrides,
+    } as unknown as TransactionDto;
+  }
+
+  it("returns Pago with payment date for paid expenses", () => {
+    expect(buildPaidStatusFeedback(buildTx())).toEqual({
+      label: "Pago",
+      title: "Pago em 10/05/2026",
+    });
+  });
+
+  it("returns Recebido with receipt date for paid income", () => {
+    expect(buildPaidStatusFeedback(buildTx({ type: "income" }))).toEqual({
+      label: "Recebido",
+      title: "Recebido em 10/05/2026",
+    });
+  });
+
+  it("returns null for pending transactions", () => {
+    expect(buildPaidStatusFeedback(buildTx({ status: "pending", paid_at: null }))).toBeNull();
   });
 });
 

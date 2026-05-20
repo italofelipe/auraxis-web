@@ -524,6 +524,7 @@ test.describe("Transactions — MSW-backed flows", () => {
 
 		expect(payload.status).toBe("paid");
 		expect(payload.paid_at).toContain("2026-05-10");
+		await expect(page.getByText("Pago", { exact: true })).toBeVisible({ timeout: 10_000 });
 	});
 
 	test("trash page lists soft-deleted transactions and restores them", async ({ page }) => {

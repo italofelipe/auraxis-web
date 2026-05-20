@@ -30,6 +30,12 @@ export {
 /** Shape of the data payload returned by POST /auth/refresh (v2 envelope). */
 interface RefreshResponseData {
   readonly token: string;
+  readonly user?: {
+    readonly email: string;
+    readonly email_confirmed?: boolean;
+    readonly email_confirmation_deadline_at?: string | null;
+    readonly email_confirmation_blocked?: boolean;
+  };
 }
 
 /** Full v2 envelope for the token-refresh endpoint. */
@@ -105,8 +111,18 @@ export const refreshAccessToken = async (
         headers,
       },
     );
-    const { token } = response.data.data;
-    sessionStore.updateTokens(token);
+    const { token, user } = response.data.data;
+    if (user) {
+      sessionStore.signIn({
+        accessToken: token,
+        userEmail: user.email,
+        emailConfirmed: user.email_confirmed,
+        emailConfirmationDeadlineAt: user.email_confirmation_deadline_at ?? null,
+        emailConfirmationBlocked: user.email_confirmation_blocked ?? false,
+      });
+    } else {
+      sessionStore.updateTokens(token);
+    }
     return token;
   } catch {
     sessionStore.signOut();

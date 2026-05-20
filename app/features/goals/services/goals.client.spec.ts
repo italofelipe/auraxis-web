@@ -27,7 +27,7 @@ describe("GoalsClient", () => {
   let client: GoalsClient;
 
   beforeEach(() => {
-    http = { get: vi.fn(), post: vi.fn() } as unknown as AxiosInstance;
+    http = { get: vi.fn(), post: vi.fn(), patch: vi.fn() } as unknown as AxiosInstance;
     client = new GoalsClient(http);
   });
 
@@ -48,6 +48,91 @@ describe("GoalsClient", () => {
       const result = await client.listGoals();
 
       expect(result).toEqual([]);
+    });
+
+    it("normalizes API title into the UI name field", async () => {
+      vi.mocked(http.get).mockResolvedValueOnce({
+        data: [
+          {
+            id: "goal-title-1",
+            title: "PC AMD",
+            description: null,
+            target_amount: 30000,
+            current_amount: 1500,
+            target_date: "2027-05-20",
+            status: "active",
+            created_at: "2026-05-20T10:00:00Z",
+          },
+        ],
+      });
+
+      const [goal] = await client.listGoals();
+
+      expect(goal?.name).toBe("PC AMD");
+    });
+  });
+
+  describe("createGoal", () => {
+    it("sends title to the API instead of the UI-only name field", async () => {
+      vi.mocked(http.post).mockResolvedValueOnce({
+        data: {
+          id: "goal-created-1",
+          title: "PC AMD",
+          description: "9950X3D",
+          target_amount: 30000,
+          current_amount: 1500,
+          target_date: "2027-05-20",
+          status: "active",
+          created_at: "2026-05-20T10:00:00Z",
+        },
+      });
+
+      const result = await client.createGoal({
+        name: "PC AMD",
+        description: "9950X3D",
+        target_amount: 30000,
+        current_amount: 1500,
+        target_date: "2027-05-20",
+      });
+
+      expect(http.post).toHaveBeenCalledWith("/goals", {
+        title: "PC AMD",
+        description: "9950X3D",
+        target_amount: 30000,
+        current_amount: 1500,
+        target_date: "2027-05-20",
+      });
+      expect(JSON.stringify(vi.mocked(http.post).mock.calls[0]?.[1])).not.toContain("\"name\"");
+      expect(result.name).toBe("PC AMD");
+    });
+  });
+
+  describe("updateGoal", () => {
+    it("maps partial name updates to title without sending name", async () => {
+      vi.mocked(http.patch).mockResolvedValueOnce({
+        data: {
+          id: "goal-001",
+          title: "Reserva revisada",
+          description: "6 meses de despesas.",
+          target_amount: 40000,
+          current_amount: 18500,
+          target_date: "2026-09-30",
+          status: "active",
+          created_at: "2025-11-01T10:00:00Z",
+        },
+      });
+
+      const result = await client.updateGoal("goal-001", {
+        name: "Reserva revisada",
+        target_amount: 40000,
+      });
+
+      expect(http.patch).toHaveBeenCalledWith("/goals/goal-001", {
+        title: "Reserva revisada",
+        target_amount: 40000,
+      });
+      expect(JSON.stringify(vi.mocked(http.patch).mock.calls[0]?.[1])).not.toContain("\"name\"");
+      expect(result.name).toBe("Reserva revisada");
     });
   });
 

@@ -9,6 +9,7 @@ import { createAuthApi } from "./api";
  * @param name User display name.
  * @param token Access token.
  * @param refreshToken Refresh token.
+ * @param confirmation Optional email-confirmation metadata.
  * @returns Mock resolved Axios-like response with v2 envelope.
  */
 function makeV2AuthResponse(
@@ -16,12 +17,26 @@ function makeV2AuthResponse(
   name: string,
   token = "mock-token",
   refreshToken = "mock-refresh",
+  confirmation = {
+    email_confirmed: undefined as boolean | undefined,
+    email_confirmation_deadline_at: undefined as string | undefined,
+    email_confirmation_blocked: undefined as boolean | undefined,
+  },
 ): { data: unknown } {
   return {
     data: {
       success: true,
       message: "OK",
-      data: { token, refresh_token: refreshToken, user: { id: "uuid-1", name, email } },
+      data: {
+        token,
+        refresh_token: refreshToken,
+        user: {
+          id: "uuid-1",
+          name,
+          email,
+          ...confirmation,
+        },
+      },
     },
   };
 }
@@ -74,6 +89,30 @@ describe("createAuthApi", () => {
     expect(response.refreshToken).toBe("mock-refresh");
     expect(response.user.email).toBe("user@auraxis.com");
     expect(response.user.displayName).toBe("Auraxis User");
+  });
+
+  it("login normalizes email-confirmation deadline and blocked metadata when present", async () => {
+    const post = vi.fn().mockResolvedValue(makeV2AuthResponse(
+      "pending@auraxis.com",
+      "Pending User",
+      "mock-token",
+      "mock-refresh",
+      {
+        email_confirmed: false,
+        email_confirmation_deadline_at: "2026-06-03T10:00:00Z",
+        email_confirmation_blocked: true,
+      },
+    ));
+    const authApi = createAuthApi({ post });
+
+    const response = await authApi.login({
+      email: "pending@auraxis.com",
+      password: "12345678",
+    });
+
+    expect(response.user.emailConfirmed).toBe(false);
+    expect(response.user.emailConfirmationDeadlineAt).toBe("2026-06-03T10:00:00Z");
+    expect(response.user.emailConfirmationBlocked).toBe(true);
   });
 
   it("register calls POST /auth/register and normalizes account creation without session tokens", async () => {

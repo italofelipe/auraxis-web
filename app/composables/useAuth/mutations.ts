@@ -48,6 +48,8 @@ export const useLoginMutation = (authApi?: AuthApi): LoginMutation => {
         refreshToken: response.refreshToken ?? null,
         userEmail: response.user.email,
         emailConfirmed: response.user.emailConfirmed,
+        emailConfirmationDeadlineAt: response.user.emailConfirmationDeadlineAt ?? null,
+        emailConfirmationBlocked: response.user.emailConfirmationBlocked ?? false,
       });
       analytics.identify(response.user.email);
       analytics.capture("user_signed_in", {
