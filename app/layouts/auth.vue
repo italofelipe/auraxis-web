@@ -3,7 +3,7 @@
 
 <template>
   <div class="auth-layout">
-    <!-- Left: brand panel (hidden on mobile) -->
+    <!-- Left: brand panel -->
     <div class="auth-layout__brand" aria-hidden="false">
       <AuthBrandPanel />
     </div>
@@ -54,19 +54,21 @@
   width: min(500px, 100%);
 }
 
-/* Mobile: single column, brand hidden */
+/* Mobile: single column with a compact brand prelude */
 @media (max-width: 860px) {
   .auth-layout {
     grid-template-columns: 1fr;
+    align-content: start;
   }
 
   .auth-layout__brand {
-    display: none;
+    display: flex;
+    min-height: auto;
   }
 
   .auth-layout__form {
-    min-height: 100dvh;
-    padding: var(--space-8) var(--space-4) var(--space-5);
+    min-height: auto;
+    padding: var(--space-5) var(--space-4) var(--space-7);
   }
 }
 
