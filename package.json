@@ -23,6 +23,8 @@
     "policy:check": "node scripts/check-frontend-governance.cjs",
     "audit:critical": "pnpm audit --audit-level=critical",
     "audit:high": "pnpm audit --audit-level=high",
+    "bundle:budget": "ANALYZE=true pnpm build && node scripts/analyze-bundle.cjs",
+    "lighthouse:budget": "pnpm dlx @lhci/cli@0.15.x autorun --config=.lighthouserc.yml",
     "codegen": "graphql-codegen --config codegen.ts",
     "codegen:check": "graphql-codegen --config codegen.ts && git diff --exit-code app/shared/types/generated/graphql.ts",
     "quality-check": "pnpm flags:check && pnpm i18n:check && pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm policy:check && pnpm contracts:check && pnpm codegen:check && pnpm build",
