@@ -47,13 +47,42 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
 }
 
 /**
+ * Backend body shape for a 403 EMAIL_VERIFICATION_REQUIRED response.
+ *
+ * Returned by mutation endpoints (transactions, goals, wallet, etc.) after
+ * the user's 14-day email-verification grace period has expired.
+ * See `auraxis-api/app/decorators/require_email_verified.py`.
+ */
+export interface EmailVerificationRequiredBody {
+  readonly error: "EMAIL_VERIFICATION_REQUIRED";
+  readonly message: string;
+  readonly deadline_passed_at: string | null;
+  readonly resend_endpoint: string;
+}
+
+/**
  * Callbacks injected into the global HTTP response interceptor.
  *
  * All handlers are optional — omitting one disables that automatic behavior.
  */
 export interface ResponseInterceptorOptions {
   /**
-   * Called when a response returns HTTP 403.
+   * Called when a 403 response carries an EMAIL_VERIFICATION_REQUIRED body.
+   * Used to open the global verification gate modal so the user can resend
+   * the confirmation email without bouncing on the generic 403 toast.
+   *
+   * When this handler is provided AND the body matches, `onForbidden` is NOT
+   * called for the same response.
+   *
+   * @param body Backend payload with deadline_passed_at and resend_endpoint.
+   */
+  readonly onEmailVerificationRequired?: (
+    body: EmailVerificationRequiredBody,
+  ) => void;
+
+  /**
+   * Called when a response returns HTTP 403 (other than
+   * EMAIL_VERIFICATION_REQUIRED, which has its own handler above).
    * Typically used to show a "no permission" toast.
    *
    * @param message Localised message to display.

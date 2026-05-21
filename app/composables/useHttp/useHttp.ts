@@ -3,6 +3,7 @@ import { useDialog, useMessage } from "naive-ui";
 
 import { createHttpClient } from "~/core/http/http-client";
 import { isAdminImpersonationReadOnlyActive } from "~/features/admin/impersonation/composables/use-admin-impersonation-session";
+import { useEmailVerificationGate } from "~/features/auth/composables/use-email-verification-gate";
 import { useSessionStore } from "~/stores/session";
 
 const DEFAULT_API_BASE = "http://localhost:5000";
@@ -149,6 +150,7 @@ export const refreshAccessToken = async (
 export const useHttp = (): AxiosInstance => {
   const runtimeConfig = useRuntimeConfig();
   const sessionStore = useSessionStore();
+  const verificationGate = useEmailVerificationGate();
   const message = useMessage();
   const dialog = useDialog();
   const { t } = useI18n();
@@ -178,6 +180,17 @@ export const useHttp = (): AxiosInstance => {
         }
 
         return newToken;
+      },
+      onEmailVerificationRequired: (body): void => {
+        // Mirror the soft-block state into the session store so any banner
+        // re-renders into "expired" mode without waiting for /user/me to refetch.
+        sessionStore.emailVerificationRequiredNow = true;
+        sessionStore.emailVerified = false;
+        verificationGate.open({
+          message: body.message,
+          deadlinePassedAt: body.deadline_passed_at,
+          resendEndpoint: body.resend_endpoint,
+        });
       },
       onForbidden: (msg: string): void => {
         message.error(msg, { duration: 5_000 });

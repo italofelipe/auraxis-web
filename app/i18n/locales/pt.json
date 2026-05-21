@@ -1090,7 +1090,28 @@
     },
     "emailBanner": {
       "message": "Confirme seu e-mail para garantir acesso completo à sua conta.",
-      "cta": "Confirmar e-mail"
+      "cta": "Confirmar e-mail",
+      "countdown": {
+        "one": "Falta {count} dia para confirmar seu e-mail.",
+        "other": "Faltam {count} dias para confirmar seu e-mail."
+      },
+      "urgent": {
+        "one": "Falta {count} dia! Sua conta entrará em modo somente-leitura.",
+        "other": "Faltam {count} dias! Sua conta entrará em modo somente-leitura."
+      },
+      "expired": "Sua conta está em modo somente-leitura. Confirme seu e-mail para continuar."
+    },
+    "emailGate": {
+      "title": "Confirme seu e-mail para continuar",
+      "body": "Sua conta passou pelo período de 14 dias sem confirmação. Para criar novas transações, metas e outras ações, confirme seu e-mail.",
+      "deadlinePassed": "Prazo expirou em {date}.",
+      "ctaResend": "Reenviar e-mail de confirmação",
+      "ctaResending": "Enviando…",
+      "ctaRefresh": "Já confirmei, atualizar",
+      "ctaRefreshing": "Verificando…",
+      "resendSuccess": "Reenviamos o e-mail de confirmação. Confira sua caixa de entrada.",
+      "resendError": "Não foi possível reenviar o e-mail agora. Tente novamente.",
+      "refreshHint": "Após confirmar pelo link no e-mail, clique aqui para atualizar."
     },
     "password": {
       "strength": {

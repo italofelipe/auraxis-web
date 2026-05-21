@@ -27,6 +27,7 @@ import { isFeatureEnabled } from "~/shared/feature-flags";
 import { useOnboarding } from "~/features/onboarding/composables/useOnboarding";
 import { useAdminAccess } from "~/features/admin/model/admin-access";
 import AdminImpersonationBanner from "~/features/admin/impersonation/components/AdminImpersonationBanner.vue";
+import EmailVerificationGate from "~/features/auth/components/EmailVerificationGate.vue";
 import OnboardingWizard from "~/features/onboarding/components/OnboardingWizard.vue";
 import OnboardingTriggerButton from "~/features/onboarding/components/OnboardingTriggerButton.vue";
 
@@ -144,6 +145,7 @@ function onReplayOnboarding(): void {
 <template>
   <div class="app-root">
     <AdminImpersonationBanner />
+    <EmailVerificationGate />
     <EmailConfirmationModal />
     <BillingStatusBanner />
     <UiAppShell

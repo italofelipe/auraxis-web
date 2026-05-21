@@ -139,6 +139,56 @@ describe("registerResponseInterceptors", () => {
     expect(onServerError).not.toHaveBeenCalled();
   });
 
+  it("delega para onEmailVerificationRequired em 403 com body EMAIL_VERIFICATION_REQUIRED", async () => {
+    const onEmailVerificationRequired = vi.fn();
+    client = axios.create({ baseURL: "http://localhost" });
+    onForbidden = vi.fn();
+    registerResponseInterceptors(client, {
+      onForbidden,
+      onServerError,
+      onEmailVerificationRequired,
+    });
+    const handler = getRejectedHandler(client);
+
+    const emailVerifyError = Object.assign(new Error("Forbidden"), {
+      isAxiosError: true,
+      response: {
+        status: 403,
+        data: {
+          error: "EMAIL_VERIFICATION_REQUIRED",
+          message: "Confirme seu email para continuar",
+          deadline_passed_at: "2026-05-20T10:00:00Z",
+          resend_endpoint: "/auth/email/resend",
+        },
+      },
+    });
+
+    await expect(handler(emailVerifyError)).rejects.toBeInstanceOf(ApiError);
+    expect(onEmailVerificationRequired).toHaveBeenCalledOnce();
+    expect(onEmailVerificationRequired).toHaveBeenCalledWith({
+      error: "EMAIL_VERIFICATION_REQUIRED",
+      message: "Confirme seu email para continuar",
+      deadline_passed_at: "2026-05-20T10:00:00Z",
+      resend_endpoint: "/auth/email/resend",
+    });
+    // Quando o gate handler atende, onForbidden NÃO deve ser chamado.
+    expect(onForbidden).not.toHaveBeenCalled();
+  });
+
+  it("usa onForbidden quando onEmailVerificationRequired não é fornecido (compat)", async () => {
+    // setup default: só onForbidden + onServerError registrados (sem handler do gate)
+    const handler = getRejectedHandler(client);
+    const emailVerifyError = Object.assign(new Error("Forbidden"), {
+      isAxiosError: true,
+      response: {
+        status: 403,
+        data: { error: "EMAIL_VERIFICATION_REQUIRED", message: "x" },
+      },
+    });
+    await expect(handler(emailVerifyError)).rejects.toBeInstanceOf(ApiError);
+    expect(onForbidden).toHaveBeenCalledOnce();
+  });
+
   it("chama onServerError com mensagem padrão e relança ApiError em 500", async () => {
     const handler = getRejectedHandler(client);
 

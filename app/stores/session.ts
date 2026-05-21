@@ -6,6 +6,12 @@ interface SessionState {
   emailConfirmed: boolean | null;
   emailConfirmationDeadlineAt: string | null;
   emailConfirmationBlocked: boolean;
+  // v3 canonical email_verification block (mirrors /user/me v3 response).
+  // Coexists with the legacy fields above during the migration window.
+  emailVerified: boolean;
+  emailVerificationDeadlineAt: string | null;
+  emailVerificationRequiredNow: boolean;
+  daysUntilEmailRequired: number | null;
 }
 
 /** Parameters for the signIn action. */
@@ -20,12 +26,31 @@ export interface SignInParams {
   readonly emailConfirmationDeadlineAt?: string | null;
   /** True when the backend has blocked access until confirmation. */
   readonly emailConfirmationBlocked?: boolean;
+  /** v3 canonical: whether email_verified_at is set. */
+  readonly emailVerified?: boolean;
+  /** v3 canonical: ISO datetime of the grace-period deadline. */
+  readonly emailVerificationDeadlineAt?: string | null;
+  /** v3 canonical: true when grace period has expired without verification. */
+  readonly emailVerificationRequiredNow?: boolean;
+  /** v3 canonical: countdown in days (can be negative). */
+  readonly daysUntilEmailRequired?: number | null;
   /**
    * @deprecated Ignored since SEC-GAP-01. The refresh token is now managed as
    * an httpOnly cookie set server-side by POST /auth/login and
    * POST /auth/refresh — it is never accessible from JavaScript.
    */
   readonly refreshToken?: string | null;
+}
+
+/**
+ * Shape of the canonical v3 email_verification block returned by /user/me.
+ * Used by `hydrateEmailVerification()` to keep the store in sync.
+ */
+export interface EmailVerificationHydration {
+  readonly verified: boolean;
+  readonly deadlineAt: string | null;
+  readonly requiredNow: boolean;
+  readonly daysRemaining: number | null;
 }
 
 /**
@@ -56,6 +81,10 @@ export const useSessionStore = defineStore("session", {
     emailConfirmed: null,
     emailConfirmationDeadlineAt: null,
     emailConfirmationBlocked: false,
+    emailVerified: false,
+    emailVerificationDeadlineAt: null,
+    emailVerificationRequiredNow: false,
+    daysUntilEmailRequired: null,
   }),
   getters: {
     isAuthenticated: (state): boolean => state.accessToken !== null,
@@ -79,9 +108,36 @@ export const useSessionStore = defineStore("session", {
       this.emailConfirmed = params.emailConfirmed ?? null;
       this.emailConfirmationDeadlineAt = params.emailConfirmationDeadlineAt ?? null;
       this.emailConfirmationBlocked = params.emailConfirmationBlocked ?? false;
+      this.emailVerified = params.emailVerified ?? params.emailConfirmed ?? false;
+      this.emailVerificationDeadlineAt =
+        params.emailVerificationDeadlineAt
+        ?? params.emailConfirmationDeadlineAt
+        ?? null;
+      this.emailVerificationRequiredNow =
+        params.emailVerificationRequiredNow
+        ?? params.emailConfirmationBlocked
+        ?? false;
+      this.daysUntilEmailRequired = params.daysUntilEmailRequired ?? null;
       // SEC-GAP-01 migration: wipe the old non-httpOnly cookie so tokens are
       // no longer stored in JavaScript-readable browser storage.
       clearLegacyCookie();
+    },
+    /**
+     * Hydrates the email_verification fields from the canonical /user/me v3
+     * response block. Called after any successful /user/me fetch (initial
+     * bootstrap, periodic refresh, post-confirmation refetch).
+     *
+     * @param block Canonical v3 email_verification block from /user/me.
+     */
+    hydrateEmailVerification(block: EmailVerificationHydration): void {
+      this.emailVerified = block.verified;
+      this.emailVerificationDeadlineAt = block.deadlineAt;
+      this.emailVerificationRequiredNow = block.requiredNow;
+      this.daysUntilEmailRequired = block.daysRemaining;
+      // Keep legacy mirrors in sync for components that still read them.
+      this.emailConfirmed = block.verified;
+      this.emailConfirmationDeadlineAt = block.deadlineAt;
+      this.emailConfirmationBlocked = block.requiredNow;
     },
     /**
      * Updates the in-memory access token after a successful /auth/refresh
@@ -99,6 +155,10 @@ export const useSessionStore = defineStore("session", {
       this.emailConfirmed = null;
       this.emailConfirmationDeadlineAt = null;
       this.emailConfirmationBlocked = false;
+      this.emailVerified = false;
+      this.emailVerificationDeadlineAt = null;
+      this.emailVerificationRequiredNow = false;
+      this.daysUntilEmailRequired = null;
       clearLegacyCookie();
     },
   },
