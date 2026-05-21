@@ -139,7 +139,8 @@
       "nuxt-og-image": ">=6.2.5",
       "js-yaml": ">=4.1.1",
       "dompurify": ">=3.4.0",
-      "lodash-es": "4.17.23"
+      "lodash-es": "4.17.23",
+      "js-cookie": ">=3.0.7"
     },
     "onlyBuiltDependencies": [
       "@parcel/watcher",
