@@ -50,7 +50,7 @@
     "@nuxtjs/i18n": "10.3.0",
     "@nuxtjs/seo": "3.4.0",
     "@pinia/nuxt": "0.11.3",
-    "@sentry/nuxt": "^10.52.0",
+    "@sentry/nuxt": "^10.53.1",
     "@sentry/vue": "^10.53.1",
     "@tanstack/vue-query": "^5.100.11",
     "@vee-validate/zod": "^4.15.1",
