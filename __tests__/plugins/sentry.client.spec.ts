@@ -67,6 +67,46 @@ describe("initSentry", () => {
   });
 });
 
+describe("tracesSampleRateFor", () => {
+  it("retorna 1.0 em development para capturar todos os erros locais", async () => {
+    const { tracesSampleRateFor } = await import("../../app/plugins/sentry.client");
+    expect(tracesSampleRateFor("development")).toBe(1.0);
+  });
+
+  it("retorna 0.5 em staging ou preview", async () => {
+    const { tracesSampleRateFor } = await import("../../app/plugins/sentry.client");
+    expect(tracesSampleRateFor("staging")).toBe(0.5);
+    expect(tracesSampleRateFor("preview")).toBe(0.5);
+  });
+
+  it("retorna 0.1 em production (default para qualquer env desconhecido)", async () => {
+    const { tracesSampleRateFor } = await import("../../app/plugins/sentry.client");
+    expect(tracesSampleRateFor("production")).toBe(0.1);
+    expect(tracesSampleRateFor("unknown")).toBe(0.1);
+  });
+});
+
+describe("initSentry com tracesSampleRate env-aware", () => {
+  beforeEach(() => {
+    mockSentryInit.mockClear();
+    vi.resetModules();
+  });
+
+  it("usa 1.0 em development", async () => {
+    const { initSentry } = await import("../../app/plugins/sentry.client");
+    initSentry("https://x@sentry.io/1", "development");
+    const args = mockSentryInit.mock.calls[0]![0] as Record<string, unknown>;
+    expect(args.tracesSampleRate).toBe(1.0);
+  });
+
+  it("usa 0.5 em staging", async () => {
+    const { initSentry } = await import("../../app/plugins/sentry.client");
+    initSentry("https://x@sentry.io/1", "staging");
+    const args = mockSentryInit.mock.calls[0]![0] as Record<string, unknown>;
+    expect(args.tracesSampleRate).toBe(0.5);
+  });
+});
+
 describe("scrubPiiFromEvent — request body redaction", () => {
   beforeEach(() => {
     vi.resetModules();

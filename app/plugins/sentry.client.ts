@@ -150,6 +150,28 @@ export function scrubPiiFromEvent(event: ErrorEvent, _hint: EventHint): ErrorEve
 }
 
 /**
+ * Picks the right `tracesSampleRate` for the active environment.
+ *
+ * - **development**: 1.0 — capture everything so local errors don't get lost
+ *   in sampling. Use a separate dev DSN to keep prod quotas clean.
+ * - **staging / preview**: 0.5 — enough to debug pre-prod bugs without
+ *   flooding the project quota.
+ * - **production**: 0.1 — sampling that scales to real user traffic.
+ *
+ * @param environment - Active environment name.
+ * @returns Sample rate in [0, 1].
+ */
+export function tracesSampleRateFor(environment: string): number {
+  if (environment === "development") {
+    return 1.0;
+  }
+  if (environment === "staging" || environment === "preview") {
+    return 0.5;
+  }
+  return 0.1;
+}
+
+/**
  * Initializes Sentry with the DSN and environment.
  * Exported separately to simplify unit testing.
  *
@@ -161,7 +183,7 @@ export function initSentry(dsn: string, environment: string): void {
     dsn,
     environment,
     enabled: true,
-    tracesSampleRate: 0.1,
+    tracesSampleRate: tracesSampleRateFor(environment),
     sendDefaultPii: false,
     beforeSend: scrubPiiFromEvent,
   });
