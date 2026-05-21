@@ -15,36 +15,43 @@ echo "  Pre-push CI parity gate"
 echo "══════════════════════════════════════════════════════"
 
 echo ""
-echo "▸ [1/7] Feature flags hygiene..."
+echo "▸ [1/8] Feature flags hygiene..."
 pnpm flags:check
 
 echo ""
-echo "▸ [2/7] Lint (ESLint)..."
+echo "▸ [2/8] Lint (ESLint)..."
 pnpm lint
 
 echo ""
-echo "▸ [3/7] TypeScript (strict)..."
+echo "▸ [3/8] TypeScript (strict)..."
 npx nuxi typecheck
 
 echo ""
-echo "▸ [4/7] Unit tests + coverage..."
+echo "▸ [4/8] Unit tests + coverage..."
 npx vitest run --coverage
 
 echo ""
-echo "▸ [5/7] Frontend governance + contracts..."
+echo "▸ [5/8] Frontend governance + contracts..."
 pnpm policy:check
 pnpm contracts:check
 
 echo ""
-echo "▸ [6/7] Build..."
+echo "▸ [6/8] Dependency audit (critical severity gate)..."
+# Baseline gate: blocks only on critical CVEs. Tighten to audit:high once the
+# existing 5 high-severity transitive vulnerabilities are remediated via
+# pnpm overrides (tracked as follow-up to this PR).
+pnpm audit:critical
+
+echo ""
+echo "▸ [7/8] Build..."
 pnpm build
 
 echo ""
 if [ "${RUN_E2E:-0}" = "1" ]; then
-  echo "▸ [7/7] E2E (Playwright — chromium + mobile-chrome)..."
+  echo "▸ [8/8] E2E (Playwright — chromium + mobile-chrome)..."
   pnpm test:e2e --project=chromium --project=mobile-chrome
 else
-  echo "▸ [7/7] E2E (skipped — opt-in with RUN_E2E=1 git push)"
+  echo "▸ [8/8] E2E (skipped — opt-in with RUN_E2E=1 git push)"
 fi
 
 echo ""
