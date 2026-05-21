@@ -112,6 +112,61 @@ describe("session store (split-token, SEC-GAP-01)", () => {
 
       expect(store.isAuthenticated).toBe(true);
     });
+
+    it("mirrors legacy emailConfirmed onto the new emailVerified field", () => {
+      const store = useSessionStore();
+      store.signIn({
+        accessToken: "tok",
+        userEmail: "u@auraxis.com",
+        emailConfirmed: true,
+      });
+      expect(store.emailVerified).toBe(true);
+    });
+
+    it("prefers the v3 emailVerified param over the legacy emailConfirmed", () => {
+      const store = useSessionStore();
+      store.signIn({
+        accessToken: "tok",
+        userEmail: "u@auraxis.com",
+        emailConfirmed: false,
+        emailVerified: true,
+      });
+      expect(store.emailVerified).toBe(true);
+    });
+  });
+
+  // ─── hydrateEmailVerification (v3 /user/me block) ─────────────────────────
+
+  describe("hydrateEmailVerification", () => {
+    it("populates the v3 fields and mirrors them onto the legacy fields", () => {
+      const store = useSessionStore();
+      store.hydrateEmailVerification({
+        verified: false,
+        deadlineAt: "2026-06-04T12:00:00Z",
+        requiredNow: false,
+        daysRemaining: 7,
+      });
+      expect(store.emailVerified).toBe(false);
+      expect(store.emailVerificationDeadlineAt).toBe("2026-06-04T12:00:00Z");
+      expect(store.emailVerificationRequiredNow).toBe(false);
+      expect(store.daysUntilEmailRequired).toBe(7);
+      // Legacy mirrors stay in sync so existing components keep working.
+      expect(store.emailConfirmed).toBe(false);
+      expect(store.emailConfirmationDeadlineAt).toBe("2026-06-04T12:00:00Z");
+      expect(store.emailConfirmationBlocked).toBe(false);
+    });
+
+    it("flips the blocked mirror when requiredNow is true", () => {
+      const store = useSessionStore();
+      store.hydrateEmailVerification({
+        verified: false,
+        deadlineAt: "2026-05-20T10:00:00Z",
+        requiredNow: true,
+        daysRemaining: -2,
+      });
+      expect(store.emailConfirmationBlocked).toBe(true);
+      expect(store.emailVerificationRequiredNow).toBe(true);
+    });
   });
 
   // ─── signOut ──────────────────────────────────────────────────────────────
@@ -134,6 +189,11 @@ describe("session store (split-token, SEC-GAP-01)", () => {
       expect(store.emailConfirmed).toBeNull();
       expect(store.emailConfirmationDeadlineAt).toBeNull();
       expect(store.emailConfirmationBlocked).toBe(false);
+      // v3 fields should also be reset on signOut.
+      expect(store.emailVerified).toBe(false);
+      expect(store.emailVerificationDeadlineAt).toBeNull();
+      expect(store.emailVerificationRequiredNow).toBe(false);
+      expect(store.daysUntilEmailRequired).toBeNull();
     });
 
     it("marks isAuthenticated as false after sign-out", () => {

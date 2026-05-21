@@ -15,7 +15,30 @@ import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from "axio
 
 import { ApiError } from "~/core/errors";
 
-import type { ResponseInterceptorOptions } from "./types";
+import type {
+  EmailVerificationRequiredBody,
+  ResponseInterceptorOptions,
+} from "./types";
+
+/**
+ * Type guard: true when the body looks like a backend
+ * `EMAIL_VERIFICATION_REQUIRED` response.
+ *
+ * See `auraxis-api/app/decorators/require_email_verified.py` for the
+ * canonical shape.
+ *
+ * @param body Raw response body to inspect.
+ * @returns True when the body has `error === "EMAIL_VERIFICATION_REQUIRED"`.
+ */
+const isEmailVerificationRequiredBody = (
+  body: unknown,
+): body is EmailVerificationRequiredBody => {
+  if (body === null || typeof body !== "object") {
+    return false;
+  }
+  const candidate = body as { error?: unknown };
+  return candidate.error === "EMAIL_VERIFICATION_REQUIRED";
+};
 
 /** User-facing message shown when a 403 Forbidden response is received. */
 const FORBIDDEN_MESSAGE =
@@ -111,6 +134,70 @@ const createSharedRefresh = (
  * @param client Axios instance to attach the interceptor to.
  * @param options Optional side-effect callbacks for 401, 403 and 5xx responses.
  */
+/**
+ * Attempts to recover from a 401 by refreshing the access token and retrying
+ * the original request. Returns the resolved client promise when the retry
+ * succeeds, or null when no refresh handler is available / refresh failed.
+ *
+ * @param client Axios instance bound to the interceptor.
+ * @param error Original Axios error that triggered the interceptor.
+ * @param sharedRefresh Refresh handler shared across concurrent 401s.
+ * @returns Retried response, or null when no retry was performed.
+ */
+const tryRefreshAndRetry = async (
+  client: AxiosInstance,
+  error: unknown,
+  sharedRefresh: () => Promise<string | null>,
+): Promise<unknown> => {
+  const config = axios.isAxiosError(error)
+    ? (error.config as RetryableConfig | undefined)
+    : undefined;
+  if (!config || config._retry) {
+    return null;
+  }
+  config._retry = true;
+  const newToken = await sharedRefresh();
+  if (!newToken) {
+    return null;
+  }
+  config.headers.Authorization = `Bearer ${newToken}`;
+  return client(config);
+};
+
+/**
+ * Routes a 403 response either to the email-verification gate handler (when
+ * the body matches `EMAIL_VERIFICATION_REQUIRED`) or to the generic
+ * `onForbidden` toast handler.
+ *
+ * @param error Original Axios error from the failed request.
+ * @param options Interceptor callbacks.
+ */
+const handleForbidden = (
+  error: unknown,
+  options: ResponseInterceptorOptions,
+): void => {
+  const rawBody = axios.isAxiosError(error)
+    ? error.response?.data
+    : undefined;
+  if (
+    options.onEmailVerificationRequired
+    && isEmailVerificationRequiredBody(rawBody)
+  ) {
+    options.onEmailVerificationRequired(rawBody);
+    return;
+  }
+  options.onForbidden?.(FORBIDDEN_MESSAGE);
+};
+
+/**
+ * Public entry point — wires the cross-cutting response handlers (401 refresh,
+ * 403 email-verification gate / forbidden toast, 5xx server-error toast)
+ * onto the provided Axios instance. See the block doc above
+ * {@link tryRefreshAndRetry} for the per-status behaviour matrix.
+ *
+ * @param client Axios instance to attach the interceptor to.
+ * @param options Optional side-effect callbacks for 401, 403 and 5xx responses.
+ */
 export const registerResponseInterceptors = (
   client: AxiosInstance,
   options: ResponseInterceptorOptions,
@@ -125,23 +212,14 @@ export const registerResponseInterceptors = (
       const apiError = toApiError(error);
 
       if (apiError.status === 401 && sharedRefresh) {
-        const config = axios.isAxiosError(error)
-          ? (error.config as RetryableConfig | undefined)
-          : undefined;
-
-        if (config && !config._retry) {
-          config._retry = true;
-          const newToken = await sharedRefresh();
-
-          if (newToken) {
-            config.headers.Authorization = `Bearer ${newToken}`;
-            return client(config) as Promise<never>;
-          }
+        const retried = await tryRefreshAndRetry(client, error, sharedRefresh);
+        if (retried !== null) {
+          return retried as Promise<never>;
         }
       }
 
       if (apiError.status === 403) {
-        options.onForbidden?.(FORBIDDEN_MESSAGE);
+        handleForbidden(error, options);
         return Promise.reject(apiError);
       }
 

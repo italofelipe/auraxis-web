@@ -102,6 +102,7 @@ const globalStubs = {
   },
   BillingStatusBanner: true,
   EmailConfirmationModal: true,
+  EmailVerificationGate: true,
   AdminImpersonationBanner: true,
 };
 
