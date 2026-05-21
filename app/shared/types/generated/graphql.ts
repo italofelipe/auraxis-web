@@ -37,6 +37,38 @@ export type Scalars = {
   UUID: { input: string; output: string; }
 };
 
+export type AiInsightHistoryResultType = {
+  __typename?: 'AIInsightHistoryResultType';
+  items: Array<AiInsightType>;
+  page: Scalars['Int']['output'];
+  perPage: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+};
+
+/** A single LLM-produced insight item, tagged by dimension. */
+export type AiInsightItemType = {
+  __typename?: 'AIInsightItemType';
+  dimension: Scalars['String']['output'];
+  evidence?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  message: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+};
+
+export type AiInsightType = {
+  __typename?: 'AIInsightType';
+  content: Scalars['String']['output'];
+  costUsd: Scalars['Float']['output'];
+  createdAt: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  insightType: Scalars['String']['output'];
+  model: Scalars['String']['output'];
+  periodEnd: Scalars['String']['output'];
+  periodLabel: Scalars['String']['output'];
+  periodStart: Scalars['String']['output'];
+  tokensUsed: Scalars['Int']['output'];
+};
+
 export type AccountListType = {
   __typename?: 'AccountListType';
   accounts: Array<AccountType>;
@@ -99,6 +131,72 @@ export type AuthPayloadType = {
   message: Scalars['String']['output'];
   token?: Maybe<Scalars['String']['output']>;
   user?: Maybe<UserType>;
+};
+
+export type BankImportConfirmationPayload = {
+  __typename?: 'BankImportConfirmationPayload';
+  bankName?: Maybe<Scalars['String']['output']>;
+  /** Field-level validation errors (empty on success). */
+  errors: Array<ValidationError>;
+  importedCount?: Maybe<Scalars['Int']['output']>;
+  /** Human-readable status message. */
+  message: Scalars['String']['output'];
+  month?: Maybe<Scalars['String']['output']>;
+  /** True when the mutation completed without errors. */
+  ok: Scalars['Boolean']['output'];
+  replacedCount?: Maybe<Scalars['Int']['output']>;
+  skippedDuplicates?: Maybe<Scalars['Int']['output']>;
+  transactions?: Maybe<Array<ImportedTransactionType>>;
+};
+
+export type BankImportPreviewEntryType = {
+  __typename?: 'BankImportPreviewEntryType';
+  amount: Scalars['String']['output'];
+  bankName: Scalars['String']['output'];
+  date: Scalars['String']['output'];
+  description: Scalars['String']['output'];
+  duplicateReason?: Maybe<Scalars['String']['output']>;
+  externalId: Scalars['String']['output'];
+  isDuplicate: Scalars['Boolean']['output'];
+  transactionType: Scalars['String']['output'];
+};
+
+export type BankImportPreviewPayload = {
+  __typename?: 'BankImportPreviewPayload';
+  data?: Maybe<BankImportPreviewType>;
+  /** Field-level validation errors (empty on success). */
+  errors: Array<ValidationError>;
+  /** Human-readable status message. */
+  message: Scalars['String']['output'];
+  /** True when the mutation completed without errors. */
+  ok: Scalars['Boolean']['output'];
+};
+
+export type BankImportPreviewType = {
+  __typename?: 'BankImportPreviewType';
+  bankName: Scalars['String']['output'];
+  duplicateEntries: Scalars['Int']['output'];
+  entries: Array<BankImportPreviewEntryType>;
+  newEntries: Scalars['Int']['output'];
+  totalEntries: Scalars['Int']['output'];
+};
+
+export type BillCycleType = {
+  __typename?: 'BillCycleType';
+  dueDate: Scalars['String']['output'];
+  endDate: Scalars['String']['output'];
+  startDate: Scalars['String']['output'];
+  status: Scalars['String']['output'];
+};
+
+export type BillTransactionType = {
+  __typename?: 'BillTransactionType';
+  amount: Scalars['DecimalScalar']['output'];
+  dueDate?: Maybe<Scalars['String']['output']>;
+  id: Scalars['String']['output'];
+  status?: Maybe<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+  type?: Maybe<Scalars['String']['output']>;
 };
 
 /** An enumeration. */
@@ -212,6 +310,47 @@ export type CreateTransactionMutation = {
   message: Scalars['String']['output'];
 };
 
+export type CreditCardBillType = {
+  __typename?: 'CreditCardBillType';
+  cycle: BillCycleType;
+  paidAmount: Scalars['DecimalScalar']['output'];
+  pendingAmount: Scalars['DecimalScalar']['output'];
+  totalAmount: Scalars['DecimalScalar']['output'];
+  transactions?: Maybe<Array<Maybe<BillTransactionType>>>;
+};
+
+export type CreditCardListType = {
+  __typename?: 'CreditCardListType';
+  creditCards?: Maybe<Array<Maybe<CreditCardType>>>;
+  total?: Maybe<Scalars['Int']['output']>;
+};
+
+export type CreditCardType = {
+  __typename?: 'CreditCardType';
+  bank?: Maybe<Scalars['String']['output']>;
+  benefits?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  brand?: Maybe<Scalars['String']['output']>;
+  closingDay?: Maybe<Scalars['Int']['output']>;
+  createdAt?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  dueDay?: Maybe<Scalars['Int']['output']>;
+  id: Scalars['String']['output'];
+  lastFourDigits?: Maybe<Scalars['String']['output']>;
+  limitAmount?: Maybe<Scalars['DecimalScalar']['output']>;
+  name: Scalars['String']['output'];
+  updatedAt?: Maybe<Scalars['String']['output']>;
+  validityDate?: Maybe<Scalars['String']['output']>;
+};
+
+export type CreditCardUtilizationType = {
+  __typename?: 'CreditCardUtilizationType';
+  availableAmount?: Maybe<Scalars['DecimalScalar']['output']>;
+  committedAmount: Scalars['DecimalScalar']['output'];
+  cycle: BillCycleType;
+  limitAmount?: Maybe<Scalars['DecimalScalar']['output']>;
+  utilizationPct?: Maybe<Scalars['Float']['output']>;
+};
+
 export type DashboardCategoriesType = {
   __typename?: 'DashboardCategoriesType';
   expense: Array<Maybe<DashboardCategoryType>>;
@@ -291,6 +430,53 @@ export type DeleteWalletEntryMutation = {
   ok: Scalars['Boolean']['output'];
 };
 
+export type FiscalDocumentListType = {
+  __typename?: 'FiscalDocumentListType';
+  fiscalDocuments: Array<FiscalDocumentType>;
+  total: Scalars['Int']['output'];
+};
+
+export type FiscalDocumentPayload = {
+  __typename?: 'FiscalDocumentPayload';
+  data?: Maybe<FiscalDocumentType>;
+  /** Field-level validation errors (empty on success). */
+  errors: Array<ValidationError>;
+  /** Human-readable status message. */
+  message: Scalars['String']['output'];
+  /** True when the mutation completed without errors. */
+  ok: Scalars['Boolean']['output'];
+};
+
+export type FiscalDocumentType = {
+  __typename?: 'FiscalDocumentType';
+  counterparty: Scalars['String']['output'];
+  createdAt: Scalars['String']['output'];
+  currency: Scalars['String']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  externalId: Scalars['String']['output'];
+  grossAmount: Scalars['DecimalScalar']['output'];
+  id: Scalars['ID']['output'];
+  issuedAt: Scalars['String']['output'];
+  status: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+};
+
+export type GenerateAiInsightPayload = {
+  __typename?: 'GenerateAiInsightPayload';
+  cached?: Maybe<Scalars['Boolean']['output']>;
+  contextVersion?: Maybe<Scalars['String']['output']>;
+  costUsd?: Maybe<Scalars['Float']['output']>;
+  items?: Maybe<Array<Maybe<AiInsightItemType>>>;
+  model?: Maybe<Scalars['String']['output']>;
+  ok: Scalars['Boolean']['output'];
+  periodEnd?: Maybe<Scalars['String']['output']>;
+  periodLabel?: Maybe<Scalars['String']['output']>;
+  periodStart?: Maybe<Scalars['String']['output']>;
+  periodType?: Maybe<Scalars['String']['output']>;
+  summary?: Maybe<Scalars['String']['output']>;
+  tokensUsed?: Maybe<Scalars['Int']['output']>;
+};
+
 export type GoalListPayloadType = {
   __typename?: 'GoalListPayloadType';
   items: Array<Maybe<GoalTypeObject>>;
@@ -340,6 +526,17 @@ export type GoalTypeObject = {
   targetDate?: Maybe<Scalars['String']['output']>;
   title: Scalars['String']['output'];
   updatedAt?: Maybe<Scalars['String']['output']>;
+};
+
+export type ImportedTransactionType = {
+  __typename?: 'ImportedTransactionType';
+  amount: Scalars['String']['output'];
+  bankName?: Maybe<Scalars['String']['output']>;
+  dueDate: Scalars['String']['output'];
+  externalId?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  title: Scalars['String']['output'];
+  type: Scalars['String']['output'];
 };
 
 export type InstallmentVsCashAssumptionsType = {
@@ -533,18 +730,34 @@ export type Mutation = {
   addTicker?: Maybe<AddTickerPayload>;
   /** @deprecated ADR-0002: use POST /wallet */
   addWalletEntry?: Maybe<AddWalletEntryMutation>;
+  /** @deprecated ADR-0002: use DELETE /fiscal/receivables/{id} */
+  cancelReceivable?: Maybe<ReceivablePayload>;
   /** @deprecated ADR-0004: use POST /subscription/cancel */
   cancelSubscription?: Maybe<CancelSubscriptionMutation>;
+  /**
+   * Persist a subset of bank statement entries as transactions.
+   *
+   * ``mode`` controls how existing data is handled:
+   *
+   * - ``selective``: skip duplicates, import only new entries.
+   * - ``replace_month``: delete all existing bank-imported transactions for
+   *   the given month/bank before importing the selected set.
+   */
+  confirmBankImport?: Maybe<BankImportConfirmationPayload>;
   confirmEmail?: Maybe<AuthPayloadType>;
   createAccount?: Maybe<AccountPayload>;
   /** @deprecated ADR-0002: use POST /budgets */
   createBudget?: Maybe<CreateBudgetMutation>;
   /** @deprecated ADR-0004: use POST /subscription/checkout */
   createCheckoutSession?: Maybe<CreateCheckoutSessionMutation>;
+  /** @deprecated ADR-0002: use POST /fiscal/fiscal-documents */
+  createFiscalDocument?: Maybe<FiscalDocumentPayload>;
   /** @deprecated ADR-0002: use POST /goals */
   createGoal?: Maybe<CreateGoalMutation>;
   createGoalFromInstallmentVsCashSimulation?: Maybe<CreateGoalFromInstallmentVsCashSimulationMutation>;
   createPlannedExpenseFromInstallmentVsCashSimulation?: Maybe<CreatePlannedExpenseFromInstallmentVsCashSimulationMutation>;
+  /** @deprecated ADR-0002: use POST /fiscal/receivables */
+  createReceivable?: Maybe<ReceivablePayload>;
   createTag?: Maybe<TagPayload>;
   /** @deprecated ADR-0002: use POST /transactions */
   createTransaction?: Maybe<CreateTransactionMutation>;
@@ -562,8 +775,25 @@ export type Mutation = {
   /** @deprecated ADR-0002: use DELETE /wallet/{id} */
   deleteWalletEntry?: Maybe<DeleteWalletEntryMutation>;
   forgotPassword?: Maybe<AuthPayloadType>;
+  /**
+   * GraphQL parity for POST /ai/insights/generate.
+   *
+   * Reuses AIAdvisoryService — quota (2x/day Premium), entitlement gate and
+   * LGPD consent are enforced inside the service. GraphQL surface exposes the
+   * same payload shape so the frontend hub can render either path identically.
+   */
+  generateAiInsight?: Maybe<GenerateAiInsightPayload>;
   login?: Maybe<AuthPayloadType>;
   logout?: Maybe<LogoutMutation>;
+  /** @deprecated ADR-0002: use PATCH /fiscal/receivables/{id}/receive */
+  markReceivableReceived?: Maybe<ReceivablePayload>;
+  /**
+   * Parse a bank statement text and return a deduplication preview.
+   *
+   * The client submits the raw text content (CSV for Nubank, OFX for others)
+   * together with a bank identifier.  No data is written to the database.
+   */
+  previewBankStatement?: Maybe<BankImportPreviewPayload>;
   registerUser?: Maybe<AuthPayloadType>;
   resendConfirmationEmail?: Maybe<AuthPayloadType>;
   resetPassword?: Maybe<AuthPayloadType>;
@@ -621,6 +851,19 @@ export type MutationAddWalletEntryArgs = {
 };
 
 
+export type MutationCancelReceivableArgs = {
+  entryId: Scalars['UUID']['input'];
+};
+
+
+export type MutationConfirmBankImportArgs = {
+  bankName: Scalars['String']['input'];
+  mode: Scalars['String']['input'];
+  month: Scalars['String']['input'];
+  selectedEntries: Array<SelectedEntryInput>;
+};
+
+
 export type MutationConfirmEmailArgs = {
   token: Scalars['String']['input'];
 };
@@ -648,6 +891,15 @@ export type MutationCreateBudgetArgs = {
 export type MutationCreateCheckoutSessionArgs = {
   billingCycle?: InputMaybe<BillingCycle>;
   planSlug: Scalars['String']['input'];
+};
+
+
+export type MutationCreateFiscalDocumentArgs = {
+  amount: Scalars['String']['input'];
+  counterpartName?: InputMaybe<Scalars['String']['input']>;
+  externalId?: InputMaybe<Scalars['String']['input']>;
+  issuedAt: Scalars['String']['input'];
+  type: Scalars['String']['input'];
 };
 
 
@@ -692,6 +944,14 @@ export type MutationCreatePlannedExpenseFromInstallmentVsCashSimulationArgs = {
 };
 
 
+export type MutationCreateReceivableArgs = {
+  amount: Scalars['String']['input'];
+  category?: InputMaybe<Scalars['String']['input']>;
+  description: Scalars['String']['input'];
+  expectedDate: Scalars['String']['input'];
+};
+
+
 export type MutationCreateTagArgs = {
   color?: InputMaybe<Scalars['String']['input']>;
   icon?: InputMaybe<Scalars['String']['input']>;
@@ -702,6 +962,7 @@ export type MutationCreateTagArgs = {
 export type MutationCreateTransactionArgs = {
   accountId?: InputMaybe<Scalars['UUID']['input']>;
   amount: Scalars['String']['input'];
+  category?: InputMaybe<Scalars['String']['input']>;
   creditCardId?: InputMaybe<Scalars['UUID']['input']>;
   currency?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
@@ -765,9 +1026,28 @@ export type MutationForgotPasswordArgs = {
 };
 
 
+export type MutationGenerateAiInsightArgs = {
+  anchorDate?: InputMaybe<Scalars['String']['input']>;
+  periodType: Scalars['String']['input'];
+};
+
+
 export type MutationLoginArgs = {
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
+};
+
+
+export type MutationMarkReceivableReceivedArgs = {
+  entryId: Scalars['UUID']['input'];
+  receivedAmount?: InputMaybe<Scalars['String']['input']>;
+  receivedDate: Scalars['String']['input'];
+};
+
+
+export type MutationPreviewBankStatementArgs = {
+  bankName: Scalars['String']['input'];
+  content: Scalars['String']['input'];
 };
 
 
@@ -882,6 +1162,7 @@ export type MutationUpdateTagArgs = {
 export type MutationUpdateTransactionArgs = {
   accountId?: InputMaybe<Scalars['UUID']['input']>;
   amount?: InputMaybe<Scalars['String']['input']>;
+  category?: InputMaybe<Scalars['String']['input']>;
   creditCardId?: InputMaybe<Scalars['UUID']['input']>;
   currency?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
@@ -1026,11 +1307,16 @@ export type Query = {
   __typename?: 'Query';
   account?: Maybe<AccountType>;
   accounts?: Maybe<AccountListType>;
+  aiInsightHistory?: Maybe<AiInsightHistoryResultType>;
   billingPlans?: Maybe<BillingPlanListPayloadType>;
   budget?: Maybe<BudgetType>;
   budgetSummary?: Maybe<BudgetSummaryType>;
   budgets?: Maybe<BudgetListPayloadType>;
+  creditCardBill?: Maybe<CreditCardBillType>;
+  creditCardUtilization?: Maybe<CreditCardUtilizationType>;
+  creditCards?: Maybe<CreditCardListType>;
   dashboardOverview?: Maybe<TransactionDashboardPayloadType>;
+  fiscalDocuments?: Maybe<FiscalDocumentListType>;
   goal?: Maybe<GoalTypeObject>;
   goalPlan?: Maybe<GoalPlanType>;
   goals?: Maybe<GoalListPayloadType>;
@@ -1045,6 +1331,8 @@ export type Query = {
   notificationPreferences?: Maybe<NotificationPreferencesType>;
   portfolioValuation?: Maybe<PortfolioValuationPayloadType>;
   portfolioValuationHistory?: Maybe<PortfolioHistoryPayloadType>;
+  receivables?: Maybe<ReceivableListType>;
+  receivablesSummary?: Maybe<ReceivableSummaryType>;
   simulation?: Maybe<SimulationType>;
   simulations: SimulationListPayloadType;
   tag?: Maybe<TagType>;
@@ -1067,13 +1355,35 @@ export type QueryAccountArgs = {
 };
 
 
+export type QueryAiInsightHistoryArgs = {
+  page?: InputMaybe<Scalars['Int']['input']>;
+  perPage?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
 export type QueryBudgetArgs = {
   budgetId: Scalars['UUID']['input'];
 };
 
 
+export type QueryCreditCardBillArgs = {
+  cardId: Scalars['UUID']['input'];
+  month: Scalars['String']['input'];
+};
+
+
+export type QueryCreditCardUtilizationArgs = {
+  cardId: Scalars['UUID']['input'];
+};
+
+
 export type QueryDashboardOverviewArgs = {
   month: Scalars['String']['input'];
+};
+
+
+export type QueryFiscalDocumentsArgs = {
+  type?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1140,6 +1450,11 @@ export type QueryInvestmentValuationArgs = {
 export type QueryPortfolioValuationHistoryArgs = {
   finalDate?: InputMaybe<Scalars['String']['input']>;
   startDate?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryReceivablesArgs = {
+  status?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1227,6 +1542,52 @@ export type QueryWeeklySummaryArgs = {
   startDate?: InputMaybe<Scalars['String']['input']>;
 };
 
+/**
+ * IMPORTANT: expected_net_amount is advisory-only. Clients MUST display
+ * the ``disclaimer`` field alongside any monetary value derived from it.
+ */
+export type ReceivableEntryType = {
+  __typename?: 'ReceivableEntryType';
+  createdAt: Scalars['String']['output'];
+  disclaimer: Scalars['String']['output'];
+  expectedNetAmount?: Maybe<Scalars['DecimalScalar']['output']>;
+  fiscalDocumentId: Scalars['ID']['output'];
+  id: Scalars['ID']['output'];
+  outstandingAmount?: Maybe<Scalars['DecimalScalar']['output']>;
+  receivedAmount?: Maybe<Scalars['DecimalScalar']['output']>;
+  receivedAt?: Maybe<Scalars['String']['output']>;
+  reconciliationStatus: Scalars['String']['output'];
+};
+
+export type ReceivableListType = {
+  __typename?: 'ReceivableListType';
+  receivables: Array<ReceivableEntryType>;
+  total: Scalars['Int']['output'];
+};
+
+export type ReceivablePayload = {
+  __typename?: 'ReceivablePayload';
+  data?: Maybe<ReceivableEntryType>;
+  /** Field-level validation errors (empty on success). */
+  errors: Array<ValidationError>;
+  /** Human-readable status message. */
+  message: Scalars['String']['output'];
+  /** True when the mutation completed without errors. */
+  ok: Scalars['Boolean']['output'];
+};
+
+/**
+ * IMPORTANT: all monetary values are advisory-only estimates.
+ * Always display the ``disclaimer`` field.
+ */
+export type ReceivableSummaryType = {
+  __typename?: 'ReceivableSummaryType';
+  disclaimer: Scalars['String']['output'];
+  expectedTotal: Scalars['String']['output'];
+  pendingTotal: Scalars['String']['output'];
+  receivedTotal: Scalars['String']['output'];
+};
+
 /** Revoke all active sessions — global logout (#1028). */
 export type RevokeAllSessionsMutation = {
   __typename?: 'RevokeAllSessionsMutation';
@@ -1246,6 +1607,15 @@ export type SaveInstallmentVsCashSimulationMutation = {
   calculation: InstallmentVsCashCalculationPayloadType;
   message: Scalars['String']['output'];
   simulation: InstallmentVsCashSimulationType;
+};
+
+export type SelectedEntryInput = {
+  amount: Scalars['String']['input'];
+  bankName: Scalars['String']['input'];
+  date: Scalars['String']['input'];
+  description: Scalars['String']['input'];
+  externalId: Scalars['String']['input'];
+  transactionType: Scalars['String']['input'];
 };
 
 export type SimulateGoalPlanMutation = {
@@ -1388,6 +1758,7 @@ export type TransactionTypeObject = {
   accountId?: Maybe<Scalars['String']['output']>;
   amount: Scalars['String']['output'];
   bankName?: Maybe<Scalars['String']['output']>;
+  category?: Maybe<Scalars['String']['output']>;
   createdAt?: Maybe<Scalars['String']['output']>;
   creditCardId?: Maybe<Scalars['String']['output']>;
   currency: Scalars['String']['output'];
@@ -1462,7 +1833,11 @@ export type UserType = {
   __typename?: 'UserType';
   avatarUrl?: Maybe<Scalars['String']['output']>;
   birthDate?: Maybe<Scalars['String']['output']>;
+  daysUntilEmailRequired?: Maybe<Scalars['Int']['output']>;
   email: Scalars['String']['output'];
+  emailVerificationDeadlineAt?: Maybe<Scalars['String']['output']>;
+  emailVerificationRequiredNow?: Maybe<Scalars['Boolean']['output']>;
+  emailVerified?: Maybe<Scalars['Boolean']['output']>;
   financialObjectives?: Maybe<Scalars['String']['output']>;
   gender?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
