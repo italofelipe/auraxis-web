@@ -141,97 +141,6 @@ const panel = computed<AuthPanelCopy>(() => {
       </h1>
       <p class="auth-brand__sub">{{ panel.sub }}</p>
 
-      <section
-        v-if="panel.variant === 'growth'"
-        class="auth-brand__growth-card"
-        aria-label="Prévia de crescimento financeiro"
-      >
-        <span class="auth-brand__secure-pill">
-          <ShieldCheck :size="14" aria-hidden="true" />
-          {{ panel.badge }}
-        </span>
-
-        <div class="auth-brand__journey" aria-hidden="true">
-          <svg class="auth-brand__journey-scene" viewBox="0 0 680 420">
-            <defs>
-              <linearGradient id="journeySky" x1="0" x2="1" y1="0" y2="1">
-                <stop offset="0%" stop-color="#f7fcff" />
-                <stop offset="58%" stop-color="#e5f7ff" />
-                <stop offset="100%" stop-color="#d8f6ef" />
-              </linearGradient>
-              <linearGradient id="journeyMountain" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stop-color="#7fd6f1" />
-                <stop offset="100%" stop-color="#1d7fa3" />
-              </linearGradient>
-              <linearGradient id="journeyForest" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stop-color="#5ccda9" />
-                <stop offset="100%" stop-color="#0b5f4a" />
-              </linearGradient>
-              <filter id="journeyGlow" x="-40%" y="-40%" width="180%" height="180%">
-                <feGaussianBlur stdDeviation="6" result="blur" />
-                <feColorMatrix
-                  in="blur"
-                  type="matrix"
-                  values="0 0 0 0 0.99 0 0 0 0 0.72 0 0 0 0 0.22 0 0 0 0.62 0"
-                />
-                <feBlend in="SourceGraphic" />
-              </filter>
-            </defs>
-            <rect width="680" height="420" rx="28" fill="url(#journeySky)" />
-            <circle cx="558" cy="76" r="42" fill="#fff7d8" opacity="0.86" />
-            <path
-              d="M236 296 L402 86 L616 296 Z"
-              fill="url(#journeyMountain)"
-              opacity="0.88"
-            />
-            <path
-              d="M402 86 L450 198 L370 158 Z"
-              fill="#f7fcff"
-              opacity="0.92"
-            />
-            <path
-              d="M30 316 C92 266 144 246 210 256 C280 268 320 320 398 300 C476 280 534 246 650 286 L650 420 L30 420 Z"
-              fill="url(#journeyForest)"
-              opacity="0.86"
-            />
-            <path
-              d="M346 354 C436 314 506 282 496 238 C486 196 406 206 424 164 C438 130 496 116 538 94"
-              fill="none"
-              stroke="#f6c24b"
-              stroke-linecap="round"
-              stroke-width="10"
-              filter="url(#journeyGlow)"
-            />
-            <path
-              d="M346 354 C436 314 506 282 496 238 C486 196 406 206 424 164 C438 130 496 116 538 94"
-              fill="none"
-              stroke="#fff6cb"
-              stroke-dasharray="18 18"
-              stroke-linecap="round"
-              stroke-width="4"
-            />
-            <path d="M538 94 V52" stroke="#087fa7" stroke-linecap="round" stroke-width="5" />
-            <path d="M540 54 L588 70 L540 88 Z" fill="#36c8ea" />
-            <circle cx="538" cy="94" r="9" fill="#087fa7" />
-            <circle cx="354" cy="356" r="18" fill="#061527" opacity="0.9" />
-            <path d="M354 374 L336 420 H378 Z" fill="#123b5d" opacity="0.9" />
-          </svg>
-        </div>
-
-        <div class="auth-brand__growth-metrics">
-          <article
-            v-for="metric in growthMetrics"
-            :key="metric.label"
-            class="auth-brand__growth-metric"
-            :class="`auth-brand__growth-metric--${metric.tone}`"
-          >
-            <span>{{ metric.label }}</span>
-            <strong>{{ metric.value }}</strong>
-            <small>{{ metric.note }}</small>
-          </article>
-        </div>
-      </section>
-
       <article
         v-if="panel.variant === 'security'"
         class="auth-brand__security-card glass"
@@ -289,6 +198,97 @@ const panel = computed<AuthPanelCopy>(() => {
       </article>
     </div>
 
+    <section
+      v-if="panel.variant === 'growth'"
+      class="auth-brand__growth-card"
+      aria-label="Prévia de crescimento financeiro"
+    >
+      <span class="auth-brand__secure-pill">
+        <ShieldCheck :size="14" aria-hidden="true" />
+        {{ panel.badge }}
+      </span>
+
+      <div class="auth-brand__journey" aria-hidden="true">
+        <svg class="auth-brand__journey-scene" viewBox="0 0 680 420">
+          <defs>
+            <linearGradient id="journeySky" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0%" stop-color="#f7fcff" />
+              <stop offset="58%" stop-color="#e5f7ff" />
+              <stop offset="100%" stop-color="#d8f6ef" />
+            </linearGradient>
+            <linearGradient id="journeyMountain" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#7fd6f1" />
+              <stop offset="100%" stop-color="#1d7fa3" />
+            </linearGradient>
+            <linearGradient id="journeyForest" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#5ccda9" />
+              <stop offset="100%" stop-color="#0b5f4a" />
+            </linearGradient>
+            <filter id="journeyGlow" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="6" result="blur" />
+              <feColorMatrix
+                in="blur"
+                type="matrix"
+                values="0 0 0 0 0.99 0 0 0 0 0.72 0 0 0 0 0.22 0 0 0 0.62 0"
+              />
+              <feBlend in="SourceGraphic" />
+            </filter>
+          </defs>
+          <rect width="680" height="420" fill="transparent" />
+          <circle cx="558" cy="76" r="42" fill="#fff7d8" opacity="0.86" />
+          <path
+            d="M236 296 L402 86 L616 296 Z"
+            fill="url(#journeyMountain)"
+            opacity="0.88"
+          />
+          <path
+            d="M402 86 L450 198 L370 158 Z"
+            fill="#f7fcff"
+            opacity="0.92"
+          />
+          <path
+            d="M30 316 C92 266 144 246 210 256 C280 268 320 320 398 300 C476 280 534 246 650 286 L650 420 L30 420 Z"
+            fill="url(#journeyForest)"
+            opacity="0.86"
+          />
+          <path
+            d="M346 354 C436 314 506 282 496 238 C486 196 406 206 424 164 C438 130 496 116 538 94"
+            fill="none"
+            stroke="#f6c24b"
+            stroke-linecap="round"
+            stroke-width="10"
+            filter="url(#journeyGlow)"
+          />
+          <path
+            d="M346 354 C436 314 506 282 496 238 C486 196 406 206 424 164 C438 130 496 116 538 94"
+            fill="none"
+            stroke="#fff6cb"
+            stroke-dasharray="18 18"
+            stroke-linecap="round"
+            stroke-width="4"
+          />
+          <path d="M538 94 V52" stroke="#087fa7" stroke-linecap="round" stroke-width="5" />
+          <path d="M540 54 L588 70 L540 88 Z" fill="#36c8ea" />
+          <circle cx="538" cy="94" r="9" fill="#087fa7" />
+          <circle cx="354" cy="356" r="18" fill="#061527" opacity="0.9" />
+          <path d="M354 374 L336 420 H378 Z" fill="#123b5d" opacity="0.9" />
+        </svg>
+      </div>
+
+      <div class="auth-brand__growth-metrics">
+        <article
+          v-for="metric in growthMetrics"
+          :key="metric.label"
+          class="auth-brand__growth-metric"
+          :class="`auth-brand__growth-metric--${metric.tone}`"
+        >
+          <span>{{ metric.label }}</span>
+          <strong>{{ metric.value }}</strong>
+          <small>{{ metric.note }}</small>
+        </article>
+      </div>
+    </section>
+
     <!-- Highlights grid -->
     <div v-if="panel.variant === 'simple'" class="auth-brand__highlights">
       <AuthFeatureList :features="panel.features" />
@@ -341,8 +341,16 @@ const panel = computed<AuthPanelCopy>(() => {
 }
 
 .auth-brand--growth {
-  gap: var(--space-5);
-  padding: var(--space-7);
+  display: grid;
+  grid-template-columns: minmax(250px, 0.78fr) minmax(420px, 1.22fr);
+  grid-template-areas:
+    "logo logo"
+    "copy canvas"
+    "values values";
+  align-content: center;
+  align-items: start;
+  gap: clamp(var(--space-5), 2.7vw, var(--space-8)) clamp(var(--space-7), 4vw, var(--space-10));
+  padding: clamp(var(--space-7), 4vw, var(--space-9));
   border-right-color: color-mix(in srgb, var(--color-brand-500) 14%, transparent);
   background:
     radial-gradient(circle at 78% 16%, rgba(246, 194, 75, 0.22), transparent 24%),
@@ -351,6 +359,10 @@ const panel = computed<AuthPanelCopy>(() => {
     linear-gradient(90deg, var(--auth-panel-grid-line) 1px, transparent 1px),
     linear-gradient(160deg, #ffffff, #f4fbff 46%, #eefaf4);
   background-size: auto, auto, 44px 44px, 44px 44px, auto;
+}
+
+.auth-brand--growth .auth-brand__logo {
+  grid-area: logo;
 }
 
 /* Logo */
@@ -464,39 +476,41 @@ const panel = computed<AuthPanelCopy>(() => {
 }
 
 .auth-brand--growth .auth-brand__copy {
-  max-width: 620px;
+  grid-area: copy;
+  align-items: flex-start;
+  max-width: 360px;
+  padding-top: var(--space-1);
 }
 
 .auth-brand--growth .auth-brand__headline {
-  max-width: 13ch;
-  font-size: var(--font-size-heading-lg);
+  max-width: 12ch;
+  font-size: clamp(2.25rem, 3vw, var(--font-size-heading-lg));
   letter-spacing: 0;
 }
 
 .auth-brand--growth .auth-brand__sub {
-  max-width: 52ch;
+  max-width: 36ch;
   color: var(--color-text-secondary);
   line-height: var(--line-height-body-md);
 }
 
 .auth-brand__growth-card {
+  grid-area: canvas;
   position: relative;
   display: grid;
-  min-height: 480px;
-  margin-top: var(--space-2);
-  border: 1px solid color-mix(in srgb, var(--color-brand-500) 16%, var(--color-outline-soft));
-  border-radius: var(--radius-xl);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(255, 255, 255, 0.42)),
-    var(--color-bg-surface);
-  box-shadow: 0 26px 80px rgba(6, 21, 39, 0.14);
-  overflow: hidden;
+  min-height: clamp(420px, 33vw, 540px);
+  margin-top: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
 }
 
 .auth-brand__secure-pill {
   position: absolute;
-  top: var(--space-4);
-  right: var(--space-4);
+  top: var(--space-1);
+  right: var(--space-2);
   z-index: 3;
   display: inline-flex;
   align-items: center;
@@ -505,17 +519,17 @@ const panel = computed<AuthPanelCopy>(() => {
   padding: 0 var(--space-3);
   border: 1px solid color-mix(in srgb, var(--color-positive) 24%, var(--color-outline-soft));
   border-radius: var(--radius-full);
-  background: rgba(255, 255, 255, 0.78);
+  background: transparent;
   color: var(--color-positive);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
-  box-shadow: 0 12px 30px rgba(6, 21, 39, 0.08);
-  backdrop-filter: blur(8px);
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .auth-brand__journey {
   position: absolute;
-  inset: 0;
+  inset: var(--space-4) 0 0 clamp(120px, 21%, 190px);
   z-index: 1;
 }
 
@@ -531,20 +545,21 @@ const panel = computed<AuthPanelCopy>(() => {
   display: grid;
   align-content: center;
   gap: var(--space-3);
-  width: min(310px, 48%);
-  padding: var(--space-7) 0 var(--space-7) var(--space-5);
+  width: min(290px, 45%);
+  padding: var(--space-7) 0 var(--space-5);
 }
 
 .auth-brand__growth-metric {
   display: grid;
   gap: var(--space-1);
-  min-height: 88px;
-  padding: var(--space-3);
-  border: 1px solid rgba(255, 255, 255, 0.76);
-  border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.82);
-  box-shadow: 0 16px 38px rgba(6, 21, 39, 0.1);
-  backdrop-filter: blur(10px);
+  min-height: auto;
+  padding: var(--space-2) 0 var(--space-2) var(--space-3);
+  border: 0;
+  border-left: 2px solid color-mix(in srgb, var(--color-brand-500) 28%, transparent);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .auth-brand__growth-metric span,
@@ -575,14 +590,16 @@ const panel = computed<AuthPanelCopy>(() => {
 }
 
 .auth-brand__growth-values {
+  grid-area: values;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--space-3);
-  padding: var(--space-4);
-  border: 1px solid color-mix(in srgb, var(--color-brand-500) 10%, var(--color-outline-soft));
-  border-radius: var(--radius-xl);
-  background: rgba(255, 255, 255, 0.72);
-  box-shadow: 0 18px 46px rgba(6, 21, 39, 0.08);
+  gap: clamp(var(--space-4), 2vw, var(--space-7));
+  padding: var(--space-5) 0 0;
+  border: 0;
+  border-top: 1px solid color-mix(in srgb, var(--color-brand-500) 14%, var(--color-outline-soft));
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .auth-brand__growth-value {
@@ -593,11 +610,12 @@ const panel = computed<AuthPanelCopy>(() => {
 }
 
 .auth-brand__growth-value svg {
-  width: 42px;
-  height: 42px;
-  padding: 10px;
+  width: 40px;
+  height: 40px;
+  padding: 9px;
   border-radius: var(--radius-full);
-  background: color-mix(in srgb, var(--color-positive) 10%, #ffffff);
+  border: 1px solid color-mix(in srgb, var(--color-positive) 22%, var(--color-outline-soft));
+  background: transparent;
   color: var(--color-positive);
 }
 
@@ -784,7 +802,34 @@ const panel = computed<AuthPanelCopy>(() => {
   opacity: 0.55;
 }
 
-@media (max-width: 1280px) {
+@media (max-width: 1320px) {
+  .auth-brand--growth {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "logo"
+      "copy"
+      "canvas"
+      "values";
+    align-content: start;
+    gap: var(--space-5);
+  }
+
+  .auth-brand--growth .auth-brand__copy {
+    max-width: 560px;
+  }
+
+  .auth-brand--growth .auth-brand__headline {
+    max-width: 14ch;
+  }
+
+  .auth-brand__growth-card {
+    min-height: 420px;
+  }
+
+  .auth-brand__journey {
+    inset: var(--space-4) 0 0 clamp(110px, 24%, 170px);
+  }
+
   .auth-brand__growth-values {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
