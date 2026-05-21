@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import type { AxiosInstance } from "axios";
+
+import { ApiError } from "~/core/errors";
 import { AuthEmailClient } from "../auth-email.client";
 
 const mockHttp = {
@@ -7,26 +9,96 @@ const mockHttp = {
   post: vi.fn(),
 } as unknown as AxiosInstance;
 
-describe("AuthEmailClient", () => {
-  const client = new AuthEmailClient(mockHttp);
+const mockAnonymous = {
+  get: vi.fn(),
+  post: vi.fn(),
+} as unknown as AxiosInstance;
 
-  it("calls POST /auth/email/confirm with the token in the JSON body", async () => {
-    vi.mocked(mockHttp.post).mockResolvedValueOnce({ data: { success: true } });
-    await client.confirmEmail("abc123");
-    expect(mockHttp.post).toHaveBeenCalledWith("/auth/email/confirm", {
-      token: "abc123",
+describe("AuthEmailClient", () => {
+  const client = new AuthEmailClient(mockHttp, mockAnonymous);
+
+  it("calls POST /auth/email/confirm via the anonymous client", async () => {
+    vi.mocked(mockAnonymous.post).mockResolvedValueOnce({
+      data: {
+        success: true,
+        message: "ok",
+        data: {
+          token: "jwt-abc.payload.sig",
+          user: {
+            identity: { id: "u-1", name: "Smoke", email: "u@a.com" },
+            email_verification: {
+              verified: true,
+              deadline_at: null,
+              required_now: false,
+              days_remaining: null,
+            },
+          },
+        },
+      },
     });
+
+    const result = await client.confirmEmail("abc123");
+
+    expect(mockAnonymous.post).toHaveBeenCalledWith(
+      "/auth/email/confirm",
+      { token: "abc123" },
+      expect.objectContaining({
+        headers: expect.objectContaining({ "X-API-Contract": "v2" }),
+        withCredentials: true,
+      }),
+    );
+    expect(result.token).toBe("jwt-abc.payload.sig");
+    expect(result.user.identity.email).toBe("u@a.com");
   });
 
-  it("calls POST /auth/email/resend", async () => {
-    vi.mocked(mockHttp.post).mockResolvedValueOnce({ data: { success: true } });
+  it("does NOT use the authenticated http client for confirmEmail", async () => {
+    vi.mocked(mockAnonymous.post).mockResolvedValueOnce({
+      data: {
+        success: true,
+        message: "ok",
+        data: {
+          token: "t",
+          user: {
+            identity: { id: "u", name: "n", email: "e" },
+            email_verification: {
+              verified: true,
+              deadline_at: null,
+              required_now: false,
+              days_remaining: null,
+            },
+          },
+        },
+      },
+    });
+
+    await client.confirmEmail("abc");
+
+    expect(mockHttp.post).not.toHaveBeenCalled();
+  });
+
+  it("throws ApiError when the envelope is missing token or user", async () => {
+    vi.mocked(mockAnonymous.post).mockResolvedValueOnce({
+      data: { success: true, message: "ok", data: {} },
+    });
+
+    await expect(client.confirmEmail("abc")).rejects.toBeInstanceOf(ApiError);
+  });
+
+  it("propagates errors from the anonymous client", async () => {
+    vi.mocked(mockAnonymous.post).mockRejectedValueOnce(
+      new Error("Network error"),
+    );
+    await expect(client.confirmEmail("bad-token")).rejects.toThrow(
+      "Network error",
+    );
+  });
+
+  it("calls POST /auth/email/resend via the authenticated http client", async () => {
+    vi.mocked(mockHttp.post).mockResolvedValueOnce({
+      data: { success: true },
+    });
     await client.resendConfirmation();
     expect(mockHttp.post).toHaveBeenCalledWith("/auth/email/resend");
-  });
-
-  it("propagates errors from confirmEmail", async () => {
-    vi.mocked(mockHttp.post).mockRejectedValueOnce(new Error("Network error"));
-    await expect(client.confirmEmail("bad-token")).rejects.toThrow("Network error");
   });
 
   it("propagates errors from resendConfirmation", async () => {

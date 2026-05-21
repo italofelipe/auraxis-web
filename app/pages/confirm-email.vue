@@ -1,27 +1,88 @@
 <script setup lang="ts">
+/**
+ * Magic-link login page (#1338).
+ *
+ * Mounted on `/confirm-email?token=HMAC`. Sends the HMAC token to the
+ * backend; on success the backend mints an access JWT + refresh cookie and
+ * we sign the user in transparently. Failure cases (expired/invalid token)
+ * render an error state with a "resend" CTA — no automatic redirect.
+ *
+ * Page meta:
+ * - `layout: 'auth'` — no sidebar, no default-layout colateral queries that
+ *   could trigger the global Sessão expirada modal.
+ * - `middleware: []` — must be accessible without an existing session, since
+ *   the click can come from a device where the user is not logged in.
+ */
 import { CheckCircle2, XCircle } from "lucide-vue-next";
 import { NButton, NSpin } from "naive-ui";
+import { computed, onMounted } from "vue";
+
 import { useConfirmEmailMutation } from "~/features/auth/queries/use-confirm-email-mutation";
+import type { ConfirmEmailResult } from "~/features/auth/services/auth-email.client";
+import { useSessionStore } from "~/stores/session";
+
+definePageMeta({
+  layout: "auth",
+  // Public route: must work regardless of whether the user already has a
+  // session. Existing sessions are gracefully replaced by the magic-link.
+  middleware: [],
+});
 
 const { t } = useI18n();
 const route = useRoute();
+const router = useRouter();
+const sessionStore = useSessionStore();
 
 useSeoMeta({
   title: t("pages.confirmEmail.meta.title"),
   description: t("pages.confirmEmail.meta.description"),
+  robots: "noindex, nofollow",
 });
 
 const mutation = useConfirmEmailMutation();
 
 const token = computed(() => {
   const raw = route.query.token;
-  return typeof raw === "string" ? raw : null;
+  return typeof raw === "string" && raw.length > 0 ? raw : null;
 });
 
-// Auto-confirm on mount if a token is present in the URL.
-onMounted(() => {
-  if (token.value) {
-    mutation.mutate(token.value);
+/**
+ * Hydrates the session store with the canonical v3 user from the response
+ * and triggers the soft redirect into the app.
+ *
+ * @param result Response payload from `useConfirmEmailMutation`.
+ */
+const completeSignIn = (result: ConfirmEmailResult): void => {
+  const verification = result.user.email_verification;
+  sessionStore.signIn({
+    accessToken: result.token,
+    userEmail: result.user.identity.email,
+    emailVerified: verification.verified,
+    emailVerificationDeadlineAt: verification.deadline_at,
+    emailVerificationRequiredNow: verification.required_now,
+    daysUntilEmailRequired: verification.days_remaining,
+    // Legacy mirrors keep older components in sync until v3 migration is done.
+    emailConfirmed: verification.verified,
+    emailConfirmationDeadlineAt: verification.deadline_at,
+    emailConfirmationBlocked: verification.required_now,
+  });
+};
+
+onMounted(async () => {
+  if (!token.value) {
+    return;
+  }
+  try {
+    const result = await mutation.mutateAsync(token.value);
+    completeSignIn(result);
+    // Tiny micro-celebration before bouncing into the app. 800ms is enough
+    // for the user to register that something happened ("Email confirmado!")
+    // without feeling like a delay.
+    setTimeout(() => {
+      void router.push("/dashboard");
+    }, 800);
+  } catch {
+    // mutation.isError flips automatically; UI below renders the error state.
   }
 });
 
@@ -43,27 +104,24 @@ const status = computed((): "idle" | "pending" | "success" | "error" => {
         <p>{{ $t('pages.confirmEmail.wait') }}</p>
       </template>
 
-      <!-- Success -->
+      <!-- Success (800ms before auto-redirect) -->
       <template v-else-if="status === 'success'">
         <CheckCircle2 class="confirm-email__icon confirm-email__icon--success" :size="64" />
         <h1>{{ $t('pages.confirmEmail.successTitle') }}</h1>
         <p>{{ $t('pages.confirmEmail.successDescription') }}</p>
-        <NButton type="primary" tag="a" href="/dashboard">
-          {{ $t('pages.confirmEmail.cta') }}
-        </NButton>
       </template>
 
-      <!-- Error -->
+      <!-- Error: expired / invalid / reused token -->
       <template v-else-if="status === 'error'">
         <XCircle class="confirm-email__icon confirm-email__icon--error" :size="64" />
         <h1>{{ $t('pages.confirmEmail.errorTitle') }}</h1>
         <p>{{ $t('pages.confirmEmail.errorDescription') }}</p>
-        <NButton type="default" tag="a" href="/resend-confirmation">
+        <NButton type="primary" tag="a" href="/resend-confirmation">
           {{ $t('pages.confirmEmail.resendCta') }}
         </NButton>
       </template>
 
-      <!-- No token -->
+      <!-- No token in URL -->
       <template v-else>
         <XCircle class="confirm-email__icon confirm-email__icon--muted" :size="64" />
         <h1>{{ $t('pages.confirmEmail.noTokenTitle') }}</h1>
