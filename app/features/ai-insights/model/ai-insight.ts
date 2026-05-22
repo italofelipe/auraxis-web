@@ -3,6 +3,7 @@ import type {
   InsightDimension,
   InsightItem,
   InsightPeriodType,
+  InsightSourceSurface,
   InsightType,
   GenerateInsightResponseWithMetaDTO,
 } from "~/features/ai-insights/contracts/ai-insight";
@@ -32,6 +33,7 @@ export interface AIInsight {
 export interface GenerateAIInsightVariables {
   readonly periodType?: InsightPeriodType;
   readonly anchorDate?: string;
+  readonly sourceSurface?: InsightSourceSurface;
 }
 
 export interface GeneratedAIInsight {
@@ -63,6 +65,7 @@ const INSIGHT_DIMENSIONS = new Set<InsightDimension>([
   "credit_cards",
   "goals",
   "budgets",
+  "wallet",
 ]);
 
 const INSIGHT_PRESENTATION: Record<string, InsightPresentation> = {

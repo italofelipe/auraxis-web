@@ -54,6 +54,7 @@ export const useGenerateAIInsight = (
     mutationFn: (variables) => client.generateInsight({
       periodType: variables?.periodType ?? "daily",
       ...(variables?.anchorDate ? { anchorDate: variables.anchorDate } : {}),
+      ...(variables?.sourceSurface ? { sourceSurface: variables.sourceSurface } : {}),
     }),
     onSuccess: async (): Promise<void> => {
       await Promise.all(INVALIDATION_KEYS.map((queryKey) => invalidate(queryKey)));

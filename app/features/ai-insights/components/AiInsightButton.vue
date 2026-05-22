@@ -6,6 +6,13 @@ import { Sparkles } from "lucide-vue-next";
 import AiInsightLoadingModal from "./AiInsightLoadingModal.vue";
 import UiUpgradePrompt from "~/components/paywall/UiUpgradePrompt.vue";
 import { useAIInsights } from "~/features/ai-insights/composables/useAIInsights";
+import type { InsightSourceSurface } from "~/features/ai-insights/contracts/ai-insight";
+
+const props = withDefaults(defineProps<{
+  sourceSurface?: InsightSourceSurface;
+}>(), {
+  sourceSurface: "dashboard",
+});
 
 const {
   generate,
@@ -39,7 +46,10 @@ const isAIConsentRequiredError = (error: unknown): boolean =>
 const generateWithLoading = async (): Promise<void> => {
   showLoadingModal.value = true;
   try {
-    await generate();
+    await generate({
+      periodType: "daily",
+      sourceSurface: props.sourceSurface,
+    });
   } finally {
     showLoadingModal.value = false;
   }

@@ -50,4 +50,23 @@ describe("AiInsightAccordionItem", () => {
     expect(wrapper.text()).toContain("Saldo do período");
     expect(wrapper.text()).toContain("Gastos incomuns");
   });
+
+  it("highlights monthly reports with a month reference in the header", () => {
+    const wrapper = mount(AiInsightAccordionItem, {
+      props: {
+        item: {
+          ...insight,
+          insightType: "monthly",
+          periodType: "monthly",
+          periodLabel: "2026-05",
+        },
+      },
+      global: { stubs },
+    });
+
+    expect(wrapper.text()).toContain(
+      "Relatório de insights mensal referente ao mês maio de 2026",
+    );
+    expect(wrapper.find(".ai-insight-accordion-item--monthly").exists()).toBe(true);
+  });
 });

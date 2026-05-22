@@ -81,6 +81,41 @@ describe("AIInsightsApiClient", () => {
     expect(http.post.mock.calls[0]?.[1]).not.toHaveProperty("context");
   });
 
+  it("sends the source surface without sending financial context from the browser", async () => {
+    const http = {
+      post: vi.fn().mockResolvedValue({
+        data: {
+          data: {
+            summary: "Resumo",
+            items: [],
+            period_type: "daily",
+            period_label: "2026-05-22",
+            period_start: "2026-05-22",
+            period_end: "2026-05-22",
+            tokens_used: 120,
+            cost_usd: 0.00002,
+            model: "gpt-4o-mini",
+            cached: true,
+          },
+        },
+        headers: {},
+      }),
+    };
+    const client = new AIInsightsApiClient(http as never);
+
+    await client.generateInsight({
+      periodType: "daily",
+      sourceSurface: "transactions",
+    } as never);
+
+    expect(http.post).toHaveBeenCalledWith("/ai/insights/generate", {
+      period_type: "daily",
+      source_surface: "transactions",
+    });
+    expect(http.post.mock.calls[0]?.[1]).not.toHaveProperty("transactions");
+    expect(http.post.mock.calls[0]?.[1]).not.toHaveProperty("context");
+  });
+
   it("fetches paginated insight history from the backend envelope", async () => {
     const http = {
       get: vi.fn().mockResolvedValue({

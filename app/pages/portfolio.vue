@@ -20,6 +20,7 @@ import { useUpdateWalletEntryMutation } from "~/features/wallet/queries/use-upda
 import type { CreateWalletEntryPayload } from "~/features/wallet/services/wallet.client";
 import type { PortfolioSummaryDto, WalletEntryDto } from "~/features/portfolio/contracts/portfolio.dto";
 import NetWorthTimeline from "~/components/portfolio/NetWorthTimeline/NetWorthTimeline.vue";
+import AiInsightSurface from "~/features/ai-insights/components/AiInsightSurface.vue";
 import { useGoalsQuery } from "~/features/goals/queries/use-goals-query";
 import { formatCurrency } from "~/utils/currency";
 import { useTheme } from "~/composables/useTheme";
@@ -466,6 +467,8 @@ const allocationChartOption = computed<EChartsOption>(() => {
         </article>
       </section>
 
+      <AiInsightSurface class="portfolio-ai-insights" dimension="wallet" />
+
       <NetWorthTimeline
         aria-label="Projeção Patrimonial"
         :current-net-worth="computedSummary.total_value"
@@ -672,6 +675,14 @@ const allocationChartOption = computed<EChartsOption>(() => {
   background:
     radial-gradient(circle at 100% 0%, var(--color-brand-glow-2xs), transparent 34%),
     var(--mp-card);
+  box-shadow: var(--mp-panel-shadow);
+}
+
+.portfolio-ai-insights {
+  padding: var(--space-4);
+  border: 1px solid var(--mp-border);
+  border-radius: var(--radius-lg);
+  background: var(--mp-card);
   box-shadow: var(--mp-panel-shadow);
 }
 

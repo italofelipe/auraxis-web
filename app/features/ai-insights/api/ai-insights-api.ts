@@ -7,6 +7,7 @@ import type {
   GenerateInsightResponseDTO,
   GenerateInsightResponseWithMetaDTO,
   InsightPeriodType,
+  InsightSourceSurface,
   V2EnvelopeDTO,
 } from "~/features/ai-insights/contracts/ai-insight";
 
@@ -77,15 +78,18 @@ export class AIInsightsApiClient {
    * @param variables Period generation variables.
    * @param variables.periodType Daily, weekly or monthly insight granularity.
    * @param variables.anchorDate Optional YYYY-MM-DD anchor date for the period.
+   * @param variables.sourceSurface UI surface where the generation was requested.
    * @returns Generated insight payload plus remaining daily call count.
    */
   async generateInsight(variables: {
     readonly periodType: InsightPeriodType;
     readonly anchorDate?: string;
+    readonly sourceSurface?: InsightSourceSurface;
   }): Promise<GenerateInsightResponseWithMetaDTO> {
     const payload: GenerateInsightRequestDTO = {
       period_type: variables.periodType,
       ...(variables.anchorDate ? { anchor_date: variables.anchorDate } : {}),
+      ...(variables.sourceSurface ? { source_surface: variables.sourceSurface } : {}),
     };
 
     const response = await this.#http.post<V2EnvelopeDTO<GenerateInsightResponseDTO>>(

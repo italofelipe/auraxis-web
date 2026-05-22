@@ -1,6 +1,14 @@
 export type InsightType = "daily" | "weekly" | "monthly" | "recap";
 export type InsightPeriodType = "daily" | "weekly" | "monthly";
-export type InsightDimension = "general" | "transactions" | "credit_cards" | "goals" | "budgets";
+export type InsightDimension = "general" | "transactions" | "credit_cards" | "goals" | "budgets" | "wallet";
+export type InsightSourceSurface =
+  | "dashboard"
+  | "insights"
+  | "transactions"
+  | "credit_cards"
+  | "goals"
+  | "budgets"
+  | "wallet";
 
 export interface InsightItem {
   readonly type: string;
@@ -28,6 +36,7 @@ export interface AIInsightDTO {
 export interface GenerateInsightRequestDTO {
   readonly period_type: InsightPeriodType;
   readonly anchor_date?: string;
+  readonly source_surface?: InsightSourceSurface;
 }
 
 export interface GenerateInsightResponseDTO {
