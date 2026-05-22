@@ -28,7 +28,9 @@ export type AuraxisEvent =
   | "first_transaction_created"
   | "paywall_shown"
   | "upgrade_clicked"
-  | "upgrade_completed";
+  | "upgrade_completed"
+  // ── Account trust (#922) ──────────────────────────────────────────────
+  | "email_confirmation_completed";
 
 /** Typed analytics client exposed as `$analytics` in the Nuxt app. */
 export interface AnalyticsClient {

@@ -2,8 +2,10 @@ import axios, { type AxiosInstance } from "axios";
 
 import { ApiError } from "~/core/errors";
 import { useHttp } from "~/composables/useHttp";
+import { toApiError } from "~/core/api";
 
 const DEFAULT_API_BASE = "http://localhost:5000";
+export const CONFIRM_EMAIL_TIMEOUT_MS = 15_000;
 
 /**
  * Backend envelope for email-related auth operations that do NOT issue a
@@ -46,11 +48,11 @@ export interface ConfirmEmailUserPayload {
 interface ConfirmEmailEnvelope {
   readonly success: boolean;
   readonly message: string;
-  readonly data: {
-    readonly token: string;
-    readonly user: ConfirmEmailUserPayload;
+  readonly data?: {
+    readonly token?: string;
+    readonly user?: ConfirmEmailUserPayload;
     readonly refresh_token?: string | null;
-  };
+  } | null;
 }
 
 /**
@@ -59,7 +61,19 @@ interface ConfirmEmailEnvelope {
  * Decoupled from the backend wire shape so the page never sees the snake_case
  * keys directly.
  */
-export interface ConfirmEmailResult {
+export type ConfirmEmailResult =
+  | {
+      readonly kind: "signed_in";
+      readonly message: string;
+      readonly token: string;
+      readonly user: ConfirmEmailUserPayload;
+    }
+  | {
+      readonly kind: "confirmed_without_session";
+      readonly message: string;
+    };
+
+interface ConfirmEmailSignedInEnvelope {
   readonly token: string;
   readonly user: ConfirmEmailUserPayload;
 }
@@ -101,16 +115,42 @@ export class AuthEmailClient {
    * @throws ApiError when the token is missing, expired or invalid.
    */
   async confirmEmail(token: string): Promise<ConfirmEmailResult> {
-    const response = await this.#anonymous.post<ConfirmEmailEnvelope>(
-      "/auth/email/confirm",
-      { token },
-      { headers: { "X-API-Contract": "v2" }, withCredentials: true },
-    );
-    const data = response.data?.data;
-    if (data?.token === undefined || data?.user === undefined) {
-      throw new ApiError(500, "Resposta inválida do servidor.");
+    let envelope: ConfirmEmailEnvelope;
+    try {
+      const response = await this.#anonymous.post<ConfirmEmailEnvelope>(
+        "/auth/email/confirm",
+        { token },
+        {
+          headers: { "X-API-Contract": "v2" },
+          timeout: CONFIRM_EMAIL_TIMEOUT_MS,
+          withCredentials: true,
+        },
+      );
+      envelope = response.data;
+    } catch (error) {
+      throw toApiError(error);
     }
-    return { token: data.token, user: data.user };
+
+    const data = envelope?.data;
+    if (isSignedInEnvelope(data)) {
+      return {
+        kind: "signed_in",
+        message: envelope.message,
+        token: data.token,
+        user: data.user,
+      };
+    }
+    if (envelope?.success === true && (data === null || data === undefined)) {
+      return {
+        kind: "confirmed_without_session",
+        message: envelope.message,
+      };
+    }
+    throw new ApiError(
+      502,
+      "Resposta inesperada do servidor.",
+      "UNEXPECTED_CONFIRM_EMAIL_RESPONSE",
+    );
   }
 
   /**
@@ -146,3 +186,16 @@ const buildAnonymousClient = (): AxiosInstance => {
  */
 export const useAuthEmailClient = (): AuthEmailClient =>
   new AuthEmailClient(useHttp(), buildAnonymousClient());
+
+/**
+ * Returns true when the confirmation envelope contains a complete magic-link
+ * session payload.
+ *
+ * @param data Optional backend data block.
+ * @returns Whether `data` can hydrate the session store safely.
+ */
+function isSignedInEnvelope(
+  data: ConfirmEmailEnvelope["data"],
+): data is ConfirmEmailSignedInEnvelope {
+  return typeof data?.token === "string" && data.token.length > 0 && data.user !== undefined;
+}
