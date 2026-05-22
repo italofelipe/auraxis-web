@@ -16,6 +16,7 @@ import { useBrapiCurrentQuoteQuery } from "~/features/wallet/queries/use-brapi-c
 import { useBrapiHistoricalPriceQuery } from "~/features/wallet/queries/use-brapi-historical-price-query";
 import { useBrapiTickerSearchQuery } from "~/features/wallet/queries/use-brapi-ticker-search-query";
 import { useDirtyGuard } from "~/composables/useDirtyGuard";
+import { normalizeCurrencyNumber } from "~/utils/currencyInput";
 
 export interface WalletEntryFormState {
   name: string;
@@ -197,7 +198,9 @@ export function useWalletEntryForm(opts: UseWalletEntryFormOptions) {
 
   const estimatedTotal = computed((): string | null => {
     if (form.quantity === null || form.unit_price === null) { return null; }
-    const total = form.quantity * form.unit_price;
+    const unitPrice = normalizeCurrencyNumber(form.unit_price);
+    if (unitPrice === null || !Number.isFinite(form.quantity)) { return null; }
+    const total = form.quantity * unitPrice;
     const currency = historicalPrice.value?.currency ?? "BRL";
     return `${currency} ${total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   });
@@ -250,7 +253,7 @@ export function useWalletEntryForm(opts: UseWalletEntryFormOptions) {
     // Backend rejects `value` when `ticker` is present — it recomputes the
     // monetary value from quantity × historical price for the register_date.
     if (hasTicker.value) { return base; }
-    return { ...base, value: form.value };
+    return { ...base, value: normalizeCurrencyNumber(form.value) };
   }
 
   /** Restores every field and BRAPI-derived value to its default. */

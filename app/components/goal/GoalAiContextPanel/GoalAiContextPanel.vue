@@ -11,6 +11,7 @@ import { useGoalAIProjectionMutation } from "~/features/goals/queries/use-goal-a
 import { buildGoalAIProjectionContext } from "~/features/goals/model/goal-ai-projection";
 import type { TransactionDto } from "~/features/transactions/contracts/transaction.dto";
 import { formatCurrency } from "~/utils/currency";
+import { parseCurrencyAmount } from "~/utils/currencyInput";
 
 const MAX_CONTEXT_LENGTH = 500;
 
@@ -71,7 +72,7 @@ const suggestedContributionLabel = computed(() => {
     return "Aporte atual suficiente";
   }
 
-  return formatCurrency(Number(suggestion));
+  return formatCurrency(parseCurrencyAmount(suggestion));
 });
 
 /**

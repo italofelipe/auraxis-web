@@ -3,6 +3,7 @@ import { describe, it, expect } from "vitest";
 import { NInputNumber } from "naive-ui";
 
 import GoalSimulatePanel from "../GoalSimulatePanel.vue";
+import UiMoneyInput from "~/components/ui/UiMoneyInput/UiMoneyInput.vue";
 import type { GoalDto } from "~/features/goals/contracts/goal.dto";
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
@@ -44,20 +45,19 @@ function mountPanel(
 describe("GoalSimulatePanel", () => {
   it("renders the monthly contribution input", () => {
     const wrapper = mountPanel(makeGoal());
-    const inputs = wrapper.findAllComponents(NInputNumber);
-    expect(inputs.length).toBeGreaterThanOrEqual(1);
+    expect(wrapper.findComponent(UiMoneyInput).exists()).toBe(true);
   });
 
   it("renders the annual return input", () => {
     const wrapper = mountPanel(makeGoal());
     const inputs = wrapper.findAllComponents(NInputNumber);
-    expect(inputs.length).toBeGreaterThanOrEqual(2);
+    expect(inputs.length).toBeGreaterThanOrEqual(1);
   });
 
   it("initialises monthly contribution from initialMonthly prop", () => {
     const wrapper = mountPanel(makeGoal(), 500);
-    const inputs = wrapper.findAllComponents(NInputNumber);
-    expect(inputs[0]?.props("value")).toBe(500);
+    const input = wrapper.findComponent(UiMoneyInput);
+    expect(input.props("value")).toBe(500);
   });
 
   it("shows 'não será atingida' when monthly contribution is 0", () => {
@@ -67,9 +67,8 @@ describe("GoalSimulatePanel", () => {
 
   it("shows projection text when monthly contribution is positive", async () => {
     const wrapper = mountPanel(makeGoal(), 1000);
-    // Trigger reactivity by setting prop value
-    const inputs = wrapper.findAllComponents(NInputNumber);
-    await inputs[0]?.setValue(1000);
+    await wrapper.findComponent(UiMoneyInput).vm.$emit("update:value", 1000);
+    await wrapper.vm.$nextTick();
     expect(wrapper.text()).toMatch(/Projeção|meses/);
   });
 
@@ -89,7 +88,7 @@ describe("GoalSimulatePanel", () => {
     const wrapper = mountPanel(makeGoal({ current_amount: 0, target_amount: 12000 }), 1000);
     const inputs = wrapper.findAllComponents(NInputNumber);
     // Emit update:value on the return rate input to trigger compound growth path
-    await inputs[1]?.vm.$emit("update:value", 12);
+    await inputs[0]?.vm.$emit("update:value", 12);
     await wrapper.vm.$nextTick();
     expect(wrapper.text()).toMatch(/Projeção|meses/);
   });
@@ -97,7 +96,7 @@ describe("GoalSimulatePanel", () => {
   it("updates monthly contribution when initialMonthly prop changes", async () => {
     const wrapper = mountPanel(makeGoal(), 100);
     await wrapper.setProps({ initialMonthly: 800 });
-    const inputs = wrapper.findAllComponents(NInputNumber);
-    expect(inputs[0]?.props("value")).toBe(800);
+    const input = wrapper.findComponent(UiMoneyInput);
+    expect(input.props("value")).toBe(800);
   });
 });

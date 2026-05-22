@@ -4,7 +4,6 @@ import {
   NForm,
   NFormItem,
   NInput,
-  NInputNumber,
   NSelect,
   NDatePicker,
   NButton,
@@ -14,6 +13,7 @@ import {
 } from "naive-ui";
 import type { GoalFormProps } from "./GoalForm.types";
 import type { CreateGoalPayload, GoalStatus } from "~/features/goals/contracts/goal.dto";
+import { parseCurrencyAmount } from "~/utils/currencyInput";
 
 const { t } = useI18n();
 
@@ -170,9 +170,9 @@ const onSubmit = (): void => {
     const payload: CreateGoalPayload = {
       name: formModel.name,
       description: formModel.description ?? null,
-      target_amount: formModel.target_amount!,
+      target_amount: parseCurrencyAmount(formModel.target_amount),
       ...(formModel.current_amount !== null && formModel.current_amount !== undefined
-        ? { current_amount: formModel.current_amount }
+        ? { current_amount: parseCurrencyAmount(formModel.current_amount) }
         : {}),
       ...(formModel.target_date ? { target_date: formModel.target_date } : {}),
       ...(formModel.status ? { status: formModel.status } : {}),
@@ -226,22 +226,18 @@ const onClose = (): void => {
 
       <div class="goal-form__amount-grid">
         <NFormItem :label="$t('goal.form.targetAmount.label')" path="target_amount">
-          <NInputNumber
+          <UiMoneyInput
             v-model:value="formModel.target_amount"
             placeholder="0,00"
             :min="0.01"
-            :precision="2"
-            style="width: 100%"
           />
         </NFormItem>
 
         <NFormItem :label="$t('goal.form.currentAmount.label')" path="current_amount">
-          <NInputNumber
+          <UiMoneyInput
             v-model:value="formModel.current_amount"
             placeholder="0,00"
             :min="0"
-            :precision="2"
-            style="width: 100%"
           />
         </NFormItem>
       </div>

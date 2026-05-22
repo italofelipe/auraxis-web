@@ -5,7 +5,6 @@ import {
   NForm,
   NFormItem,
   NInput,
-  NInputNumber,
   NSelect,
   NDatePicker,
   NSwitch,
@@ -25,8 +24,7 @@ import { useTagsQuery } from "~/features/tags/queries/use-tags-query";
 import { useAccountsQuery } from "~/features/accounts/queries/use-accounts-query";
 import { useCreditCardsQuery } from "~/features/credit-cards/queries/use-credit-cards-query";
 import {
-  formatCurrencyCentsInput,
-  parseCurrencyCentsInput,
+  parseCurrencyAmount,
   serializeCurrencyAmount,
 } from "~/utils/currencyInput";
 
@@ -142,7 +140,7 @@ const dateToTs = (isoDate: string | null | undefined): number | null => {
  */
 const populateForm = (tx: TransactionDto): void => {
   form.title = tx.title;
-  form.amount = parseFloat(tx.amount);
+  form.amount = parseCurrencyAmount(tx.amount);
   form.due_date = dateToTs(tx.due_date);
   form.tag_id = tx.tag_id;
   form.account_id = tx.account_id;
@@ -282,15 +280,10 @@ const handleClose = (): void => {
 
       <!-- Amount -->
       <NFormItem :label="$t('transaction.form.amount.label')" path="amount">
-        <NInputNumber
+        <UiMoneyInput
           v-model:value="form.amount"
           :placeholder="$t('transaction.form.amount.placeholder')"
           :min="0.01"
-          :precision="2"
-          :show-button="false"
-          :parse="parseCurrencyCentsInput"
-          :format="formatCurrencyCentsInput"
-          style="width: 100%"
         />
       </NFormItem>
 

@@ -17,6 +17,7 @@
 
 import { computed, type ComputedRef } from "vue";
 import type { TransactionDto } from "../contracts/transaction.dto";
+import { parseCurrencyAmount } from "~/utils/currencyInput";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -63,8 +64,7 @@ export interface RecurrencePattern {
  * @returns Parsed number or 0.
  */
 function parseAmount(value: string): number {
-  const n = parseFloat(value);
-  return Number.isFinite(n) ? n : 0;
+  return parseCurrencyAmount(value);
 }
 
 /**

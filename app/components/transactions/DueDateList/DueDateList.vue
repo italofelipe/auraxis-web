@@ -27,6 +27,7 @@ import {
 import type { DueTransactionDto } from "~/features/transactions/contracts/due-range.dto";
 import { downloadICalFile } from "~/features/transactions/utils/ical-export";
 import { formatCurrency } from "~/utils/currency";
+import { parseCurrencyAmount } from "~/utils/currencyInput";
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
@@ -216,7 +217,7 @@ function formatDate(isoDate: string): string {
               </span>
             </div>
             <span class="ddl__item-amount">
-              {{ formatCurrency(parseFloat(tx.amount)) }}
+              {{ formatCurrency(parseCurrencyAmount(tx.amount)) }}
             </span>
             <span
               v-if="tx.status === 'paid'"

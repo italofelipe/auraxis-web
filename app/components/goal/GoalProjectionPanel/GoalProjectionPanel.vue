@@ -5,6 +5,7 @@ import type { EChartsOption } from "echarts";
 import type { GoalProjectionPanelProps } from "./GoalProjectionPanel.types";
 import { useGoalProjectionQuery } from "~/features/goals/queries/use-goal-projection-query";
 import { formatCurrency } from "~/utils/currency";
+import { parseCurrencyAmount } from "~/utils/currencyInput";
 
 const { t } = useI18n();
 
@@ -28,11 +29,23 @@ const { data, isLoading, isError } = useGoalProjectionQuery(goalIdRef);
 const contribution = ref<number>(0);
 const contributionInitialised = ref<boolean>(false);
 
+/**
+ * Parses generic decimal values from the projection API without allowing NaN
+ * to leak into charts or statistics.
+ *
+ * @param value Raw decimal-like API value.
+ * @returns Finite number, or 0 when the value is invalid.
+ */
+function parseProjectionNumber(value: unknown): number {
+  const parsed = typeof value === "number" ? value : Number.parseFloat(String(value ?? ""));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
 watch(
   data,
   (val) => {
     if (val && !contributionInitialised.value) {
-      contribution.value = parseFloat(val.projection.monthly_contribution);
+      contribution.value = parseCurrencyAmount(val.projection.monthly_contribution);
       contributionInitialised.value = true;
     }
   },
@@ -42,7 +55,7 @@ watch(
 /** Portfolio blended monthly return rate from API (e.g. 0.009489). */
 const monthlyRate = computed((): number => {
   if (!data.value) { return 0; }
-  return parseFloat(data.value.projection.portfolio_monthly_return_rate);
+  return parseProjectionNumber(data.value.projection.portfolio_monthly_return_rate);
 });
 
 /** Annualised return rate as a percentage for display (e.g. "12.00"). */
@@ -54,13 +67,13 @@ const annualRatePct = computed((): string => {
 /** Current accumulated amount as a number. */
 const currentAmount = computed((): number => {
   if (!data.value) { return 0; }
-  return parseFloat(data.value.projection.current_amount);
+  return parseCurrencyAmount(data.value.projection.current_amount);
 });
 
 /** Target amount as a number. */
 const targetAmount = computed((): number => {
   if (!data.value) { return 0; }
-  return parseFloat(data.value.projection.target_amount);
+  return parseCurrencyAmount(data.value.projection.target_amount);
 });
 
 /**
@@ -124,13 +137,13 @@ const onTrack = computed((): boolean => data.value?.projection.on_track ?? false
 /** Suggested monthly contribution when off-track, or null. */
 const suggestedContribution = computed((): number | null => {
   const s = data.value?.projection.suggested_monthly_contribution;
-  return s !== null && s !== undefined ? parseFloat(s) : null;
+  return s !== null && s !== undefined ? parseCurrencyAmount(s) : null;
 });
 
 /** Upper bound for the slider: 5× the API contribution, minimum R$5000. */
 const sliderMax = computed((): number => {
   if (!data.value) { return 5000; }
-  return Math.max(parseFloat(data.value.projection.monthly_contribution) * 5, 5000);
+  return Math.max(parseCurrencyAmount(data.value.projection.monthly_contribution) * 5, 5000);
 });
 
 /**

@@ -2,6 +2,7 @@ import { computed, type ComputedRef, ref, type Ref } from "vue";
 import type { TransactionDto } from "~/features/transactions/contracts/transaction.dto";
 import type { TransactionsClient } from "~/features/transactions/services/transactions.client";
 import { useListTransactionsQuery } from "~/features/transactions/queries/use-list-transactions-query";
+import { parseCurrencyAmount } from "~/utils/currencyInput";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -188,8 +189,8 @@ function buildContext(opts: BuildOptions): CalendarBuildContext {
   for (let d = 1; d <= totalDays; d++) {
     const iso = toIso(new Date(year, month, d));
     const dayTxs = txByDate.get(iso) ?? [];
-    const income = dayTxs.filter((t) => t.type === "income").reduce((s, t) => s + parseFloat(t.amount), 0);
-    const expense = dayTxs.filter((t) => t.type === "expense").reduce((s, t) => s + parseFloat(t.amount), 0);
+    const income = dayTxs.filter((t) => t.type === "income").reduce((s, t) => s + parseCurrencyAmount(t.amount), 0);
+    const expense = dayTxs.filter((t) => t.type === "expense").reduce((s, t) => s + parseCurrencyAmount(t.amount), 0);
     dailyBalances.set(d, income - expense);
   }
 
@@ -225,8 +226,8 @@ function buildCurrentMonthSlots(year: number, month: number, ctx: CalendarBuildC
     const d = i + 1;
     const date = toIso(new Date(year, month, d));
     const dayTxs = ctx.txByDate.get(date) ?? [];
-    const income = dayTxs.filter((t) => t.type === "income").reduce((s, t) => s + parseFloat(t.amount), 0);
-    const expense = dayTxs.filter((t) => t.type === "expense").reduce((s, t) => s + parseFloat(t.amount), 0);
+    const income = dayTxs.filter((t) => t.type === "income").reduce((s, t) => s + parseCurrencyAmount(t.amount), 0);
+    const expense = dayTxs.filter((t) => t.type === "expense").reduce((s, t) => s + parseCurrencyAmount(t.amount), 0);
     return { date, dayOfMonth: d, isCurrentMonth: true, isToday: date === ctx.todayIso, transactions: dayTxs, totalIncome: income, totalExpense: expense, dailyBalance: ctx.dailyBalances.get(d) ?? 0, cumulativeBalance: ctx.cumulativeByDay.get(d) ?? 0, isCashValley: ctx.cashValleys.has(d) };
   });
 }
