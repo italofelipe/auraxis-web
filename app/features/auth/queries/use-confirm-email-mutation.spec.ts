@@ -10,6 +10,8 @@ vi.mock("~/core/query/use-api-mutation", () => ({
 }));
 
 const sampleResult: ConfirmEmailResult = {
+  kind: "signed_in",
+  message: "ok",
   token: "jwt-abc.payload.sig",
   user: {
     identity: { id: "u-1", name: "Smoke", email: "smoke@auraxis.com.br" },
@@ -69,6 +71,10 @@ describe("useConfirmEmailMutation", () => {
     const result = await mutation.mutationFn("token-xyz");
 
     expect(result).toEqual(sampleResult);
+    expect(result.kind).toBe("signed_in");
+    if (result.kind !== "signed_in") {
+      throw new Error("Expected signed-in confirmation result");
+    }
     expect(result.token).toBe("jwt-abc.payload.sig");
     expect(result.user.email_verification.verified).toBe(true);
   });
