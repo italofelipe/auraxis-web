@@ -93,8 +93,8 @@ describe("useHttp helpers", () => {
       }
     ).handlers;
 
-    // axios-retry registers its own response interceptor — expect 1 (retry only)
-    expect(responseHandlers.filter(Boolean)).toHaveLength(1);
+    // captureRequestIdInterceptor (1) + axios-retry (1) = 2
+    expect(responseHandlers.filter(Boolean)).toHaveLength(2);
   });
 
   it("registra interceptor de resposta quando interceptorOptions é fornecido", () => {
@@ -113,8 +113,8 @@ describe("useHttp helpers", () => {
       }
     ).handlers;
 
-    // axios-retry (1) + registerResponseInterceptors (1) = 2
-    expect(responseHandlers.filter(Boolean)).toHaveLength(2);
+    // captureRequestIdInterceptor (1) + axios-retry (1) + registerResponseInterceptors (1) = 3
+    expect(responseHandlers.filter(Boolean)).toHaveLength(3);
   });
 });
 

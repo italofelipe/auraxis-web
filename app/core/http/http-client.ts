@@ -5,6 +5,7 @@ import axios, {
 
 import { registerResponseInterceptors } from "~/core/api/interceptors";
 import type { ResponseInterceptorOptions } from "~/core/api/types";
+import { captureRequestIdInterceptor } from "~/core/observability/request-id-context";
 import { axiosRetry, DEFAULT_RETRY_CONFIG } from "./retry-config";
 
 /**
@@ -75,6 +76,7 @@ export const createHttpClient = (
   });
 
   client.interceptors.request.use(createAuthInterceptor(getAccessToken));
+  client.interceptors.response.use(captureRequestIdInterceptor);
   axiosRetry(client, DEFAULT_RETRY_CONFIG);
 
   if (interceptorOptions !== undefined) {
