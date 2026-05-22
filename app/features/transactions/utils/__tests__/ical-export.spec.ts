@@ -66,6 +66,14 @@ describe("buildICalString", () => {
     expect(output).toContain("Receita: Salário");
   });
 
+  it("exports formatted BRL amounts without writing NaN or zero", () => {
+    const output = buildICalString([makeTransaction({ amount: "R$ 39,90" })]);
+
+    expect(output).toContain("Valor: R$ 39\\,90");
+    expect(output).not.toContain("NaN");
+    expect(output).not.toContain("R$ 0\\,00");
+  });
+
   it("escapes special characters in SUMMARY", () => {
     const output = buildICalString([makeTransaction({ title: "Conta; água, gás" })]);
     expect(output).toContain("Conta\\; água\\, gás");

@@ -8,6 +8,7 @@ import type { TransactionDto } from "~/features/transactions/contracts/transacti
 import { useListDeletedTransactionsQuery } from "~/features/transactions/queries/use-list-deleted-transactions-query";
 import { useRestoreTransactionMutation } from "~/features/transactions/queries/use-restore-transaction-mutation";
 import { formatCurrency } from "~/utils/currency";
+import { parseCurrencyAmount } from "~/utils/currencyInput";
 
 definePageMeta({
   middleware: ["authenticated"],
@@ -90,7 +91,7 @@ const columns = computed<DataTableColumns<TransactionDto>>(() => [
       h(
         "span",
         { class: ["tx-amount", row.type === "income" ? "tx-amount--income" : "tx-amount--expense"] },
-        formatCurrency(parseFloat(row.amount)),
+        formatCurrency(parseCurrencyAmount(row.amount)),
       ),
   },
   {
@@ -120,7 +121,7 @@ const restoreConfirmDesc = computed((): string => {
   if (!restoreTarget.value) { return ""; }
   return t("transactions.trash.restoreConfirmDesc", {
     title: restoreTarget.value.title,
-    amount: formatCurrency(parseFloat(restoreTarget.value.amount)),
+    amount: formatCurrency(parseCurrencyAmount(restoreTarget.value.amount)),
   });
 });
 </script>

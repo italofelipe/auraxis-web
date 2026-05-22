@@ -1,5 +1,5 @@
-import { computed } from "vue";
-import { describe, expect, it } from "vitest";
+import { computed, ref } from "vue";
+import { describe, expect, it, vi } from "vitest";
 import type { TransactionDto } from "~/features/transactions/contracts/transaction.dto";
 import {
   darkenHex,
@@ -9,8 +9,16 @@ import {
   isTransactionOverdue,
   renderTagBadge,
   resolveSwipeGestureAction,
+  useTransactionTable,
 } from "../useTransactionTable";
 import type { TagLookup } from "../useTransactionFilters";
+
+vi.mock("vue-i18n", () => ({
+  useI18n: (): { t: (key: string, ctx?: Record<string, unknown>) => string } => ({
+    t: (key: string, ctx?: Record<string, unknown>) =>
+      ctx && "n" in ctx ? `${key}:${String(ctx.n)}` : key,
+  }),
+}));
 
 describe("formatTransactionDate", () => {
   it("formats YYYY-MM-DD as dd/MM/yyyy", () => {
@@ -174,5 +182,61 @@ describe("resolveSwipeGestureAction", () => {
 
   it("returns mark-paid only for intentional right horizontal swipes", () => {
     expect(resolveSwipeGestureAction(96, 18)).toBe("mark-paid");
+  });
+});
+
+describe("useTransactionTable", () => {
+  /**
+   * Builds a table transaction fixture.
+   *
+   * @param overrides Transaction fields to override.
+   * @returns Transaction DTO fixture.
+   */
+  function buildTx(overrides: Partial<TransactionDto> = {}): TransactionDto {
+    return {
+      id: "tx-fixture",
+      title: "Transaction",
+      amount: "100.00",
+      type: "expense",
+      status: "pending",
+      due_date: "2026-05-10",
+      tag_id: null,
+      account_id: null,
+      ...overrides,
+    } as unknown as TransactionDto;
+  }
+
+  it("keeps totals finite for formatted and malformed monetary values", () => {
+    const data = ref<TransactionDto[]>([
+      buildTx({ id: "income-brl", type: "income", amount: "R$ 1.234,56" }),
+      buildTx({ id: "income-invalid", type: "income", amount: "NaN" }),
+      buildTx({ id: "expense-decimal", type: "expense", amount: "234.56" }),
+      buildTx({ id: "expense-invalid", type: "expense", amount: "Infinity" }),
+    ]);
+
+    const table = useTransactionTable({
+      data,
+      tagMap: computed(() => new Map()),
+      tagDetailMap: computed(() => new Map()),
+      accountMap: computed(() => new Map()),
+      filterType: ref("all"),
+      filterStatus: ref("all"),
+      filterStartDate: ref(null),
+      filterEndDate: ref(null),
+      filterTagId: ref("all"),
+      deleteMutation: { isPending: ref(false) },
+      markPaidMutation: { isPending: ref(false) },
+      duplicateMutation: { isPending: ref(false) },
+      deleteTarget: ref(null),
+      onEdit: vi.fn(),
+      onMarkPaid: vi.fn(),
+      onDelete: vi.fn(),
+      onDuplicate: vi.fn(),
+    });
+
+    expect(table.totalIncome.value).toBeCloseTo(1234.56);
+    expect(table.totalExpense.value).toBeCloseTo(234.56);
+    expect(Number.isFinite(table.totalIncome.value)).toBe(true);
+    expect(Number.isFinite(table.totalExpense.value)).toBe(true);
   });
 });

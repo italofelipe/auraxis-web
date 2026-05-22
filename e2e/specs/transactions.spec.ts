@@ -1,4 +1,4 @@
-import { test, expect, type Page, type Route } from "@playwright/test";
+import { test, expect, type Locator, type Page, type Route } from "@playwright/test";
 import { fillLoginForm, waitForHydration } from "../helpers/auth";
 
 /**
@@ -377,6 +377,31 @@ const loginAndGoToTransactions = async (page: Page): Promise<void> => {
 	await waitForHydration(page);
 };
 
+/**
+ * Fills the required transaction form fields with a cents-entry amount.
+ *
+ * @param dialog - Transaction form dialog locator.
+ * @param title - Transaction title.
+ * @param amountDigits - Raw digits typed by the user.
+ * @param dueDate - Date in dd/MM/yyyy format.
+ */
+const fillTransactionFormBasics = async (
+	dialog: Locator,
+	title: string,
+	amountDigits: string,
+	dueDate: string,
+): Promise<void> => {
+	await dialog.locator("input").first().fill(title);
+
+	const amountInput = dialog.locator(".ui-money-input input").first();
+	await amountInput.fill(amountDigits);
+	await expect(amountInput).toHaveValue(/120,25/);
+
+	const dateInput = dialog.locator(".n-date-picker input").first();
+	await dateInput.fill(dueDate);
+	await dateInput.press("Enter");
+};
+
 test.describe("Transactions — MSW-backed flows", () => {
 	test("shows the current month period by default", async ({ page }) => {
 		await mockAuthAndTransactions(page);
@@ -441,6 +466,27 @@ test.describe("Transactions — MSW-backed flows", () => {
 		).toBeVisible({ timeout: 5_000 });
 	});
 
+	test("creating an expense sends cents-based amount as a two-decimal payload", async ({ page }) => {
+		await mockAuthAndTransactions(page);
+		await loginAndGoToTransactions(page);
+
+		await page.getByRole("button", { name: /nova despesa/i }).click();
+		const dialog = page.getByRole("dialog");
+		await expect(dialog).toBeVisible({ timeout: 5_000 });
+
+		await fillTransactionFormBasics(dialog, "Conta de luz", "12025", "20/05/2026");
+
+		const postRequest = page.waitForRequest(
+			(req) => req.url().includes("/transactions") && req.method() === "POST",
+			{ timeout: 10_000 },
+		);
+		await dialog.getByRole("button", { name: /^salvar$/i }).click();
+		const request = await postRequest;
+		const payload = request.postDataJSON() as { amount?: string };
+
+		expect(payload.amount).toBe("120.25");
+	});
+
 	test("clicking edit on a row opens the edit modal", async ({ page }) => {
 		await mockAuthAndTransactions(page);
 		await loginAndGoToTransactions(page);
@@ -449,6 +495,30 @@ test.describe("Transactions — MSW-backed flows", () => {
 		await page.getByRole("button", { name: /^editar$/i }).first().click();
 
 		await expect(page.getByRole("dialog").first()).toBeVisible({ timeout: 5_000 });
+	});
+
+	test("editing a transaction sends cents-based amount as a two-decimal payload", async ({ page }) => {
+		await mockAuthAndTransactions(page);
+		await loginAndGoToTransactions(page);
+
+		await expect(page.getByText("Salário Mensal")).toBeVisible({ timeout: 10_000 });
+		await page.getByRole("button", { name: /^editar$/i }).first().click();
+
+		const dialog = page.getByRole("dialog").first();
+		await expect(dialog).toBeVisible({ timeout: 5_000 });
+		const amountInput = dialog.locator(".ui-money-input input").first();
+		await amountInput.fill("12025");
+		await expect(amountInput).toHaveValue(/120,25/);
+
+		const patchRequest = page.waitForRequest(
+			(req) => req.url().includes("/transactions/tx-1") && req.method() === "PATCH",
+			{ timeout: 10_000 },
+		);
+		await dialog.getByRole("button", { name: /^salvar$/i }).click();
+		const request = await patchRequest;
+		const payload = request.postDataJSON() as { amount?: string };
+
+		expect(payload.amount).toBe("120.25");
 	});
 
 	test("duplicating a row triggers POST /transactions and shows the copy", async ({ page }) => {

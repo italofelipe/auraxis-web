@@ -8,6 +8,7 @@
  */
 
 import type { DueTransactionDto } from "../contracts/due-range.dto";
+import { parseCurrencyAmount } from "~/utils/currencyInput";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -77,7 +78,7 @@ function escapeText(text: string): string {
  * @returns VEVENT lines array (not joined yet).
  */
 function buildVEvent(tx: DueTransactionDto, dtstamp: string): string[] {
-  const amountNum = parseFloat(tx.amount);
+  const amountNum = parseCurrencyAmount(tx.amount);
   const formattedAmount = new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",

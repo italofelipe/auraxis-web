@@ -7,12 +7,16 @@
  * @returns Formatted currency string, e.g. `"R$ 1.234,56"`.
  */
 export const formatCurrency = (
-  value: number,
+  value: unknown,
   currency = "BRL",
   locale = "pt-BR",
-): string =>
-  new Intl.NumberFormat(locale, {
+): string => {
+  const amount = typeof value === "number" ? value : Number(value);
+  const safeAmount = Number.isFinite(amount) ? amount : 0;
+
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
     maximumFractionDigits: 2,
-  }).format(value);
+  }).format(safeAmount);
+};

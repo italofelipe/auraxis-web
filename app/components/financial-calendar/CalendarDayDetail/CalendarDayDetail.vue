@@ -5,6 +5,7 @@ import { TrendingDown, TrendingUp } from "lucide-vue-next";
 import type { CalendarDayDetailProps, CalendarDayDetailEmits } from "./CalendarDayDetail.types";
 import type { TransactionDto } from "~/features/transactions/contracts/transaction.dto";
 import { formatCurrency } from "~/utils/currency";
+import { parseCurrencyAmount } from "~/utils/currencyInput";
 
 const { t } = useI18n();
 
@@ -131,7 +132,7 @@ function statusLabel(tx: TransactionDto): string {
               'calendar-day-detail__item-amount--expense': tx.type === 'expense',
             }"
           >
-            {{ tx.type === 'expense' ? '−' : '+' }}{{ formatCurrency(parseFloat(tx.amount)) }}
+            {{ tx.type === 'expense' ? '−' : '+' }}{{ formatCurrency(parseCurrencyAmount(tx.amount)) }}
           </span>
         </li>
       </ul>

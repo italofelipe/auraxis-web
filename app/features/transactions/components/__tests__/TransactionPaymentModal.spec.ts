@@ -65,6 +65,15 @@ describe("TransactionPaymentModal", () => {
     expect(wrapper.get("[data-testid='transaction-payment-confirm']").attributes("disabled")).toBeDefined();
   });
 
+  it("renders formatted BRL string amounts without falling back to zero", () => {
+    const wrapper = mount(TransactionPaymentModal, {
+      props: { visible: true, transaction: makeTransaction({ amount: "R$ 2.580,00" }), loading: false },
+    });
+
+    expect(wrapper.text()).toContain("R$ 2.580,00");
+    expect(wrapper.text()).not.toContain("R$ 0,00");
+  });
+
   it("renders receipt copy for income transactions", () => {
     const wrapper = mount(TransactionPaymentModal, {
       props: { visible: true, transaction: makeTransaction({ type: "income", title: "Venda" }), loading: false },

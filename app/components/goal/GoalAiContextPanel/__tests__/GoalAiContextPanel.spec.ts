@@ -171,4 +171,38 @@ describe("GoalAiContextPanel", () => {
     expect(wrapper.text()).toContain("A meta segue viavel");
     expect(wrapper.emitted("save-note")).toHaveLength(1);
   });
+
+  it("formats BRL suggested contributions without falling back to zero", () => {
+    useGoalAIProjectionMutationMock.mockReturnValue({
+      mutate: mutateMock,
+      data: ref({
+        narrative: "Aumente um pouco o aporte mensal.",
+        tokens_used: 420,
+        cost_usd: 0.000062,
+        model: "gpt-4o-mini",
+        projection: {
+          goal_id: "goal-001",
+          current_amount: "12500.00",
+          target_amount: "30000.00",
+          remaining_amount: "17500.00",
+          monthly_contribution: "1200.00",
+          portfolio_monthly_return_rate: "0.008",
+          portfolio_annual_return_rate_pct: "10.00",
+          months_to_completion: 14,
+          projected_completion_date: "2027-07-01",
+          on_track: false,
+          months_until_deadline: 18,
+          suggested_monthly_contribution: "R$ 1.450,25",
+        },
+      }),
+      isPending: ref(false),
+      isError: ref(false),
+      error: ref(null),
+    });
+
+    const wrapper = mountPanel();
+
+    expect(wrapper.text()).toContain("R$ 1.450,25");
+    expect(wrapper.text()).not.toContain("R$ 0,00");
+  });
 });

@@ -5,6 +5,7 @@ import type {
   PortfolioSummaryDto,
   WalletEntryDto,
 } from "~/features/portfolio/contracts/portfolio.dto";
+import { parseCurrencyAmount } from "~/utils/currencyInput";
 
 /** Single point in the wallet entry's valuation history. */
 export interface WalletHistoryPoint {
@@ -72,10 +73,10 @@ export class WalletClient {
     }>("/wallet/valuation");
     const { summary } = response.data.data;
     return {
-      total_value: parseFloat(summary.total_current_value),
-      total_cost: parseFloat(summary.total_invested_amount),
+      total_value: parseCurrencyAmount(summary.total_current_value),
+      total_cost: parseCurrencyAmount(summary.total_invested_amount),
       day_change_percent: null,
-      total_return_percent: parseFloat(summary.total_profit_loss_percent),
+      total_return_percent: parseCurrencyAmount(summary.total_profit_loss_percent),
       asset_count: summary.total_investments,
     };
   }

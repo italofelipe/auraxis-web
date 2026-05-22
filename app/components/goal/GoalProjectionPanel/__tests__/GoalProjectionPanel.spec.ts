@@ -221,6 +221,17 @@ describe("GoalProjectionPanel", () => {
     expect(slider.props("value")).toBe(900);
   });
 
+  it("initialises slider value from formatted BRL monthly contribution", () => {
+    const wrapper = mountPanel("goal-001", {
+      data: ref(makeResponse({ monthly_contribution: "R$ 900,00" })),
+      isLoading: ref(false),
+      isError: ref(false),
+    });
+
+    const slider = wrapper.findComponent(NSlider);
+    expect(slider.props("value")).toBe(900);
+  });
+
   it("passes goalId as a reactive ref to useGoalProjectionQuery", () => {
     mountPanel("goal-001", {
       data: ref(null),

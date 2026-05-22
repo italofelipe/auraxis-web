@@ -9,7 +9,6 @@ import {
   NForm,
   NFormItem,
   NInput,
-  NInputNumber,
   NSelect,
   NDatePicker,
   NStatistic,
@@ -22,6 +21,8 @@ import { useDeleteBudgetMutation } from "~/features/budgets/queries/use-delete-b
 import { useTagsQuery } from "~/features/tags/queries/use-tags-query";
 import AiInsightSurface from "~/features/ai-insights/components/AiInsightSurface.vue";
 import type { BudgetDto, CreateBudgetPayload, BudgetPeriod } from "~/features/budgets/contracts/budget.contracts";
+import { formatCurrency } from "~/utils/currency";
+import { parseCurrencyAmount, serializeCurrencyAmount } from "~/utils/currencyInput";
 
 const { t } = useI18n();
 
@@ -53,11 +54,11 @@ const formDateRange = ref<[number, number] | null>(null);
 const allBudgets = computed(() => budgets.value ?? []);
 
 const totalBudgeted = computed(() =>
-  allBudgets.value.reduce((sum, b) => sum + parseFloat(b.amount), 0),
+  allBudgets.value.reduce((sum, b) => sum + parseCurrencyAmount(b.amount), 0),
 );
 
 const totalSpent = computed(() =>
-  allBudgets.value.reduce((sum, b) => sum + parseFloat(b.spent), 0),
+  allBudgets.value.reduce((sum, b) => sum + parseCurrencyAmount(b.spent), 0),
 );
 
 const totalRemaining = computed(() => totalBudgeted.value - totalSpent.value);
@@ -85,21 +86,6 @@ const periodOptions = computed(() => [
 ]);
 
 const isCustomPeriod = computed(() => formPeriod.value === "custom");
-
-// --- helpers ---
-
-/**
- * Formats a decimal string as BRL currency display.
- *
- * @param value - Decimal string from API.
- * @returns Formatted currency string.
- */
-const formatCurrency = (value: string): string => {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(parseFloat(value));
-};
 
 /**
  * Returns the progress bar color based on percentage used.
@@ -142,7 +128,7 @@ const onNewBudget = (): void => {
 const onEditBudget = (budget: BudgetDto): void => {
   editingBudget.value = budget;
   formName.value = budget.name;
-  formAmount.value = parseFloat(budget.amount);
+  formAmount.value = parseCurrencyAmount(budget.amount);
   formPeriod.value = budget.period;
   formTagId.value = budget.tag_id;
   if (budget.start_date && budget.end_date) {
@@ -162,7 +148,7 @@ const onSubmitForm = (): void => {
 
   const payload: CreateBudgetPayload = {
     name: formName.value,
-    amount: formAmount.value.toFixed(2),
+    amount: serializeCurrencyAmount(formAmount.value),
     period: formPeriod.value,
     tag_id: formTagId.value,
     start_date:
@@ -352,11 +338,9 @@ const onDeleteBudget = (id: string): void => {
         </NFormItem>
 
         <NFormItem :label="$t('pages.budgets.form.amount')">
-          <NInputNumber
+          <UiMoneyInput
             v-model:value="formAmount"
             :min="0.01"
-            :precision="2"
-            style="width: 100%"
           />
         </NFormItem>
 

@@ -105,12 +105,10 @@ const form = inject<WalletEntryFormState>(WALLET_ENTRY_FORM_KEY)!;
       </template>
 
       <div class="wallet-entry-form__price-field">
-        <NInputNumber
+        <UiMoneyInput
           v-model:value="form.unit_price"
           :placeholder="$t('wallet.form.unitPrice.placeholder')"
           :min="0"
-          :precision="2"
-          style="width: 100%"
           :disabled="isFetchingHistorical"
           @update:value="emit('dirty')"
         />
@@ -137,12 +135,10 @@ const form = inject<WalletEntryFormState>(WALLET_ENTRY_FORM_KEY)!;
     </NFormItem>
 
     <NFormItem v-if="showValue" :label="$t('wallet.form.value.label')" path="value">
-      <NInputNumber
+      <UiMoneyInput
         v-model:value="form.value"
         :placeholder="$t('wallet.form.value.placeholder')"
         :min="0"
-        :precision="2"
-        style="width: 100%"
         @update:value="emit('dirty')"
       />
     </NFormItem>

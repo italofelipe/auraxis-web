@@ -14,10 +14,6 @@ import {
   QUICK_TRANSACTION_FORM_KEY,
   type QuickTransactionFormState,
 } from "./useQuickTransactionForm";
-import {
-  formatCurrencyCentsInput,
-  parseCurrencyCentsInput,
-} from "~/utils/currencyInput";
 
 defineOptions({ name: "QuickTransactionFormFields" });
 
@@ -43,15 +39,10 @@ const form = inject<QuickTransactionFormState>(QUICK_TRANSACTION_FORM_KEY)!;
     </NFormItem>
 
     <NFormItem :label="$t('transaction.form.amount.label')" path="amount">
-      <NInputNumber
+      <UiMoneyInput
         v-model:value="form.amount"
         :placeholder="$t('transaction.form.amount.placeholder')"
         :min="0.01"
-        :precision="2"
-        :show-button="false"
-        :parse="parseCurrencyCentsInput"
-        :format="formatCurrencyCentsInput"
-        style="width: 100%"
       />
     </NFormItem>
 

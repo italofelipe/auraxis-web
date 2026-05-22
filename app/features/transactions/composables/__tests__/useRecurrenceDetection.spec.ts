@@ -125,6 +125,15 @@ describe("detectRecurrencePatterns", () => {
     expect(patterns[0]?.confidence).toBeOneOf(["high", "medium", "low"]);
   });
 
+  it("parses formatted BRL amounts without collapsing recurrence value to zero", () => {
+    const txs = makeMonthly({ amount: "R$ 39,90" }, "2025-01", 6);
+
+    const [pattern] = detectRecurrencePatterns(txs);
+
+    expect(pattern?.medianAmount).toBeCloseTo(39.9);
+    expect(pattern?.annualImpact).toBeCloseTo(39.9 * 12);
+  });
+
   it("rejects amounts that vary more than 5%", () => {
     // First 3 months normal, next 3 months completely different amount.
     const normal = makeMonthly({ id: "n" }, "2025-01", 3);

@@ -21,6 +21,7 @@ import { useCreateCreditCardMutation } from "~/features/credit-cards/queries/use
 import { useUpdateCreditCardMutation } from "~/features/credit-cards/queries/use-update-credit-card-mutation";
 import { useDeleteCreditCardMutation } from "~/features/credit-cards/queries/use-delete-credit-card-mutation";
 import AiInsightSurface from "~/features/ai-insights/components/AiInsightSurface.vue";
+import { normalizeCurrencyNumber } from "~/utils/currencyInput";
 
 const { t } = useI18n();
 
@@ -112,13 +113,14 @@ async function submitForm(): Promise<void> {
   const last_four_digits = formLastFourDigits.value.trim() || null;
   const brand: CreditCardBrand | null =
     formBrand.value === BRAND_NONE_SENTINEL ? null : formBrand.value;
+  const limit_amount = normalizeCurrencyNumber(formLimitAmount.value);
 
   if (editingCard.value) {
     await updateMutation.mutateAsync({
       id: editingCard.value.id,
       name,
       brand,
-      limit_amount: formLimitAmount.value,
+      limit_amount,
       closing_day: formClosingDay.value,
       due_day: formDueDay.value,
       last_four_digits,
@@ -127,7 +129,7 @@ async function submitForm(): Promise<void> {
     await createMutation.mutateAsync({
       name,
       brand,
-      limit_amount: formLimitAmount.value,
+      limit_amount,
       closing_day: formClosingDay.value,
       due_day: formDueDay.value,
       last_four_digits,
@@ -251,12 +253,10 @@ const columns = computed((): DataTableColumns<CreditCardDto> => [
           />
         </NFormItem>
         <NFormItem :label="$t('pages.settings.creditCards.fields.limitAmount')">
-          <NInputNumber
+          <UiMoneyInput
             v-model:value="formLimitAmount"
             :min="0"
-            :precision="2"
             clearable
-            style="width: 100%;"
           />
         </NFormItem>
         <NFormItem :label="$t('pages.settings.creditCards.fields.closingDay')">

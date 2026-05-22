@@ -20,6 +20,7 @@ import {
 import type { TransactionDto } from "~/features/transactions/contracts/transaction.dto";
 import type { TagLookup } from "./useTransactionFilters";
 import { formatCurrency } from "~/utils/currency";
+import { parseCurrencyAmount } from "~/utils/currencyInput";
 
 const SWIPE_THRESHOLD = 72;
 const SWIPE_VERTICAL_SLOP = 32;
@@ -279,7 +280,7 @@ function renderStatusIcon(row: TransactionDto, t: (key: string) => string): Retu
  * @returns VNode for the amount cell.
  */
 function renderAmount(row: TransactionDto): ReturnType<typeof h> {
-  return h("span", { class: ["tx-amount", row.type === "income" ? "tx-amount--income" : "tx-amount--expense"] }, [row.type === "expense" ? "−" : "+", formatCurrency(parseFloat(row.amount))]);
+  return h("span", { class: ["tx-amount", row.type === "income" ? "tx-amount--income" : "tx-amount--expense"] }, [row.type === "expense" ? "−" : "+", formatCurrency(parseCurrencyAmount(row.amount))]);
 }
 
 /**
@@ -415,8 +416,8 @@ export function useTransactionTable(opts: UseTransactionTableOptions): UseTransa
     pagination.page = 1;
   });
 
-  const totalIncome = computed(() => (opts.data.value ?? []).filter((tx) => tx.type === "income").reduce((sum, tx) => sum + parseFloat(tx.amount), 0));
-  const totalExpense = computed(() => (opts.data.value ?? []).filter((tx) => tx.type === "expense").reduce((sum, tx) => sum + parseFloat(tx.amount), 0));
+  const totalIncome = computed(() => (opts.data.value ?? []).filter((tx) => tx.type === "income").reduce((sum, tx) => sum + parseCurrencyAmount(tx.amount), 0));
+  const totalExpense = computed(() => (opts.data.value ?? []).filter((tx) => tx.type === "expense").reduce((sum, tx) => sum + parseCurrencyAmount(tx.amount), 0));
 
   /**
    * Enters visual reorder mode and copies the current order into localOrder.
@@ -437,7 +438,7 @@ export function useTransactionTable(opts: UseTransactionTableOptions): UseTransa
       { key: "title" as DataTableRowKey, title: t("transactions.table.description"), ellipsis: { tooltip: true }, sorter: withSort ? (a: TransactionDto, b: TransactionDto): number => a.title.localeCompare(b.title, "pt-BR") : undefined, render: (row: TransactionDto) => renderTitle(row, t) },
       { key: "tag_id" as DataTableRowKey, title: t("transactions.table.category"), width: 150, ellipsis: { tooltip: true }, render: (row: TransactionDto) => renderTagBadge(row, opts.tagDetailMap) },
       { key: "account_id" as DataTableRowKey, title: t("transactions.table.account"), width: 120, ellipsis: { tooltip: true }, render: (row: TransactionDto): string => opts.accountMap.value.get(row.account_id ?? "") ?? "—" },
-      { key: "amount" as DataTableRowKey, title: t("transactions.table.amount"), width: 138, sorter: withSort ? (a: TransactionDto, b: TransactionDto): number => parseFloat(a.amount) - parseFloat(b.amount) : undefined, render: (row: TransactionDto) => renderAmount(row) },
+      { key: "amount" as DataTableRowKey, title: t("transactions.table.amount"), width: 138, sorter: withSort ? (a: TransactionDto, b: TransactionDto): number => parseCurrencyAmount(a.amount) - parseCurrencyAmount(b.amount) : undefined, render: (row: TransactionDto) => renderAmount(row) },
       { key: "__actions" as DataTableRowKey, title: t("transactions.table.actions"), width: 140, render: (row: TransactionDto) => renderActions(row, opts, t) },
     ];
   });

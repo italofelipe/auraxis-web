@@ -4,6 +4,7 @@ import { NButton, NDatePicker, NModal } from "naive-ui";
 import { CheckCircle2, X } from "lucide-vue-next";
 import type { TransactionDto } from "~/features/transactions/contracts/transaction.dto";
 import { formatCurrency } from "~/utils/currency";
+import { parseCurrencyAmount } from "~/utils/currencyInput";
 
 const props = defineProps<{
   visible: boolean;
@@ -31,7 +32,7 @@ const helperText = computed(() =>
 
 const formattedAmount = computed(() => {
   if (!props.transaction) { return ""; }
-  return formatCurrency(Number.parseFloat(props.transaction.amount));
+  return formatCurrency(parseCurrencyAmount(props.transaction.amount));
 });
 
 const formattedDueDate = computed(() => {

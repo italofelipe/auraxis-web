@@ -92,11 +92,9 @@ const projectionLabel = computed((): string => {
     <div class="goal-simulate-panel__inputs">
       <div class="goal-simulate-panel__field">
         <label class="goal-simulate-panel__label">{{ $t('goal.simulate.monthlyLabel') }}</label>
-        <NInputNumber
+        <UiMoneyInput
           v-model:value="monthlyContribution"
           :min="0"
-          :precision="2"
-          :show-button="false"
           class="goal-simulate-panel__input"
         />
       </div>

@@ -231,15 +231,13 @@ describe("QuickTransactionForm", () => {
 
   it("parses typed amount digits as cents and submits a two-decimal payload amount", async () => {
     const wrapper = mountForm("income");
-    const titleInput = wrapper.findComponent({ name: "NInput" });
-    const amountInput = wrapper.findAllComponents({ name: "NInputNumber" })[0]!;
+    const textInputs = wrapper.findAllComponents({ name: "NInput" });
+    const titleInput = textInputs[0]!;
+    const amountInput = textInputs[1]!;
     const dueDatePicker = wrapper.findComponent({ name: "NDatePicker" });
-    const parseAmount = amountInput.props("parse") as (input: string) => number | null;
-
-    expect(parseAmount("123456")).toBe(1234.56);
 
     await titleInput.vm.$emit("update:value", "Venda de teste");
-    await amountInput.vm.$emit("update:value", parseAmount("123456"));
+    await amountInput.vm.$emit("update:value", "123456");
     await dueDatePicker.vm.$emit("update:value", new Date(2026, 4, 17).getTime());
 
     const saveButton = wrapper.findAll("button").find((b) => b.text() === "Salvar");
