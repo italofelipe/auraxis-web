@@ -36,11 +36,13 @@ pnpm policy:check
 pnpm contracts:check
 
 echo ""
-echo "▸ [6/8] Dependency audit (critical severity gate)..."
-# Baseline gate: blocks only on critical CVEs. Tighten to audit:high once the
-# existing 5 high-severity transitive vulnerabilities are remediated via
-# pnpm overrides (tracked as follow-up to this PR).
-pnpm audit:critical
+echo "▸ [6/8] Dependency audit (ci-audit-gate: high+critical, allowlist-aware)..."
+# Uses the same script CI runs (scripts/ci-audit-gate.cjs). It blocks on
+# high+critical vulnerabilities EXCEPT those in the allowlist (transitives
+# without upstream patches, e.g., lodash-es _.template / minimatch ReDoS in
+# js-cookie chain — see ADR/issue refs inside the script). Tighter than the
+# previous `pnpm audit:critical` baseline.
+node scripts/ci-audit-gate.cjs
 
 echo ""
 echo "▸ [7/8] Build..."
