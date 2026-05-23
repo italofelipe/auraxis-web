@@ -1,5 +1,4 @@
 import { mount } from "@vue/test-utils";
-import { computed, ref } from "vue";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import NotificationsPage from "./notifications.vue";
@@ -11,16 +10,43 @@ const runtimeConfig = vi.hoisted(() => ({
 }));
 
 type PushHarnessState = "unsupported" | "unconfigured" | "ready" | "subscribed";
+type FakeRef<T> = {
+  __v_isRef: true;
+  value: T;
+};
 
 const pushHarness = vi.hoisted(() => {
-  const state = ref<PushHarnessState>("unconfigured");
+  /**
+   * Creates a minimal Vue-compatible ref without relying on Vue imports inside `vi.hoisted`.
+   *
+   * @param value - Initial ref value.
+   * @returns A tiny object that Vue's `proxyRefs` can unwrap in templates.
+   */
+  const createRef = <T>(value: T): FakeRef<T> => ({
+    __v_isRef: true,
+    value,
+  });
+  /**
+   * Creates a readonly computed-like ref without touching hoisted Vue imports.
+   *
+   * @param getter - Computes the current value when Vue unwraps the ref.
+   * @returns A tiny readonly ref-like object.
+   */
+  const createComputed = <T>(getter: () => T): FakeRef<T> => ({
+    __v_isRef: true,
+    get value(): T {
+      return getter();
+    },
+  });
+
+  const state = createRef<PushHarnessState>("unconfigured");
 
   return {
     state,
-    isSubscribed: computed(() => state.value === "subscribed"),
-    isBusy: ref(false),
-    permission: ref<"default" | "granted" | "denied">("default"),
-    error: ref<string | null>(null),
+    isSubscribed: createComputed(() => state.value === "subscribed"),
+    isBusy: createRef(false),
+    permission: createRef<"default" | "granted" | "denied">("default"),
+    error: createRef<string | null>(null),
     subscribe: vi.fn(),
     unsubscribe: vi.fn(),
   };

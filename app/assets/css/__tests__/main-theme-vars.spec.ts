@@ -6,14 +6,21 @@ const css = readFileSync(join(process.cwd(), "app/assets/css/main.css"), "utf8")
 
 describe("global theme CSS variables", () => {
   it("uses light colors as the root default", () => {
-    expect(css).toContain("--color-bg-base:     #F4F8FB;");
-    expect(css).toContain("--color-bg-surface:  #FFFFFF;");
-    expect(css).toContain("--color-text-primary:   #0A1628;");
+    const darkThemeIndex = css.indexOf(":root[data-theme=\"dark\"]");
+    const rootThemeCss = css.slice(0, darkThemeIndex);
+
+    expect(rootThemeCss).toMatch(/--color-bg-base:\s*#f4f8fb;/i);
+    expect(rootThemeCss).toMatch(/--color-bg-surface:\s*#ffffff;/i);
+    expect(rootThemeCss).toMatch(/--color-text-primary:\s*#0a1628;/i);
+    expect(rootThemeCss).not.toMatch(/--color-bg-base:\s*#05070d;/i);
   });
 
   it("keeps dark colors behind the explicit dark theme selector", () => {
-    expect(css).toContain(":root[data-theme=\"dark\"]");
-    expect(css).toContain("--color-bg-base:     #05070d;");
-    expect(css).toContain("--color-text-primary:   #f1f5ff;");
+    const darkThemeIndex = css.indexOf(":root[data-theme=\"dark\"]");
+    const darkThemeCss = css.slice(darkThemeIndex);
+
+    expect(darkThemeIndex).toBeGreaterThan(-1);
+    expect(darkThemeCss).toMatch(/--color-bg-base:\s*#05070d;/i);
+    expect(darkThemeCss).toMatch(/--color-text-primary:\s*#f1f5ff;/i);
   });
 });
