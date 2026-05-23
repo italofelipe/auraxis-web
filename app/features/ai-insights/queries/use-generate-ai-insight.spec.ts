@@ -58,6 +58,24 @@ describe("useGenerateAIInsight", () => {
     expect(client.generateInsight).toHaveBeenCalledWith({ periodType: "daily" });
   });
 
+  it("forwards the source surface to the AI insights client", async () => {
+    const client = { generateInsight: vi.fn() };
+
+    const mutation = useGenerateAIInsight(client as never) as unknown as {
+      mutationFn: (variables?: GenerateAIInsightVariables) => Promise<unknown>;
+    };
+
+    await mutation.mutationFn({
+      periodType: "daily",
+      sourceSurface: "transactions",
+    } as never);
+
+    expect(client.generateInsight).toHaveBeenCalledWith({
+      periodType: "daily",
+      sourceSurface: "transactions",
+    });
+  });
+
   it("invalidates current insight surfaces after a successful generation", async () => {
     const invalidateQueries = vi.fn();
     const client = { generateInsight: vi.fn() };

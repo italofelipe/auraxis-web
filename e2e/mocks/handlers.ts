@@ -149,6 +149,12 @@ const MOCK_AI_INSIGHT_ITEMS = [
 		title: "Transações fora do padrão",
 		message: "Há despesas acima do esperado neste período.",
 	},
+	{
+		type: "saude_financeira",
+		dimension: "wallet",
+		title: "Carteira com oportunidade de diversificação",
+		message: "Sua carteira pode ganhar equilíbrio entre classes de ativos.",
+	},
 ];
 
 const MOCK_AI_GENERATED_INSIGHT = {

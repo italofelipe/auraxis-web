@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   filterInsightItemsByDimension,
+  getInsightSurfaceConfig,
   groupInsightItemsByDimension,
   useInsightsByDimension,
 } from "./use-insights-by-dimension";
@@ -70,5 +71,32 @@ describe("useInsightsByDimension", () => {
       "goals",
     ]);
     expect(groups[0]?.label).toBe("Visão geral");
+  });
+
+  it("supports wallet insights in contextual filtering and hub grouping", () => {
+    const walletItem = {
+      type: "saude_financeira",
+      dimension: "wallet",
+      title: "Carteira diversificada",
+      message: "Sua carteira tem classes diferentes.",
+    } as InsightItem;
+
+    expect(filterInsightItemsByDimension([walletItem], "wallet" as never)).toEqual([walletItem]);
+    expect(groupInsightItemsByDimension([walletItem]).map((group) => group.dimension)).toEqual(["wallet"]);
+  });
+
+  it("maps app routes to source surfaces and contextual dimensions", () => {
+    expect(getInsightSurfaceConfig("/transactions")).toEqual({
+      sourceSurface: "transactions",
+      dimension: "transactions",
+    });
+    expect(getInsightSurfaceConfig("/portfolio")).toEqual({
+      sourceSurface: "wallet",
+      dimension: "wallet",
+    });
+    expect(getInsightSurfaceConfig("/insights")).toEqual({
+      sourceSurface: "insights",
+      dimension: undefined,
+    });
   });
 });

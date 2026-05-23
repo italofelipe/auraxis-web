@@ -11,7 +11,10 @@ vi.mock("~/features/ai-insights/composables/useAIInsights", () => ({
 }));
 
 const stubs = {
-  AiInsightButton: { template: "<button>Gerar insight com IA</button>" },
+  AiInsightButton: {
+    props: ["sourceSurface"],
+    template: "<button data-testid='ai-button'>{{ sourceSurface }}</button>",
+  },
   AiInsightSection: {
     props: ["insight"],
     template: "<section data-testid='insight-section'>{{ insight.map((item) => item.title).join(', ') }}</section>",
@@ -48,5 +51,42 @@ describe("AiInsightSurface", () => {
     expect(wrapper.find("[data-testid='insight-section']").exists()).toBe(false);
     expect(wrapper.text()).toContain("Nenhum insight específico para esta área");
     expect(wrapper.text()).toContain("A visão completa continua disponível em Insights");
+  });
+
+  it("shows wallet-only insights and passes the wallet source surface", () => {
+    useAIInsightsMock.mockReturnValue({
+      currentInsight: ref([
+        {
+          type: "saude_financeira",
+          dimension: "wallet",
+          title: "Carteira diversificada",
+          message: "Sua carteira tem classes diferentes.",
+        },
+        {
+          type: "padrao_gasto",
+          dimension: "transactions",
+          title: "Transações fora do padrão",
+          message: "Algumas despesas cresceram.",
+        },
+      ]),
+      insightPeriodLabel: ref("2026-05"),
+      isStale: ref(false),
+      insightModel: ref("gpt-4o-mini"),
+      tokensUsed: ref(120),
+      costUsd: ref(0.00001),
+    });
+
+    const wrapper = mount(AiInsightSurface, {
+      props: { dimension: "wallet" as never },
+      global: { stubs },
+    });
+
+    expect(wrapper.get("[data-testid='ai-button']").text()).toContain("wallet");
+    expect(wrapper.get("[data-testid='insight-section']").text()).toContain(
+      "Carteira diversificada",
+    );
+    expect(wrapper.get("[data-testid='insight-section']").text()).not.toContain(
+      "Transações fora do padrão",
+    );
   });
 });

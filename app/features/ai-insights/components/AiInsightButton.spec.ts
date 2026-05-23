@@ -85,6 +85,30 @@ describe("AiInsightButton", () => {
     expect(wrapper.find("[data-testid='loading-modal']").exists()).toBe(false);
   });
 
+  it("passes the source surface to insight generation", async () => {
+    const generate = vi.fn().mockResolvedValue(null);
+    useAIInsightsMock.mockReturnValue({
+      hasPremium: ref(true),
+      isLoading: ref(false),
+      callsRemaining: ref(null),
+      hasAIConsent: vi.fn().mockResolvedValue(true),
+      generate,
+    });
+
+    const wrapper = mount(AiInsightButton, {
+      props: { sourceSurface: "transactions" },
+      global: { stubs },
+    });
+
+    await wrapper.find("button").trigger("click");
+    await flushPromises();
+
+    expect(generate).toHaveBeenCalledWith({
+      periodType: "daily",
+      sourceSurface: "transactions",
+    });
+  });
+
   it("asks for AI consent when the backend requires it and retries after approval", async () => {
     const generate = vi.fn().mockResolvedValue(null);
     const grantAIConsent = vi.fn().mockResolvedValue(undefined);

@@ -4,6 +4,7 @@ import { NCollapseItem, NTag } from "naive-ui";
 
 import {
   formatInsightCreatedAt,
+  formatInsightPeriod,
   getInsightTypeLabel,
   type AIInsight,
 } from "~/features/ai-insights/model/ai-insight";
@@ -13,7 +14,16 @@ const props = defineProps<{
   item: AIInsight;
 }>();
 
-const title = computed(() => `Insight – ${formatInsightCreatedAt(props.item.createdAt)}`);
+const isMonthlyReport = computed(
+  () => props.item.periodType === "monthly" || props.item.insightType === "monthly" || props.item.insightType === "recap",
+);
+const title = computed(() => {
+  if (isMonthlyReport.value) {
+    return `Relatório de insights mensal referente ao mês ${formatInsightPeriod(props.item.periodLabel)}`;
+  }
+
+  return `Insight – ${formatInsightCreatedAt(props.item.createdAt)}`;
+});
 const dimensionGroups = computed(() => groupInsightItemsByDimension(props.item.items));
 
 const tagType = computed(() => {
@@ -29,7 +39,13 @@ const tagType = computed(() => {
 </script>
 
 <template>
-  <NCollapseItem :name="item.id" class="ai-insight-accordion-item">
+  <NCollapseItem
+    :name="item.id"
+    :class="[
+      'ai-insight-accordion-item',
+      { 'ai-insight-accordion-item--monthly': isMonthlyReport },
+    ]"
+  >
     <template #header>
       <div class="ai-insight-accordion-item__header">
         <span>{{ title }}</span>
@@ -66,6 +82,11 @@ const tagType = computed(() => {
   align-items: center;
   gap: var(--space-2);
   color: var(--color-text-primary);
+}
+
+.ai-insight-accordion-item--monthly {
+  border-left: 3px solid var(--color-brand-400);
+  border-radius: var(--radius-md);
 }
 
 .ai-insight-accordion-item__content {

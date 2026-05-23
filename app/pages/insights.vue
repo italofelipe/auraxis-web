@@ -15,6 +15,7 @@ definePageMeta({
 
 useHead({ title: "Insights de IA | Auraxis" });
 
+const route = useRoute();
 const currentPage = ref(1);
 const perPage = 10;
 const loadedInsights = ref<AIInsight[]>([]);
@@ -51,6 +52,11 @@ const sortedInsights = computed(() =>
 
 const total = computed(() => historyQuery.data.value?.total ?? sortedInsights.value.length);
 const hasMore = computed(() => sortedInsights.value.length < total.value);
+const requestedOpenInsightId = computed(() => {
+  const open = route.query.open;
+  return Array.isArray(open) ? open[0] : open;
+});
+const expandedInsightIds = ref<string[]>([]);
 
 /**
  * Advances pagination so Vue Query fetches the next history page.
@@ -58,6 +64,36 @@ const hasMore = computed(() => sortedInsights.value.length < total.value);
 const loadMore = (): void => {
   currentPage.value += 1;
 };
+
+watch(
+  [sortedInsights, requestedOpenInsightId],
+  ([insights, insightId]) => {
+    if (!insightId) {
+      return;
+    }
+
+    if (insights.some((item) => item.id === insightId)) {
+      expandedInsightIds.value = [insightId];
+    }
+  },
+  { immediate: true },
+);
+
+watch(
+  () =>
+    Boolean(
+      requestedOpenInsightId.value &&
+      hasMore.value &&
+      !historyQuery.isFetching.value &&
+      !sortedInsights.value.some((item) => item.id === requestedOpenInsightId.value),
+    ),
+  (shouldLoadMore) => {
+    if (shouldLoadMore) {
+      loadMore();
+    }
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
@@ -71,7 +107,7 @@ const loadMore = (): void => {
           para tomar decisões mais conscientes.
         </p>
       </div>
-      <AiInsightButton />
+      <AiInsightButton source-surface="insights" />
     </section>
 
     <UiSurfaceCard v-if="historyQuery.isError.value" class="insights-page__state">
@@ -96,7 +132,7 @@ const loadMore = (): void => {
     </UiEmptyState>
 
     <section v-else class="insights-page__history" aria-label="Histórico de insights">
-      <NCollapse accordion>
+      <NCollapse v-model:expanded-names="expandedInsightIds" accordion>
         <AiInsightAccordionItem
           v-for="item in sortedInsights"
           :key="item.id"
