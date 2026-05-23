@@ -1,17 +1,17 @@
 [
   {
-    "slug": "controle-de-financas",
-    "keyword": "controle de finanças",
-    "title": "Controle de finanças claro para o dia a dia",
-    "description": "Organize receitas, despesas, metas e análises em uma rotina simples com o Auraxis.",
-    "h1": "Controle de finanças com clareza para decidir melhor",
+    "slug": "controle-financeiro",
+    "keyword": "controle financeiro",
+    "title": "Controle financeiro para organizar sua vida financeira",
+    "description": "Controle financeiro com receitas, despesas, metas, carteira e insights em uma rotina clara para decidir melhor.",
+    "h1": "Controle financeiro com clareza para decidir melhor",
     "kicker": "Rotina financeira",
-    "lead": "O Auraxis ajuda você a registrar movimentações, entender o mês atual e enxergar prioridades sem depender de planilhas soltas.",
-    "visualCaption": "Dashboard, fluxo de caixa e alertas no mesmo painel.",
+    "lead": "O Auraxis ajuda você a registrar movimentações, entender o mês atual e enxergar prioridades sem depender de planilhas soltas ou anotações espalhadas.",
+    "visualCaption": "Dashboard, fluxo de caixa, metas e alertas no mesmo painel.",
     "proofPoints": [
       "Resumo mensal com entradas, saídas e saldo",
       "Categorias e contas para entender onde o dinheiro circula",
-      "Insights com linguagem simples e consentimento explícito"
+      "Insights financeiros com linguagem simples e consentimento explícito"
     ],
     "highlights": [
       {
@@ -43,10 +43,225 @@
     ]
   },
   {
+    "slug": "financas",
+    "keyword": "finanças",
+    "title": "Finanças pessoais com visão integrada no Auraxis",
+    "description": "Organize finanças, acompanhe gastos, metas, carteira e relatórios sem perder o contexto do seu mês.",
+    "h1": "Finanças pessoais em uma visão integrada e fácil de revisar",
+    "kicker": "Visão completa",
+    "lead": "Em vez de olhar cada decisão isolada, o Auraxis conecta rotina mensal, objetivos e patrimônio para que suas finanças façam sentido no dia a dia.",
+    "visualCaption": "Uma leitura única para rotina, objetivos e patrimônio.",
+    "proofPoints": [
+      "Resumo financeiro para começar a revisão",
+      "Ferramentas para responder dúvidas comuns",
+      "Privacidade e consentimento como parte do produto"
+    ],
+    "highlights": [
+      {
+        "title": "Comece pelo panorama",
+        "text": "Acompanhe o que entrou, saiu e ficou pendente antes de mergulhar em categorias ou decisões específicas."
+      },
+      {
+        "title": "Conecte curto e longo prazo",
+        "text": "As finanças do mês conversam com metas, carteira e simulações para evitar decisões desconectadas."
+      },
+      {
+        "title": "Revise com confiança",
+        "text": "Cada tela foi pensada para explicar o que está acontecendo sem transformar controle financeiro em trabalho extra."
+      }
+    ],
+    "workflow": [
+      {
+        "title": "Cadastre movimentações",
+        "text": "Registre receitas e despesas para criar a base de acompanhamento financeiro."
+      },
+      {
+        "title": "Observe padrões",
+        "text": "Use categorias, status e períodos para entender o comportamento financeiro ao longo do tempo."
+      },
+      {
+        "title": "Escolha o próximo ajuste",
+        "text": "A partir do panorama, decida onde revisar: gastos, metas, orçamento, carteira ou simulações."
+      }
+    ]
+  },
+  {
+    "slug": "insights-financeiros",
+    "keyword": "insights financeiros",
+    "title": "Insights financeiros com IA explicável e consentimento",
+    "description": "Gere insights financeiros sobre gastos, metas, orçamento e carteira com explicações simples e uso transparente de IA.",
+    "h1": "Insights financeiros para entender o que mudou e onde revisar",
+    "kicker": "Leitura inteligente",
+    "lead": "O Auraxis transforma seus dados financeiros em sinais úteis, com IA orientada por consentimento e explicações que ajudam a investigar mudanças sem prometer recomendação financeira.",
+    "visualCaption": "Insights, comparações e alertas com linguagem direta.",
+    "proofPoints": [
+      "Panorama geral com sinais de atenção",
+      "Análises por transações, metas, orçamento e carteira",
+      "Dados do usuário não usados para treinar modelos"
+    ],
+    "highlights": [
+      {
+        "title": "Menos ruído na leitura",
+        "text": "A análise destaca mudanças importantes para você não precisar procurar manualmente em cada relatório."
+      },
+      {
+        "title": "Explicação antes da ação",
+        "text": "Cada insight mostra o motivo do alerta e evita linguagem de recomendação financeira absoluta."
+      },
+      {
+        "title": "Privacidade como premissa",
+        "text": "Recursos de IA só avançam com consentimento e com minimização dos dados enviados."
+      }
+    ],
+    "workflow": [
+      {
+        "title": "Consolide movimentações",
+        "text": "Quanto melhor o histórico registrado, mais contexto o painel tem para comparar períodos."
+      },
+      {
+        "title": "Gere ou revise insights",
+        "text": "Use análises automáticas para encontrar sinais de gasto, saldo, orçamento ou meta."
+      },
+      {
+        "title": "Transforme em revisão",
+        "text": "Abra a área indicada pelo insight e decida o ajuste que faz sentido para sua rotina."
+      }
+    ]
+  },
+  {
+    "slug": "planejamento-financeiro",
+    "keyword": "planejamento financeiro",
+    "title": "Planejamento financeiro para metas reais",
+    "description": "Planejamento financeiro com metas, simulações, orçamento e acompanhamento mensal em um painel simples.",
+    "h1": "Planejamento financeiro para transformar intenção em rotina",
+    "kicker": "Planejamento prático",
+    "lead": "Saia do desejo genérico e acompanhe metas com prazo, aporte, progresso e ajustes possíveis ao longo do caminho.",
+    "visualCaption": "Metas, simulações e próximos passos conectados ao seu mês.",
+    "proofPoints": [
+      "Metas com progresso e distância até o objetivo",
+      "Simulações para testar cenários antes de decidir",
+      "Rotina mensal ligada ao planejamento de longo prazo"
+    ],
+    "highlights": [
+      {
+        "title": "Planejamento que cabe no mês",
+        "text": "A meta conversa com o caixa atual para mostrar se o plano continua sustentável."
+      },
+      {
+        "title": "Projeções mais fáceis de entender",
+        "text": "Use cenários para visualizar prazo, aporte e impacto sem montar fórmulas do zero."
+      },
+      {
+        "title": "Próximo passo explícito",
+        "text": "O painel ajuda a revisar onde ajustar: gasto, reserva, aporte ou prioridade."
+      }
+    ],
+    "workflow": [
+      {
+        "title": "Escolha uma meta",
+        "text": "Defina objetivo, valor alvo e prazo para criar um ponto de acompanhamento concreto."
+      },
+      {
+        "title": "Teste o caminho",
+        "text": "Compare aportes e prazos para entender o esforço antes de assumir o compromisso."
+      },
+      {
+        "title": "Ajuste com dados reais",
+        "text": "Revise a meta conforme receitas, despesas e prioridades mudam ao longo dos meses."
+      }
+    ]
+  },
+  {
+    "slug": "analise-financeira",
+    "keyword": "análise financeira",
+    "title": "Análise financeira pessoal com relatórios claros",
+    "description": "Faça análise financeira de receitas, despesas, saldo, metas e carteira com relatórios claros e contexto mensal.",
+    "h1": "Análise financeira pessoal para revisar decisões com contexto",
+    "kicker": "Relatórios explicáveis",
+    "lead": "O Auraxis organiza dados financeiros em relatórios que mostram o que mudou, quais categorias pesaram mais e quais pontos merecem investigação.",
+    "visualCaption": "Comparativos, gráficos e sinais de atenção conectados à rotina.",
+    "proofPoints": [
+      "Comparação entre receitas, despesas e saldo",
+      "Categorias e períodos para investigar variações",
+      "Relatórios com linguagem direta e sem promessas absolutas"
+    ],
+    "highlights": [
+      {
+        "title": "Compare antes de concluir",
+        "text": "Veja períodos, status e categorias para entender se a mudança foi pontual ou recorrente."
+      },
+      {
+        "title": "Encontre a origem do desvio",
+        "text": "A análise ajuda a localizar despesas, receitas ou metas que explicam a variação do mês."
+      },
+      {
+        "title": "Use como apoio, não como palpite",
+        "text": "Os relatórios ajudam a pensar melhor, mas não substituem orientação profissional quando ela for necessária."
+      }
+    ],
+    "workflow": [
+      {
+        "title": "Escolha o período",
+        "text": "Comece pelo mês atual ou por um range customizado para delimitar a análise."
+      },
+      {
+        "title": "Leia os principais movimentos",
+        "text": "Observe saldo, entradas, saídas, categorias e metas relacionadas ao período."
+      },
+      {
+        "title": "Aprofunde onde importa",
+        "text": "Abra transações, orçamento ou carteira quando um número exigir mais contexto."
+      }
+    ]
+  },
+  {
+    "slug": "planilha-de-gastos",
+    "keyword": "planilha de gastos",
+    "title": "Planilha de gastos evoluída para uma rotina mais simples",
+    "description": "Substitua planilhas de gastos soltas por uma rotina com transações, categorias, status e relatórios no Auraxis.",
+    "h1": "Planilha de gastos sem fórmulas quebradas e retrabalho",
+    "kicker": "Alternativa à planilha",
+    "lead": "Se sua planilha de gastos virou um arquivo difícil de manter, o Auraxis cria uma experiência guiada para registrar, filtrar e revisar despesas com menos atrito.",
+    "visualCaption": "Transações, filtros e relatórios sem depender de fórmulas manuais.",
+    "proofPoints": [
+      "Categorias e status sem abas duplicadas",
+      "Período atual claro para evitar confusão",
+      "Relatórios e insights a partir dos lançamentos"
+    ],
+    "highlights": [
+      {
+        "title": "Menos manutenção manual",
+        "text": "Você registra o gasto e o produto organiza leitura, status e período sem fórmulas espalhadas."
+      },
+      {
+        "title": "Mais clareza visual",
+        "text": "Filtros, tabelas e resumos foram desenhados para leitura rápida em desktop e mobile."
+      },
+      {
+        "title": "Histórico que vira decisão",
+        "text": "Com o tempo, o histórico ajuda a comparar meses, categorias e recorrências."
+      }
+    ],
+    "workflow": [
+      {
+        "title": "Importe sua rotina aos poucos",
+        "text": "Comece cadastrando as despesas mais importantes do mês atual."
+      },
+      {
+        "title": "Organize por categoria",
+        "text": "Separe gastos fixos, variáveis, dívida e consumo para melhorar a leitura."
+      },
+      {
+        "title": "Troque fórmulas por revisão",
+        "text": "Use os resumos para acompanhar o mês sem precisar reconstruir a planilha."
+      }
+    ]
+  },
+  {
     "slug": "gestao-financeira",
     "keyword": "gestão financeira",
     "title": "Gestão financeira pessoal com contexto",
-    "description": "Centralize controle financeiro, metas, carteira e análises para acompanhar sua evolução.",
+    "description": "Centralize controle financeiro, metas, carteira e análises para acompanhar sua evolução com mais clareza.",
     "h1": "Gestão financeira pessoal sem perder o contexto",
     "kicker": "Visão integrada",
     "lead": "Acompanhe sua vida financeira em uma visão conectada: movimentações, metas, patrimônio, ferramentas e sinais de atenção.",
@@ -86,131 +301,45 @@
     ]
   },
   {
-    "slug": "planejador-financeiro",
-    "keyword": "planejador financeiro",
-    "title": "Planejador financeiro para metas reais",
-    "description": "Planeje metas, simule cenários e acompanhe sua rotina financeira em um painel simples.",
-    "h1": "Planejador financeiro para transformar intenção em rotina",
-    "kicker": "Planejamento prático",
-    "lead": "Saia do desejo genérico e acompanhe metas com prazo, aporte, progresso e ajustes possíveis ao longo do caminho.",
-    "visualCaption": "Metas, simulações e próximos passos conectados ao seu mês.",
+    "slug": "inteligencia-financeira",
+    "keyword": "inteligência financeira",
+    "title": "Inteligência financeira para decisões mais conscientes",
+    "description": "Use inteligência financeira para conectar dados, metas, orçamento, carteira e insights em uma rotina mais consciente.",
+    "h1": "Inteligência financeira para transformar dados em escolhas melhores",
+    "kicker": "Decisão com contexto",
+    "lead": "O Auraxis combina organização financeira, análises e IA responsável para revelar padrões e apoiar decisões com mais contexto.",
+    "visualCaption": "Dados financeiros conectados a insights e próximos passos.",
     "proofPoints": [
-      "Metas com progresso e distância até o objetivo",
-      "Simulações para testar cenários antes de decidir",
-      "Rotina mensal ligada ao planejamento de longo prazo"
+      "Dados organizados antes da análise",
+      "IA com transparência e consentimento",
+      "Sinais práticos para revisar rotina e objetivos"
     ],
     "highlights": [
       {
-        "title": "Planejamento que cabe no mês",
-        "text": "A meta conversa com o caixa atual para mostrar se o plano continua sustentável."
+        "title": "Dados antes da intuição",
+        "text": "A inteligência financeira começa com registros confiáveis de transações, metas, orçamentos e carteira."
       },
       {
-        "title": "Projeções mais fáceis de entender",
-        "text": "Use cenários para visualizar prazo, aporte e impacto sem montar fórmulas do zero."
+        "title": "Sinais em vez de ruído",
+        "text": "O produto destaca o que merece revisão para reduzir decisões tomadas no impulso."
       },
       {
-        "title": "Próximo passo explícito",
-        "text": "O painel ajuda a revisar onde ajustar: gasto, reserva, aporte ou prioridade."
+        "title": "Controle humano no centro",
+        "text": "Insights ajudam a pensar, mas a decisão continua com o usuário e dentro do seu contexto."
       }
     ],
     "workflow": [
       {
-        "title": "Escolha uma meta",
-        "text": "Defina objetivo, valor alvo e prazo para criar um ponto de acompanhamento concreto."
+        "title": "Conecte os dados",
+        "text": "Use transações, metas, orçamentos e carteira para criar uma base consistente."
       },
       {
-        "title": "Teste o caminho",
-        "text": "Compare aportes e prazos para entender o esforço antes de assumir o compromisso."
+        "title": "Leia os sinais",
+        "text": "Revise insights e relatórios para entender riscos, oportunidades e mudanças de comportamento."
       },
       {
-        "title": "Ajuste com dados reais",
-        "text": "Revise a meta conforme receitas, despesas e prioridades mudam ao longo dos meses."
-      }
-    ]
-  },
-  {
-    "slug": "analises-financeiras",
-    "keyword": "análises financeiras",
-    "title": "Análises financeiras com clareza e IA",
-    "description": "Veja sinais sobre gastos, saldo, categorias e tendências com explicações simples no Auraxis.",
-    "h1": "Análises financeiras explicáveis para revisar melhor",
-    "kicker": "Leitura inteligente",
-    "lead": "O Auraxis transforma movimentações em sinais claros: onde revisar, o que mudou e quais padrões merecem atenção.",
-    "visualCaption": "Insights, comparações e alertas com linguagem direta.",
-    "proofPoints": [
-      "Comparação de receitas, despesas e saldo",
-      "Sinais de categorias que merecem revisão",
-      "IA com consentimento ativo e limites transparentes"
-    ],
-    "highlights": [
-      {
-        "title": "Menos ruído na leitura",
-        "text": "A análise destaca mudanças importantes para você não precisar procurar manualmente."
-      },
-      {
-        "title": "Explicação antes da ação",
-        "text": "Cada insight mostra o motivo do alerta e evita linguagem de recomendação financeira absoluta."
-      },
-      {
-        "title": "Privacidade como premissa",
-        "text": "Recursos de IA só avançam com consentimento e com minimização dos dados enviados."
-      }
-    ],
-    "workflow": [
-      {
-        "title": "Consolide movimentações",
-        "text": "Quanto melhor o histórico registrado, mais contexto o painel tem para comparar períodos."
-      },
-      {
-        "title": "Gere ou revise insights",
-        "text": "Use análises automáticas para encontrar sinais de gasto, saldo ou categoria."
-      },
-      {
-        "title": "Transforme em revisão",
-        "text": "Abra a área indicada pelo insight e decida o ajuste que faz sentido para sua rotina."
-      }
-    ]
-  },
-  {
-    "slug": "controle-de-gastos",
-    "keyword": "controle de gastos",
-    "title": "Controle de gastos sem planilhas confusas",
-    "description": "Acompanhe despesas, categorias, status e período para revisar gastos com mais clareza.",
-    "h1": "Controle de gastos para enxergar excessos antes do susto",
-    "kicker": "Despesas em foco",
-    "lead": "Veja o que saiu, quando saiu e em qual categoria, com filtros que ajudam a entender o gasto por período.",
-    "visualCaption": "Tabela de transações, categorias e ações rápidas no contexto certo.",
-    "proofPoints": [
-      "Despesas pagas e pendentes em uma leitura única",
-      "Período atual claro e filtros compactos",
-      "Categorias para separar rotina, dívida e consumo"
-    ],
-    "highlights": [
-      {
-        "title": "Gastos deixam rastro",
-        "text": "Cada despesa registrada cria histórico para comparar meses e identificar padrões recorrentes."
-      },
-      {
-        "title": "Status evita confusão",
-        "text": "Saiba o que está pago, pendente ou planejado sem depender de memória."
-      },
-      {
-        "title": "Categorias viram conversa",
-        "text": "Separar despesas por assunto facilita revisar orçamento e priorizar cortes possíveis."
-      }
-    ],
-    "workflow": [
-      {
-        "title": "Registre a saída",
-        "text": "Informe valor, data, categoria e status para manter o histórico confiável."
-      },
-      {
-        "title": "Filtre por período",
-        "text": "Navegue entre meses ou ranges customizados para comparar gastos com precisão."
-      },
-      {
-        "title": "Revise o padrão",
-        "text": "Use categorias e insights para escolher onde investigar antes de tomar uma decisão."
+        "title": "Ajuste a rota",
+        "text": "Transforme a leitura em ações simples: revisar uma despesa, ajustar meta ou simular um cenário."
       }
     ]
   }

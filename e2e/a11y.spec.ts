@@ -19,8 +19,8 @@ const PUBLIC_PAGES = [
   { path: "/register", name: "Register" },
   { path: "/forgot-password", name: "Forgot Password" },
   { path: "/plans", name: "Plans" },
-  { path: "/privacy-policy", name: "Privacy Policy" },
-  { path: "/terms-of-service", name: "Terms of Service" },
+  { path: "/privacy", name: "Privacy Policy" },
+  { path: "/terms", name: "Terms of Service" },
   { path: "/cookies", name: "Cookies Policy" },
 ];
 
@@ -39,14 +39,10 @@ for (const { path, name } of PUBLIC_PAGES) {
     const critical = results.violations.filter((v) =>
       ["critical", "serious"].includes(v.impact ?? ""),
     );
-    const minor = results.violations.filter((v) =>
-      ["moderate", "minor"].includes(v.impact ?? ""),
-    );
+    const minor = results.violations.filter((v) => ["moderate", "minor"].includes(v.impact ?? ""));
 
     if (minor.length > 0) {
-      const summary = minor
-        .map((v) => `[${v.impact}] ${v.id}: ${v.description}`)
-        .join("\n");
+      const summary = minor.map((v) => `[${v.impact}] ${v.id}: ${v.description}`).join("\n");
       test.info().annotations.push({
         type: "a11y-warning",
         description: `${minor.length} moderate/minor a11y issue(s) on ${name}:\n${summary}`,

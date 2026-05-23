@@ -101,7 +101,7 @@ useHead({
   <main class="seo-landing">
     <section class="seo-hero" aria-labelledby="seo-landing-title">
       <div class="seo-container seo-hero__grid">
-        <div class="seo-hero__copy">
+        <div class="seo-hero__copy motion-fade-up">
           <p class="seo-eyebrow">{{ landing.kicker }}</p>
           <h1 id="seo-landing-title">{{ landing.h1 }}</h1>
           <p class="seo-hero__lead">{{ landing.lead }}</p>
@@ -124,7 +124,7 @@ useHead({
           </ul>
         </div>
 
-        <div class="seo-hero__visual" aria-label="Prévia do Auraxis">
+        <div class="seo-hero__visual motion-pop" aria-label="Prévia do Auraxis">
           <UiImage
             src="/screenshots/pwa-dashboard-wide.png"
             alt="Dashboard do Auraxis com resumo financeiro, gráficos e insights"
@@ -149,8 +149,12 @@ useHead({
           </p>
         </div>
 
-        <div class="seo-card-grid">
-          <article v-for="(item, index) in landing.highlights" :key="item.title" class="seo-card">
+        <div class="seo-card-grid motion-stagger">
+          <article
+            v-for="(item, index) in landing.highlights"
+            :key="item.title"
+            class="seo-card motion-interactive"
+          >
             <component
               :is="iconByIndex(highlightIcons, index, Sparkles)"
               :size="24"
@@ -173,8 +177,12 @@ useHead({
           </p>
         </div>
 
-        <div class="seo-workflow__steps">
-          <article v-for="(step, index) in landing.workflow" :key="step.title" class="seo-step">
+        <div class="seo-workflow__steps motion-stagger">
+          <article
+            v-for="(step, index) in landing.workflow"
+            :key="step.title"
+            class="seo-step motion-interactive"
+          >
             <span class="seo-step__badge">{{ step.label }}</span>
             <component
               :is="iconByIndex(workflowIcons, index, CheckCircle2)"
@@ -335,8 +343,8 @@ useHead({
 }
 
 .seo-button--secondary {
-  border: 1px solid var(--color-outline-strong);
-  background: color-mix(in srgb, var(--color-surface-elevated) 70%, transparent);
+  border: 1px solid var(--color-outline-hard);
+  background: color-mix(in srgb, var(--color-bg-elevated) 70%, transparent);
 }
 
 .seo-proof-list {
@@ -357,14 +365,14 @@ useHead({
 .seo-proof-list svg {
   flex: 0 0 auto;
   margin-top: 2px;
-  color: var(--color-success-400);
+  color: var(--color-positive);
 }
 
 .seo-hero__visual {
   overflow: hidden;
   border: 1px solid var(--color-outline-soft);
   border-radius: var(--radius-lg);
-  background: color-mix(in srgb, var(--color-surface-elevated) 84%, transparent);
+  background: color-mix(in srgb, var(--color-bg-elevated) 84%, transparent);
   box-shadow: 0 28px 90px color-mix(in srgb, #000 52%, transparent);
 }
 
@@ -386,7 +394,7 @@ useHead({
 }
 
 .seo-section--muted {
-  background: color-mix(in srgb, var(--color-surface-elevated) 42%, transparent);
+  background: color-mix(in srgb, var(--color-bg-elevated) 42%, transparent);
   border-block: 1px solid var(--color-outline-soft);
 }
 
@@ -431,7 +439,7 @@ useHead({
 .seo-faq__item {
   border: 1px solid var(--color-outline-soft);
   border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--color-surface-elevated) 76%, transparent);
+  background: color-mix(in srgb, var(--color-bg-elevated) 76%, transparent);
 }
 
 .seo-card {
@@ -530,7 +538,7 @@ useHead({
   padding-inline: 18px;
   border: 1px solid var(--color-outline-soft);
   border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--color-surface-elevated) 70%, transparent);
+  background: color-mix(in srgb, var(--color-bg-elevated) 70%, transparent);
   color: var(--color-text-primary);
   font-weight: var(--font-weight-semibold);
   text-decoration: none;

@@ -1,12 +1,5 @@
 <script setup lang="ts">
-import {
-  NAlert,
-  NButton,
-  NInput,
-  NModal,
-  NSkeleton,
-  NTag,
-} from "naive-ui";
+import { NAlert, NButton, NInput, NModal, NSkeleton, NTag } from "naive-ui";
 import { Download, FileCheck2, RotateCw, ShieldCheck, Trash2 } from "lucide-vue-next";
 
 import type {
@@ -36,14 +29,10 @@ const deletionReason = ref("");
 const exportResult = ref<PrivacyDataExportDto | null>(null);
 const deletionResult = ref<PrivacyDeletionRequestDto | null>(null);
 
-const consentRows = computed(() =>
-  buildConsentViewModels(consentsQuery.data.value?.items ?? []),
-);
-const grantedConsentCount = computed(() =>
-  consentRows.value.filter((row) => row.granted).length,
-);
-const deletionDisabled = computed(() =>
-  deletionPassword.value.trim().length === 0 || deletionMutation.isPending.value,
+const consentRows = computed(() => buildConsentViewModels(consentsQuery.data.value?.items ?? []));
+const grantedConsentCount = computed(() => consentRows.value.filter((row) => row.granted).length);
+const deletionDisabled = computed(
+  () => deletionPassword.value.trim().length === 0 || deletionMutation.isPending.value,
 );
 
 /** Retries the consent overview request after a loading failure. */
@@ -71,7 +60,9 @@ function openDeletionModal(): void {
 
 /** Closes the deletion request modal when no request is running. */
 function closeDeletionModal(): void {
-  if (deletionMutation.isPending.value) { return; }
+  if (deletionMutation.isPending.value) {
+    return;
+  }
 
   showDeletionModal.value = false;
   deletionPassword.value = "";
@@ -80,7 +71,9 @@ function closeDeletionModal(): void {
 
 /** Sends an authenticated LGPD deletion/anonymisation request. */
 function submitDeletionRequest(): void {
-  if (deletionDisabled.value) { return; }
+  if (deletionDisabled.value) {
+    return;
+  }
 
   deletionMutation.mutate(
     {
@@ -108,11 +101,7 @@ function submitDeletionRequest(): void {
           Veja consentimentos, solicite portabilidade e inicie exclusão de dados.
         </span>
       </div>
-      <NButton
-        secondary
-        :loading="consentsQuery.isFetching.value"
-        @click="retryConsents"
-      >
+      <NButton secondary :loading="consentsQuery.isFetching.value" @click="retryConsents">
         <template #icon>
           <RotateCw :size="16" />
         </template>
@@ -171,7 +160,8 @@ function submitDeletionRequest(): void {
         type="error"
         title="Não foi possível carregar seus consentimentos"
       >
-        Tente novamente. Se o erro continuar, fale com o suporte antes de alterar permissões sensíveis.
+        Tente novamente. Se o erro continuar, fale com o suporte antes de alterar permissões
+        sensíveis.
       </NAlert>
       <NButton
         v-if="consentsQuery.isError.value"
@@ -222,12 +212,12 @@ function submitDeletionRequest(): void {
         <div class="privacy-center-page__action-copy">
           <h2>Exportar meus dados</h2>
           <p>
-            Gere um pacote com perfil, transações, metas, carteira, consentimentos,
-            assinatura e insights registrados na sua conta.
+            Gere um pacote com perfil, transações, metas, carteira, consentimentos, assinatura e
+            insights registrados na sua conta.
           </p>
           <NAlert v-if="exportResult" type="success" title="Exportação solicitada">
-            Protocolo {{ exportResult.request_id }} em status {{ exportResult.status }}.
-            Você receberá o pacote quando o processamento terminar.
+            Protocolo {{ exportResult.request_id }} em status {{ exportResult.status }}. Você
+            receberá o pacote quando o processamento terminar.
           </NAlert>
         </div>
         <NButton
@@ -239,35 +229,36 @@ function submitDeletionRequest(): void {
         </NButton>
       </UiSurfaceCard>
 
-      <UiSurfaceCard padding="lg" class="privacy-center-page__action-card privacy-center-page__action-card--danger">
+      <UiSurfaceCard
+        padding="lg"
+        class="privacy-center-page__action-card privacy-center-page__action-card--danger"
+      >
         <div class="privacy-center-page__action-icon privacy-center-page__action-icon--danger">
           <Trash2 :size="22" />
         </div>
         <div class="privacy-center-page__action-copy">
           <h2>Solicitar exclusão</h2>
           <p>
-            Inicie a remoção ou anonimização integral dos dados mapeados para sua conta.
-            A ação exige confirmação de senha e gera um protocolo interno.
+            Inicie a remoção ou anonimização integral dos dados mapeados para sua conta. A ação
+            exige confirmação de senha e gera um protocolo interno.
           </p>
           <NAlert v-if="deletionResult" type="warning" title="Exclusão solicitada">
             Protocolo {{ deletionResult.request_id }} em status {{ deletionResult.status }}.
           </NAlert>
         </div>
-        <NButton type="error" ghost @click="openDeletionModal">
-          Solicitar exclusão
-        </NButton>
+        <NButton type="error" ghost @click="openDeletionModal"> Solicitar exclusão </NButton>
       </UiSurfaceCard>
     </section>
 
     <UiSurfaceCard padding="lg" class="privacy-center-page__legal">
       <h2>Documentos legais</h2>
       <p>
-        Leia os documentos públicos que explicam como o Auraxis trata dados,
-        responsabilidades de uso e limites das análises financeiras.
+        Leia os documentos públicos que explicam como o Auraxis trata dados, responsabilidades de
+        uso e limites das análises financeiras.
       </p>
       <div class="privacy-center-page__legal-links">
-        <NuxtLink to="/privacy-policy">Política de Privacidade</NuxtLink>
-        <NuxtLink to="/terms-of-service">Termos de uso</NuxtLink>
+        <NuxtLink to="/privacy">Política de Privacidade</NuxtLink>
+        <NuxtLink to="/terms">Termos de uso</NuxtLink>
       </div>
     </UiSurfaceCard>
 
@@ -282,8 +273,8 @@ function submitDeletionRequest(): void {
     >
       <div class="privacy-deletion-modal">
         <p>
-          Para proteger sua conta, confirme sua senha. A solicitação será registrada
-          e processada conforme a política de retenção aplicável.
+          Para proteger sua conta, confirme sua senha. A solicitação será registrada e processada
+          conforme a política de retenção aplicável.
         </p>
         <label>
           <span>Senha atual</span>
@@ -311,10 +302,7 @@ function submitDeletionRequest(): void {
 
       <template #action>
         <div class="privacy-deletion-modal__actions">
-          <NButton
-            :disabled="deletionMutation.isPending.value"
-            @click="closeDeletionModal"
-          >
+          <NButton :disabled="deletionMutation.isPending.value" @click="closeDeletionModal">
             Cancelar
           </NButton>
           <NButton

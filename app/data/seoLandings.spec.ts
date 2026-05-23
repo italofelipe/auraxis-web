@@ -4,11 +4,14 @@ import { getSeoLanding, SEO_LANDINGS, SEO_LANDING_SLUGS } from "./seoLandings";
 describe("SEO commercial landings", () => {
   it("covers the MVP2 keyword map without duplicate slugs", () => {
     expect(SEO_LANDING_SLUGS).toEqual([
-      "controle-de-financas",
+      "controle-financeiro",
+      "financas",
+      "insights-financeiros",
+      "planejamento-financeiro",
+      "analise-financeira",
+      "planilha-de-gastos",
       "gestao-financeira",
-      "planejador-financeiro",
-      "analises-financeiras",
-      "controle-de-gastos",
+      "inteligencia-financeira",
     ]);
     expect(new Set(SEO_LANDING_SLUGS).size).toBe(SEO_LANDING_SLUGS.length);
     expect(SEO_LANDINGS).toHaveLength(SEO_LANDING_SLUGS.length);
@@ -42,5 +45,18 @@ describe("SEO commercial landings", () => {
 
   it("returns undefined for unknown commercial slugs", () => {
     expect(getSeoLanding("dashboard")).toBeUndefined();
+  });
+
+  it("covers every priority keyword with an exact landing keyword", () => {
+    expect(SEO_LANDINGS.map((landing) => landing.keyword)).toEqual([
+      "controle financeiro",
+      "finanças",
+      "insights financeiros",
+      "planejamento financeiro",
+      "análise financeira",
+      "planilha de gastos",
+      "gestão financeira",
+      "inteligência financeira",
+    ]);
   });
 });

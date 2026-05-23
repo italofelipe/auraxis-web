@@ -1,23 +1,16 @@
 <script setup lang="ts">
-import {
-  ArrowUp,
-  Coins,
-  Flag,
-  Leaf,
-  ShieldCheck,
-  TrendingUp,
-} from "lucide-vue-next";
+import { ArrowUp, Coins, Flag, Leaf, ShieldCheck, TrendingUp } from "lucide-vue-next";
 import { useRoute } from "#app";
 import type { AuthFeature } from "../AuthFeatureList/AuthFeatureList.types";
 
 const route = useRoute();
 
 interface AuthPanelCopy {
-  variant: "simple" | "security" | "growth"
-  badge: string
-  headline: string
-  sub: string
-  features: AuthFeature[]
+  variant: "simple" | "security" | "growth";
+  badge: string;
+  headline: string;
+  sub: string;
+  features: AuthFeature[];
 }
 
 const growthMetrics = [
@@ -79,9 +72,17 @@ const panel = computed<AuthPanelCopy>(() => {
       sub: "Cadastro curto, linguagem clara e experiência consistente com o analytics principal.",
       features: [
         { icon: "", title: "Configuração rápida", description: "Comece em menos de 2 minutos." },
-        { icon: "", title: "Leitura imediata", description: "Entenda receitas e despesas no primeiro acesso." },
+        {
+          icon: "",
+          title: "Leitura imediata",
+          description: "Entenda receitas e despesas no primeiro acesso.",
+        },
         { icon: "", title: "Modo analítico", description: "Aprofunde por categoria e transação." },
-        { icon: "", title: "Evolução contínua", description: "Metas, carteira e ferramentas integradas." },
+        {
+          icon: "",
+          title: "Evolução contínua",
+          description: "Metas, carteira e ferramentas integradas.",
+        },
       ],
     };
   }
@@ -119,12 +120,8 @@ const panel = computed<AuthPanelCopy>(() => {
     <a class="auth-brand__logo" href="/">
       <span class="auth-brand__logo-mark" aria-hidden="true">
         <ShieldCheck v-if="panel.variant === 'security'" :size="22" />
-        <template v-else-if="panel.variant === 'growth'">
-          A
-        </template>
-        <template v-else>
-          A
-        </template>
+        <template v-else-if="panel.variant === 'growth'"> A </template>
+        <template v-else> A </template>
       </span>
       <span class="auth-brand__logo-name">Auraxis</span>
     </a>
@@ -149,9 +146,7 @@ const panel = computed<AuthPanelCopy>(() => {
         <div class="auth-brand__security-card-head">
           <div>
             <p class="auth-brand__security-label">Taxa de Mitigação de Ameaças</p>
-            <p class="auth-brand__security-value">
-              99.98<span>%</span>
-            </p>
+            <p class="auth-brand__security-value">99.98<span>%</span></p>
           </div>
           <span class="auth-brand__security-delta">
             <ArrowUp :size="10" aria-hidden="true" />
@@ -159,7 +154,12 @@ const panel = computed<AuthPanelCopy>(() => {
           </span>
         </div>
 
-        <svg class="auth-brand__security-chart" viewBox="0 0 520 140" role="img" aria-label="Curva de mitigação de ameaças">
+        <svg
+          class="auth-brand__security-chart"
+          viewBox="0 0 520 140"
+          role="img"
+          aria-label="Curva de mitigação de ameaças"
+        >
           <defs>
             <linearGradient id="securityStroke" x1="0" x2="1" y1="0" y2="0">
               <stop offset="0%" stop-color="var(--color-brand-500)" />
@@ -236,16 +236,8 @@ const panel = computed<AuthPanelCopy>(() => {
           </defs>
           <rect width="680" height="420" fill="transparent" />
           <circle cx="558" cy="76" r="42" fill="#fff7d8" opacity="0.86" />
-          <path
-            d="M236 296 L402 86 L616 296 Z"
-            fill="url(#journeyMountain)"
-            opacity="0.88"
-          />
-          <path
-            d="M402 86 L450 198 L370 158 Z"
-            fill="#f7fcff"
-            opacity="0.92"
-          />
+          <path d="M236 296 L402 86 L616 296 Z" fill="url(#journeyMountain)" opacity="0.88" />
+          <path d="M402 86 L450 198 L370 158 Z" fill="#f7fcff" opacity="0.92" />
           <path
             d="M30 316 C92 266 144 246 210 256 C280 268 320 320 398 300 C476 280 534 246 650 286 L650 420 L30 420 Z"
             fill="url(#journeyForest)"
@@ -304,8 +296,8 @@ const panel = computed<AuthPanelCopy>(() => {
 
     <footer v-if="panel.variant === 'security'" class="auth-brand__footer">
       <span>© 2026 Auraxis Fintech</span>
-      <NuxtLink to="/privacy-policy">Privacidade</NuxtLink>
-      <NuxtLink to="/terms-of-service">Termos</NuxtLink>
+      <NuxtLink to="/privacy">Privacidade</NuxtLink>
+      <NuxtLink to="/terms">Termos</NuxtLink>
       <NuxtLink to="/cookies">Cookies</NuxtLink>
       <span class="auth-brand__version">SYS.VER.4.2.9</span>
     </footer>
@@ -326,7 +318,10 @@ const panel = computed<AuthPanelCopy>(() => {
     linear-gradient(var(--auth-panel-grid-line) 1px, transparent 1px),
     linear-gradient(90deg, var(--auth-panel-grid-line) 1px, transparent 1px),
     linear-gradient(170deg, var(--color-bg-surface), var(--color-bg-elevated));
-  background-size: 44px 44px, 44px 44px, auto;
+  background-size:
+    44px 44px,
+    44px 44px,
+    auto;
   color: var(--color-text-primary);
   overflow: hidden;
 }
@@ -343,7 +338,12 @@ const panel = computed<AuthPanelCopy>(() => {
 .auth-brand--growth {
   --auth-growth-warm-glow: rgba(246, 194, 75, 0.22);
   --auth-growth-mint-glow: rgba(66, 232, 169, 0.18);
-  --auth-growth-background: linear-gradient(160deg, rgb(255 255 255), rgb(244 251 255) 46%, rgb(238 250 244));
+  --auth-growth-background: linear-gradient(
+    160deg,
+    rgb(255 255 255),
+    rgb(244 251 255) 46%,
+    rgb(238 250 244)
+  );
   display: grid;
   grid-template-columns: minmax(250px, 0.78fr) minmax(420px, 1.22fr);
   grid-template-areas:
@@ -361,15 +361,19 @@ const panel = computed<AuthPanelCopy>(() => {
     linear-gradient(var(--auth-panel-grid-line) 1px, transparent 1px),
     linear-gradient(90deg, var(--auth-panel-grid-line) 1px, transparent 1px),
     var(--auth-growth-background);
-  background-size: auto, auto, 44px 44px, 44px 44px, auto;
+  background-size:
+    auto,
+    auto,
+    44px 44px,
+    44px 44px,
+    auto;
 }
 
 :global(:root[data-theme="dark"] .auth-brand--growth) {
   --auth-panel-grid-line: color-mix(in srgb, var(--color-text-primary) 8%, transparent);
   --auth-growth-warm-glow: rgba(246, 194, 75, 0.1);
   --auth-growth-mint-glow: rgba(66, 232, 169, 0.12);
-  --auth-growth-background:
-    linear-gradient(160deg, rgb(5 12 24), rgb(9 23 39) 52%, rgb(4 33 31));
+  --auth-growth-background: linear-gradient(160deg, rgb(5 12 24), rgb(9 23 39) 52%, rgb(4 33 31));
 }
 
 .auth-brand--growth .auth-brand__logo {

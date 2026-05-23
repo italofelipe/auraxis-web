@@ -24,6 +24,20 @@ const isMarketingSurface = siteSurface === "marketing";
 const siteUrl =
   process.env.NUXT_PUBLIC_SITE_URL ??
   (isMarketingSurface ? "https://www.auraxis.com.br" : "https://app.auraxis.com.br");
+const webmasterVerificationMeta = [
+  process.env.NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? {
+        name: "google-site-verification",
+        content: process.env.NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+      }
+    : null,
+  process.env.NUXT_PUBLIC_BING_SITE_VERIFICATION
+    ? {
+        name: "msvalidate.01",
+        content: process.env.NUXT_PUBLIC_BING_SITE_VERIFICATION,
+      }
+    : null,
+].filter((item): item is { name: string; content: string } => Boolean(item));
 
 /**
  * Stops Vite's nested esbuild service after Nuxt finishes building.
@@ -61,6 +75,12 @@ const seoLandingSitemapExclusions: string[] = SEO_LANDING_SLUGS.flatMap((slug) =
   `/${slug}`,
   `/en/${slug}`,
 ]);
+const legacySeoRedirectRouteRules = {
+  "/controle-de-financas": { redirect: "/controle-financeiro" },
+  "/controle-de-gastos": { redirect: "/controle-financeiro" },
+  "/planejador-financeiro": { redirect: "/planejamento-financeiro" },
+  "/analises-financeiras": { redirect: "/analise-financeira" },
+} as const;
 
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
@@ -83,6 +103,8 @@ export default defineNuxtConfig({
 
   app: {
     baseURL: process.env.NUXT_APP_BASE_URL ?? "/",
+    pageTransition: { name: "auraxis-page", mode: "out-in" },
+    layoutTransition: { name: "auraxis-layout", mode: "out-in" },
     head: {
       // Default title rendered when no page overrides it via useSeoMeta/useHead.
       // titleTemplate wraps every page title: "Planos e Preços | Auraxis", etc.
@@ -140,6 +162,9 @@ export default defineNuxtConfig({
         // serving the current build and not a cached stale snapshot.
         // Empty string in local dev — harmless.
         { name: "x-build-id", content: process.env.NUXT_PUBLIC_BUILD_ID ?? "" },
+        // Search Console / Bing Webmaster verification tokens are injected by
+        // environment only, avoiding hardcoded ownership secrets in the repo.
+        ...webmasterVerificationMeta,
         // Env-aware CSP. In production the header comes from CloudFront, so
         // `cspPolicy` is null and this entry is filtered out.
         ...(cspPolicy ? [{ "http-equiv": "Content-Security-Policy", content: cspPolicy }] : []),
@@ -494,6 +519,9 @@ export default defineNuxtConfig({
     // DO NOT add individual tool routes here — edit app/data/tools.ts instead.
     ...toolRouteRules,
     ...seoLandingRouteRules,
+    ...legacySeoRedirectRouteRules,
+    "/privacy": { prerender: true },
+    "/terms": { prerender: true },
     "/privacy-policy": { prerender: true },
     "/terms-of-service": { prerender: true },
 
@@ -547,6 +575,7 @@ export default defineNuxtConfig({
     "/settings/credit-cards": { ssr: false },
     "/settings/tags": { ssr: false },
     "/settings/profile": { ssr: false },
+    "/settings/notifications": { ssr: false },
     "/settings/danger-zone": { ssr: false },
     "/admin": { ssr: false },
     "/admin/users": { ssr: false },
@@ -569,6 +598,7 @@ export default defineNuxtConfig({
     "/en/settings/credit-cards": { ssr: false },
     "/en/settings/tags": { ssr: false },
     "/en/settings/profile": { ssr: false },
+    "/en/settings/notifications": { ssr: false },
     "/en/settings/danger-zone": { ssr: false },
     "/en/admin": { ssr: false },
     "/en/admin/users": { ssr: false },
@@ -603,6 +633,8 @@ export default defineNuxtConfig({
         "/",
         "/plans",
         "/tools",
+        "/privacy",
+        "/terms",
         "/privacy-policy",
         "/terms-of-service",
         "/login",

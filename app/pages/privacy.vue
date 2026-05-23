@@ -10,7 +10,7 @@ const siteUrl = String(useRuntimeConfig().public.siteUrl ?? "https://app.auraxis
 );
 
 useSeoMeta({
-  title: "Política de Privacidade v2 | Auraxis",
+  title: "Política de Privacidade v2",
   description: "Como o Auraxis trata dados pessoais, cookies, IA, segurança e direitos LGPD.",
   robots: "index, follow",
 });

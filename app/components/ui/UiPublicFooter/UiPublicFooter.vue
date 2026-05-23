@@ -16,18 +16,20 @@ const copyrightYear = computed<number>(() =>
   <footer class="ui-public-footer">
     <div class="ui-public-footer__inner">
       <p class="ui-public-footer__copyright">
-        &copy; {{ copyrightYear }} {{ t('components.publicFooter.brand') }} &middot; Precision Layered Analytics
+        &copy; {{ copyrightYear }} {{ t("components.publicFooter.brand") }} &middot; Precision
+        Layered Analytics
       </p>
-      <nav class="ui-public-footer__links" :aria-label="t('components.publicFooter.columns.legal.title')">
-        <NuxtLink to="/privacy-policy" class="ui-public-footer__link">
-          {{ t('components.publicFooter.columns.legal.links.privacy') }}
+      <nav
+        class="ui-public-footer__links"
+        :aria-label="t('components.publicFooter.columns.legal.title')"
+      >
+        <NuxtLink to="/privacy" class="ui-public-footer__link">
+          {{ t("components.publicFooter.columns.legal.links.privacy") }}
         </NuxtLink>
-        <NuxtLink to="/terms-of-service" class="ui-public-footer__link">
-          {{ t('components.publicFooter.columns.legal.links.terms') }}
+        <NuxtLink to="/terms" class="ui-public-footer__link">
+          {{ t("components.publicFooter.columns.legal.links.terms") }}
         </NuxtLink>
-        <NuxtLink to="/cookies" class="ui-public-footer__link">
-          Cookies
-        </NuxtLink>
+        <NuxtLink to="/cookies" class="ui-public-footer__link"> Cookies </NuxtLink>
       </nav>
     </div>
   </footer>

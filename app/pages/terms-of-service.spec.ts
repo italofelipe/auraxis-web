@@ -45,7 +45,7 @@ describe("TermsOfServicePage (/terms-of-service)", () => {
 
   it("displays navigation link to Privacy Policy", () => {
     const wrapper = mountPage();
-    const privLink = wrapper.find("a[href=\"/privacy-policy\"]");
+    const privLink = wrapper.find("a[href=\"/privacy\"]");
     expect(privLink.exists()).toBe(true);
   });
 
@@ -101,7 +101,7 @@ describe("TermsOfServicePage (/terms-of-service)", () => {
 
   it("contains internal links to Privacy Policy", () => {
     const wrapper = mountPage();
-    const privLinks = wrapper.findAll("a[href=\"/privacy-policy\"]");
+    const privLinks = wrapper.findAll("a[href=\"/privacy\"]");
     expect(privLinks.length).toBeGreaterThanOrEqual(2);
   });
 

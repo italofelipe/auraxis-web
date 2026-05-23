@@ -64,7 +64,7 @@ const closeMenu = (): void => {
           Produto
         </NuxtLink>
         <NuxtLink
-          to="/controle-de-financas"
+          to="/controle-financeiro"
           class="ui-public-header__nav-link"
           active-class="ui-public-header__nav-link--active"
         >
@@ -149,7 +149,7 @@ const closeMenu = (): void => {
           Produto
         </NuxtLink>
         <NuxtLink
-          to="/controle-de-financas"
+          to="/controle-financeiro"
           class="ui-public-header__mobile-link"
           active-class="ui-public-header__mobile-link--active"
           @click="closeMenu"
