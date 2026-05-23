@@ -7,7 +7,7 @@
  * metadata (email, emailConfirmed).
  */
 import { createPinia, setActivePinia } from "pinia";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useSessionStore } from "./session";
 
@@ -364,6 +364,26 @@ describe("session store (split-token, SEC-GAP-01)", () => {
       expect(store2.isAuthenticated).toBe(false);
       // (The session-restore plugin would then call POST /auth/refresh and,
       // on success, call store2.updateTokens("new-access-token").)
+    });
+
+    it("deduplicates concurrent refresh bootstrap attempts", async () => {
+      const store = useSessionStore();
+      const refresh = vi.fn(async () => {
+        store.signIn({ accessToken: "new-token", userEmail: "user@auraxis.com" });
+        return "new-token";
+      });
+
+      const [first, second] = await Promise.all([
+        store.runSessionRestore("https://api.example.test", refresh),
+        store.runSessionRestore("https://api.example.test", refresh),
+      ]);
+
+      expect(refresh).toHaveBeenCalledOnce();
+      expect(first).toBe(true);
+      expect(second).toBe(true);
+      expect(store.isAuthenticated).toBe(true);
+      expect(store.hasTriedSessionRestore).toBe(true);
+      expect(store.isRestoringSession).toBe(false);
     });
   });
 });

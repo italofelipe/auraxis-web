@@ -7,6 +7,26 @@ import type {
 } from "~/features/portfolio/contracts/portfolio.dto";
 import { parseCurrencyAmount } from "~/utils/currencyInput";
 
+type WalletEntryWireDto = Omit<
+  WalletEntryDto,
+  "quantity" | "current_value" | "cost_basis" | "change_percent" | "asset_type" | "register_date"
+> & {
+  readonly quantity?: number | string | null;
+  readonly current_value?: number | string | null;
+  readonly cost_basis?: number | string | null;
+  readonly change_percent?: number | string | null;
+  readonly asset_type?: WalletEntryDto["asset_type"] | string | null;
+  readonly register_date?: string | null;
+  readonly created_at?: string | null;
+};
+
+type WalletSummaryWireDto = {
+  readonly total_current_value: number | string | null;
+  readonly total_invested_amount: number | string | null;
+  readonly total_profit_loss_percent: number | string | null;
+  readonly total_investments: number | string | null;
+};
+
 /** Single point in the wallet entry's valuation history. */
 export interface WalletHistoryPoint {
   /** ISO 8601 date string (YYYY-MM-DD). */
@@ -16,6 +36,85 @@ export interface WalletHistoryPoint {
   /** Total amount invested (cost basis) at this date. */
   readonly invested_amount: number;
 }
+
+const WALLET_ASSET_TYPES = new Set<WalletEntryDto["asset_type"]>([
+  "stock",
+  "fii",
+  "crypto",
+  "fixed_income",
+  "other",
+]);
+
+/**
+ * Converts API money/number values to a finite number for chart-safe rendering.
+ *
+ * @param value Raw numeric value from the API.
+ * @param fallback Value used when conversion fails.
+ * @returns A finite number.
+ */
+const toFiniteNumber = (value: unknown, fallback = 0): number => {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : fallback;
+  }
+
+  if (typeof value === "string" && value.trim() !== "") {
+    const parsed = parseCurrencyAmount(value, fallback);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  }
+
+  return fallback;
+};
+
+/**
+ * Converts optional API numeric values, preserving unknown values as null.
+ *
+ * @param value Raw numeric value from the API.
+ * @returns A finite number or null when the value is absent/invalid.
+ */
+const toNullableFiniteNumber = (value: unknown): number | null => {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  const parsed = toFiniteNumber(value, Number.NaN);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+/**
+ * Maps unknown asset classes to the safe fallback used by the UI.
+ *
+ * @param value Raw asset type from the API.
+ * @returns A supported wallet asset type.
+ */
+const normalizeAssetType = (value: WalletEntryWireDto["asset_type"]): WalletEntryDto["asset_type"] => {
+  return WALLET_ASSET_TYPES.has(value as WalletEntryDto["asset_type"])
+    ? value as WalletEntryDto["asset_type"]
+    : "other";
+};
+
+/**
+ * Normalizes wallet entries so invalid numeric values never reach components.
+ *
+ * @param entry Raw wallet entry from the API.
+ * @returns UI-safe wallet entry.
+ */
+const normalizeWalletEntry = (entry: WalletEntryWireDto): WalletEntryDto => {
+  const normalized: WalletEntryDto = {
+    id: entry.id,
+    name: entry.name,
+    ticker: entry.ticker ?? null,
+    quantity: toNullableFiniteNumber(entry.quantity),
+    current_value: toFiniteNumber(entry.current_value),
+    cost_basis: toFiniteNumber(entry.cost_basis),
+    register_date: entry.register_date ?? entry.created_at?.slice(0, 10) ?? "",
+    change_percent: toNullableFiniteNumber(entry.change_percent),
+    asset_type: normalizeAssetType(entry.asset_type),
+  };
+
+  return entry.stale_quote === undefined
+    ? normalized
+    : { ...normalized, stale_quote: entry.stale_quote };
+};
 
 /**
  * Payload for creating a new wallet entry.
@@ -63,21 +162,16 @@ export class WalletClient {
   async getPortfolioSummary(): Promise<PortfolioSummaryDto> {
     const response = await this.#http.get<{
       data: {
-        summary: {
-          total_current_value: string;
-          total_invested_amount: string;
-          total_profit_loss_percent: string;
-          total_investments: number;
-        };
+        summary: WalletSummaryWireDto;
       };
     }>("/wallet/valuation");
     const { summary } = response.data.data;
     return {
-      total_value: parseCurrencyAmount(summary.total_current_value),
-      total_cost: parseCurrencyAmount(summary.total_invested_amount),
+      total_value: toFiniteNumber(summary.total_current_value),
+      total_cost: toFiniteNumber(summary.total_invested_amount),
       day_change_percent: null,
-      total_return_percent: parseCurrencyAmount(summary.total_profit_loss_percent),
-      asset_count: summary.total_investments,
+      total_return_percent: toFiniteNumber(summary.total_profit_loss_percent),
+      asset_count: Math.max(0, Math.round(toFiniteNumber(summary.total_investments))),
     };
   }
 
@@ -89,8 +183,8 @@ export class WalletClient {
    * @returns Array of WalletEntryDto representing each held asset.
    */
   async getEntries(): Promise<WalletEntryDto[]> {
-    const response = await this.#http.get<{ data: { items: WalletEntryDto[] } }>("/wallet");
-    return response.data.data.items;
+    const response = await this.#http.get<{ data: { items: WalletEntryWireDto[] } }>("/wallet");
+    return response.data.data.items.map(normalizeWalletEntry);
   }
 
   /**

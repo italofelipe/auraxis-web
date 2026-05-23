@@ -50,6 +50,23 @@ describe("GoalsClient", () => {
       expect(result).toEqual([]);
     });
 
+    it("treats a goals-only 404 empty collection response as an empty list", async () => {
+      vi.mocked(http.get).mockRejectedValueOnce({
+        isAxiosError: true,
+        response: {
+          status: 404,
+          data: {
+            success: false,
+            error: { code: "NOT_FOUND" },
+          },
+        },
+      });
+
+      const result = await client.listGoals();
+
+      expect(result).toEqual([]);
+    });
+
     it("normalizes API title into the UI name field", async () => {
       vi.mocked(http.get).mockResolvedValueOnce({
         data: [

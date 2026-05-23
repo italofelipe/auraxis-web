@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
 import AuthBrandPanel from "../AuthBrandPanel.vue";
@@ -35,6 +37,11 @@ const globalConfig = {
   },
 };
 
+const source = readFileSync(
+  join(process.cwd(), "app/components/auth/AuthBrandPanel/AuthBrandPanel.vue"),
+  "utf8",
+);
+
 describe("AuthBrandPanel", () => {
   it("renders the growth journey login panel instead of the old analytics copy", () => {
     mockRoutePath.value = "/login";
@@ -50,6 +57,12 @@ describe("AuthBrandPanel", () => {
     expect(wrapper.find(".auth-brand--growth").exists()).toBe(true);
     expect(wrapper.find(".auth-brand__metric").exists()).toBe(false);
     expect(wrapper.text()).not.toContain("SYS.VER.4.2.9");
+  });
+
+  it("uses theme variables for the growth login background", () => {
+    expect(source).toContain("--auth-growth-background");
+    expect(source).toContain(":global(:root[data-theme=\"dark\"] .auth-brand--growth)");
+    expect(source).not.toContain("linear-gradient(160deg, #ffffff, #f4fbff 46%, #eefaf4)");
   });
 
   it("matches the signup prototype headline and keeps the simple auth panel", () => {

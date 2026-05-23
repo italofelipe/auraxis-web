@@ -94,6 +94,27 @@ const computedSummary = computed<PortfolioSummaryDto>(() => {
 });
 
 /**
+ * Converts calculations to finite numbers before they reach charts/templates.
+ *
+ * @param value Raw numeric value.
+ * @param fallback Value used when input is not finite.
+ * @returns Finite number.
+ */
+function safeNumber(value: number | null | undefined, fallback = 0): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+/**
+ * Clamps percentages used in compact progress bars.
+ *
+ * @param value Raw percentage.
+ * @returns Percentage between 0 and 100.
+ */
+function clampPercent(value: number): number {
+  return Math.min(100, Math.max(0, Math.round(safeNumber(value))));
+}
+
+/**
  * Handles create mode submission from WalletEntryForm.
  *
  * @param payload Form payload.
@@ -161,7 +182,7 @@ function assetTypeLabel(assetType: WalletEntryDto["asset_type"]): string {
  * @returns Signed percentage label.
  */
 function formatPercent(value: number | null | undefined): string {
-  if (value === null || value === undefined) {
+  if (value === null || value === undefined || !Number.isFinite(value)) {
     return "-";
   }
 
@@ -176,16 +197,71 @@ function formatPercent(value: number | null | undefined): string {
  * @returns Localized quantity label.
  */
 function formatQuantity(value: number | null): string {
-  if (value === null) {
+  if (value === null || !Number.isFinite(value)) {
     return "-";
   }
 
   return new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 4 }).format(value);
 }
 
-const totalReturnAmount = computed(() => computedSummary.value.total_value - computedSummary.value.total_cost);
-const monthlyReturnAmount = computed(() => Math.round(computedSummary.value.total_value * 0.0365));
-const yearlyReturnAmount = computed(() => Math.round(Math.max(totalReturnAmount.value, computedSummary.value.total_value * 0.145)));
+/**
+ * Calculates the average acquisition cost without exposing invalid divisions.
+ *
+ * @param entry Wallet entry shown in the positions table.
+ * @returns Average cost per unit, or cost basis for non-quantity assets.
+ */
+function averageCost(entry: WalletEntryDto): number {
+  const quantity = safeNumber(entry.quantity, 0);
+  const costBasis = safeNumber(entry.cost_basis, safeNumber(entry.current_value));
+  return quantity > 0 ? costBasis / quantity : costBasis;
+}
+
+/**
+ * Calculates the current quote per unit without exposing invalid divisions.
+ *
+ * @param entry Wallet entry shown in the positions table.
+ * @returns Current quote per unit, or current value for non-quantity assets.
+ */
+function currentQuote(entry: WalletEntryDto): number {
+  const quantity = safeNumber(entry.quantity, 0);
+  const currentValue = safeNumber(entry.current_value);
+  return quantity > 0 ? currentValue / quantity : currentValue;
+}
+
+/**
+ * Calculates the allocation percentage for a wallet entry.
+ *
+ * @param entry Wallet entry shown in the positions table.
+ * @returns Allocation percentage clamped to chart-safe bounds, or null.
+ */
+function entryAllocationPercent(entry: WalletEntryDto): number | null {
+  const total = safeNumber(computedSummary.value.total_value);
+  if (total <= 0) {
+    return null;
+  }
+
+  return clampPercent((safeNumber(entry.current_value) / total) * 100);
+}
+
+/**
+ * Calculates total return for a wallet entry.
+ *
+ * @param entry Wallet entry shown in the positions table.
+ * @returns Return percentage, or null when there is no valid cost basis.
+ */
+function totalReturnPercent(entry: WalletEntryDto): number | null {
+  const currentValue = safeNumber(entry.current_value);
+  const costBasis = safeNumber(entry.cost_basis, currentValue);
+  if (costBasis <= 0) {
+    return null;
+  }
+
+  return ((currentValue - costBasis) / costBasis) * 100;
+}
+
+const totalReturnAmount = computed(() => safeNumber(computedSummary.value.total_value) - safeNumber(computedSummary.value.total_cost));
+const monthlyReturnAmount = computed(() => Math.round(safeNumber(computedSummary.value.total_value) * 0.0365));
+const yearlyReturnAmount = computed(() => Math.round(Math.max(totalReturnAmount.value, safeNumber(computedSummary.value.total_value) * 0.145)));
 const displayGoals = computed(() => {
   if (goals.value?.length) {
     return goals.value;
@@ -193,7 +269,7 @@ const displayGoals = computed(() => {
 
   return [];
 });
-const projectedMonthlyContribution = computed(() => Math.max(500, Math.round(computedSummary.value.total_value * 0.012)));
+const projectedMonthlyContribution = computed(() => Math.max(500, Math.round(safeNumber(computedSummary.value.total_value) * 0.012)));
 
 const allocationRows = computed<AllocationRow[]>(() => {
   const tokens = chartTokens.value;
@@ -208,10 +284,17 @@ const allocationRows = computed<AllocationRow[]>(() => {
 
   for (const entry of displayEntries.value) {
     const label = assetTypeLabel(entry.asset_type);
-    totals.set(label, (totals.get(label) ?? 0) + entry.current_value);
+    const currentValue = safeNumber(entry.current_value);
+    if (currentValue > 0) {
+      totals.set(label, (totals.get(label) ?? 0) + currentValue);
+    }
   }
 
-  const total = computedSummary.value.total_value || 1;
+  const total = safeNumber(computedSummary.value.total_value);
+  if (total <= 0) {
+    return [];
+  }
+
   return [...totals.entries()]
     .sort((a, b) => b[1] - a[1])
     .map(([label, value], index) => ({
@@ -499,14 +582,14 @@ const allocationChartOption = computed<EChartsOption>(() => {
             <h2>Alocação por Classe</h2>
             <p>Distribuição atual do portfólio</p>
           </div>
-          <div class="allocation-chart">
+          <div v-if="allocationRows.length > 0" class="allocation-chart">
             <UiChart :option="allocationChartOption" height="230px" />
             <div class="allocation-total" aria-hidden="true">
               <span>Total</span>
               <strong>100%</strong>
             </div>
           </div>
-          <div class="allocation-list">
+          <div v-if="allocationRows.length > 0" class="allocation-list">
             <div v-for="row in allocationRows" :key="row.label" class="allocation-row">
               <span>
                 <i :style="{ background: row.color }" aria-hidden="true" />
@@ -514,6 +597,10 @@ const allocationChartOption = computed<EChartsOption>(() => {
               </span>
               <strong>{{ row.percentage }}%</strong>
             </div>
+          </div>
+          <div v-else class="allocation-empty">
+            <strong>Sem alocação calculável</strong>
+            <span>Cadastre valores positivos nos ativos para visualizar a distribuição da carteira.</span>
           </div>
         </article>
       </section>
@@ -562,17 +649,17 @@ const allocationChartOption = computed<EChartsOption>(() => {
                 </td>
                 <td class="is-numeric">{{ formatQuantity(entry.quantity) }}</td>
                 <td class="is-numeric is-muted">
-                  {{ formatCurrency(entry.cost_basis && entry.quantity ? entry.cost_basis / entry.quantity : entry.cost_basis ?? entry.current_value) }}
+                  {{ formatCurrency(averageCost(entry)) }}
                 </td>
                 <td class="is-numeric">
-                  {{ formatCurrency(entry.quantity ? entry.current_value / entry.quantity : entry.current_value) }}
+                  {{ formatCurrency(currentQuote(entry)) }}
                 </td>
                 <td class="is-numeric">{{ formatCurrency(entry.current_value) }}</td>
                 <td class="is-numeric">
                   <span class="allocation-mini">
-                    {{ Math.round((entry.current_value / Math.max(computedSummary.total_value, 1)) * 100) }}%
+                    {{ entryAllocationPercent(entry) === null ? "-" : `${entryAllocationPercent(entry)}%` }}
                     <i aria-hidden="true">
-                      <b :style="{ width: `${Math.round((entry.current_value / Math.max(computedSummary.total_value, 1)) * 100)}%` }" />
+                      <b :style="{ width: `${entryAllocationPercent(entry) ?? 0}%` }" />
                     </i>
                   </span>
                 </td>
@@ -586,9 +673,9 @@ const allocationChartOption = computed<EChartsOption>(() => {
                 </td>
                 <td
                   class="is-numeric"
-                  :class="entry.current_value >= (entry.cost_basis ?? entry.current_value) ? 'is-positive' : 'is-negative'"
+                  :class="(totalReturnPercent(entry) ?? 0) >= 0 ? 'is-positive' : 'is-negative'"
                 >
-                  {{ formatPercent(((entry.current_value - (entry.cost_basis ?? entry.current_value)) / Math.max(entry.cost_basis ?? entry.current_value, 1)) * 100) }}
+                  {{ formatPercent(totalReturnPercent(entry)) }}
                 </td>
               </tr>
             </tbody>
@@ -943,6 +1030,30 @@ const allocationChartOption = computed<EChartsOption>(() => {
   display: grid;
   gap: 12px;
   margin-top: 18px;
+}
+
+.allocation-empty {
+  display: grid;
+  min-height: 230px;
+  align-content: center;
+  justify-items: center;
+  gap: 8px;
+  padding: var(--space-4);
+  border: 1px dashed var(--mp-border);
+  border-radius: var(--radius-md);
+  color: var(--mp-muted);
+  text-align: center;
+}
+
+.allocation-empty strong {
+  color: var(--mp-text);
+  font-size: var(--font-size-md);
+}
+
+.allocation-empty span {
+  max-width: 34ch;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-body-sm);
 }
 
 .allocation-row,

@@ -44,7 +44,7 @@ export default defineNuxtPlugin({
       const apiBase = String(
         runtimeConfig.public.apiBase ?? DEFAULT_API_BASE,
       );
-      await refreshAccessToken(apiBase, sessionStore);
+      await sessionStore.runSessionRestore(apiBase, refreshAccessToken);
     }
 
     const toolContextStore = useToolContextStore();

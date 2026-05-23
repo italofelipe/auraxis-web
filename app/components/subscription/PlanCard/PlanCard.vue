@@ -103,6 +103,7 @@ const onSelect = (): void => {
       </NList>
 
       <NButton
+        v-if="!props.hideCta"
         type="primary"
         block
         :disabled="isCurrent"

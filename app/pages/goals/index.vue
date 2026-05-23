@@ -416,13 +416,7 @@ const simulatedImpact = computed(() => {
           @action="onNewGoal"
         >
           <template #illustration>
-            <svg class="ui-empty-state__illustration-svg" viewBox="0 0 220 150" role="img" aria-label="Ilustração de uma meta financeira">
-              <circle cx="110" cy="76" r="50" fill="var(--color-bg-elevated)" stroke="var(--color-outline-soft)" stroke-width="3" />
-              <circle cx="110" cy="76" r="31" fill="var(--color-brand-hover-surface)" stroke="var(--color-brand-500)" stroke-width="4" />
-              <circle cx="110" cy="76" r="12" fill="var(--color-positive)" />
-              <path d="M42 118c18-18 35-26 51-24m34 0c17 0 34 8 51 24" fill="none" stroke="var(--color-outline-hard)" stroke-width="6" stroke-linecap="round" />
-              <path d="M164 32l12-12m-2 29h18m-45-31V0" stroke="var(--color-brand-500)" stroke-width="5" stroke-linecap="round" />
-            </svg>
+            <IllustrationEmptyGoals class="ui-empty-state__illustration-svg" />
           </template>
         </UiEmptyState>
       </section>

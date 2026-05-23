@@ -28,6 +28,7 @@ const makePlan = (overrides: Partial<PlanDto> = {}): PlanDto => ({
 type MountOptions = {
   plan?: PlanDto;
   isCurrent?: boolean;
+  hideCta?: boolean;
   loading?: boolean;
   billingCycle?: BillingCycle;
 };
@@ -42,12 +43,13 @@ function mountPlanCard(opts: MountOptions = {}): ReturnType<typeof mount> {
   const {
     plan = makePlan(),
     isCurrent = false,
+    hideCta = false,
     loading = false,
     billingCycle = "monthly",
   } = opts;
 
   return mount(PlanCard, {
-    props: { plan, isCurrent, loading, billingCycle },
+    props: { plan, isCurrent, hideCta, loading, billingCycle },
     global: {
       stubs: {
         CheckIcon: { template: "<span data-testid='check-icon' />" },
@@ -87,6 +89,16 @@ describe("PlanCard", () => {
     const wrapper = mountPlanCard({ isCurrent: false });
     const button = wrapper.findComponent(NButton);
     expect(button.props("disabled")).toBe(false);
+  });
+
+  it("hides the subscribe button when CTA is disabled for comparison-only plans", () => {
+    const wrapper = mountPlanCard({
+      plan: makePlan({ slug: "free", price_monthly: 0, price_annual: 0 }),
+      hideCta: true,
+    });
+
+    expect(wrapper.findComponent(NButton).exists()).toBe(false);
+    expect(wrapper.text()).not.toContain("Assinar");
   });
 
   it("renders included features in the list", () => {
