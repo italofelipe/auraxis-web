@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import { createRequire } from "node:module";
 import { visualizer } from "rollup-plugin-visualizer";
 import { buildCsp, resolveCspEnvironment } from "./app/core/security/csp";
+import { BLOG_POST_SLUGS } from "./app/data/blogPosts";
 import { SEO_LANDING_SLUGS } from "./app/data/seoLandings";
 import { TOOL_SLUGS } from "./app/data/tools";
 
@@ -75,6 +76,19 @@ const seoLandingSitemapExclusions: string[] = SEO_LANDING_SLUGS.flatMap((slug) =
   `/${slug}`,
   `/en/${slug}`,
 ]);
+const blogPostRouteRules = Object.fromEntries(
+  BLOG_POST_SLUGS.map((slug) => [`/blog/${slug}`, { prerender: true }]),
+) as Record<string, { prerender: boolean }>;
+const blogPrerenderRoutes: string[] = [
+  "/blog",
+  ...BLOG_POST_SLUGS.map((slug) => `/blog/${slug}`),
+];
+const localizedBlogSitemapExclusions: string[] = ["/en/blog", "/en/blog/**"];
+const blogSitemapExclusions: string[] = [
+  "/blog",
+  "/blog/**",
+  ...localizedBlogSitemapExclusions,
+];
 const legacySeoRedirectRouteRules = {
   "/controle-de-financas": { redirect: "/controle-financeiro" },
   "/controle-de-gastos": { redirect: "/controle-financeiro" },
@@ -367,6 +381,8 @@ export default defineNuxtConfig({
     // @nuxtjs/sitemap normally skips them, but listing is belt-and-suspenders.
     exclude: [
       ...(isMarketingSurface ? [] : ["/", "/en", ...seoLandingSitemapExclusions]),
+      ...localizedBlogSitemapExclusions,
+      ...(isMarketingSurface ? [] : blogSitemapExclusions),
       "/dashboard",
       "/portfolio",
       "/goals",
@@ -519,6 +535,8 @@ export default defineNuxtConfig({
     // DO NOT add individual tool routes here — edit app/data/tools.ts instead.
     ...toolRouteRules,
     ...seoLandingRouteRules,
+    "/blog": { prerender: true },
+    ...blogPostRouteRules,
     ...legacySeoRedirectRouteRules,
     "/privacy": { prerender: true },
     "/terms": { prerender: true },
@@ -654,6 +672,8 @@ export default defineNuxtConfig({
         ...toolPrerenderRoutes,
         // ── Commercial SEO landing routes — auto-generated from seoLandings.ts
         ...seoLandingPrerenderRoutes,
+        // ── Blog routes — auto-generated from blogPosts.ts ───────────
+        ...blogPrerenderRoutes,
         // ── SEO assets ────────────────────────────────────────────────
         "/sitemap.xml",
       ],
