@@ -187,3 +187,16 @@ describe("budgets page — empty state UX writing", () => {
     expect(source).toContain("Orçamentos ajudam você a definir um limite por categoria");
   });
 });
+
+describe("budgets page — freemium envelope UX", () => {
+  it("documents the free envelope limit and premium upgrade path in the page", () => {
+    expect(source).toContain("quotaState.label");
+    expect(source).toContain("Orçamentos ilimitados");
+    expect(source).toContain("Liberar ilimitado");
+  });
+
+  it("names budget progress bars for assistive technology", () => {
+    expect(source).toContain("Uso total dos orçamentos");
+    expect(source).toContain("Uso do orçamento");
+  });
+});
