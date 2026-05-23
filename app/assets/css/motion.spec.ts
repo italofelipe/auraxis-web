@@ -1,7 +1,8 @@
 import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-const mainCss = readFileSync(new URL("./main.css", import.meta.url), "utf8");
+const mainCss = readFileSync(join(process.cwd(), "app/assets/css/main.css"), "utf8");
 
 describe("global motion layer", () => {
   it("defines semantic motion tokens and page transition classes", () => {
