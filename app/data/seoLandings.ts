@@ -1,11 +1,14 @@
 import seoLandingSeedData from "./seoLandings.pt-BR.json";
 
 export const SEO_LANDING_SLUGS = [
-  "controle-de-financas",
+  "controle-financeiro",
+  "financas",
+  "insights-financeiros",
+  "planejamento-financeiro",
+  "analise-financeira",
+  "planilha-de-gastos",
   "gestao-financeira",
-  "planejador-financeiro",
-  "analises-financeiras",
-  "controle-de-gastos",
+  "inteligencia-financeira",
 ] as const;
 
 export type SeoLandingSlug = (typeof SEO_LANDING_SLUGS)[number];
@@ -48,11 +51,14 @@ export interface SeoLanding {
 }
 
 const relatedLinks: readonly SeoLandingLink[] = [
-  { label: "Controle de finanças", to: "/controle-de-financas" },
+  { label: "Controle financeiro", to: "/controle-financeiro" },
+  { label: "Finanças", to: "/financas" },
+  { label: "Insights financeiros", to: "/insights-financeiros" },
+  { label: "Planejamento financeiro", to: "/planejamento-financeiro" },
+  { label: "Análise financeira", to: "/analise-financeira" },
+  { label: "Planilha de gastos", to: "/planilha-de-gastos" },
   { label: "Gestão financeira", to: "/gestao-financeira" },
-  { label: "Planejador financeiro", to: "/planejador-financeiro" },
-  { label: "Análises financeiras", to: "/analises-financeiras" },
-  { label: "Controle de gastos", to: "/controle-de-gastos" },
+  { label: "Inteligência financeira", to: "/inteligencia-financeira" },
 ];
 
 const sharedFaq: readonly SeoLandingFaq[] = [

@@ -6,8 +6,7 @@ import type {
 export const TOOL_SEO_CTA: ToolSeoContentCta = {
   eyebrow: "Próximo passo",
   title: "Leve o cálculo para sua rotina financeira",
-  body:
-    "Crie uma conta grátis para transformar simulações em metas, acompanhar evolução e revisar decisões com mais contexto.",
+  body: "Crie uma conta grátis para transformar simulações em metas, acompanhar evolução e revisar decisões com mais contexto.",
   label: "Criar conta grátis",
   to: "/register",
 };
@@ -24,9 +23,9 @@ export const ORCAMENTO_5030_RELATED_LINKS: readonly ToolSeoContentLink[] = [
     to: "/tools/reserva-emergencia",
   },
   {
-    label: "Controle de gastos",
+    label: "Controle financeiro",
     description: "Entenda como organizar despesas recorrentes e reduzir desperdícios.",
-    to: "/controle-de-gastos",
+    to: "/controle-financeiro",
   },
 ];
 
@@ -42,9 +41,9 @@ export const RESERVA_EMERGENCIA_RELATED_LINKS: readonly ToolSeoContentLink[] = [
     to: "/tools/juros-compostos",
   },
   {
-    label: "Planejador financeiro",
+    label: "Planejamento financeiro",
     description: "Conecte reserva, metas e rotina em um plano financeiro completo.",
-    to: "/planejador-financeiro",
+    to: "/planejamento-financeiro",
   },
 ];
 
@@ -60,8 +59,8 @@ export const JUROS_COMPOSTOS_RELATED_LINKS: readonly ToolSeoContentLink[] = [
     to: "/tools/reserva-emergencia",
   },
   {
-    label: "Análises financeiras",
+    label: "Análise financeira",
     description: "Use o Auraxis para revisar padrões e oportunidades com mais contexto.",
-    to: "/analises-financeiras",
+    to: "/analise-financeira",
   },
 ];

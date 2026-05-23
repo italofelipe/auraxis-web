@@ -9,21 +9,35 @@ import { defineNuxtRouteMiddleware, useSeoMeta } from "#app";
  */
 
 const LEGAL_SEO: Record<string, { title: string; description: string }> = {
+  "/privacy": {
+    title: "Política de Privacidade",
+    description:
+      "Saiba como o Auraxis coleta, usa e protege seus dados pessoais em conformidade com a LGPD.",
+  },
   "/privacy-policy": {
     title: "Política de Privacidade",
-    description: "Saiba como o Auraxis coleta, usa e protege seus dados pessoais em conformidade com a LGPD.",
+    description:
+      "Saiba como o Auraxis coleta, usa e protege seus dados pessoais em conformidade com a LGPD.",
   },
   "/en/privacy-policy": {
     title: "Privacy Policy",
-    description: "Learn how Auraxis collects, uses and protects your personal data in compliance with LGPD.",
+    description:
+      "Learn how Auraxis collects, uses and protects your personal data in compliance with LGPD.",
+  },
+  "/terms": {
+    title: "Termos de Uso",
+    description:
+      "Leia os Termos de Uso do Auraxis — planner financeiro inteligente para gerenciar carteira e metas.",
   },
   "/terms-of-service": {
     title: "Termos de Uso",
-    description: "Leia os Termos de Uso do Auraxis — planner financeiro inteligente para gerenciar carteira e metas.",
+    description:
+      "Leia os Termos de Uso do Auraxis — planner financeiro inteligente para gerenciar carteira e metas.",
   },
   "/en/terms-of-service": {
     title: "Terms of Service",
-    description: "Read the Auraxis Terms of Service — smart financial planner for managing your portfolio and goals.",
+    description:
+      "Read the Auraxis Terms of Service — smart financial planner for managing your portfolio and goals.",
   },
 };
 

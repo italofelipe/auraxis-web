@@ -2,13 +2,13 @@ import { expect, test } from "@playwright/test";
 
 const LEGAL_PAGES = [
   {
-    path: "/privacy-policy",
+    path: "/privacy",
     heading: "Política de Privacidade",
     expectedText: "não usa dados do usuário para treinar modelos próprios",
     relatedHref: "/cookies",
   },
   {
-    path: "/terms-of-service",
+    path: "/terms",
     heading: "Termos de Uso",
     expectedText: "não autoriza provedores de IA a treinarem modelos",
     relatedHref: "/cookies",
@@ -17,7 +17,7 @@ const LEGAL_PAGES = [
     path: "/cookies",
     heading: "Política de Cookies",
     expectedText: "não devem ser carregados antes do consentimento",
-    relatedHref: "/privacy-policy",
+    relatedHref: "/privacy",
   },
 ];
 

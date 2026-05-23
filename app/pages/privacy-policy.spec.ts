@@ -45,7 +45,7 @@ describe("PrivacyPolicyPage (/privacy-policy)", () => {
 
   it("displays navigation link to Terms of Service", () => {
     const wrapper = mountPage();
-    const termsLink = wrapper.find("a[href=\"/terms-of-service\"]");
+    const termsLink = wrapper.find("a[href=\"/terms\"]");
     expect(termsLink.exists()).toBe(true);
   });
 
@@ -100,7 +100,9 @@ describe("PrivacyPolicyPage (/privacy-policy)", () => {
     const wrapper = mountPage();
 
     expect(wrapper.text()).toContain("não usa dados do usuário para treinar modelos próprios");
-    expect(wrapper.text()).toContain("não autoriza uso de dados do usuário para treinar modelos de terceiros");
+    expect(wrapper.text()).toContain(
+      "não autoriza uso de dados do usuário para treinar modelos de terceiros",
+    );
   });
 
   it("keeps the informational nature disclaimer for AI insights", () => {
@@ -116,7 +118,7 @@ describe("PrivacyPolicyPage (/privacy-policy)", () => {
 
   it("contains internal links to Terms of Service", () => {
     const wrapper = mountPage();
-    const termsLinks = wrapper.findAll("a[href=\"/terms-of-service\"]");
+    const termsLinks = wrapper.findAll("a[href=\"/terms\"]");
     expect(termsLinks.length).toBeGreaterThanOrEqual(2);
   });
 

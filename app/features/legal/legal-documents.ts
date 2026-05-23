@@ -33,7 +33,7 @@ export const privacyPolicyDocument: LegalDocument = {
   updatedAtLabel: "Atualizado em 2026-05-20",
   contactEmail: supportEmail,
   navLinks: [
-    { label: "Termos de Uso", to: "/terms-of-service" },
+    { label: "Termos de Uso", to: "/terms" },
     { label: "Política de Cookies", to: "/cookies" },
   ],
   sections: [
@@ -174,7 +174,7 @@ export const privacyPolicyDocument: LegalDocument = {
     },
   ],
   footerLinks: [
-    { label: "Ver Termos de Uso", to: "/terms-of-service" },
+    { label: "Ver Termos de Uso", to: "/terms" },
     { label: "Ver Política de Cookies", to: "/cookies" },
   ],
 };
@@ -185,7 +185,7 @@ export const termsOfUseDocument: LegalDocument = {
   updatedAtLabel: "Atualizado em 2026-05-20",
   contactEmail: supportEmail,
   navLinks: [
-    { label: "Política de Privacidade", to: "/privacy-policy" },
+    { label: "Política de Privacidade", to: "/privacy" },
     { label: "Política de Cookies", to: "/cookies" },
   ],
   sections: [
@@ -316,7 +316,7 @@ export const termsOfUseDocument: LegalDocument = {
     },
   ],
   footerLinks: [
-    { label: "Ver Política de Privacidade", to: "/privacy-policy" },
+    { label: "Ver Política de Privacidade", to: "/privacy" },
     { label: "Ver Política de Cookies", to: "/cookies" },
   ],
 };
@@ -327,8 +327,8 @@ export const cookiesPolicyDocument: LegalDocument = {
   updatedAtLabel: "Atualizado em 2026-05-16",
   contactEmail: supportEmail,
   navLinks: [
-    { label: "Política de Privacidade", to: "/privacy-policy" },
-    { label: "Termos de Uso", to: "/terms-of-service" },
+    { label: "Política de Privacidade", to: "/privacy" },
+    { label: "Termos de Uso", to: "/terms" },
   ],
   sections: [
     {
@@ -342,10 +342,30 @@ export const cookiesPolicyDocument: LegalDocument = {
       table: {
         columns: ["Categoria", "Obrigatório", "Exemplos", "Finalidade"],
         rows: [
-          ["Essenciais", "Sim", "sessão, refresh token httpOnly, segurança, CSRF quando aplicável", "autenticação, segurança e funcionamento"],
-          ["Preferências", "Não", "idioma, tema, preferências de UI", "lembrar escolhas do usuário"],
-          ["Analytics", "Não", "PostHog, eventos de produto, métricas agregadas", "entender uso e melhorar experiência"],
-          ["Observabilidade", "Parcial", "Sentry, web vitals, erros técnicos", "estabilidade, segurança e diagnóstico"],
+          [
+            "Essenciais",
+            "Sim",
+            "sessão, refresh token httpOnly, segurança, CSRF quando aplicável",
+            "autenticação, segurança e funcionamento",
+          ],
+          [
+            "Preferências",
+            "Não",
+            "idioma, tema, preferências de UI",
+            "lembrar escolhas do usuário",
+          ],
+          [
+            "Analytics",
+            "Não",
+            "PostHog, eventos de produto, métricas agregadas",
+            "entender uso e melhorar experiência",
+          ],
+          [
+            "Observabilidade",
+            "Parcial",
+            "Sentry, web vitals, erros técnicos",
+            "estabilidade, segurança e diagnóstico",
+          ],
           ["Marketing", "Não", "campanhas, atribuição, pixels", "medir campanhas e aquisição"],
         ],
       },
@@ -383,7 +403,7 @@ export const cookiesPolicyDocument: LegalDocument = {
     },
   ],
   footerLinks: [
-    { label: "Ver Política de Privacidade", to: "/privacy-policy" },
-    { label: "Ver Termos de Uso", to: "/terms-of-service" },
+    { label: "Ver Política de Privacidade", to: "/privacy" },
+    { label: "Ver Termos de Uso", to: "/terms" },
   ],
 };

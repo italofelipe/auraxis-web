@@ -54,7 +54,7 @@ describe("CookiesPolicyPage (/cookies)", () => {
   it("links to privacy policy and terms", () => {
     const wrapper = mountPage();
 
-    expect(wrapper.find("a[href=\"/privacy-policy\"]").exists()).toBe(true);
-    expect(wrapper.find("a[href=\"/terms-of-service\"]").exists()).toBe(true);
+    expect(wrapper.find("a[href=\"/privacy\"]").exists()).toBe(true);
+    expect(wrapper.find("a[href=\"/terms\"]").exists()).toBe(true);
   });
 });
