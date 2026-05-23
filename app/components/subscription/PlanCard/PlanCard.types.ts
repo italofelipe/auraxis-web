@@ -8,6 +8,8 @@ export type PlanCardProps = {
   plan: PlanDto;
   isCurrent: boolean;
   loading?: boolean;
+  /** When true, renders the plan as comparison-only without an actionable CTA. */
+  hideCta?: boolean;
   /** Active billing cycle — drives the displayed price. Defaults to "monthly". */
   billingCycle?: BillingCycle;
 };

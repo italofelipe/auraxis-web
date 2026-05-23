@@ -137,6 +137,11 @@ const showWarningAlert = computed(
   () => status.value === "past_due" || status.value === "canceled",
 );
 
+const isPremiumSubscriptionActive = computed(() =>
+  subscription.value?.planSlug === "premium" &&
+  (status.value === "active" || status.value === "trialing"),
+);
+
 const warningAlertMessage = computed((): string => {
   if (status.value === "past_due") {
     return t("pages.subscription.pastDueMessage");
@@ -271,6 +276,7 @@ const onSelectPlan = (slug: string): void => {
               <PlanCard
                 :plan="plan"
                 :is-current="plan.slug === subscription?.planSlug"
+                :hide-cta="isPremiumSubscriptionActive && plan.slug === 'free'"
                 :billing-cycle="billingCycle"
                 :loading="checkoutMutation.isPending.value && checkoutMutation.variables.value?.planSlug === plan.slug"
                 @select="onSelectPlan"

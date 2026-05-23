@@ -12,7 +12,14 @@ interface SessionState {
   emailVerificationDeadlineAt: string | null;
   emailVerificationRequiredNow: boolean;
   daysUntilEmailRequired: number | null;
+  isRestoringSession: boolean;
+  hasTriedSessionRestore: boolean;
 }
+
+type SessionRefreshFn = (
+  apiBase: string,
+  sessionStore: ReturnType<typeof useSessionStore>,
+) => Promise<string | null>;
 
 /** Parameters for the signIn action. */
 export interface SignInParams {
@@ -74,6 +81,8 @@ const clearLegacyCookie = (): void => {
   document.cookie = `${LEGACY_COOKIE_KEY}=; path=/; SameSite=Lax; Max-Age=0`;
 };
 
+let activeSessionRestore: Promise<boolean> | null = null;
+
 export const useSessionStore = defineStore("session", {
   state: (): SessionState => ({
     accessToken: null,
@@ -85,6 +94,8 @@ export const useSessionStore = defineStore("session", {
     emailVerificationDeadlineAt: null,
     emailVerificationRequiredNow: false,
     daysUntilEmailRequired: null,
+    isRestoringSession: false,
+    hasTriedSessionRestore: false,
   }),
   getters: {
     isAuthenticated: (state): boolean => state.accessToken !== null,
@@ -98,6 +109,29 @@ export const useSessionStore = defineStore("session", {
      */
     restore(): void {
       clearLegacyCookie();
+    },
+    async runSessionRestore(apiBase: string, refresh: SessionRefreshFn): Promise<boolean> {
+      clearLegacyCookie();
+
+      if (this.isAuthenticated) {
+        this.hasTriedSessionRestore = true;
+        return true;
+      }
+
+      if (activeSessionRestore) {
+        return activeSessionRestore;
+      }
+
+      this.isRestoringSession = true;
+      activeSessionRestore = refresh(apiBase, this)
+        .then((token) => Boolean(token) || this.isAuthenticated)
+        .finally(() => {
+          this.isRestoringSession = false;
+          this.hasTriedSessionRestore = true;
+          activeSessionRestore = null;
+        });
+
+      return activeSessionRestore;
     },
     getAccessToken(): string | null {
       return this.accessToken;
@@ -159,6 +193,7 @@ export const useSessionStore = defineStore("session", {
       this.emailVerificationDeadlineAt = null;
       this.emailVerificationRequiredNow = false;
       this.daysUntilEmailRequired = null;
+      this.isRestoringSession = false;
       clearLegacyCookie();
     },
   },

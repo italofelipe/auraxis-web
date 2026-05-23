@@ -341,6 +341,9 @@ const panel = computed<AuthPanelCopy>(() => {
 }
 
 .auth-brand--growth {
+  --auth-growth-warm-glow: rgba(246, 194, 75, 0.22);
+  --auth-growth-mint-glow: rgba(66, 232, 169, 0.18);
+  --auth-growth-background: linear-gradient(160deg, rgb(255 255 255), rgb(244 251 255) 46%, rgb(238 250 244));
   display: grid;
   grid-template-columns: minmax(250px, 0.78fr) minmax(420px, 1.22fr);
   grid-template-areas:
@@ -353,12 +356,20 @@ const panel = computed<AuthPanelCopy>(() => {
   padding: clamp(var(--space-7), 4vw, var(--space-9));
   border-right-color: color-mix(in srgb, var(--color-brand-500) 14%, transparent);
   background:
-    radial-gradient(circle at 78% 16%, rgba(246, 194, 75, 0.22), transparent 24%),
-    radial-gradient(circle at 24% 72%, rgba(66, 232, 169, 0.18), transparent 28%),
+    radial-gradient(circle at 78% 16%, var(--auth-growth-warm-glow), transparent 24%),
+    radial-gradient(circle at 24% 72%, var(--auth-growth-mint-glow), transparent 28%),
     linear-gradient(var(--auth-panel-grid-line) 1px, transparent 1px),
     linear-gradient(90deg, var(--auth-panel-grid-line) 1px, transparent 1px),
-    linear-gradient(160deg, #ffffff, #f4fbff 46%, #eefaf4);
+    var(--auth-growth-background);
   background-size: auto, auto, 44px 44px, 44px 44px, auto;
+}
+
+:global(:root[data-theme="dark"] .auth-brand--growth) {
+  --auth-panel-grid-line: color-mix(in srgb, var(--color-text-primary) 8%, transparent);
+  --auth-growth-warm-glow: rgba(246, 194, 75, 0.1);
+  --auth-growth-mint-glow: rgba(66, 232, 169, 0.12);
+  --auth-growth-background:
+    linear-gradient(160deg, rgb(5 12 24), rgb(9 23 39) 52%, rgb(4 33 31));
 }
 
 .auth-brand--growth .auth-brand__logo {
@@ -847,8 +858,8 @@ const panel = computed<AuthPanelCopy>(() => {
   .auth-brand--growth {
     gap: var(--space-4);
     background:
-      radial-gradient(circle at 74% 8%, rgba(246, 194, 75, 0.18), transparent 24%),
-      linear-gradient(160deg, #ffffff, #f4fbff 54%, #eefaf4);
+      radial-gradient(circle at 74% 8%, var(--auth-growth-warm-glow), transparent 24%),
+      var(--auth-growth-background);
   }
 
   .auth-brand:not(.auth-brand--security) {

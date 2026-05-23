@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { BarChart3, CheckCircle2, Save, ShieldAlert } from "lucide-vue-next";
 import {
   NButton,
   NDropdown,
@@ -60,6 +61,24 @@ const NEW_SIMULATION_OPTIONS = computed((): DropdownOption[] => [
   { key: "investment_return", label: t("pages.simulations.typeSelect.investmentReturn") },
 ]);
 
+const introSteps = [
+  {
+    icon: BarChart3,
+    title: "Compare possibilidades",
+    description: "Teste parcelas, metas e rendimentos antes de assumir um compromisso.",
+  },
+  {
+    icon: Save,
+    title: "Salve cenários úteis",
+    description: "Guarde hipóteses importantes para revisar depois com mais contexto.",
+  },
+  {
+    icon: ShieldAlert,
+    title: "Use como apoio",
+    description: "Os resultados orientam seu planejamento, sem substituir análise financeira profissional.",
+  },
+] as const;
+
 const allSimulations = computed(() => data.value?.cards ?? []);
 
 const filteredSimulations = computed(() => {
@@ -110,7 +129,11 @@ const onDelete = (id: string): void => {
       </div>
 
       <section class="simulations-page__intro" aria-label="Como funcionam as simulações">
-        <div>
+        <div class="simulations-page__intro-copy">
+          <span class="simulations-page__intro-kicker">
+            <CheckCircle2 :size="16" aria-hidden="true" />
+            Planejamento sem alterar seus dados reais
+          </span>
           <h2>Simulações transformam perguntas financeiras em cenários salvos</h2>
           <p>
             Compare alternativas antes de se comprometer: parcelar ou pagar à vista, antecipar uma
@@ -118,11 +141,17 @@ const onDelete = (id: string): void => {
             registrada para você voltar depois com mais contexto.
           </p>
         </div>
-        <ul>
-          <li>Use dados aproximados para testar possibilidades sem alterar sua carteira.</li>
-          <li>Salve os cenários que fazem sentido e acompanhe o impacto ao longo do tempo.</li>
-          <li>Trate o resultado como apoio de planejamento, não como recomendação financeira.</li>
-        </ul>
+        <div class="simulations-page__intro-steps">
+          <article v-for="item in introSteps" :key="item.title">
+            <span aria-hidden="true">
+              <component :is="item.icon" :size="18" />
+            </span>
+            <div>
+              <h3>{{ item.title }}</h3>
+              <p>{{ item.description }}</p>
+            </div>
+          </article>
+        </div>
       </section>
 
       <UiInlineError
@@ -185,8 +214,8 @@ const onDelete = (id: string): void => {
 .simulations-page {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-3);
+  gap: var(--space-4);
+  padding: var(--space-4);
 }
 
 .simulations-page__header {
@@ -203,42 +232,93 @@ const onDelete = (id: string): void => {
 
 .simulations-page__intro {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
-  gap: var(--space-3);
+  grid-template-columns: minmax(320px, 0.9fr) minmax(420px, 1.1fr);
+  gap: clamp(var(--space-4), 4vw, var(--space-7));
+  align-items: stretch;
   border: 1px solid var(--color-outline-soft);
   border-radius: var(--radius-lg);
   background:
     radial-gradient(circle at 100% 0%, var(--color-brand-glow-2xs), transparent 34%),
     var(--color-bg-surface);
-  padding: var(--space-3);
+  padding: clamp(var(--space-4), 3vw, var(--space-6));
   box-shadow: var(--shadow-card);
+}
+
+.simulations-page__intro-copy {
+  display: grid;
+  align-content: center;
+  gap: var(--space-2);
+}
+
+.simulations-page__intro-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  width: fit-content;
+  border-radius: var(--radius-full);
+  padding: 6px 10px;
+  background: var(--color-brand-hover-surface);
+  color: var(--color-brand-500);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
 }
 
 .simulations-page__intro h2 {
   margin: 0;
   color: var(--color-text-primary);
-  font-size: var(--font-size-xl);
+  font-size: clamp(var(--font-size-xl), 2vw, var(--font-size-2xl));
   font-weight: var(--font-weight-bold);
   letter-spacing: 0;
 }
 
-.simulations-page__intro p,
-.simulations-page__intro li {
+.simulations-page__intro p {
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
   line-height: 1.65;
 }
 
 .simulations-page__intro p {
-  margin: var(--space-1) 0 0;
+  margin: 0;
   max-width: 720px;
 }
 
-.simulations-page__intro ul {
+.simulations-page__intro-steps {
   display: grid;
-  gap: var(--space-1);
+  gap: var(--space-3);
   margin: 0;
-  padding-inline-start: 1.1rem;
+}
+
+.simulations-page__intro-steps article {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-3);
+  align-items: flex-start;
+  border: 1px solid var(--color-outline-soft);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  background: var(--color-bg-elevated);
+}
+
+.simulations-page__intro-steps article > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-full);
+  background: var(--color-brand-hover-surface);
+  color: var(--color-brand-500);
+}
+
+.simulations-page__intro-steps h3 {
+  margin: 0 0 4px;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+}
+
+.simulations-page__intro-steps p {
+  max-width: none;
 }
 
 .simulations-page__filter-bar {
@@ -274,6 +354,10 @@ const onDelete = (id: string): void => {
 }
 
 @media (max-width: 480px) {
+  .simulations-page {
+    padding: var(--space-3);
+  }
+
   .simulations-page__intro {
     grid-template-columns: 1fr;
   }

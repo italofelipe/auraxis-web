@@ -1,4 +1,15 @@
 <script setup lang="ts">
+import {
+  Briefcase,
+  CalendarDays,
+  MapPin,
+  ShieldCheck,
+  Target,
+  TrendingUp,
+  UserRound,
+  Wallet,
+} from "lucide-vue-next";
+
 import { useUserStore } from "~/stores/user";
 import { useUserProfileQuery } from "~/features/profile/composables/use-user-profile-query";
 import { formatCurrency } from "~/utils/currency";
@@ -60,7 +71,7 @@ function formatBirthDate(value: string | null | undefined): string {
  * @returns Formatted currency string, or "—" when the value is absent.
  */
 function formatMoney(value: number | null | undefined): string {
-  if (value === null || value === undefined) { return "—"; }
+  if (value === null || value === undefined || !Number.isFinite(value)) { return "—"; }
   return formatCurrency(value);
 }
 
@@ -74,6 +85,52 @@ function displayValue(value: string | null | undefined): string {
   if (!value) { return "—"; }
   return value;
 }
+
+const financialSummaryItems = computed(() => [
+  {
+    icon: TrendingUp,
+    label: t("pages.settings.profile.fields.monthlyIncome"),
+    value: formatMoney(userStore.profile?.monthly_income),
+  },
+  {
+    icon: Wallet,
+    label: t("pages.settings.profile.fields.monthlyExpenses"),
+    value: formatMoney(userStore.profile?.monthly_expenses),
+  },
+  {
+    icon: ShieldCheck,
+    label: t("pages.settings.profile.fields.netWorth"),
+    value: formatMoney(userStore.profile?.net_worth),
+  },
+]);
+
+const detailItems = computed(() => [
+  {
+    icon: UserRound,
+    label: t("pages.settings.profile.fields.gender"),
+    value: displayValue(userStore.profile?.gender),
+  },
+  {
+    icon: CalendarDays,
+    label: t("pages.settings.profile.fields.birthDate"),
+    value: formatBirthDate(userStore.profile?.birth_date),
+  },
+  {
+    icon: MapPin,
+    label: t("pages.settings.profile.fields.stateUf"),
+    value: displayValue(userStore.profile?.state_uf),
+  },
+  {
+    icon: Briefcase,
+    label: t("pages.settings.profile.fields.occupation"),
+    value: displayValue(userStore.profile?.occupation),
+  },
+  {
+    icon: Target,
+    label: t("pages.settings.profile.fields.financialObjectives"),
+    value: displayValue(userStore.profile?.financial_objectives),
+  },
+]);
 </script>
 
 <template>
@@ -100,11 +157,16 @@ function displayValue(value: string | null | undefined): string {
       </button>
     </div>
 
-    <UiSurfaceCard padding="lg">
+    <section class="profile-page__surface">
       <div class="profile-page__identity">
         <div class="profile-page__identity-main">
-          <div class="profile-page__name">{{ userStore.profile?.name ?? "—" }}</div>
-          <div class="profile-page__email">{{ userStore.profile?.email ?? "—" }}</div>
+          <span class="profile-page__avatar" aria-hidden="true">
+            <UserRound :size="24" />
+          </span>
+          <div>
+            <div class="profile-page__name">{{ userStore.profile?.name ?? "—" }}</div>
+            <div class="profile-page__email">{{ userStore.profile?.email ?? "—" }}</div>
+          </div>
         </div>
         <button
           class="profile-page__investor-badge"
@@ -117,45 +179,52 @@ function displayValue(value: string | null | undefined): string {
 
       <div class="profile-page__divider" />
 
-      <div class="profile-page__fields">
-        <div class="profile-page__field">
-          <span class="profile-page__field-label">{{ $t('pages.settings.profile.fields.gender') }}</span>
-          <span class="profile-page__field-value">{{ displayValue(userStore.profile?.gender) }}</span>
-        </div>
-        <div class="profile-page__field">
-          <span class="profile-page__field-label">{{ $t('pages.settings.profile.fields.birthDate') }}</span>
-          <span class="profile-page__field-value">{{ formatBirthDate(userStore.profile?.birth_date) }}</span>
-        </div>
-        <div class="profile-page__field">
-          <span class="profile-page__field-label">{{ $t('pages.settings.profile.fields.monthlyIncome') }}</span>
-          <span class="profile-page__field-value">{{ formatMoney(userStore.profile?.monthly_income) }}</span>
-        </div>
-        <div class="profile-page__field">
-          <span class="profile-page__field-label">{{ $t('pages.settings.profile.fields.monthlyExpenses') }}</span>
-          <span class="profile-page__field-value">{{ formatMoney(userStore.profile?.monthly_expenses) }}</span>
-        </div>
-        <div class="profile-page__field">
-          <span class="profile-page__field-label">{{ $t('pages.settings.profile.fields.netWorth') }}</span>
-          <span class="profile-page__field-value">{{ formatMoney(userStore.profile?.net_worth) }}</span>
-        </div>
-        <div class="profile-page__field">
-          <span class="profile-page__field-label">{{ $t('pages.settings.profile.fields.stateUf') }}</span>
-          <span class="profile-page__field-value">{{ displayValue(userStore.profile?.state_uf) }}</span>
-        </div>
-        <div class="profile-page__field">
-          <span class="profile-page__field-label">{{ $t('pages.settings.profile.fields.occupation') }}</span>
-          <span class="profile-page__field-value">{{ displayValue(userStore.profile?.occupation) }}</span>
-        </div>
-        <div class="profile-page__field">
-          <span class="profile-page__field-label">{{ $t('pages.settings.profile.fields.financialObjectives') }}</span>
-          <span class="profile-page__field-value">{{ displayValue(userStore.profile?.financial_objectives) }}</span>
-        </div>
-        <div class="profile-page__field">
-          <span class="profile-page__field-label">{{ $t('pages.settings.profile.fields.investorProfile') }}</span>
-          <span class="profile-page__field-value">{{ investorProfileLabel }}</span>
+      <div class="profile-page__summary" aria-label="Resumo financeiro do perfil">
+        <div
+          v-for="item in financialSummaryItems"
+          :key="item.label"
+          class="profile-page__summary-item"
+        >
+          <span class="profile-page__summary-icon" aria-hidden="true">
+            <component :is="item.icon" :size="18" />
+          </span>
+          <div>
+            <span>{{ item.label }}</span>
+            <strong>{{ item.value }}</strong>
+          </div>
         </div>
       </div>
-    </UiSurfaceCard>
+
+      <div class="profile-page__section-heading">
+        <span>Informações do perfil</span>
+        <small>Dados usados para personalizar projeções, metas e leitura financeira.</small>
+      </div>
+
+      <div class="profile-page__fields">
+        <div
+          v-for="item in detailItems"
+          :key="item.label"
+          class="profile-page__field"
+        >
+          <span class="profile-page__field-icon" aria-hidden="true">
+            <component :is="item.icon" :size="17" />
+          </span>
+          <div>
+            <span class="profile-page__field-label">{{ item.label }}</span>
+            <span class="profile-page__field-value">{{ item.value }}</span>
+          </div>
+        </div>
+        <div class="profile-page__field">
+          <span class="profile-page__field-icon" aria-hidden="true">
+            <ShieldCheck :size="17" />
+          </span>
+          <div>
+            <span class="profile-page__field-label">{{ $t('pages.settings.profile.fields.investorProfile') }}</span>
+            <span class="profile-page__field-value">{{ investorProfileLabel }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <ProfileCompletionModal
       :open="showEditModal"
@@ -169,8 +238,8 @@ function displayValue(value: string | null | undefined): string {
 .profile-page {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-3);
+  gap: var(--space-4);
+  padding: var(--space-4);
 }
 
 .profile-page__header {
@@ -249,19 +318,41 @@ function displayValue(value: string | null | undefined): string {
   color: var(--color-text-on-brand);
 }
 
+.profile-page__surface {
+  display: grid;
+  gap: var(--space-3);
+  overflow: hidden;
+}
+
 .profile-page__identity {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--space-2);
+  gap: var(--space-4);
   flex-wrap: wrap;
-  margin-bottom: var(--space-3);
 }
 
 .profile-page__identity-main {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.profile-page__avatar,
+.profile-page__summary-icon,
+.profile-page__field-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  border-radius: var(--radius-full);
+  background: var(--color-brand-hover-surface);
+  color: var(--color-brand-500);
+}
+
+.profile-page__avatar {
+  width: 52px;
+  height: 52px;
 }
 
 .profile-page__name {
@@ -295,19 +386,89 @@ function displayValue(value: string | null | undefined): string {
 .profile-page__divider {
   height: 1px;
   background: var(--color-outline-soft);
-  margin-bottom: var(--space-3);
+}
+
+.profile-page__summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.profile-page__summary-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 84px;
+  border: 1px solid var(--color-outline-soft);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  background: var(--color-bg-elevated);
+}
+
+.profile-page__summary-icon {
+  width: 42px;
+  height: 42px;
+}
+
+.profile-page__summary-item div > span {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.profile-page__summary-item strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+}
+
+.profile-page__section-heading {
+  display: grid;
+  gap: 4px;
+}
+
+.profile-page__section-heading span {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+}
+
+.profile-page__section-heading small {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
 }
 
 .profile-page__fields {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: var(--space-3);
 }
 
 .profile-page__field {
   display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-height: 72px;
+  padding: var(--space-2) 0;
+}
+
+.profile-page__field > div {
+  display: flex;
+  min-width: 0;
   flex-direction: column;
   gap: 4px;
+}
+
+.profile-page__field-icon {
+  width: 34px;
+  height: 34px;
+  margin-top: 2px;
+  background: var(--color-bg-elevated);
 }
 
 .profile-page__field-label {
@@ -319,7 +480,24 @@ function displayValue(value: string | null | undefined): string {
 }
 
 .profile-page__field-value {
+  display: block;
   font-size: var(--font-size-base, 1rem);
   color: var(--color-text-primary);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+  .profile-page {
+    padding: var(--space-3);
+  }
+
+  .profile-page__summary {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-page__summary-item {
+    min-height: auto;
+  }
 }
 </style>

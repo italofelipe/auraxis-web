@@ -1,4 +1,4 @@
-import type { AxiosInstance } from "axios";
+import axios, { type AxiosInstance } from "axios";
 
 import { useHttp } from "~/composables/useHttp";
 import type {
@@ -74,6 +74,22 @@ const toGoalWirePayload = (payload: CreateGoalPayload | UpdateGoalPayload): Goal
 };
 
 /**
+ * Detects the empty-collection response used by some API deployments for users
+ * that have not created goals yet.
+ *
+ * @param error Unknown HTTP error thrown by Axios.
+ * @returns True when the response safely maps to an empty goals list.
+ */
+const isEmptyGoalsNotFound = (error: unknown): boolean => {
+  if (!axios.isAxiosError(error)) {
+    return false;
+  }
+
+  const payload = error.response?.data as { error?: { code?: string } } | undefined;
+  return error.response?.status === 404 && payload?.error?.code === "NOT_FOUND";
+};
+
+/**
  * API client for the goals feature.
  *
  * Encapsulates all HTTP calls to the `/goals` endpoints.
@@ -95,8 +111,16 @@ export class GoalsClient {
    * @returns Array of GoalDto objects.
    */
   async listGoals(): Promise<GoalDto[]> {
-    const response = await this.#http.get<ApiEnvelope<GoalWireDto[]> | GoalWireDto[]>("/goals");
-    return unwrapApiEnvelope<GoalWireDto[]>(response.data).map(normalizeGoal);
+    try {
+      const response = await this.#http.get<ApiEnvelope<GoalWireDto[]> | GoalWireDto[]>("/goals");
+      return unwrapApiEnvelope<GoalWireDto[]>(response.data).map(normalizeGoal);
+    } catch (error) {
+      if (isEmptyGoalsNotFound(error)) {
+        return [];
+      }
+
+      throw error;
+    }
   }
 
   /**
