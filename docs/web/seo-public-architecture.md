@@ -47,10 +47,30 @@ Cada landing deve conter:
 - FAQ visivel na pagina e espelhado em `FAQPage` JSON-LD.
 - Links internos para as demais landings, `/tools` e `/register`.
 
+## Hub Editorial `/blog`
+
+O hub editorial complementa as landings comerciais com guias práticos e conteúdo people-first. Nesta fase, o blog usa seed estatico versionado em `app/data/blogPosts.ts`; isso evita dependência operacional de CMS antes da politica editorial estar madura e ainda permite SSG, sitemap e schema `Article`.
+
+Rotas publicadas:
+
+| Tipo | URL                                              | Objetivo                                                                                              |
+| ---- | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| Hub  | `/blog`                                          | Listar guias publicados, conectar clusters comerciais e levar o usuário para cadastro ou ferramentas. |
+| Post | `/blog/controle-financeiro-sem-planilha-confusa` | Explicar controle financeiro e alternativa à planilha de gastos.                                      |
+| Post | `/blog/insights-financeiros-com-contexto`        | Explicar insights financeiros, consentimento e análise com contexto.                                  |
+| Post | `/blog/planejamento-financeiro-mensal`           | Explicar planejamento financeiro mensal com metas e orçamento.                                        |
+
+Regras editoriais:
+
+- Cada post deve ter `title`, `description`, `excerpt`, `canonical`, data de publicacao, data de atualizacao e tempo de leitura.
+- Cada post deve incluir pelo menos três secoes, FAQ visivel, links internos e `Article` JSON-LD.
+- O conteúdo deve ser útil e específico, sem keyword stuffing e sem prometer recomendacao financeira personalizada.
+- Quando o build roda como `NUXT_PUBLIC_SITE_SURFACE=app`, o blog permanece `noindex,nofollow` e fora do sitemap.
+
 ## Regras De Indexacao
 
 - Build `NUXT_PUBLIC_SITE_SURFACE=marketing`: home, paginas legais, ferramentas publicas e landings comerciais sao SSG, indexaveis e entram no sitemap.
-- Build `NUXT_PUBLIC_SITE_SURFACE=app`: home operacional, login e app privado devem permanecer `noindex,nofollow`; landings comerciais ficam excluidas do sitemap.
+- Build `NUXT_PUBLIC_SITE_SURFACE=app`: home operacional, login e app privado devem permanecer `noindex,nofollow`; landings comerciais e blog ficam excluidos do sitemap.
 - Rotas autenticadas continuam `ssr: false` e fora do sitemap para evitar HTML estatico de superficie privada.
 - `/privacy` e `/terms` sao as rotas canonicas legais. `/privacy-policy` e `/terms-of-service` continuam como compatibilidade, com canonical apontando para as novas rotas.
 - Slugs comerciais antigos (`/controle-de-financas`, `/controle-de-gastos`, `/planejador-financeiro`, `/analises-financeiras`) redirecionam para o novo cluster canonico equivalente.
@@ -94,10 +114,12 @@ Registrar mensalmente:
 ## Criterios De Aceite Cobertos
 
 - Oito paginas comerciais por keyword principal.
+- Hub `/blog` e posts editoriais iniciais por keyword cluster.
 - URLs canonicas estaveis e sem conflito com rotas autenticadas.
 - Conteudo util e especifico por intencao de busca.
-- FAQ visivel e coerente com JSON-LD.
+- FAQ visivel e coerente com JSON-LD em landings e posts.
 - Sitemap e prerender alimentados por lista tipada em `app/data/seoLandings.ts`.
+- Sitemap e prerender do blog alimentados por lista tipada em `app/data/blogPosts.ts`.
 - `/privacy` e `/terms` publicados como rotas canonicas legais.
 - Verificacao Search Console/Bing preparada por env/config.
 - Teste unitario protege slugs, metadados minimos, FAQ e links internos.

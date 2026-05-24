@@ -91,6 +91,13 @@ const closeMenu = (): void => {
         >
           FAQ
         </NuxtLink>
+        <NuxtLink
+          to="/blog"
+          class="ui-public-header__nav-link"
+          active-class="ui-public-header__nav-link--active"
+        >
+          Blog
+        </NuxtLink>
       </nav>
 
       <!-- Desktop CTAs -->
@@ -179,6 +186,14 @@ const closeMenu = (): void => {
           @click="closeMenu"
         >
           FAQ
+        </NuxtLink>
+        <NuxtLink
+          to="/blog"
+          class="ui-public-header__mobile-link"
+          active-class="ui-public-header__mobile-link--active"
+          @click="closeMenu"
+        >
+          Blog
         </NuxtLink>
       </nav>
 

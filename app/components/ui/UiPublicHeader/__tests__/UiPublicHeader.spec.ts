@@ -66,6 +66,7 @@ describe("UiPublicHeader", () => {
     expect(wrapper.text()).toContain("Analytics");
     expect(wrapper.text()).toContain("Planos");
     expect(wrapper.text()).toContain("FAQ");
+    expect(wrapper.text()).toContain("Blog");
   });
 
   it("hides landing navigation on the app surface", () => {
@@ -76,6 +77,7 @@ describe("UiPublicHeader", () => {
 
     expect(wrapper.text()).not.toContain("Produto");
     expect(wrapper.text()).not.toContain("Analytics");
+    expect(wrapper.text()).not.toContain("Blog");
     expect(wrapper.text()).toContain("Entrar");
     expect(wrapper.text()).toContain("Criar conta");
   });

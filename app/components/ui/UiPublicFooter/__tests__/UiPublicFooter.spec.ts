@@ -50,6 +50,8 @@ describe("UiPublicFooter", () => {
     expect(wrapper.text()).toContain("Termos de Uso");
     expect(wrapper.text()).toContain("Privacidade");
     expect(wrapper.text()).toContain("Cookies");
+    expect(wrapper.text()).toContain("Blog");
+    expect(wrapper.find("a[href=\"/blog\"]").exists()).toBe(true);
     expect(wrapper.find("a[href=\"/cookies\"]").exists()).toBe(true);
   });
 
