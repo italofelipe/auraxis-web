@@ -62,7 +62,7 @@
     "css-render": "^0.15.14",
     "dayjs": "1.11.20",
     "dayjs-nuxt": "2.1.11",
-    "echarts": "^6.0.0",
+    "echarts": "^6.1.0",
     "lucide-vue-next": "^0.577.0",
     "naive-ui": "^2.44.1",
     "nuxt": "^4.4.6",
