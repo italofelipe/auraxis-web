@@ -54,7 +54,7 @@
     "@pinia/nuxt": "0.11.3",
     "@sentry/nuxt": "^10.53.1",
     "@sentry/vue": "^10.53.1",
-    "@tanstack/vue-query": "^5.100.11",
+    "@tanstack/vue-query": "^5.100.14",
     "@vee-validate/zod": "^4.15.1",
     "axios": "^1.16.1",
     "axios-retry": "^4.5.0",
@@ -93,7 +93,7 @@
     "@stryker-mutator/vitest-runner": "^9.6.1",
     "@testing-library/vue": "^8.1.0",
     "@vite-pwa/nuxt": "^1.1.1",
-    "@vitest/coverage-v8": "^4.1.6",
+    "@vitest/coverage-v8": "^4.1.7",
     "@vue/test-utils": "^2.4.10",
     "eslint": "^9.39.4",
     "eslint-plugin-jsdoc": "^54.5.0",
@@ -111,7 +111,7 @@
     "storybook": "9.1.20",
     "typescript": "^5.8.3",
     "vite": "7.3.3",
-    "vitest": "^4.1.6",
+    "vitest": "^4.1.7",
     "vue-tsc": "^2.2.12"
   },
   "engines": {
