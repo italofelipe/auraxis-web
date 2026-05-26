@@ -30,6 +30,20 @@ const parseCallsRemaining = (value: unknown): number | null => {
 
 const AI_CONSENT_VERSION = "1.0";
 
+/**
+ * Resolves the browser timezone used by the backend to build financial periods.
+ *
+ * @returns IANA timezone or undefined when the browser/runtime cannot provide it.
+ */
+export const resolveBrowserTimezone = (): string | undefined => {
+  try {
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return timezone && timezone.trim().length > 0 ? timezone : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 interface ConsentRecordDTO {
   readonly kind: string;
   readonly action: string;
@@ -86,10 +100,12 @@ export class AIInsightsApiClient {
     readonly anchorDate?: string;
     readonly sourceSurface?: InsightSourceSurface;
   }): Promise<GenerateInsightResponseWithMetaDTO> {
+    const timezone = resolveBrowserTimezone();
     const payload: GenerateInsightRequestDTO = {
       period_type: variables.periodType,
       ...(variables.anchorDate ? { anchor_date: variables.anchorDate } : {}),
       ...(variables.sourceSurface ? { source_surface: variables.sourceSurface } : {}),
+      ...(timezone ? { timezone } : {}),
     };
 
     const response = await this.#http.post<V2EnvelopeDTO<GenerateInsightResponseDTO>>(

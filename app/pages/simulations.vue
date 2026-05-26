@@ -215,6 +215,9 @@ const onDelete = (id: string): void => {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: clip;
   padding: var(--space-4);
 }
 
@@ -228,13 +231,16 @@ const onDelete = (id: string): void => {
 
 .simulations-page__page-header {
   flex: 1 1 auto;
+  min-width: 0;
 }
 
 .simulations-page__intro {
   display: grid;
-  grid-template-columns: minmax(320px, 0.9fr) minmax(420px, 1.1fr);
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
   gap: clamp(var(--space-4), 4vw, var(--space-7));
   align-items: stretch;
+  min-width: 0;
+  max-width: 100%;
   border: 1px solid var(--color-outline-soft);
   border-radius: var(--radius-lg);
   background:
@@ -248,6 +254,7 @@ const onDelete = (id: string): void => {
   display: grid;
   align-content: center;
   gap: var(--space-2);
+  min-width: 0;
 }
 
 .simulations-page__intro-kicker {
@@ -269,6 +276,7 @@ const onDelete = (id: string): void => {
   font-size: clamp(var(--font-size-xl), 2vw, var(--font-size-2xl));
   font-weight: var(--font-weight-bold);
   letter-spacing: 0;
+  overflow-wrap: anywhere;
 }
 
 .simulations-page__intro p {
@@ -285,6 +293,7 @@ const onDelete = (id: string): void => {
 .simulations-page__intro-steps {
   display: grid;
   gap: var(--space-3);
+  min-width: 0;
   margin: 0;
 }
 
@@ -293,6 +302,7 @@ const onDelete = (id: string): void => {
   grid-template-columns: auto 1fr;
   gap: var(--space-3);
   align-items: flex-start;
+  min-width: 0;
   border: 1px solid var(--color-outline-soft);
   border-radius: var(--radius-md);
   padding: var(--space-3);
@@ -319,6 +329,7 @@ const onDelete = (id: string): void => {
 
 .simulations-page__intro-steps p {
   max-width: none;
+  overflow-wrap: anywhere;
 }
 
 .simulations-page__filter-bar {
@@ -326,6 +337,17 @@ const onDelete = (id: string): void => {
   align-items: center;
   flex-wrap: wrap;
   gap: var(--space-2);
+  min-width: 0;
+}
+
+.simulations-page__filter-bar :deep(.n-radio-group) {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+
+.simulations-page__filter-bar :deep(.n-radio-button) {
+  min-width: 0;
 }
 
 .simulations-page__empty-state {
@@ -340,8 +362,9 @@ const onDelete = (id: string): void => {
 
 .simulations-page__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
   gap: var(--space-3);
+  min-width: 0;
 }
 
 .simulations-page__paywall-card {
@@ -373,13 +396,13 @@ const onDelete = (id: string): void => {
   }
 
   .simulations-page__grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (min-width: 901px) {
   .simulations-page__grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 </style>

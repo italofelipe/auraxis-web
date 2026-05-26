@@ -37,6 +37,7 @@ export interface GenerateInsightRequestDTO {
   readonly period_type: InsightPeriodType;
   readonly anchor_date?: string;
   readonly source_surface?: InsightSourceSurface;
+  readonly timezone?: string;
 }
 
 export interface GenerateInsightResponseDTO {

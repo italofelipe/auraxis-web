@@ -1,8 +1,18 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AIInsightsApiClient } from "./ai-insights-api";
 
 describe("AIInsightsApiClient", () => {
+  beforeEach(() => {
+    vi.spyOn(Intl, "DateTimeFormat").mockReturnValue({
+      resolvedOptions: () => ({ timeZone: "America/Sao_Paulo" }),
+    } as never);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it("generates period-aware insights through the canonical endpoint", async () => {
     const http = {
       post: vi.fn().mockResolvedValue({
@@ -43,6 +53,7 @@ describe("AIInsightsApiClient", () => {
     expect(http.post).toHaveBeenCalledWith("/ai/insights/generate", {
       period_type: "daily",
       anchor_date: "2026-05-18",
+      timezone: "America/Sao_Paulo",
     });
     expect(result.callsRemaining).toBe(1);
     expect(result.period_type).toBe("daily");
@@ -75,6 +86,7 @@ describe("AIInsightsApiClient", () => {
 
     expect(http.post).toHaveBeenCalledWith("/ai/insights/generate", {
       period_type: "monthly",
+      timezone: "America/Sao_Paulo",
     });
     expect(http.post.mock.calls[0]?.[1]).not.toHaveProperty("transactions");
     expect(http.post.mock.calls[0]?.[1]).not.toHaveProperty("accounts");
@@ -111,6 +123,7 @@ describe("AIInsightsApiClient", () => {
     expect(http.post).toHaveBeenCalledWith("/ai/insights/generate", {
       period_type: "daily",
       source_surface: "transactions",
+      timezone: "America/Sao_Paulo",
     });
     expect(http.post.mock.calls[0]?.[1]).not.toHaveProperty("transactions");
     expect(http.post.mock.calls[0]?.[1]).not.toHaveProperty("context");

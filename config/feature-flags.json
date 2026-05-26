@@ -436,8 +436,8 @@
       "createdAt": "2026-04-24",
       "removeBy": "2027-12-31",
       "type": "release",
-      "status": "enabled-prod",
-      "description": "Página Focus Mode: número único da jornada financeira do usuário. Gated por entitlement focus_mode.",
+      "status": "draft",
+      "description": "Página Focus Mode desativada em produção enquanto a proposta de valor é revisada. Links legados redirecionam para o dashboard.",
       "repositories": ["auraxis-web"]
     },
     {

@@ -8,8 +8,9 @@ describe("Insights page — deep link and source surface", () => {
   it("opens the requested report from the open query param", () => {
     expect(source).toContain("useRoute()");
     expect(source).toContain("route.query.open");
-    expect(source).toContain("expandedInsightIds");
-    expect(source).toContain("v-model:expanded-names");
+    expect(source).toContain("selectedInsightId");
+    expect(source).toContain("Relatório global");
+    expect(source).toContain("Histórico de insights gerados");
   });
 
   it("generates global insights from the hub surface", () => {
