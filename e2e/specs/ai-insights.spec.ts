@@ -208,9 +208,10 @@ test.describe("AI Insights — surface slices", () => {
 
 		await page.getByRole("button", { name: /gerar insight com ia/i }).click();
 		const request = await generateRequest;
-		const payload = request.postDataJSON() as { source_surface?: string; transactions?: unknown };
+		const payload = request.postDataJSON() as { source_surface?: string; timezone?: string; transactions?: unknown };
 
 		expect(payload.source_surface).toBe("transactions");
+		expect(typeof payload.timezone).toBe("string");
 		expect(payload.transactions).toBeUndefined();
 		await expect(page.getByText("Transações fora do padrão")).toBeVisible({ timeout: 10_000 });
 		await expect(page.getByText("Orçamento em atenção")).not.toBeVisible();
@@ -226,9 +227,9 @@ test.describe("AI Insights — surface slices", () => {
 		});
 		await waitForHydration(page);
 
-		await expect(
-			page.getByText("Relatório de insights mensal referente ao mês maio de 2026"),
-		).toBeVisible({ timeout: 10_000 });
+		await expect(page.getByRole("heading", { name: "Insight de maio de 2026" })).toBeVisible({ timeout: 10_000 });
+		await expect(page.getByText("Resumo executivo")).toBeVisible({ timeout: 10_000 });
+		await expect(page.getByText("Resumo do período.")).toBeVisible({ timeout: 10_000 });
 		await expect(page.getByText("Orçamento em atenção")).toBeVisible({ timeout: 10_000 });
 	});
 });

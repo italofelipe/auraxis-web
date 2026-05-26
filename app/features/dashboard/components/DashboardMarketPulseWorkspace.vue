@@ -100,6 +100,12 @@ interface AnomalyCard {
   readonly timestamp: string;
 }
 
+interface ExecutiveSignal {
+  readonly key: string;
+  readonly icon: Component;
+  readonly text: string;
+}
+
 const EMPTY_SUMMARY: DashboardSummary = {
   income: 0,
   expense: 0,
@@ -338,6 +344,52 @@ function buildAnomalies(
   }
 
   return generated;
+}
+
+/**
+ * Builds only actionable executive signals for the dashboard strip.
+ *
+ * @param summary Current dashboard summary.
+ * @param rate Savings rate in percentage points.
+ * @param anomalyCards Alert/anomaly cards already resolved for the period.
+ * @returns Short signals that are worth user attention.
+ */
+function buildExecutiveSignals(
+  summary: DashboardSummary | null,
+  rate: number,
+  anomalyCards: AnomalyCard[],
+): ExecutiveSignal[] {
+  if (!summary) {
+    return [];
+  }
+
+  const signals: ExecutiveSignal[] = [];
+
+  if (summary.income > 0 && rate < 20) {
+    signals.push({
+      key: "low-savings",
+      icon: Sparkles,
+      text: `Taxa de poupança em ${rate.toFixed(0)}%; tente chegar perto de 20%.`,
+    });
+  }
+
+  if (summary.upcomingDueTotal > 0) {
+    signals.push({
+      key: "upcoming-dues",
+      icon: CalendarClock,
+      text: `${formatCurrency(summary.upcomingDueTotal)} em vencimentos próximos.`,
+    });
+  }
+
+  if (anomalyCards.length > 0) {
+    signals.push({
+      key: "anomalies",
+      icon: ShieldAlert,
+      text: `${anomalyCards.length} sinal${anomalyCards.length === 1 ? "" : "es"} financeiro${anomalyCards.length === 1 ? "" : "s"} para revisão.`,
+    });
+  }
+
+  return signals;
 }
 
 /**
@@ -580,6 +632,10 @@ const anomalies = computed<AnomalyCard[]>(() =>
   buildAnomalies(props.summary, props.alerts),
 );
 
+const executiveSignals = computed<ExecutiveSignal[]>(() =>
+  buildExecutiveSignals(props.summary, savingsRate.value, anomalies.value),
+);
+
 const chartUpdateKey = computed((): string =>
   cashflowPoints.value.map((point) => `${point.label}:${point.balance}`).join("|"),
 );
@@ -621,18 +677,18 @@ const chartUpdateKey = computed((): string =>
         </article>
       </section>
 
-      <section class="market-pulse__insights" aria-label="Leitura executiva">
-        <article class="market-insight">
-          <Sparkles :size="16" aria-hidden="true" />
-          <span>Entrada cobre {{ savingsRate.toFixed(0) }}% de geração líquida.</span>
-        </article>
-        <article class="market-insight">
-          <CalendarClock :size="16" aria-hidden="true" />
-          <span>{{ formatCurrency(props.summary?.upcomingDueTotal ?? 0) }} em vencimentos mapeados.</span>
-        </article>
-        <article class="market-insight">
-          <ShieldAlert :size="16" aria-hidden="true" />
-          <span>{{ anomalies.length }} sinal{{ anomalies.length === 1 ? "" : "es" }} para revisão.</span>
+      <section
+        v-if="executiveSignals.length > 0"
+        class="market-pulse__insights"
+        aria-label="Leitura executiva"
+      >
+        <article
+          v-for="signal in executiveSignals"
+          :key="signal.key"
+          class="market-insight"
+        >
+          <component :is="signal.icon" :size="16" aria-hidden="true" />
+          <span>{{ signal.text }}</span>
         </article>
       </section>
 

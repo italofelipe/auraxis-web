@@ -234,6 +234,8 @@ function renderStatusLabel(option: SelectOption): ReturnType<typeof h> {
   grid-template-columns: 1fr;
   gap: var(--space-4);
   align-items: stretch;
+  min-width: 0;
+  max-width: 100%;
   padding: var(--space-4);
   border: 1px solid var(--color-outline-soft);
   border-radius: var(--radius-lg);
@@ -242,15 +244,10 @@ function renderStatusLabel(option: SelectOption): ReturnType<typeof h> {
 
 .tx-toolbar__filters {
   display: grid;
-  grid-template-columns:
-    minmax(140px, 1fr)
-    minmax(140px, 1fr)
-    minmax(150px, 1fr)
-    minmax(150px, 1fr)
-    minmax(160px, 1.15fr)
-    auto;
+  grid-template-columns: repeat(auto-fit, minmax(min(176px, 100%), 1fr));
   gap: var(--space-3);
   align-items: end;
+  min-width: 0;
 }
 
 .tx-toolbar__field {
@@ -272,6 +269,8 @@ function renderStatusLabel(option: SelectOption): ReturnType<typeof h> {
 
 .tx-toolbar__clear {
   align-self: end;
+  width: 100%;
+  min-width: 0;
 }
 
 .tx-toolbar__actions {
@@ -279,14 +278,21 @@ function renderStatusLabel(option: SelectOption): ReturnType<typeof h> {
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: var(--space-2);
+  min-width: 0;
+  max-width: 100%;
   padding-top: var(--space-3);
   border-top: 1px solid var(--color-outline-soft);
+}
+
+.tx-toolbar__actions :deep(.n-button) {
+  min-width: 0;
 }
 
 :deep(.tx-select-option) {
   display: inline-flex;
   align-items: center;
   gap: 7px;
+  min-width: 0;
 }
 
 @media (max-width: 1180px) {
@@ -296,13 +302,22 @@ function renderStatusLabel(option: SelectOption): ReturnType<typeof h> {
 }
 
 @media (max-width: 860px) {
-  .tx-toolbar__filters {
+  .tx-toolbar__actions {
+    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tx-toolbar__actions :deep(.n-button) {
+    width: 100%;
   }
 }
 
 @media (max-width: 560px) {
   .tx-toolbar__filters {
+    grid-template-columns: 1fr;
+  }
+
+  .tx-toolbar__actions {
     grid-template-columns: 1fr;
   }
 }
