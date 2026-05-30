@@ -43,6 +43,8 @@ const makeTransaction = (): TransactionDto => ({
   is_recurring: false,
   is_installment: false,
   installment_count: null,
+  recurrence_interval: 1,
+  recurrence_unit: "month",
   currency: "BRL",
   status: "pending",
   start_date: null,
