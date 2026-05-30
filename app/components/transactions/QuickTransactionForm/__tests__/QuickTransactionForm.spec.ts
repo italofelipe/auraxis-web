@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import QuickTransactionForm from "../QuickTransactionForm.vue";
+import type { QuickTransactionFormState } from "../useQuickTransactionForm";
 
 // ── Mock setup ─────────────────────────────────────────────────────────────────
 // NModalStub is loaded via dynamic import inside the factory so it can be
@@ -275,6 +276,32 @@ describe("QuickTransactionForm", () => {
     await saveButton?.trigger("click");
     await nextTick();
     expect(wrapper.exists()).toBe(true);
+  });
+
+  it("inclui cadencia (intervalo + unidade) no payload recorrente", async () => {
+    const wrapper = mountForm("expense");
+    const vm = wrapper.vm as unknown as { form: QuickTransactionFormState };
+    vm.form.title = "Aluguel";
+    vm.form.amount = 1200;
+    vm.form.due_date = new Date(2026, 4, 5).getTime();
+    vm.form.is_recurring = true;
+    vm.form.recurrence_unit = "week";
+    vm.form.recurrence_interval = 2;
+    await nextTick();
+
+    const saveButton = wrapper.findAll("button").find((b) => b.text() === "Salvar");
+    await saveButton?.trigger("click");
+    await flushPromises();
+
+    expect(createTransactionMutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        is_recurring: true,
+        recurrence_interval: 2,
+        recurrence_unit: "week",
+        start_date: "2026-05-05",
+      }),
+      expect.any(Object),
+    );
   });
 
   it("covers income statusOptions computed branch on submit", async () => {

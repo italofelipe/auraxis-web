@@ -12,6 +12,7 @@ import type { FormInst, FormRules, SelectOption } from "naive-ui";
 
 import type {
   CreateTransactionPayload,
+  RecurrenceUnitDto,
   TransactionStatusDto,
   TransactionTypeDto,
 } from "~/features/transactions/contracts/transaction.dto";
@@ -36,6 +37,8 @@ export interface QuickTransactionFormState {
   is_installment: boolean;
   installment_count: number | null;
   is_recurring: boolean;
+  recurrence_interval: number;
+  recurrence_unit: RecurrenceUnitDto;
   end_date: number | null;
 }
 
@@ -71,6 +74,8 @@ function createDefaultFormState(): QuickTransactionFormState {
     is_installment: false,
     installment_count: null,
     is_recurring: false,
+    recurrence_interval: 1,
+    recurrence_unit: "month",
     end_date: null,
   };
 }
@@ -112,6 +117,14 @@ export function useQuickTransactionForm(opts: UseQuickTransactionFormOptions) {
   const recurringDisabled = computed((): boolean => form.is_installment);
   const showInstallmentCount = computed((): boolean => form.is_installment);
   const showEndDate = computed((): boolean => form.is_recurring);
+  const showRecurrenceCadence = computed((): boolean => form.is_recurring);
+
+  const recurrenceUnitOptions = computed((): SelectOption[] => [
+    { label: t("transaction.form.recurrenceUnit.day"), value: "day" },
+    { label: t("transaction.form.recurrenceUnit.week"), value: "week" },
+    { label: t("transaction.form.recurrenceUnit.month"), value: "month" },
+    { label: t("transaction.form.recurrenceUnit.year"), value: "year" },
+  ]);
 
   const statusOptions = computed((): SelectOption[] => {
     if (type.value === "income") {
@@ -158,6 +171,8 @@ export function useQuickTransactionForm(opts: UseQuickTransactionFormOptions) {
     if (!form.is_recurring) { return {}; }
     return {
       is_recurring: true,
+      recurrence_interval: form.recurrence_interval ?? 1,
+      recurrence_unit: form.recurrence_unit,
       start_date: form.due_date ? tsToDate(form.due_date) : undefined,
       ...(form.end_date ? { end_date: tsToDate(form.end_date) } : {}),
     };
@@ -220,6 +235,8 @@ export function useQuickTransactionForm(opts: UseQuickTransactionFormOptions) {
     showInstallment,
     showInstallmentCount,
     showEndDate,
+    showRecurrenceCadence,
+    recurrenceUnitOptions,
     recurringDisabled,
     rules,
     submit,
