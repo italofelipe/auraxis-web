@@ -29,6 +29,8 @@ const {
   showInstallment,
   showInstallmentCount,
   showEndDate,
+  showRecurrenceCadence,
+  recurrenceUnitOptions,
   recurringDisabled,
   rules,
   submit,
@@ -91,6 +93,8 @@ function handleClose(): void {
         :show-installment="showInstallment"
         :show-installment-count="showInstallmentCount"
         :show-end-date="showEndDate"
+        :show-recurrence-cadence="showRecurrenceCadence"
+        :recurrence-unit-options="recurrenceUnitOptions"
         :recurring-disabled="recurringDisabled"
       />
     </NForm>

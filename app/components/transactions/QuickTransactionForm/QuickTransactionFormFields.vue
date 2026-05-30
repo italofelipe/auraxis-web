@@ -26,6 +26,8 @@ defineProps<{
   showInstallment: boolean;
   showInstallmentCount: boolean;
   showEndDate: boolean;
+  showRecurrenceCadence: boolean;
+  recurrenceUnitOptions: SelectOption[];
   recurringDisabled: boolean;
 }>();
 
@@ -111,6 +113,28 @@ const form = inject<QuickTransactionFormState>(QUICK_TRANSACTION_FORM_KEY)!;
 
     <NFormItem :label="$t('transaction.form.recurring.label')" path="is_recurring">
       <NSwitch v-model:value="form.is_recurring" :disabled="recurringDisabled" />
+    </NFormItem>
+
+    <NFormItem
+      v-if="showRecurrenceCadence"
+      :label="$t('transaction.form.recurrenceFrequency.label')"
+      path="recurrence_unit"
+    >
+      <NSelect v-model:value="form.recurrence_unit" :options="recurrenceUnitOptions" />
+    </NFormItem>
+
+    <NFormItem
+      v-if="showRecurrenceCadence"
+      :label="$t('transaction.form.recurrenceInterval.label')"
+      path="recurrence_interval"
+    >
+      <NInputNumber
+        v-model:value="form.recurrence_interval"
+        :placeholder="$t('transaction.form.recurrenceInterval.placeholder')"
+        :min="1"
+        :max="365"
+        style="width: 100%"
+      />
     </NFormItem>
 
     <NFormItem v-if="showEndDate" :label="$t('transaction.form.endDate.label')" path="end_date">

@@ -1188,6 +1188,19 @@
       "recurring": {
         "label": "Recorrente?"
       },
+      "recurrenceFrequency": {
+        "label": "Frequência"
+      },
+      "recurrenceInterval": {
+        "label": "A cada (intervalo)",
+        "placeholder": "1"
+      },
+      "recurrenceUnit": {
+        "day": "Dia",
+        "week": "Semana",
+        "month": "Mês",
+        "year": "Ano"
+      },
       "endDate": {
         "label": "Repetir até (opcional)"
       },

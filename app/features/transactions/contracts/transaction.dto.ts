@@ -9,6 +9,9 @@ export type TransactionStatusDto =
 /** Transaction type discriminator. */
 export type TransactionTypeDto = "income" | "expense";
 
+/** Cadence unit for a recurring transaction (combined with an interval). */
+export type RecurrenceUnitDto = "day" | "week" | "month" | "year";
+
 /**
  * Payload sent to POST /transactions.
  *
@@ -54,6 +57,12 @@ export interface CreateTransactionPayload {
 
   /** End date for recurring transactions (YYYY-MM-DD). */
   readonly end_date?: string;
+
+  /** Recurrence interval — repeat every N units. Defaults to 1 on the backend. */
+  readonly recurrence_interval?: number;
+
+  /** Recurrence cadence unit. Defaults to "month" on the backend. */
+  readonly recurrence_unit?: RecurrenceUnitDto;
 
   /** UUID of the tag/category associated with this transaction. */
   readonly tag_id?: string | null;
@@ -124,6 +133,8 @@ export interface TransactionDto {
   readonly is_recurring: boolean;
   readonly is_installment: boolean;
   readonly installment_count: number | null;
+  readonly recurrence_interval: number;
+  readonly recurrence_unit: RecurrenceUnitDto;
   readonly currency: string;
   readonly status: TransactionStatusDto;
   readonly start_date: string | null;
