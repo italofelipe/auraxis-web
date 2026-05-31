@@ -10,8 +10,10 @@ import type { InsightSourceSurface } from "~/features/ai-insights/contracts/ai-i
 
 const props = withDefaults(defineProps<{
   sourceSurface?: InsightSourceSurface;
+  anchorDate?: string;
 }>(), {
   sourceSurface: "dashboard",
+  anchorDate: undefined,
 });
 
 const {
@@ -22,6 +24,7 @@ const {
   isLoading,
   isGrantingAIConsent,
   callsRemaining,
+  callsRemainingMonth,
 } = useAIInsights();
 
 const showLoadingModal = ref(false);
@@ -49,6 +52,7 @@ const generateWithLoading = async (): Promise<void> => {
     await generate({
       periodType: "daily",
       sourceSurface: props.sourceSurface,
+      ...(props.anchorDate ? { anchorDate: props.anchorDate } : {}),
     });
   } finally {
     showLoadingModal.value = false;
@@ -118,7 +122,13 @@ const handleConsentAccept = async (): Promise<void> => {
     </NButton>
 
     <p v-if="callsRemaining !== null" class="ai-insight-button__remaining">
-      {{ callsRemaining }} de 2 insights restantes hoje
+      <span v-if="callsRemaining > 0">
+        {{ callsRemaining }} {{ callsRemaining === 1 ? "insight restante" : "insights restantes" }} hoje
+      </span>
+      <span v-else>Limite diário atingido</span>
+      <span v-if="callsRemainingMonth !== null">
+        · {{ callsRemainingMonth }} no mês
+      </span>
     </p>
 
     <AiInsightLoadingModal v-model="showLoadingModal" />

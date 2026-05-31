@@ -6,8 +6,10 @@ import type {
   GenerateInsightRequestDTO,
   GenerateInsightResponseDTO,
   GenerateInsightResponseWithMetaDTO,
+  InsightFeedbackDTO,
   InsightPeriodType,
   InsightSourceSurface,
+  SubmitInsightFeedbackRequestDTO,
   V2EnvelopeDTO,
 } from "~/features/ai-insights/contracts/ai-insight";
 
@@ -117,7 +119,30 @@ export class AIInsightsApiClient {
     return {
       ...data,
       callsRemaining: parseCallsRemaining(response.headers["x-ai-calls-remaining"]),
+      callsRemainingMonth: parseCallsRemaining(
+        response.headers["x-ai-calls-remaining-month"],
+      ),
     };
+  }
+
+  /**
+   * Submits the user's rating and optional comment for a persisted insight.
+   *
+   * @param insightId UUID of the AI insight being rated.
+   * @param feedback Ratings (0–5) for relevance, truthfulness, depth and
+   *   usefulness, plus an optional free-text comment.
+   * @returns The persisted (or upserted) feedback record.
+   */
+  async submitInsightFeedback(
+    insightId: string,
+    feedback: SubmitInsightFeedbackRequestDTO,
+  ): Promise<InsightFeedbackDTO> {
+    const response = await this.#http.post<V2EnvelopeDTO<InsightFeedbackDTO>>(
+      `/ai/insights/${insightId}/feedback`,
+      feedback,
+    );
+
+    return unwrap<InsightFeedbackDTO>(response.data);
   }
 
   /**

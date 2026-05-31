@@ -41,6 +41,7 @@ export interface GenerateInsightRequestDTO {
 }
 
 export interface GenerateInsightResponseDTO {
+  readonly id?: string;
   readonly summary: string;
   readonly items: InsightItem[];
   readonly period_type: InsightPeriodType;
@@ -53,10 +54,32 @@ export interface GenerateInsightResponseDTO {
   readonly cost_usd: number;
   readonly model: string;
   readonly cached: boolean;
+  readonly forecast?: boolean;
 }
 
 export interface GenerateInsightResponseWithMetaDTO extends GenerateInsightResponseDTO {
   readonly callsRemaining: number | null;
+  readonly callsRemainingMonth: number | null;
+}
+
+export interface SubmitInsightFeedbackRequestDTO {
+  readonly relevance: number;
+  readonly truthfulness: number;
+  readonly depth: number;
+  readonly usefulness: number;
+  readonly comment?: string;
+}
+
+export interface InsightFeedbackDTO {
+  readonly id: string;
+  readonly insight_id: string;
+  readonly relevance: number;
+  readonly truthfulness: number;
+  readonly depth: number;
+  readonly usefulness: number;
+  readonly comment: string | null;
+  readonly created_at: string;
+  readonly updated_at: string;
 }
 
 export interface AIInsightHistoryDTO {

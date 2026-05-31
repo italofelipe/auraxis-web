@@ -36,6 +36,41 @@ describe("AiInsightSection", () => {
     expect(wrapper.text()).toContain("Orçamento pressionado");
   });
 
+  it("shows the forecast banner when the insight is a future-period prediction", () => {
+    const wrapper = mount(AiInsightSection, {
+      props: {
+        insight: [],
+        periodLabel: "2026-06",
+        isStale: false,
+        model: "gpt-4o",
+        tokensUsed: 0,
+        costUsd: 0,
+        forecast: true,
+      },
+      global: { stubs },
+    });
+
+    expect(wrapper.find("[data-testid='forecast-banner']").exists()).toBe(true);
+    expect(wrapper.text()).toContain("Modo previsão");
+  });
+
+  it("hides the forecast banner for present-period insights", () => {
+    const wrapper = mount(AiInsightSection, {
+      props: {
+        insight: [],
+        periodLabel: "2026-05",
+        isStale: false,
+        model: "gpt-4o",
+        tokensUsed: 0,
+        costUsd: 0,
+        forecast: false,
+      },
+      global: { stubs },
+    });
+
+    expect(wrapper.find("[data-testid='forecast-banner']").exists()).toBe(false);
+  });
+
   it("shows stale warning when data comes from a previous month", () => {
     const wrapper = mount(AiInsightSection, {
       props: {

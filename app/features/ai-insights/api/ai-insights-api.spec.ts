@@ -199,3 +199,104 @@ describe("AIInsightsApiClient", () => {
     expect(http.get).toHaveBeenCalledWith("/me/consents");
   });
 });
+
+describe("AIInsightsApiClient — forecast metadata & feedback", () => {
+  it("parses the monthly remaining-calls header and the forecast flag", async () => {
+    const http = {
+      post: vi.fn().mockResolvedValue({
+        data: {
+          data: {
+            id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            summary: "Previsão de junho",
+            items: [],
+            period_type: "monthly",
+            period_label: "2026-06",
+            period_start: "2026-06-01",
+            period_end: "2026-06-30",
+            tokens_used: 120,
+            cost_usd: 0.00002,
+            model: "gpt-4o",
+            cached: false,
+            forecast: true,
+          },
+        },
+        headers: {
+          "x-ai-calls-remaining": "0",
+          "x-ai-calls-remaining-month": "27",
+        },
+      }),
+    };
+    const client = new AIInsightsApiClient(http as never);
+
+    const result = await client.generateInsight({
+      periodType: "monthly",
+      anchorDate: "2026-06-01",
+    });
+
+    expect(result.callsRemaining).toBe(0);
+    expect(result.callsRemainingMonth).toBe(27);
+    expect(result.forecast).toBe(true);
+    expect(result.id).toBe("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+  });
+
+  it("defaults monthly remaining calls to null when the header is absent", async () => {
+    const http = {
+      post: vi.fn().mockResolvedValue({
+        data: {
+          data: {
+            summary: "Resumo",
+            items: [],
+            period_type: "daily",
+            period_label: "2026-05-18",
+            period_start: "2026-05-18",
+            period_end: "2026-05-18",
+            tokens_used: 80,
+            cost_usd: 0.00001,
+            model: "gpt-4o",
+            cached: false,
+          },
+        },
+        headers: { "x-ai-calls-remaining": "0" },
+      }),
+    };
+    const client = new AIInsightsApiClient(http as never);
+
+    const result = await client.generateInsight({ periodType: "daily" });
+
+    expect(result.callsRemainingMonth).toBeNull();
+  });
+
+  it("submits insight feedback to the per-insight endpoint", async () => {
+    const feedback = {
+      relevance: 5,
+      truthfulness: 4,
+      depth: 3,
+      usefulness: 5,
+      comment: "Muito útil.",
+    };
+    const http = {
+      post: vi.fn().mockResolvedValue({
+        data: {
+          data: {
+            id: "fb-1",
+            insight_id: "ins-1",
+            relevance: 5,
+            truthfulness: 4,
+            depth: 3,
+            usefulness: 5,
+            comment: "Muito útil.",
+            created_at: "2026-05-31T12:00:00Z",
+            updated_at: "2026-05-31T12:00:00Z",
+          },
+        },
+      }),
+    };
+    const client = new AIInsightsApiClient(http as never);
+
+    const result = await client.submitInsightFeedback("ins-1", feedback);
+
+    expect(http.post).toHaveBeenCalledWith("/ai/insights/ins-1/feedback", feedback);
+    expect(result.id).toBe("fb-1");
+    expect(result.insight_id).toBe("ins-1");
+  });
+});
