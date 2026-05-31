@@ -7,6 +7,7 @@ import {
   mapAIInsightDto,
   mapGeneratedInsight,
   parseInsightItems,
+  resolveInsightAnchorDate,
 } from "./ai-insight";
 import type { AIInsightDTO, InsightItem } from "~/features/ai-insights/contracts/ai-insight";
 
@@ -127,6 +128,7 @@ describe("AI insight model", () => {
     ];
 
     const mapped = mapGeneratedInsight({
+      id: "11111111-1111-1111-1111-111111111111",
       summary: "Resumo mensal",
       items,
       period_type: "monthly",
@@ -137,13 +139,46 @@ describe("AI insight model", () => {
       tokens_used: 180,
       cost_usd: 0.00003,
       cached: false,
+      forecast: true,
       callsRemaining: 1,
+      callsRemainingMonth: 12,
     });
 
     expect(mapped.items).toEqual(items);
     expect(mapped.summary).toBe("Resumo mensal");
     expect(mapped.periodType).toBe("monthly");
     expect(mapped.periodLabel).toBe("2026-05");
+    expect(mapped.id).toBe("11111111-1111-1111-1111-111111111111");
+    expect(mapped.forecast).toBe(true);
+    expect(mapped.callsRemainingMonth).toBe(12);
+  });
+
+  it("defaults id to null and forecast to false when the backend omits them", () => {
+    const mapped = mapGeneratedInsight({
+      summary: "Resumo do dia",
+      items: [
+        {
+          type: "saude_financeira",
+          dimension: "general",
+          title: "Tudo certo",
+          message: "Suas contas estão equilibradas.",
+        },
+      ],
+      period_type: "daily",
+      period_label: "2026-05-18",
+      period_start: "2026-05-18",
+      period_end: "2026-05-18",
+      model: "gpt-4o-mini",
+      tokens_used: 60,
+      cost_usd: 0.00001,
+      cached: false,
+      callsRemaining: null,
+      callsRemainingMonth: null,
+    });
+
+    expect(mapped.id).toBeNull();
+    expect(mapped.forecast).toBe(false);
+    expect(mapped.callsRemainingMonth).toBeNull();
   });
 
   it("falls back legacy items without dimension to general", () => {
@@ -203,5 +238,28 @@ describe("AI insight model", () => {
       tone: "neutral",
       label: "Insight",
     });
+  });
+});
+
+describe("resolveInsightAnchorDate", () => {
+  const now = new Date(2026, 4, 15); // 2026-05-15
+
+  it("returns undefined when no period start is selected", () => {
+    expect(resolveInsightAnchorDate(null, now)).toBeUndefined();
+  });
+
+  it("returns undefined for the current month so the backend uses today", () => {
+    const currentMonthStart = new Date(2026, 4, 1).getTime();
+    expect(resolveInsightAnchorDate(currentMonthStart, now)).toBeUndefined();
+  });
+
+  it("anchors to the first day of a future month for forecast mode", () => {
+    const futureMonthStart = new Date(2026, 5, 1).getTime();
+    expect(resolveInsightAnchorDate(futureMonthStart, now)).toBe("2026-06-01");
+  });
+
+  it("anchors to the first day of a past month for history", () => {
+    const pastMonthStart = new Date(2026, 2, 1).getTime();
+    expect(resolveInsightAnchorDate(pastMonthStart, now)).toBe("2026-03-01");
   });
 });

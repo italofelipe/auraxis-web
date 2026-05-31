@@ -24,6 +24,7 @@ const props = defineProps<{
   model: string;
   tokensUsed: number;
   costUsd: number;
+  forecast?: boolean;
 }>();
 
 const formattedPeriodLabel = computed(() => formatInsightPeriod(props.periodLabel));
@@ -70,6 +71,16 @@ const iconForType = (type: string): typeof BarChart2 => {
         {{ model || 'modelo IA' }} · {{ tokensUsed }} tokens · {{ costLabel }}
       </NTag>
     </header>
+
+    <NAlert
+      v-if="forecast"
+      type="info"
+      class="ai-insight-section__alert"
+      data-testid="forecast-banner"
+    >
+      Modo previsão — análise de {{ formattedPeriodLabel }}, um período futuro. Baseada em
+      lançamentos recorrentes e agendados; os valores podem mudar.
+    </NAlert>
 
     <NAlert v-if="isStale" type="warning" class="ai-insight-section__alert">
       Dados de {{ formattedPeriodLabel }} — os insights podem estar desatualizados.

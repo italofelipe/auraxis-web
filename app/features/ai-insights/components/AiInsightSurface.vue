@@ -3,6 +3,7 @@ import { computed } from "vue";
 import { useRoute } from "vue-router";
 
 import AiInsightButton from "./AiInsightButton.vue";
+import AiInsightFeedback from "./AiInsightFeedback.vue";
 import AiInsightSection from "./AiInsightSection.vue";
 import {
   filterInsightItemsByDimension,
@@ -18,6 +19,7 @@ import type {
 const props = defineProps<{
   dimension?: InsightDimension;
   sourceSurface?: InsightSourceSurface;
+  anchorDate?: string;
 }>();
 
 const route = useRoute();
@@ -59,7 +61,7 @@ const shouldShowContextualEmptyState = computed(() =>
 
 <template>
   <section class="ai-insight-surface" aria-label="Insights de IA">
-    <AiInsightButton :source-surface="resolvedSourceSurface" />
+    <AiInsightButton :source-surface="resolvedSourceSurface" :anchor-date="anchorDate" />
     <AiInsightSection
       v-if="visibleInsight?.length"
       :insight="visibleInsight"
@@ -68,6 +70,11 @@ const shouldShowContextualEmptyState = computed(() =>
       :model="aiInsights.insightModel.value"
       :tokens-used="aiInsights.tokensUsed.value"
       :cost-usd="aiInsights.costUsd.value"
+      :forecast="aiInsights.forecast.value"
+    />
+    <AiInsightFeedback
+      v-if="visibleInsight?.length && aiInsights.currentInsightId.value"
+      :insight-id="aiInsights.currentInsightId.value"
     />
     <p v-else-if="shouldShowContextualEmptyState" class="ai-insight-surface__empty">
       Nenhum insight específico para esta área no período atual. A visão completa continua

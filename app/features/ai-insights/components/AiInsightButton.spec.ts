@@ -44,6 +44,7 @@ describe("AiInsightButton", () => {
       hasPremium: ref(false),
       isLoading: ref(false),
       callsRemaining: ref(null),
+      callsRemainingMonth: ref(null),
       hasAIConsent: vi.fn().mockResolvedValue(true),
       generate,
     });
@@ -68,6 +69,7 @@ describe("AiInsightButton", () => {
       hasPremium: ref(true),
       isLoading: ref(false),
       callsRemaining: ref(1),
+      callsRemainingMonth: ref(20),
       hasAIConsent: vi.fn().mockResolvedValue(true),
       generate,
     });
@@ -78,7 +80,8 @@ describe("AiInsightButton", () => {
 
     expect(wrapper.find("[data-testid='loading-modal']").exists()).toBe(true);
     expect(generate).toHaveBeenCalledOnce();
-    expect(wrapper.text()).toContain("1 de 2 insights restantes hoje");
+    expect(wrapper.text()).toContain("1 insight restante hoje");
+    expect(wrapper.text()).toContain("20 no mês");
 
     resolveGenerate(null);
     await flushPromises();
@@ -91,6 +94,7 @@ describe("AiInsightButton", () => {
       hasPremium: ref(true),
       isLoading: ref(false),
       callsRemaining: ref(null),
+      callsRemainingMonth: ref(null),
       hasAIConsent: vi.fn().mockResolvedValue(true),
       generate,
     });
@@ -106,6 +110,32 @@ describe("AiInsightButton", () => {
     expect(generate).toHaveBeenCalledWith({
       periodType: "daily",
       sourceSurface: "transactions",
+    });
+  });
+
+  it("forwards the viewed-month anchor date to insight generation", async () => {
+    const generate = vi.fn().mockResolvedValue(null);
+    useAIInsightsMock.mockReturnValue({
+      hasPremium: ref(true),
+      isLoading: ref(false),
+      callsRemaining: ref(null),
+      callsRemainingMonth: ref(null),
+      hasAIConsent: vi.fn().mockResolvedValue(true),
+      generate,
+    });
+
+    const wrapper = mount(AiInsightButton, {
+      props: { sourceSurface: "transactions", anchorDate: "2026-06-01" },
+      global: { stubs },
+    });
+
+    await wrapper.find("button").trigger("click");
+    await flushPromises();
+
+    expect(generate).toHaveBeenCalledWith({
+      periodType: "daily",
+      sourceSurface: "transactions",
+      anchorDate: "2026-06-01",
     });
   });
 

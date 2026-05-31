@@ -16,8 +16,12 @@ const stubs = {
     template: "<button data-testid='ai-button'>{{ sourceSurface }}</button>",
   },
   AiInsightSection: {
-    props: ["insight"],
-    template: "<section data-testid='insight-section'>{{ insight.map((item) => item.title).join(', ') }}</section>",
+    props: ["insight", "forecast"],
+    template: "<section data-testid='insight-section' :data-forecast='forecast'>{{ insight.map((item) => item.title).join(', ') }}</section>",
+  },
+  AiInsightFeedback: {
+    props: ["insightId"],
+    template: "<div data-testid='insight-feedback'>{{ insightId }}</div>",
   },
 };
 
@@ -41,6 +45,8 @@ describe("AiInsightSurface", () => {
       insightModel: ref("gpt-4o-mini"),
       tokensUsed: ref(120),
       costUsd: ref(0.00001),
+      forecast: ref(false),
+      currentInsightId: ref(null),
     });
 
     const wrapper = mount(AiInsightSurface, {
@@ -74,6 +80,8 @@ describe("AiInsightSurface", () => {
       insightModel: ref("gpt-4o-mini"),
       tokensUsed: ref(120),
       costUsd: ref(0.00001),
+      forecast: ref(false),
+      currentInsightId: ref(null),
     });
 
     const wrapper = mount(AiInsightSurface, {
@@ -88,5 +96,62 @@ describe("AiInsightSurface", () => {
     expect(wrapper.get("[data-testid='insight-section']").text()).not.toContain(
       "Transações fora do padrão",
     );
+  });
+
+  it("renders the feedback block and forwards forecast when an insight id exists", () => {
+    useAIInsightsMock.mockReturnValue({
+      currentInsight: ref([
+        {
+          type: "saude_financeira",
+          dimension: "transactions",
+          title: "Previsão de junho",
+          message: "Suas contas recorrentes vencem cedo.",
+        },
+      ]),
+      currentInsightId: ref("ins-42"),
+      insightPeriodLabel: ref("2026-06"),
+      isStale: ref(false),
+      insightModel: ref("gpt-4o"),
+      tokensUsed: ref(120),
+      costUsd: ref(0.00001),
+      forecast: ref(true),
+    });
+
+    const wrapper = mount(AiInsightSurface, {
+      props: { dimension: "transactions" },
+      global: { stubs },
+    });
+
+    expect(wrapper.get("[data-testid='insight-feedback']").text()).toContain("ins-42");
+    expect(wrapper.get("[data-testid='insight-section']").attributes("data-forecast")).toBe(
+      "true",
+    );
+  });
+
+  it("hides the feedback block when no insight id is available", () => {
+    useAIInsightsMock.mockReturnValue({
+      currentInsight: ref([
+        {
+          type: "saude_financeira",
+          dimension: "transactions",
+          title: "Visão geral",
+          message: "Resumo do período.",
+        },
+      ]),
+      currentInsightId: ref(null),
+      insightPeriodLabel: ref("2026-05"),
+      isStale: ref(false),
+      insightModel: ref("gpt-4o"),
+      tokensUsed: ref(120),
+      costUsd: ref(0.00001),
+      forecast: ref(false),
+    });
+
+    const wrapper = mount(AiInsightSurface, {
+      props: { dimension: "transactions" },
+      global: { stubs },
+    });
+
+    expect(wrapper.find("[data-testid='insight-feedback']").exists()).toBe(false);
   });
 });

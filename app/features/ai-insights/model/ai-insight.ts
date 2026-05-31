@@ -37,6 +37,7 @@ export interface GenerateAIInsightVariables {
 }
 
 export interface GeneratedAIInsight {
+  readonly id: string | null;
   readonly summary: string;
   readonly items: InsightItem[];
   readonly periodType: InsightPeriodType;
@@ -47,7 +48,9 @@ export interface GeneratedAIInsight {
   readonly tokensUsed: number;
   readonly costUsd: number;
   readonly cached: boolean;
+  readonly forecast: boolean;
   readonly callsRemaining: number | null;
+  readonly callsRemainingMonth: number | null;
 }
 
 export const FALLBACK_INSIGHT_ITEM: InsightItem = {
@@ -273,6 +276,7 @@ export const mapAIInsightDto = (dto: AIInsightDTO): AIInsight => ({
 export const mapGeneratedInsight = (
   dto: GenerateInsightResponseWithMetaDTO,
 ): GeneratedAIInsight => ({
+  id: dto.id ?? null,
   summary: dto.summary,
   items: normalizeStructuredInsightItems(dto.items) ?? [FALLBACK_INSIGHT_ITEM],
   periodType: dto.period_type,
@@ -283,7 +287,9 @@ export const mapGeneratedInsight = (
   tokensUsed: dto.tokens_used,
   costUsd: dto.cost_usd,
   cached: dto.cached,
+  forecast: dto.forecast === true,
   callsRemaining: dto.callsRemaining,
+  callsRemainingMonth: dto.callsRemainingMonth,
 });
 
 /**
@@ -344,6 +350,37 @@ export const formatInsightCreatedAt = (createdAt: string): string => {
     hour: "2-digit",
     minute: "2-digit",
   });
+};
+
+/**
+ * Resolves the anchor date (YYYY-MM-DD) used to generate an insight for the
+ * month currently being viewed on the transactions screen.
+ *
+ * Returns undefined for the current month so the backend keeps its default
+ * "today" daily insight. For any other month it anchors to that month's first
+ * day — a past month yields history, a future month triggers forecast mode
+ * (`forecast: true`) on the backend.
+ *
+ * @param periodStart Timestamp of the viewed month's first day, or null.
+ * @param now Current date override used by tests.
+ * @returns Anchor date string, or undefined to use the backend default.
+ */
+export const resolveInsightAnchorDate = (
+  periodStart: number | null,
+  now: Date = new Date(),
+): string | undefined => {
+  if (periodStart === null) {
+    return undefined;
+  }
+
+  const date = new Date(periodStart);
+  if (date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth()) {
+    return undefined;
+  }
+
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${day}`;
 };
 
 /**

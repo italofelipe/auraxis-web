@@ -47,6 +47,8 @@ type DerivedAIInsightState = Pick<
   | "isLoading"
   | "isGrantingAIConsent"
   | "currentInsight"
+  | "currentInsightId"
+  | "forecast"
   | "insightPeriodLabel"
   | "insightMonth"
   | "insightModel"
@@ -67,8 +69,11 @@ export interface UseAIInsightsResult {
   readonly generate: (variables?: GenerateAIInsightVariables) => Promise<GeneratedAIInsight | null>;
   readonly isLoading: ComputedRef<boolean>;
   readonly currentInsight: ComputedRef<InsightItem[] | null>;
+  readonly currentInsightId: ComputedRef<string | null>;
   readonly currentResult: Ref<GeneratedAIInsight | null>;
   readonly callsRemaining: Ref<number | null>;
+  readonly callsRemainingMonth: Ref<number | null>;
+  readonly forecast: ComputedRef<boolean>;
   readonly hasPremium: ComputedRef<boolean>;
   readonly entitlementLoading: ComputedRef<boolean>;
   readonly hasAIConsent: () => Promise<boolean>;
@@ -124,6 +129,20 @@ const getCallsRemainingState = (isInjected: boolean): Ref<number | null> => {
 };
 
 /**
+ * Resolves shared monthly-call metadata state.
+ *
+ * @param isInjected Whether dependencies were provided by a test.
+ * @returns Monthly calls remaining state.
+ */
+const getCallsRemainingMonthState = (isInjected: boolean): Ref<number | null> => {
+  if (isInjected) {
+    return ref<number | null>(null);
+  }
+
+  return useState<number | null>("ai-insights:calls-remaining-month", () => null);
+};
+
+/**
  * Resolves the consent mutation for production or injected tests.
  *
  * @param deps Optional injected dependencies.
@@ -174,6 +193,8 @@ const createDerivedState = (args: CreateDerivedStateArgs): DerivedAIInsightState
   isLoading: computed(() => args.mutation.isPending.value),
   isGrantingAIConsent: computed(() => args.consentMutation.isPending.value),
   currentInsight: computed(() => args.currentResult.value?.items ?? null),
+  currentInsightId: computed(() => args.currentResult.value?.id ?? null),
+  forecast: computed(() => args.currentResult.value?.forecast ?? false),
   insightPeriodLabel: computed(() => args.currentResult.value?.periodLabel ?? getCurrentMonth()),
   insightMonth: computed(() => args.currentResult.value?.periodLabel ?? getCurrentMonth()),
   insightModel: computed(() => args.currentResult.value?.model ?? ""),
@@ -197,6 +218,7 @@ export const useAIInsights = (deps?: UseAIInsightsDeps): UseAIInsightsResult => 
   const consentStatus = resolveConsentStatus(deps, apiClient);
   const currentResult = getCurrentResultState(Boolean(deps));
   const callsRemaining = getCallsRemainingState(Boolean(deps));
+  const callsRemainingMonth = getCallsRemainingMonthState(Boolean(deps));
   const state = createDerivedState({ entitlement, mutation, consentMutation, currentResult });
 
   /**
@@ -215,6 +237,7 @@ export const useAIInsights = (deps?: UseAIInsightsDeps): UseAIInsightsResult => 
     const result = mapGeneratedInsight(await mutation.mutateAsync(variables));
     currentResult.value = result;
     callsRemaining.value = result.callsRemaining;
+    callsRemainingMonth.value = result.callsRemainingMonth;
     return result;
   };
 
@@ -236,8 +259,11 @@ export const useAIInsights = (deps?: UseAIInsightsDeps): UseAIInsightsResult => 
     generate,
     isLoading: state.isLoading,
     currentInsight: state.currentInsight,
+    currentInsightId: state.currentInsightId,
+    forecast: state.forecast,
     currentResult,
     callsRemaining,
+    callsRemainingMonth,
     hasPremium: state.hasPremium,
     entitlementLoading: state.entitlementLoading,
     hasAIConsent: hasAIConsentStatus,

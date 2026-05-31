@@ -11,6 +11,7 @@ import TransactionToolbar from "~/features/transactions/components/TransactionTo
 import TransactionExportModal from "~/features/transactions/components/TransactionExportModal.vue";
 import TransactionPaymentModal from "~/features/transactions/components/TransactionPaymentModal.vue";
 import AiInsightSurface from "~/features/ai-insights/components/AiInsightSurface.vue";
+import { resolveInsightAnchorDate } from "~/features/ai-insights/model/ai-insight";
 import { formatCurrency } from "~/utils/currency";
 
 definePageMeta({
@@ -29,6 +30,10 @@ const {
   viewMode, selectedDay, showDayDetail, onDayClick,
   filters, TYPE_OPTIONS, STATUS_OPTIONS, tagOptions, tagMap, tagDetailMap, accountMap, clearFilters,
 } = useTransactionFilters();
+
+// Pass the viewed month to AI insight generation so navigating to a future
+// month yields a forecast; the current month keeps the default "today" insight.
+const insightAnchorDate = computed(() => resolveInsightAnchorDate(filterStartDate.value));
 
 const showCreateTag = ref(false);
 const showExportModal = ref(false);
@@ -209,7 +214,11 @@ const totalBalance = computed(() => totalIncome.value - totalExpense.value);
     <!-- ── Financial calendar ──────────────────────────────────────────────── -->
     <FinancialCalendar v-else-if="viewMode === 'calendar'" class="transactions-page__calendar" @day-click="onDayClick" />
 
-    <AiInsightSurface class="transactions-page__ai-insights" dimension="transactions" />
+    <AiInsightSurface
+      class="transactions-page__ai-insights"
+      dimension="transactions"
+      :anchor-date="insightAnchorDate"
+    />
 
   </div>
 </template>

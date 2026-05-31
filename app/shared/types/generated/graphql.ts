@@ -37,6 +37,18 @@ export type Scalars = {
   UUID: { input: string; output: string; }
 };
 
+export type AiInsightFeedbackPayload = {
+  __typename?: 'AIInsightFeedbackPayload';
+  comment?: Maybe<Scalars['String']['output']>;
+  depth?: Maybe<Scalars['Int']['output']>;
+  id?: Maybe<Scalars['String']['output']>;
+  insightId?: Maybe<Scalars['String']['output']>;
+  ok: Scalars['Boolean']['output'];
+  relevance?: Maybe<Scalars['Int']['output']>;
+  truthfulness?: Maybe<Scalars['Int']['output']>;
+  usefulness?: Maybe<Scalars['Int']['output']>;
+};
+
 export type AiInsightHistoryResultType = {
   __typename?: 'AIInsightHistoryResultType';
   items: Array<AiInsightType>;
@@ -466,6 +478,7 @@ export type GenerateAiInsightPayload = {
   cached?: Maybe<Scalars['Boolean']['output']>;
   contextVersion?: Maybe<Scalars['String']['output']>;
   costUsd?: Maybe<Scalars['Float']['output']>;
+  forecast?: Maybe<Scalars['Boolean']['output']>;
   items?: Maybe<Array<Maybe<AiInsightItemType>>>;
   model?: Maybe<Scalars['String']['output']>;
   ok: Scalars['Boolean']['output'];
@@ -803,6 +816,8 @@ export type Mutation = {
   revokeSession?: Maybe<RevokeSessionMutation>;
   saveInstallmentVsCashSimulation?: Maybe<SaveInstallmentVsCashSimulationMutation>;
   simulateGoalPlan?: Maybe<SimulateGoalPlanMutation>;
+  /** GraphQL parity for POST /ai/insights/<id>/feedback (#1387). */
+  submitAiInsightFeedback?: Maybe<AiInsightFeedbackPayload>;
   updateAccount?: Maybe<AccountPayload>;
   /** @deprecated ADR-0002: use PATCH /budgets/{id} */
   updateBudget?: Maybe<UpdateBudgetMutation>;
@@ -1099,6 +1114,16 @@ export type MutationSimulateGoalPlanArgs = {
   monthlyIncome?: InputMaybe<Scalars['String']['input']>;
   targetAmount: Scalars['String']['input'];
   targetDate?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationSubmitAiInsightFeedbackArgs = {
+  comment?: InputMaybe<Scalars['String']['input']>;
+  depth: Scalars['Int']['input'];
+  insightId: Scalars['String']['input'];
+  relevance: Scalars['Int']['input'];
+  truthfulness: Scalars['Int']['input'];
+  usefulness: Scalars['Int']['input'];
 };
 
 
