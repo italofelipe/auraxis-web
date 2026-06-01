@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import { NAlert, NButton, NSlider, NStatistic, useMessage } from "naive-ui";
+import { NAlert, NButton, NSelect, NSlider, NStatistic, useMessage } from "naive-ui";
 import type { EChartsOption } from "echarts";
 
 import { useGoalsQuery } from "~/features/goals/queries/use-goals-query";
 import { useGoalProjectionQuery } from "~/features/goals/queries/use-goal-projection-query";
 import { useUpdateGoalMutation } from "~/features/goals/queries/use-update-goal-mutation";
 import { projectGoalScenario, projectedCompletionDate } from "~/features/goals/utils/goal-projection";
+import { useSimulationQuota } from "~/features/simulations/composables/useSimulationQuota";
+import SimulatorPaywallOverlay from "~/features/simulations/components/SimulatorPaywallOverlay.vue";
 import { formatCurrency } from "~/utils/currency";
 import UiChart from "~/components/ui/UiChart.vue";
 import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
@@ -198,6 +200,50 @@ const formatCompletion = (value: string | null): string => {
   const date = new Date(`${value}T00:00:00`);
   return new Intl.DateTimeFormat("pt-BR", { month: "short", year: "numeric" }).format(date);
 };
+
+// ── Gate freemium + selector de meta (#566) ──────────────────────────────
+const { quota, unlimited, consume } = useSimulationQuota();
+
+const goalOptions = computed(() =>
+  (goalsQuery.data.value ?? [])
+    .slice()
+    .sort((a, b) => String(b.created_at ?? "").localeCompare(String(a.created_at ?? "")))
+    .slice(0, 10)
+    .map((g) => ({ label: g.name, value: g.id })),
+);
+
+/**
+ *
+ * @param value
+ */
+const onSelectGoal = (value: string): void => {
+  if (value && value !== goalId.value) {
+    void navigateTo(`/goals/${value}/simulate`);
+  }
+};
+
+const hasConsumed = ref<boolean>(false);
+const simulatorLocked = ref<boolean>(false);
+
+/**
+ * Consome a quota na primeira interação real do usuário com os sliders (a
+ * "simulação E se?"). Free esgotado → trava o resultado e exibe o paywall.
+ * Premium nunca consome nem trava.
+ */
+const onUserAdjust = (): void => {
+  if (hasConsumed.value || unlimited.value || !goalId.value) { return; }
+  hasConsumed.value = true;
+  void consume(goalId.value).then((result) => {
+    simulatorLocked.value = !result.allowed;
+  });
+};
+
+/**
+ *
+ */
+const goToUpgrade = (): void => {
+  void navigateTo("/subscription");
+};
 </script>
 
 <template>
@@ -216,6 +262,14 @@ const formatCompletion = (value: string | null): string => {
             {{ formatCurrency(goal.current_amount) }} de {{ formatCurrency(goal.target_amount) }}
           </p>
         </header>
+        <NSelect
+          v-if="goalOptions.length > 1"
+          :value="goalId"
+          :options="goalOptions"
+          data-testid="goal-selector"
+          class="goal-sandbox__selector"
+          @update:value="onSelectGoal"
+        />
       </UiSurfaceCard>
 
       <section class="goal-sandbox__grid">
@@ -231,6 +285,7 @@ const formatCompletion = (value: string | null): string => {
               :min="0"
               :max="Math.max(5000, Math.ceil((baselineMonthly || 500) * 4))"
               :step="50"
+              @update:value="onUserAdjust"
             />
           </div>
 
@@ -239,7 +294,7 @@ const formatCompletion = (value: string | null): string => {
               <span>Prazo (meses)</span>
               <strong>{{ horizonMonths }}</strong>
             </div>
-            <NSlider v-model:value="horizonMonths" :min="6" :max="240" :step="1" />
+            <NSlider v-model:value="horizonMonths" :min="6" :max="240" :step="1" @update:value="onUserAdjust" />
           </div>
 
           <div class="goal-sandbox__field">
@@ -247,26 +302,33 @@ const formatCompletion = (value: string | null): string => {
               <span>Rendimento anual esperado</span>
               <strong>{{ annualRatePct.toFixed(2) }}%</strong>
             </div>
-            <NSlider v-model:value="annualRatePct" :min="0" :max="25" :step="0.25" />
+            <NSlider v-model:value="annualRatePct" :min="0" :max="25" :step="0.25" @update:value="onUserAdjust" />
           </div>
         </UiSurfaceCard>
 
         <UiSurfaceCard class="goal-sandbox__indicators">
-          <h2 class="goal-sandbox__section-title">Indicadores</h2>
-          <div class="goal-sandbox__stats">
-            <NStatistic label="Valor projetado">
-              {{ formatCurrency(adjustedScenario?.finalBalance ?? 0) }}
-            </NStatistic>
-            <NStatistic label="Gap restante">
-              {{ formatCurrency(adjustedScenario?.remainingGap ?? 0) }}
-            </NStatistic>
-            <NStatistic label="Conclusão estimada">
-              {{ formatCompletion(adjustedCompletion) }}
-            </NStatistic>
+          <div :class="{ 'goal-sandbox__blurred': simulatorLocked }">
+            <h2 class="goal-sandbox__section-title">Indicadores</h2>
+            <div class="goal-sandbox__stats">
+              <NStatistic label="Valor projetado">
+                {{ formatCurrency(adjustedScenario?.finalBalance ?? 0) }}
+              </NStatistic>
+              <NStatistic label="Gap restante">
+                {{ formatCurrency(adjustedScenario?.remainingGap ?? 0) }}
+              </NStatistic>
+              <NStatistic label="Conclusão estimada">
+                {{ formatCompletion(adjustedCompletion) }}
+              </NStatistic>
+            </div>
+            <p v-if="adjustedScenario && adjustedScenario.monthsToTarget === null" class="goal-sandbox__warning">
+              Nesse cenário, a meta não é atingida dentro do prazo selecionado. Aumente o aporte ou o horizonte.
+            </p>
           </div>
-          <p v-if="adjustedScenario && adjustedScenario.monthsToTarget === null" class="goal-sandbox__warning">
-            Nesse cenário, a meta não é atingida dentro do prazo selecionado. Aumente o aporte ou o horizonte.
-          </p>
+          <SimulatorPaywallOverlay
+            v-if="simulatorLocked"
+            :reset-at="quota.resetAt"
+            @upgrade="goToUpgrade"
+          />
         </UiSurfaceCard>
       </section>
 
@@ -353,6 +415,16 @@ const formatCompletion = (value: string | null): string => {
   color: var(--color-warning);
   font-size: var(--font-size-sm);
 }
+
+.goal-sandbox__indicators { position: relative; }
+
+.goal-sandbox__blurred {
+  filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
+}
+
+.goal-sandbox__selector { margin-top: var(--space-2); max-width: 18rem; }
 
 .goal-sandbox__chart { display: grid; gap: var(--space-2); }
 

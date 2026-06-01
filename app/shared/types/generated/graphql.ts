@@ -479,6 +479,7 @@ export type GenerateAiInsightPayload = {
   contextVersion?: Maybe<Scalars['String']['output']>;
   costUsd?: Maybe<Scalars['Float']['output']>;
   forecast?: Maybe<Scalars['Boolean']['output']>;
+  id?: Maybe<Scalars['String']['output']>;
   items?: Maybe<Array<Maybe<AiInsightItemType>>>;
   model?: Maybe<Scalars['String']['output']>;
   ok: Scalars['Boolean']['output'];
