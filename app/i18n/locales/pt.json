@@ -4,6 +4,36 @@
     "light": "Claro",
     "dark": "Escuro"
   },
+  "weeklySnapshot": {
+    "title": "Resumo da semana",
+    "newBadge": "NOVO",
+    "markSeen": "Marcar como visto",
+    "error": "Não foi possível carregar seu resumo semanal agora.",
+    "locked": {
+      "title": "Briefing semanal com IA",
+      "description": "Receba um resumo inteligente dos seus gastos da semana, com comparativo e destaques. Disponível no plano Premium.",
+      "cta": "Conhecer o Premium"
+    },
+    "metrics": {
+      "expense": "Gastos da semana",
+      "balance": "Saldo da semana",
+      "transactions": "Transações"
+    }
+  },
+  "notificationPreferences": {
+    "title": "Categorias de notificação",
+    "description": "Escolha sobre o que você quer ser avisado. Você pode pausar tudo de uma vez com o controle geral.",
+    "globalOptOut": "Pausar todas as notificações",
+    "saved": "Preferências atualizadas",
+    "error": "Não foi possível salvar suas preferências.",
+    "categories": {
+      "due_soon": "Vencimentos próximos",
+      "wallet": "Carteira e investimentos",
+      "goals": "Metas",
+      "transactions": "Transações",
+      "subscription": "Assinatura"
+    }
+  },
   "error": {
     "404": {
       "title": "Página não encontrada",
