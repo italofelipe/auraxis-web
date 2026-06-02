@@ -81,10 +81,10 @@ function categoryLabel(key: ExpenseCategoryKey): string {
 }
 
 onMounted(() => {
-  if (typeof window === "undefined") {
+  if (typeof globalThis.window === "undefined") {
     return;
   }
-  const data = new URLSearchParams(window.location.search).get("d");
+  const data = new URLSearchParams(globalThis.location.search).get("d");
   if (!data) {
     return;
   }
@@ -107,8 +107,8 @@ function handleCalculate(): void {
   }
   setValidationError(null);
   result.value = calculateRegionalCost(form.value);
-  if (typeof window !== "undefined") {
-    shareUrl.value = `${window.location.origin}${window.location.pathname}?d=${encodeFormToQuery(form.value)}`;
+  if (typeof globalThis.window !== "undefined") {
+    shareUrl.value = `${globalThis.location.origin}${globalThis.location.pathname}?d=${encodeFormToQuery(form.value)}`;
   }
 }
 

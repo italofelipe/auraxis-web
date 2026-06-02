@@ -32,7 +32,9 @@ interface RegionalEntry {
 const REGIONAL_DATA = (costOfLivingByUf as { data: Record<string, RegionalEntry> }).data;
 
 /** Sorted list of valid UF codes from the dataset. */
-export const UF_CODES: readonly string[] = Object.keys(REGIONAL_DATA).sort();
+export const UF_CODES: readonly string[] = Object.keys(REGIONAL_DATA).sort((a, b) =>
+  a.localeCompare(b),
+);
 
 /**
  * @param uf UF code (e.g. "SP").
