@@ -9,6 +9,13 @@ import { useUpdateGoalMutation } from "~/features/goals/queries/use-update-goal-
 import { projectGoalScenario, projectedCompletionDate } from "~/features/goals/utils/goal-projection";
 import { useSimulationQuota } from "~/features/simulations/composables/useSimulationQuota";
 import SimulatorPaywallOverlay from "~/features/simulations/components/SimulatorPaywallOverlay.vue";
+import SaveSimulationButton from "~/components/simulation/SaveSimulationButton.vue";
+import {
+  addPinnedScenario,
+  canPinScenario,
+  removePinnedScenario,
+  type PinnedScenario,
+} from "~/features/goals/utils/simulation-scenarios";
 import { formatCurrency } from "~/utils/currency";
 import UiChart from "~/components/ui/UiChart.vue";
 import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
@@ -93,6 +100,52 @@ const adjustedScenario = computed(() => {
   });
 });
 
+// ── Comparação de até 3 cenários (PROD-02 / #536) ────────────────────────
+const comparisons = ref<PinnedScenario[]>([]);
+let scenarioCounter = 0;
+
+const canPin = computed<boolean>(() => canPinScenario(comparisons.value));
+
+/**
+ *
+ */
+const pinCurrentScenario = (): void => {
+  const scenario = adjustedScenario.value;
+  if (!scenario || !canPin.value) { return; }
+  scenarioCounter += 1;
+  comparisons.value = addPinnedScenario(comparisons.value, {
+    id: `s${scenarioCounter}`,
+    label: `${formatCurrency(monthlyContribution.value)}/mês · ${horizonMonths.value}m · ${annualRatePct.value.toFixed(1)}%`,
+    monthlyContribution: monthlyContribution.value,
+    annualRatePct: annualRatePct.value,
+    horizonMonths: horizonMonths.value,
+    points: scenario.points.map((p) => Number(p.balance.toFixed(2))),
+  });
+};
+
+/**
+ *
+ * @param id
+ */
+const removeComparison = (id: string): void => {
+  comparisons.value = removePinnedScenario(comparisons.value, id);
+};
+
+// ── Salvar simulação como rascunho (PROD-02 / #536) ──────────────────────
+const saveInputs = computed<Record<string, unknown>>(() => ({
+  goal_id: goalId.value,
+  monthly_contribution: monthlyContribution.value,
+  annual_rate_pct: annualRatePct.value,
+  horizon_months: horizonMonths.value,
+}));
+
+const saveResult = computed<Record<string, unknown>>(() => ({
+  final_balance: adjustedScenario.value?.finalBalance ?? 0,
+  remaining_gap: adjustedScenario.value?.remainingGap ?? 0,
+  months_to_target: adjustedScenario.value?.monthsToTarget ?? null,
+  projected_completion: adjustedCompletion.value,
+}));
+
 const chartOption = computed<EChartsOption>(() => {
   const baseline = baselineScenario.value;
   const adjusted = adjustedScenario.value;
@@ -131,6 +184,12 @@ const chartOption = computed<EChartsOption>(() => {
         showSymbol: false,
         data: adjusted?.points.map((p) => Number(p.balance.toFixed(2))) ?? [],
       },
+      ...comparisons.value.map((scenario) => ({
+        name: scenario.label,
+        type: "line" as const,
+        showSymbol: false,
+        data: [...scenario.points],
+      })),
     ],
   };
 });
@@ -333,8 +392,22 @@ const goToUpgrade = (): void => {
       </section>
 
       <UiSurfaceCard class="goal-sandbox__chart">
-        <h2 class="goal-sandbox__section-title">Projeção ao longo do tempo</h2>
-        <UiChart :option="chartOption" :update-key="`${horizonMonths}-${monthlyContribution}-${annualRatePct}`" height="340px" />
+        <div class="goal-sandbox__chart-head">
+          <h2 class="goal-sandbox__section-title">Projeção ao longo do tempo</h2>
+          <NButton
+            size="small"
+            :disabled="!canPin || !adjustedScenario"
+            data-testid="pin-scenario"
+            @click="pinCurrentScenario"
+          >
+            Adicionar à comparação
+          </NButton>
+        </div>
+        <UiChart
+          :option="chartOption"
+          :update-key="`${horizonMonths}-${monthlyContribution}-${annualRatePct}-${comparisons.length}`"
+          height="340px"
+        />
         <ul class="goal-sandbox__legend">
           <li>
             <span class="goal-sandbox__legend-dot goal-sandbox__legend-dot--baseline" />
@@ -345,10 +418,27 @@ const goToUpgrade = (): void => {
             Aporte ajustado ({{ formatCurrency(monthlyContribution) }} · {{ formatCompletion(adjustedCompletion) }})
           </li>
         </ul>
+
+        <div v-if="comparisons.length" class="goal-sandbox__comparisons" data-testid="comparisons">
+          <span class="goal-sandbox__comparisons-title">Cenários comparados ({{ comparisons.length }}/3)</span>
+          <ul>
+            <li v-for="scenario in comparisons" :key="scenario.id">
+              <span>{{ scenario.label }}</span>
+              <NButton text size="tiny" :data-testid="`remove-${scenario.id}`" @click="removeComparison(scenario.id)">✕</NButton>
+            </li>
+          </ul>
+        </div>
       </UiSurfaceCard>
 
       <div class="goal-sandbox__actions">
         <NButton secondary @click="navigateTo('/goals')">Cancelar</NButton>
+        <SaveSimulationButton
+          tool-id="goal-simulator"
+          rule-version="2026.06"
+          :inputs="saveInputs"
+          :result="saveResult"
+          label="Salvar como rascunho"
+        />
         <NButton type="primary" :loading="updateMutation.isPending.value" :disabled="!canApply" @click="applyScenario">
           Aplicar este cenário
         </NButton>
@@ -427,6 +517,41 @@ const goToUpgrade = (): void => {
 .goal-sandbox__selector { margin-top: var(--space-2); max-width: 18rem; }
 
 .goal-sandbox__chart { display: grid; gap: var(--space-2); }
+
+.goal-sandbox__chart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.goal-sandbox__comparisons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--font-size-xs);
+}
+
+.goal-sandbox__comparisons-title {
+  font-weight: var(--font-weight-medium);
+  opacity: 0.8;
+}
+
+.goal-sandbox__comparisons ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.goal-sandbox__comparisons li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
 
 .goal-sandbox__legend {
   list-style: none;
