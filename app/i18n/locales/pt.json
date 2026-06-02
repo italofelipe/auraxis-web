@@ -544,7 +544,28 @@
           "closingDay": "Dia de Fechamento",
           "dueDay": "Dia de Vencimento",
           "lastFourDigits": "Últimos 4 Dígitos",
-          "lastFourDigitsPlaceholder": "1234"
+          "lastFourDigitsPlaceholder": "1234",
+          "name": "Nome do cartão",
+          "bank": "Banco",
+          "description": "Descrição",
+          "validityDate": "Validade (AAAA-MM-DD)",
+          "benefits": "Benefícios"
+        },
+        "empty": "Nenhum cartão cadastrado ainda.",
+        "card": {
+          "utilizationLabel": "Utilizado: {pct}% · {committed} / {limit}",
+          "validity": "Validade",
+          "viewBill": "Ver fatura"
+        },
+        "bill": {
+          "back": "Voltar",
+          "title": "Fatura do cartão",
+          "missingCycle": "Configure o dia de fechamento e de vencimento para ver a fatura.",
+          "loadError": "Não foi possível carregar a fatura.",
+          "total": "Total",
+          "paid": "Pago",
+          "pending": "Pendente",
+          "empty": "Sem transações neste ciclo."
         }
       },
       "dangerZone": {
