@@ -284,6 +284,17 @@ export type CheckoutSessionType = {
   providerSubscriptionId?: Maybe<Scalars['String']['output']>;
 };
 
+/**
+ * Consome 1 simulação da quota freemium (#1409).
+ *
+ * Parity de ``POST /simulations/quota/consume``. Não falha em esgotamento:
+ * retorna ``quota.allowed=False`` para o cliente exibir o paywall.
+ */
+export type ConsumeSimulationQuotaMutation = {
+  __typename?: 'ConsumeSimulationQuotaMutation';
+  quota: SimulationQuotaType;
+};
+
 export type CreateBudgetMutation = {
   __typename?: 'CreateBudgetMutation';
   budget: BudgetType;
@@ -759,6 +770,13 @@ export type Mutation = {
    */
   confirmBankImport?: Maybe<BankImportConfirmationPayload>;
   confirmEmail?: Maybe<AuthPayloadType>;
+  /**
+   * Consome 1 simulação da quota freemium (#1409).
+   *
+   * Parity de ``POST /simulations/quota/consume``. Não falha em esgotamento:
+   * retorna ``quota.allowed=False`` para o cliente exibir o paywall.
+   */
+  consumeSimulationQuota?: Maybe<ConsumeSimulationQuotaMutation>;
   createAccount?: Maybe<AccountPayload>;
   /** @deprecated ADR-0002: use POST /budgets */
   createBudget?: Maybe<CreateBudgetMutation>;
@@ -1362,6 +1380,7 @@ export type Query = {
   receivables?: Maybe<ReceivableListType>;
   receivablesSummary?: Maybe<ReceivableSummaryType>;
   simulation?: Maybe<SimulationType>;
+  simulationQuota: SimulationQuotaType;
   simulations: SimulationListPayloadType;
   tag?: Maybe<TagType>;
   tags?: Maybe<TagListType>;
@@ -1659,6 +1678,17 @@ export type SimulationListPayloadType = {
   pages: Scalars['Int']['output'];
   perPage: Scalars['Int']['output'];
   total: Scalars['Int']['output'];
+};
+
+/** Snapshot da quota freemium do simulador (#1409). */
+export type SimulationQuotaType = {
+  __typename?: 'SimulationQuotaType';
+  allowed: Scalars['Boolean']['output'];
+  limit: Scalars['Int']['output'];
+  remaining?: Maybe<Scalars['Int']['output']>;
+  resetAt: Scalars['String']['output'];
+  unlimited: Scalars['Boolean']['output'];
+  used: Scalars['Int']['output'];
 };
 
 /** Generic persisted simulation envelope (DEC-196 / #1128). */
