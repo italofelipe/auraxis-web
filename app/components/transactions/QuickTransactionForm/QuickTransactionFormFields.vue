@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject } from "vue";
+import { computed, inject } from "vue";
 import {
   NDatePicker,
   NFormItem,
@@ -10,10 +10,15 @@ import {
   type SelectOption,
 } from "naive-ui";
 
+import PreviewInstallments from "./PreviewInstallments.vue";
 import {
   QUICK_TRANSACTION_FORM_KEY,
   type QuickTransactionFormState,
 } from "./useQuickTransactionForm";
+import {
+  previewInstallments,
+  type InstallmentPreview,
+} from "~/features/transactions/utils/preview-installments";
 
 defineOptions({ name: "QuickTransactionFormFields" });
 
@@ -32,6 +37,24 @@ defineProps<{
 }>();
 
 const form = inject<QuickTransactionFormState>(QUICK_TRANSACTION_FORM_KEY)!;
+
+const installmentPreview = computed<InstallmentPreview | null>(() => {
+  if (
+    !form.is_installment ||
+    form.amount === null ||
+    form.amount <= 0 ||
+    form.installment_count === null ||
+    form.installment_count < 2 ||
+    form.due_date === null
+  ) {
+    return null;
+  }
+  return previewInstallments(
+    form.amount,
+    form.installment_count,
+    new Date(form.due_date),
+  );
+});
 </script>
 
 <template>
@@ -109,6 +132,7 @@ const form = inject<QuickTransactionFormState>(QUICK_TRANSACTION_FORM_KEY)!;
         :max="60"
         style="width: 100%"
       />
+      <PreviewInstallments :preview="installmentPreview" />
     </NFormItem>
 
     <NFormItem :label="$t('transaction.form.recurring.label')" path="is_recurring">

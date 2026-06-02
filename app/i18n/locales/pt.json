@@ -1200,7 +1200,8 @@
         "label": "Status"
       },
       "installment": {
-        "label": "Parcelado?"
+        "label": "Parcelado?",
+        "preview": "{count}x de {value} a partir de {first} até {last}"
       },
       "installmentCount": {
         "label": "Número de parcelas",
