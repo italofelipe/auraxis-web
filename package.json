@@ -70,7 +70,7 @@
     "vee-validate": "^4.15.1",
     "vue": "^3.5.35",
     "vue-echarts": "^8.0.1",
-    "vue-router": "^5.0.7",
+    "vue-router": "^5.1.0",
     "web-vitals": "^5.3.0",
     "zod": "^3.25.76"
   },
