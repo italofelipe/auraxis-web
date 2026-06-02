@@ -87,6 +87,10 @@ vi.mock("~/features/notifications/composables/usePushSubscription", () => ({
   usePushSubscription: (): typeof pushHarness => pushHarness,
 }));
 
+vi.mock("~/features/notifications/components/NotificationPreferencesPanel.vue", () => ({
+  default: { template: "<div data-testid='notification-preferences-stub' />" },
+}));
+
 vi.mock("lucide-vue-next", () => ({
   Bell: { template: "<span data-testid='bell-icon' />" },
   BellRing: { template: "<span data-testid='bell-ring-icon' />" },

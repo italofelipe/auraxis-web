@@ -3,6 +3,7 @@ import { computed } from "vue";
 import { NButton, NDatePicker } from "naive-ui";
 
 import DashboardControlBar from "~/features/dashboard/components/DashboardControlBar.vue";
+import WeeklySnapshotCard from "~/features/weekly-snapshot/components/WeeklySnapshotCard.vue";
 import DashboardMarketPulseWorkspace from "~/features/dashboard/components/DashboardMarketPulseWorkspace.vue";
 import AiInsightSurface from "~/features/ai-insights/components/AiInsightSurface.vue";
 import OnboardingSkipNudge from "~/features/onboarding/components/OnboardingSkipNudge.vue";
@@ -170,6 +171,8 @@ const closeFirstTransactionForm = (): void => {
         :mode="selectedMode"
         :loading="dashboardQuery.isLoading.value || trendsQuery.isLoading.value"
       />
+
+      <WeeklySnapshotCard class="dashboard-page__weekly-snapshot" />
 
       <AiInsightSurface class="dashboard-page__ai-insights" />
 
