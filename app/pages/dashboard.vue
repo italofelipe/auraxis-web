@@ -6,6 +6,7 @@ import DashboardControlBar from "~/features/dashboard/components/DashboardContro
 import WeeklySnapshotCard from "~/features/weekly-snapshot/components/WeeklySnapshotCard.vue";
 import DashboardMarketPulseWorkspace from "~/features/dashboard/components/DashboardMarketPulseWorkspace.vue";
 import AiInsightSurface from "~/features/ai-insights/components/AiInsightSurface.vue";
+import SpendingInsightCard from "~/features/spending-patterns/components/SpendingInsightCard.vue";
 import OnboardingSkipNudge from "~/features/onboarding/components/OnboardingSkipNudge.vue";
 import { useDashboardOverviewQuery } from "~/features/dashboard/queries/use-dashboard-overview-query";
 import { useDashboardTrendsQuery } from "~/features/dashboard/queries/use-dashboard-trends-query";
@@ -175,6 +176,8 @@ const closeFirstTransactionForm = (): void => {
       <WeeklySnapshotCard class="dashboard-page__weekly-snapshot" />
 
       <AiInsightSurface class="dashboard-page__ai-insights" />
+
+      <SpendingInsightCard class="dashboard-page__spending-insight" />
 
       <UiEmptyState
         v-if="!dashboardQuery.isLoading.value && !summary"
