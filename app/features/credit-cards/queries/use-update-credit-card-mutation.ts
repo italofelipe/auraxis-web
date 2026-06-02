@@ -2,7 +2,10 @@ import type { UseMutationReturnType } from "@tanstack/vue-query";
 
 import type { ApiError } from "~/core/errors";
 import { createApiMutation } from "~/core/query/use-api-mutation";
-import type { CreditCardBrand, CreditCardDto } from "~/features/credit-cards/contracts/credit-card.dto";
+import type {
+  CreditCardDto,
+  CreateCreditCardPayload,
+} from "~/features/credit-cards/contracts/credit-card.dto";
 import {
   useCreditCardsClient,
   type CreditCardsClient,
@@ -10,13 +13,7 @@ import {
 
 export type UpdateCreditCardVariables = {
   readonly id: string;
-  readonly name: string;
-  readonly brand?: CreditCardBrand | null;
-  readonly limit_amount?: number | null;
-  readonly closing_day?: number | null;
-  readonly due_day?: number | null;
-  readonly last_four_digits?: string | null;
-};
+} & CreateCreditCardPayload;
 
 /**
  * Vue Query mutation hook for updating a credit card.
@@ -30,8 +27,8 @@ export const useUpdateCreditCardMutation = (
   const client = providedClient ?? useCreditCardsClient();
 
   return createApiMutation(
-    ({ id, name, brand, limit_amount, closing_day, due_day, last_four_digits }: UpdateCreditCardVariables): Promise<CreditCardDto> =>
-      client.updateCreditCard(id, { name, brand, limit_amount, closing_day, due_day, last_four_digits }),
+    ({ id, ...payload }: UpdateCreditCardVariables): Promise<CreditCardDto> =>
+      client.updateCreditCard(id, payload),
     {
       successMessage: "Cartão atualizado.",
       invalidates: [["credit-cards", "list"]],

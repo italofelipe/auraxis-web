@@ -1,10 +1,13 @@
 import type { AxiosInstance } from "axios";
 
 import { useHttp } from "~/composables/useHttp";
-import type {
-  CreateCreditCardPayload,
-  CreditCardDto,
-  UpdateCreditCardPayload,
+import {
+  toCreditCardBill,
+  toCreditCardUtilization,
+  type CreateCreditCardPayload,
+  type CreditCardBill,
+  type CreditCardDto,
+  type CreditCardUtilization,
 } from "~/features/credit-cards/contracts/credit-card.dto";
 
 /**
@@ -53,7 +56,7 @@ export class CreditCardsClient {
    * @param payload - Update payload.
    * @returns The updated CreditCardDto.
    */
-  async updateCreditCard(id: string, payload: UpdateCreditCardPayload): Promise<CreditCardDto> {
+  async updateCreditCard(id: string, payload: CreateCreditCardPayload): Promise<CreditCardDto> {
     const response = await this.#http.put<{ data: { credit_card: CreditCardDto } }>(
       `/credit-cards/${id}`,
       payload,
@@ -67,6 +70,31 @@ export class CreditCardsClient {
    */
   async deleteCreditCard(id: string): Promise<void> {
     await this.#http.delete(`/credit-cards/${id}`);
+  }
+
+  /**
+   * Fetches the bill (cycle + transactions + totals) for a given month.
+   *
+   * @param id - Credit card UUID.
+   * @param month - Optional YYYY-MM; backend defaults to the current month.
+   * @returns Bill view-model with monetary values coerced to numbers.
+   */
+  async getBill(id: string, month?: string): Promise<CreditCardBill> {
+    const response = await this.#http.get(`/credit-cards/${id}/bill`, {
+      params: month ? { month } : undefined,
+    });
+    return toCreditCardBill(response.data);
+  }
+
+  /**
+   * Fetches the current-cycle utilization for a credit card.
+   *
+   * @param id - Credit card UUID.
+   * @returns Utilization view-model with amounts coerced to numbers.
+   */
+  async getUtilization(id: string): Promise<CreditCardUtilization> {
+    const response = await this.#http.get(`/credit-cards/${id}/utilization`);
+    return toCreditCardUtilization(response.data);
   }
 }
 

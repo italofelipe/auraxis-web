@@ -26,7 +26,9 @@ describe("financial money input adoption", () => {
   });
 
   it("uses the canonical money input in credit cards and wallet", () => {
-    expect(readSource("app/pages/settings/credit-cards.vue")).toContain("<UiMoneyInput");
+    // cc-4 (#864): o form de cartão foi extraído da página para CreditCardForm.vue.
+    expect(readSource("app/features/credit-cards/components/CreditCardForm.vue"))
+      .toContain("<UiMoneyInput");
     expect(readSource("app/components/wallet/WalletEntryForm/WalletEntryFormFields.vue"))
       .toContain("<UiMoneyInput");
   });

@@ -519,7 +519,28 @@
           "closingDay": "Closing Day",
           "dueDay": "Due Day",
           "lastFourDigits": "Last 4 Digits",
-          "lastFourDigitsPlaceholder": "1234"
+          "lastFourDigitsPlaceholder": "1234",
+          "name": "Card name",
+          "bank": "Bank",
+          "description": "Description",
+          "validityDate": "Validity (YYYY-MM-DD)",
+          "benefits": "Benefits"
+        },
+        "empty": "No credit cards yet.",
+        "card": {
+          "utilizationLabel": "Used: {pct}% · {committed} / {limit}",
+          "validity": "Valid until",
+          "viewBill": "View bill"
+        },
+        "bill": {
+          "back": "Back",
+          "title": "Card bill",
+          "missingCycle": "Set the closing and due day to see the bill.",
+          "loadError": "Could not load the bill.",
+          "total": "Total",
+          "paid": "Paid",
+          "pending": "Pending",
+          "empty": "No transactions in this cycle."
         }
       },
       "dangerZone": {
