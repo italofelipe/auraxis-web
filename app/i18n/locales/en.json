@@ -1144,7 +1144,8 @@
         "label": "Status"
       },
       "installment": {
-        "label": "Split into installments?"
+        "label": "Split into installments?",
+        "preview": "{count}x of {value} from {first} to {last}"
       },
       "installmentCount": {
         "label": "Number of installments",
