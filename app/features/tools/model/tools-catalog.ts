@@ -326,6 +326,17 @@ export const TOOLS_CATALOG: readonly Tool[] = [
     saveIntent: "goal",
     category: "planejamento",
   },
+  {
+    id: "custo-de-vida-regional",
+    name: "Custo de Vida Regional",
+    description:
+      "Compare seus gastos com a média do seu estado e descubra seu score de sustentabilidade financeira.",
+    enabled: isFeatureEnabled("web.tools.custo-de-vida-regional"),
+    accessLevel: "public",
+    route: "/tools/custo-de-vida-regional",
+    featureFlag: "web.tools.custo-de-vida-regional",
+    category: "planejamento",
+  },
 ];
 
 /**

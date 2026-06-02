@@ -18,6 +18,7 @@ export const TOOL_SLUGS: readonly string[] = [
   "cet",
   "clt-vs-pj",
   "conversor-moeda",
+  "custo-de-vida-regional",
   "custo-estilo-vida",
   "desconto-markup",
   "dividir-conta",
