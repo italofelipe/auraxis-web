@@ -4,6 +4,23 @@
     "light": "Claro",
     "dark": "Escuro"
   },
+  "spendingPatterns": {
+    "title": "Radar de gastos compulsivos",
+    "unavailable": "O radar está indisponível no momento. Tente novamente mais tarde.",
+    "empty": "Seus gastos estão dentro do padrão. Continue assim! 🎉",
+    "average": "média de {value}",
+    "createBudget": "Criar orçamento",
+    "severity": {
+      "low": "Baixa",
+      "medium": "Média",
+      "high": "Alta"
+    },
+    "locked": {
+      "title": "Detecte padrões de gasto compulsivo",
+      "description": "Nossa IA analisa seus últimos 90 dias e aponta gatilhos de consumo recorrentes. Disponível no plano Premium.",
+      "cta": "Conhecer o Premium"
+    }
+  },
   "error": {
     "404": {
       "title": "Página não encontrada",
