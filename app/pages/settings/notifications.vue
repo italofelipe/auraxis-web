@@ -4,6 +4,7 @@ import { NCard, NSwitch, NAlert, NButton, NSpin, NTag } from "naive-ui";
 import { Bell, BellRing, CalendarClock, MailCheck, ShieldCheck } from "lucide-vue-next";
 
 import { usePushSubscription } from "~/features/notifications/composables/usePushSubscription";
+import NotificationPreferencesPanel from "~/features/notifications/components/NotificationPreferencesPanel.vue";
 
 definePageMeta({
   middleware: ["authenticated"],
@@ -176,6 +177,8 @@ const onToggle = async (value: boolean): Promise<void> => {
         </NButton>
       </div>
     </NCard>
+
+    <NotificationPreferencesPanel class="notifications-page__preferences" />
   </div>
 </template>
 

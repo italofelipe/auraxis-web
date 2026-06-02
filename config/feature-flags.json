@@ -411,6 +411,16 @@
       "repositories": ["auraxis-web"]
     },
     {
+      "key": "web.tools.custo-de-vida-regional",
+      "owner": "growth",
+      "createdAt": "2026-06-02",
+      "removeBy": "2027-12-31",
+      "type": "release",
+      "status": "enabled-prod",
+      "description": "Calculadora pública de custo de vida regional (PROD-09 growth loop): comparação com média do estado, score de sustentabilidade e anos até aposentadoria.",
+      "repositories": ["auraxis-web"]
+    },
+    {
       "key": "web.premium.paywall-enabled",
       "owner": "growth",
       "createdAt": "2026-04-21",

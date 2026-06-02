@@ -21,6 +21,36 @@
       "cta": "Conhecer o Premium"
     }
   },
+  "weeklySnapshot": {
+    "title": "Resumo da semana",
+    "newBadge": "NOVO",
+    "markSeen": "Marcar como visto",
+    "error": "Não foi possível carregar seu resumo semanal agora.",
+    "locked": {
+      "title": "Briefing semanal com IA",
+      "description": "Receba um resumo inteligente dos seus gastos da semana, com comparativo e destaques. Disponível no plano Premium.",
+      "cta": "Conhecer o Premium"
+    },
+    "metrics": {
+      "expense": "Gastos da semana",
+      "balance": "Saldo da semana",
+      "transactions": "Transações"
+    }
+  },
+  "notificationPreferences": {
+    "title": "Categorias de notificação",
+    "description": "Escolha sobre o que você quer ser avisado. Você pode pausar tudo de uma vez com o controle geral.",
+    "globalOptOut": "Pausar todas as notificações",
+    "saved": "Preferências atualizadas",
+    "error": "Não foi possível salvar suas preferências.",
+    "categories": {
+      "due_soon": "Vencimentos próximos",
+      "wallet": "Carteira e investimentos",
+      "goals": "Metas",
+      "transactions": "Transações",
+      "subscription": "Assinatura"
+    }
+  },
   "error": {
     "404": {
       "title": "Página não encontrada",
@@ -3969,6 +3999,102 @@
         "caption": "Variação do seu saldo em relação ao mês passado.",
         "unavailable": "Ainda não há histórico suficiente para comparar meses."
       }
+    }
+  },
+  "custoVidaRegional": {
+    "seo": {
+      "title": "Calculadora de Custo de Vida por Estado | Auraxis",
+      "description": "Descubra quanto do seu salário o seu estilo de vida consome, compare com a média do seu estado e veja em quantos anos você poderia se aposentar.",
+      "ogTitle": "Quanto Custa o Seu Estilo de Vida? | Auraxis",
+      "ogDescription": "Compare o custo do seu estilo de vida com a média regional e descubra seu score de sustentabilidade financeira."
+    },
+    "hero": {
+      "title": "Custo de Vida Regional",
+      "subtitle": "Compare seus gastos com a média do seu estado e descubra o quão sustentável é o seu estilo de vida."
+    },
+    "form": {
+      "title": "Sua renda e seus gastos mensais",
+      "uf": "Estado (UF)",
+      "ufPlaceholder": "Selecione seu estado",
+      "monthlyIncome": "Renda mensal líquida (R$)",
+      "housing": "Moradia (aluguel, condomínio, contas)",
+      "transport": "Transporte (combustível, app, transporte público)",
+      "food": "Alimentação (mercado, restaurantes)",
+      "leisure": "Lazer (streaming, viagens, hobbies)",
+      "other": "Outros gastos fixos",
+      "calculate": "Calcular",
+      "reset": "Limpar"
+    },
+    "categories": {
+      "housing": "Moradia",
+      "transport": "Transporte",
+      "food": "Alimentação",
+      "leisure": "Lazer",
+      "other": "Outros"
+    },
+    "results": {
+      "totalMonthly": "Custo mensal total",
+      "totalAnnual": "Custo anual total",
+      "committedPct": "Da sua renda comprometida",
+      "savingsRate": "Taxa de poupança",
+      "monthlySavings": "Sobra por mês",
+      "sustainabilityTitle": "Score de sustentabilidade",
+      "sustainabilityHint": "Combina sua taxa de poupança com o quão eficiente é o seu custo frente à média regional.",
+      "retirementTitle": "Anos até a independência financeira",
+      "retirementYears": "{years} anos",
+      "retirementNever": "Com a sobra atual não é possível projetar a aposentadoria. Reduza gastos ou aumente a renda.",
+      "retirementHint": "Estimativa pela regra dos 4%: patrimônio-alvo = gasto anual × 25, com {rate}% de rentabilidade real ao ano.",
+      "targetWealth": "Patrimônio-alvo",
+      "regionalTitle": "Comparação com {uf}",
+      "regionalAvgCost": "Custo médio no estado",
+      "regionalAvgIncome": "Renda média no estado",
+      "costVsRegionalAbove": "Seu custo está {pct}% acima da média do estado",
+      "costVsRegionalBelow": "Seu custo está {pct}% abaixo da média do estado",
+      "costVsRegionalEqual": "Seu custo está na média do estado",
+      "breakdownTitle": "Onde vai o seu dinheiro",
+      "ofIncome": "{pct}% da renda"
+    },
+    "share": {
+      "title": "Compartilhe seu resultado",
+      "whatsapp": "WhatsApp",
+      "twitter": "X / Twitter",
+      "copyLink": "Copiar link",
+      "copied": "Link copiado!",
+      "message": "Meu estilo de vida consome {pct}% da minha renda. Descubra o seu no Auraxis:"
+    },
+    "cta": {
+      "title": "Transforme esse diagnóstico em ação",
+      "description": "Crie sua conta grátis para acompanhar gastos, definir metas e melhorar seu score de sustentabilidade.",
+      "button": "Criar conta grátis"
+    },
+    "errors": {
+      "ufRequired": "Selecione um estado válido.",
+      "incomeRequired": "Informe sua renda mensal.",
+      "atLeastOneExpenseRequired": "Informe pelo menos um gasto."
+    },
+    "disclaimer": {
+      "note": "Valores regionais aproximados (IBGE PNAD/POF e DIEESE), para fins educativos. A projeção de aposentadoria assume rentabilidade real constante e não considera impostos ou imprevistos."
+    },
+    "faq": {
+      "title": "Perguntas frequentes",
+      "items": [
+        {
+          "q": "Como o score de sustentabilidade é calculado?",
+          "a": "Ele combina sua taxa de poupança (peso 70%) com a eficiência do seu custo frente à média do seu estado (peso 30%). Poupar 20% ou mais da renda e gastar no máximo a média regional levam à nota máxima."
+        },
+        {
+          "q": "O que é a regra dos 4%?",
+          "a": "É uma referência de independência financeira: ao acumular um patrimônio equivalente a 25 vezes seu gasto anual, você poderia sacar cerca de 4% ao ano de forma sustentável."
+        },
+        {
+          "q": "De onde vêm os dados regionais?",
+          "a": "São aproximações baseadas em pesquisas do IBGE (PNAD Contínua e POF) e do DIEESE. Servem como referência educativa e não substituem dados oficiais atualizados."
+        },
+        {
+          "q": "Posso compartilhar o resultado?",
+          "a": "Sim. Use os botões de compartilhamento ou copie o link após calcular — ele recria automaticamente sua simulação para quem abrir."
+        }
+      ]
     }
   }
 }
