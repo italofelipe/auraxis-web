@@ -184,6 +184,12 @@ describe("AiInsightSurface", () => {
 
     expect(wrapper.find("[data-testid='ai-button']").exists()).toBe(true);
     expect(wrapper.find("[data-testid='insight-section']").exists()).toBe(false);
+    // Feedback is intentionally NOT gated by hideInlineResult: Transactions
+    // users still rate the insight they just generated even though the inline
+    // result render is owned by the dedicated panel.
+    const feedback = wrapper.find("[data-testid='insight-feedback']");
+    expect(feedback.exists()).toBe(true);
+    expect(feedback.text()).toContain("ins-99");
   });
 
   it("hides the feedback block when no insight id is available", () => {

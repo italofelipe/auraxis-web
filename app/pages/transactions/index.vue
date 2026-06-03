@@ -215,17 +215,15 @@ const totalBalance = computed(() => totalIncome.value - totalExpense.value);
     <!-- ── Financial calendar ──────────────────────────────────────────────── -->
     <FinancialCalendar v-else-if="viewMode === 'calendar'" class="transactions-page__calendar" @day-click="onDayClick" />
 
-    <AiInsightSurface
-      class="transactions-page__ai-insights"
-      dimension="transactions"
-      :anchor-date="insightAnchorDate"
-      :hide-inline-result="true"
-    />
+    <div class="transactions-page__ai-insights">
+      <AiInsightSurface
+        dimension="transactions"
+        :anchor-date="insightAnchorDate"
+        :hide-inline-result="true"
+      />
 
-    <TransactionsInsightPanel
-      class="transactions-page__ai-insights"
-      dimension="transactions"
-    />
+      <TransactionsInsightPanel dimension="transactions" />
+    </div>
 
   </div>
 </template>
@@ -349,10 +347,11 @@ const totalBalance = computed(() => totalIncome.value - totalExpense.value);
   overflow: hidden;
 }
 
+/* Wrapper only owns the spacing between the trigger surface and the history
+   panel; each component declares its own internal grid layout. */
 .transactions-page__ai-insights {
   display: grid;
-  gap: var(--space-3);
-  align-items: start;
+  gap: var(--space-4);
 }
 
 .transactions-page__table :deep(.tx-table-row) { cursor: default; transition: background-color 0.15s ease, transform 0.12s ease; }

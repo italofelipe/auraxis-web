@@ -1,6 +1,6 @@
 import { ref } from "vue";
 import { mount } from "@vue/test-utils";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import TransactionsInsightPanel from "./TransactionsInsightPanel.vue";
 import type { AIInsightDTO, AIInsightHistoryDTO } from "~/features/ai-insights/contracts/ai-insight";
@@ -67,19 +67,22 @@ const makeInsight = (id: string, createdAt: string): AIInsightDTO => ({
   created_at: createdAt,
 });
 
-/**
- * Returns today's local date as YYYY-MM-DD.
- *
- * @returns Local today ISO date.
- */
-const localToday = (): string => {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(
-    now.getDate(),
-  ).padStart(2, "0")}`;
-};
+// Pin the clock so "today" is deterministic regardless of the runner's
+// timezone (the repo has a documented CI UTC-vs-local flake hazard). The
+// component derives today from `new Date()`; freezing it to noon UTC keeps the
+// fixture timestamp (2026-06-03T10:00:00Z) on the same local calendar day.
+const FIXED_TODAY = "2026-06-03";
 
 describe("TransactionsInsightPanel", () => {
+  beforeAll(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-03T12:00:00Z"));
+  });
+
+  afterAll(() => {
+    vi.useRealTimers();
+  });
+
   beforeEach(() => {
     historyState.data.value = undefined;
     historyState.isLoading.value = false;
@@ -89,7 +92,7 @@ describe("TransactionsInsightPanel", () => {
   it("renders today's insight on top and past insights in the accordion below", () => {
     historyState.data.value = {
       items: [
-        makeInsight("today", `${localToday()}T10:00:00Z`),
+        makeInsight("today", `${FIXED_TODAY}T10:00:00Z`),
         makeInsight("yesterday", "2026-01-02T10:00:00Z"),
       ],
       page: 1,
