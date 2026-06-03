@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { mount } from "@vue/test-utils";
-import { defineComponent, h, ref, computed, type ComputedRef } from "vue";
+import { defineComponent, h, ref, computed, type ComputedRef, type VNode } from "vue";
 import type { GlobalTheme } from "naive-ui";
 import UiTopbar from "../UiTopbar.vue";
 
@@ -191,5 +191,79 @@ describe("UiTopbar", () => {
       },
     });
     expect(wrapper.find(".ui-user-menu").exists()).toBe(true);
+  });
+
+  it("renders the extras row container", () => {
+    const wrapper = mount(UiTopbar, {
+      props: { title: "Dashboard", userName: "João Silva" },
+    });
+    expect(wrapper.find("[data-testid='topbar-extras-row']").exists()).toBe(true);
+  });
+
+  it("renders slotted extras content inside the extras row (two-tier header)", () => {
+    const wrapper = mount(UiTopbar, {
+      props: { title: "Dashboard", userName: "João Silva", showMenuButton: true },
+      slots: { extras: (): unknown => h("span", { class: "premium-badge" }, "Premium") },
+    });
+    const extrasRow = wrapper.find("[data-testid='topbar-extras-row']");
+    expect(extrasRow.exists()).toBe(true);
+    expect(extrasRow.find(".premium-badge").exists()).toBe(true);
+    expect(extrasRow.text()).toContain("Premium");
+  });
+
+  // --- Zero-footprint behavior for the extras row (free vs premium) ---
+  // The extras row carries vertical spacing on its rendered child (`> *`), never
+  // on the wrapper itself. So an empty / comment-only wrapper has no element
+  // children and therefore zero footprint — no empty second row for free users.
+
+  it("(a) keeps the extras row free of element children when NO extras slot is provided", () => {
+    const wrapper = mount(UiTopbar, {
+      props: { title: "Dashboard", userName: "João Silva", showMenuButton: true },
+    });
+    const extrasRow = wrapper.find("[data-testid='topbar-extras-row']");
+    expect(extrasRow.exists()).toBe(true);
+    // No element children → `.ui-topbar__extras-row > *` matches nothing →
+    // the wrapper contributes no spacing/height.
+    expect(extrasRow.element.children.length).toBe(0);
+    expect(extrasRow.text()).toBe("");
+  });
+
+  it("(b) keeps the extras row free of element children when the slot renders nothing (free user)", () => {
+    // Mirrors TopbarSubscriptionBadge for a free user: a component whose root is
+    // gated by `v-if=false`, so it renders only a comment node (`<!--v-if-->`).
+    const EmptyBadgeStub = defineComponent({
+      setup() {
+        const show = ref(false);
+        return (): VNode | null => (show.value ? h("span", { class: "premium-badge" }, "Premium") : null);
+      },
+    });
+    const wrapper = mount(UiTopbar, {
+      props: { title: "Dashboard", userName: "João Silva", showMenuButton: true },
+      slots: { extras: (): unknown => h(EmptyBadgeStub) },
+    });
+    const extrasRow = wrapper.find("[data-testid='topbar-extras-row']");
+    expect(extrasRow.exists()).toBe(true);
+    // The slot IS provided, but the badge renders only a comment node, so there
+    // is no element child to receive top-margin → zero footprint, no empty row.
+    expect(extrasRow.element.children.length).toBe(0);
+    expect(extrasRow.find(".premium-badge").exists()).toBe(false);
+    expect(extrasRow.text()).toBe("");
+  });
+
+  it("(c) renders the badge as an element child of the extras row for a premium user", () => {
+    const PremiumBadgeStub = defineComponent({
+      setup() {
+        const show = ref(true);
+        return (): VNode | null => (show.value ? h("span", { class: "premium-badge" }, "Premium") : null);
+      },
+    });
+    const wrapper = mount(UiTopbar, {
+      props: { title: "Dashboard", userName: "João Silva", showMenuButton: true },
+      slots: { extras: (): unknown => h(PremiumBadgeStub) },
+    });
+    const extrasRow = wrapper.find("[data-testid='topbar-extras-row']");
+    expect(extrasRow.element.children.length).toBe(1);
+    expect(extrasRow.find(".premium-badge").exists()).toBe(true);
+    expect(extrasRow.text()).toContain("Premium");
   });
 });
