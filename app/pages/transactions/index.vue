@@ -11,6 +11,7 @@ import TransactionToolbar from "~/features/transactions/components/TransactionTo
 import TransactionExportModal from "~/features/transactions/components/TransactionExportModal.vue";
 import TransactionPaymentModal from "~/features/transactions/components/TransactionPaymentModal.vue";
 import AiInsightSurface from "~/features/ai-insights/components/AiInsightSurface.vue";
+import TransactionsInsightPanel from "~/features/ai-insights/components/TransactionsInsightPanel.vue";
 import { resolveInsightAnchorDate } from "~/features/ai-insights/model/ai-insight";
 import { formatCurrency } from "~/utils/currency";
 
@@ -214,11 +215,15 @@ const totalBalance = computed(() => totalIncome.value - totalExpense.value);
     <!-- ── Financial calendar ──────────────────────────────────────────────── -->
     <FinancialCalendar v-else-if="viewMode === 'calendar'" class="transactions-page__calendar" @day-click="onDayClick" />
 
-    <AiInsightSurface
-      class="transactions-page__ai-insights"
-      dimension="transactions"
-      :anchor-date="insightAnchorDate"
-    />
+    <div class="transactions-page__ai-insights">
+      <AiInsightSurface
+        dimension="transactions"
+        :anchor-date="insightAnchorDate"
+        :hide-inline-result="true"
+      />
+
+      <TransactionsInsightPanel dimension="transactions" />
+    </div>
 
   </div>
 </template>
@@ -342,10 +347,11 @@ const totalBalance = computed(() => totalIncome.value - totalExpense.value);
   overflow: hidden;
 }
 
+/* Wrapper only owns the spacing between the trigger surface and the history
+   panel; each component declares its own internal grid layout. */
 .transactions-page__ai-insights {
   display: grid;
-  gap: var(--space-3);
-  align-items: start;
+  gap: var(--space-4);
 }
 
 .transactions-page__table :deep(.tx-table-row) { cursor: default; transition: background-color 0.15s ease, transform 0.12s ease; }
