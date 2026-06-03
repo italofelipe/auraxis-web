@@ -406,6 +406,28 @@ describe("useHttp singleton (#976)", () => {
     expect(first).toBe(second);
   });
 
+  it("caches client-side only: under import.meta.client the module cache is populated and reused", () => {
+    // The runtime guard is `if (import.meta.client) cachedClient = client`.
+    // The Nuxt vitest environment runs with `import.meta.client === true`, so
+    // the cache must be populated and the next call must hit the early-return
+    // guard (same reference). This is the SSR-safe contract from the other
+    // direction: on the server (`import.meta.client === false`) the write is
+    // skipped and each call builds a throwaway client — that branch is a plain
+    // env constant flip we cannot exercise from the client test env, so it is
+    // documented here and in `useHttp`'s `cachedClient` JSDoc.
+    expect(import.meta.client).toBe(true);
+
+    const first = useHttp();
+    // A reset proves the singleton lives in the module cache (not a per-call
+    // const): drop it, and the next call rebuilds a distinct instance.
+    __resetHttpClientForTests();
+    const afterReset = useHttp();
+    const reused = useHttp();
+
+    expect(afterReset).not.toBe(first);
+    expect(reused).toBe(afterReset);
+  });
+
   it("the cached client always reads the live token via the lazy resolver", () => {
     const client = useHttp();
     const requestHandlers = (
@@ -435,6 +457,7 @@ describe("useHttp singleton (#976)", () => {
 
     let refreshCalls = 0;
     let okResponses = 0;
+    let unauthorizedHits = 0;
     let resolveRefresh: (token: string) => void = vi.fn();
     const refreshGate = new Promise<string>((resolve) => {
       resolveRefresh = resolve;
@@ -461,6 +484,7 @@ describe("useHttp singleton (#976)", () => {
         okResponses += 1;
         return { status: 200, statusText: "OK", data: { ok: true }, headers: {}, config };
       }
+      unauthorizedHits += 1;
       return Promise.reject(
         Object.assign(new Error("Unauthorized"), {
           isAxiosError: true,
@@ -473,10 +497,15 @@ describe("useHttp singleton (#976)", () => {
     const reqA = client.get("/a");
     const reqB = client.get("/b");
 
-    // Let both 401s reach the shared refresh before releasing the gate.
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+    // Wait until BOTH initial requests have been rejected with 401 AND the
+    // shared single-flight refresh has actually fired its POST — rather than
+    // advancing a fixed number of microtask ticks (fragile). At that point the
+    // two 401s have collapsed into one in-flight refresh; releasing the gate
+    // lets both originals retry with the rotated token.
+    await vi.waitFor(() => {
+      expect(unauthorizedHits).toBe(2);
+      expect(refreshCalls).toBe(1);
+    });
     resolveRefresh("rotated-token");
 
     await Promise.all([reqA, reqB]);
