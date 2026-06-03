@@ -4,7 +4,7 @@ import { NModal, NStatistic, NTag } from "naive-ui";
 import { TrendingDown, TrendingUp } from "lucide-vue-next";
 
 import CalendarDayDetail from "../CalendarDayDetail.vue";
-import type { CalendarDay } from "~/features/transactions/composables/useFinancialCalendar";
+import type { CalendarDay } from "~/shared/types/financial-calendar";
 import type { TransactionDto } from "~/features/transactions/contracts/transaction.dto";
 
 // ── Fixtures ──────────────────────────────────────────────────────────────────

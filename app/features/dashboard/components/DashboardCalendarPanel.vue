@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import type { CalendarDay } from "~/features/transactions/composables/useFinancialCalendar";
+import type { CalendarDay } from "~/shared/types/financial-calendar";
 
 /** The day whose detail modal is currently open, or null when closed. */
 const selectedDay = ref<CalendarDay | null>(null);
@@ -29,6 +29,11 @@ function onDayClick(day: CalendarDay): void {
       @day-click="onDayClick"
     />
 
+    <!--
+      On close we only flip `showDayDetail` to false; `selectedDay` is intentionally
+      NOT cleared so the modal's close animation can play without its content
+      flashing away mid-transition.
+    -->
     <CalendarDayDetail
       :day="selectedDay"
       :visible="showDayDetail"

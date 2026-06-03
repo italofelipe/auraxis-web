@@ -1,4 +1,4 @@
-import type { CalendarDay } from "~/features/transactions/composables/useFinancialCalendar";
+import type { CalendarDay } from "~/shared/types/financial-calendar";
 
 /** Props accepted by FinancialCalendar. */
 export interface FinancialCalendarProps {
