@@ -157,12 +157,26 @@ export const refreshAccessToken = async (
 let cachedClient: AxiosInstance | null = null;
 
 /**
+ * Guards the session-expiry dialog against stacking (#977).
+ *
+ * When the refresh token is also expired, `onUnauthorized` opens a blocking
+ * "session expired" dialog. Concurrent 401s — even though #976's single-flight
+ * collapses the refresh itself — can still fan out into multiple
+ * `onUnauthorized` rejections, each trying to open its own dialog. This boolean
+ * ensures only the first one opens; the flag resets when the user acknowledges
+ * (or the dialog otherwise closes) so a later, genuinely new session loss can
+ * surface again.
+ */
+let isSessionDialogOpen = false;
+
+/**
  * Resets the memoized HTTP client. Test-only — production code never needs to
  * drop the singleton. Exported so specs can isolate the module-level cache
  * between cases.
  */
 export const __resetHttpClientForTests = (): void => {
   cachedClient = null;
+  isSessionDialogOpen = false;
 };
 
 /**
@@ -209,10 +223,14 @@ export const useHttp = (): AxiosInstance => {
       onUnauthorized: async (): Promise<string | null> => {
         const newToken = await refreshAccessToken(apiBase, sessionStore);
 
-        if (!newToken) {
+        if (!newToken && !isSessionDialogOpen) {
           // Both the access token and the refresh token are expired.
           // Show a non-dismissable modal so the user acknowledges the
-          // session loss before being sent to the login page.
+          // session loss before being sent to the login page. The
+          // `isSessionDialogOpen` guard keeps concurrent 401s from stacking
+          // multiple identical dialogs (#977); it resets once acknowledged so
+          // a future, genuinely new session loss can surface again.
+          isSessionDialogOpen = true;
           dialog.warning({
             title: t("auth.sessionExpired.title"),
             content: t("auth.sessionExpired.message"),
@@ -220,7 +238,13 @@ export const useHttp = (): AxiosInstance => {
             closable: false,
             closeOnEsc: false,
             maskClosable: false,
-            onPositiveClick: () => navigateTo("/login"),
+            onPositiveClick: () => {
+              isSessionDialogOpen = false;
+              return navigateTo("/login");
+            },
+            onClose: () => {
+              isSessionDialogOpen = false;
+            },
           });
         }
 
