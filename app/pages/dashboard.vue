@@ -5,6 +5,7 @@ import { NButton, NDatePicker } from "naive-ui";
 import DashboardControlBar from "~/features/dashboard/components/DashboardControlBar.vue";
 import WeeklySnapshotCard from "~/features/weekly-snapshot/components/WeeklySnapshotCard.vue";
 import DashboardMarketPulseWorkspace from "~/features/dashboard/components/DashboardMarketPulseWorkspace.vue";
+import DashboardCalendarPanel from "~/features/dashboard/components/DashboardCalendarPanel.vue";
 import AiInsightSurface from "~/features/ai-insights/components/AiInsightSurface.vue";
 import SpendingInsightCard from "~/features/spending-patterns/components/SpendingInsightCard.vue";
 import OnboardingSkipNudge from "~/features/onboarding/components/OnboardingSkipNudge.vue";
@@ -65,9 +66,7 @@ const overview = computed(() => dashboardQuery.data.value);
 const summary = computed(() => overview.value?.summary ?? null);
 const comparison = computed(() => overview.value?.comparison ?? null);
 const timeseries = computed(() => overview.value?.timeseries ?? []);
-const upcomingDues = computed(() => overview.value?.upcomingDues ?? []);
 const expensesByCategory = computed(() => overview.value?.expensesByCategory ?? []);
-const alerts = computed(() => overview.value?.alerts ?? []);
 const trendsSeries = computed(() => trendsQuery.data.value?.series ?? []);
 
 const isCustomPeriodIncomplete = computed(
@@ -166,11 +165,14 @@ const closeFirstTransactionForm = (): void => {
         :comparison="comparison"
         :timeseries="timeseries"
         :expenses-by-category="expensesByCategory"
-        :upcoming-dues="upcomingDues"
-        :alerts="alerts"
         :trends="trendsSeries"
         :mode="selectedMode"
         :loading="dashboardQuery.isLoading.value || trendsQuery.isLoading.value"
+      />
+
+      <DashboardCalendarPanel
+        v-if="!dashboardQuery.isError.value && summary"
+        class="dashboard-page__calendar"
       />
 
       <WeeklySnapshotCard class="dashboard-page__weekly-snapshot" />

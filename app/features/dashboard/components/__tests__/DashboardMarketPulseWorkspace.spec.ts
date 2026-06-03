@@ -4,19 +4,23 @@ import { describe, expect, it } from "vitest";
 
 import DashboardMarketPulseWorkspace from "../DashboardMarketPulseWorkspace.vue";
 import type {
-  DashboardAlert,
   DashboardComparison,
   DashboardExpenseCategory,
   DashboardSummary,
   DashboardTimeseriesPoint,
   DashboardTrendsMonthEntry,
-  DashboardUpcomingDue,
 } from "~/features/dashboard/model/dashboard-overview";
 
 const UiChartStub = defineComponent({
   name: "UiChart",
   props: ["option", "height", "updateKey"],
   template: "<div class=\"ui-chart-stub\" :data-height=\"height\">chart</div>",
+});
+
+const UiTrendBadgeStub = defineComponent({
+  name: "UiTrendBadge",
+  props: ["value", "decimals"],
+  template: "<span class=\"trend-badge-stub\" :data-value=\"value\" />",
 });
 
 const IconStub = defineComponent({
@@ -26,20 +30,19 @@ const IconStub = defineComponent({
 
 const stubs = {
   UiChart: UiChartStub,
+  UiTrendBadge: UiTrendBadgeStub,
+  ArrowDownCircle: IconStub,
   ArrowDownRight: IconStub,
+  ArrowUpCircle: IconStub,
   ArrowUpRight: IconStub,
-  BadgeAlert: IconStub,
   CalendarClock: IconStub,
   ChartColumnBig: IconStub,
   ChevronLeft: IconStub,
   CircleDollarSign: IconStub,
   Download: IconStub,
-  Filter: IconStub,
   LineChart: IconStub,
   PieChart: IconStub,
   Scale: IconStub,
-  Search: IconStub,
-  ShieldAlert: IconStub,
   Sparkles: IconStub,
   Wallet: IconStub,
 };
@@ -63,29 +66,10 @@ const categories: DashboardExpenseCategory[] = [
   { category: "Infraestrutura", amount: 8_230, percentage: 10 },
 ];
 
-const upcomingDues: DashboardUpcomingDue[] = [
-  {
-    id: "due-1",
-    description: "Aluguel Escritório SP",
-    amount: 15_000,
-    dueDate: "2026-05-12",
-    category: "Infraestrutura",
-  },
-];
-
 const trends: DashboardTrendsMonthEntry[] = [
   { month: "2026-03", income: 96_000, expenses: 70_000, balance: 26_000 },
   { month: "2026-04", income: 112_000, expenses: 78_000, balance: 34_000 },
   { month: "2026-05", income: 124_500, expenses: 82_340.5, balance: 42_159.5 },
-];
-
-const alerts: DashboardAlert[] = [
-  {
-    type: "warning",
-    title: "Gasto atípico: Marketing",
-    description: "Facebook Ads excedeu a média mensal nos últimos 3 dias.",
-    actionLabel: "Revisar Despesa",
-  },
 ];
 
 const emptyTimeseries: DashboardTimeseriesPoint[] = [];
@@ -103,8 +87,6 @@ function mountWorkspace(overrides: Record<string, unknown> = {}): ReturnType<typ
       comparison,
       timeseries: emptyTimeseries,
       expensesByCategory: categories,
-      upcomingDues,
-      alerts,
       trends,
       loading: false,
       ...overrides,
@@ -123,8 +105,26 @@ describe("DashboardMarketPulseWorkspace", () => {
     expect(wrapper.text()).toContain("Taxa de poupança");
     expect(wrapper.text()).toContain("Fluxo de Caixa Acumulado");
     expect(wrapper.text()).toContain("Gastos por Categoria");
-    expect(wrapper.text()).toContain("Transações Recentes");
-    expect(wrapper.text()).toContain("Anomalias Detectadas");
+  });
+
+  it("no longer renders the low-value operational panels", () => {
+    const wrapper = mountWorkspace();
+
+    expect(wrapper.text()).not.toContain("Transações Recentes");
+    expect(wrapper.text()).not.toContain("Anomalias Detectadas");
+  });
+
+  it("renders the month-over-month comparatives strip from real comparison data", () => {
+    const wrapper = mountWorkspace();
+
+    expect(wrapper.text()).toContain("Comparativo com o mês anterior");
+
+    const badges = wrapper.findAll(".trend-badge-stub");
+    expect(badges).toHaveLength(3);
+    // income +12.5%, expense -4.2% inverted to +4.2, balance +28.4%
+    expect(badges[0]?.attributes("data-value")).toBe("12.5");
+    expect(badges[1]?.attributes("data-value")).toBe("4.2");
+    expect(badges[2]?.attributes("data-value")).toBe("28.4");
   });
 
   it("uses trend data instead of a blank empty state when daily timeseries is empty", () => {
@@ -134,12 +134,11 @@ describe("DashboardMarketPulseWorkspace", () => {
     expect(wrapper.text()).not.toContain("Ainda não há movimentações");
   });
 
-  it("surfaces category drilldown and transaction rows from dashboard data", () => {
+  it("surfaces category drilldown from dashboard data", () => {
     const wrapper = mountWorkspace();
 
     expect(wrapper.text()).toContain("Tecnologia & SaaS");
     expect(wrapper.text()).toContain("15% do total");
-    expect(wrapper.text()).toContain("Aluguel Escritório SP");
     expect(wrapper.text()).toContain("Infraestrutura");
   });
 
@@ -148,12 +147,10 @@ describe("DashboardMarketPulseWorkspace", () => {
       loading: true,
       summary: null,
       expensesByCategory: [],
-      upcomingDues: [],
-      alerts: [],
       trends: [],
     });
 
     expect(wrapper.find(".market-pulse__skeleton").exists()).toBe(true);
-    expect(wrapper.text()).not.toContain("Aluguel Escritório SP");
+    expect(wrapper.text()).not.toContain("Tecnologia & SaaS");
   });
 });

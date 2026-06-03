@@ -211,8 +211,9 @@ test.describe("Dashboard — MSW-backed flows", () => {
 		await expect(page.getByText("Receitas (Mês)")).toBeVisible();
 		await expect(page.getByText("Fluxo de Caixa Acumulado")).toBeVisible();
 		await expect(page.getByText("Gastos por Categoria")).toBeVisible();
-		await expect(page.getByText("Transações Recentes")).toBeVisible();
-		await expect(page.getByText("Anomalias Detectadas")).toBeVisible();
+		await expect(page.getByText("Comparativo com o mês anterior")).toBeVisible();
+		await expect(page.getByText("Transações Recentes")).toHaveCount(0);
+		await expect(page.getByText("Anomalias Detectadas")).toHaveCount(0);
 		await expect(page.locator(".n-message")).toHaveCount(0);
 	});
 });
