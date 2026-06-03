@@ -115,17 +115,6 @@ const { isDark, toggle: toggleTheme } = useTheme();
   margin-left: auto;
   margin-right: var(--space-2);
 }
-/*
- * No badge slotted: drop the trailing gap so the right block hugs the edge.
- * NOTE: `:empty` matches only when the wrapper has zero children — but a
- * conditionally-rendered slot (e.g. TopbarSubscriptionBadge with v-if=false)
- * leaves a comment node (`<!--v-if-->`), so the wrapper is NOT `:empty`.
- * Spacing must therefore live on the rendered child (see `> *`), never on the
- * wrapper, so an empty wrapper contributes 0 width/height regardless.
- */
-.ui-topbar__extras-row:empty {
-  margin-right: 0;
-}
 .ui-topbar__menu-btn {
   background: none;
   border: none;
