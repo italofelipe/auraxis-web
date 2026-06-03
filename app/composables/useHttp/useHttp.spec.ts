@@ -1,6 +1,7 @@
 import axios, { type AxiosRequestConfig } from "axios";
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { mockNuxtImport } from "@nuxt/test-utils/runtime";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   CSRF_HEADER_NAME,
@@ -9,13 +10,49 @@ import {
   normalizeBaseUrl,
   readCookieValue,
   refreshAccessToken,
+  useHttp,
+  __resetHttpClientForTests,
 } from "./useHttp";
 
 const useSessionStoreMock = vi.hoisted(() => vi.fn());
+const sessionStoreStub = vi.hoisted(() => ({
+  getAccessToken: vi.fn(() => "live-token"),
+  signIn: vi.fn(),
+  signOut: vi.fn(),
+  updateTokens: vi.fn(),
+  emailVerificationRequiredNow: false,
+  emailVerified: true,
+}));
+
+const messageStub = vi.hoisted(() => ({ error: vi.fn() }));
+const dialogStub = vi.hoisted(() => ({ warning: vi.fn() }));
+const verificationGateStub = vi.hoisted(() => ({ open: vi.fn() }));
+const navigateToMock = vi.hoisted(() => vi.fn());
 
 vi.mock("~/stores/session", () => ({
   useSessionStore: useSessionStoreMock,
 }));
+
+vi.mock("naive-ui", (): Record<string, unknown> => ({
+  useMessage: (): typeof messageStub => messageStub,
+  useDialog: (): typeof dialogStub => dialogStub,
+}));
+
+vi.mock("~/features/auth/composables/use-email-verification-gate", (): Record<string, unknown> => ({
+  useEmailVerificationGate: (): typeof verificationGateStub => verificationGateStub,
+}));
+
+vi.mock("~/features/admin/impersonation/composables/use-admin-impersonation-session", (): Record<string, unknown> => ({
+  isAdminImpersonationReadOnlyActive: (): boolean => false,
+}));
+
+mockNuxtImport("useRuntimeConfig", () => (): { public: { apiBase: string } } => ({
+  public: { apiBase: "http://localhost:5000" },
+}));
+mockNuxtImport("useI18n", () => (): { t: (key: string) => string } => ({
+  t: (key: string): string => key,
+}));
+mockNuxtImport("navigateTo", () => navigateToMock);
 
 describe("useHttp helpers", () => {
   beforeEach(() => {
@@ -347,5 +384,104 @@ describe("CSRF double-submit (SEC-AUD-03)", () => {
         restore();
       }
     });
+  });
+});
+
+describe("useHttp singleton (#976)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    __resetHttpClientForTests();
+    sessionStoreStub.getAccessToken.mockReturnValue("live-token");
+    useSessionStoreMock.mockReturnValue(sessionStoreStub);
+  });
+
+  afterEach(() => {
+    __resetHttpClientForTests();
+  });
+
+  it("returns the SAME Axios instance across calls (shared singleton)", () => {
+    const first = useHttp();
+    const second = useHttp();
+
+    expect(first).toBe(second);
+  });
+
+  it("the cached client always reads the live token via the lazy resolver", () => {
+    const client = useHttp();
+    const requestHandlers = (
+      client.interceptors.request as unknown as {
+        handlers: Array<{
+          fulfilled: (config: AxiosRequestConfig) => AxiosRequestConfig;
+        } | null>;
+      }
+    ).handlers.filter(Boolean) as Array<{
+      fulfilled: (config: AxiosRequestConfig) => AxiosRequestConfig;
+    }>;
+    const authInterceptor = requestHandlers[0]!.fulfilled;
+
+    sessionStoreStub.getAccessToken.mockReturnValueOnce("rotated-token");
+    const config = authInterceptor({ headers: {} });
+
+    expect((config.headers as Record<string, string>).Authorization).toBe(
+      "Bearer rotated-token",
+    );
+  });
+
+  it("runs the refresh exactly ONCE for concurrent 401s across shared callers", async () => {
+    // Single-flight regression: two callers fetch the SAME shared client. Two
+    // concurrent requests both get 401 → the shared refresh closure (now bound
+    // to one Axios instance for all 37 feature factories) must fire only once.
+    const client = useHttp();
+
+    let refreshCalls = 0;
+    let okResponses = 0;
+    let resolveRefresh: (token: string) => void = vi.fn();
+    const refreshGate = new Promise<string>((resolve) => {
+      resolveRefresh = resolve;
+    });
+
+    // Stub the underlying refresh endpoint so both 401s funnel through the
+    // shared single-flight closure registered by registerResponseInterceptors.
+    // The gate keeps the first refresh pending until both 401s have arrived,
+    // proving they collapse into a single in-flight refresh.
+    vi.spyOn(axios, "post").mockImplementation(async () => {
+      refreshCalls += 1;
+      const token = await refreshGate;
+      sessionStoreStub.getAccessToken.mockReturnValue(token);
+      return { data: { success: true, data: { token } } };
+    });
+
+    // Replace the transport adapter: first hit per request → 401 (no _retry),
+    // retried request (carries Authorization from the refreshed token) → 200.
+    client.defaults.adapter = (async (config: AxiosRequestConfig): Promise<unknown> => {
+      const headers = (config.headers ?? {}) as Record<string, unknown>;
+      const isRetry = typeof headers.Authorization === "string"
+        && headers.Authorization === "Bearer rotated-token";
+      if (isRetry) {
+        okResponses += 1;
+        return { status: 200, statusText: "OK", data: { ok: true }, headers: {}, config };
+      }
+      return Promise.reject(
+        Object.assign(new Error("Unauthorized"), {
+          isAxiosError: true,
+          config,
+          response: { status: 401, statusText: "Unauthorized", data: {}, headers: {}, config },
+        }),
+      );
+    }) as unknown as typeof client.defaults.adapter;
+
+    const reqA = client.get("/a");
+    const reqB = client.get("/b");
+
+    // Let both 401s reach the shared refresh before releasing the gate.
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    resolveRefresh("rotated-token");
+
+    await Promise.all([reqA, reqB]);
+
+    expect(refreshCalls).toBe(1);
+    expect(okResponses).toBe(2);
   });
 });

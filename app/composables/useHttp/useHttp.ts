@@ -145,9 +145,42 @@ export const refreshAccessToken = async (
  *
  * @returns Configured Axios instance with auth and response interceptors.
  */
+/**
+ * Module-level cache holding the single shared Axios instance.
+ *
+ * `useHttp()` is invoked from 37+ feature `*.client.ts` factories. Without
+ * memoization each call built a brand-new Axios instance, and each instance
+ * carried its own `createSharedRefresh` single-flight closure — so the 401
+ * stampede guard only deduped concurrent refreshes WITHIN one instance, never
+ * across callers. On token expiry the dashboard's parallel feature queries
+ * each fired their own `POST /auth/refresh`, tripping the backend
+ * `token_refresh` rate limit (#976).
+ *
+ * Caching the client makes every caller share ONE instance and therefore ONE
+ * global single-flight refresh. The cache is intentionally not reset on the
+ * server: `useHttp()` is only invoked from client-side feature factories, and
+ * the captured Nuxt/naive-ui composables (`useMessage`, `useDialog`,
+ * `navigateTo`, …) are client-only. `getAccessToken` stays a lazy callback so
+ * the cached client always reads the live token from the session store.
+ */
+let cachedClient: AxiosInstance | null = null;
+
+/**
+ * Resets the memoized HTTP client. Test-only — production code never needs to
+ * drop the singleton. Exported so specs can isolate the module-level cache
+ * between cases.
+ */
+export const __resetHttpClientForTests = (): void => {
+  cachedClient = null;
+};
+
 /* v8 ignore start */
 /** @returns {AxiosInstance} Configured Axios instance with auth and response interceptors. */
 export const useHttp = (): AxiosInstance => {
+  if (cachedClient) {
+    return cachedClient;
+  }
+
   const runtimeConfig = useRuntimeConfig();
   const sessionStore = useSessionStore();
   const verificationGate = useEmailVerificationGate();
@@ -218,6 +251,7 @@ export const useHttp = (): AxiosInstance => {
     return config;
   });
 
+  cachedClient = client;
   return client;
 };
 /* v8 ignore stop */
