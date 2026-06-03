@@ -94,7 +94,7 @@ export const MobileTwoTier: Story = {
       <UiTopbar v-bind="args">
         <template #extras>
           <span
-            style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;background:var(--color-warning-bg, #fef3c7);color:var(--color-warning, #b45309);font-size:var(--font-size-sm);font-weight:600;"
+            style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;background:var(--color-warning-bg);color:var(--color-warning);font-size:var(--font-size-sm);font-weight:600;"
           >
             ⭐ Premium
           </span>

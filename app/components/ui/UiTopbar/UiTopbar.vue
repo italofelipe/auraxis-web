@@ -115,7 +115,14 @@ const { isDark, toggle: toggleTheme } = useTheme();
   margin-left: auto;
   margin-right: var(--space-2);
 }
-/* No badge slotted: drop the trailing gap so the right block hugs the edge. */
+/*
+ * No badge slotted: drop the trailing gap so the right block hugs the edge.
+ * NOTE: `:empty` matches only when the wrapper has zero children — but a
+ * conditionally-rendered slot (e.g. TopbarSubscriptionBadge with v-if=false)
+ * leaves a comment node (`<!--v-if-->`), so the wrapper is NOT `:empty`.
+ * Spacing must therefore live on the rendered child (see `> *`), never on the
+ * wrapper, so an empty wrapper contributes 0 width/height regardless.
+ */
 .ui-topbar__extras-row:empty {
   margin-right: 0;
 }
@@ -204,7 +211,13 @@ const { isDark, toggle: toggleTheme } = useTheme();
     min-height: 64px;
     padding-top: var(--space-2);
     padding-bottom: var(--space-2);
-    row-gap: var(--space-2);
+    /*
+     * NO `row-gap` here: a wrapped flex line is created for the extras-row even
+     * when its only child is a comment node (free user → badge renders nothing),
+     * and `row-gap` would add visible space above that empty line. Vertical
+     * spacing for the second row lives on the rendered badge content instead
+     * (`.ui-topbar__extras-row > *`), so an empty wrapper has ZERO footprint.
+     */
   }
   .ui-topbar__left {
     order: 1;
@@ -222,9 +235,14 @@ const { isDark, toggle: toggleTheme } = useTheme();
     margin-right: 0;
     justify-content: flex-start;
   }
-  /* Collapse the extras-row entirely when it has no slotted content. */
-  .ui-topbar__extras-row:empty {
-    display: none;
+  /*
+   * Spacing between row 1 and row 2 is carried by the rendered badge itself.
+   * When the slot renders nothing (only a `<!--v-if-->` comment node), there is
+   * no element child, `> *` matches nothing, and the wrapper collapses to 0
+   * height — no empty second row, no extra vertical space for free users.
+   */
+  .ui-topbar__extras-row > * {
+    margin-top: var(--space-2);
   }
 }
 </style>
