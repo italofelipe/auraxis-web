@@ -26,6 +26,7 @@
     "newBadge": "NOVO",
     "markSeen": "Marcar como visto",
     "error": "Não foi possível carregar seu resumo semanal agora.",
+    "pending": "Seu resumo com IA é gerado no fim de semana. Por enquanto, veja os números da sua semana.",
     "locked": {
       "title": "Briefing semanal com IA",
       "description": "Receba um resumo inteligente dos seus gastos da semana, com comparativo e destaques. Disponível no plano Premium.",

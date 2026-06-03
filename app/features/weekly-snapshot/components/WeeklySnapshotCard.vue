@@ -59,6 +59,8 @@ function formatBrl(value: number): string {
 
 const isLoading = computed<boolean>(() => hasPremium.value && snapshotQuery.isLoading.value);
 const isError = computed<boolean>(() => hasPremium.value && snapshotQuery.isError.value);
+/** True once the scheduled batch has generated a narrative for this week. */
+const hasNarrative = computed<boolean>(() => Boolean(snapshot.value?.narrative?.trim()));
 </script>
 
 <template>
@@ -67,7 +69,7 @@ const isError = computed<boolean>(() => hasPremium.value && snapshotQuery.isErro
       <span class="weekly-snapshot-card__header">
         <CalendarRange :size="18" aria-hidden="true" />
         {{ t("weeklySnapshot.title") }}
-        <NTag v-if="isUnseen" type="success" size="small" round data-testid="weekly-snapshot-new-badge">
+        <NTag v-if="isUnseen && hasNarrative" type="success" size="small" round data-testid="weekly-snapshot-new-badge">
           {{ t("weeklySnapshot.newBadge") }}
         </NTag>
       </span>
@@ -97,9 +99,20 @@ const isError = computed<boolean>(() => hasPremium.value && snapshotQuery.isErro
 
     <!-- Premium data -->
     <div v-else-if="snapshot" class="weekly-snapshot-card__body">
-      <p class="weekly-snapshot-card__narrative">
+      <p
+        v-if="hasNarrative"
+        class="weekly-snapshot-card__narrative"
+      >
         <Sparkles :size="16" aria-hidden="true" />
         {{ snapshot.narrative }}
+      </p>
+      <p
+        v-else
+        class="weekly-snapshot-card__pending"
+        data-testid="weekly-snapshot-pending"
+      >
+        <Sparkles :size="16" aria-hidden="true" />
+        {{ t("weeklySnapshot.pending") }}
       </p>
 
       <div class="weekly-snapshot-card__metrics">
@@ -108,7 +121,7 @@ const isError = computed<boolean>(() => hasPremium.value && snapshotQuery.isErro
         <UiMetricCard :label="t('weeklySnapshot.metrics.transactions')" :value="String(snapshot.transactionCount)" />
       </div>
 
-      <div v-if="isUnseen" class="weekly-snapshot-card__actions">
+      <div v-if="isUnseen && hasNarrative" class="weekly-snapshot-card__actions">
         <NButton size="tiny" quaternary data-testid="weekly-snapshot-mark-seen" @click="markAsSeen">
           {{ t("weeklySnapshot.markSeen") }}
         </NButton>
@@ -160,6 +173,15 @@ const isError = computed<boolean>(() => hasPremium.value && snapshotQuery.isErro
   margin: 0;
   line-height: 1.6;
   color: var(--color-text-primary);
+}
+
+.weekly-snapshot-card__pending {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin: 0;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
 }
 
 .weekly-snapshot-card__metrics {
