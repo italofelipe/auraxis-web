@@ -23,6 +23,14 @@ describe("Portfolio page — Market Pulse anatomy", () => {
     expect(source).toContain("Posição Detalhada de Ativos");
   });
 
+  it("binds the real-data KPI cards to the portfolio summary query (#979)", () => {
+    // Positive assertions: the cards read live query values, not hardcoded numbers.
+    expect(source).toContain("computedSummary.total_value");
+    expect(source).toContain("computedSummary.total_cost");
+    expect(source).toContain("computedSummary.total_return_percent");
+    expect(source).toContain("totalReturnAmount");
+  });
+
   it("does not fall back to demo assets when the authenticated wallet is empty", () => {
     expect(source).not.toContain("MOCK_WALLET_ENTRIES");
     expect(source).not.toContain("MOCK_PORTFOLIO_SUMMARY");

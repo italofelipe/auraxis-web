@@ -44,7 +44,6 @@ const editingEntry = ref<WalletEntryDto | null>(null);
 const chartTokens = computed(() => buildChartThemeTokens(resolvedTheme.value));
 
 const rawEntries = computed(() => entries.value ?? []);
-const displayEntries = computed(() => rawEntries.value);
 const isLoading = computed(() => isSummaryLoading.value || isEntriesLoading.value);
 const isPortfolioEmpty = computed(() => !isLoading.value && rawEntries.value.length === 0);
 const shouldShowPortfolioError = computed(
@@ -56,7 +55,7 @@ const computedSummary = computed<PortfolioSummaryDto>(() => {
     return summary.value;
   }
 
-  if (displayEntries.value.length === 0) {
+  if (rawEntries.value.length === 0) {
     return {
       total_value: 0,
       total_cost: 0,
@@ -66,8 +65,8 @@ const computedSummary = computed<PortfolioSummaryDto>(() => {
     };
   }
 
-  const totalValue = displayEntries.value.reduce((sum, entry) => sum + entry.current_value, 0);
-  const totalCost = displayEntries.value.reduce(
+  const totalValue = rawEntries.value.reduce((sum, entry) => sum + entry.current_value, 0);
+  const totalCost = rawEntries.value.reduce(
     (sum, entry) => sum + (entry.cost_basis ?? entry.current_value),
     0,
   );
@@ -78,7 +77,7 @@ const computedSummary = computed<PortfolioSummaryDto>(() => {
     total_cost: totalCost,
     day_change_percent: null,
     total_return_percent: totalReturnPercent,
-    asset_count: displayEntries.value.length,
+    asset_count: rawEntries.value.length,
   };
 });
 
@@ -272,7 +271,7 @@ const allocationRows = computed<AllocationRow[]>(() => {
   ];
   const totals = new Map<string, number>();
 
-  for (const entry of displayEntries.value) {
+  for (const entry of rawEntries.value) {
     const label = assetTypeLabel(entry.asset_type);
     const currentValue = safeNumber(entry.current_value);
     if (currentValue > 0) {
@@ -390,8 +389,16 @@ const allocationChartOption = computed<EChartsOption>(() => {
               <p>Patrimônio Total</p>
               <strong>{{ formatCurrency(computedSummary.total_value) }}</strong>
             </div>
-            <span class="trend-pill trend-pill--positive">
-              <ArrowUp :size="13" aria-hidden="true" />
+            <span
+              class="trend-pill"
+              :class="
+                (computedSummary.total_return_percent ?? 0) >= 0
+                  ? 'trend-pill--positive'
+                  : 'trend-pill--negative'
+              "
+            >
+              <ArrowUp v-if="(computedSummary.total_return_percent ?? 0) >= 0" :size="13" aria-hidden="true" />
+              <ArrowDownRight v-else :size="13" aria-hidden="true" />
               {{ formatPercent(computedSummary.total_return_percent) }}
             </span>
           </div>
@@ -499,7 +506,7 @@ const allocationChartOption = computed<EChartsOption>(() => {
               </tr>
             </thead>
             <tbody>
-              <tr v-for="entry in displayEntries" :key="entry.id">
+              <tr v-for="entry in rawEntries" :key="entry.id">
                 <td>
                   <div class="asset-cell">
                     <span>{{ (entry.ticker ?? entry.name).slice(0, 4).toUpperCase() }}</span>
