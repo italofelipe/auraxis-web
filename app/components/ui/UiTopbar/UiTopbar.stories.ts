@@ -67,3 +67,39 @@ export const WithAvatar: Story = {
     ],
   },
 };
+
+/**
+ * Mobile two-tier header (#981): at <=768px the header stacks into two rows.
+ * Row 1: hamburger + (smaller) title/subtitle + theme toggle + avatar.
+ * Row 2: the full Premium badge (slotted via #extras), left-aligned full-width.
+ */
+export const MobileTwoTier: Story = {
+  parameters: {
+    viewport: { defaultViewport: "mobile1" },
+  },
+  args: {
+    title: "Dashboard",
+    subtitle: "Mês de Dezembro",
+    userName: "João Silva",
+    userDescription: "Investidor Arrojado",
+    userAvatarUrl: "https://i.pravatar.cc/40?img=3",
+    showMenuButton: true,
+  },
+  render: (args) => ({
+    components: { UiTopbar },
+    setup(): { args: typeof args } {
+      return { args };
+    },
+    template: `
+      <UiTopbar v-bind="args">
+        <template #extras>
+          <span
+            style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;background:var(--color-warning-bg);color:var(--color-warning);font-size:var(--font-size-sm);font-weight:600;"
+          >
+            ⭐ Premium
+          </span>
+        </template>
+      </UiTopbar>
+    `,
+  }),
+};
