@@ -1,6 +1,7 @@
 import axios, { type AxiosInstance, type RawAxiosRequestHeaders } from "axios";
-import { useDialog, useMessage } from "naive-ui";
+import { useDialog } from "naive-ui";
 
+import { useToast } from "~/composables/useToast";
 import { createHttpClient } from "~/core/http/http-client";
 import { isAdminImpersonationReadOnlyActive } from "~/features/admin/impersonation/composables/use-admin-impersonation-session";
 import { useEmailVerificationGate } from "~/features/auth/composables/use-email-verification-gate";
@@ -157,12 +158,26 @@ export const refreshAccessToken = async (
 let cachedClient: AxiosInstance | null = null;
 
 /**
+ * Guards the session-expiry dialog against stacking (#977).
+ *
+ * When the refresh token is also expired, `onUnauthorized` opens a blocking
+ * "session expired" dialog. Concurrent 401s — even though #976's single-flight
+ * collapses the refresh itself — can still fan out into multiple
+ * `onUnauthorized` rejections, each trying to open its own dialog. This boolean
+ * ensures only the first one opens; the flag resets when the user acknowledges
+ * (or the dialog otherwise closes) so a later, genuinely new session loss can
+ * surface again.
+ */
+let isSessionDialogOpen = false;
+
+/**
  * Resets the memoized HTTP client. Test-only — production code never needs to
  * drop the singleton. Exported so specs can isolate the module-level cache
  * between cases.
  */
 export const __resetHttpClientForTests = (): void => {
   cachedClient = null;
+  isSessionDialogOpen = false;
 };
 
 /**
@@ -196,7 +211,7 @@ export const useHttp = (): AxiosInstance => {
   const runtimeConfig = useRuntimeConfig();
   const sessionStore = useSessionStore();
   const verificationGate = useEmailVerificationGate();
-  const message = useMessage();
+  const toast = useToast();
   const dialog = useDialog();
   const { t } = useI18n();
 
@@ -209,10 +224,14 @@ export const useHttp = (): AxiosInstance => {
       onUnauthorized: async (): Promise<string | null> => {
         const newToken = await refreshAccessToken(apiBase, sessionStore);
 
-        if (!newToken) {
+        if (!newToken && !isSessionDialogOpen) {
           // Both the access token and the refresh token are expired.
           // Show a non-dismissable modal so the user acknowledges the
-          // session loss before being sent to the login page.
+          // session loss before being sent to the login page. The
+          // `isSessionDialogOpen` guard keeps concurrent 401s from stacking
+          // multiple identical dialogs (#977); it resets once acknowledged so
+          // a future, genuinely new session loss can surface again.
+          isSessionDialogOpen = true;
           dialog.warning({
             title: t("auth.sessionExpired.title"),
             content: t("auth.sessionExpired.message"),
@@ -220,7 +239,13 @@ export const useHttp = (): AxiosInstance => {
             closable: false,
             closeOnEsc: false,
             maskClosable: false,
-            onPositiveClick: () => navigateTo("/login"),
+            onPositiveClick: () => {
+              isSessionDialogOpen = false;
+              return navigateTo("/login");
+            },
+            onClose: () => {
+              isSessionDialogOpen = false;
+            },
           });
         }
 
@@ -238,10 +263,10 @@ export const useHttp = (): AxiosInstance => {
         });
       },
       onForbidden: (msg: string): void => {
-        message.error(msg, { duration: 5_000 });
+        toast.error(msg, { duration: 5_000 });
       },
       onServerError: (msg: string): void => {
-        message.error(msg, { duration: 5_000 });
+        toast.error(msg, { duration: 5_000 });
       },
     },
   );

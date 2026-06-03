@@ -19,7 +19,13 @@ const { theme, themeOverrides } = useNaiveTheme();
     :theme-overrides="themeOverrides"
     :preflight-style-disabled="true"
   >
-    <NMessageProvider>
+    <!--
+      :max="1" caps the toast stack to a single visible message at a time.
+      Combined with the dedup guard in useToast (#977), concurrent failures
+      (e.g. a token expiry firing many requests) can never stack identical
+      error toasts.
+    -->
+    <NMessageProvider :max="1">
       <NDialogProvider>
         <NuxtLoadingIndicator color="var(--color-brand-500)" />
         <NuxtLayout>
