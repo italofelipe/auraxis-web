@@ -4,34 +4,28 @@ import type { EChartsOption } from "echarts";
 import {
   ArrowDownRight,
   ArrowUpRight,
-  BadgeAlert,
   CalendarClock,
   ChevronLeft,
-  CircleDollarSign,
   Download,
-  Filter,
   LineChart,
   PieChart,
   Scale,
-  Search,
-  ShieldAlert,
   Sparkles,
   Wallet,
 } from "lucide-vue-next";
-import { NButton, NInput } from "naive-ui";
+import { NButton } from "naive-ui";
 
 import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
+import DashboardPeriodComparisonStrip from "~/features/dashboard/components/DashboardPeriodComparisonStrip.vue";
 import { formatCurrency } from "~/utils/currency";
 import { useTheme } from "~/composables/useTheme";
 import { buildChartThemeTokens, type ChartThemeTokens, withAlpha } from "~/utils/chart-theme";
 import type {
-  DashboardAlert,
   DashboardComparison,
   DashboardExpenseCategory,
   DashboardSummary,
   DashboardTimeseriesPoint,
   DashboardTrendsMonthEntry,
-  DashboardUpcomingDue,
 } from "~/features/dashboard/model/dashboard-overview";
 
 interface Props {
@@ -43,10 +37,6 @@ interface Props {
   readonly timeseries: DashboardTimeseriesPoint[];
   /** Ranked expense categories for the selected period. */
   readonly expensesByCategory: DashboardExpenseCategory[];
-  /** Upcoming due transactions used by the operational table. */
-  readonly upcomingDues: DashboardUpcomingDue[];
-  /** Backend alerts displayed as anomaly cards. */
-  readonly alerts: DashboardAlert[];
   /** Monthly trend series used when daily timeseries is empty. */
   readonly trends: DashboardTrendsMonthEntry[];
   /** Whether the workspace should show its loading skeleton. */
@@ -56,7 +46,6 @@ interface Props {
 }
 
 type KpiTone = "income" | "expense" | "balance" | "savings";
-type AnomalyTone = "warning" | "danger" | "info";
 
 interface KpiCard {
   readonly key: string;
@@ -80,24 +69,6 @@ interface CategoryRow {
   readonly category: string;
   readonly amount: number;
   readonly percentage: number;
-}
-
-interface TransactionRow {
-  readonly id: string;
-  readonly description: string;
-  readonly category: string;
-  readonly dueDate: string;
-  readonly status: string;
-  readonly amount: number;
-}
-
-interface AnomalyCard {
-  readonly key: string;
-  readonly title: string;
-  readonly description: string;
-  readonly actionLabel: string;
-  readonly tone: AnomalyTone;
-  readonly timestamp: string;
 }
 
 interface ExecutiveSignal {
@@ -277,87 +248,15 @@ function buildCategoryRows(
 }
 
 /**
- * Maps upcoming dues into operational transaction rows.
- *
- * @param dues Upcoming due transactions.
- * @returns Transaction rows shown in the dashboard table.
- */
-function buildTransactionRows(dues: DashboardUpcomingDue[]): TransactionRow[] {
-  return dues.slice(0, 5).map((due) => ({
-    id: due.id,
-    description: due.description,
-    category: due.category ?? "Sem categoria",
-    dueDate: formatShortDate(due.dueDate),
-    status: "A vencer",
-    amount: due.amount,
-  }));
-}
-
-/**
- * Builds anomaly cards from API alerts or deterministic dashboard signals.
- *
- * @param summary Current dashboard summary.
- * @param alerts Backend alerts.
- * @returns Anomaly card models.
- */
-function buildAnomalies(
-  summary: DashboardSummary | null,
-  alerts: DashboardAlert[],
-): AnomalyCard[] {
-  if (alerts.length > 0) {
-    return alerts.slice(0, 3).map((alert, index) => ({
-      key: `${alert.type}-${index}`,
-      title: alert.title,
-      description: alert.description ?? "Sinal financeiro relevante para revisar no período.",
-      actionLabel: alert.actionLabel ?? "Analisar",
-      tone: alert.type === "error" ? "danger" : "warning",
-      timestamp: index === 0 ? "Hoje" : "Recente",
-    }));
-  }
-
-  if (!summary) {
-    return [];
-  }
-
-  const generated: AnomalyCard[] = [];
-
-  if (summary.expense > summary.income) {
-    generated.push({
-      key: "negative-balance",
-      title: "Saídas acima das entradas",
-      description: "As despesas superaram as receitas no período selecionado.",
-      actionLabel: "Revisar despesas",
-      tone: "danger",
-      timestamp: "Agora",
-    });
-  }
-
-  if (summary.upcomingDueTotal > 0) {
-    generated.push({
-      key: "upcoming-dues",
-      title: "Compromissos próximos",
-      description: `${formatCurrency(summary.upcomingDueTotal)} em contas a vencer precisa de atenção no caixa.`,
-      actionLabel: "Ver vencimentos",
-      tone: "warning",
-      timestamp: "Próximos 30d",
-    });
-  }
-
-  return generated;
-}
-
-/**
  * Builds only actionable executive signals for the dashboard strip.
  *
  * @param summary Current dashboard summary.
  * @param rate Savings rate in percentage points.
- * @param anomalyCards Alert/anomaly cards already resolved for the period.
  * @returns Short signals that are worth user attention.
  */
 function buildExecutiveSignals(
   summary: DashboardSummary | null,
   rate: number,
-  anomalyCards: AnomalyCard[],
 ): ExecutiveSignal[] {
   if (!summary) {
     return [];
@@ -378,14 +277,6 @@ function buildExecutiveSignals(
       key: "upcoming-dues",
       icon: CalendarClock,
       text: `${formatCurrency(summary.upcomingDueTotal)} em vencimentos próximos.`,
-    });
-  }
-
-  if (anomalyCards.length > 0) {
-    signals.push({
-      key: "anomalies",
-      icon: ShieldAlert,
-      text: `${anomalyCards.length} sinal${anomalyCards.length === 1 ? "" : "es"} financeiro${anomalyCards.length === 1 ? "" : "s"} para revisão.`,
     });
   }
 
@@ -624,16 +515,8 @@ const categoryRows = computed<CategoryRow[]>(() =>
 
 const activeCategory = computed<CategoryRow | null>(() => categoryRows.value[0] ?? null);
 
-const transactionRows = computed<TransactionRow[]>(() =>
-  buildTransactionRows(props.upcomingDues),
-);
-
-const anomalies = computed<AnomalyCard[]>(() =>
-  buildAnomalies(props.summary, props.alerts),
-);
-
 const executiveSignals = computed<ExecutiveSignal[]>(() =>
-  buildExecutiveSignals(props.summary, savingsRate.value, anomalies.value),
+  buildExecutiveSignals(props.summary, savingsRate.value),
 );
 
 const chartUpdateKey = computed((): string =>
@@ -676,6 +559,12 @@ const chartUpdateKey = computed((): string =>
           </footer>
         </article>
       </section>
+
+      <DashboardPeriodComparisonStrip
+        class="market-pulse__comparison"
+        :comparison="props.comparison"
+        :loading="props.loading"
+      />
 
       <section
         v-if="executiveSignals.length > 0"
@@ -779,104 +668,6 @@ const chartUpdateKey = computed((): string =>
           </div>
         </UiSurfaceCard>
       </section>
-
-      <section
-        v-if="props.mode === 'analytical'"
-        class="market-pulse__bottom"
-        aria-label="Dados operacionais"
-      >
-        <UiSurfaceCard class="market-panel market-panel--transactions" padding="none">
-          <header class="market-panel__header">
-            <div>
-              <h2>Transações Recentes</h2>
-              <p>Compromissos do caixa para acompanhar agora</p>
-            </div>
-            <div class="market-table-tools">
-              <NInput size="small" placeholder="Buscar..." class="market-table-tools__search">
-                <template #prefix>
-                  <Search :size="14" aria-hidden="true" />
-                </template>
-              </NInput>
-              <NButton secondary size="small">
-                <template #icon>
-                  <Filter :size="14" aria-hidden="true" />
-                </template>
-                Filtrar
-              </NButton>
-            </div>
-          </header>
-
-          <div class="market-table-wrap">
-            <table class="market-table">
-              <thead>
-                <tr>
-                  <th>Descrição</th>
-                  <th>Categoria</th>
-                  <th>Data</th>
-                  <th>Status</th>
-                  <th>Valor</th>
-                </tr>
-              </thead>
-              <tbody v-if="transactionRows.length > 0">
-                <tr v-for="row in transactionRows" :key="row.id">
-                  <td>
-                    <span class="market-table__avatar">
-                      <CircleDollarSign :size="16" aria-hidden="true" />
-                    </span>
-                    <strong>{{ row.description }}</strong>
-                  </td>
-                  <td>{{ row.category }}</td>
-                  <td>{{ row.dueDate }}</td>
-                  <td><span class="market-status">{{ row.status }}</span></td>
-                  <td class="market-table__amount">- {{ formatCurrency(row.amount) }}</td>
-                </tr>
-              </tbody>
-              <tbody v-else>
-                <tr>
-                  <td colspan="5" class="market-table__empty">
-                    Nenhum compromisso próximo encontrado.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </UiSurfaceCard>
-
-        <UiSurfaceCard class="market-panel market-panel--anomalies" padding="none">
-          <header class="market-panel__header">
-            <div>
-              <h2>
-                Anomalias Detectadas
-                <span class="market-count">{{ anomalies.length }}</span>
-              </h2>
-              <p>Sinais que merecem revisão rápida</p>
-            </div>
-          </header>
-
-          <div v-if="anomalies.length > 0" class="anomaly-list">
-            <article
-              v-for="anomaly in anomalies"
-              :key="anomaly.key"
-              class="anomaly-row"
-              :class="`anomaly-row--${anomaly.tone}`"
-            >
-              <header>
-                <strong>{{ anomaly.title }}</strong>
-                <span>{{ anomaly.timestamp }}</span>
-              </header>
-              <p>{{ anomaly.description }}</p>
-              <NButton secondary size="small">
-                {{ anomaly.actionLabel }}
-              </NButton>
-            </article>
-          </div>
-          <div v-else class="market-panel__empty market-panel__empty--compact">
-            <BadgeAlert :size="24" aria-hidden="true" />
-            <strong>Nenhuma anomalia crítica</strong>
-            <span>Os principais sinais de risco aparecerão aqui.</span>
-          </div>
-        </UiSurfaceCard>
-      </section>
     </template>
   </section>
 </template>
@@ -937,10 +728,8 @@ const chartUpdateKey = computed((): string =>
 .market-kpi__footer,
 .market-panel__header,
 .market-legend,
-.market-table-tools,
 .category-focus,
-.category-row,
-.market-table td:first-child {
+.category-row {
   display: flex;
   align-items: center;
 }
@@ -1040,8 +829,7 @@ const chartUpdateKey = computed((): string =>
   flex-shrink: 0;
 }
 
-.market-pulse__workspace,
-.market-pulse__bottom {
+.market-pulse__workspace {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
   gap: var(--space-4);
@@ -1161,8 +949,7 @@ const chartUpdateKey = computed((): string =>
   white-space: nowrap;
 }
 
-.category-list,
-.anomaly-list {
+.category-list {
   display: grid;
   gap: var(--space-2);
   padding: 0 var(--space-4) var(--space-4);
@@ -1174,8 +961,7 @@ const chartUpdateKey = computed((): string =>
   padding-block: var(--space-2);
 }
 
-.category-row__icon,
-.market-table__avatar {
+.category-row__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1218,117 +1004,11 @@ const chartUpdateKey = computed((): string =>
   background: linear-gradient(90deg, var(--color-brand-500), var(--color-accent));
 }
 
-.category-row strong,
-.market-table__amount {
+.category-row strong {
   color: var(--color-negative);
   font-family: var(--font-mono);
   font-size: var(--font-size-sm);
   white-space: nowrap;
-}
-
-.market-table-tools {
-  gap: var(--space-2);
-}
-
-.market-table-tools__search {
-  width: calc(var(--space-9) * 3);
-}
-
-.market-table-wrap {
-  overflow-x: auto;
-}
-
-.market-table {
-  width: 100%;
-  border-collapse: collapse;
-  white-space: nowrap;
-}
-
-.market-table th,
-.market-table td {
-  padding: var(--space-3) var(--space-4);
-  border-block-end: var(--space-px) solid var(--color-outline-soft);
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
-  text-align: start;
-}
-
-.market-table th {
-  background: var(--color-bg-elevated);
-  color: var(--color-text-muted);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-}
-
-.market-table td:first-child {
-  gap: var(--space-2);
-  color: var(--color-text-primary);
-}
-
-.market-table__empty {
-  text-align: center;
-}
-
-.market-status {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--space-1) var(--space-2);
-  border: var(--space-px) solid var(--color-warning-glow);
-  border-radius: var(--radius-xs);
-  color: var(--color-warning);
-  background: var(--color-warning-bg);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-}
-
-.market-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: var(--space-5);
-  height: var(--space-5);
-  border: var(--space-px) solid var(--color-warning-glow);
-  border-radius: var(--radius-full);
-  color: var(--color-warning);
-  background: var(--color-warning-bg);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
-}
-
-.anomaly-row {
-  display: grid;
-  gap: var(--space-2);
-  padding-block: var(--space-3);
-  border-inline-start: var(--space-1) solid var(--color-warning);
-  padding-inline-start: var(--space-3);
-}
-
-.anomaly-row--danger {
-  border-inline-start-color: var(--color-negative);
-}
-
-.anomaly-row--info {
-  border-inline-start-color: var(--color-brand-500);
-}
-
-.anomaly-row header {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-2);
-  color: var(--color-text-primary);
-}
-
-.anomaly-row header span {
-  color: var(--color-text-muted);
-  font-size: var(--font-size-xs);
-  white-space: nowrap;
-}
-
-.anomaly-row p {
-  margin: 0;
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
-  line-height: var(--line-height-body-sm);
 }
 
 @keyframes market-pulse-loading {
@@ -1342,8 +1022,7 @@ const chartUpdateKey = computed((): string =>
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .market-pulse__workspace,
-  .market-pulse__bottom {
+  .market-pulse__workspace {
     grid-template-columns: 1fr;
   }
 }
@@ -1355,14 +1034,9 @@ const chartUpdateKey = computed((): string =>
     grid-template-columns: 1fr;
   }
 
-  .market-panel__header,
-  .market-table-tools {
+  .market-panel__header {
     align-items: stretch;
     flex-direction: column;
-  }
-
-  .market-table-tools__search {
-    width: 100%;
   }
 
   .market-kpi__value {
