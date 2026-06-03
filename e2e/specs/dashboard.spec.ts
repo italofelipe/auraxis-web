@@ -179,6 +179,29 @@ const mockAuthAndDashboard = async (page: Page): Promise<void> => {
 			body: JSON.stringify({ data: { credit_cards: [] } }),
 		});
 	});
+
+	// Insight carousel data sources (PROD dashboard revamp).
+	await page.route("**/goals", (route) => {
+		route.fulfill({
+			status: 200,
+			contentType: "application/json",
+			body: JSON.stringify({ data: [] }),
+		});
+	});
+
+	await page.route("**/transactions/due-range**", (route) => {
+		route.fulfill({
+			status: 200,
+			contentType: "application/json",
+			body: JSON.stringify({
+				transactions: [],
+				total: 0,
+				page: 1,
+				per_page: 20,
+				counts: { total: 0, overdue: 0, pending: 0 },
+			}),
+		});
+	});
 };
 
 test.describe("Dashboard — MSW-backed flows", () => {
@@ -209,9 +232,11 @@ test.describe("Dashboard — MSW-backed flows", () => {
 
 		await expect(page.locator(".market-pulse")).toBeVisible({ timeout: 10_000 });
 		await expect(page.getByText("Receitas (Mês)")).toBeVisible();
-		await expect(page.getByText("Fluxo de Caixa Acumulado")).toBeVisible();
+		await expect(page.getByText("Fluxo de Caixa (mensal)")).toBeVisible();
 		await expect(page.getByText("Gastos por Categoria")).toBeVisible();
-		await expect(page.getByText("Comparativo com o mês anterior")).toBeVisible();
+		// The empty month-over-month strip was replaced by the insight carousel.
+		await expect(page.locator("[data-testid='dashboard-insight-carousel']")).toBeVisible();
+		await expect(page.getByText("Comparativo com o mês anterior")).toHaveCount(0);
 		await expect(page.getByText("Transações Recentes")).toHaveCount(0);
 		await expect(page.getByText("Anomalias Detectadas")).toHaveCount(0);
 		await expect(page.locator(".n-message")).toHaveCount(0);

@@ -160,8 +160,22 @@ const mockAuthenticatedInsights = async (page: Page): Promise<void> => {
 	await page.route("**/tags**", async (route) => json(route, { data: { tags: [] } }));
 	await page.route("**/accounts**", async (route) => json(route, { data: { accounts: [] } }));
 	await page.route("**/credit-cards**", async (route) => json(route, { data: { credit_cards: [] } }));
+	await page.route("**/goals", async (route) => json(route, { data: [] }));
 	await page.route("**/ai/insights/generate", async (route) => json(route, generatedInsight));
 	await page.route("**/ai/insights/history**", async (route) => json(route, insightHistory));
+};
+
+/**
+ * Builds the local current date as YYYY-MM-DD (matches the panel's todayIso).
+ *
+ * @returns Today's date in ISO date form.
+ */
+const localTodayIso = (): string => {
+	const now = new Date();
+	const year = now.getFullYear();
+	const month = String(now.getMonth() + 1).padStart(2, "0");
+	const day = String(now.getDate()).padStart(2, "0");
+	return `${year}-${month}-${day}`;
 };
 
 /**
@@ -198,6 +212,36 @@ const openInsightsHub = async (page: Page): Promise<void> => {
 test.describe("AI Insights — surface slices", () => {
 	test("transactions generates a global insight request and shows only transaction slice", async ({ page }) => {
 		await login(page);
+
+		// The transactions surface hides the inline result (PROD-13/#980) and shows
+		// the insight via TransactionsInsightPanel, which renders today's insight
+		// from /ai/insights/history. Seed a today-dated insight so the panel
+		// surfaces the transaction slice (past insights live in a collapsed list).
+		const todayIso = localTodayIso();
+		await page.route("**/ai/insights/history**", async (route) => json(route, {
+			success: true,
+			message: "Histórico de insights carregado",
+			data: {
+				items: [{
+					id: "ai-today",
+					content: JSON.stringify({ summary: "Resumo do período.", items: insightItems }),
+					items: insightItems,
+					insight_type: "daily",
+					period_type: "daily",
+					period_label: todayIso,
+					period_start: todayIso,
+					period_end: todayIso,
+					model: "gpt-4o-mini",
+					tokens_used: 320,
+					cost_usd: 0.000048,
+					created_at: `${todayIso}T08:15:00Z`,
+				}],
+				page: 1,
+				per_page: 20,
+				total: 1,
+			},
+		}));
+
 		await page.goto("/transactions");
 		await waitForHydration(page);
 
