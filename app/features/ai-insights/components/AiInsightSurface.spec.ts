@@ -128,6 +128,64 @@ describe("AiInsightSurface", () => {
     );
   });
 
+  it("renders the inline result by default when a current insight is set", () => {
+    useAIInsightsMock.mockReturnValue({
+      currentInsight: ref([
+        {
+          type: "padrao_gasto",
+          dimension: "transactions",
+          title: "Gastos do período",
+          message: "Suas despesas variáveis subiram.",
+        },
+      ]),
+      currentInsightId: ref("ins-99"),
+      insightPeriodLabel: ref("2026-06"),
+      isStale: ref(false),
+      insightModel: ref("gpt-4o"),
+      tokensUsed: ref(120),
+      costUsd: ref(0.00001),
+      forecast: ref(false),
+    });
+
+    const wrapper = mount(AiInsightSurface, {
+      props: { dimension: "transactions" },
+      global: { stubs },
+    });
+
+    expect(wrapper.find("[data-testid='ai-button']").exists()).toBe(true);
+    expect(wrapper.get("[data-testid='insight-section']").text()).toContain(
+      "Gastos do período",
+    );
+  });
+
+  it("suppresses the inline result when hideInlineResult is set but keeps the generate button", () => {
+    useAIInsightsMock.mockReturnValue({
+      currentInsight: ref([
+        {
+          type: "padrao_gasto",
+          dimension: "transactions",
+          title: "Gastos do período",
+          message: "Suas despesas variáveis subiram.",
+        },
+      ]),
+      currentInsightId: ref("ins-99"),
+      insightPeriodLabel: ref("2026-06"),
+      isStale: ref(false),
+      insightModel: ref("gpt-4o"),
+      tokensUsed: ref(120),
+      costUsd: ref(0.00001),
+      forecast: ref(false),
+    });
+
+    const wrapper = mount(AiInsightSurface, {
+      props: { dimension: "transactions", hideInlineResult: true },
+      global: { stubs },
+    });
+
+    expect(wrapper.find("[data-testid='ai-button']").exists()).toBe(true);
+    expect(wrapper.find("[data-testid='insight-section']").exists()).toBe(false);
+  });
+
   it("hides the feedback block when no insight id is available", () => {
     useAIInsightsMock.mockReturnValue({
       currentInsight: ref([

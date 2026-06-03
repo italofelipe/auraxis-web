@@ -16,11 +16,26 @@ import type {
   InsightSourceSurface,
 } from "~/features/ai-insights/contracts/ai-insight";
 
-const props = defineProps<{
-  dimension?: InsightDimension;
-  sourceSurface?: InsightSourceSurface;
-  anchorDate?: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    dimension?: InsightDimension;
+    sourceSurface?: InsightSourceSurface;
+    anchorDate?: string;
+    /**
+     * Opt-in flag to suppress the inline generated-insight result render,
+     * leaving the surface as a generate trigger only. Used on pages where a
+     * dedicated panel (e.g. TransactionsInsightPanel) owns rendering today's
+     * insight. The generate button, loading/consent and feedback UI remain.
+     */
+    hideInlineResult?: boolean;
+  }>(),
+  {
+    dimension: undefined,
+    sourceSurface: undefined,
+    anchorDate: undefined,
+    hideInlineResult: false,
+  },
+);
 
 const route = useRoute();
 const aiInsights = useAIInsights();
@@ -55,7 +70,15 @@ const visibleInsight = computed<InsightItem[] | null>(() => {
 
 const hasGeneratedInsight = computed(() => Boolean(aiInsights.currentInsight.value?.length));
 const shouldShowContextualEmptyState = computed(() =>
-  Boolean(resolvedDimension.value && hasGeneratedInsight.value && !visibleInsight.value?.length),
+  Boolean(
+    !props.hideInlineResult &&
+      resolvedDimension.value &&
+      hasGeneratedInsight.value &&
+      !visibleInsight.value?.length,
+  ),
+);
+const shouldShowInlineResult = computed(() =>
+  Boolean(!props.hideInlineResult && visibleInsight.value?.length),
 );
 </script>
 
@@ -63,7 +86,7 @@ const shouldShowContextualEmptyState = computed(() =>
   <section class="ai-insight-surface" aria-label="Insights de IA">
     <AiInsightButton :source-surface="resolvedSourceSurface" :anchor-date="anchorDate" />
     <AiInsightSection
-      v-if="visibleInsight?.length"
+      v-if="shouldShowInlineResult"
       :insight="visibleInsight"
       :period-label="aiInsights.insightPeriodLabel.value"
       :is-stale="aiInsights.isStale.value"

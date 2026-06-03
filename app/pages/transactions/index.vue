@@ -219,6 +219,7 @@ const totalBalance = computed(() => totalIncome.value - totalExpense.value);
       class="transactions-page__ai-insights"
       dimension="transactions"
       :anchor-date="insightAnchorDate"
+      :hide-inline-result="true"
     />
 
     <TransactionsInsightPanel
