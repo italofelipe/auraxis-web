@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, watch } from "vue";
 import { PieChart } from "lucide-vue-next";
 import { useRoute } from "vue-router";
 import { useSidebarState } from "~/composables/useSidebarState";
@@ -21,6 +21,15 @@ const { isMobile, isDrawerOpen, openDrawer, closeDrawer } =
   useResponsiveShell();
 
 const currentRoute = computed(() => route.path);
+
+// Close the mobile navigation drawer whenever the route changes so that
+// selecting a destination from the hamburger menu dismisses the drawer.
+watch(
+  () => route.path,
+  () => {
+    closeDrawer();
+  },
+);
 </script>
 
 <template>
