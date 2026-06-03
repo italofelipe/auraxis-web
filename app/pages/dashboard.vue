@@ -81,9 +81,30 @@ const trendsSeries = computed(() => trendsQuery.data.value?.series ?? []);
 
 // ── Insight carousel data (replaces the empty month-over-month strip) ─────────
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
+const UPCOMING_WINDOW_DAYS = 30;
+
+/**
+ * Formats a Date as the YYYY-MM-DD key expected by the due-range endpoint.
+ *
+ * @param date Date to format.
+ * @returns ISO date string.
+ */
+function toDateKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getDate()}`.padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
 
 const goalsQuery = useGoalsQuery();
-const dueRangeQuery = useDueRangeQuery();
+// The due-range endpoint requires at least one of start_date/end_date (400
+// otherwise), so always scope the upcoming-bills window explicitly.
+const dueRangeFilters = computed(() => {
+  const start = new Date();
+  const end = new Date(start.getTime() + UPCOMING_WINDOW_DAYS * MS_PER_DAY);
+  return { start_date: toDateKey(start), end_date: toDateKey(end) };
+});
+const dueRangeQuery = useDueRangeQuery(dueRangeFilters);
 
 const carouselDues = computed<CarouselDue[]>(() => {
   const items = dueRangeQuery.data.value?.transactions ?? [];
