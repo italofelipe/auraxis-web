@@ -1621,6 +1621,9 @@
       "income": "Receita",
       "expense": "Despesa",
       "balance": "Saldo"
+    },
+    "calendar": {
+      "title": "Calendário financeiro"
     }
   },
   "receivable": {

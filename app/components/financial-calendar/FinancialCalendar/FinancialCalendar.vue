@@ -1,11 +1,8 @@
 <script setup lang="ts">
 import { TrendingDown, TrendingUp, ChevronLeft, ChevronRight } from "lucide-vue-next";
 import { computed, watch } from "vue";
-import type { FinancialCalendarProps, FinancialCalendarEmits } from "./FinancialCalendar.types";
-import {
-  useFinancialCalendar,
-  type CalendarDay,
-} from "~/features/transactions/composables/useFinancialCalendar";
+import type { FinancialCalendarProps, FinancialCalendarEmits, CalendarDay } from "./FinancialCalendar.types";
+import { useFinancialCalendar } from "~/features/transactions/composables/useFinancialCalendar";
 import { formatCurrency } from "~/utils/currency";
 
 const props = withDefaults(defineProps<FinancialCalendarProps>(), {
