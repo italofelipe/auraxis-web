@@ -98,9 +98,15 @@ export function useToast(): UseToastReturn {
       activeToastKeys.delete(key);
     };
 
-    // Timer-based release covers auto-dismiss; `onClose` releases early on
-    // manual dismissal. The timer also guarantees the key is freed even if
-    // Naive UI never fires `onClose`, so dedup can't wedge permanently.
+    // The unconditional `setTimeout(duration + buffer)` is the GUARANTEED
+    // release path — do not remove it in favour of an onClose-only design.
+    // Naive UI's `:max="1"` eviction drops the oldest toast via an internal
+    // `shift()` that does NOT fire `onClose`, so an onClose-only release would
+    // leak the dedup key forever for any toast pushed out by a newer one,
+    // wedging dedup permanently. `onClose` here is only an optimisation that
+    // ACCELERATES release when the user dismisses the toast manually (or it
+    // auto-expires and Naive UI does fire the callback); the timer is the
+    // backstop that covers the eviction case the callback misses.
     const timer = setTimeout(release, duration + DEDUP_RELEASE_BUFFER_MS);
 
     /** Releases the key early when the user dismisses the toast manually. */

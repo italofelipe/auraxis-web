@@ -169,17 +169,21 @@ describe("useToast", () => {
       expect(mockError).toHaveBeenCalledOnce();
     });
 
-    it("shows the toast again after the active one expires", () => {
+    it("suppresses mid-window but shows again only after duration + buffer elapse", () => {
       vi.useFakeTimers();
       const { error } = useToast();
 
-      error("X");
+      // First call shows the toast.
       error("X");
       expect(mockError).toHaveBeenCalledOnce();
 
-      // Advance past duration + buffer so the key is released.
-      vi.advanceTimersByTime(4_000 + 500);
+      // Mid-window (well before duration + buffer = 4500ms): still suppressed.
+      vi.advanceTimersByTime(2_000);
+      error("X");
+      expect(mockError).toHaveBeenCalledOnce();
 
+      // Past duration + buffer (total > 4500ms): key released, shows again.
+      vi.advanceTimersByTime(2_600);
       error("X");
       expect(mockError).toHaveBeenCalledTimes(2);
     });

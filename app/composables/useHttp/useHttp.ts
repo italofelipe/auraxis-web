@@ -1,6 +1,7 @@
 import axios, { type AxiosInstance, type RawAxiosRequestHeaders } from "axios";
-import { useDialog, useMessage } from "naive-ui";
+import { useDialog } from "naive-ui";
 
+import { useToast } from "~/composables/useToast";
 import { createHttpClient } from "~/core/http/http-client";
 import { isAdminImpersonationReadOnlyActive } from "~/features/admin/impersonation/composables/use-admin-impersonation-session";
 import { useEmailVerificationGate } from "~/features/auth/composables/use-email-verification-gate";
@@ -210,7 +211,7 @@ export const useHttp = (): AxiosInstance => {
   const runtimeConfig = useRuntimeConfig();
   const sessionStore = useSessionStore();
   const verificationGate = useEmailVerificationGate();
-  const message = useMessage();
+  const toast = useToast();
   const dialog = useDialog();
   const { t } = useI18n();
 
@@ -262,10 +263,10 @@ export const useHttp = (): AxiosInstance => {
         });
       },
       onForbidden: (msg: string): void => {
-        message.error(msg, { duration: 5_000 });
+        toast.error(msg, { duration: 5_000 });
       },
       onServerError: (msg: string): void => {
-        message.error(msg, { duration: 5_000 });
+        toast.error(msg, { duration: 5_000 });
       },
     },
   );
