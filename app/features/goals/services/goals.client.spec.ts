@@ -67,6 +67,33 @@ describe("GoalsClient", () => {
       expect(result).toEqual([]);
     });
 
+    it("unwraps the v2 paginated envelope ({data:{items:[...]}})", async () => {
+      vi.mocked(http.get).mockResolvedValueOnce({
+        data: {
+          success: true,
+          message: "Metas listadas com sucesso",
+          data: { items: [makeGoalDto(), makeGoalDto({ id: "goal-002", name: "Viagem" })] },
+          meta: { pagination: { page: 1, pages: 1, per_page: 10, total: 2 } },
+        },
+      });
+
+      const result = await client.listGoals();
+
+      expect(result).toHaveLength(2);
+      expect(result[0]?.id).toBe("goal-001");
+      expect(result[1]?.name).toBe("Viagem");
+    });
+
+    it("returns an empty array for a paginated envelope with no items", async () => {
+      vi.mocked(http.get).mockResolvedValueOnce({
+        data: { success: true, data: { items: [] }, meta: { pagination: { total: 0 } } },
+      });
+
+      const result = await client.listGoals();
+
+      expect(result).toEqual([]);
+    });
+
     it("normalizes API title into the UI name field", async () => {
       vi.mocked(http.get).mockResolvedValueOnce({
         data: [
@@ -121,6 +148,36 @@ describe("GoalsClient", () => {
       });
       expect(JSON.stringify(vi.mocked(http.post).mock.calls[0]?.[1])).not.toContain("\"name\"");
       expect(result.name).toBe("PC AMD");
+    });
+
+    it("unwraps the v2 create envelope ({data:{goal:{...}}})", async () => {
+      vi.mocked(http.post).mockResolvedValueOnce({
+        data: {
+          success: true,
+          message: "Meta criada com sucesso",
+          data: {
+            goal: {
+              id: "748b822b",
+              title: "Montar PC novo",
+              description: "RTX 5080",
+              target_amount: "35000.00",
+              current_amount: "0.00",
+              target_date: "2026-12-31",
+              status: "active",
+              created_at: "2026-06-03T22:06:24Z",
+            },
+          },
+        },
+      });
+
+      const result = await client.createGoal({
+        name: "Montar PC novo",
+        target_amount: 35000,
+        target_date: "2026-12-31",
+      });
+
+      expect(result.id).toBe("748b822b");
+      expect(result.name).toBe("Montar PC novo");
     });
   });
 
