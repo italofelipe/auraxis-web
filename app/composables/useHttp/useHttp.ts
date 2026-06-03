@@ -132,6 +132,40 @@ export const refreshAccessToken = async (
 };
 
 /**
+ * Module-level cache holding the single shared Axios instance.
+ *
+ * `useHttp()` is invoked from 37+ feature `*.client.ts` factories. Without
+ * memoization each call built a brand-new Axios instance, and each instance
+ * carried its own `createSharedRefresh` single-flight closure — so the 401
+ * stampede guard only deduped concurrent refreshes WITHIN one instance, never
+ * across callers. On token expiry the dashboard's parallel feature queries
+ * each fired their own `POST /auth/refresh`, tripping the backend
+ * `token_refresh` rate limit (#976).
+ *
+ * Caching the client makes every client-side caller share ONE instance and
+ * therefore ONE global single-flight refresh. `getAccessToken` stays a lazy
+ * callback so the cached client always reads the live token from the session
+ * store.
+ *
+ * SSR safety: the cache is populated and reused ONLY on the client
+ * (`import.meta.client`). `useHttp()` is also reachable server-side from
+ * `middleware/authenticated.ts` and `plugins/session.ts`; on the server we
+ * build a throwaway per-call client and never write it here. Otherwise the
+ * first (possibly server-side) call would freeze client-only naive-ui context
+ * (`useMessage`/`useDialog`) into the singleton for the whole client session.
+ */
+let cachedClient: AxiosInstance | null = null;
+
+/**
+ * Resets the memoized HTTP client. Test-only — production code never needs to
+ * drop the singleton. Exported so specs can isolate the module-level cache
+ * between cases.
+ */
+export const __resetHttpClientForTests = (): void => {
+  cachedClient = null;
+};
+
+/**
  * Resolves runtime config and instantiates the application HTTP client.
  *
  * Registers global response interceptors that automatically handle:
@@ -140,14 +174,25 @@ export const refreshAccessToken = async (
  * - **403 Forbidden** → shows a "no permission" error toast.
  * - **5xx Server Error** → shows a generic "server error" toast.
  *
- * Must be called from within a Vue component `setup` context so that
- * `useMessage()` and `useRuntimeConfig()` are available.
+ * On the client the instance is memoized at module scope, so all 37+ feature
+ * factories share ONE instance and ONE global single-flight refresh (#976).
+ * On the server (SSR middleware/plugins) a throwaway per-call client is built
+ * and NOT cached — see {@link cachedClient}.
  *
- * @returns Configured Axios instance with auth and response interceptors.
+ * The cold-start path must run inside a client setup context: it calls
+ * `useRuntimeConfig()`, `useMessage()`, `useDialog()` and `useI18n()`, which
+ * are only available there.
+ *
+ * @returns {AxiosInstance} Configured Axios instance with auth and response interceptors.
  */
-/* v8 ignore start */
-/** @returns {AxiosInstance} Configured Axios instance with auth and response interceptors. */
 export const useHttp = (): AxiosInstance => {
+  // Cache-hit guard — the whole point of #976. Must stay OUTSIDE the v8-ignore
+  // range so coverage proves it runs and would fail if it were ever removed.
+  if (cachedClient) {
+    return cachedClient;
+  }
+
+  /* v8 ignore start */
   const runtimeConfig = useRuntimeConfig();
   const sessionStore = useSessionStore();
   const verificationGate = useEmailVerificationGate();
@@ -217,7 +262,13 @@ export const useHttp = (): AxiosInstance => {
 
     return config;
   });
+  /* v8 ignore stop */
+
+  // Only memoize on the client. On the server we return a per-call instance so
+  // the singleton never captures server-context (SSR-safe — see cachedClient).
+  if (import.meta.client) {
+    cachedClient = client;
+  }
 
   return client;
 };
-/* v8 ignore stop */
