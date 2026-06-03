@@ -3,7 +3,7 @@ import { mount } from "@vue/test-utils";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import FinancialCalendar from "../FinancialCalendar.vue";
-import type { CalendarDay } from "~/features/transactions/composables/useFinancialCalendar";
+import type { CalendarDay } from "~/components/financial-calendar/FinancialCalendar/FinancialCalendar.types";
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 

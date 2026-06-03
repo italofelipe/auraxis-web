@@ -1,6 +1,10 @@
 import { type Preview, type StoryContext, type StoryFn, setup } from "@storybook/vue3";
 import { darkTheme, NConfigProvider, NMessageProvider, NDialogProvider } from "naive-ui";
 import { defineComponent, h } from "vue";
+// Global Auraxis stylesheet: defines the design-system CSS custom properties
+// (--color-*, --space-*, --font-size-*, …) so stories can rely on tokens
+// directly instead of hardcoding hex fallbacks.
+import "../app/assets/css/main.css";
 import { buildNaiveThemeOverrides } from "../app/utils/naive-theme";
 import { themePalettes, type ResolvedTheme } from "../app/theme/tokens/semantic";
 import { fonts } from "../app/theme/tokens/typography";

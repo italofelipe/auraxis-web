@@ -34,8 +34,6 @@ const { isDark, toggle: toggleTheme } = useTheme();
     </div>
 
     <div class="ui-topbar__right">
-      <slot name="extras" />
-
       <button
         v-for="action in props.actions"
         :key="action.key"
@@ -71,6 +69,13 @@ const { isDark, toggle: toggleTheme } = useTheme();
         @logout="emit('user-logout')"
       />
     </div>
+
+    <div
+      class="ui-topbar__extras-row"
+      data-testid="topbar-extras-row"
+    >
+      <slot name="extras" />
+    </div>
   </header>
 </template>
 
@@ -89,11 +94,26 @@ const { isDark, toggle: toggleTheme } = useTheme();
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  order: 1;
 }
 .ui-topbar__right {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  order: 3;
+}
+/*
+ * Desktop (>=768px): single-row layout. The extras-row sits inline between the
+ * left block and the right controls (badge → theme → avatar), matching the
+ * previous single-row visual. order + margin-left:auto group it on the right.
+ */
+.ui-topbar__extras-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  order: 2;
+  margin-left: auto;
+  margin-right: var(--space-2);
 }
 .ui-topbar__menu-btn {
   background: none;
@@ -163,5 +183,55 @@ const { isDark, toggle: toggleTheme } = useTheme();
 .ui-topbar__theme-toggle:hover {
   background: var(--color-outline-ghost);
   color: var(--color-text-primary);
+}
+
+/*
+ * Mobile (<=767.98px): two-tier header.
+ * Row 1: left (hamburger + title/subtitle) + theme toggle + avatar.
+ * Row 2: extras-row (Premium badge) full-width, left-aligned.
+ * flex-wrap lets the extras-row drop to its own line; flex-basis:100% makes it
+ * span the full width below row 1.
+ */
+@media (max-width: 767.98px) {
+  .ui-topbar {
+    flex-wrap: wrap;
+    align-items: center;
+    height: auto;
+    min-height: 64px;
+    padding-top: var(--space-2);
+    padding-bottom: var(--space-2);
+    /*
+     * NO `row-gap` here: a wrapped flex line is created for the extras-row even
+     * when its only child is a comment node (free user → badge renders nothing),
+     * and `row-gap` would add visible space above that empty line. Vertical
+     * spacing for the second row lives on the rendered badge content instead
+     * (`.ui-topbar__extras-row > *`), so an empty wrapper has ZERO footprint.
+     */
+  }
+  .ui-topbar__left {
+    order: 1;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+  .ui-topbar__right {
+    order: 2;
+    margin-left: auto;
+  }
+  .ui-topbar__extras-row {
+    order: 3;
+    flex-basis: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    justify-content: flex-start;
+  }
+  /*
+   * Spacing between row 1 and row 2 is carried by the rendered badge itself.
+   * When the slot renders nothing (only a `<!--v-if-->` comment node), there is
+   * no element child, `> *` matches nothing, and the wrapper collapses to 0
+   * height — no empty second row, no extra vertical space for free users.
+   */
+  .ui-topbar__extras-row > * {
+    margin-top: var(--space-2);
+  }
 }
 </style>

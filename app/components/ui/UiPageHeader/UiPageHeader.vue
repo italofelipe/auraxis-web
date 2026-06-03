@@ -30,4 +30,17 @@ const props = withDefaults(defineProps<UiPageHeaderProps>(), { subtitle: undefin
   color: var(--color-text-muted);
   margin: 0;
 }
+
+/*
+ * Mobile (<=767.98px): shrink the title so it no longer dominates the
+ * two-tier header row. Subtitle steps down to xs to keep the pair compact.
+ */
+@media (max-width: 767.98px) {
+  .ui-page-header__title {
+    font-size: var(--font-size-lg);
+  }
+  .ui-page-header__subtitle {
+    font-size: var(--font-size-xs);
+  }
+}
 </style>

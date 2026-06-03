@@ -1,6 +1,6 @@
 import { computed, ref, type ComputedRef, type Ref } from "vue";
 import type { SelectOption } from "naive-ui";
-import type { CalendarDay } from "./useFinancialCalendar";
+import type { CalendarDay } from "~/components/financial-calendar/FinancialCalendar/FinancialCalendar.types";
 import { useTagsQuery } from "~/features/tags/queries/use-tags-query";
 import { useAccountsQuery } from "~/features/accounts/queries/use-accounts-query";
 import type { ListTransactionsFilters } from "~/features/transactions/services/transactions.client";
