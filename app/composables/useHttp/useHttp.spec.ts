@@ -28,6 +28,11 @@ const messageStub = vi.hoisted(() => ({ error: vi.fn() }));
 const dialogStub = vi.hoisted(() => ({ warning: vi.fn() }));
 const verificationGateStub = vi.hoisted(() => ({ open: vi.fn() }));
 const navigateToMock = vi.hoisted(() => vi.fn());
+const captureExceptionMock = vi.hoisted(() => vi.fn());
+
+vi.mock("@sentry/nuxt", () => ({
+  captureException: captureExceptionMock,
+}));
 
 vi.mock("~/stores/session", () => ({
   useSessionStore: useSessionStoreMock,
@@ -217,6 +222,29 @@ describe("refreshAccessToken (SEC-GAP-01 — cookie-based)", () => {
     expect(sessionStore.signOut).toHaveBeenCalledOnce();
   });
 
+  it("captures unexpected refresh failures (network/CORS/5xx) in Sentry", async () => {
+    // A network error (no response) is the exact shape a blocked CORS preflight
+    // produces — the silent failure that masked #1437. It must reach Sentry.
+    const sessionStore = {
+      signOut: vi.fn(),
+      updateTokens: vi.fn(),
+    } as unknown as Parameters<typeof refreshAccessToken>[1];
+
+    const networkError = new Error("Network Error");
+    vi.spyOn(axios, "post").mockRejectedValueOnce(networkError);
+
+    await refreshAccessToken("http://api", sessionStore);
+
+    expect(captureExceptionMock).toHaveBeenCalledOnce();
+    expect(captureExceptionMock).toHaveBeenCalledWith(
+      networkError,
+      expect.objectContaining({
+        tags: expect.objectContaining({ flow: "session-refresh" }),
+      }),
+    );
+    expect(sessionStore.signOut).toHaveBeenCalledOnce();
+  });
+
   it("signs out and returns null when the server returns 401 (expired cookie)", async () => {
     const sessionStore = {
       signOut: vi.fn(),
@@ -232,6 +260,24 @@ describe("refreshAccessToken (SEC-GAP-01 — cookie-based)", () => {
     const result = await refreshAccessToken("http://api", sessionStore);
 
     expect(result).toBeNull();
+    expect(sessionStore.signOut).toHaveBeenCalledOnce();
+  });
+
+  it("does NOT capture a 401 in Sentry — an expired cookie is an expected sign-out", async () => {
+    const sessionStore = {
+      signOut: vi.fn(),
+      updateTokens: vi.fn(),
+    } as unknown as Parameters<typeof refreshAccessToken>[1];
+
+    const axiosError = Object.assign(new Error("Unauthorized"), {
+      isAxiosError: true,
+      response: { status: 401 },
+    });
+    vi.spyOn(axios, "post").mockRejectedValueOnce(axiosError);
+
+    await refreshAccessToken("http://api", sessionStore);
+
+    expect(captureExceptionMock).not.toHaveBeenCalled();
     expect(sessionStore.signOut).toHaveBeenCalledOnce();
   });
 });
