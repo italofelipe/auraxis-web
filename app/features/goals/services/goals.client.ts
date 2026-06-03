@@ -63,6 +63,24 @@ const normalizeGoal = (goal: GoalWireDto | GoalDto): GoalDto => {
 };
 
 /**
+ * Coerces a single-goal payload to the bare goal object.
+ *
+ * The v2 create/update endpoints wrap the goal as `{goal:{...}}` inside the
+ * envelope `data`; legacy/mocks return the goal fields directly. Unwrapping
+ * `{goal}` here keeps `normalizeGoal` working for both shapes (mapping the
+ * `{goal}` wrapper directly produced an empty `name`).
+ *
+ * @param unwrapped Envelope `data` already stripped of `{success,...}`.
+ * @returns The bare goal wire object.
+ */
+const coerceGoalObject = (unwrapped: GoalWireDto | { goal?: GoalWireDto }): GoalWireDto => {
+  if (unwrapped !== null && typeof unwrapped === "object" && "goal" in unwrapped) {
+    return (unwrapped.goal ?? {}) as GoalWireDto;
+  }
+  return unwrapped as GoalWireDto;
+};
+
+/**
  * Converts UI goal payloads to the v2 API payload shape.
  *
  * @param payload Goal payload produced by forms/composables.
@@ -112,8 +130,18 @@ export class GoalsClient {
    */
   async listGoals(): Promise<GoalDto[]> {
     try {
-      const response = await this.#http.get<ApiEnvelope<GoalWireDto[]> | GoalWireDto[]>("/goals");
-      return unwrapApiEnvelope<GoalWireDto[]>(response.data).map(normalizeGoal);
+      const response = await this.#http.get<
+        ApiEnvelope<GoalWireDto[] | { items?: GoalWireDto[] }> | GoalWireDto[]
+      >("/goals");
+      // The v2 list endpoint returns a paginated envelope `{data:{items:[...]}}`,
+      // while legacy/mocks return a bare array under `data`. Coerce both to an
+      // array before mapping — calling `.map` on the `{items}` object was the
+      // cause of the "Não foi possível carregar as metas" error.
+      const unwrapped = unwrapApiEnvelope<GoalWireDto[] | { items?: GoalWireDto[] }>(
+        response.data,
+      );
+      const list = Array.isArray(unwrapped) ? unwrapped : (unwrapped?.items ?? []);
+      return list.map(normalizeGoal);
     } catch (error) {
       if (isEmptyGoalsNotFound(error)) {
         return [];
@@ -130,11 +158,10 @@ export class GoalsClient {
    * @returns Created GoalDto.
    */
   async createGoal(payload: CreateGoalPayload): Promise<GoalDto> {
-    const response = await this.#http.post<ApiEnvelope<GoalWireDto> | GoalWireDto>(
-      "/goals",
-      toGoalWirePayload(payload),
-    );
-    return normalizeGoal(unwrapApiEnvelope<GoalWireDto>(response.data));
+    const response = await this.#http.post<
+      ApiEnvelope<GoalWireDto | { goal?: GoalWireDto }> | GoalWireDto
+    >("/goals", toGoalWirePayload(payload));
+    return normalizeGoal(coerceGoalObject(unwrapApiEnvelope(response.data)));
   }
 
   /**
@@ -145,11 +172,10 @@ export class GoalsClient {
    * @returns Updated GoalDto.
    */
   async updateGoal(id: string, payload: UpdateGoalPayload): Promise<GoalDto> {
-    const response = await this.#http.patch<ApiEnvelope<GoalWireDto> | GoalWireDto>(
-      `/goals/${id}`,
-      toGoalWirePayload(payload),
-    );
-    return normalizeGoal(unwrapApiEnvelope<GoalWireDto>(response.data));
+    const response = await this.#http.patch<
+      ApiEnvelope<GoalWireDto | { goal?: GoalWireDto }> | GoalWireDto
+    >(`/goals/${id}`, toGoalWirePayload(payload));
+    return normalizeGoal(coerceGoalObject(unwrapApiEnvelope(response.data)));
   }
 
   /**
