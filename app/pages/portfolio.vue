@@ -1,17 +1,6 @@
 <script setup lang="ts">
 import type { EChartsOption } from "echarts";
-import {
-  ArrowDownRight,
-  ArrowUp,
-  ArrowUpRight,
-  Bell,
-  Download,
-  Filter,
-  Menu,
-  Plus,
-  Search,
-  Shuffle,
-} from "lucide-vue-next";
+import { ArrowDownRight, ArrowUp, ArrowUpRight, Plus } from "lucide-vue-next";
 
 import { usePortfolioSummaryQuery } from "~/features/wallet/queries/use-portfolio-summary-query";
 import { useWalletEntriesQuery } from "~/features/wallet/queries/use-wallet-entries-query";
@@ -24,7 +13,7 @@ import AiInsightSurface from "~/features/ai-insights/components/AiInsightSurface
 import { useGoalsQuery } from "~/features/goals/queries/use-goals-query";
 import { formatCurrency } from "~/utils/currency";
 import { useTheme } from "~/composables/useTheme";
-import { buildChartThemeTokens, withAlpha } from "~/utils/chart-theme";
+import { buildChartThemeTokens } from "~/utils/chart-theme";
 
 definePageMeta({
   middleware: ["authenticated", "coming-soon"],
@@ -87,7 +76,7 @@ const computedSummary = computed<PortfolioSummaryDto>(() => {
   return {
     total_value: totalValue,
     total_cost: totalCost,
-    day_change_percent: 0.84,
+    day_change_percent: null,
     total_return_percent: totalReturnPercent,
     asset_count: displayEntries.value.length,
   };
@@ -259,9 +248,11 @@ function totalReturnPercent(entry: WalletEntryDto): number | null {
   return ((currentValue - costBasis) / costBasis) * 100;
 }
 
-const totalReturnAmount = computed(() => safeNumber(computedSummary.value.total_value) - safeNumber(computedSummary.value.total_cost));
-const monthlyReturnAmount = computed(() => Math.round(safeNumber(computedSummary.value.total_value) * 0.0365));
-const yearlyReturnAmount = computed(() => Math.round(Math.max(totalReturnAmount.value, safeNumber(computedSummary.value.total_value) * 0.145)));
+const totalReturnAmount = computed(
+  () =>
+    safeNumber(computedSummary.value.total_value) -
+    safeNumber(computedSummary.value.total_cost),
+);
 const displayGoals = computed(() => {
   if (goals.value?.length) {
     return goals.value;
@@ -269,7 +260,6 @@ const displayGoals = computed(() => {
 
   return [];
 });
-const projectedMonthlyContribution = computed(() => Math.max(500, Math.round(safeNumber(computedSummary.value.total_value) * 0.012)));
 
 const allocationRows = computed<AllocationRow[]>(() => {
   const tokens = chartTokens.value;
@@ -303,83 +293,6 @@ const allocationRows = computed<AllocationRow[]>(() => {
       percentage: Math.round((value / total) * 100),
       color: colors[index] ?? tokens.mutedText,
     }));
-});
-
-const performanceChartOption = computed<EChartsOption>(() => {
-  const tokens = chartTokens.value;
-  const months = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-  const base = Math.max(computedSummary.value.total_cost, 1000);
-  const portfolio = months.map((_, index) => Math.round(base * (1 + index * 0.031 + Math.sin(index) * 0.012)));
-  const benchmark = months.map((_, index) => Math.round(base * (1 + index * 0.014)));
-
-  return {
-    backgroundColor: "transparent",
-    color: [tokens.balance, tokens.income],
-    grid: { top: 24, right: 20, bottom: 32, left: 62 },
-    tooltip: {
-      trigger: "axis",
-      backgroundColor: tokens.tooltipBackground,
-      borderColor: tokens.tooltipBorder,
-      textStyle: { color: tokens.tooltipText },
-      valueFormatter: (value): string => formatCurrency(Number(value)),
-    },
-    legend: {
-      top: 0,
-      right: 0,
-      textStyle: { color: tokens.mutedText },
-    },
-    media: [
-      {
-        query: { maxWidth: 520 },
-        option: {
-          grid: { top: 56, right: 10, bottom: 28, left: 44 },
-          legend: {
-            top: 0,
-            left: 0,
-            right: "auto",
-            itemGap: 8,
-            itemHeight: 6,
-            itemWidth: 10,
-            textStyle: { color: tokens.mutedText, fontSize: 10 },
-          },
-        },
-      },
-    ],
-    xAxis: {
-      type: "category",
-      data: months,
-      axisLine: { lineStyle: { color: tokens.border } },
-      axisTick: { show: false },
-      axisLabel: { color: tokens.mutedText },
-    },
-    yAxis: {
-      type: "value",
-      splitLine: { lineStyle: { color: tokens.grid } },
-      axisLabel: {
-        color: tokens.mutedText,
-        formatter: (value: number): string => `${Math.round(value / 1000)}k`,
-      },
-    },
-    series: [
-      {
-        name: "Carteira",
-        type: "line",
-        smooth: true,
-        symbol: "none",
-        lineStyle: { width: 3 },
-        areaStyle: { color: withAlpha(tokens.balance, resolvedTheme.value === "dark" ? 0.1 : 0.16) },
-        data: portfolio,
-      },
-      {
-        name: "Benchmark",
-        type: "line",
-        smooth: true,
-        symbol: "none",
-        lineStyle: { width: 2 },
-        data: benchmark,
-      },
-    ],
-  };
 });
 
 const allocationChartOption = computed<EChartsOption>(() => {
@@ -422,28 +335,10 @@ const allocationChartOption = computed<EChartsOption>(() => {
   <div class="portfolio-market-pulse">
     <section class="portfolio-header" aria-label="Cabeçalho da carteira">
       <div class="portfolio-header__title">
-        <button class="portfolio-menu" type="button" aria-label="Abrir menu">
-          <Menu :size="20" aria-hidden="true" />
-        </button>
         <div>
           <h1>Visão Geral da Carteira</h1>
           <p>Acompanhamento técnico da carteira, alocação e posições.</p>
         </div>
-      </div>
-
-      <div class="portfolio-header__actions">
-        <label class="search-field" for="asset-search">
-          <Search :size="15" aria-hidden="true" />
-          <input id="asset-search" type="search" placeholder="Buscar ativo...">
-        </label>
-        <button class="icon-button" type="button" aria-label="Notificações">
-          <Bell :size="20" aria-hidden="true" />
-          <span aria-hidden="true" />
-        </button>
-        <button class="mp-button mp-button--ghost" type="button">
-          <Download :size="16" aria-hidden="true" />
-          Exportar
-        </button>
       </div>
     </section>
 
@@ -505,47 +400,40 @@ const allocationChartOption = computed<EChartsOption>(() => {
               <Plus :size="16" aria-hidden="true" />
               Aportar
             </button>
-            <button class="mp-button mp-button--secondary" type="button">
-              <Shuffle :size="16" aria-hidden="true" />
-              Resgatar
-            </button>
           </div>
         </article>
 
         <article class="portfolio-kpi">
           <div class="kpi-heading">
             <div>
-              <p>Rentabilidade (Mês)</p>
-              <strong class="is-positive">+ {{ formatCurrency(monthlyReturnAmount) }}</strong>
+              <p>Total Investido</p>
+              <strong>{{ formatCurrency(computedSummary.total_cost) }}</strong>
             </div>
-            <select aria-label="Mês da rentabilidade">
-              <option>Maio</option>
-              <option>Abril</option>
-            </select>
           </div>
           <div class="comparison-line">
-            <span class="trend-pill trend-pill--positive">
-              <ArrowUp :size="13" aria-hidden="true" />
-              3,20%
-            </span>
-            <span>vs. Ibovespa (1,50%)</span>
+            <span>{{ computedSummary.asset_count }} ativo(s) na carteira</span>
           </div>
         </article>
 
         <article class="portfolio-kpi">
           <div class="kpi-heading">
             <div>
-              <p>Rentabilidade (Ano)</p>
-              <strong class="is-positive">+ {{ formatCurrency(yearlyReturnAmount) }}</strong>
+              <p>Resultado Total</p>
+              <strong :class="totalReturnAmount >= 0 ? 'is-positive' : 'is-negative'">
+                {{ totalReturnAmount >= 0 ? "+ " : "- " }}{{ formatCurrency(Math.abs(totalReturnAmount)) }}
+              </strong>
             </div>
-            <span class="kpi-year">2026</span>
           </div>
           <div class="comparison-line">
-            <span class="trend-pill trend-pill--positive">
-              <ArrowUp :size="13" aria-hidden="true" />
-              14,50%
+            <span
+              class="trend-pill"
+              :class="totalReturnAmount >= 0 ? 'trend-pill--positive' : 'trend-pill--negative'"
+            >
+              <ArrowUp v-if="totalReturnAmount >= 0" :size="13" aria-hidden="true" />
+              <ArrowDownRight v-else :size="13" aria-hidden="true" />
+              {{ formatPercent(computedSummary.total_return_percent) }}
             </span>
-            <span>vs. CDI (6,20%)</span>
+            <span>sobre o custo de aquisição</span>
           </div>
         </article>
       </section>
@@ -556,27 +444,10 @@ const allocationChartOption = computed<EChartsOption>(() => {
         aria-label="Projeção Patrimonial"
         :current-net-worth="computedSummary.total_value"
         :invested-amount="computedSummary.total_cost"
-        :monthly-contribution="projectedMonthlyContribution"
         :goals="displayGoals"
       />
 
       <section class="portfolio-analytics-grid">
-        <article id="portfolio-performance" class="mp-panel portfolio-performance">
-          <div class="panel-heading">
-            <div>
-              <h2>Evolução Patrimonial</h2>
-              <p>Acompanhamento histórico da carteira vs. benchmark</p>
-            </div>
-            <div class="range-tabs" aria-label="Intervalo de performance">
-              <button type="button">1M</button>
-              <button type="button">6M</button>
-              <button type="button" class="is-active">1A</button>
-              <button type="button">TUDO</button>
-            </div>
-          </div>
-          <UiChart :option="performanceChartOption" height="320px" />
-        </article>
-
         <article id="portfolio-allocation" class="mp-panel portfolio-allocation">
           <div class="panel-heading panel-heading--stacked">
             <h2>Alocação por Classe</h2>
@@ -611,15 +482,6 @@ const allocationChartOption = computed<EChartsOption>(() => {
             <h2>Posição Detalhada de Ativos</h2>
             <p>Visão técnica avançada (TradeMap View)</p>
           </div>
-          <label class="position-filter" for="portfolio-position-filter">
-            <Filter :size="13" aria-hidden="true" />
-            <select id="portfolio-position-filter">
-              <option>Todos os Ativos</option>
-              <option>Ações</option>
-              <option>FIIs</option>
-              <option>Renda Fixa</option>
-            </select>
-          </label>
         </div>
 
         <div class="positions-table-wrap">
@@ -709,7 +571,6 @@ const allocationChartOption = computed<EChartsOption>(() => {
 
 .portfolio-header,
 .portfolio-header__title,
-.portfolio-header__actions,
 .summary-kpis,
 .portfolio-analytics-grid,
 .kpi-heading,
@@ -748,14 +609,6 @@ const allocationChartOption = computed<EChartsOption>(() => {
   font-size: var(--font-size-sm);
 }
 
-.portfolio-menu {
-  display: none;
-}
-
-.portfolio-header__actions {
-  align-items: center;
-}
-
 .portfolio-empty-state {
   border: 1px solid var(--mp-border);
   border-radius: var(--radius-lg);
@@ -773,36 +626,7 @@ const allocationChartOption = computed<EChartsOption>(() => {
   box-shadow: var(--mp-panel-shadow);
 }
 
-.search-field {
-  display: inline-flex;
-  min-height: 40px;
-  width: 260px;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid var(--mp-border);
-  border-radius: var(--radius-full);
-  padding: 0 14px;
-  background: var(--mp-card);
-  color: var(--mp-muted);
-}
-
-.search-field input {
-  width: 100%;
-  border: 0;
-  outline: 0;
-  background: transparent;
-  color: var(--mp-text);
-  font: inherit;
-  font-size: var(--font-size-sm);
-}
-
-.search-field input::placeholder {
-  color: var(--mp-muted);
-}
-
 .mp-button,
-.icon-button,
-.range-tabs button,
 .table-action {
   border: 1px solid var(--mp-border);
   border-radius: var(--radius-xs);
@@ -828,30 +652,6 @@ const allocationChartOption = computed<EChartsOption>(() => {
   background: var(--mp-cyan);
   color: var(--color-text-on-brand);
   box-shadow: var(--shadow-brand-glow-sm);
-}
-
-.mp-button--ghost {
-  border-color: var(--color-brand-glow-sm);
-  color: var(--mp-cyan);
-  background: var(--mp-brand-soft);
-}
-
-.icon-button {
-  position: relative;
-  width: 40px;
-  padding: 0;
-  color: var(--mp-muted);
-}
-
-.icon-button span {
-  position: absolute;
-  top: 9px;
-  right: 9px;
-  width: 9px;
-  height: 9px;
-  border: 1px solid var(--mp-surface);
-  border-radius: 50%;
-  background: var(--mp-lime);
 }
 
 .summary-kpis {
@@ -914,11 +714,6 @@ const allocationChartOption = computed<EChartsOption>(() => {
   font-size: var(--font-size-xs);
 }
 
-.kpi-year {
-  color: var(--mp-muted);
-  font-size: var(--font-size-xs);
-}
-
 .kpi-actions {
   margin-top: 28px;
 }
@@ -942,6 +737,11 @@ const allocationChartOption = computed<EChartsOption>(() => {
   background: var(--color-positive-bg);
 }
 
+.trend-pill--negative {
+  color: var(--mp-red);
+  background: var(--color-negative-bg);
+}
+
 .comparison-line {
   align-items: center;
   margin-top: 16px;
@@ -963,7 +763,7 @@ const allocationChartOption = computed<EChartsOption>(() => {
 
 .portfolio-analytics-grid {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .mp-panel {
@@ -978,26 +778,6 @@ const allocationChartOption = computed<EChartsOption>(() => {
 
 .panel-heading--stacked {
   display: block;
-}
-
-.range-tabs {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.range-tabs button {
-  min-height: 30px;
-  border-color: var(--mp-border);
-  padding: 0 10px;
-  color: var(--mp-muted);
-  background: transparent;
-}
-
-.range-tabs button.is-active {
-  border-color: var(--color-brand-glow-md);
-  background: var(--mp-brand-soft);
-  color: var(--mp-cyan);
 }
 
 .allocation-chart {
@@ -1093,26 +873,6 @@ const allocationChartOption = computed<EChartsOption>(() => {
   border-bottom: 1px solid var(--mp-border);
   padding: 24px;
   background: var(--mp-card-strong);
-}
-
-.position-filter {
-  display: inline-flex;
-  min-height: 34px;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid var(--mp-border);
-  border-radius: var(--radius-xs);
-  padding: 0 10px;
-  background: var(--mp-card-strong);
-  color: var(--mp-muted);
-}
-
-.position-filter select {
-  border: 0;
-  background: transparent;
-  color: var(--mp-text);
-  font: inherit;
-  font-size: var(--font-size-xs);
 }
 
 .positions-table-wrap {
@@ -1224,10 +984,6 @@ td.is-numeric.is-negative {
   .portfolio-analytics-grid {
     grid-template-columns: 1fr;
   }
-
-  .search-field {
-    width: 220px;
-  }
 }
 
 @media (max-width: 760px) {
@@ -1236,32 +992,14 @@ td.is-numeric.is-negative {
   }
 
   .portfolio-header,
-  .portfolio-header__actions,
   .panel-heading,
   .positions-header {
     align-items: stretch;
     flex-direction: column;
   }
 
-  .portfolio-menu {
-    display: inline-flex;
-    width: 40px;
-    height: 40px;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--mp-border);
-    border-radius: var(--radius-sm);
-    background: var(--mp-card);
-    color: var(--mp-muted);
-  }
-
-  .portfolio-header__actions,
   .kpi-actions {
     flex-wrap: wrap;
-  }
-
-  .search-field {
-    width: 100%;
   }
 
   .portfolio-kpi,
