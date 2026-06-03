@@ -1,12 +1,14 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mount, type VueWrapper } from "@vue/test-utils";
 import { createPinia } from "pinia";
-import { ref, type Ref } from "vue";
+import { nextTick, reactive, ref, type Ref } from "vue";
 import UiAppShell from "../UiAppShell.vue";
 import { LayoutDashboard, Wallet } from "lucide-vue-next";
 
+const routeMock = reactive({ path: "/dashboard" });
+
 vi.mock("vue-router", () => ({
-  useRoute: (): { path: string } => ({ path: "/dashboard" }),
+  useRoute: (): { path: string } => routeMock,
 }));
 
 vi.mock("~/composables/useSidebarState", () => ({
@@ -23,8 +25,14 @@ vi.mock("~/composables/useSidebarState", () => ({
   }),
 }));
 
-const closeDrawerMock = vi.fn();
-const openDrawerMock = vi.fn();
+const closeDrawerMock = vi.fn(() => {
+  isDrawerOpenRef.value = false;
+});
+const openDrawerMock = vi.fn(() => {
+  isDrawerOpenRef.value = true;
+});
+const isMobileRef = ref(false);
+const isDrawerOpenRef = ref(false);
 
 vi.mock("~/composables/useResponsiveShell", () => ({
   useResponsiveShell: (): {
@@ -34,8 +42,8 @@ vi.mock("~/composables/useResponsiveShell", () => ({
     closeDrawer: () => void;
     toggleDrawer: () => void;
   } => ({
-    isMobile: ref(false),
-    isDrawerOpen: ref(false),
+    isMobile: isMobileRef,
+    isDrawerOpen: isDrawerOpenRef,
     openDrawer: openDrawerMock,
     closeDrawer: closeDrawerMock,
     toggleDrawer: vi.fn(),
@@ -105,6 +113,14 @@ const mountWithTopbarEmitting = (event: string, payload?: unknown): VueWrapper =
   });
 
 describe("UiAppShell", () => {
+  beforeEach(() => {
+    routeMock.path = "/dashboard";
+    isMobileRef.value = false;
+    isDrawerOpenRef.value = false;
+    closeDrawerMock.mockClear();
+    openDrawerMock.mockClear();
+  });
+
   it("renders sidebar and main area", () => {
     const wrapper = mount(UiAppShell, {
       props: defaultProps,
@@ -169,6 +185,26 @@ describe("UiAppShell", () => {
   it("emits user-logout when topbar emits user-logout", () => {
     const wrapper = mountWithTopbarEmitting("user-logout");
     expect(wrapper.emitted("user-logout")).toBeTruthy();
+  });
+
+  it("closes the mobile drawer when the route changes", async () => {
+    isMobileRef.value = true;
+    isDrawerOpenRef.value = true;
+    const wrapper = mount(UiAppShell, {
+      props: defaultProps,
+      global: globalConfig,
+    });
+    expect(
+      wrapper.find(".ui-app-shell__sidebar--drawer-open").exists(),
+    ).toBe(true);
+
+    routeMock.path = "/carteira";
+    await nextTick();
+
+    expect(closeDrawerMock).toHaveBeenCalled();
+    expect(
+      wrapper.find(".ui-app-shell__sidebar--drawer-open").exists(),
+    ).toBe(false);
   });
 
   it("snapshot default state", () => {

@@ -1822,6 +1822,15 @@
       "ctaUpgrade": "Ver planos"
     }
   },
+  "insights": {
+    "history": {
+      "pastTitle": "Insights anteriores",
+      "noTodayYet": "Você ainda não gerou um insight hoje — veja seus insights anteriores:",
+      "empty": "Nenhum insight gerado ainda. Gere o primeiro insight para começar.",
+      "loadErrorTitle": "Não foi possível carregar os insights",
+      "loadErrorMessage": "Tente novamente em alguns instantes."
+    }
+  },
   "transactions": {
     "title": "Transações",
     "subtitle": "Receitas e despesas registradas",
