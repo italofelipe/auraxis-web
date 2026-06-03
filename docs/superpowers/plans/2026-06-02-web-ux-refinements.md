@@ -105,7 +105,7 @@ git commit -m "fix(http): share a single Axios instance so token refresh is sing
 - [ ] **Step 10: Open PR**
 
 ```bash
-gh pr create --fill --base master --head fix/976-http-singleton --body "Closes #976"
+gh pr create --fill --base main --head fix/976-http-singleton --body "Closes #976"
 gh pr merge --merge --auto
 ```
 
@@ -178,7 +178,7 @@ git commit -m "fix(toast): dedup identical toasts and cap to one visible (#977)"
 - [ ] **Step 8: PR**
 
 ```bash
-gh pr create --fill --base master --body "Closes #977" && gh pr merge --merge --auto
+gh pr create --fill --base main --body "Closes #977" && gh pr merge --merge --auto
 ```
 
 ---
@@ -237,7 +237,7 @@ In `nuxt.config.ts` set `app: { pageTransition: { name: "page", mode: "out-in" }
 pnpm quality-check
 git add app/components/ui/UiAppShell/UiAppShell.vue app/components/ui/UiAppShell/__tests__/UiAppShell.spec.ts nuxt.config.ts app/assets
 git commit -m "fix(shell): close mobile drawer on navigation + page transition (#978)"
-gh pr create --fill --base master --body "Closes #978" && gh pr merge --merge --auto
+gh pr create --fill --base main --body "Closes #978" && gh pr merge --merge --auto
 ```
 
 **AC verification:** On a 375px viewport, open drawer → tap a nav item → page transitions and drawer closes.
@@ -295,7 +295,7 @@ For each dead control: give it the correct action (route/handler) or remove it. 
 pnpm quality-check
 git add app/pages/portfolio.vue app/components/wallet docs/superpowers/reports/2026-06-02-wallet-audit.md
 git commit -m "fix(wallet): remove hardcoded values and wire dead CTAs on Carteira (#979)"
-gh pr create --fill --base master --body "Closes #979" && gh pr merge --merge --auto
+gh pr create --fill --base main --body "Closes #979" && gh pr merge --merge --auto
 ```
 
 ---
@@ -391,7 +391,7 @@ Add/extend `pages` or a focused component spec: with a today-insight present, as
 pnpm quality-check
 git add app/features/ai-insights app/pages/transactions/index.vue app/i18n/locales/pt.json
 git commit -m "feat(insights): show today's insight + past-insights accordion on Transactions (#980)"
-gh pr create --fill --base master --body "Closes #980" && gh pr merge --merge --auto
+gh pr create --fill --base main --body "Closes #980" && gh pr merge --merge --auto
 ```
 
 ---
@@ -441,7 +441,7 @@ In `UiTopbar.vue`, wrap the `extras` slot in a `<div class="ui-topbar__extras-ro
 pnpm quality-check
 git add app/components/ui/UiTopbar app/components/ui/UiPageHeader
 git commit -m "feat(ui): two-tier responsive header on mobile (#981)"
-gh pr create --fill --base master --body "Closes #981" && gh pr merge --merge --auto
+gh pr create --fill --base main --body "Closes #981" && gh pr merge --merge --auto
 ```
 
 **AC verification:** 360–767px → title row + separate Premium row, nothing clipped; ≥768px unchanged.
@@ -515,7 +515,7 @@ function onDayClick(day: CalendarDay): void {
 pnpm quality-check
 git add app/features/dashboard/components/DashboardCalendarPanel.vue app/features/dashboard/components/__tests__/DashboardCalendarPanel.spec.ts
 git commit -m "feat(dashboard): financial calendar panel with day-detail modal (#983)"
-gh pr create --fill --base master --body "Closes #983" && gh pr merge --merge --auto
+gh pr create --fill --base main --body "Closes #983" && gh pr merge --merge --auto
 ```
 
 ---
@@ -569,7 +569,7 @@ In `pages/dashboard.vue`, add `<DashboardCalendarPanel class="dashboard-page__ca
 pnpm quality-check
 git add app/features/dashboard app/pages/dashboard.vue
 git commit -m "feat(dashboard): calendar-hero revamp; drop low-value panels (#982)"
-gh pr create --fill --base master --body "Closes #982" && gh pr merge --merge --auto
+gh pr create --fill --base main --body "Closes #982" && gh pr merge --merge --auto
 ```
 
 **AC verification:** Dashboard shows KPIs + comparatives + cashflow + categories + prominent calendar; no empty/low-value panels; only real data.
