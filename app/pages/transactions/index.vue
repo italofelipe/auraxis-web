@@ -11,6 +11,7 @@ import TransactionToolbar from "~/features/transactions/components/TransactionTo
 import TransactionExportModal from "~/features/transactions/components/TransactionExportModal.vue";
 import TransactionPaymentModal from "~/features/transactions/components/TransactionPaymentModal.vue";
 import AiInsightSurface from "~/features/ai-insights/components/AiInsightSurface.vue";
+import TransactionsInsightPanel from "~/features/ai-insights/components/TransactionsInsightPanel.vue";
 import { resolveInsightAnchorDate } from "~/features/ai-insights/model/ai-insight";
 import { formatCurrency } from "~/utils/currency";
 
@@ -218,6 +219,11 @@ const totalBalance = computed(() => totalIncome.value - totalExpense.value);
       class="transactions-page__ai-insights"
       dimension="transactions"
       :anchor-date="insightAnchorDate"
+    />
+
+    <TransactionsInsightPanel
+      class="transactions-page__ai-insights"
+      dimension="transactions"
     />
 
   </div>
