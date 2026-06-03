@@ -6,12 +6,21 @@ import DashboardControlBar from "~/features/dashboard/components/DashboardContro
 import WeeklySnapshotCard from "~/features/weekly-snapshot/components/WeeklySnapshotCard.vue";
 import DashboardMarketPulseWorkspace from "~/features/dashboard/components/DashboardMarketPulseWorkspace.vue";
 import DashboardCalendarPanel from "~/features/dashboard/components/DashboardCalendarPanel.vue";
+import DashboardInsightCarousel, {
+  type CarouselDue,
+  type CarouselGoal,
+  type CarouselHealth,
+} from "~/features/dashboard/components/DashboardInsightCarousel.vue";
 import AiInsightSurface from "~/features/ai-insights/components/AiInsightSurface.vue";
 import SpendingInsightCard from "~/features/spending-patterns/components/SpendingInsightCard.vue";
 import OnboardingSkipNudge from "~/features/onboarding/components/OnboardingSkipNudge.vue";
 import { useDashboardOverviewQuery } from "~/features/dashboard/queries/use-dashboard-overview-query";
 import { useDashboardTrendsQuery } from "~/features/dashboard/queries/use-dashboard-trends-query";
+import { useFinancialHealthScore } from "~/features/dashboard/composables/useFinancialHealthScore";
+import { useGoalsQuery } from "~/features/goals/queries/use-goals-query";
+import { useDueRangeQuery } from "~/features/transactions/queries/use-due-range-query";
 import type {
+  DashboardGoalSummary,
   DashboardOverviewFilters,
   DashboardPeriodPreset,
 } from "~/features/dashboard/model/dashboard-overview";
@@ -59,7 +68,8 @@ const filters = computed<DashboardOverviewFilters>(() => {
 });
 
 const dashboardQuery = useDashboardOverviewQuery(filters);
-const trendsMonths = ref<number>(6);
+// 12 months powers the chronological cash-flow timeline (retrospective + now).
+const trendsMonths = ref<number>(12);
 const trendsQuery = useDashboardTrendsQuery(trendsMonths);
 
 const overview = computed(() => dashboardQuery.data.value);
@@ -68,6 +78,79 @@ const comparison = computed(() => overview.value?.comparison ?? null);
 const timeseries = computed(() => overview.value?.timeseries ?? []);
 const expensesByCategory = computed(() => overview.value?.expensesByCategory ?? []);
 const trendsSeries = computed(() => trendsQuery.data.value?.series ?? []);
+
+// ── Insight carousel data (replaces the empty month-over-month strip) ─────────
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+const goalsQuery = useGoalsQuery();
+const dueRangeQuery = useDueRangeQuery();
+
+const carouselDues = computed<CarouselDue[]>(() => {
+  const items = dueRangeQuery.data.value?.transactions ?? [];
+  const todayMs = new Date(new Date().toISOString().slice(0, 10)).getTime();
+  return items
+    .filter((tx) => tx.type === "expense" && tx.status !== "paid" && tx.status !== "cancelled")
+    .slice(0, 5)
+    .map((tx) => {
+      const dueMs = new Date(`${tx.due_date}T00:00:00`).getTime();
+      const daysLeft = Math.round((dueMs - todayMs) / MS_PER_DAY);
+      return {
+        id: tx.id,
+        title: tx.title,
+        amount: Number(tx.amount),
+        dueDate: tx.due_date,
+        daysLeft: Math.max(daysLeft, 0),
+        overdue: tx.status === "overdue" || daysLeft < 0,
+      };
+    });
+});
+
+const carouselGoals = computed<CarouselGoal[]>(() =>
+  (goalsQuery.data.value ?? [])
+    .filter((goal) => goal.status === "active")
+    .slice(0, 4)
+    .map((goal) => ({
+      id: goal.id,
+      name: goal.name,
+      current: goal.current_amount,
+      target: goal.target_amount,
+      percent: goal.target_amount > 0 ? (goal.current_amount / goal.target_amount) * 100 : 0,
+    })),
+);
+
+const carouselExpenses = computed(() =>
+  [...expensesByCategory.value].sort((a, b) => b.amount - a.amount).slice(0, 5),
+);
+
+const healthGoals = computed<DashboardGoalSummary[]>(() =>
+  (goalsQuery.data.value ?? [])
+    .filter((goal) => goal.status === "active")
+    .map((goal) => ({
+      id: goal.id,
+      name: goal.name,
+      progressPercent:
+        goal.target_amount > 0 ? (goal.current_amount / goal.target_amount) * 100 : 0,
+      currentAmount: goal.current_amount,
+      targetAmount: goal.target_amount,
+      targetDate: goal.target_date ?? null,
+    })),
+);
+
+const { score: healthScore } = useFinancialHealthScore(
+  computed(() => ({
+    summary: summary.value,
+    goals: healthGoals.value,
+    trends: trendsSeries.value,
+    portfolioValue: null,
+    walletEntries: [],
+  })),
+);
+
+const carouselHealth = computed<CarouselHealth | null>(() =>
+  summary.value
+    ? { score: healthScore.value.totalScore, tier: healthScore.value.tier }
+    : null,
+);
 
 const isCustomPeriodIncomplete = computed(
   () => selectedPeriod.value === "custom" && (!customStartTs.value || !customEndTs.value),
@@ -168,6 +251,15 @@ const closeFirstTransactionForm = (): void => {
         :trends="trendsSeries"
         :mode="selectedMode"
         :loading="dashboardQuery.isLoading.value || trendsQuery.isLoading.value"
+      />
+
+      <DashboardInsightCarousel
+        v-if="!dashboardQuery.isError.value && summary"
+        class="dashboard-page__carousel"
+        :upcoming-dues="carouselDues"
+        :goals="carouselGoals"
+        :top-expenses="carouselExpenses"
+        :health="carouselHealth"
       />
 
       <DashboardCalendarPanel

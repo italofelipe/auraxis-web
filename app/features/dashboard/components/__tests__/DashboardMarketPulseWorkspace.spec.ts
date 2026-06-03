@@ -101,7 +101,7 @@ describe("DashboardMarketPulseWorkspace", () => {
     expect(wrapper.text()).toContain("Despesas (Mês)");
     expect(wrapper.text()).toContain("Saldo Líquido");
     expect(wrapper.text()).toContain("Taxa de poupança");
-    expect(wrapper.text()).toContain("Fluxo de Caixa Acumulado");
+    expect(wrapper.text()).toContain("Fluxo de Caixa (mensal)");
     expect(wrapper.text()).toContain("Gastos por Categoria");
   });
 
@@ -110,19 +110,6 @@ describe("DashboardMarketPulseWorkspace", () => {
 
     expect(wrapper.text()).not.toContain("Transações Recentes");
     expect(wrapper.text()).not.toContain("Anomalias Detectadas");
-  });
-
-  it("renders the month-over-month comparatives strip from real comparison data", () => {
-    const wrapper = mountWorkspace();
-
-    expect(wrapper.text()).toContain("Comparativo com o mês anterior");
-
-    const badges = wrapper.findAll(".trend-badge-stub");
-    expect(badges).toHaveLength(3);
-    // income +12.5%, expense -4.2% inverted to +4.2, balance +28.4%
-    expect(badges[0]?.attributes("data-value")).toBe("12.5");
-    expect(badges[1]?.attributes("data-value")).toBe("4.2");
-    expect(badges[2]?.attributes("data-value")).toBe("28.4");
   });
 
   it("uses trend data instead of a blank empty state when daily timeseries is empty", () => {

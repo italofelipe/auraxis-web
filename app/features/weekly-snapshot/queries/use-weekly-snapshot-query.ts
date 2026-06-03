@@ -35,5 +35,8 @@ export const useWeeklySnapshotQuery = (
     queryFn: (): Promise<WeeklySnapshot> => client.getWeeklySnapshot(),
     enabled: (): boolean => toValue(options.enabled ?? true),
     staleTime: STALE_TIME.STATIC,
+    // The endpoint is read-only and cheap, but a transient 429/5xx must not
+    // fan out into a retry storm (the dashboard mounts this once). One attempt.
+    retry: false,
   });
 };

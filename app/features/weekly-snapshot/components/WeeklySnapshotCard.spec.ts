@@ -110,6 +110,19 @@ describe("WeeklySnapshotCard", () => {
     expect(w.findAll(".ui-metric-card").length).toBe(3);
   });
 
+  it("shows a pending hint (and no narrative/badge) when not yet generated", () => {
+    mockHasPremium.value = true;
+    mockData.value = { ...SNAPSHOT, narrative: "" };
+    const w = mountCard();
+    expect(w.find("[data-testid='weekly-snapshot-pending']").exists()).toBe(true);
+    expect(w.text()).toContain("weeklySnapshot.pending");
+    // Metrics still render even without a narrative.
+    expect(w.findAll(".ui-metric-card").length).toBe(3);
+    // No NEW badge / mark-seen action without a real narrative.
+    expect(w.find("[data-testid='weekly-snapshot-new-badge']").exists()).toBe(false);
+    expect(w.find("[data-testid='weekly-snapshot-mark-seen']").exists()).toBe(false);
+  });
+
   it("shows the NOVO badge when unseen and clears it on mark-seen", async () => {
     mockHasPremium.value = true;
     mockData.value = SNAPSHOT;

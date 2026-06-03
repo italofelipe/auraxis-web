@@ -16,7 +16,6 @@ import {
 import { NButton } from "naive-ui";
 
 import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
-import DashboardPeriodComparisonStrip from "~/features/dashboard/components/DashboardPeriodComparisonStrip.vue";
 import { formatCurrency } from "~/utils/currency";
 import { useTheme } from "~/composables/useTheme";
 import { buildChartThemeTokens, type ChartThemeTokens, withAlpha } from "~/utils/chart-theme";
@@ -174,12 +173,15 @@ function calculateSavingsRate(summary: DashboardSummary | null): number {
 }
 
 /**
- * Builds the chart source, falling back from daily points to trend months and
- * finally to the current summary so the chart never becomes a giant blank area.
+ * Builds the chart source as a chronological monthly timeline.
+ *
+ * The cash-flow widget is retrospective by design: it prefers the multi-month
+ * trend series ("where I was → where I am") and only falls back to the current
+ * period's daily points, then to the bare summary, so it never renders blank.
  *
  * @param summary Current dashboard summary.
- * @param timeseries Daily cashflow points.
- * @param trends Monthly trend series.
+ * @param timeseries Daily cashflow points (current period).
+ * @param trends Monthly trend series (last N months).
  * @returns Normalized cashflow points.
  */
 function buildCashflowPoints(
@@ -187,20 +189,20 @@ function buildCashflowPoints(
   timeseries: DashboardTimeseriesPoint[],
   trends: DashboardTrendsMonthEntry[],
 ): CashflowPoint[] {
-  if (timeseries.length > 0) {
-    return timeseries.map((point) => ({
-      label: formatShortDate(point.date),
-      income: point.income,
-      expense: point.expense,
-      balance: point.balance,
-    }));
-  }
-
   if (trends.length > 0) {
     return trends.map((point) => ({
       label: formatMonth(point.month),
       income: point.income,
       expense: point.expenses,
+      balance: point.balance,
+    }));
+  }
+
+  if (timeseries.length > 0) {
+    return timeseries.map((point) => ({
+      label: formatShortDate(point.date),
+      income: point.income,
+      expense: point.expense,
       balance: point.balance,
     }));
   }
@@ -560,12 +562,6 @@ const chartUpdateKey = computed((): string =>
         </article>
       </section>
 
-      <DashboardPeriodComparisonStrip
-        class="market-pulse__comparison"
-        :comparison="props.comparison"
-        :loading="props.loading"
-      />
-
       <section
         v-if="executiveSignals.length > 0"
         class="market-pulse__insights"
@@ -589,8 +585,8 @@ const chartUpdateKey = computed((): string =>
         <UiSurfaceCard class="market-panel market-panel--cashflow" padding="none">
           <header class="market-panel__header">
             <div>
-              <h2>Fluxo de Caixa Acumulado</h2>
-              <p>Análise de entradas, saídas e saldo no período</p>
+              <h2>Fluxo de Caixa (mensal)</h2>
+              <p>Linha do tempo de entradas, saídas e saldo nos últimos meses</p>
             </div>
             <div class="market-legend" aria-label="Legenda do fluxo de caixa">
               <span class="market-legend__item market-legend__item--income">Receitas</span>
