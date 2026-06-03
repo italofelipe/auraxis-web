@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nuxt";
 import axios, { type AxiosInstance, type RawAxiosRequestHeaders } from "axios";
 import { useDialog } from "naive-ui";
 
@@ -126,7 +127,20 @@ export const refreshAccessToken = async (
       sessionStore.updateTokens(token);
     }
     return token;
-  } catch {
+  } catch (error) {
+    // A 401 means the refresh cookie is genuinely expired/absent — an expected
+    // sign-out, not an incident, so it stays out of Sentry to avoid flooding it
+    // on every normal session expiry. Anything else (network error, a blocked
+    // CORS preflight, 5xx — i.e. no/unexpected response) IS an incident and must
+    // be visible: this silent catch previously masked a CORS misconfig that
+    // logged users out on every reload (api #1437 / web #998).
+    const status = axios.isAxiosError(error) ? error.response?.status : undefined;
+    if (status !== 401) {
+      Sentry.captureException(error, {
+        tags: { feature: "auth", flow: "session-refresh" },
+        extra: { apiBase, httpStatus: status ?? null },
+      });
+    }
     sessionStore.signOut();
     return null;
   }
