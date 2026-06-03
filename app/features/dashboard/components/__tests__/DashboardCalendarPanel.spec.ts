@@ -3,7 +3,7 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 
 import DashboardCalendarPanel from "../DashboardCalendarPanel.vue";
-import type { CalendarDay } from "~/shared/types/financial-calendar";
+import type { CalendarDay } from "~/components/financial-calendar/FinancialCalendar/FinancialCalendar.types";
 
 const UiSurfaceCardStub = defineComponent({
   name: "UiSurfaceCard",

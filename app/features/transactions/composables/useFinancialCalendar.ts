@@ -3,7 +3,7 @@ import type { TransactionDto } from "~/features/transactions/contracts/transacti
 import type { TransactionsClient } from "~/features/transactions/services/transactions.client";
 import { useListTransactionsQuery } from "~/features/transactions/queries/use-list-transactions-query";
 import { parseCurrencyAmount } from "~/utils/currencyInput";
-import type { CalendarDay } from "~/shared/types/financial-calendar";
+import type { CalendarDay } from "~/components/financial-calendar/FinancialCalendar/FinancialCalendar.types";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

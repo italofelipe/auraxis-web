@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import type { CalendarDay } from "~/shared/types/financial-calendar";
+import type { CalendarDay } from "~/components/financial-calendar/FinancialCalendar/FinancialCalendar.types";
 
 /** The day whose detail modal is currently open, or null when closed. */
 const selectedDay = ref<CalendarDay | null>(null);
