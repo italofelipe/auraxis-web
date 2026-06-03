@@ -192,4 +192,22 @@ describe("UiTopbar", () => {
     });
     expect(wrapper.find(".ui-user-menu").exists()).toBe(true);
   });
+
+  it("renders the extras row container", () => {
+    const wrapper = mount(UiTopbar, {
+      props: { title: "Dashboard", userName: "João Silva" },
+    });
+    expect(wrapper.find("[data-testid='topbar-extras-row']").exists()).toBe(true);
+  });
+
+  it("renders slotted extras content inside the extras row (two-tier header)", () => {
+    const wrapper = mount(UiTopbar, {
+      props: { title: "Dashboard", userName: "João Silva", showMenuButton: true },
+      slots: { extras: (): unknown => h("span", { class: "premium-badge" }, "Premium") },
+    });
+    const extrasRow = wrapper.find("[data-testid='topbar-extras-row']");
+    expect(extrasRow.exists()).toBe(true);
+    expect(extrasRow.find(".premium-badge").exists()).toBe(true);
+    expect(extrasRow.text()).toContain("Premium");
+  });
 });
