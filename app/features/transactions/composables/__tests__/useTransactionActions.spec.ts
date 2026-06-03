@@ -113,13 +113,35 @@ describe("useTransactionActions", () => {
     expect(refetch).toHaveBeenCalledTimes(1);
   });
 
-  it("confirmDelete calls deleteMutation.mutate with the target id", () => {
+  it("confirmDelete calls deleteMutation.mutate with the target id (occurrence default)", () => {
     const { showDeleteConfirm, handleDeleteClick, confirmDelete } = useTransactionActions(vi.fn());
     const tx = makeTransaction({ id: "tx-99" });
     handleDeleteClick(tx);
     confirmDelete();
-    expect(mockDeleteMutate).toHaveBeenCalledWith("tx-99", expect.any(Object));
+    expect(mockDeleteMutate).toHaveBeenCalledWith(
+      { id: "tx-99", scope: "occurrence" },
+      expect.any(Object),
+    );
     expect(showDeleteConfirm.value).toBe(true); // still open until mutation succeeds
+  });
+
+  it("confirmDelete('series') forwards the series scope", () => {
+    mockDeleteMutate.mockClear();
+    const { handleDeleteClick, confirmDelete } = useTransactionActions(vi.fn());
+    handleDeleteClick(makeTransaction({ id: "tx-rec", is_recurring: true }));
+    confirmDelete("series");
+    expect(mockDeleteMutate).toHaveBeenCalledWith(
+      { id: "tx-rec", scope: "series" },
+      expect.any(Object),
+    );
+  });
+
+  it("isSeriesTarget reflects recurring/installment targets", () => {
+    const { handleDeleteClick, isSeriesTarget } = useTransactionActions(vi.fn());
+    handleDeleteClick(makeTransaction({ id: "tx-1", is_recurring: false, is_installment: false }));
+    expect(isSeriesTarget.value).toBe(false);
+    handleDeleteClick(makeTransaction({ id: "tx-2", is_recurring: true }));
+    expect(isSeriesTarget.value).toBe(true);
   });
 
   it("confirmDelete does nothing when deleteTarget is null", () => {
