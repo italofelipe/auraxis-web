@@ -116,6 +116,7 @@
     "subscription": "Assinatura",
     "personalData": "Dados Pessoais",
     "transactions": "Transações",
+    "creditCards": "Cartões",
     "focus": "Foco",
     "insights": "Insights IA"
   },
@@ -604,6 +605,9 @@
           "utilizationLabel": "Utilizado: {pct}% · {committed} / {limit}",
           "validity": "Validade",
           "viewBill": "Ver fatura"
+        },
+        "detail": {
+          "addExpense": "Adicionar despesa"
         },
         "bill": {
           "back": "Voltar",

@@ -26,6 +26,7 @@ const {
   creditCardOptions,
   statusOptions,
   showCreditCard,
+  lockCreditCard,
   showInstallment,
   showInstallmentCount,
   showEndDate,
@@ -38,6 +39,7 @@ const {
 } = useQuickTransactionForm({
   type: typeRef,
   t,
+  presetCreditCardId: props.presetCreditCardId,
   onSuccess: () => {
     emit("success");
     emit("update:visible", false);
@@ -90,6 +92,7 @@ function handleClose(): void {
         :credit-card-options="creditCardOptions"
         :status-options="statusOptions"
         :show-credit-card="showCreditCard"
+        :lock-credit-card="lockCreditCard"
         :show-installment="showInstallment"
         :show-installment-count="showInstallmentCount"
         :show-end-date="showEndDate"

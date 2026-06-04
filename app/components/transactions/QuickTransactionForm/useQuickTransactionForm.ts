@@ -59,16 +59,19 @@ function tsToDate(ts: number): string {
 /**
  * Produces a fresh QuickTransactionFormState populated with defaults.
  *
+ * @param presetCreditCardId Optional card id to seed `credit_card_id` with.
  * @returns A plain object that can seed a reactive form.
  */
-function createDefaultFormState(): QuickTransactionFormState {
+function createDefaultFormState(
+  presetCreditCardId?: string,
+): QuickTransactionFormState {
   return {
     title: "",
     amount: null,
     due_date: null,
     tag_id: null,
     account_id: null,
-    credit_card_id: null,
+    credit_card_id: presetCreditCardId ?? null,
     status: "pending" as TransactionStatusDto,
     description: "",
     is_installment: false,
@@ -84,6 +87,8 @@ export interface UseQuickTransactionFormOptions {
   type: Ref<TransactionTypeDto> | ComputedRef<TransactionTypeDto>;
   t: (key: string) => string;
   onSuccess: () => void;
+  /** When set, the credit card is pre-selected and locked. */
+  presetCreditCardId?: string;
 }
 
 /* eslint-disable max-lines-per-function, max-statements, @typescript-eslint/explicit-function-return-type, @typescript-eslint/explicit-module-boundary-types -- return type is inferred from composable shape */
@@ -95,9 +100,11 @@ export interface UseQuickTransactionFormOptions {
  * @returns Reactive form bindings, computed options, rules and submit/reset handlers.
  */
 export function useQuickTransactionForm(opts: UseQuickTransactionFormOptions) {
-  const { type, t, onSuccess } = opts;
+  const { type, t, onSuccess, presetCreditCardId } = opts;
   const formRef = ref<FormInst | null>(null);
-  const form = reactive<QuickTransactionFormState>(createDefaultFormState());
+  const form = reactive<QuickTransactionFormState>(
+    createDefaultFormState(presetCreditCardId),
+  );
   provide(QUICK_TRANSACTION_FORM_KEY, form);
 
   const { data: tags } = useTagsQuery();
@@ -113,6 +120,7 @@ export function useQuickTransactionForm(opts: UseQuickTransactionFormOptions) {
     (creditCards.value ?? []).map((c) => ({ label: c.name, value: c.id })));
 
   const showCreditCard = computed((): boolean => type.value === "expense");
+  const lockCreditCard = computed((): boolean => Boolean(presetCreditCardId));
   const showInstallment = computed((): boolean => type.value === "expense");
   const recurringDisabled = computed((): boolean => form.is_installment);
   const showInstallmentCount = computed((): boolean => form.is_installment);
@@ -203,7 +211,7 @@ export function useQuickTransactionForm(opts: UseQuickTransactionFormOptions) {
 
   /** Restores every field in the reactive form back to its default value. */
   function resetForm(): void {
-    Object.assign(form, createDefaultFormState());
+    Object.assign(form, createDefaultFormState(presetCreditCardId));
   }
 
   /** Validates the form and submits via the create-transaction mutation. */
@@ -232,6 +240,7 @@ export function useQuickTransactionForm(opts: UseQuickTransactionFormOptions) {
     creditCardOptions,
     statusOptions,
     showCreditCard,
+    lockCreditCard,
     showInstallment,
     showInstallmentCount,
     showEndDate,
