@@ -127,6 +127,7 @@ export default defineNuxtConfig({
       titleTemplate: "%s | Auraxis",
       link: [
         { rel: "manifest", href: "/manifest.webmanifest" },
+        { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
         { rel: "stylesheet", href: "/css/nuxt-google-fonts.css" },
       ],
       // ── Security meta tags ─────────────────────────────────────────
@@ -167,6 +168,16 @@ export default defineNuxtConfig({
             "Gerencie carteira, metas e finanças pessoais em um só lugar. " +
             "Acompanhe investimentos, simule cenários e tome decisões financeiras com inteligência.",
         },
+        // ── PWA / app-like (iOS standalone) ───────────────────────────
+        // Make the home-screen launch full-screen with a native status bar
+        // and the right app title, so the installed PWA feels like an app on
+        // iOS/Android (the manifest already declares display:standalone).
+        { name: "apple-mobile-web-app-capable", content: "yes" },
+        { name: "mobile-web-app-capable", content: "yes" },
+        { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+        { name: "apple-mobile-web-app-title", content: "Auraxis" },
+        // Stop iOS Safari from auto-linking numbers (balances, dates) as phone calls.
+        { name: "format-detection", content: "telephone=no" },
         // ── Security ──────────────────────────────────────────────────
         { name: "theme-color", content: "#44d4ff" },
         // Restricts referrer info to same origin — protects user session URLs
@@ -446,6 +457,9 @@ export default defineNuxtConfig({
     // Disable PWA's own manifest injection — we manage /public/manifest.webmanifest
     manifest: false,
     workbox: {
+      // Layer Web Push handlers (push + notificationclick) onto the generated
+      // SW without abandoning generateSW. Served from /public/push-sw.js (#1446).
+      importScripts: ["/push-sw.js"],
       // Pre-cache only install/offline shell assets, not the whole app bundle.
       globPatterns: [
         "offline.html",
