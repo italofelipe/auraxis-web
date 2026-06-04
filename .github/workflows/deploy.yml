@@ -92,6 +92,11 @@ jobs:
           # currency conversion). Without it brapi.dev replies 401 and the
           # wallet + tools pages log Unauthorized errors in the browser.
           NUXT_PUBLIC_BRAPI_API_KEY: ${{ secrets.NUXT_PUBLIC_BRAPI_API_KEY }}
+          # Web Push (#1446): the public VAPID key is the browser
+          # applicationServerKey (safe to expose); enabling the flag turns on
+          # the notifications opt-in UI. The private key lives only on the API.
+          NUXT_PUBLIC_PUSH_NOTIFICATIONS_ENABLED: "true"
+          NUXT_PUBLIC_VAPID_PUBLIC_KEY: ${{ vars.NUXT_PUBLIC_VAPID_PUBLIC_KEY }}
         run: pnpm generate
 
       - name: Validate output

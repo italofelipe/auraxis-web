@@ -457,6 +457,9 @@ export default defineNuxtConfig({
     // Disable PWA's own manifest injection — we manage /public/manifest.webmanifest
     manifest: false,
     workbox: {
+      // Layer Web Push handlers (push + notificationclick) onto the generated
+      // SW without abandoning generateSW. Served from /public/push-sw.js (#1446).
+      importScripts: ["/push-sw.js"],
       // Pre-cache only install/offline shell assets, not the whole app bundle.
       globPatterns: [
         "offline.html",
