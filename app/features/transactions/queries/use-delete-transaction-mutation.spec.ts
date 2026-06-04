@@ -28,12 +28,24 @@ describe("useDeleteTransactionMutation", () => {
 		const client = { deleteTransaction: vi.fn().mockResolvedValue(undefined) };
 
 		const mutation = useDeleteTransactionMutation(client as never) as unknown as {
-			mutationFn: (id: string) => Promise<void>;
+			mutationFn: (vars: { id: string; scope?: string }) => Promise<void>;
 		};
 
-		await mutation.mutationFn("txn-abc");
+		await mutation.mutationFn({ id: "txn-abc" });
 
-		expect(client.deleteTransaction).toHaveBeenCalledWith("txn-abc");
+		expect(client.deleteTransaction).toHaveBeenCalledWith("txn-abc", "occurrence");
+	});
+
+	it("forwards the series scope to client.deleteTransaction", async () => {
+		const client = { deleteTransaction: vi.fn().mockResolvedValue(undefined) };
+
+		const mutation = useDeleteTransactionMutation(client as never) as unknown as {
+			mutationFn: (vars: { id: string; scope?: string }) => Promise<void>;
+		};
+
+		await mutation.mutationFn({ id: "txn-abc", scope: "series" });
+
+		expect(client.deleteTransaction).toHaveBeenCalledWith("txn-abc", "series");
 	});
 
 	it("invalidates the transactions list cache on success", async () => {
@@ -54,20 +66,20 @@ describe("useDeleteTransactionMutation", () => {
 		};
 
 		const mutation = useDeleteTransactionMutation(client as never) as unknown as {
-			mutationFn: (id: string) => Promise<void>;
+			mutationFn: (vars: { id: string; scope?: string }) => Promise<void>;
 		};
 
-		await expect(mutation.mutationFn("txn-abc")).rejects.toThrow("delete failed");
+		await expect(mutation.mutationFn({ id: "txn-abc" })).rejects.toThrow("delete failed");
 	});
 
 	it("resolves void on successful deletion", async () => {
 		const client = { deleteTransaction: vi.fn().mockResolvedValue(undefined) };
 
 		const mutation = useDeleteTransactionMutation(client as never) as unknown as {
-			mutationFn: (id: string) => Promise<void>;
+			mutationFn: (vars: { id: string; scope?: string }) => Promise<void>;
 		};
 
-		const result = await mutation.mutationFn("txn-abc");
+		const result = await mutation.mutationFn({ id: "txn-abc" });
 
 		expect(result).toBeUndefined();
 	});

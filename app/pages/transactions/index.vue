@@ -47,7 +47,7 @@ const { data, isLoading, isError, refetch } = useListTransactionsQuery(filters);
 
 const {
   showIncome, showExpense,
-  deleteTarget, showDeleteConfirm, payTarget, showPayConfirm, editTarget, showEditModal,
+  deleteTarget, showDeleteConfirm, isSeriesTarget, payTarget, showPayConfirm, editTarget, showEditModal,
   deleteMutation, markPaidMutation, duplicateMutation,
   handleDeleteClick, confirmDelete, handleMarkPaid, confirmMarkPaid, handleEdit, handleDuplicate, onTransactionCreated,
 } = useTransactionActions(() => void refetch());
@@ -100,7 +100,33 @@ const totalBalance = computed(() => totalIncome.value - totalExpense.value);
     <CreateTagModal :visible="showCreateTag" @update:visible="showCreateTag = $event" />
 
     <!-- ── Delete confirmation ─────────────────────────────────────────────── -->
-    <NModal :show="showDeleteConfirm" preset="dialog" type="error" :title="$t('transactions.action.delete')" :content="$t('transactions.action.deleteConfirm')" :positive-text="$t('transactions.action.deleteConfirmYes')" :negative-text="$t('transactions.action.deleteConfirmNo')" :loading="deleteMutation.isPending.value" @positive-click="confirmDelete" @negative-click="showDeleteConfirm = false" @close="showDeleteConfirm = false" />
+    <!-- Recurring/installment targets get a three-way choice (this one vs the
+         whole series); single transactions keep the simple confirm. -->
+    <NModal
+      :show="showDeleteConfirm"
+      preset="dialog"
+      type="error"
+      :title="$t('transactions.action.delete')"
+      :content="isSeriesTarget ? $t('transactions.action.deleteRecurringConfirm') : $t('transactions.action.deleteConfirm')"
+      @close="showDeleteConfirm = false"
+    >
+      <template #action>
+        <NButton tertiary @click="showDeleteConfirm = false">
+          {{ $t('transactions.action.deleteConfirmNo') }}
+        </NButton>
+        <template v-if="isSeriesTarget">
+          <NButton type="error" ghost :loading="deleteMutation.isPending.value" @click="confirmDelete('occurrence')">
+            {{ $t('transactions.action.deleteOnlyThis') }}
+          </NButton>
+          <NButton type="error" :loading="deleteMutation.isPending.value" @click="confirmDelete('series')">
+            {{ $t('transactions.action.deleteAllSeries') }}
+          </NButton>
+        </template>
+        <NButton v-else type="error" :loading="deleteMutation.isPending.value" @click="confirmDelete('occurrence')">
+          {{ $t('transactions.action.deleteConfirmYes') }}
+        </NButton>
+      </template>
+    </NModal>
 
     <!-- ── Pay / receipt confirmation ─────────────────────────────────────── -->
     <TransactionPaymentModal

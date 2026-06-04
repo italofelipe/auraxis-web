@@ -102,9 +102,15 @@ export class TransactionsClient {
    * Permanently removes a transaction.
    *
    * @param id UUID of the transaction to delete.
+   * @param scope `"series"` soft-deletes the whole recurring series; the
+   *   default (`"occurrence"`) removes only this transaction.
    */
-  async deleteTransaction(id: string): Promise<void> {
-    await this.#http.delete(`/transactions/${id}`);
+  async deleteTransaction(
+    id: string,
+    scope: "occurrence" | "series" = "occurrence",
+  ): Promise<void> {
+    const query = scope === "series" ? "?scope=series" : "";
+    await this.#http.delete(`/transactions/${id}${query}`);
   }
 
   /**
