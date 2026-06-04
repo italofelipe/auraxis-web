@@ -1048,6 +1048,7 @@ export type MutationDeleteTickerArgs = {
 
 
 export type MutationDeleteTransactionArgs = {
+  scope?: InputMaybe<Scalars['String']['input']>;
   transactionId: Scalars['UUID']['input'];
 };
 
