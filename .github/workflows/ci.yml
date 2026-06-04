@@ -448,6 +448,11 @@ jobs:
         run: test -f coverage/lcov.info
       - name: SonarCloud Scan
         if: steps.capability.outputs.enabled == 'true'
+        # Advisory gate (non-required): a present-but-expired/invalid token must
+        # not fail CI. The capability check above only verifies presence, not
+        # validity, so soft-fail here keeps Sonar informational. Regenerate
+        # SONAR_AURAXIS_WEB_TOKEN on sonarcloud.io to restore reporting.
+        continue-on-error: true
         uses: SonarSource/sonarcloud-github-action@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
