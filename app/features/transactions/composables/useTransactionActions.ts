@@ -1,4 +1,4 @@
-import { ref, type Ref } from "vue";
+import { computed, ref, type ComputedRef, type Ref } from "vue";
 import { useDeleteTransactionMutation } from "~/features/transactions/queries/use-delete-transaction-mutation";
 import { useMarkTransactionPaidMutation } from "~/features/transactions/queries/use-mark-transaction-paid-mutation";
 import { useCreateTransactionMutation } from "~/features/transactions/queries/use-create-transaction-mutation";
@@ -36,6 +36,8 @@ export type UseTransactionActionsReturn = {
   showExpense: Ref<boolean>;
   deleteTarget: Ref<TransactionDto | null>;
   showDeleteConfirm: Ref<boolean>;
+  /** True when the delete target is recurring/installment (offer series scope). */
+  isSeriesTarget: ComputedRef<boolean>;
   payTarget: Ref<TransactionDto | null>;
   showPayConfirm: Ref<boolean>;
   paymentDate: Ref<string | null>;
@@ -45,7 +47,7 @@ export type UseTransactionActionsReturn = {
   markPaidMutation: ReturnType<typeof useMarkTransactionPaidMutation>;
   duplicateMutation: ReturnType<typeof useCreateTransactionMutation>;
   handleDeleteClick: (row: TransactionDto) => void;
-  confirmDelete: () => void;
+  confirmDelete: (scope?: "occurrence" | "series") => void;
   handleMarkPaid: (row: TransactionDto) => void;
   confirmMarkPaid: (paidAt?: string) => void;
   handleEdit: (row: TransactionDto) => void;
@@ -69,6 +71,7 @@ export function useTransactionActions(onRefetch: () => void): UseTransactionActi
   const showPayConfirm = ref(false), showEditModal = ref(false);
 
   const deleteTarget = ref<TransactionDto | null>(null);
+  const isSeriesTarget = computed<boolean>(() => Boolean(deleteTarget.value?.is_recurring || deleteTarget.value?.is_installment));
   const payTarget = ref<TransactionDto | null>(null);
   const paymentDate = ref<string | null>(null);
   const editTarget = ref<TransactionDto | null>(null);
@@ -89,16 +92,22 @@ export function useTransactionActions(onRefetch: () => void): UseTransactionActi
 
   /**
    * Confirms and executes the pending deletion.
+   *
+   * @param scope `"series"` deletes the whole recurring series; default
+   *   `"occurrence"` removes only the target transaction.
    */
-  function confirmDelete(): void {
+  function confirmDelete(scope: "occurrence" | "series" = "occurrence"): void {
     if (!deleteTarget.value) { return; }
-    deleteMutation.mutate(deleteTarget.value.id, {
-      onSuccess: () => {
-        showDeleteConfirm.value = false;
-        deleteTarget.value = null;
-        onRefetch();
+    deleteMutation.mutate(
+      { id: deleteTarget.value.id, scope },
+      {
+        onSuccess: () => {
+          showDeleteConfirm.value = false;
+          deleteTarget.value = null;
+          onRefetch();
+        },
       },
-    });
+    );
   }
 
   /**
@@ -165,6 +174,7 @@ export function useTransactionActions(onRefetch: () => void): UseTransactionActi
     showExpense,
     deleteTarget,
     showDeleteConfirm,
+    isSeriesTarget,
     payTarget,
     showPayConfirm,
     paymentDate,

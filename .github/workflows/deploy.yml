@@ -11,8 +11,6 @@ on:
         default: prod
         type: choice
         options:
-          - dev
-          - pilot
           - prod
       api_base_url:
         description: Public API base URL

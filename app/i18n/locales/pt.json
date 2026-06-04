@@ -1899,7 +1899,10 @@
       "delete": "Excluir",
       "deleteConfirm": "Deseja excluir esta transação? Esta ação não pode ser desfeita.",
       "deleteConfirmYes": "Excluir",
-      "deleteConfirmNo": "Cancelar"
+      "deleteConfirmNo": "Cancelar",
+      "deleteRecurringConfirm": "Esta é uma transação recorrente. Deseja excluir somente esta ou todas as recorrências?",
+      "deleteOnlyThis": "Somente esta",
+      "deleteAllSeries": "Esta e todas"
     },
     "status": {
       "nearDue": "Vence em breve"
