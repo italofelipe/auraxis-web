@@ -42,7 +42,7 @@ const ROUTE_SURFACE_CONFIG: readonly [
   ["/transactions", { sourceSurface: "transactions", dimension: "transactions" }],
   ["/goals", { sourceSurface: "goals", dimension: "goals" }],
   ["/budgets", { sourceSurface: "budgets", dimension: "budgets" }],
-  ["/settings/credit-cards", { sourceSurface: "credit_cards", dimension: "credit_cards" }],
+  ["/credit-cards", { sourceSurface: "credit_cards", dimension: "credit_cards" }],
   ["/portfolio", { sourceSurface: "wallet", dimension: "wallet" }],
   ["/wallet", { sourceSurface: "wallet", dimension: "wallet" }],
   ["/insights", { sourceSurface: "insights" }],

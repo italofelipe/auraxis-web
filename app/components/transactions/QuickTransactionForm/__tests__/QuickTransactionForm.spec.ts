@@ -345,3 +345,72 @@ describe("QuickTransactionForm", () => {
     expect(expenseWrapper.exists()).toBe(true);
   });
 });
+
+// ── Preset credit card (dedicated Cartões area) ────────────────────────────────
+// Lives in its own describe so the main suite stays under max-statements (30).
+
+/**
+ * Mounts the form pre-bound to a credit card, as the dedicated Cartões area does.
+ *
+ * @param presetCreditCardId Card id to pre-select and lock.
+ * @returns Vue Test Utils wrapper.
+ */
+const mountWithPresetCard = (presetCreditCardId: string): VueWrapper =>
+  mount(QuickTransactionForm, {
+    props: { visible: true, type: "expense", presetCreditCardId },
+    global: {
+      stubs: { NuxtLink: { template: "<a><slot /></a>" }, NForm: NFormStub },
+    },
+  });
+
+describe("QuickTransactionForm — preset credit card", () => {
+  beforeEach(() => {
+    createTransactionMutate.mockClear();
+  });
+
+  it("seeds credit_card_id from presetCreditCardId and submits it", async () => {
+    const wrapper = mountWithPresetCard("card-123");
+    const vm = wrapper.vm as unknown as { form: QuickTransactionFormState };
+    Object.assign(vm.form, {
+      title: "Mercado",
+      amount: 100,
+      due_date: new Date(2026, 4, 10).getTime(),
+    });
+    await nextTick();
+
+    const saveButton = wrapper.findAll("button").find((b) => b.text() === "Salvar");
+    await saveButton?.trigger("click");
+    await flushPromises();
+
+    expect(createTransactionMutate).toHaveBeenCalledWith(
+      expect.objectContaining({ credit_card_id: "card-123", type: "expense" }),
+      expect.any(Object),
+    );
+  });
+
+  it("carries the preset card across a parcelado (12x) expense", async () => {
+    const wrapper = mountWithPresetCard("card-xyz");
+    const vm = wrapper.vm as unknown as { form: QuickTransactionFormState };
+    Object.assign(vm.form, {
+      title: "Notebook",
+      amount: 1200,
+      due_date: new Date(2026, 4, 10).getTime(),
+      is_installment: true,
+      installment_count: 12,
+    });
+    await nextTick();
+
+    const saveButton = wrapper.findAll("button").find((b) => b.text() === "Salvar");
+    await saveButton?.trigger("click");
+    await flushPromises();
+
+    expect(createTransactionMutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        credit_card_id: "card-xyz",
+        is_installment: true,
+        installment_count: 12,
+      }),
+      expect.any(Object),
+    );
+  });
+});
