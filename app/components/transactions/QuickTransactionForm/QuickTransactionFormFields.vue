@@ -28,6 +28,7 @@ defineProps<{
   creditCardOptions: SelectOption[];
   statusOptions: SelectOption[];
   showCreditCard: boolean;
+  lockCreditCard: boolean;
   showInstallment: boolean;
   showInstallmentCount: boolean;
   showEndDate: boolean;
@@ -108,7 +109,8 @@ const installmentPreview = computed<InstallmentPreview | null>(() => {
         v-model:value="form.credit_card_id"
         :options="creditCardOptions"
         :placeholder="$t('transaction.form.creditCard.placeholder')"
-        clearable
+        :disabled="lockCreditCard"
+        :clearable="!lockCreditCard"
       />
     </NFormItem>
 
