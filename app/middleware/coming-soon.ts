@@ -20,7 +20,7 @@ const ROUTE_FLAG_MAP: Record<string, string> = {
   "/income": "web.pages.income",
   "/investor-profile": "web.pages.investor-profile",
   "/settings/accounts": "web.pages.settings.accounts",
-  "/settings/credit-cards": "web.pages.settings.credit-cards",
+  "/credit-cards": "web.pages.credit-cards",
   "/settings/tags": "web.pages.settings.tags",
   "/settings/privacy": "web.pages.settings.privacy-center",
   "/transactions": "web.pages.transactions",

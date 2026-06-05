@@ -9,4 +9,12 @@ export interface QuickTransactionFormProps {
 
   /** Determines the form layout and API payload type. */
   readonly type: TransactionTypeDto;
+
+  /**
+   * Pre-selects (and locks) a credit card. When set, the form seeds
+   * `credit_card_id` with this value and renders the card field disabled, so
+   * an expense launched from the dedicated Cartões area is always bound to the
+   * card it was created from — installments included.
+   */
+  readonly presetCreditCardId?: string;
 }
