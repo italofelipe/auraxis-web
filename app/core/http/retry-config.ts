@@ -3,15 +3,18 @@ import axiosRetry, { type IAxiosRetryConfig } from "axios-retry";
 /**
  * HTTP status codes that qualify for automatic retry.
  *
- * - 429: Too Many Requests (rate-limit)
  * - 502: Bad Gateway
  * - 503: Service Unavailable
  * - 504: Gateway Timeout
  *
- * 4xx errors other than 429 are intentionally excluded — they indicate
- * client-side faults (auth, validation) that retrying cannot fix.
+ * 4xx errors are intentionally excluded — they indicate client-side faults
+ * (auth, validation) that retrying cannot fix. 429 in particular is excluded:
+ * the AI insights daily limit returns 429 `AI_DAILY_LIMIT_EXCEEDED`, a hard
+ * per-day cap that never clears on immediate retry — retrying it only triples
+ * the request count (1 + 2 retries) and risks racing the server-side quota
+ * counter. Genuine transient back-pressure is covered by the 5xx codes.
  */
-const RETRYABLE_STATUSES = new Set([429, 502, 503, 504]);
+const RETRYABLE_STATUSES = new Set([502, 503, 504]);
 
 /**
  * Returns true when the response status code is eligible for retry.
