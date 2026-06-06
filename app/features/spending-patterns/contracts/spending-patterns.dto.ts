@@ -34,3 +34,19 @@ export interface SpendingPatternsResponseDto {
   readonly model: string;
   readonly generated_count: number;
 }
+
+/**
+ * Read-only cached radar payload from `GET /ai/insights/spending-patterns/latest`.
+ *
+ * The analysis is produced by a scheduled cron and persisted server-side; the
+ * dashboard reads it without calling the LLM or consuming the AI daily quota.
+ * `generated_at` is `null` when the cron has not produced an analysis yet.
+ */
+export interface SpendingPatternsLatestResponseDto {
+  readonly patterns: readonly SpendingPatternDto[];
+  readonly generated_at: string | null;
+  readonly period_label: string | null;
+  readonly model: string;
+  readonly cost_usd: number;
+  readonly tokens_used: number;
+}

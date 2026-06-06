@@ -2,10 +2,14 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildTransactionInputs,
+  mapSpendingPatternsLatest,
   mapSpendingPatternsResponse,
   severityRank,
 } from "./spending-patterns";
-import type { SpendingPatternsResponseDto } from "../contracts/spending-patterns.dto";
+import type {
+  SpendingPatternsLatestResponseDto,
+  SpendingPatternsResponseDto,
+} from "../contracts/spending-patterns.dto";
 
 describe("spending-patterns model", () => {
   it("ranks severities high > medium > low", () => {
@@ -47,6 +51,38 @@ describe("spending-patterns model", () => {
     it("parses amount and carries the date", () => {
       const inputs = buildTransactionInputs(txs);
       expect(inputs[0]).toMatchObject({ amount: 12.5, occurred_on: "2026-05-01" });
+    });
+  });
+
+  describe("mapSpendingPatternsLatest", () => {
+    it("maps and severity-sorts the cached read-only payload", () => {
+      const dto: SpendingPatternsLatestResponseDto = {
+        patterns: [
+          { description: "Low", frequency: "f", average_value: 1, suggested_action: "a", severity: "low" },
+          { description: "High", frequency: "f", average_value: 2, suggested_action: "a", severity: "high" },
+        ],
+        generated_at: "2026-06-05T06:00:00",
+        period_label: "2026-06-05",
+        model: "v2",
+        cost_usd: 0,
+        tokens_used: 0,
+      };
+      const result = mapSpendingPatternsLatest(dto);
+      expect(result.generatedAt).toBe("2026-06-05T06:00:00");
+      expect(result.patterns.map((p) => p.severity)).toEqual(["high", "low"]);
+    });
+
+    it("returns an empty radar with null generatedAt when the cron has not run", () => {
+      const result = mapSpendingPatternsLatest({
+        patterns: [],
+        generated_at: null,
+        period_label: null,
+        model: "",
+        cost_usd: 0,
+        tokens_used: 0,
+      });
+      expect(result.patterns).toEqual([]);
+      expect(result.generatedAt).toBeNull();
     });
   });
 });

@@ -10,6 +10,7 @@ import type {
   SpendingPatternDto,
   SpendingPatternSeverityDto,
   SpendingPatternTransactionInputDto,
+  SpendingPatternsLatestResponseDto,
   SpendingPatternsResponseDto,
 } from "~/features/spending-patterns/contracts/spending-patterns.dto";
 
@@ -64,6 +65,30 @@ export function mapSpendingPatternsResponse(
   return dto.patterns
     .map(mapPatternDto)
     .sort((a, b) => severityRank(b.severity) - severityRank(a.severity));
+}
+
+/** Cached radar view model read from the quota-free read-only endpoint. */
+export interface SpendingPatternsLatest {
+  patterns: SpendingPattern[];
+  generatedAt: string | null;
+}
+
+/**
+ * Maps the read-only cached radar response into the view model. Patterns are
+ * ordered most-severe first; `generatedAt` is null until the cron first runs.
+ *
+ * @param dto Backend read-only response.
+ * @returns Cached radar view model.
+ */
+export function mapSpendingPatternsLatest(
+  dto: SpendingPatternsLatestResponseDto,
+): SpendingPatternsLatest {
+  return {
+    patterns: (dto.patterns ?? [])
+      .map(mapPatternDto)
+      .sort((a, b) => severityRank(b.severity) - severityRank(a.severity)),
+    generatedAt: dto.generated_at ?? null,
+  };
 }
 
 interface TransactionLike {

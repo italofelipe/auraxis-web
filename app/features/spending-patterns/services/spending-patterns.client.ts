@@ -4,11 +4,14 @@ import { useHttp } from "~/composables/useHttp";
 import type { V2EnvelopeDTO } from "~/features/ai-insights/contracts/ai-insight";
 import type {
   SpendingPatternTransactionInputDto,
+  SpendingPatternsLatestResponseDto,
   SpendingPatternsResponseDto,
 } from "~/features/spending-patterns/contracts/spending-patterns.dto";
 import {
+  mapSpendingPatternsLatest,
   mapSpendingPatternsResponse,
   type SpendingPattern,
+  type SpendingPatternsLatest,
 } from "~/features/spending-patterns/model/spending-patterns";
 
 /**
@@ -30,6 +33,7 @@ const unwrap = <T>(payload: V2EnvelopeDTO<T> | T): T => {
 };
 
 const ENDPOINT = "/ai/insights/spending-patterns";
+const LATEST_ENDPOINT = "/ai/insights/spending-patterns/latest";
 
 /**
  * HTTP adapter for the spending-patterns radar (premium gateway to v2).
@@ -60,6 +64,22 @@ export class SpendingPatternsApiClient {
       { transactions, period_days: periodDays },
     );
     return mapSpendingPatternsResponse(unwrap<SpendingPatternsResponseDto>(response.data));
+  }
+
+  /**
+   * Reads the latest cron-generated radar analysis. Read-only — never calls the
+   * LLM and never consumes the AI daily quota. Returns empty patterns with
+   * `generatedAt: null` when the cron has not produced an analysis yet.
+   *
+   * @returns Cached patterns (most-severe first) and the generation timestamp.
+   */
+  async getLatest(): Promise<SpendingPatternsLatest> {
+    const response = await this.#http.get<V2EnvelopeDTO<SpendingPatternsLatestResponseDto>>(
+      LATEST_ENDPOINT,
+    );
+    return mapSpendingPatternsLatest(
+      unwrap<SpendingPatternsLatestResponseDto>(response.data),
+    );
   }
 }
 

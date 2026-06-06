@@ -3,13 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ref } from "vue";
 
 import SpendingInsightContent from "./SpendingInsightContent.vue";
-import type { SpendingPattern } from "~/features/spending-patterns/model/spending-patterns";
+import type {
+  SpendingPattern,
+  SpendingPatternsLatest,
+} from "~/features/spending-patterns/model/spending-patterns";
 
-const mockTxData = ref<unknown[]>([]);
-const mockTxLoading = ref(false);
-const mockPatterns = ref<SpendingPattern[]>([]);
-const mockPatternsLoading = ref(false);
-const mockPatternsError = ref(false);
+const mockData = ref<SpendingPatternsLatest | undefined>(undefined);
+const mockLoading = ref(false);
+const mockError = ref(false);
 
 vi.mock("vue-i18n", () => ({
   useI18n: (): { t: (k: string) => string; n: (v: number) => string } => ({
@@ -24,18 +25,12 @@ vi.mock("#imports", () => ({
   }),
 }));
 
-vi.mock("~/features/transactions/queries/use-list-transactions-query", () => ({
-  useListTransactionsQuery: (): { data: typeof mockTxData; isLoading: typeof mockTxLoading } => ({
-    data: mockTxData,
-    isLoading: mockTxLoading,
-  }),
-}));
-vi.mock("~/features/spending-patterns/queries/use-spending-patterns-query", () => ({
-  useSpendingPatternsQuery: (): {
-    data: typeof mockPatterns;
-    isLoading: typeof mockPatternsLoading;
-    isError: typeof mockPatternsError;
-  } => ({ data: mockPatterns, isLoading: mockPatternsLoading, isError: mockPatternsError }),
+vi.mock("~/features/spending-patterns/queries/use-spending-patterns-latest-query", () => ({
+  useSpendingPatternsLatestQuery: (): {
+    data: typeof mockData;
+    isLoading: typeof mockLoading;
+    isError: typeof mockError;
+  } => ({ data: mockData, isLoading: mockLoading, isError: mockError }),
 }));
 
 vi.mock("naive-ui", () => ({
@@ -63,29 +58,28 @@ function mountContent(): ReturnType<typeof mount> {
 
 describe("SpendingInsightContent", () => {
   beforeEach(() => {
-    mockTxData.value = [];
-    mockTxLoading.value = false;
-    mockPatterns.value = [];
-    mockPatternsLoading.value = false;
-    mockPatternsError.value = false;
+    mockData.value = undefined;
+    mockLoading.value = false;
+    mockError.value = false;
   });
 
   it("shows a skeleton while loading", () => {
-    mockPatternsLoading.value = true;
+    mockLoading.value = true;
     expect(mountContent().find("[data-testid='spending-insight-loading']").exists()).toBe(true);
   });
 
   it("shows a soft unavailable state on error", () => {
-    mockPatternsError.value = true;
+    mockError.value = true;
     expect(mountContent().find("[data-testid='spending-insight-error']").exists()).toBe(true);
   });
 
-  it("shows the empty state when no patterns", () => {
+  it("shows the empty state when the cron has not produced an analysis yet", () => {
+    mockData.value = { patterns: [], generatedAt: null };
     expect(mountContent().find("[data-testid='spending-insight-empty']").exists()).toBe(true);
   });
 
-  it("renders the pattern list with a create-budget CTA", () => {
-    mockPatterns.value = [PATTERN];
+  it("renders the cached pattern list with a create-budget CTA", () => {
+    mockData.value = { patterns: [PATTERN], generatedAt: "2026-06-05T06:00:00" };
     const w = mountContent();
     const list = w.find("[data-testid='spending-insight-list']");
     expect(list.exists()).toBe(true);
