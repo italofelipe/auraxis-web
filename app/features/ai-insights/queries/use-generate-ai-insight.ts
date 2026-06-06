@@ -56,6 +56,9 @@ export const useGenerateAIInsight = (
       ...(variables?.anchorDate ? { anchorDate: variables.anchorDate } : {}),
       ...(variables?.sourceSurface ? { sourceSurface: variables.sourceSurface } : {}),
     }),
+    // Generation is a one-shot user action; a 429 daily-limit (or any error) is
+    // a legitimate terminal response, never a transient failure to retry.
+    retry: false,
     onSuccess: async (): Promise<void> => {
       await Promise.all(INVALIDATION_KEYS.map((queryKey) => invalidate(queryKey)));
     },
