@@ -1383,6 +1383,7 @@ export type Query = {
   simulation?: Maybe<SimulationType>;
   simulationQuota: SimulationQuotaType;
   simulations: SimulationListPayloadType;
+  spendingPatternsLatest?: Maybe<SpendingPatternsLatestType>;
   tag?: Maybe<TagType>;
   tags?: Maybe<TagListType>;
   tickers?: Maybe<TickerListPayloadType>;
@@ -1704,6 +1705,24 @@ export type SimulationType = {
   saved: Scalars['Boolean']['output'];
   toolId: Scalars['String']['output'];
   userId: Scalars['UUID']['output'];
+};
+
+/**
+ * Read-only cached Radar de Gastos (cron-generated, no quota).
+ *
+ * The individual ``patterns`` are forwarded from auraxis-api-v2 and their shape
+ * is intentionally not pinned here; they are exposed as a JSON string
+ * (``patterns_json``) so the schema stays stable as v2 evolves. ``generated_at``
+ * is null when no analysis has been cached yet.
+ */
+export type SpendingPatternsLatestType = {
+  __typename?: 'SpendingPatternsLatestType';
+  costUsd: Scalars['Float']['output'];
+  generatedAt?: Maybe<Scalars['String']['output']>;
+  model: Scalars['String']['output'];
+  patternsJson: Scalars['String']['output'];
+  periodLabel?: Maybe<Scalars['String']['output']>;
+  tokensUsed: Scalars['Int']['output'];
 };
 
 export type SubscriptionType = {
