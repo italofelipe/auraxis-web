@@ -95,7 +95,7 @@ export const readCookieValue = (name: string): string | null => {
  * @param sessionStore Active session Pinia store instance.
  * @returns New access token, or null if the refresh failed.
  */
-export const refreshAccessToken = async (
+const performRefreshRequest = async (
   apiBase: string,
   sessionStore: ReturnType<typeof useSessionStore>,
 ): Promise<string | null> => {
@@ -144,6 +144,40 @@ export const refreshAccessToken = async (
     sessionStore.signOut();
     return null;
   }
+};
+
+/**
+ * Process-wide in-flight refresh promise, shared by every caller so a boot/F5
+ * never fires more than one POST /auth/refresh. See {@link refreshAccessToken}.
+ */
+let inFlightRefresh: Promise<string | null> | null = null;
+
+/**
+ * Process-wide single-flight for POST /auth/refresh.
+ *
+ * Every refresh caller shares one in-flight promise: the boot session-restore
+ * (plugin + `authenticated` middleware via `runSessionRestore`) AND the 401
+ * interceptor (`createSharedRefresh`) previously had independent single-flight
+ * guards, so on boot/F5 they could fire two concurrent refreshes. With token
+ * rotation + reuse-detection on the backend, the loser presented a just-rotated
+ * token and the whole session got revoked → F5 logout (#1023). Collapsing all
+ * callers onto one shared promise means a reload triggers exactly one refresh.
+ *
+ * @param apiBase Absolute base URL of the Auraxis API.
+ * @param sessionStore Active session Pinia store instance.
+ * @returns New access token, or null if the refresh failed.
+ */
+export const refreshAccessToken = (
+  apiBase: string,
+  sessionStore: ReturnType<typeof useSessionStore>,
+): Promise<string | null> => {
+  if (inFlightRefresh) {
+    return inFlightRefresh;
+  }
+  inFlightRefresh = performRefreshRequest(apiBase, sessionStore).finally(() => {
+    inFlightRefresh = null;
+  });
+  return inFlightRefresh;
 };
 
 /**
