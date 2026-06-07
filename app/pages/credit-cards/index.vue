@@ -2,8 +2,8 @@
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useQueryClient } from "@tanstack/vue-query";
-import { NButton, NEmpty, NModal, NSpin } from "naive-ui";
-import { CreditCard, Landmark, Plus, ReceiptText, ShieldCheck, Sparkles } from "lucide-vue-next";
+import { NButton, NModal, NSpin } from "naive-ui";
+import { CreditCard, Landmark, Plus, ReceiptText, ShieldCheck } from "lucide-vue-next";
 
 import type {
   CreateCreditCardPayload,
@@ -17,6 +17,8 @@ import CreditCardCard from "~/features/credit-cards/components/CreditCardCard.vu
 import CreditCardForm from "~/features/credit-cards/components/CreditCardForm.vue";
 import AiInsightSurface from "~/features/ai-insights/components/AiInsightSurface.vue";
 import QuickTransactionForm from "~/components/transactions/QuickTransactionForm/QuickTransactionForm.vue";
+import UiEmptyState from "~/components/ui/UiEmptyState/UiEmptyState.vue";
+import IllustrationCreditCardsHub from "~/components/ui/illustrations/IllustrationCreditCardsHub.vue";
 import { formatCurrency } from "~/utils/currency";
 
 const { t } = useI18n();
@@ -83,13 +85,7 @@ const selectedCycleLabel = computed<string>(() => {
   }
   return `Fecha dia ${card.closing_day} · vence dia ${card.due_day}`;
 });
-const selectedCardSuffix = computed<string>(() =>
-  selectedCard.value?.last_four_digits ? `•••• ${selectedCard.value.last_four_digits}` : "Final não informado",
-);
 const selectedBenefits = computed<readonly string[]>(() => selectedCard.value?.benefits ?? []);
-const deleteTargetSuffix = computed<string>(() =>
-  deleteTarget.value?.last_four_digits ? `•••• ${deleteTarget.value.last_four_digits}` : "final não informado",
-);
 
 /** Opens the modal in create mode. */
 const openCreate = (): void => {
@@ -186,17 +182,13 @@ const onExpenseCreated = (): void => {
 
 <template>
   <div class="cc-page">
-    <header class="cc-hero">
-      <div class="cc-hero__copy">
-        <span class="cc-hero__eyebrow">
-          <Sparkles :size="15" />
-          Market Pulse Cards
-        </span>
-        <h1 class="cc-hero__title">Cartões</h1>
-        <p class="cc-hero__subtitle">Hub premium para limites, benefícios, faturas e despesas no cartão.</p>
+    <section class="cc-command" aria-label="Ações de cartões">
+      <div class="cc-command__pulse" aria-hidden="true">
+        <span />
+        <span />
+        <span />
       </div>
-
-      <div class="cc-hero__actions">
+      <div class="cc-command__actions">
         <NButton
           secondary
           size="medium"
@@ -216,7 +208,7 @@ const onExpenseCreated = (): void => {
           {{ t("pages.settings.creditCards.newCard") }}
         </NButton>
       </div>
-    </header>
+    </section>
 
     <section class="cc-summary" aria-label="Resumo dos cartões">
       <article class="cc-summary__item">
@@ -246,11 +238,18 @@ const onExpenseCreated = (): void => {
       <NSpin size="large" />
     </div>
 
-    <NEmpty
+    <UiEmptyState
       v-else-if="cards.length === 0"
+      title="Nenhum cartão cadastrado ainda"
       :description="t('pages.settings.creditCards.empty')"
+      action-label="Novo Cartão"
       class="cc-empty"
-    />
+      @action="openCreate"
+    >
+      <template #illustration>
+        <IllustrationCreditCardsHub class="cc-empty__illustration" />
+      </template>
+    </UiEmptyState>
 
     <section v-else class="cc-workspace">
       <aside class="cc-rail" aria-label="Cartões cadastrados">
@@ -278,7 +277,7 @@ const onExpenseCreated = (): void => {
           </div>
           <div class="cc-focus__identity">
             <h2>{{ selectedCard.name }}</h2>
-            <span>{{ selectedCardSuffix }}</span>
+            <span>{{ selectedCycleLabel }}</span>
           </div>
           <div class="cc-focus__footer">
             <span>Limite</span>
@@ -344,6 +343,7 @@ const onExpenseCreated = (): void => {
       v-model:show="showModal"
       preset="card"
       style="max-width: 540px"
+      class="cc-card-modal"
       :title="editingCard ? t('pages.settings.creditCards.editCard') : t('pages.settings.creditCards.newCard')"
     >
       <CreditCardForm
@@ -366,7 +366,7 @@ const onExpenseCreated = (): void => {
       @close="cancelDelete"
     >
       <p class="cc-delete-copy">
-        Você está removendo <strong>{{ deleteTarget?.name }}</strong> ({{ deleteTargetSuffix }}).
+        Você está removendo <strong>{{ deleteTarget?.name }}</strong>.
         Esta ação é irreversível e o cartão deixará de aparecer no hub.
       </p>
       <template #action>
@@ -405,58 +405,53 @@ const onExpenseCreated = (): void => {
   gap: 22px;
   min-height: 100%;
   padding: clamp(18px, 2vw, 28px);
-  color: #f1f5ff;
+  color: var(--color-text-primary);
   background:
-    radial-gradient(circle at 18% 8%, rgba(68, 212, 255, 0.13), transparent 28%),
-    radial-gradient(circle at 88% 16%, rgba(139, 125, 255, 0.16), transparent 24%),
-    #05070d;
+    radial-gradient(circle at 18% 4%, var(--color-brand-glow-sm), transparent 30%),
+    radial-gradient(circle at 88% 8%, var(--color-info-bg), transparent 26%),
+    linear-gradient(180deg, var(--color-bg-base), var(--color-bg-elevated));
 }
 
-.cc-hero {
+.cc-command {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  gap: 18px;
+  gap: 16px;
+  min-height: 58px;
 }
 
-.cc-hero__copy {
-  display: grid;
-  gap: 8px;
-}
-
-.cc-hero__eyebrow {
-  display: inline-flex;
+.cc-command__pulse {
+  display: flex;
   align-items: center;
   gap: 8px;
-  width: fit-content;
-  color: #42e8a9;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-bold);
-  text-transform: uppercase;
-  letter-spacing: 0;
+  color: var(--color-brand-500);
 }
 
-.cc-hero__title {
-  margin: 0;
-  color: #f1f5ff;
-  font-size: var(--font-size-4xl);
-  font-weight: var(--font-weight-extrabold);
-  line-height: 0.98;
-  letter-spacing: 0;
+.cc-command__pulse span {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background: currentColor;
+  box-shadow: 0 0 0 7px var(--color-brand-glow-2xs);
+  animation: cc-pulse 2.2s ease-in-out infinite;
 }
 
-.cc-hero__subtitle {
-  max-width: 620px;
-  margin: 0;
-  color: #94a3bf;
-  font-size: var(--font-size-md);
+.cc-command__pulse span:nth-child(2) {
+  color: var(--color-positive);
+  animation-delay: 0.18s;
 }
 
-.cc-hero__actions {
+.cc-command__pulse span:nth-child(3) {
+  color: var(--color-accent);
+  animation-delay: 0.36s;
+}
+
+.cc-command__actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 10px;
+  margin-left: auto;
 }
 
 .cc-summary {
@@ -470,15 +465,24 @@ const onExpenseCreated = (): void => {
   gap: 7px;
   min-height: 118px;
   padding: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-outline-soft);
   border-radius: var(--radius-lg);
-  background: rgba(14, 21, 35, 0.86);
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.22);
+  background: color-mix(in srgb, var(--color-bg-surface) 88%, transparent);
+  box-shadow: 0 16px 48px color-mix(in srgb, var(--color-neutral-950) 10%, transparent);
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.cc-summary__item:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--color-brand-500) 35%, transparent);
+  box-shadow: 0 18px 60px var(--color-brand-glow-xs);
 }
 
 .cc-summary__item--selected {
-  border-color: rgba(68, 212, 255, 0.36);
-  background: linear-gradient(135deg, rgba(68, 212, 255, 0.14), rgba(139, 125, 255, 0.12)), #0e1523;
+  border-color: color-mix(in srgb, var(--color-brand-500) 42%, transparent);
+  background:
+    linear-gradient(135deg, var(--color-brand-glow-xs), var(--color-info-bg)),
+    var(--color-bg-surface);
 }
 
 .cc-summary__icon {
@@ -491,24 +495,24 @@ const onExpenseCreated = (): void => {
 }
 
 .cc-summary__icon--cyan {
-  color: #44d4ff;
-  background: rgba(68, 212, 255, 0.12);
+  color: var(--color-brand-500);
+  background: var(--color-brand-glow-xs);
 }
 
 .cc-summary__icon--lime {
-  color: #42e8a9;
-  background: rgba(66, 232, 169, 0.12);
+  color: var(--color-positive-dark);
+  background: var(--color-positive-bg);
 }
 
 .cc-summary__icon--violet {
-  color: #8b7dff;
-  background: rgba(139, 125, 255, 0.12);
+  color: var(--color-accent);
+  background: var(--color-info-bg);
 }
 
 .cc-summary__label,
 .cc-summary__hint,
 .cc-panel__kicker {
-  color: #94a3bf;
+  color: var(--color-text-muted);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
   text-transform: uppercase;
@@ -516,7 +520,7 @@ const onExpenseCreated = (): void => {
 }
 
 .cc-summary__value {
-  color: #f1f5ff;
+  color: var(--color-text-primary);
   font-size: var(--font-size-2xl);
   line-height: 1.15;
 }
@@ -530,16 +534,24 @@ const onExpenseCreated = (): void => {
   display: flex;
   justify-content: center;
   padding: 56px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-outline-soft);
   border-radius: var(--radius-lg);
-  background: rgba(14, 21, 35, 0.74);
+  background: color-mix(in srgb, var(--color-bg-surface) 82%, transparent);
 }
 
 .cc-empty {
-  padding: 56px 16px;
-  border: 1px dashed rgba(68, 212, 255, 0.28);
+  padding: 42px 16px 48px;
+  border: 1px dashed color-mix(in srgb, var(--color-brand-500) 34%, transparent);
   border-radius: var(--radius-lg);
-  background: rgba(14, 21, 35, 0.72);
+  background:
+    linear-gradient(135deg, var(--color-brand-glow-2xs), transparent 44%),
+    color-mix(in srgb, var(--color-bg-surface) 84%, transparent);
+}
+
+.cc-empty__illustration {
+  width: min(260px, 72vw);
+  height: auto;
+  filter: drop-shadow(0 18px 42px var(--color-brand-glow-xs));
 }
 
 .cc-workspace {
@@ -560,7 +572,7 @@ const onExpenseCreated = (): void => {
   align-items: center;
   justify-content: space-between;
   padding: 0 4px;
-  color: #d2dcf3;
+  color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
 }
@@ -574,13 +586,14 @@ const onExpenseCreated = (): void => {
 
 .cc-focus__card,
 .cc-focus__panel {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-outline-soft);
   border-radius: var(--radius-lg);
-  background: #0e1523;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+  background: var(--color-bg-elevated);
+  box-shadow: 0 22px 70px color-mix(in srgb, var(--color-neutral-950) 14%, transparent);
 }
 
 .cc-focus__card {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -588,8 +601,20 @@ const onExpenseCreated = (): void => {
   padding: 24px;
   overflow: hidden;
   background:
-    linear-gradient(135deg, rgba(68, 212, 255, 0.24), transparent 34%),
-    linear-gradient(145deg, #121a2a 0%, #172338 48%, #0a0f1a 100%);
+    linear-gradient(135deg, var(--color-brand-glow-md), transparent 38%),
+    linear-gradient(145deg, var(--color-bg-surface), var(--color-bg-elevated));
+}
+
+.cc-focus__card::after {
+  position: absolute;
+  right: -30px;
+  bottom: -32px;
+  width: 150px;
+  height: 150px;
+  border: 1px solid color-mix(in srgb, var(--color-brand-500) 30%, transparent);
+  border-radius: var(--radius-lg);
+  content: "";
+  transform: rotate(18deg);
 }
 
 .cc-focus__chrome,
@@ -606,7 +631,7 @@ const onExpenseCreated = (): void => {
 .cc-focus__bank,
 .cc-focus__brand,
 .cc-focus__footer span {
-  color: #94a3bf;
+  color: var(--color-text-muted);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-extrabold);
   text-transform: uppercase;
@@ -615,20 +640,23 @@ const onExpenseCreated = (): void => {
 
 .cc-focus__brand {
   padding: 6px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--color-outline-subtle);
   border-radius: var(--radius-full);
-  color: #d2dcf3;
-  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-text-secondary);
+  background: color-mix(in srgb, var(--color-bg-surface) 72%, transparent);
 }
 
 .cc-focus__identity {
   align-items: flex-end;
+  position: relative;
+  z-index: 1;
 }
 
 .cc-focus__identity h2 {
   max-width: 70%;
   margin: 0;
-  color: #f1f5ff;
+  overflow-wrap: anywhere;
+  color: var(--color-text-primary);
   font-size: var(--font-size-3xl);
   line-height: 1;
   letter-spacing: 0;
@@ -638,11 +666,19 @@ const onExpenseCreated = (): void => {
 .cc-focus__footer strong,
 .cc-focus__metrics strong {
   font-family: "IBM Plex Mono", monospace;
-  color: #f1f5ff;
+  color: var(--color-text-primary);
+}
+
+.cc-focus__identity span {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  text-align: right;
 }
 
 .cc-focus__footer {
   align-items: flex-end;
+  position: relative;
+  z-index: 1;
 }
 
 .cc-focus__footer strong {
@@ -653,12 +689,12 @@ const onExpenseCreated = (): void => {
   display: grid;
   gap: 18px;
   padding: 22px;
-  background: rgba(14, 21, 35, 0.92);
+  background: color-mix(in srgb, var(--color-bg-elevated) 92%, transparent);
 }
 
 .cc-focus__panel-head h2 {
   margin: 4px 0 0;
-  color: #f1f5ff;
+  color: var(--color-text-primary);
   font-size: var(--font-size-xl);
   line-height: 1.2;
 }
@@ -674,13 +710,13 @@ const onExpenseCreated = (): void => {
   gap: 8px;
   min-height: 100px;
   padding: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-outline-soft);
   border-radius: var(--radius-md);
-  background: #121a2a;
+  background: var(--color-bg-surface);
 }
 
 .cc-focus__metrics span {
-  color: #94a3bf;
+  color: var(--color-text-muted);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
 }
@@ -700,25 +736,25 @@ const onExpenseCreated = (): void => {
 
 .cc-benefits span {
   padding: 8px 10px;
-  border: 1px solid rgba(66, 232, 169, 0.28);
+  border: 1px solid var(--color-positive-border);
   border-radius: var(--radius-full);
-  color: #d2dcf3;
-  background: rgba(66, 232, 169, 0.08);
+  color: var(--color-text-secondary);
+  background: var(--color-positive-bg);
   font-size: var(--font-size-sm);
 }
 
 .cc-bill-context {
   align-items: center;
   padding: 16px;
-  border: 1px solid rgba(68, 212, 255, 0.22);
+  border: 1px solid color-mix(in srgb, var(--color-brand-500) 28%, transparent);
   border-radius: var(--radius-lg);
-  background: rgba(68, 212, 255, 0.07);
+  background: var(--color-brand-glow-2xs);
 }
 
 .cc-bill-context p {
   max-width: 620px;
   margin: 5px 0 0;
-  color: #d2dcf3;
+  color: var(--color-text-secondary);
 }
 
 .cc-bill-context__actions {
@@ -729,11 +765,11 @@ const onExpenseCreated = (): void => {
 }
 
 .cc-bill-context__actions :deep(.n-button:not(.n-button--error-type)) {
-  color: #d2dcf3;
+  color: var(--color-text-secondary);
 }
 
 .cc-bill-context__actions :deep(.n-button--error-type) {
-  color: #ff6b7a;
+  color: var(--color-negative);
 }
 
 .cc-page__insights {
@@ -742,12 +778,35 @@ const onExpenseCreated = (): void => {
 
 .cc-delete-copy {
   margin: 0;
-  color: #475569;
+  color: var(--color-text-secondary);
   line-height: 1.55;
 }
 
 .cc-delete-copy strong {
-  color: #0f172a;
+  color: var(--color-text-primary);
+}
+
+:global(.cc-card-modal .n-card) {
+  max-height: calc(100dvh - 48px);
+  display: flex;
+  flex-direction: column;
+}
+
+:global(.cc-card-modal .n-card__content) {
+  overflow: auto;
+}
+
+@keyframes cc-pulse {
+  0%,
+  100% {
+    transform: translateY(0) scale(0.9);
+    opacity: 0.7;
+  }
+
+  50% {
+    transform: translateY(-3px) scale(1.08);
+    opacity: 1;
+  }
 }
 
 @media (max-width: 1180px) {
@@ -766,12 +825,7 @@ const onExpenseCreated = (): void => {
     padding: 16px;
   }
 
-  .cc-hero {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .cc-hero__actions,
+  .cc-command,
   .cc-bill-context,
   .cc-focus__panel-head,
   .cc-focus__identity {
@@ -779,7 +833,16 @@ const onExpenseCreated = (): void => {
     align-items: stretch;
   }
 
-  .cc-hero__actions :deep(.n-button),
+  .cc-command__pulse {
+    display: none;
+  }
+
+  .cc-command__actions {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .cc-command__actions :deep(.n-button),
   .cc-bill-context__actions :deep(.n-button) {
     width: 100%;
   }
@@ -793,8 +856,20 @@ const onExpenseCreated = (): void => {
     max-width: 100%;
   }
 
+  .cc-focus__identity span {
+    text-align: left;
+  }
+
   .cc-focus__card {
     min-height: 260px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-command__pulse span,
+  .cc-summary__item {
+    animation: none;
+    transition: none;
   }
 }
 </style>

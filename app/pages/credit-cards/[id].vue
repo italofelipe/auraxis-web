@@ -85,9 +85,6 @@ const onExpenseCreated = (): void => {
     <template v-else-if="card">
       <section class="cc-detail__meta">
         <NTag v-if="card.brand" size="small" :bordered="false">{{ card.brand }}</NTag>
-        <span v-if="card.last_four_digits" class="cc-detail__digits">
-          •••• {{ card.last_four_digits }}
-        </span>
         <NStatistic
           v-if="card.limit_amount !== null"
           :label="t('pages.settings.creditCards.fields.limitAmount')"
@@ -198,11 +195,6 @@ const onExpenseCreated = (): void => {
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-4);
-}
-
-.cc-detail__digits {
-  font-size: var(--font-size-sm);
-  opacity: 0.7;
 }
 
 .cc-detail__bill {

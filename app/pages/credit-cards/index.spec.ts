@@ -145,11 +145,9 @@ const cardFixture = (overrides: Partial<CreditCardDto> = {}): CreditCardDto => (
   limit_amount: 23000,
   closing_day: 5,
   due_day: 12,
-  last_four_digits: "1234",
   bank: "Inter",
   description: null,
   benefits: ["Cashback"],
-  validity_date: "2030-12-31",
   created_at: null,
   updated_at: null,
   ...overrides,
@@ -204,12 +202,19 @@ describe("CreditCardsPage", () => {
         id: "cc-2",
         name: "Cartao Azul",
         bank: "Itau",
-        last_four_digits: "9876",
       }),
     ];
     creditCardsHarness.isLoading.value = false;
     deleteMutationHarness.isPending.value = false;
     deleteMutationHarness.mutateAsync.mockResolvedValue(undefined);
+  });
+
+  it("não duplica o título da página nem exibe o eyebrow legado", () => {
+    const wrapper = mountPage();
+
+    expect(wrapper.find(".cc-hero__title").exists()).toBe(false);
+    expect(wrapper.text()).not.toContain("Market Pulse Cards");
+    expect(wrapper.text()).not.toContain("Hub premium para limites");
   });
 
   it("abre confirmacao de remocao sem chamar delete imediatamente", async () => {
@@ -220,7 +225,7 @@ describe("CreditCardsPage", () => {
     expect(deleteMutationHarness.mutateAsync).not.toHaveBeenCalled();
     expect(wrapper.get("[data-testid='delete-modal']").text()).toContain("Remover cartão?");
     expect(wrapper.get("[data-testid='delete-modal']").text()).toContain("Cartao Inter");
-    expect(wrapper.get("[data-testid='delete-modal']").text()).toContain("1234");
+    expect(wrapper.get("[data-testid='delete-modal']").text()).not.toContain("1234");
   });
 
   it("cancelar fecha a confirmacao sem mutation", async () => {

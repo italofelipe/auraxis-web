@@ -57,19 +57,6 @@ const benefits = computed<readonly string[]>(
   () => props.card.benefits ?? [],
 );
 
-const validityLabel = computed<string | null>(() => {
-  const raw = props.card.validity_date;
-  if (!raw) {
-    return null;
-  }
-  const [year, month] = raw.split("-");
-  return year && month ? `${month}/${year}` : raw;
-});
-
-const maskedDigits = computed<string>(() =>
-  props.card.last_four_digits ? `•••• ${props.card.last_four_digits}` : "Final não informado",
-);
-
 const limitLabel = computed<string>(() =>
   props.card.limit_amount !== null ? formatCurrency(props.card.limit_amount) : "Sem limite",
 );
@@ -78,7 +65,7 @@ const cycleLabel = computed<string>(() => {
   if (!props.card.closing_day || !props.card.due_day) {
     return "Ciclo pendente";
   }
-  return `Fecha ${props.card.closing_day} · vence ${props.card.due_day}`;
+  return `Fecha dia ${props.card.closing_day} · Vence dia ${props.card.due_day}`;
 });
 
 /** Seleciona o cartão no hub sem acionar as ações rápidas. */
@@ -102,7 +89,6 @@ const select = (): void => {
         <NTag v-if="props.card.brand" size="small" :bordered="false">
           {{ props.card.brand }}
         </NTag>
-        <span class="cc-card__digits">{{ maskedDigits }}</span>
       </div>
     </header>
 
@@ -149,10 +135,6 @@ const select = (): void => {
     </ul>
     <p v-else class="cc-card__empty-note">Sem benefícios cadastrados</p>
 
-    <p v-if="validityLabel" class="cc-card__validity">
-      {{ t("pages.settings.creditCards.card.validity") }}: {{ validityLabel }}
-    </p>
-
     <footer class="cc-card__actions">
       <NButton
         size="small"
@@ -189,13 +171,13 @@ const select = (): void => {
   flex-direction: column;
   gap: 13px;
   padding: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-outline-soft);
   border-radius: var(--radius-lg);
-  color: #d2dcf3;
+  color: var(--color-text-secondary);
   background:
-    linear-gradient(135deg, rgba(68, 212, 255, 0.08), transparent 40%),
-    #0e1523;
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.24);
+    linear-gradient(135deg, var(--color-brand-glow-xs), transparent 44%),
+    var(--color-bg-elevated);
+  box-shadow: 0 16px 48px color-mix(in srgb, var(--color-neutral-950) 12%, transparent);
   outline: none;
   transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
@@ -203,15 +185,15 @@ const select = (): void => {
 .cc-card:hover,
 .cc-card:focus-within,
 .cc-card--selected {
-  border-color: rgba(68, 212, 255, 0.45);
-  box-shadow: 0 20px 70px rgba(68, 212, 255, 0.12);
+  border-color: color-mix(in srgb, var(--color-brand-500) 54%, transparent);
+  box-shadow: 0 18px 64px var(--color-brand-glow-sm);
   transform: translateY(-1px);
 }
 
 .cc-card--selected {
   background:
-    linear-gradient(135deg, rgba(68, 212, 255, 0.16), rgba(139, 125, 255, 0.1)),
-    #121a2a;
+    linear-gradient(135deg, var(--color-brand-glow-sm), var(--color-info-bg)),
+    var(--color-bg-surface);
 }
 
 .cc-card__header {
@@ -224,10 +206,10 @@ const select = (): void => {
 .cc-card__select {
   width: 100%;
   min-height: 34px;
-  border: 1px solid rgba(68, 212, 255, 0.22);
+  border: 1px solid color-mix(in srgb, var(--color-brand-500) 28%, transparent);
   border-radius: var(--radius-md);
-  color: #b7f5ff;
-  background: rgba(68, 212, 255, 0.08);
+  color: var(--color-brand-600);
+  background: var(--color-brand-hover-surface);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
   cursor: pointer;
@@ -237,9 +219,9 @@ const select = (): void => {
 .cc-card__select:hover,
 .cc-card__select:focus-visible,
 .cc-card--selected .cc-card__select {
-  border-color: rgba(68, 212, 255, 0.48);
-  color: #eefcff;
-  background: rgba(68, 212, 255, 0.16);
+  border-color: color-mix(in srgb, var(--color-brand-500) 58%, transparent);
+  color: var(--color-brand-700);
+  background: color-mix(in srgb, var(--color-brand-500) 14%, var(--color-bg-surface));
   outline: none;
 }
 
@@ -250,17 +232,16 @@ const select = (): void => {
 .cc-card__name {
   margin: 0;
   overflow-wrap: anywhere;
-  color: #f1f5ff;
+  color: var(--color-text-primary);
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-extrabold);
   line-height: 1.2;
 }
 
 .cc-card__bank,
-.cc-card__digits,
 .cc-card__empty-note {
   margin: 3px 0 0;
-  color: #94a3bf;
+  color: var(--color-text-muted);
   font-size: var(--font-size-xs);
 }
 
@@ -283,13 +264,13 @@ const select = (): void => {
   gap: 5px;
   min-height: 70px;
   padding: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--color-outline-subtle);
   border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.035);
+  background: color-mix(in srgb, var(--color-bg-surface) 72%, transparent);
 }
 
 .cc-card__meta span {
-  color: #94a3bf;
+  color: var(--color-text-muted);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-extrabold);
   text-transform: uppercase;
@@ -299,7 +280,7 @@ const select = (): void => {
 .cc-card__meta strong {
   align-self: end;
   overflow-wrap: anywhere;
-  color: #f1f5ff;
+  color: var(--color-text-primary);
   font-family: "IBM Plex Mono", monospace;
   font-size: var(--font-size-xs);
   line-height: 1.25;
@@ -309,7 +290,7 @@ const select = (): void => {
   width: 100%;
   height: 8px;
   border-radius: var(--radius-full);
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-outline-subtle);
   overflow: hidden;
 }
 
@@ -319,26 +300,26 @@ const select = (): void => {
 }
 
 .cc-util--low {
-  background: #42e8a9;
+  background: var(--color-positive);
 }
 
 .cc-util--mid {
-  background: #ffb861;
+  background: var(--color-warning);
 }
 
 .cc-util--high {
-  background: #ff6f79;
+  background: var(--color-negative);
 }
 
 .cc-card__util-label {
   margin: 7px 0 0;
-  color: #d2dcf3;
+  color: var(--color-text-secondary);
   font-size: var(--font-size-xs);
 }
 
 .cc-card__util-label--muted {
   margin: 0;
-  color: #94a3bf;
+  color: var(--color-text-muted);
 }
 
 .cc-card__benefits {
@@ -350,12 +331,6 @@ const select = (): void => {
   list-style: none;
 }
 
-.cc-card__validity {
-  margin: 0;
-  color: #94a3bf;
-  font-size: var(--font-size-xs);
-}
-
 .cc-card__actions {
   display: flex;
   flex-wrap: wrap;
@@ -364,10 +339,18 @@ const select = (): void => {
 }
 
 .cc-card__actions :deep(.n-button:not(.n-button--primary-type):not(.n-button--error-type)) {
-  color: #d2dcf3;
+  color: var(--color-text-secondary);
 }
 
 .cc-card__actions :deep(.n-button--error-type) {
-  color: #ff6b7a;
+  color: var(--color-negative);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-card,
+  .cc-card__select,
+  .cc-card__bar-fill {
+    transition: none;
+  }
 }
 </style>
