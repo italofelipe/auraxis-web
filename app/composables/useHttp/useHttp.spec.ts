@@ -280,6 +280,34 @@ describe("refreshAccessToken (SEC-GAP-01 — cookie-based)", () => {
     expect(captureExceptionMock).not.toHaveBeenCalled();
     expect(sessionStore.signOut).toHaveBeenCalledOnce();
   });
+
+  it("is single-flight: N concurrent callers share ONE POST /auth/refresh", async () => {
+    const sessionStore = {
+      signOut: vi.fn(),
+      updateTokens: vi.fn(),
+      signIn: vi.fn(),
+    } as unknown as Parameters<typeof refreshAccessToken>[1];
+
+    let resolvePost: ((value: unknown) => void) | undefined;
+    const postSpy = vi.spyOn(axios, "post").mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolvePost = resolve;
+        }),
+    );
+
+    // Fire three concurrent refreshes (boot plugin + middleware + a 401 retry).
+    const calls = [
+      refreshAccessToken("http://api", sessionStore),
+      refreshAccessToken("http://api", sessionStore),
+      refreshAccessToken("http://api", sessionStore),
+    ];
+    resolvePost?.({ data: { success: true, data: { token: "shared-token" } } });
+    const results = await Promise.all(calls);
+
+    expect(postSpy).toHaveBeenCalledOnce();
+    expect(results).toEqual(["shared-token", "shared-token", "shared-token"]);
+  });
 });
 
 describe("CSRF double-submit (SEC-AUD-03)", () => {
