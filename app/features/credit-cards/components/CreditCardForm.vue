@@ -53,20 +53,14 @@ const form = reactive({
   limitAmount: props.card?.limit_amount ?? null,
   closingDay: props.card?.closing_day ?? null,
   dueDay: props.card?.due_day ?? null,
-  lastFour: props.card?.last_four_digits ?? "",
-  validityDate: props.card?.validity_date ?? "",
   benefits: [...(props.card?.benefits ?? [])] as string[],
 });
 
 const nameError = computed<boolean>(() => form.name.trim().length === 0);
-const lastFourError = computed<boolean>(
-  () => form.lastFour.length > 0 && !/^\d{4}$/.test(form.lastFour),
-);
 
 const canSubmit = computed<boolean>(
   () =>
     !nameError.value &&
-    !lastFourError.value &&
     form.benefits.length <= CREDIT_CARD_BENEFITS_MAX &&
     !props.submitting,
 );
@@ -88,64 +82,71 @@ const onSubmit = (): void => {
     limit_amount: form.limitAmount,
     closing_day: form.closingDay,
     due_day: form.dueDay,
-    last_four_digits: form.lastFour.trim() || null,
-    validity_date: form.validityDate.trim() || null,
     benefits: form.benefits.length ? form.benefits : null,
   });
 };
 </script>
 
 <template>
-  <NForm data-testid="credit-card-form" @submit.prevent="onSubmit">
-    <NFormItem
-      :label="t('pages.settings.creditCards.fields.name')"
-      :validation-status="nameError ? 'error' : undefined"
-    >
-      <NInput v-model:value="form.name" data-testid="cc-name" />
-    </NFormItem>
+  <NForm data-testid="credit-card-form" class="cc-form" @submit.prevent="onSubmit">
+    <div class="cc-form__grid">
+      <NFormItem
+        :label="t('pages.settings.creditCards.fields.name')"
+        :validation-status="nameError ? 'error' : undefined"
+      >
+        <NInput
+          v-model:value="form.name"
+          placeholder="Ex.: Cartão Inter"
+          data-testid="cc-name"
+        />
+      </NFormItem>
 
-    <NFormItem :label="t('pages.settings.creditCards.fields.bank')">
-      <NInput v-model:value="form.bank" />
-    </NFormItem>
+      <NFormItem :label="t('pages.settings.creditCards.fields.bank')">
+        <NInput v-model:value="form.bank" placeholder="Ex.: Banco Inter" />
+      </NFormItem>
 
-    <NFormItem :label="t('pages.settings.creditCards.fields.brand')">
-      <NSelect v-model:value="form.brand" :options="brandOptions" />
-    </NFormItem>
+      <NFormItem :label="t('pages.settings.creditCards.fields.brand')">
+        <NSelect
+          v-model:value="form.brand"
+          :options="brandOptions"
+          placeholder="Selecione a bandeira"
+        />
+      </NFormItem>
 
-    <NFormItem :label="t('pages.settings.creditCards.fields.limitAmount')">
-      <UiMoneyInput v-model:value="form.limitAmount" placeholder="0,00" :min="0" />
-    </NFormItem>
+      <NFormItem :label="t('pages.settings.creditCards.fields.limitAmount')">
+        <UiMoneyInput v-model:value="form.limitAmount" placeholder="0,00" :min="0" />
+      </NFormItem>
 
-    <NFormItem :label="t('pages.settings.creditCards.fields.closingDay')">
-      <NInputNumber v-model:value="form.closingDay" :min="1" :max="31" />
-    </NFormItem>
+      <NFormItem :label="t('pages.settings.creditCards.fields.closingDay')">
+        <NInputNumber
+          v-model:value="form.closingDay"
+          placeholder="Ex.: 5"
+          :min="1"
+          :max="31"
+        />
+      </NFormItem>
 
-    <NFormItem :label="t('pages.settings.creditCards.fields.dueDay')">
-      <NInputNumber v-model:value="form.dueDay" :min="1" :max="31" />
-    </NFormItem>
-
-    <NFormItem
-      :label="t('pages.settings.creditCards.fields.lastFourDigits')"
-      :validation-status="lastFourError ? 'error' : undefined"
-    >
-      <NInput
-        v-model:value="form.lastFour"
-        :maxlength="4"
-        :placeholder="t('pages.settings.creditCards.fields.lastFourDigitsPlaceholder')"
-        data-testid="cc-last-four"
-      />
-    </NFormItem>
-
-    <NFormItem :label="t('pages.settings.creditCards.fields.validityDate')">
-      <NInput v-model:value="form.validityDate" placeholder="YYYY-MM-DD" />
-    </NFormItem>
-
-    <NFormItem :label="t('pages.settings.creditCards.fields.description')">
-      <NInput v-model:value="form.description" type="textarea" :rows="2" />
-    </NFormItem>
+      <NFormItem :label="t('pages.settings.creditCards.fields.dueDay')">
+        <NInputNumber
+          v-model:value="form.dueDay"
+          placeholder="Ex.: 12"
+          :min="1"
+          :max="31"
+        />
+      </NFormItem>
+    </div>
 
     <NFormItem :label="t('pages.settings.creditCards.fields.benefits')">
       <NDynamicTags v-model:value="form.benefits" :max="CREDIT_CARD_BENEFITS_MAX" />
+    </NFormItem>
+
+    <NFormItem :label="t('pages.settings.creditCards.fields.description')">
+      <NInput
+        v-model:value="form.description"
+        type="textarea"
+        placeholder="Ex.: Cartão para compras recorrentes e assinaturas"
+        :rows="2"
+      />
     </NFormItem>
 
     <div class="cc-form__actions">
@@ -166,10 +167,32 @@ const onSubmit = (): void => {
 </template>
 
 <style scoped>
+.cc-form {
+  max-height: calc(100dvh - 160px);
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.cc-form__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 var(--space-3);
+}
+
 .cc-form__actions {
   display: flex;
   justify-content: flex-end;
   gap: var(--space-2);
   margin-top: var(--space-2);
+}
+
+@media (max-width: 640px) {
+  .cc-form {
+    max-height: calc(100dvh - 132px);
+  }
+
+  .cc-form__grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

@@ -40,11 +40,9 @@ const CARD: CreditCardDto = {
   limit_amount: 5000,
   closing_day: 3,
   due_day: 10,
-  last_four_digits: "1234",
   bank: "Nubank",
   description: null,
   benefits: ["Cashback"],
-  validity_date: "2030-12-31",
   created_at: null,
   updated_at: null,
 };
@@ -81,11 +79,15 @@ describe("CreditCardCard", () => {
     utilizationPct: pct,
   });
 
-  it("renderiza nome, validade MM/YYYY e benefits", () => {
+  it("renderiza nome, ciclo e benefits sem dados sensíveis", () => {
     const w = mountCard();
     expect(w.text()).toContain("Nubank");
-    expect(w.text()).toContain("12/2030");
+    expect(w.text()).toContain("Fecha dia 3");
+    expect(w.text()).toContain("Vence dia 10");
     expect(w.text()).toContain("Cashback");
+    expect(w.text()).not.toContain("1234");
+    expect(w.text()).not.toContain("12/2030");
+    expect(w.text()).not.toContain("Final não informado");
   });
 
   it.each([

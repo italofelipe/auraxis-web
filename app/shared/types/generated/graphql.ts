@@ -358,11 +358,9 @@ export type CreditCardType = {
   description?: Maybe<Scalars['String']['output']>;
   dueDay?: Maybe<Scalars['Int']['output']>;
   id: Scalars['String']['output'];
-  lastFourDigits?: Maybe<Scalars['String']['output']>;
   limitAmount?: Maybe<Scalars['DecimalScalar']['output']>;
   name: Scalars['String']['output'];
   updatedAt?: Maybe<Scalars['String']['output']>;
-  validityDate?: Maybe<Scalars['String']['output']>;
 };
 
 export type CreditCardUtilizationType = {
