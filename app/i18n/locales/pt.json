@@ -1440,7 +1440,42 @@
       "edit": "Editar meta",
       "showPlan": "Ver planejamento",
       "delete": "Excluir meta",
-      "deleteConfirm": "Tem certeza que deseja excluir esta meta?"
+      "deleteConfirm": "Tem certeza que deseja excluir esta meta?",
+      "remaining": "Faltam {amount}",
+      "registerContribution": "Registrar entrada"
+    },
+    "contribution": {
+      "title": "Registrar entrada",
+      "confirm": "Confirmar",
+      "direction": {
+        "label": "Tipo de movimentação",
+        "deposit": "Entrada",
+        "withdrawal": "Saída"
+      },
+      "amount": {
+        "label": "Valor (R$)",
+        "required": "Informe um valor maior que zero"
+      },
+      "date": {
+        "label": "Data",
+        "placeholder": "Selecione a data"
+      },
+      "note": {
+        "label": "Observação (opcional)",
+        "placeholder": "Ex: aporte do mês"
+      },
+      "toast": {
+        "success": "Movimentação registrada com sucesso.",
+        "error": "Não foi possível registrar a movimentação. Tente novamente.",
+        "insufficientBalance": "Saldo insuficiente: a retirada deixaria a meta negativa."
+      },
+      "timeline": {
+        "title": "Histórico de aportes",
+        "emptyTitle": "Nenhuma movimentação ainda",
+        "emptyDescription": "Registre uma entrada para começar a acompanhar o histórico desta meta.",
+        "errorTitle": "Não foi possível carregar o histórico",
+        "errorMessage": "Atualize a página ou tente novamente em instantes."
+      }
     },
     "health": {
       "completed": "✓ Concluída",

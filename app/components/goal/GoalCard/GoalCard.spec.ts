@@ -136,6 +136,22 @@ describe("GoalCard", () => {
     expect(wrapper.emitted("show-plan")).toBeTruthy();
   });
 
+  it("emits register-contribution when the register button is clicked", async () => {
+    const wrapper = mountGoalCard(makeGoal());
+    const buttons = wrapper.findAll("button");
+    const registerButton = buttons.find((b) => b.text().includes("Registrar entrada"));
+    expect(registerButton).toBeTruthy();
+    await registerButton!.trigger("click");
+    expect(wrapper.emitted("register-contribution")).toBeTruthy();
+  });
+
+  it("renders the remaining amount toward the target", () => {
+    const wrapper = mountGoalCard(makeGoal({ current_amount: 4000, target_amount: 10000 }));
+    // Remaining = 6000; the card shows a formatted BRL value.
+    expect(wrapper.text()).toContain("Faltam");
+    expect(wrapper.text()).toContain("R$");
+  });
+
   // ── Health indicator ──────────────────────────────────────────────────────
 
   it("shows completed health when current_amount equals target_amount", () => {
