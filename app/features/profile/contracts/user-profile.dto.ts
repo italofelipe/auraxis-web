@@ -19,6 +19,12 @@ export interface UserProfileDto {
   investor_profile_suggested: string | null;
   profile_quiz_score: number | null;
   taxonomy_version: string | null;
+  /**
+   * ISO 8601 timestamp marking server-side onboarding completion, or null if
+   * the user has not finished onboarding. Lets the wizard be gated across
+   * devices without depending on localStorage (#1033).
+   */
+  onboarding_completed_at?: string | null;
 }
 
 /**
