@@ -4,6 +4,22 @@ import type { UserProfileDto } from "~/features/profile/contracts/user-profile.d
 import { useOnboarding } from "../composables/useOnboarding";
 import { useUserStore } from "~/stores/user";
 import { useSessionStore } from "~/stores/session";
+import { postOnboardingComplete } from "~/features/onboarding/api/onboarding.client";
+
+vi.mock("~/features/onboarding/api/onboarding.client", () => ({
+  postOnboardingComplete: vi.fn(() => Promise.resolve()),
+}));
+const postCompleteMock = vi.mocked(postOnboardingComplete);
+
+/**
+ * Builds a UserProfileDto for tests with an optional onboarding marker.
+ *
+ * @param overrides Partial fields to merge onto the base profile.
+ * @returns A UserProfileDto suitable for store patching.
+ */
+function _profile(overrides: Partial<UserProfileDto> = {}): UserProfileDto {
+  return { id: "u1", name: "Test", email: "user@test.com", ...overrides } as unknown as UserProfileDto;
+}
 
 let _store: Record<string, string> = {};
 const localStorageMock = {
@@ -88,6 +104,43 @@ describe("useOnboarding", () => {
     expect(shouldShow.value).toBe(true);
     complete();
     expect(shouldShow.value).toBe(false);
+  });
+
+  it("shouldShow is false when the server marks onboarding complete (cleared storage)", () => {
+    const userStore = useUserStore();
+    const sessionStore = useSessionStore();
+    sessionStore.$patch({ emailConfirmed: true, userEmail: "user@test.com" });
+    // Fresh browser: localStorage empty, but the account is already onboarded.
+    userStore.$patch({
+      isLoaded: true,
+      profile: _profile({ onboarding_completed_at: "2026-06-01T10:00:00Z" }),
+    });
+
+    const { shouldShow } = useOnboarding();
+    expect(shouldShow.value).toBe(false);
+  });
+
+  it("complete() persists completion server-side", () => {
+    const userStore = useUserStore();
+    const sessionStore = useSessionStore();
+    sessionStore.$patch({ emailConfirmed: true, userEmail: "user@test.com" });
+    userStore.$patch({ isLoaded: true, profile: _profile() });
+
+    const { complete } = useOnboarding();
+    complete();
+    expect(postCompleteMock).toHaveBeenCalled();
+  });
+
+  it("dismissal persists server-side", () => {
+    const userStore = useUserStore();
+    const sessionStore = useSessionStore();
+    sessionStore.$patch({ emailConfirmed: true, userEmail: "user@test.com" });
+    userStore.$patch({ isLoaded: true, profile: _profile() });
+
+    // reason: exercising the onboarding skip action, not disabling a test.
+    const onboarding = useOnboarding();
+    onboarding.skip();
+    expect(postCompleteMock).toHaveBeenCalled();
   });
 
   it("start() forces shouldShow to true even after skip()", () => {

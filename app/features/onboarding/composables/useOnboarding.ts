@@ -1,6 +1,16 @@
 import { computed, onMounted, ref, watch, type ComputedRef, type Ref } from "vue";
+import { postOnboardingComplete } from "~/features/onboarding/api/onboarding.client";
 import { useSessionStore } from "~/stores/session";
 import { useUserStore } from "~/stores/user";
+
+/**
+ * Persists onboarding completion server-side, swallowing failures so a
+ * transient network error never blocks the local wizard flow. The next page
+ * load retries the sync.
+ */
+function _syncServerCompletion(): void {
+  void postOnboardingComplete().catch(() => undefined);
+}
 
 export type OnboardingStepNumber = 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -112,6 +122,7 @@ function _buildActions(persist: () => void): OnboardingActions {
       _state.value = { ...DEFAULT_STATE, done: true, skipped: false, formData: _state.value.formData, currentStep: 1 };
       _openedManually.value = false;
       persist();
+      _syncServerCompletion();
     },
     skip: (): void => {
       _state.value = {
@@ -122,6 +133,9 @@ function _buildActions(persist: () => void): OnboardingActions {
       };
       _openedManually.value = false;
       persist();
+      // Skipping also means "don't prompt me again" — persist server-side so
+      // the wizard stays dismissed across devices.
+      _syncServerCompletion();
     },
     reset: (): void => {
       _state.value = { ...DEFAULT_STATE, formData: {} };
@@ -192,11 +206,28 @@ export function useOnboarding(): {
     localStorage.setItem(_currentKey.value, JSON.stringify(_state.value));
   }
 
+  /** True once the server has recorded onboarding completion for this user. */
+  const _serverCompleted = computed((): boolean => Boolean(userStore.profile?.onboarding_completed_at));
+
   onMounted(_hydrate);
   watch(_currentKey, _hydrate);
 
+  // Back-fill the server flag for users who finished/skipped locally before
+  // server persistence existed (or whose earlier sync failed). Runs once the
+  // profile is loaded; idempotent on the backend.
+  watch(
+    (): boolean => userStore.isLoaded && (_state.value.done || _state.value.skipped) && !_serverCompleted.value,
+    (needsSync: boolean): void => {
+      if (needsSync) { _syncServerCompletion(); }
+    },
+    { immediate: true },
+  );
+
   const shouldShow = computed((): boolean => {
     if (_openedManually.value) { return true; }
+    // Server is the source of truth: a completed account never re-onboards,
+    // even after localStorage is cleared on a fresh browser/device.
+    if (_serverCompleted.value) { return false; }
     if (_state.value.done || _state.value.skipped) { return false; }
     if (!userStore.isLoaded) { return false; }
     return sessionStore.emailConfirmed === true;
