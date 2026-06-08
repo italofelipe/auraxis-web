@@ -57,6 +57,20 @@ interface RetryableConfig extends InternalAxiosRequestConfig {
 }
 
 /**
+ * Resolves the machine-readable error code from an API error body.
+ *
+ * Accepts both the flat `{code}` shape and the v2 envelope that nests the code
+ * under `{error:{code}}` (e.g. `{success:false, error:{code:"INSUFFICIENT_BALANCE"}}`),
+ * preferring the flat field when present.
+ *
+ * @param body Parsed error response body, when available.
+ * @returns The error code, or undefined when absent.
+ */
+const resolveErrorCode = (
+  body: { code?: string; error?: { code?: string } } | undefined,
+): string | undefined => body?.code ?? body?.error?.code;
+
+/**
  * Converts an unknown thrown value to a typed {@link ApiError}.
  *
  * Handles three cases:
@@ -75,11 +89,11 @@ export const toApiError = (error: unknown): ApiError => {
   if (axios.isAxiosError(error)) {
     const status = error.response?.status ?? 500;
     const responseData = error.response?.data as
-      | { message?: string; code?: string }
+      | { message?: string; code?: string; error?: { code?: string; message?: string } }
       | undefined;
     const message =
       responseData?.message ?? error.message ?? "Unexpected error";
-    const code = responseData?.code;
+    const code = resolveErrorCode(responseData);
 
     return new ApiError(status, message, code);
   }

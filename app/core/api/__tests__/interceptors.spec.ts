@@ -70,6 +70,25 @@ describe("toApiError", () => {
     expect(err.code).toBe("VALIDATION_ERROR");
   });
 
+  it("extrai o código aninhado do envelope v2 (error.code) quando o flat code está ausente", () => {
+    const axiosErr = Object.assign(new Error("Saldo insuficiente"), {
+      isAxiosError: true,
+      response: {
+        status: 400,
+        data: {
+          success: false,
+          message: "Saldo insuficiente",
+          error: { code: "INSUFFICIENT_BALANCE" },
+        },
+      },
+    });
+
+    const err = toApiError(axiosErr);
+
+    expect(err.status).toBe(400);
+    expect(err.code).toBe("INSUFFICIENT_BALANCE");
+  });
+
   it("usa status 500 quando AxiosError não tem response", () => {
     const axiosErr = Object.assign(new Error("Network Error"), {
       isAxiosError: true,

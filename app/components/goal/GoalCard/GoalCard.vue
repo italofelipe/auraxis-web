@@ -23,6 +23,7 @@ const emit = defineEmits<{
   edit: [];
   "show-plan": [];
   delete: [];
+  "register-contribution": [];
 }>();
 
 /**
@@ -100,6 +101,10 @@ const progressPercent = computed(() => {
   );
 });
 
+const remainingAmount = computed(() =>
+  Math.max(props.goal.target_amount - props.goal.current_amount, 0),
+);
+
 /**
  * Derives a health status from the goal's progress and deadline proximity.
  *
@@ -172,9 +177,14 @@ const healthLabel = computed((): string => {
           :height="8"
           :border-radius="4"
         />
-        <span class="goal-card__health" :class="`goal-card__health--${healthStatus}`">
-          {{ healthLabel }}
-        </span>
+        <div class="goal-card__progress-meta">
+          <span class="goal-card__health" :class="`goal-card__health--${healthStatus}`">
+            {{ healthLabel }}
+          </span>
+          <span class="goal-card__remaining">
+            {{ $t('goal.card.remaining', { amount: formatCurrency(remainingAmount) }) }}
+          </span>
+        </div>
       </div>
 
       <div class="goal-card__stats">
@@ -189,6 +199,16 @@ const healthLabel = computed((): string => {
           class="goal-card__stat"
         />
       </div>
+
+      <NButton
+        class="goal-card__register"
+        type="primary"
+        size="small"
+        block
+        @click="emit('register-contribution')"
+      >
+        {{ $t('goal.card.registerContribution') }}
+      </NButton>
 
       <div class="goal-card__footer">
         <span class="goal-card__target-date">
@@ -290,9 +310,25 @@ const healthLabel = computed((): string => {
   color: var(--color-text-muted);
 }
 
+.goal-card__progress-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.goal-card__remaining {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.goal-card__register {
+  margin-bottom: var(--space-2);
+}
+
 .goal-card__health {
   display: inline-block;
-  margin-top: var(--space-1);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
 }
