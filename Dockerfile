@@ -18,6 +18,9 @@ RUN pnpm build
 FROM deps AS dev
 
 COPY . .
+# Drop root: dev server runs as the built-in non-root `node` user.
+RUN chown -R node:node /app
+USER node
 EXPOSE 3000
 CMD ["pnpm", "dev"]
 
@@ -30,6 +33,9 @@ WORKDIR /app
 RUN apk add --no-cache dumb-init
 
 COPY --from=builder /app/.output ./.output
+
+# Drop root: production SSR server runs as the built-in non-root `node` user.
+USER node
 
 EXPOSE 3000
 

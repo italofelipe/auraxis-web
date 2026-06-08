@@ -45,16 +45,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set deployment parameters
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          IN_ENVIRONMENT: ${{ inputs.environment }}
+          IN_API_BASE_URL: ${{ inputs.api_base_url }}
+          IN_RUN_SMOKE_TEST: ${{ inputs.run_smoke_test }}
         run: |
-          if [ "${{ github.event_name }}" == "push" ]; then
+          if [ "$EVENT_NAME" == "push" ]; then
             echo "DEPLOY_ENVIRONMENT=prod"                       >> $GITHUB_ENV
             echo "DEPLOY_API_BASE_URL=https://api.auraxis.com.br" >> $GITHUB_ENV
             echo "DEPLOY_RUN_SMOKE_TEST=true"                   >> $GITHUB_ENV
             echo "Automatic deployment triggered by push to main"
           else
-            echo "DEPLOY_ENVIRONMENT=${{ inputs.environment }}"   >> $GITHUB_ENV
-            echo "DEPLOY_API_BASE_URL=${{ inputs.api_base_url }}" >> $GITHUB_ENV
-            echo "DEPLOY_RUN_SMOKE_TEST=${{ inputs.run_smoke_test }}" >> $GITHUB_ENV
+            echo "DEPLOY_ENVIRONMENT=$IN_ENVIRONMENT"   >> $GITHUB_ENV
+            echo "DEPLOY_API_BASE_URL=$IN_API_BASE_URL" >> $GITHUB_ENV
+            echo "DEPLOY_RUN_SMOKE_TEST=$IN_RUN_SMOKE_TEST" >> $GITHUB_ENV
             echo "Manual deployment triggered by workflow_dispatch"
           fi
 
@@ -128,13 +133,17 @@ jobs:
       url: https://${{ env.WEB_OFFICIAL_HOSTNAME }}
     steps:
       - name: Set deployment parameters
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          IN_ENVIRONMENT: ${{ inputs.environment }}
+          IN_RUN_SMOKE_TEST: ${{ inputs.run_smoke_test }}
         run: |
-          if [ "${{ github.event_name }}" == "push" ]; then
+          if [ "$EVENT_NAME" == "push" ]; then
             echo "DEPLOY_ENVIRONMENT=prod"     >> $GITHUB_ENV
             echo "DEPLOY_RUN_SMOKE_TEST=true"  >> $GITHUB_ENV
           else
-            echo "DEPLOY_ENVIRONMENT=${{ inputs.environment }}"       >> $GITHUB_ENV
-            echo "DEPLOY_RUN_SMOKE_TEST=${{ inputs.run_smoke_test }}" >> $GITHUB_ENV
+            echo "DEPLOY_ENVIRONMENT=$IN_ENVIRONMENT"       >> $GITHUB_ENV
+            echo "DEPLOY_RUN_SMOKE_TEST=$IN_RUN_SMOKE_TEST" >> $GITHUB_ENV
           fi
 
       - name: Download build artifact
