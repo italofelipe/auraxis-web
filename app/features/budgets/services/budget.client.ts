@@ -8,6 +8,112 @@ import type {
   UpdateBudgetPayload,
 } from "~/features/budgets/contracts/budget.contracts";
 
+interface ApiEnvelope<T> {
+  readonly success?: boolean;
+  readonly message?: string;
+  readonly data?: T;
+}
+
+interface BudgetListPayload {
+  readonly items?: BudgetDto[];
+}
+
+interface BudgetPayload {
+  readonly budget?: BudgetDto;
+}
+
+interface BudgetSummaryPayload {
+  readonly summary?: BudgetSummaryDto;
+}
+
+type BudgetListResponse =
+  | ApiEnvelope<BudgetListPayload | BudgetDto[]>
+  | BudgetListPayload
+  | BudgetDto[];
+
+type BudgetResponse =
+  | ApiEnvelope<BudgetPayload | BudgetDto>
+  | BudgetPayload
+  | BudgetDto;
+
+type BudgetSummaryResponse =
+  | ApiEnvelope<BudgetSummaryPayload | BudgetSummaryDto>
+  | BudgetSummaryPayload
+  | BudgetSummaryDto;
+
+/**
+ * Unwraps REST v2 response envelopes while preserving legacy direct payloads.
+ *
+ * @param payload Raw Axios response body.
+ * @returns Payload nested under `data`, or the payload itself.
+ */
+const unwrapApiEnvelope = <T>(payload: ApiEnvelope<T> | T): T => {
+  if (
+    payload
+    && typeof payload === "object"
+    && "data" in payload
+    && (payload as ApiEnvelope<T>).data !== undefined
+  ) {
+    return (payload as ApiEnvelope<T>).data as T;
+  }
+
+  return payload as T;
+};
+
+/**
+ * Coerces all supported GET /budgets shapes into an array.
+ *
+ * @param payload Raw response body.
+ * @returns Budget list.
+ */
+const coerceBudgetList = (
+  payload: BudgetListResponse,
+): BudgetDto[] => {
+  const data = unwrapApiEnvelope<BudgetListPayload | BudgetDto[]>(payload);
+
+  if (Array.isArray(data)) {
+    return data;
+  }
+
+  return data.items ?? [];
+};
+
+/**
+ * Coerces single-budget responses into a BudgetDto.
+ *
+ * @param payload Raw response body.
+ * @returns Budget item.
+ */
+const coerceBudget = (
+  payload: BudgetResponse,
+): BudgetDto => {
+  const data = unwrapApiEnvelope<BudgetPayload | BudgetDto>(payload);
+
+  if (data && typeof data === "object" && "budget" in data && data.budget) {
+    return data.budget;
+  }
+
+  return data as BudgetDto;
+};
+
+/**
+ * Coerces summary responses into BudgetSummaryDto.
+ *
+ * @param payload Raw response body.
+ * @returns Budget summary.
+ */
+const coerceBudgetSummary = (
+  payload: BudgetSummaryResponse,
+): BudgetSummaryDto => {
+  const data = unwrapApiEnvelope<BudgetSummaryPayload | BudgetSummaryDto>(payload);
+
+  if (data && typeof data === "object" && "summary" in data && data.summary) {
+    return data.summary;
+  }
+
+  return data as BudgetSummaryDto;
+};
+
 /**
  * API client for the budgets feature.
  *
@@ -29,13 +135,8 @@ export class BudgetClient {
    * @returns Array of BudgetDto objects.
    */
   async listBudgets(): Promise<BudgetDto[]> {
-    const response = await this.#http.get<{ items: BudgetDto[] }>("/budgets");
-    // Handle both direct array and wrapped response shapes
-    const data = response.data as BudgetDto[] | { items: BudgetDto[] };
-    if (Array.isArray(data)) {
-      return data;
-    }
-    return data.items ?? [];
+    const response = await this.#http.get<BudgetListResponse>("/budgets");
+    return coerceBudgetList(response.data);
   }
 
   /**
@@ -45,8 +146,8 @@ export class BudgetClient {
    * @returns BudgetDto.
    */
   async getBudget(id: string): Promise<BudgetDto> {
-    const response = await this.#http.get<BudgetDto>(`/budgets/${id}`);
-    return response.data;
+    const response = await this.#http.get<BudgetResponse>(`/budgets/${id}`);
+    return coerceBudget(response.data);
   }
 
   /**
@@ -56,8 +157,8 @@ export class BudgetClient {
    * @returns Created BudgetDto.
    */
   async createBudget(payload: CreateBudgetPayload): Promise<BudgetDto> {
-    const response = await this.#http.post<BudgetDto>("/budgets", payload);
-    return response.data;
+    const response = await this.#http.post<BudgetResponse>("/budgets", payload);
+    return coerceBudget(response.data);
   }
 
   /**
@@ -68,8 +169,8 @@ export class BudgetClient {
    * @returns Updated BudgetDto.
    */
   async updateBudget(id: string, payload: UpdateBudgetPayload): Promise<BudgetDto> {
-    const response = await this.#http.patch<BudgetDto>(`/budgets/${id}`, payload);
-    return response.data;
+    const response = await this.#http.patch<BudgetResponse>(`/budgets/${id}`, payload);
+    return coerceBudget(response.data);
   }
 
   /**
@@ -87,8 +188,8 @@ export class BudgetClient {
    * @returns BudgetSummaryDto.
    */
   async getSummary(): Promise<BudgetSummaryDto> {
-    const response = await this.#http.get<BudgetSummaryDto>("/budgets/summary");
-    return response.data;
+    const response = await this.#http.get<BudgetSummaryResponse>("/budgets/summary");
+    return coerceBudgetSummary(response.data);
   }
 }
 

@@ -4,9 +4,11 @@ import type { BudgetDto } from "~/features/budgets/contracts/budget.contracts";
 import type { Subscription } from "~/features/subscription/model/subscription";
 import {
   BUDGET_FREE_ENVELOPE_LIMIT,
+  buildBudgetTransactionFilters,
   buildBudgetQuotaState,
   getBudgetUsageLevel,
   normalizeBudgetEnvelope,
+  pickDefaultBudgetEnvelope,
   summarizeBudgetEnvelopes,
 } from "./budget-envelope";
 
@@ -128,6 +130,62 @@ describe("summarizeBudgetEnvelopes", () => {
     expect(summary.overallPercentage).toBe(72);
     expect(summary.warningCount).toBe(1);
     expect(summary.dangerCount).toBe(1);
+  });
+});
+
+describe("pickDefaultBudgetEnvelope", () => {
+  it("selects the most critical envelope by status and percentage used", () => {
+    const healthy = normalizeBudgetEnvelope(makeBudget({ id: "healthy", amount: "1000", spent: "250" }));
+    const warning = normalizeBudgetEnvelope(makeBudget({ id: "warning", amount: "1000", spent: "850" }));
+    const danger = normalizeBudgetEnvelope(makeBudget({ id: "danger", amount: "1200", spent: "31579.16" }));
+
+    expect(pickDefaultBudgetEnvelope([healthy, danger, warning])?.id).toBe("danger");
+  });
+
+  it("returns null when there are no envelopes", () => {
+    expect(pickDefaultBudgetEnvelope([])).toBeNull();
+  });
+});
+
+describe("buildBudgetTransactionFilters", () => {
+  it("builds committed monthly expense filters for the selected envelope", () => {
+    const budget = makeBudget({
+      tag_id: "tag-ai",
+      period: "monthly",
+    });
+
+    expect(buildBudgetTransactionFilters(budget, new Date("2026-06-09T12:00:00Z"))).toEqual({
+      type: "expense",
+      start_date: "2026-06-01",
+      end_date: "2026-06-30",
+      tag_id: "tag-ai",
+    });
+  });
+
+  it("omits tag_id for a global monthly envelope", () => {
+    const budget = makeBudget({ tag_id: null, period: "monthly" });
+
+    expect(buildBudgetTransactionFilters(budget, new Date("2026-06-09T12:00:00Z"))).toEqual({
+      type: "expense",
+      start_date: "2026-06-01",
+      end_date: "2026-06-30",
+    });
+  });
+
+  it("uses the custom budget range when start and end dates are present", () => {
+    const budget = makeBudget({
+      period: "custom",
+      start_date: "2026-06-05",
+      end_date: "2026-06-20",
+      tag_id: "tag-custom",
+    });
+
+    expect(buildBudgetTransactionFilters(budget, new Date("2026-06-09T12:00:00Z"))).toEqual({
+      type: "expense",
+      start_date: "2026-06-05",
+      end_date: "2026-06-20",
+      tag_id: "tag-custom",
+    });
   });
 });
 
