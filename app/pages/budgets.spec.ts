@@ -183,8 +183,8 @@ describe("budgets page — clampedPct helper", () => {
 describe("budgets page — empty state UX writing", () => {
   it("renders a friendly empty-state copy instead of a raw i18n key", () => {
     expect(source).not.toContain("pages.budgets.emptyState");
-    expect(source).toContain("Crie seu primeiro orçamento");
-    expect(source).toContain("Orçamentos ajudam você a definir um limite por categoria");
+    expect(source).toContain("Crie seu primeiro envelope");
+    expect(source).toContain("Envelopes ajudam você a reservar um limite mensal");
   });
 });
 
@@ -196,7 +196,7 @@ describe("budgets page — freemium envelope UX", () => {
   });
 
   it("names budget progress bars for assistive technology", () => {
-    expect(source).toContain("Uso total dos orçamentos");
-    expect(source).toContain("Uso do orçamento");
+    expect(source).toContain("Uso comprometido total dos envelopes");
+    expect(source).toContain("Uso comprometido do envelope");
   });
 });

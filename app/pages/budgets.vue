@@ -38,7 +38,7 @@ const { t } = useI18n();
 definePageMeta({
   middleware: ["authenticated"],
   pageTitle: "Orçamentos",
-  pageSubtitle: "Controle seus gastos por categoria e período",
+  pageSubtitle: "Controle envelopes automáticos por período",
 });
 
 useHead({ title: "Orçamentos | Auraxis" });
@@ -85,14 +85,14 @@ const quotaDescription = computed(() =>
 
 const budgetHealthText = computed(() => {
   if (budgetSummary.value.dangerCount > 0) {
-    return `${budgetSummary.value.dangerCount} orçamento(s) acima do limite`;
+    return `${budgetSummary.value.dangerCount} envelope(s) acima do limite`;
   }
 
   if (budgetSummary.value.warningCount > 0) {
-    return `${budgetSummary.value.warningCount} orçamento(s) pedem atenção`;
+    return `${budgetSummary.value.warningCount} envelope(s) pedem atenção`;
   }
 
-  return "Todos os orçamentos estão dentro do limite";
+  return "Todos os envelopes estão dentro do limite";
 });
 
 const tagOptions = computed(() => {
@@ -243,11 +243,11 @@ const onDeleteBudget = (id: string): void => {
       <div class="budgets-page__title-block">
         <span class="budgets-page__title">{{ $t('pages.budgets.title') }}</span>
         <span class="budgets-page__subtitle">
-          Defina limites por categoria, acompanhe o uso e receba alertas antes de estourar o mês.
+          Defina envelopes automáticos como Streaming, Mercado ou Transporte. As transações com a tag correspondente atualizam o comprometido do mês.
         </span>
       </div>
       <NButton type="primary" size="medium" @click="onNewBudget">
-        {{ $t('pages.budgets.newBudget') }}
+        Novo envelope
       </NButton>
     </div>
 
@@ -268,7 +268,7 @@ const onDeleteBudget = (id: string): void => {
           'budgets-page__quota--premium': quotaState.isPremium,
           'budgets-page__quota--locked': !quotaState.canCreate,
         }"
-        aria-label="Limite de orçamentos"
+        aria-label="Limite de envelopes"
       >
         <div class="budgets-page__quota-icon" aria-hidden="true">
           <Crown v-if="quotaState.isPremium" :size="18" />
@@ -297,7 +297,7 @@ const onDeleteBudget = (id: string): void => {
             :value="formatCurrency(budgetSummary.totalBudgeted)"
           />
           <NStatistic
-            :label="$t('pages.budgets.summary.spent')"
+            label="Comprometido"
             :value="formatCurrency(budgetSummary.totalSpent)"
           />
           <NStatistic
@@ -325,7 +325,7 @@ const onDeleteBudget = (id: string): void => {
           :percentage="budgetSummary.overallPercentage"
           :status="budgetSummary.dangerCount > 0 ? 'error' : budgetSummary.warningCount > 0 ? 'warning' : 'default'"
           :show-indicator="true"
-          aria-label="Uso total dos orçamentos"
+          aria-label="Uso comprometido total dos envelopes"
         />
       </NCard>
 
@@ -337,9 +337,9 @@ const onDeleteBudget = (id: string): void => {
         v-else-if="budgetEnvelopes.length === 0"
         class="budgets-page__empty"
         icon="pieChart"
-        title="Crie seu primeiro orçamento"
-        description="Orçamentos ajudam você a definir um limite por categoria, acompanhar quanto já foi usado e perceber desvios antes que o mês aperte. Comece por uma categoria simples, como mercado, moradia ou lazer."
-        action-label="Criar orçamento"
+        title="Crie seu primeiro envelope"
+        description="Envelopes ajudam você a reservar um limite mensal e acompanhar o gasto comprometido automaticamente pelas transações. Comece com algo concreto, como Streaming, Mercado ou Transporte."
+        action-label="Criar envelope"
         secondary-label="Ver transações"
         secondary-href="/transactions"
         @action="onNewBudget"
@@ -387,7 +387,7 @@ const onDeleteBudget = (id: string): void => {
           <NProgress
             class="budget-card__progress"
             type="line"
-            :aria-label="`Uso do orçamento ${budget.name}`"
+            :aria-label="`Uso comprometido do envelope ${budget.name}`"
             :percentage="budget.progressPercentage"
             :status="budget.progressStatus"
             :show-indicator="false"
@@ -395,7 +395,7 @@ const onDeleteBudget = (id: string): void => {
 
           <div class="budget-card__amounts">
             <span class="budget-card__spent">
-              {{ formatCurrency(budget.spent) }} / {{ formatCurrency(budget.amount) }}
+              Comprometido: {{ formatCurrency(budget.spent) }} / {{ formatCurrency(budget.amount) }}
             </span>
             <span class="budget-card__pct">{{ budget.displayPercentage }}%</span>
           </div>
@@ -421,17 +421,17 @@ const onDeleteBudget = (id: string): void => {
     <NModal
       v-model:show="showForm"
       preset="card"
-      :title="editingBudget ? 'Editar orçamento' : $t('pages.budgets.newBudget')"
+      :title="editingBudget ? 'Editar envelope' : 'Novo envelope'"
       style="max-width: 480px"
       :mask-closable="true"
       @after-leave="editingBudget = null"
     >
       <NForm label-placement="top">
-        <NFormItem :label="$t('pages.budgets.form.name')">
-          <NInput v-model:value="formName" :placeholder="$t('pages.budgets.form.name')" />
+        <NFormItem label="Nome do envelope">
+          <NInput v-model:value="formName" placeholder="Ex.: Streaming" />
         </NFormItem>
 
-        <NFormItem :label="$t('pages.budgets.form.amount')">
+        <NFormItem label="Limite mensal">
           <UiMoneyInput
             v-model:value="formAmount"
             :min="0.01"
@@ -453,11 +453,11 @@ const onDeleteBudget = (id: string): void => {
           />
         </NFormItem>
 
-        <NFormItem :label="$t('pages.budgets.form.tag')">
+        <NFormItem label="Envelope / tag">
           <NSelect
             v-model:value="formTagId"
             :options="tagOptions"
-            :placeholder="$t('pages.budgets.form.tagPlaceholder')"
+            placeholder="Selecione a tag que alimenta este envelope"
             clearable
           />
         </NFormItem>
@@ -469,7 +469,7 @@ const onDeleteBudget = (id: string): void => {
             :loading="createMutation.isPending.value || updateMutation.isPending.value"
             @click="onSubmitForm"
           >
-            {{ editingBudget ? 'Salvar' : 'Criar' }}
+            {{ editingBudget ? 'Salvar' : 'Criar envelope' }}
           </NButton>
         </NSpace>
       </NForm>
@@ -484,7 +484,7 @@ const onDeleteBudget = (id: string): void => {
     >
       <UiUpgradePrompt
         feature-name="Premium"
-        description="Você já usou os 3 envelopes do plano gratuito. Assine Premium para criar orçamentos ilimitados, separar categorias com mais precisão e acompanhar alertas por área de gasto."
+        description="Você já usou os 3 envelopes do plano gratuito. Assine Premium para criar envelopes ilimitados, separar categorias com mais precisão e acompanhar alertas por área de gasto."
         cta-label="Ver plano Premium"
         to="/subscription"
       />

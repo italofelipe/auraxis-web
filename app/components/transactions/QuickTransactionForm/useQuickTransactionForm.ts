@@ -20,6 +20,8 @@ import { useAccountsQuery } from "~/features/accounts/queries/use-accounts-query
 import { useCreditCardsQuery } from "~/features/credit-cards/queries/use-credit-cards-query";
 import { useCreateTransactionMutation } from "~/features/transactions/queries/use-create-transaction-mutation";
 import { useTagsQuery } from "~/features/tags/queries/use-tags-query";
+import { useBudgetsQuery } from "~/features/budgets/queries/use-budgets-query";
+import { buildBudgetImpactPreview } from "~/features/budgets/model/budget-impact-preview";
 import { serializeCurrencyAmount } from "~/utils/currencyInput";
 
 export const QUICK_TRANSACTION_FORM_KEY: InjectionKey<QuickTransactionFormState> =
@@ -110,6 +112,7 @@ export function useQuickTransactionForm(opts: UseQuickTransactionFormOptions) {
   const { data: tags } = useTagsQuery();
   const { data: accounts } = useAccountsQuery();
   const { data: creditCards } = useCreditCardsQuery();
+  const { data: budgets } = useBudgetsQuery();
   const mutation = useCreateTransactionMutation();
 
   const tagOptions = computed((): SelectOption[] =>
@@ -126,6 +129,14 @@ export function useQuickTransactionForm(opts: UseQuickTransactionFormOptions) {
   const showInstallmentCount = computed((): boolean => form.is_installment);
   const showEndDate = computed((): boolean => form.is_recurring);
   const showRecurrenceCadence = computed((): boolean => form.is_recurring);
+  const budgetImpactPreview = computed(() =>
+    buildBudgetImpactPreview({
+      budgets: budgets.value ?? [],
+      transactionType: type.value,
+      tagId: form.tag_id,
+      amount: form.amount,
+    }),
+  );
 
   const recurrenceUnitOptions = computed((): SelectOption[] => [
     { label: t("transaction.form.recurrenceUnit.day"), value: "day" },
@@ -245,6 +256,7 @@ export function useQuickTransactionForm(opts: UseQuickTransactionFormOptions) {
     showInstallmentCount,
     showEndDate,
     showRecurrenceCadence,
+    budgetImpactPreview,
     recurrenceUnitOptions,
     recurringDisabled,
     rules,
