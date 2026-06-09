@@ -16,6 +16,7 @@ import { useGoalsQuery } from "~/features/goals/queries/use-goals-query";
 import { useCreateGoalMutation } from "~/features/goals/queries/use-create-goal-mutation";
 import { useUpdateGoalMutation } from "~/features/goals/queries/use-update-goal-mutation";
 import AiInsightSurface from "~/features/ai-insights/components/AiInsightSurface.vue";
+import GoalContributionModal from "~/components/goal/GoalContributionModal/GoalContributionModal.vue";
 import type { GoalDto, GoalStatus, CreateGoalPayload } from "~/features/goals/contracts/goal.dto";
 import { formatCurrency } from "~/utils/currency";
 import { buildChartThemeTokens, withAlpha } from "~/utils/chart-theme";
@@ -61,6 +62,8 @@ const { resolvedTheme } = useTheme();
 const activeFilter = ref<FilterValue>("all");
 const showForm = ref<boolean>(false);
 const editingGoal = ref<GoalDto | null>(null);
+const contributionTarget = ref<GoalViewModel | null>(null);
+const isContributionModalOpen = ref<boolean>(false);
 const selectedGoalId = ref<string>("");
 const simulatedContribution = ref<number>(2500);
 const chartTokens = computed(() => buildChartThemeTokens(resolvedTheme.value));
@@ -148,6 +151,16 @@ function calculateProgress(goal: GoalDto): number {
 }
 
 /**
+ * Detects goals that reached the target but were not explicitly closed yet.
+ *
+ * @param goal Goal data.
+ * @returns True when the user should see the completion CTA.
+ */
+function isGoalReached(goal: GoalDto): boolean {
+  return goal.status !== "completed" && goal.target_amount > 0 && goal.current_amount >= goal.target_amount;
+}
+
+/**
  * Resolves the Market Pulse status tone used by goal cards.
  *
  * @param goal Goal data.
@@ -155,8 +168,12 @@ function calculateProgress(goal: GoalDto): number {
  * @returns Tone and label for the status badge.
  */
 function resolveHealth(goal: GoalDto, progress: number): Pick<GoalViewModel, "healthLabel" | "tone"> {
-  if (goal.status === "completed" || progress >= 100) {
+  if (goal.status === "completed") {
     return { healthLabel: "Concluída", tone: "cyan" };
+  }
+
+  if (progress >= 100) {
+    return { healthLabel: "Meta alcançada", tone: "cyan" };
   }
 
   if (goal.status === "paused" || progress < 50) {
@@ -230,6 +247,31 @@ const selectedGoal = computed(() => {
 const openGoalDetails = (goal: GoalViewModel): void => {
   void navigateTo(`/goals/${goal.id}`);
 };
+
+/**
+ * Opens the contribution modal for the selected goal.
+ *
+ * @param goal Goal selected in the status grid.
+ */
+const onRegisterContribution = (goal: GoalViewModel): void => {
+  contributionTarget.value = goal;
+  isContributionModalOpen.value = true;
+};
+
+/**
+ * Explicitly closes a reached goal after the user confirms the intent via CTA.
+ *
+ * @param goal Goal selected in the status grid.
+ */
+const onConcludeGoal = (goal: GoalViewModel): void => {
+  updateMutation.mutate({ id: goal.id, status: "completed" });
+};
+
+watch(isContributionModalOpen, (visible) => {
+  if (!visible) {
+    contributionTarget.value = null;
+  }
+});
 
 watch(
   goalCards,
@@ -505,12 +547,38 @@ const simulatedImpact = computed(() => {
               </div>
             </div>
 
+            <div
+              v-if="isGoalReached(goal)"
+              class="goal-status-card__completion"
+              aria-label="Meta alcançada"
+            >
+              <strong>Meta alcançada</strong>
+              <span>Revise o objetivo e conclua quando estiver pronto.</span>
+            </div>
+
             <div class="goal-status-card__footer">
               <span>
                 Aporte mensal atual:
                 <strong>{{ formatCurrency(goal.monthlyContribution) }}</strong>
               </span>
               <div class="goal-status-card__footer-actions">
+                <button
+                  v-if="isGoalReached(goal)"
+                  class="goal-status-card__complete"
+                  type="button"
+                  :disabled="updateMutation.isPending.value"
+                  @click.stop="onConcludeGoal(goal)"
+                >
+                  Concluir meta
+                </button>
+                <button
+                  v-else-if="goal.status !== 'completed' && goal.status !== 'cancelled'"
+                  class="goal-status-card__register"
+                  type="button"
+                  @click.stop="onRegisterContribution(goal)"
+                >
+                  Registrar entrada
+                </button>
                 <button
                   class="goal-status-card__details"
                   type="button"
@@ -609,6 +677,11 @@ const simulatedImpact = computed(() => {
       :goal="editingGoal"
       @update:visible="showForm = $event"
       @submit="onCreateOrUpdate"
+    />
+    <GoalContributionModal
+      v-if="contributionTarget"
+      v-model:visible="isContributionModalOpen"
+      :goal="contributionTarget"
     />
   </div>
 </template>
@@ -1046,6 +1119,28 @@ const simulatedImpact = computed(() => {
   padding-top: 16px;
 }
 
+.goal-status-card__completion {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--color-positive-border);
+  border-radius: var(--radius-sm);
+  margin-top: 16px;
+  padding: 12px 14px;
+  background: var(--color-positive-bg);
+}
+
+.goal-status-card__completion strong {
+  color: var(--mp-lime);
+  font-size: var(--font-size-sm);
+}
+
+.goal-status-card__completion span {
+  color: var(--mp-muted);
+  font-size: var(--font-size-xs);
+}
+
 .goal-status-card__footer strong {
   color: var(--mp-text);
 }
@@ -1061,6 +1156,29 @@ const simulatedImpact = computed(() => {
   padding: 4px;
   background: transparent;
   color: var(--mp-muted);
+}
+
+.goal-status-card__register,
+.goal-status-card__complete {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  border: 1px solid var(--color-brand-glow-md) !important;
+  border-radius: var(--radius-full);
+  padding: 0 10px !important;
+  color: var(--mp-cyan) !important;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-extrabold);
+}
+
+.goal-status-card__complete {
+  border-color: var(--color-positive-border) !important;
+  color: var(--mp-lime) !important;
+}
+
+.goal-status-card__complete:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
 }
 
 .goal-status-card__details {

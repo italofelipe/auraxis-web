@@ -23,6 +23,9 @@ import {
 import { useTagsQuery } from "~/features/tags/queries/use-tags-query";
 import { useAccountsQuery } from "~/features/accounts/queries/use-accounts-query";
 import { useCreditCardsQuery } from "~/features/credit-cards/queries/use-credit-cards-query";
+import { useBudgetsQuery } from "~/features/budgets/queries/use-budgets-query";
+import { buildBudgetImpactPreview } from "~/features/budgets/model/budget-impact-preview";
+import { formatCurrency } from "~/utils/currency";
 import {
   parseCurrencyAmount,
   serializeCurrencyAmount,
@@ -50,6 +53,7 @@ const emit = defineEmits<{
 const { data: tags } = useTagsQuery();
 const { data: accounts } = useAccountsQuery();
 const { data: creditCards } = useCreditCardsQuery();
+const { data: budgets } = useBudgetsQuery();
 
 const tagOptions = computed((): SelectOption[] =>
   (tags.value ?? []).map((tg: { id: string; name: string }) => ({ label: tg.name, value: tg.id })),
@@ -89,6 +93,15 @@ const showCreditCard = computed(
 
 /** Show end date field only when recurring is on. */
 const showEndDate = computed((): boolean => form.is_recurring);
+
+const budgetImpactPreview = computed(() =>
+  buildBudgetImpactPreview({
+    budgets: budgets.value ?? [],
+    transactionType: props.transaction?.type ?? "income",
+    tagId: form.tag_id,
+    amount: form.amount,
+  }),
+);
 
 // ── Status options ─────────────────────────────────────────────────────────────
 
@@ -305,6 +318,18 @@ const handleClose = (): void => {
           :placeholder="$t('transaction.form.tag.placeholder')"
           clearable
         />
+        <div
+          v-if="budgetImpactPreview"
+          class="edit-transaction-modal__budget-preview"
+          :class="{ 'edit-transaction-modal__budget-preview--danger': budgetImpactPreview.isOverBudget }"
+        >
+          <strong>{{ budgetImpactPreview.budgetName }}</strong>
+          ficará em
+          <strong>{{ formatCurrency(budgetImpactPreview.projectedSpent) }}</strong>
+          de
+          <strong>{{ formatCurrency(budgetImpactPreview.limitAmount) }}</strong>
+          com esta alteração.
+        </div>
       </NFormItem>
 
       <!-- Account -->
@@ -388,5 +413,26 @@ const handleClose = (): void => {
 <style scoped>
 .edit-transaction-modal {
   color: var(--color-text-primary);
+}
+
+.edit-transaction-modal__budget-preview {
+  margin-top: var(--space-2);
+  border: 1px solid var(--color-outline-soft);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2);
+  background: var(--color-bg-subtle);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  line-height: 1.45;
+}
+
+.edit-transaction-modal__budget-preview strong {
+  color: var(--color-text-primary);
+}
+
+.edit-transaction-modal__budget-preview--danger {
+  border-color: var(--color-negative-border, var(--color-negative));
+  background: var(--color-negative-bg);
+  color: var(--color-negative);
 }
 </style>

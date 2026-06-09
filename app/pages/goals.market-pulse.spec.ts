@@ -25,6 +25,18 @@ describe("Goals page — Market Pulse anatomy", () => {
     expect(source).toContain("navigateTo(`/goals/${goal.id}`)");
   });
 
+  it("keeps registering progress as the primary goal card action", () => {
+    expect(source).toContain("GoalContributionModal");
+    expect(source).toContain("onRegisterContribution");
+    expect(source).toContain("Registrar entrada");
+  });
+
+  it("suggests explicit completion when a goal reaches the target", () => {
+    expect(source).toContain("isGoalReached");
+    expect(source).toContain("Meta alcançada");
+    expect(source).toContain("Concluir meta");
+  });
+
   it("does not replace an empty authenticated goals list with sample goals", () => {
     expect(source).not.toContain("MARKET_PULSE_GOALS");
     expect(source).not.toContain("Dados demonstrativos");

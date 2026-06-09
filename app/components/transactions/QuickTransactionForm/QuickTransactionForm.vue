@@ -31,6 +31,7 @@ const {
   showInstallmentCount,
   showEndDate,
   showRecurrenceCadence,
+  budgetImpactPreview,
   recurrenceUnitOptions,
   recurringDisabled,
   rules,
@@ -97,6 +98,7 @@ function handleClose(): void {
         :show-installment-count="showInstallmentCount"
         :show-end-date="showEndDate"
         :show-recurrence-cadence="showRecurrenceCadence"
+        :budget-impact-preview="budgetImpactPreview"
         :recurrence-unit-options="recurrenceUnitOptions"
         :recurring-disabled="recurringDisabled"
       />
