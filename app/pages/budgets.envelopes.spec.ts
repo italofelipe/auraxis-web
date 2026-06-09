@@ -21,4 +21,23 @@ describe("budgets page envelope positioning", () => {
     expect(source).toContain("Transporte");
     expect(source).toContain("Comprometido");
   });
+
+  it("renders the C+A monthly review structure instead of loose budget cards", () => {
+    const source = readSource("app/pages/budgets.vue");
+
+    expect(source).toContain("Revisão mensal de envelopes");
+    expect(source).toContain("budgets-page__review-grid");
+    expect(source).toContain("budgets-page__envelope-list");
+    expect(source).toContain("budgets-page__detail-panel");
+    expect(source).toContain("selectedEnvelope");
+  });
+
+  it("connects the selected envelope to transaction review without adding budget_id", () => {
+    const source = readSource("app/pages/budgets.vue");
+
+    expect(source).toContain("useListTransactionsQuery");
+    expect(source).toContain("buildBudgetTransactionFilters");
+    expect(source).toContain("Revisar transações");
+    expect(source).not.toContain("budget_id");
+  });
 });

@@ -45,6 +45,29 @@ describe("BudgetClient", () => {
   });
 
   describe("listBudgets", () => {
+    it("unwraps the v2 /budgets envelope from the API contract", async () => {
+      const budget = makeBudgetDto({
+        id: "b7b413f3-e459-4b5e-9102-4ffe8be8bab4",
+        name: "IA's e automações",
+        amount: "1200.00",
+        spent: "31579.16",
+        remaining: "-30379.16",
+        percentage_used: 2631.6,
+        is_over_budget: true,
+      });
+      vi.mocked(http.get).mockResolvedValueOnce({
+        data: {
+          success: true,
+          message: "Orçamentos listados com sucesso",
+          data: { items: [budget] },
+        },
+      });
+
+      const result = await client.listBudgets();
+
+      expect(result).toEqual([budget]);
+    });
+
     it("returns items array from wrapped response", async () => {
       const budgets = [makeBudgetDto()];
       vi.mocked(http.get).mockResolvedValueOnce({ data: { items: budgets } });
@@ -74,6 +97,24 @@ describe("BudgetClient", () => {
   });
 
   describe("createBudget", () => {
+    it("unwraps the v2 create envelope and returns the created budget", async () => {
+      const budget = makeBudgetDto();
+      vi.mocked(http.post).mockResolvedValueOnce({
+        data: {
+          success: true,
+          message: "Orçamento criado com sucesso",
+          data: { budget },
+        },
+      });
+
+      const result = await client.createBudget({
+        name: "Alimentação Mensal",
+        amount: "800.00",
+      });
+
+      expect(result).toEqual(budget);
+    });
+
     it("calls POST /budgets and returns the created budget", async () => {
       const budget = makeBudgetDto();
       vi.mocked(http.post).mockResolvedValueOnce({ data: budget });
@@ -92,6 +133,21 @@ describe("BudgetClient", () => {
   });
 
   describe("updateBudget", () => {
+    it("unwraps the v2 update envelope and returns the updated budget", async () => {
+      const budget = makeBudgetDto({ name: "Alimentação Atualizada" });
+      vi.mocked(http.patch).mockResolvedValueOnce({
+        data: {
+          success: true,
+          message: "Orçamento atualizado com sucesso",
+          data: { budget },
+        },
+      });
+
+      const result = await client.updateBudget("budget-001", { name: "Alimentação Atualizada" });
+
+      expect(result).toEqual(budget);
+    });
+
     it("calls PATCH /budgets/:id and returns updated budget", async () => {
       const budget = makeBudgetDto({ name: "Alimentação Atualizada" });
       vi.mocked(http.patch).mockResolvedValueOnce({ data: budget });
@@ -116,6 +172,27 @@ describe("BudgetClient", () => {
   });
 
   describe("getSummary", () => {
+    it("unwraps the v2 summary envelope", async () => {
+      const summary: BudgetSummaryDto = {
+        total_budgeted: "1200.00",
+        total_spent: "31579.16",
+        total_remaining: "-30379.16",
+        percentage_used: 2631.6,
+        budget_count: 1,
+      };
+      vi.mocked(http.get).mockResolvedValueOnce({
+        data: {
+          success: true,
+          message: "Resumo de orçamentos calculado com sucesso",
+          data: { summary },
+        },
+      });
+
+      const result = await client.getSummary();
+
+      expect(result).toEqual(summary);
+    });
+
     it("calls GET /budgets/summary and returns BudgetSummaryDto", async () => {
       const summary: BudgetSummaryDto = {
         total_budgeted: "1200.00",
