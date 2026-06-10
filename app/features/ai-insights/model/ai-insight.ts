@@ -56,8 +56,8 @@ export interface GeneratedAIInsight {
 export const FALLBACK_INSIGHT_ITEM: InsightItem = {
   type: "saude_financeira",
   dimension: "general",
-  title: "Insight indisponível",
-  message: "Não conseguimos interpretar este insight agora.",
+  title: "Sem novidades por aqui",
+  message: "Não há um insight para exibir neste período.",
 };
 
 const DEFAULT_INSIGHT_DIMENSION: InsightDimension = "general";
@@ -180,6 +180,67 @@ interface ParsedInsightContent {
 }
 
 /**
+ * Maps the `spending_patterns` payload (`{ patterns: [...] }`, produced by the
+ * api-v2 "Radar" cron) into canonical transactions-dimension insight items.
+ *
+ * Keeps the headline parseable so it never falls through to the error fallback,
+ * and tags every pattern as `transactions` so it renders on the right surface.
+ *
+ * @param parsed Parsed JSON value.
+ * @returns Transactions insight items, or null when no patterns are present.
+ */
+const resolveSpendingPatternItems = (parsed: unknown): InsightItem[] | null => {
+  if (parsed === null || typeof parsed !== "object") {
+    return null;
+  }
+  const patterns = (parsed as Record<string, unknown>).patterns;
+  if (!Array.isArray(patterns) || patterns.length === 0) {
+    return null;
+  }
+
+  const items = patterns
+    .filter((entry): entry is Record<string, unknown> =>
+      entry !== null && typeof entry === "object",
+    )
+    .map((entry): InsightItem => {
+      const description =
+        typeof entry.description === "string" && entry.description.length > 0
+          ? entry.description
+          : "Padrão de gasto identificado";
+      const suggestion =
+        typeof entry.suggested_action === "string" ? entry.suggested_action : "";
+      const frequency = typeof entry.frequency === "string" ? entry.frequency : "";
+      const average =
+        typeof entry.average_value === "number" ? entry.average_value : null;
+
+      const parts = [description];
+      if (average !== null) {
+        parts.push(
+          `Valor médio: ${average.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          })}.`,
+        );
+      }
+      if (frequency) {
+        parts.push(`Frequência: ${frequency}.`);
+      }
+      if (suggestion) {
+        parts.push(suggestion);
+      }
+
+      return {
+        type: "padrao_gasto",
+        dimension: "transactions",
+        title: description,
+        message: parts.join(" "),
+      };
+    });
+
+  return items.length > 0 ? items : null;
+};
+
+/**
  * Extracts structured items from the JSON payload stored by older API paths.
  *
  * @param parsed Parsed JSON value.
@@ -198,6 +259,11 @@ const resolveParsedContent = (parsed: unknown): ParsedInsightContent | null => {
         summary: typeof candidate.summary === "string" ? candidate.summary : "",
         items,
       };
+    }
+
+    const patternItems = resolveSpendingPatternItems(candidate);
+    if (patternItems) {
+      return { summary: "", items: patternItems };
     }
   }
 

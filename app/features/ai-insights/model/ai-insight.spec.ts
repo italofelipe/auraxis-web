@@ -73,17 +73,46 @@ describe("AI insight model", () => {
     ]);
   });
 
-  it("returns a safe fallback when backend content is malformed", () => {
+  it("returns a graceful neutral fallback when backend content is malformed", () => {
     const items = parseInsightItems("not-json");
 
-    expect(items).toEqual([
-      {
-        type: "saude_financeira",
-        dimension: "general",
-        title: "Insight indisponível",
-        message: "Não conseguimos interpretar este insight agora.",
-      },
-    ]);
+    expect(items).toHaveLength(1);
+    expect(items[0]?.title).toBe("Sem novidades por aqui");
+    // Never surface a technical error to the user.
+    expect(items[0]?.title).not.toContain("indisponível");
+    expect(items[0]?.message).not.toContain("interpretar");
+  });
+
+  it("parses the spending_patterns shape into transactions-dimension items", () => {
+    const content = JSON.stringify({
+      patterns: [
+        {
+          description: "Picos de consumo logo após o recebimento",
+          frequency: "alta",
+          average_value: 5000,
+          suggested_action: "Reavalie gastos logo após receber.",
+          severity: "high",
+        },
+      ],
+    });
+
+    const items = parseInsightItems(content);
+
+    expect(items).toHaveLength(1);
+    expect(items[0]).toMatchObject({
+      type: "padrao_gasto",
+      dimension: "transactions",
+      title: "Picos de consumo logo após o recebimento",
+    });
+    expect(items[0]?.message).toContain("Reavalie gastos logo após receber.");
+    expect(items[0]?.message).toContain("alta");
+  });
+
+  it("never returns the error fallback for the spending_patterns shape", () => {
+    const items = parseInsightItems(JSON.stringify({ patterns: [{ description: "X" }] }));
+
+    expect(items.some((i) => i.title.includes("indisponível"))).toBe(false);
+    expect(items[0]?.dimension).toBe("transactions");
   });
 
   it("maps snake_case DTO fields into the dashboard domain model", () => {
