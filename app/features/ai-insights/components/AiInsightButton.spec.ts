@@ -139,6 +139,61 @@ describe("AiInsightButton", () => {
     });
   });
 
+  it("confirms before generating when nothing changed since the last insight", async () => {
+    const generate = vi.fn().mockResolvedValue(null);
+    const checkChangeStatus = vi.fn().mockResolvedValue({ changed: false });
+    useAIInsightsMock.mockReturnValue({
+      hasPremium: ref(true),
+      isLoading: ref(false),
+      callsRemaining: ref(1),
+      callsRemainingMonth: ref(null),
+      hasAIConsent: vi.fn().mockResolvedValue(true),
+      checkChangeStatus,
+      generate,
+    });
+
+    const wrapper = mount(AiInsightButton, {
+      props: { sourceSurface: "transactions" },
+      global: { stubs },
+    });
+
+    await wrapper.find("button").trigger("click");
+    await flushPromises();
+
+    // The confirmation modal is shown and generation is held back.
+    expect(checkChangeStatus).toHaveBeenCalledOnce();
+    expect(wrapper.find("[data-testid='ai-generate-anyway']").exists()).toBe(true);
+    expect(generate).not.toHaveBeenCalled();
+
+    // Confirming generates anyway.
+    await wrapper.get("[data-testid='ai-generate-anyway']").trigger("click");
+    await flushPromises();
+
+    expect(generate).toHaveBeenCalledOnce();
+  });
+
+  it("generates directly when the snapshot changed since the last insight", async () => {
+    const generate = vi.fn().mockResolvedValue(null);
+    const checkChangeStatus = vi.fn().mockResolvedValue({ changed: true });
+    useAIInsightsMock.mockReturnValue({
+      hasPremium: ref(true),
+      isLoading: ref(false),
+      callsRemaining: ref(1),
+      callsRemainingMonth: ref(null),
+      hasAIConsent: vi.fn().mockResolvedValue(true),
+      checkChangeStatus,
+      generate,
+    });
+
+    const wrapper = mount(AiInsightButton, { global: { stubs } });
+
+    await wrapper.find("button").trigger("click");
+    await flushPromises();
+
+    expect(generate).toHaveBeenCalledOnce();
+    expect(wrapper.find("[data-testid='ai-generate-anyway']").exists()).toBe(false);
+  });
+
   it("asks for AI consent when the backend requires it and retries after approval", async () => {
     const generate = vi.fn().mockResolvedValue(null);
     const grantAIConsent = vi.fn().mockResolvedValue(undefined);
