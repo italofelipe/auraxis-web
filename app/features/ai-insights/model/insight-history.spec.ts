@@ -52,6 +52,31 @@ describe("splitTodayAndPast", () => {
     expect(result.past.map((item) => item.id)).toEqual(["today-early", "yesterday"]);
   });
 
+  it("prefers a rich today insight over a more recent spending_patterns headline", () => {
+    const patterns = {
+      ...makeInsight("today-patterns", `${TODAY}T20:00:00Z`),
+      insight_type: "spending_patterns" as never,
+    };
+    const rich = makeInsight("today-daily", `${TODAY}T07:00:00Z`);
+
+    const result = splitTodayAndPast([patterns, rich], TODAY);
+
+    expect(result.todayInsight?.id).toBe("today-daily");
+    // The patterns insight still surfaces in history, just not as the headline.
+    expect(result.past.map((item) => item.id)).toContain("today-patterns");
+  });
+
+  it("falls back to the spending_patterns insight when it is the only one today", () => {
+    const patterns = {
+      ...makeInsight("today-patterns", `${TODAY}T20:00:00Z`),
+      insight_type: "spending_patterns" as never,
+    };
+
+    const result = splitTodayAndPast([patterns], TODAY);
+
+    expect(result.todayInsight?.id).toBe("today-patterns");
+  });
+
   it("returns null today insight and keeps every item in past when none was generated today", () => {
     const items = [
       makeInsight("yesterday", "2026-06-02T10:00:00Z"),
