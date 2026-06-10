@@ -97,7 +97,7 @@ const onDateUpdate = (ts: number | null): void => {
 /** Resets the form to its default state. */
 const resetForm = (): void => {
   formModel.magnitude = null;
-  formModel.direction = "deposit";
+  formModel.direction = props.initialDirection ?? "deposit";
   formModel.occurred_at = todayIso();
   formModel.note = "";
   formError.value = null;
