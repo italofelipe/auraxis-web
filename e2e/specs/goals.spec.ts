@@ -181,10 +181,17 @@ test.describe("Goals — MSW-backed flows", () => {
 		await mockAuthAndGoals(page);
 		await loginAndGoToGoals(page);
 
+		const goalsList = page.getByLabel("Lista de metas");
+		const selectedGoalPanel = page.getByLabel("Detalhe da meta selecionada");
+
 		await expect(
-			page
-				.locator("#goals-status")
-				.getByRole("heading", { name: "Reserva de emergência", exact: true }),
+			goalsList.getByRole("button", { name: /Reserva de emergência/ }),
+		).toBeVisible({ timeout: 10_000 });
+		await expect(
+			selectedGoalPanel.getByRole("heading", {
+				name: "Reserva de emergência",
+				exact: true,
+			}),
 		).toBeVisible({ timeout: 10_000 });
 	});
 
