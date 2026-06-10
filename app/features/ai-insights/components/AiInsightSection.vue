@@ -13,6 +13,11 @@ import {
   formatInsightPeriod,
   getInsightPresentation,
 } from "~/features/ai-insights/model/ai-insight";
+import {
+  estimateReadingMinutes,
+  parseInlineEmphasis,
+  splitParagraphs,
+} from "~/features/ai-insights/model/insight-text";
 import { filterInsightItemsByDimension } from "~/features/ai-insights/composables/use-insights-by-dimension";
 import type { InsightDimension, InsightItem } from "~/features/ai-insights/contracts/ai-insight";
 
@@ -32,6 +37,7 @@ const visibleInsights = computed(() => {
   const items = props.insight ?? [];
   return props.dimension ? filterInsightItemsByDimension(items, props.dimension) : items;
 });
+const readingMinutes = computed(() => estimateReadingMinutes(visibleInsights.value));
 const costLabel = computed(() =>
   props.costUsd.toLocaleString("pt-BR", {
     style: "currency",
@@ -67,9 +73,21 @@ const iconForType = (type: string): typeof BarChart2 => {
         <span class="ai-insight-section__eyebrow">Análise inteligente</span>
         <h2>Insights de IA — {{ formattedPeriodLabel }}</h2>
       </div>
-      <NTag size="small" round class="ai-insight-section__meta">
-        {{ model || 'modelo IA' }} · {{ tokensUsed }} tokens · {{ costLabel }}
-      </NTag>
+      <div class="ai-insight-section__meta-group">
+        <NTag
+          v-if="readingMinutes > 0"
+          size="small"
+          round
+          type="info"
+          class="ai-insight-section__reading"
+          data-testid="insight-reading-time"
+        >
+          {{ readingMinutes }} min de leitura
+        </NTag>
+        <NTag size="small" round class="ai-insight-section__meta">
+          {{ model || 'modelo IA' }} · {{ tokensUsed }} tokens · {{ costLabel }}
+        </NTag>
+      </div>
     </header>
 
     <NAlert
@@ -99,7 +117,19 @@ const iconForType = (type: string): typeof BarChart2 => {
             {{ getInsightPresentation(item.type).label }}
           </span>
           <h3>{{ item.title }}</h3>
-          <p>{{ item.message }}</p>
+          <p
+            v-for="(paragraph, paragraphIndex) in splitParagraphs(item.message)"
+            :key="paragraphIndex"
+            class="ai-insight-card__paragraph"
+          >
+            <template
+              v-for="(segment, segmentIndex) in parseInlineEmphasis(paragraph)"
+              :key="segmentIndex"
+            >
+              <strong v-if="segment.bold">{{ segment.text }}</strong>
+              <template v-else>{{ segment.text }}</template>
+            </template>
+          </p>
         </div>
       </article>
     </div>
@@ -148,6 +178,22 @@ const iconForType = (type: string): typeof BarChart2 => {
 
 .ai-insight-section__meta {
   flex-shrink: 0;
+}
+
+.ai-insight-section__meta-group {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-1);
+}
+
+.ai-insight-card__paragraph + .ai-insight-card__paragraph {
+  margin-top: var(--space-2);
+}
+
+.ai-insight-card__paragraph {
+  white-space: pre-line;
 }
 
 .ai-insight-section__grid {

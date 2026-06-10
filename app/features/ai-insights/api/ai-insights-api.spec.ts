@@ -60,6 +60,36 @@ describe("AIInsightsApiClient", () => {
     expect(result.items[0]?.dimension).toBe("general");
   });
 
+  it("checks change-status via GET with period params and timezone header", async () => {
+    const http = {
+      get: vi.fn().mockResolvedValue({
+        data: {
+          data: {
+            period_type: "daily",
+            period_label: "2026-05-18",
+            changed: false,
+            current_context_hash: "h",
+            last_context_hash: "h",
+            last_generated_at: "2026-05-18T03:00:00Z",
+          },
+        },
+      }),
+    };
+    const client = new AIInsightsApiClient(http as never);
+
+    const result = await client.checkChangeStatus({
+      periodType: "daily",
+      anchorDate: "2026-05-18",
+    });
+
+    expect(http.get).toHaveBeenCalledWith("/ai/insights/change-status", {
+      params: { period_type: "daily", anchor_date: "2026-05-18" },
+      headers: { "X-Auraxis-Timezone": "America/Sao_Paulo" },
+    });
+    expect(result.changed).toBe(false);
+    expect(result.last_generated_at).toBe("2026-05-18T03:00:00Z");
+  });
+
   it("does not send financial context from the browser when generating insights", async () => {
     const http = {
       post: vi.fn().mockResolvedValue({
