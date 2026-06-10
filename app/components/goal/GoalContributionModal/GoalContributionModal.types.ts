@@ -1,4 +1,5 @@
 import type { GoalDto } from "~/features/goals/contracts/goal.dto";
+import type { ContributionDirection } from "~/features/goals/model/contribution-amount";
 
 /** Props for the GoalContributionModal component. */
 export type GoalContributionModalProps = {
@@ -6,6 +7,8 @@ export type GoalContributionModalProps = {
   visible: boolean;
   /** Goal the contribution will be recorded against. */
   goal: GoalDto;
+  /** Initial direction selected when the modal opens. */
+  initialDirection?: ContributionDirection;
 };
 
 /** Emits for the GoalContributionModal component. */
