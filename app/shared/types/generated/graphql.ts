@@ -37,6 +37,17 @@ export type Scalars = {
   UUID: { input: string; output: string; }
 };
 
+/** Whether the snapshot changed since the last insight (no LLM call). */
+export type AiInsightChangeStatusType = {
+  __typename?: 'AIInsightChangeStatusType';
+  changed: Scalars['Boolean']['output'];
+  currentContextHash: Scalars['String']['output'];
+  lastContextHash?: Maybe<Scalars['String']['output']>;
+  lastGeneratedAt?: Maybe<Scalars['String']['output']>;
+  periodLabel: Scalars['String']['output'];
+  periodType: Scalars['String']['output'];
+};
+
 export type AiInsightFeedbackPayload = {
   __typename?: 'AIInsightFeedbackPayload';
   comment?: Maybe<Scalars['String']['output']>;
@@ -1401,6 +1412,7 @@ export type Query = {
   __typename?: 'Query';
   account?: Maybe<AccountType>;
   accounts?: Maybe<AccountListType>;
+  aiInsightChangeStatus?: Maybe<AiInsightChangeStatusType>;
   aiInsightHistory?: Maybe<AiInsightHistoryResultType>;
   billingPlans?: Maybe<BillingPlanListPayloadType>;
   budget?: Maybe<BudgetType>;
@@ -1449,6 +1461,12 @@ export type Query = {
 
 export type QueryAccountArgs = {
   accountId: Scalars['UUID']['input'];
+};
+
+
+export type QueryAiInsightChangeStatusArgs = {
+  anchorDate?: InputMaybe<Scalars['String']['input']>;
+  periodType: Scalars['String']['input'];
 };
 
 
