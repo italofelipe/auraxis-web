@@ -52,6 +52,7 @@ export interface BillTransaction {
   readonly dueDate: string | null;
   readonly status: string;
   readonly type: string;
+  readonly impactPolicy: "full" | "cards_only" | "planned_until_bill";
 }
 
 /** View-model de domínio da fatura (valores já coagidos para number). */
@@ -89,6 +90,7 @@ interface BillTransactionRaw {
   readonly due_date: string | null;
   readonly status: string;
   readonly type: string;
+  readonly impact_policy?: "full" | "cards_only" | "planned_until_bill";
 }
 
 interface CreditCardBillRaw {
@@ -179,6 +181,7 @@ export const toCreditCardBill = (
       dueDate: tx.due_date,
       status: tx.status,
       type: tx.type,
+      impactPolicy: tx.impact_policy ?? "full",
     })),
     totalAmount: toNumber(raw?.total_amount),
     paidAmount: toNumber(raw?.paid_amount),

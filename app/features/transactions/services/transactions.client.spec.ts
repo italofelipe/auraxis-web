@@ -33,6 +33,7 @@ const makeTransaction = (overrides: Partial<TransactionDto> = {}): TransactionDt
   tag_id: null,
   account_id: null,
   credit_card_id: null,
+  impact_policy: "full",
   installment_group_id: null,
   paid_at: null,
   created_at: "2024-06-01T00:00:00Z",
@@ -145,6 +146,16 @@ describe("TransactionsClient", () => {
       });
     });
 
+    it("passes credit_card_id as a query parameter when provided", async () => {
+      httpGetMock.mockResolvedValueOnce({ data: { data: { transactions: [] } } });
+
+      await client.listTransactions({ credit_card_id: "card-uuid-abc" });
+
+      expect(httpGetMock).toHaveBeenCalledWith("/transactions", {
+        params: { credit_card_id: "card-uuid-abc" },
+      });
+    });
+
     it("passes date range filters as query parameters", async () => {
       httpGetMock.mockResolvedValueOnce({ data: { data: { transactions: [] } } });
 
@@ -203,11 +214,13 @@ describe("TransactionsClient", () => {
       const result = await client.updateTransaction("txn-paid-1", {
         status: "paid",
         paid_at: "2026-05-10T00:00:00.000-03:00",
+        impact_policy: "cards_only",
       });
 
       expect(httpPatchMock).toHaveBeenCalledWith("/transactions/txn-paid-1", {
         status: "paid",
         paid_at: "2026-05-10T00:00:00.000-03:00",
+        impact_policy: "cards_only",
       });
       expect(result).toEqual(txn);
     });
