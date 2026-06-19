@@ -1,25 +1,44 @@
 <script setup lang="ts">
-import type { EChartsOption } from "echarts";
 import {
-  ArrowDownAZ,
+  AlertTriangle,
   ArrowUpRight,
-  Bolt,
+  Bot,
+  CalendarDays,
+  CheckCircle2,
+  CircleDollarSign,
   Download,
-  Filter,
-  MoreVertical,
+  Flag,
+  Minus,
   Plus,
-  SlidersHorizontal,
+  Sparkles,
+  Target,
+  TrendingUp,
+  Wallet,
 } from "lucide-vue-next";
-import { NButton } from "naive-ui";
+import { NButton, NProgress, NTag } from "naive-ui";
 
+import AiInsightSurface from "~/features/ai-insights/components/AiInsightSurface.vue";
+import GoalContributionModal from "~/components/goal/GoalContributionModal/GoalContributionModal.vue";
 import { useGoalsQuery } from "~/features/goals/queries/use-goals-query";
 import { useCreateGoalMutation } from "~/features/goals/queries/use-create-goal-mutation";
 import { useUpdateGoalMutation } from "~/features/goals/queries/use-update-goal-mutation";
-import AiInsightSurface from "~/features/ai-insights/components/AiInsightSurface.vue";
-import type { GoalDto, GoalStatus, CreateGoalPayload } from "~/features/goals/contracts/goal.dto";
+import { useGoalContributionsQuery } from "~/features/goals/queries/use-goal-contributions-query";
+import type { GoalContributionDto } from "~/features/goals/contracts/contributions.dto";
+import type {
+  CreateGoalPayload,
+  GoalDto,
+  GoalStatus,
+} from "~/features/goals/contracts/goal.dto";
+import {
+  buildGoalHubSummary,
+  normalizeGoalHubItem,
+  pickDefaultGoalHubItem,
+  sortGoalHubItems,
+  type GoalHubItem,
+  type GoalHubTone,
+} from "~/features/goals/model/goal-hub";
+import type { ContributionDirection } from "~/features/goals/model/contribution-amount";
 import { formatCurrency } from "~/utils/currency";
-import { buildChartThemeTokens, withAlpha } from "~/utils/chart-theme";
-import { useTheme } from "~/composables/useTheme";
 
 const { t } = useI18n();
 
@@ -29,41 +48,22 @@ definePageMeta({
   pageSubtitle: "Objetivos e progresso.",
 });
 
-useHead({ title: "Metas Financeiras | Auraxis" });
+useHead({ title: "Metas | Auraxis" });
 
 type FilterValue = "all" | GoalStatus;
-type GoalTone = "lime" | "orange" | "red" | "cyan";
-
-interface GoalViewModel extends GoalDto {
-  readonly progress: number;
-  readonly targetLabel: string;
-  readonly currentLabel: string;
-  readonly deadlineLabel: string;
-  readonly healthLabel: string;
-  readonly tone: GoalTone;
-  readonly monthlyContribution: number;
-  readonly monthlyDelta: string;
-}
-
-interface ActionHighlight {
-  readonly tone: "orange" | "lime" | "neutral";
-  readonly badge: string;
-  readonly title: string;
-  readonly description: string;
-  readonly action: string;
-}
 
 const { data: goals, isLoading, isError } = useGoalsQuery();
 const createMutation = useCreateGoalMutation();
 const updateMutation = useUpdateGoalMutation();
-const { resolvedTheme } = useTheme();
 
 const activeFilter = ref<FilterValue>("all");
 const showForm = ref<boolean>(false);
 const editingGoal = ref<GoalDto | null>(null);
-const selectedGoalId = ref<string>("");
-const simulatedContribution = ref<number>(2500);
-const chartTokens = computed(() => buildChartThemeTokens(resolvedTheme.value));
+const contributionTarget = ref<GoalDto | null>(null);
+const contributionDirection = ref<ContributionDirection>("deposit");
+const isContributionModalOpen = ref<boolean>(false);
+const selectedGoalId = ref<string | null>(null);
+const contributionPage = ref<number>(1);
 
 const filterOptions = computed((): Array<{ value: FilterValue; label: string }> => [
   { value: "all", label: "Todas" },
@@ -74,19 +74,161 @@ const filterOptions = computed((): Array<{ value: FilterValue; label: string }> 
 
 const allGoals = computed(() => goals.value ?? []);
 
-const filteredGoals = computed(() => {
+const hubItems = computed(() =>
+  allGoals.value.map((goal) => normalizeGoalHubItem(goal)),
+);
+
+const goalCards = computed(() => sortGoalHubItems(hubItems.value));
+
+const visibleGoalCards = computed(() => {
   if (activeFilter.value === "all") {
-    return allGoals.value;
+    return goalCards.value;
   }
 
-  return allGoals.value.filter((goal) => goal.status === activeFilter.value);
+  return goalCards.value.filter((goal) => goal.raw.status === activeFilter.value);
 });
+
+const goalSummary = computed(() => buildGoalHubSummary(hubItems.value));
+
+const selectedGoal = computed<GoalHubItem | null>(() => {
+  if (selectedGoalId.value) {
+    const selected = goalCards.value.find((goal) => goal.id === selectedGoalId.value);
+    if (selected) {
+      return selected;
+    }
+  }
+
+  return pickDefaultGoalHubItem(goalCards.value);
+});
+
+const selectedGoalQueryId = computed(() => selectedGoal.value?.id ?? null);
+
+const {
+  data: selectedContributions,
+  isLoading: isContributionsLoading,
+} = useGoalContributionsQuery(selectedGoalQueryId, contributionPage);
+
+const latestContribution = computed<GoalContributionDto | null>(
+  () => selectedContributions.value?.items[0] ?? null,
+);
+
+const goalHealthText = computed(() => {
+  if (goalSummary.value.reachedCount > 0) {
+    return `${goalSummary.value.reachedCount} meta(s) prontas para conclusão`;
+  }
+
+  if (goalSummary.value.attentionCount > 0) {
+    return `${goalSummary.value.attentionCount} meta(s) pedem ajuste de ritmo`;
+  }
+
+  return "Metas ativas em ritmo saudável";
+});
+
+const selectedDiagnosis = computed(() => {
+  const goal = selectedGoal.value;
+  if (!goal) {
+    return "Selecione uma meta para revisar prazo, ritmo e próximo aporte.";
+  }
+
+  if (goal.isReached) {
+    return "A meta já atingiu o valor alvo. Revise o objetivo e conclua quando fizer sentido para sua rotina.";
+  }
+
+  if (goal.tone === "danger") {
+    return "O prazo já passou. Ajuste o alvo, registre um aporte ou revise se esta meta deve continuar ativa.";
+  }
+
+  if (goal.tone === "warning") {
+    return "Esta meta está perto do prazo. Um aporte extra agora reduz o risco de atraso.";
+  }
+
+  if (goal.tone === "paused") {
+    return "Meta pausada. Reative quando ela voltar a competir pelo próximo real disponível.";
+  }
+
+  return "O ritmo atual está saudável. Use aportes extras para antecipar o objetivo sem pressionar o caixa.";
+});
+
+/**
+ * Formats a date-only value in a compact PT-BR style.
+ *
+ * @param value ISO date string.
+ * @returns Localized date label.
+ */
+function formatDate(value: string | null | undefined): string {
+  if (!value) {
+    return "Sem prazo";
+  }
+
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(`${value}T00:00:00`));
+}
+
+/**
+ * Formats a contribution date in a compact PT-BR style.
+ *
+ * @param value ISO date string.
+ * @returns Localized date label.
+ */
+function formatContributionDate(value: string): string {
+  return formatDate(value);
+}
+
+/**
+ * Formats the signed amount of a contribution.
+ *
+ * @param contribution Contribution data.
+ * @returns Signed currency label.
+ */
+function formatContributionAmount(contribution: GoalContributionDto): string {
+  const prefix = contribution.amount >= 0 ? "+" : "-";
+  return `${prefix} ${formatCurrency(Math.abs(contribution.amount))}`;
+}
+
+/**
+ * Maps goal tone to Naive UI tag type.
+ *
+ * @param tone Goal status tone.
+ * @returns Naive tag type.
+ */
+function toneTagType(tone: GoalHubTone): "success" | "warning" | "error" | "info" | "default" {
+  if (tone === "achieved" || tone === "completed") {
+    return "success";
+  }
+
+  if (tone === "danger") {
+    return "error";
+  }
+
+  if (tone === "warning") {
+    return "warning";
+  }
+
+  if (tone === "healthy") {
+    return "info";
+  }
+
+  return "default";
+}
 
 /**
  * Opens the form in create mode.
  */
 const onNewGoal = (): void => {
   editingGoal.value = null;
+  showForm.value = true;
+};
+
+/**
+ * Opens the form in edit mode for a selected goal.
+ *
+ * @param goal Goal to edit.
+ */
+const onEditGoal = (goal: GoalHubItem): void => {
+  editingGoal.value = goal.raw;
   showForm.value = true;
 };
 
@@ -117,295 +259,129 @@ const onCreateOrUpdate = (payload: CreateGoalPayload): void => {
 };
 
 /**
- * Formats date labels in the same compact style used by the prototype.
+ * Selects a goal in the hub.
  *
- * @param value ISO date string.
- * @returns Localized month/year label.
+ * @param id Goal identifier.
  */
-function formatDeadline(value: string | null | undefined): string {
-  if (!value) {
-    return "Sem prazo";
-  }
-
-  return new Intl.DateTimeFormat("pt-BR", {
-    month: "short",
-    year: "numeric",
-  }).format(new Date(`${value}T00:00:00`));
-}
+const onSelectGoal = (id: string): void => {
+  selectedGoalId.value = id;
+};
 
 /**
- * Calculates a clamped progress percentage for a goal.
+ * Opens the dedicated detail route for a selected goal.
  *
- * @param goal Goal data.
- * @returns Integer percentage between 0 and 100.
+ * @param goal Goal selected in the hub.
  */
-function calculateProgress(goal: GoalDto): number {
-  if (goal.target_amount <= 0) {
-    return 0;
-  }
-
-  return Math.min(100, Math.max(0, Math.round((goal.current_amount / goal.target_amount) * 100)));
-}
-
-/**
- * Resolves the Market Pulse status tone used by goal cards.
- *
- * @param goal Goal data.
- * @param progress Goal progress percentage.
- * @returns Tone and label for the status badge.
- */
-function resolveHealth(goal: GoalDto, progress: number): Pick<GoalViewModel, "healthLabel" | "tone"> {
-  if (goal.status === "completed" || progress >= 100) {
-    return { healthLabel: "Concluída", tone: "cyan" };
-  }
-
-  if (goal.status === "paused" || progress < 50) {
-    return { healthLabel: "Em risco", tone: "orange" };
-  }
-
-  const deadline = goal.target_date ? new Date(`${goal.target_date}T00:00:00`) : null;
-  if (deadline && deadline.getTime() < Date.now() && progress < 100) {
-    return { healthLabel: "Atrasada", tone: "red" };
-  }
-
-  return { healthLabel: "Em dia", tone: "lime" };
-}
-
-/**
- * Resolves the support label shown below the progress bar.
- *
- * @param goal Goal data.
- * @param tone Market Pulse status tone.
- * @param monthlyContribution Current monthly contribution.
- * @returns Monthly delta label.
- */
-function resolveMonthlyDelta(goal: GoalDto, tone: GoalTone, monthlyContribution: number): string {
-  if (tone === "orange") {
-    return "-R$ 350 defasagem";
-  }
-
-  if (tone === "red") {
-    return `Faltam ${formatCurrency(Math.max(goal.target_amount - goal.current_amount, 0))}`;
-  }
-
-  return `+${formatCurrency(monthlyContribution * 0.8)} este mês`;
-}
-
-/**
- * Builds the visual model consumed by cards, charts and simulator.
- *
- * @param goal Goal data.
- * @param index Goal index used for deterministic fallback values.
- * @returns Goal view model.
- */
-function toGoalViewModel(goal: GoalDto, index: number): GoalViewModel {
-  const progress = calculateProgress(goal);
-  const health = resolveHealth(goal, progress);
-  const monthlyContribution = [1500, 2000, 500, 1200][index] ?? 1000;
-  const monthlyDelta = resolveMonthlyDelta(goal, health.tone, monthlyContribution);
-
-  return {
-    ...goal,
-    progress,
-    targetLabel: formatCurrency(goal.target_amount),
-    currentLabel: formatCurrency(goal.current_amount),
-    deadlineLabel: formatDeadline(goal.target_date),
-    monthlyContribution,
-    monthlyDelta,
-    ...health,
-  };
-}
-
-const goalCards = computed(() => filteredGoals.value.map(toGoalViewModel));
-
-const selectedGoal = computed(() => {
-  return goalCards.value.find((goal) => goal.id === selectedGoalId.value) ?? goalCards.value[0] ?? null;
-});
-
-/**
- * Opens the dedicated detail route for a selected goal card.
- *
- * @param goal Goal selected in the status grid.
- */
-const openGoalDetails = (goal: GoalViewModel): void => {
+const openGoalDetails = (goal: GoalHubItem): void => {
   void navigateTo(`/goals/${goal.id}`);
 };
+
+/**
+ * Detects goals that reached the target but were not explicitly closed yet.
+ *
+ * @param goal Goal selected in the hub.
+ * @returns True when the completion CTA should be visible.
+ */
+function isGoalReached(goal: GoalHubItem): boolean {
+  return goal.isReached;
+}
+
+/**
+ * Opens the contribution modal for a selected goal.
+ *
+ * @param goal Goal selected in the hub.
+ * @param direction Initial contribution direction.
+ */
+const onRegisterContribution = (
+  goal: GoalHubItem,
+  direction: ContributionDirection = "deposit",
+): void => {
+  contributionTarget.value = goal.raw;
+  contributionDirection.value = direction;
+  isContributionModalOpen.value = true;
+};
+
+/**
+ * Explicitly closes a reached goal after the user confirms the intent via CTA.
+ *
+ * @param goal Goal selected in the hub.
+ */
+const onConcludeGoal = (goal: GoalHubItem): void => {
+  updateMutation.mutate({ id: goal.id, status: "completed" });
+};
+
+watch(isContributionModalOpen, (visible) => {
+  if (!visible) {
+    contributionTarget.value = null;
+  }
+});
 
 watch(
   goalCards,
   (items) => {
-    if (items.length > 0 && !items.some((goal) => goal.id === selectedGoalId.value)) {
-      selectedGoalId.value = items[0]?.id ?? "";
+    const currentSelectionExists = selectedGoalId.value
+      ? items.some((goal) => goal.id === selectedGoalId.value)
+      : false;
+
+    if (!currentSelectionExists) {
+      selectedGoalId.value = pickDefaultGoalHubItem(items)?.id ?? null;
     }
   },
   { immediate: true },
 );
-
-const actionHighlights = computed<ActionHighlight[]>(() => {
-  const [firstGoal, secondGoal] = goalCards.value;
-  if (!firstGoal) {
-    return [];
-  }
-
-  return [
-    {
-      tone: firstGoal.tone === "orange" || firstGoal.tone === "red" ? "orange" : "lime",
-      badge: firstGoal.tone === "orange" || firstGoal.tone === "red" ? "Atenção" : "Próximo passo",
-      title: `Revisar ritmo: ${firstGoal.name}`,
-      description: `Você já acumulou ${firstGoal.currentLabel} de ${firstGoal.targetLabel}. Ajuste o aporte ou o prazo para manter essa meta compatível com sua rotina.`,
-      action: "Simular ajuste",
-    },
-    {
-      tone: "neutral",
-      badge: "Organização",
-      title: secondGoal ? `Comparar prioridade: ${secondGoal.name}` : "Crie uma segunda meta para comparar prioridades",
-      description: secondGoal
-        ? "Compare prazo, esforço mensal e impacto no caixa antes de decidir qual objetivo acelerar."
-        : "Com mais de uma meta, o Auraxis ajuda você a enxergar qual objetivo pede atenção primeiro.",
-      action: secondGoal ? "Comparar metas" : "Criar outra meta",
-    },
-  ];
-});
-
-const timelineChartOption = computed<EChartsOption>(() => {
-  const tokens = chartTokens.value;
-  const labels = ["Hoje", "6m", "12m", "18m", "24m", "30m", "36m"];
-  const invested = labels.map((_, index) =>
-    Math.round(goalCards.value.reduce((sum, goal) => sum + goal.current_amount + goal.monthlyContribution * index * 6, 0)),
-  );
-  const projected = invested.map((value, index) => Math.round(value * (1 + index * 0.042)));
-
-  return {
-    backgroundColor: "transparent",
-    color: [tokens.balance, tokens.income],
-    grid: { top: 24, right: 22, bottom: 32, left: 60 },
-    tooltip: {
-      trigger: "axis",
-      backgroundColor: tokens.tooltipBackground,
-      borderColor: tokens.tooltipBorder,
-      textStyle: { color: tokens.tooltipText },
-      valueFormatter: (value): string => formatCurrency(Number(value)),
-    },
-    legend: {
-      top: 0,
-      right: 0,
-      textStyle: { color: tokens.mutedText },
-    },
-    media: [
-      {
-        query: { maxWidth: 520 },
-        option: {
-          grid: { top: 56, right: 10, bottom: 28, left: 44 },
-          legend: {
-            top: 0,
-            left: 0,
-            right: "auto",
-            itemGap: 8,
-            itemHeight: 6,
-            itemWidth: 10,
-            textStyle: { color: tokens.mutedText, fontSize: 10 },
-          },
-        },
-      },
-    ],
-    xAxis: {
-      type: "category",
-      data: labels,
-      axisLine: { lineStyle: { color: tokens.border } },
-      axisTick: { show: false },
-      axisLabel: { color: tokens.mutedText },
-    },
-    yAxis: {
-      type: "value",
-      splitLine: { lineStyle: { color: tokens.grid } },
-      axisLabel: {
-        color: tokens.mutedText,
-        formatter: (value: number): string => `${Math.round(value / 1000)}k`,
-      },
-    },
-    series: [
-      {
-        name: "Aportes",
-        type: "line",
-        smooth: true,
-        data: invested,
-        symbol: "circle",
-        symbolSize: 6,
-        lineStyle: { width: 3 },
-      },
-      {
-        name: "Projeção Total",
-        type: "line",
-        smooth: true,
-        data: projected,
-        symbol: "circle",
-        symbolSize: 6,
-        lineStyle: { width: 3 },
-        areaStyle: { color: withAlpha(tokens.income, resolvedTheme.value === "dark" ? 0.08 : 0.14) },
-      },
-    ],
-  };
-});
-
-const simulatedImpact = computed(() => {
-  const goal = selectedGoal.value;
-  if (!goal) {
-    return {
-      newDeadline: "Sem meta",
-      savedTime: "0 meses",
-      extraYield: formatCurrency(0),
-    };
-  }
-
-  const remaining = Math.max(goal.target_amount - goal.current_amount, 0);
-  const baseMonths = Math.max(1, Math.ceil(remaining / Math.max(goal.monthlyContribution, 1)));
-  const simulatedMonths = Math.max(1, Math.ceil(remaining / simulatedContribution.value));
-  const savedMonths = Math.max(0, baseMonths - simulatedMonths);
-  const projectedDate = new Date();
-  projectedDate.setMonth(projectedDate.getMonth() + simulatedMonths);
-
-  return {
-    newDeadline: formatDeadline(projectedDate.toISOString().slice(0, 10)),
-    savedTime: `${savedMonths} meses`,
-    extraYield: `+ ${formatCurrency(savedMonths * 368)}`,
-  };
-});
 </script>
 
 <template>
-  <div class="goals-market-pulse">
-    <section class="goals-market-pulse__header" aria-label="Cabeçalho de metas">
-      <div>
-        <h1>Metas Financeiras</h1>
-        <p>Acompanhe e simule o progresso dos seus objetivos de longo prazo.</p>
-      </div>
-
-      <div class="goals-market-pulse__actions">
-        <button class="mp-button mp-button--secondary" type="button">
-          <Download :size="16" aria-hidden="true" />
-          Relatório
-        </button>
-        <NButton class="mp-button mp-button--primary" type="primary" @click="onNewGoal">
-          <template #icon>
-            <Plus :size="16" aria-hidden="true" />
-          </template>
-          Nova Meta
-        </NButton>
-      </div>
-    </section>
-
+  <div class="goals-hub">
     <UiInlineError
       v-if="isError"
       :title="$t('pages.goals.loadError')"
       :message="$t('pages.goals.loadErrorMessage')"
     />
 
-    <UiPageLoader v-else-if="isLoading" :rows="4" :with-title="true" />
-
     <template v-else>
-      <AiInsightSurface dimension="goals" />
+      <section class="goals-hub__command" aria-label="Central de progresso das metas">
+        <div class="goals-hub__command-copy">
+          <span class="goals-hub__eyebrow">
+            <Sparkles :size="16" aria-hidden="true" />
+            Central de progresso
+          </span>
+          <p>
+            Metas mostram onde o próximo real disponível cria mais avanço: conclua objetivos
+            alcançados, registre entradas e peça ideias para acelerar sem perder folga no mês.
+          </p>
+        </div>
 
-      <section v-if="goalCards.length === 0" class="goals-empty-state" aria-label="Metas vazias">
+        <div class="goals-hub__command-actions">
+          <NButton secondary>
+            <template #icon>
+              <Download :size="18" />
+            </template>
+            Relatório
+          </NButton>
+          <NButton
+            secondary
+            type="primary"
+            :disabled="!selectedGoal"
+            @click="selectedGoal && onRegisterContribution(selectedGoal)"
+          >
+            <template #icon>
+              <CircleDollarSign :size="18" />
+            </template>
+            Registrar entrada
+          </NButton>
+          <NButton type="primary" @click="onNewGoal">
+            <template #icon>
+              <Plus :size="18" />
+            </template>
+            Nova meta
+          </NButton>
+        </div>
+      </section>
+
+      <UiPageLoader v-if="isLoading" :rows="3" />
+
+      <section v-else-if="goalCards.length === 0" class="goals-hub__empty" aria-label="Metas vazias">
         <UiEmptyState
           icon="target"
           title="Suas metas começam aqui"
@@ -421,37 +397,71 @@ const simulatedImpact = computed(() => {
         </UiEmptyState>
       </section>
 
-      <section v-else id="action-highlights" class="mp-panel action-highlights">
-        <div class="section-title">
-          <span class="section-icon section-icon--cyan">
-            <Bolt :size="17" aria-hidden="true" />
-          </span>
-          <h2>O que fazer agora</h2>
-        </div>
-
-        <div class="action-grid">
-          <article
-            v-for="item in actionHighlights"
-            :key="item.title"
-            class="action-card"
-            :class="`action-card--${item.tone}`"
-          >
-            <div class="action-card__topline">
-              <span>{{ item.badge }}</span>
-              <ArrowUpRight :size="16" aria-hidden="true" />
+      <template v-else>
+        <section class="goals-hub__metrics" aria-label="Resumo das metas">
+          <article class="goals-hub__metric">
+            <div class="goals-hub__metric-icon goals-hub__metric-icon--brand">
+              <Target :size="18" aria-hidden="true" />
             </div>
-            <h3>{{ item.title }}</h3>
-            <p>{{ item.description }}</p>
-            <button type="button">{{ item.action }}</button>
+            <span>Metas ativas</span>
+            <strong>{{ goalSummary.activeCount }}</strong>
           </article>
-        </div>
-      </section>
 
-      <section v-if="goalCards.length > 0" id="goals-status" class="goals-status">
-        <div class="section-toolbar">
-          <h2>Status das Metas</h2>
-          <div class="toolbar-actions">
-            <div class="filter-tabs" aria-label="Filtro de metas">
+          <article class="goals-hub__metric">
+            <div class="goals-hub__metric-icon goals-hub__metric-icon--positive">
+              <Wallet :size="18" aria-hidden="true" />
+            </div>
+            <span>Guardado</span>
+            <strong>{{ formatCurrency(goalSummary.totalCurrent) }}</strong>
+          </article>
+
+          <article class="goals-hub__metric">
+            <div class="goals-hub__metric-icon goals-hub__metric-icon--warning">
+              <Flag :size="18" aria-hidden="true" />
+            </div>
+            <span>Falta</span>
+            <strong>{{ formatCurrency(goalSummary.totalRemaining) }}</strong>
+          </article>
+
+          <article
+            class="goals-hub__metric"
+            :class="{ 'goals-hub__metric--danger': goalSummary.attentionCount > 0 }"
+          >
+            <div class="goals-hub__metric-icon goals-hub__metric-icon--info">
+              <TrendingUp :size="18" aria-hidden="true" />
+            </div>
+            <span>Próximo real disponível</span>
+            <strong>{{ goalSummary.reachedCount > 0 ? 'Concluir' : 'Priorizar' }}</strong>
+          </article>
+        </section>
+
+        <section class="goals-hub__health" aria-label="Saúde geral das metas">
+          <div class="goals-hub__health-copy">
+            <CheckCircle2 v-if="goalSummary.attentionCount === 0" :size="18" aria-hidden="true" />
+            <AlertTriangle v-else :size="18" aria-hidden="true" />
+            <span>{{ goalHealthText }}</span>
+          </div>
+          <NProgress
+            class="goals-hub__overall-progress"
+            type="line"
+            :percentage="goalSummary.overallProgress"
+            :status="goalSummary.attentionCount > 0 ? 'warning' : 'default'"
+            :show-indicator="true"
+            aria-label="Progresso agregado das metas ativas"
+          />
+        </section>
+
+        <section class="goals-hub__review-grid">
+          <div class="goals-hub__goal-list" aria-label="Lista de metas">
+            <div class="goals-hub__list-header">
+              <div>
+                <span>Metas</span>
+                <strong>{{ goalCards.length }} no radar</strong>
+              </div>
+              <NTag type="info" size="small">ordenado por prioridade</NTag>
+            </div>
+
+            <div class="goals-hub__filters" aria-label="Filtro de metas">
               <button
                 v-for="option in filterOptions"
                 :key="option.value"
@@ -462,146 +472,205 @@ const simulatedImpact = computed(() => {
                 {{ option.label }}
               </button>
             </div>
-            <button class="icon-button" type="button" aria-label="Filtrar metas">
-              <Filter :size="16" aria-hidden="true" />
-            </button>
-            <button class="icon-button" type="button" aria-label="Ordenar metas">
-              <ArrowDownAZ :size="16" aria-hidden="true" />
-            </button>
+
+            <div v-if="visibleGoalCards.length === 0" class="goals-hub__empty-filter">
+              Nenhuma meta neste filtro.
+            </div>
+
+            <template v-else>
+              <button
+                v-for="goal in visibleGoalCards"
+                :key="goal.id"
+                class="goal-row"
+                :class="[
+                  `goal-row--${goal.tone}`,
+                  { 'goal-row--selected': selectedGoal?.id === goal.id },
+                ]"
+                type="button"
+                :aria-pressed="selectedGoal?.id === goal.id"
+                @click="onSelectGoal(goal.id)"
+              >
+                <span class="goal-row__accent" aria-hidden="true" />
+
+                <span class="goal-row__main">
+                  <span class="goal-row__name">{{ goal.name }}</span>
+                  <span class="goal-row__meta">
+                    <CalendarDays :size="14" aria-hidden="true" />
+                    {{ formatDate(goal.targetDate) }}
+                  </span>
+                </span>
+
+                <span class="goal-row__numbers">
+                  <span>
+                    <strong>{{ formatCurrency(goal.currentAmount) }}</strong>
+                    <small>de {{ formatCurrency(goal.targetAmount) }}</small>
+                  </span>
+                  <NTag :type="toneTagType(goal.tone)" size="small">
+                    {{ goal.statusLabel }}
+                  </NTag>
+                </span>
+
+                <span class="goal-row__progress">
+                  <NProgress
+                    type="line"
+                    :aria-label="`Progresso da meta ${goal.name}`"
+                    :percentage="goal.progressPercentage"
+                    :status="goal.progressStatus"
+                    :show-indicator="false"
+                  />
+                  <span>{{ goal.progress }}%</span>
+                </span>
+
+                <span class="goal-row__remaining">
+                  {{ formatCurrency(goal.remainingAmount) }}
+                </span>
+              </button>
+            </template>
           </div>
-        </div>
 
-        <div class="goal-card-grid">
-          <article
-            v-for="goal in goalCards"
-            :key="goal.id"
-            class="goal-status-card"
-            :class="`goal-status-card--${goal.tone}`"
-            @click="selectedGoalId = goal.id"
-          >
-            <div class="goal-status-card__glow" aria-hidden="true" />
-            <div class="goal-status-card__header">
-              <div>
-                <h3>{{ goal.name }}</h3>
-                <p>Prazo: {{ goal.deadlineLabel }}</p>
+          <aside class="goals-hub__detail-panel" aria-label="Detalhe da meta selecionada">
+            <template v-if="selectedGoal">
+              <div class="detail-panel__header">
+                <div>
+                  <span class="detail-panel__eyebrow">
+                    <Target :size="16" aria-hidden="true" />
+                    Meta selecionada
+                  </span>
+                  <h2>{{ selectedGoal.name }}</h2>
+                </div>
+                <NTag :type="toneTagType(selectedGoal.tone)">
+                  {{ selectedGoal.statusLabel }}
+                </NTag>
               </div>
-              <span class="status-badge">
-                <i aria-hidden="true" />
-                {{ goal.healthLabel }}
-              </span>
-            </div>
 
-            <div class="goal-progress">
-              <div class="goal-progress__amounts">
-                <strong>{{ goal.currentLabel }}</strong>
-                <span>de {{ goal.targetLabel }}</span>
-              </div>
-              <div class="progress-track" aria-hidden="true">
-                <span :style="{ width: `${goal.progress}%` }" />
-              </div>
-              <div class="goal-progress__footer">
-                <span>{{ goal.progress }}% concluído</span>
-                <strong>{{ goal.monthlyDelta }}</strong>
-              </div>
-            </div>
-
-            <div class="goal-status-card__footer">
-              <span>
-                Aporte mensal atual:
-                <strong>{{ formatCurrency(goal.monthlyContribution) }}</strong>
-              </span>
-              <div class="goal-status-card__footer-actions">
-                <button
-                  class="goal-status-card__details"
-                  type="button"
-                  @click.stop="openGoalDetails(goal)"
+              <div class="detail-panel__hero">
+                <div class="detail-panel__hero-copy">
+                  <span>Guardado até agora</span>
+                  <strong>{{ formatCurrency(selectedGoal.currentAmount) }}</strong>
+                  <small>Alvo de {{ formatCurrency(selectedGoal.targetAmount) }}</small>
+                </div>
+                <div
+                  class="detail-panel__orb"
+                  :class="`detail-panel__orb--${selectedGoal.tone}`"
+                  aria-hidden="true"
                 >
-                  <ArrowUpRight :size="15" aria-hidden="true" />
+                  {{ selectedGoal.progress }}%
+                </div>
+              </div>
+
+              <NProgress
+                type="line"
+                :aria-label="`Progresso da meta ${selectedGoal.name}`"
+                :percentage="selectedGoal.progressPercentage"
+                :status="selectedGoal.progressStatus"
+                :show-indicator="false"
+              />
+
+              <div class="detail-panel__facts">
+                <article>
+                  <CalendarDays :size="17" aria-hidden="true" />
+                  <span>Prazo</span>
+                  <strong>{{ formatDate(selectedGoal.targetDate) }}</strong>
+                </article>
+                <article>
+                  <Flag :size="17" aria-hidden="true" />
+                  <span>Falta</span>
+                  <strong>{{ formatCurrency(selectedGoal.remainingAmount) }}</strong>
+                </article>
+                <article>
+                  <CircleDollarSign :size="17" aria-hidden="true" />
+                  <span>Aporte sugerido</span>
+                  <strong>{{ formatCurrency(selectedGoal.requiredMonthlyContribution) }}/mês</strong>
+                </article>
+              </div>
+
+              <div
+                class="detail-panel__diagnosis"
+                :class="`detail-panel__diagnosis--${selectedGoal.tone}`"
+              >
+                <AlertTriangle
+                  v-if="selectedGoal.tone === 'danger' || selectedGoal.tone === 'warning'"
+                  :size="18"
+                  aria-hidden="true"
+                />
+                <CheckCircle2 v-else :size="18" aria-hidden="true" />
+                <p>{{ selectedDiagnosis }}</p>
+              </div>
+
+              <div v-if="isGoalReached(selectedGoal)" class="detail-panel__completion">
+                <CheckCircle2 :size="18" aria-hidden="true" />
+                <div>
+                  <strong>Meta alcançada</strong>
+                  <p>O saldo já cobre o objetivo. Conclua quando quiser arquivar a meta como resolvida.</p>
+                </div>
+              </div>
+
+              <section class="detail-panel__movement" aria-label="Último movimento">
+                <div>
+                  <span>Último movimento</span>
+                  <strong v-if="latestContribution">
+                    {{ formatContributionAmount(latestContribution) }}
+                  </strong>
+                  <strong v-else-if="isContributionsLoading">Carregando</strong>
+                  <strong v-else>Nenhum aporte registrado</strong>
+                </div>
+                <p v-if="latestContribution">
+                  {{ formatContributionDate(latestContribution.occurred_at) }}
+                  <template v-if="latestContribution.note"> · {{ latestContribution.note }}</template>
+                </p>
+                <p v-else>
+                  Registre uma entrada para transformar a meta em acompanhamento real.
+                </p>
+              </section>
+
+              <div class="detail-panel__actions">
+                <NButton type="primary" @click="onRegisterContribution(selectedGoal)">
+                  <template #icon>
+                    <Plus :size="18" />
+                  </template>
+                  Registrar entrada
+                </NButton>
+                <NButton secondary @click="onRegisterContribution(selectedGoal, 'withdrawal')">
+                  <template #icon>
+                    <Minus :size="18" />
+                  </template>
+                  Registrar retirada
+                </NButton>
+                <NButton
+                  v-if="isGoalReached(selectedGoal)"
+                  secondary
+                  type="success"
+                  :loading="updateMutation.isPending.value"
+                  @click="onConcludeGoal(selectedGoal)"
+                >
+                  Concluir meta
+                </NButton>
+                <NButton secondary @click="onEditGoal(selectedGoal)">Editar</NButton>
+                <NButton secondary @click="openGoalDetails(selectedGoal)">
                   Ver detalhes
-                </button>
-                <button type="button" aria-label="Mais opções da meta" @click.stop>
-                  <MoreVertical :size="16" aria-hidden="true" />
-                </button>
+                  <template #icon>
+                    <ArrowUpRight :size="15" />
+                  </template>
+                </NButton>
               </div>
-            </div>
-          </article>
-        </div>
-      </section>
 
-      <div v-if="goalCards.length > 0" class="goals-analytics-grid">
-        <section id="goals-timeline" class="mp-panel goals-timeline">
-          <div class="chart-heading">
-            <div>
-              <h2>Projeção de Evolução Patrimonial</h2>
-              <p>Trajetória combinada de todas as metas ativas.</p>
-            </div>
-            <div class="range-tabs" aria-label="Intervalo da projeção">
-              <button type="button">1A</button>
-              <button type="button" class="is-active">3A</button>
-              <button type="button">5A</button>
-              <button type="button">Max</button>
-            </div>
-          </div>
-          <UiChart :option="timelineChartOption" height="350px" />
+              <section class="detail-panel__ai" aria-label="IA para próximos aportes">
+                <div class="detail-panel__ai-head">
+                  <Bot :size="18" aria-hidden="true" />
+                  <div>
+                    <span>IA para próximos aportes</span>
+                    <p>
+                      Peça ideias de como dinheiro remanescente no mês pode acelerar esta meta
+                      sem registrar nada automaticamente.
+                    </p>
+                  </div>
+                </div>
+                <AiInsightSurface dimension="goals" source-surface="goals" />
+              </section>
+            </template>
+          </aside>
         </section>
-
-        <section id="contribution-simulator" class="mp-panel contribution-simulator">
-          <div class="section-title section-title--bordered">
-            <span class="section-icon section-icon--plain">
-              <SlidersHorizontal :size="18" aria-hidden="true" />
-            </span>
-            <h2>Simulador de Aporte</h2>
-          </div>
-
-          <label class="field-label" for="goal-selection">Meta Selecionada</label>
-          <select id="goal-selection" v-model="selectedGoalId" class="mp-select">
-            <option v-for="goal in goalCards" :key="goal.id" :value="goal.id">
-              Simular: {{ goal.name }}
-            </option>
-          </select>
-
-          <div class="slider-block">
-            <div>
-              <label class="field-label" for="contribution-range">Aporte Mensal Simulado</label>
-              <strong>{{ formatCurrency(simulatedContribution) }}</strong>
-            </div>
-            <input
-              id="contribution-range"
-              v-model.number="simulatedContribution"
-              type="range"
-              min="500"
-              max="5000"
-              step="100"
-            >
-            <div class="slider-limits">
-              <span>R$ 500</span>
-              <span>R$ 5.000+</span>
-            </div>
-          </div>
-
-          <div class="simulation-impact">
-            <h3>Impacto da Simulação</h3>
-            <dl>
-              <div>
-                <dt>Novo Prazo Estimado</dt>
-                <dd class="is-lime">{{ simulatedImpact.newDeadline }}</dd>
-              </div>
-              <div>
-                <dt>Tempo Economizado</dt>
-                <dd class="is-cyan">{{ simulatedImpact.savedTime }}</dd>
-              </div>
-              <div>
-                <dt>Rendimento Extra</dt>
-                <dd>{{ simulatedImpact.extraYield }}</dd>
-              </div>
-            </dl>
-          </div>
-
-          <button class="mp-button mp-button--wide" type="button">
-            Aplicar Novo Aporte
-          </button>
-        </section>
-      </div>
+      </template>
     </template>
 
     <GoalForm
@@ -610,617 +679,636 @@ const simulatedImpact = computed(() => {
       @update:visible="showForm = $event"
       @submit="onCreateOrUpdate"
     />
+    <GoalContributionModal
+      v-if="contributionTarget"
+      v-model:visible="isContributionModalOpen"
+      :goal="contributionTarget"
+      :initial-direction="contributionDirection"
+    />
   </div>
 </template>
 
 <style scoped>
-.goals-market-pulse {
-  --mp-surface: var(--color-bg-surface);
-  --mp-surface-strong: var(--color-bg-elevated);
-  --mp-border: var(--color-outline-soft);
-  --mp-border-strong: var(--color-outline-hard);
-  --mp-text: var(--color-text-primary);
-  --mp-muted: var(--color-text-muted);
-  --mp-cyan: var(--color-brand-500);
-  --mp-lime: var(--color-positive);
-  --mp-orange: var(--color-warning);
-  --mp-red: var(--color-negative);
-  --mp-brand-soft: var(--color-brand-hover-surface);
-  --mp-neutral-soft: var(--color-bg-subtle);
-  --mp-panel-bg:
-    radial-gradient(circle at 100% 0%, var(--color-brand-glow-2xs), transparent 30%),
-    var(--mp-surface);
-  --mp-track: color-mix(in srgb, var(--color-text-muted) 16%, transparent);
-  display: grid;
-  gap: 32px;
-  color: var(--mp-text);
-}
-
-.goals-market-pulse__header {
+.goals-hub {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 24px;
-  padding-block-end: 2px;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
 }
 
-.goals-market-pulse__header h1,
-.section-toolbar h2,
-.chart-heading h2,
-.section-title h2 {
-  margin: 0;
-  color: var(--mp-text);
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
-  letter-spacing: 0;
-}
-
-.goals-market-pulse__header p,
-.chart-heading p {
-  margin: 6px 0 0;
-  color: var(--mp-muted);
-  font-size: var(--font-size-md);
-}
-
-.goals-market-pulse__actions,
-.toolbar-actions,
-.filter-tabs,
-.range-tabs {
+.goals-hub__command {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--color-outline-soft);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at 12% 0%, var(--color-brand-glow-xs), transparent 34%),
+    linear-gradient(135deg, var(--color-bg-surface), var(--color-bg-elevated));
+  box-shadow: var(--shadow-card);
 }
 
-.mp-button,
-.icon-button,
-.filter-tabs button,
-.range-tabs button {
-  border: 1px solid var(--mp-border);
-  border-radius: var(--radius-xs);
-  min-height: 38px;
-  padding: 0 14px;
-  background: var(--mp-surface);
-  color: var(--mp-text);
-  font: inherit;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
+.goals-hub__command-copy {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
 }
 
-.mp-button {
+.goals-hub__eyebrow,
+.detail-panel__eyebrow {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
-  cursor: pointer;
-}
-
-.mp-button--primary {
-  border-color: var(--color-brand-glow-md);
-  background: var(--mp-cyan);
-  color: var(--color-text-on-brand);
-  box-shadow: var(--shadow-brand-glow-sm);
-}
-
-.mp-button--secondary:hover,
-.icon-button:hover,
-.filter-tabs button:hover,
-.range-tabs button:hover {
-  border-color: var(--mp-border-strong);
-  background: var(--mp-neutral-soft);
-}
-
-.mp-button--wide {
-  width: 100%;
-  min-height: 46px;
-  margin-top: 22px;
-  border-color: var(--mp-border-strong);
-  background: var(--mp-surface-strong);
-}
-
-.mp-panel {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid var(--mp-border);
-  border-radius: var(--radius-lg);
-  background: var(--mp-panel-bg);
-  box-shadow: var(--shadow-card);
-}
-
-.goals-empty-state {
-  border: 1px solid var(--mp-border);
-  border-radius: var(--radius-lg);
-  background: var(--mp-panel-bg);
-  box-shadow: var(--shadow-card);
-}
-
-.action-highlights,
-.goals-timeline,
-.contribution-simulator {
-  padding: 24px;
-}
-
-.section-title,
-.section-toolbar,
-.chart-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.section-title {
-  justify-content: flex-start;
-  margin-bottom: 24px;
-}
-
-.section-title--bordered {
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--mp-border);
-}
-
-.section-icon {
-  display: inline-flex;
-  width: 32px;
-  height: 32px;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-full);
-}
-
-.section-icon--cyan {
-  color: var(--mp-cyan);
-  background: var(--mp-brand-soft);
-}
-
-.section-icon--plain {
-  color: var(--mp-cyan);
-}
-
-.action-grid,
-.goal-card-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-}
-
-.action-card,
-.goal-status-card {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid var(--mp-border);
-  border-radius: var(--radius-md);
-  background: var(--mp-surface);
-  box-shadow: var(--shadow-card);
-}
-
-.action-card {
-  padding: 20px;
-}
-
-.action-card__topline,
-.goal-status-card__header,
-.goal-status-card__footer,
-.goal-progress__amounts,
-.goal-progress__footer,
-.slider-block > div,
-.simulation-impact dl div {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.action-card__topline span {
-  border: 1px solid var(--mp-border);
-  border-radius: var(--radius-xs);
-  padding: 4px 8px;
-  background: var(--mp-neutral-soft);
-  color: var(--mp-muted);
+  color: var(--color-brand-500);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-extrabold);
+  letter-spacing: 0;
+  text-transform: uppercase;
 }
 
-.action-card--orange .action-card__topline span {
-  border-color: var(--color-warning-glow);
-  background: var(--color-warning-bg);
-  color: var(--mp-orange);
-}
-
-.action-card--lime .action-card__topline span {
-  border-color: var(--color-positive-border);
-  background: var(--color-positive-bg);
-  color: var(--mp-lime);
-}
-
-.action-card h3,
-.goal-status-card h3,
-.simulation-impact h3 {
-  margin: 18px 0 8px;
-  color: var(--mp-text);
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-bold);
-}
-
-.action-card p,
-.goal-status-card p,
-.simulation-impact dt,
-.field-label {
+.goals-hub__command-copy p {
+  max-width: 820px;
   margin: 0;
-  color: var(--mp-muted);
+  color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
   line-height: 1.55;
 }
 
-.action-card button {
-  margin-top: 18px;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  color: var(--mp-cyan);
-  font: inherit;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-extrabold);
+.goals-hub__command-actions,
+.detail-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
 }
 
-.section-toolbar {
-  margin-bottom: 18px;
+.goals-hub__empty {
+  min-height: 420px;
+  padding: var(--space-5) 0;
+  border: 1px dashed color-mix(in srgb, var(--color-brand-500) 34%, transparent);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(135deg, var(--color-brand-glow-2xs), transparent 44%),
+    color-mix(in srgb, var(--color-bg-surface) 84%, transparent);
 }
 
-.filter-tabs {
-  border: 1px solid var(--mp-border);
-  border-radius: var(--radius-sm);
-  padding: 4px;
-  background: var(--mp-surface-strong);
+.goals-hub__metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
 }
 
-.filter-tabs button,
-.range-tabs button {
-  min-height: 30px;
-  border-color: transparent;
-  padding: 0 10px;
-  color: var(--mp-muted);
-  background: transparent;
-  cursor: pointer;
+.goals-hub__metric {
+  display: grid;
+  gap: var(--space-2);
+  min-height: 132px;
+  padding: var(--space-3);
+  border: 1px solid var(--color-outline-soft);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-bg-surface) 88%, transparent);
+  box-shadow: var(--shadow-card);
 }
 
-.filter-tabs button.is-active,
-.range-tabs button.is-active {
-  border-color: var(--mp-border-strong);
-  background: var(--mp-neutral-soft);
-  color: var(--mp-text);
+.goals-hub__metric span,
+.detail-panel__facts span,
+.detail-panel__hero-copy span,
+.goal-row__meta,
+.goal-row__numbers small,
+.detail-panel__movement span,
+.detail-panel__ai-head span {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0;
+  text-transform: uppercase;
 }
 
-.icon-button {
+.goals-hub__metric strong {
+  align-self: end;
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xl);
+  line-height: 1.15;
+}
+
+.goals-hub__metric--danger strong {
+  color: var(--color-warning);
+}
+
+.goals-hub__metric-icon {
+  display: inline-flex;
   width: 38px;
-  padding: 0;
-  color: var(--mp-muted);
-  cursor: pointer;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
 }
 
-.goal-status-card {
-  padding: 24px;
-  cursor: pointer;
+.goals-hub__metric-icon--brand {
+  color: var(--color-brand-500);
+  background: var(--color-brand-hover-surface);
 }
 
-.goal-status-card__glow {
-  position: absolute;
-  inset: 0 0 auto auto;
-  width: 132px;
-  height: 132px;
-  border-bottom-left-radius: 999px;
-  opacity: 0.08;
+.goals-hub__metric-icon--positive {
+  color: var(--color-positive);
+  background: var(--color-positive-bg);
 }
 
-.goal-status-card--lime .goal-status-card__glow,
-.goal-status-card--lime .progress-track span,
-.goal-status-card--lime .status-badge i {
-  background: var(--mp-lime);
+.goals-hub__metric-icon--warning {
+  color: var(--color-warning);
+  background: var(--color-warning-bg);
 }
 
-.goal-status-card--orange .goal-status-card__glow,
-.goal-status-card--orange .progress-track span,
-.goal-status-card--orange .status-badge i {
-  background: var(--mp-orange);
+.goals-hub__metric-icon--info {
+  color: var(--color-info);
+  background: var(--color-info-bg);
 }
 
-.goal-status-card--red .goal-status-card__glow,
-.goal-status-card--red .progress-track span,
-.goal-status-card--red .status-badge i {
-  background: var(--mp-red);
+.goals-hub__health {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-outline-soft);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
 }
 
-.goal-status-card--cyan .goal-status-card__glow,
-.goal-status-card--cyan .progress-track span,
-.goal-status-card--cyan .status-badge i {
-  background: var(--mp-cyan);
+.goals-hub__health-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-bold);
 }
 
-.goal-status-card__header,
-.goal-progress,
-.goal-status-card__footer {
-  position: relative;
-  z-index: 1;
+.goals-hub__overall-progress {
+  max-width: 100%;
 }
 
-.goal-status-card__header {
-  align-items: flex-start;
-  margin-bottom: 24px;
+.goals-hub__review-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.38fr) minmax(380px, 0.92fr);
+  gap: var(--space-4);
+  align-items: start;
 }
 
-.goal-status-card__header h3 {
-  margin: 0;
+.goals-hub__goal-list,
+.goals-hub__detail-panel {
+  border: 1px solid var(--color-outline-soft);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.goals-hub__goal-list {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+}
+
+.goals-hub__list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-2);
+}
+
+.goals-hub__list-header > div {
+  display: grid;
+  gap: 2px;
+}
+
+.goals-hub__list-header span {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+}
+
+.goals-hub__list-header strong {
+  color: var(--color-text-primary);
   font-size: var(--font-size-md);
 }
 
-.goal-status-card__header p {
-  margin-top: 4px;
+.goals-hub__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid var(--color-outline-soft);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-elevated);
 }
 
-.status-badge {
+.goals-hub__filters button {
+  min-height: 30px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-xs);
+  padding: 0 var(--space-2);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+}
+
+.goals-hub__filters button.is-active,
+.goals-hub__filters button:hover {
+  border-color: var(--color-outline-hard);
+  background: var(--color-bg-subtle);
+  color: var(--color-text-primary);
+}
+
+.goals-hub__empty-filter {
+  padding: var(--space-4);
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+
+.goal-row {
+  display: grid;
+  grid-template-columns: 4px minmax(180px, 1.3fr) minmax(190px, 0.9fr) minmax(140px, 0.7fr) minmax(110px, 0.45fr);
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  border: 1px solid var(--color-outline-soft);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  background: var(--color-bg-elevated);
+  color: var(--color-text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.goal-row:hover,
+.goal-row--selected {
+  border-color: color-mix(in srgb, var(--color-brand-500) 45%, var(--color-outline-hard));
+  background:
+    linear-gradient(135deg, var(--color-brand-glow-2xs), transparent 55%),
+    var(--color-bg-surface);
+}
+
+.goal-row--selected {
+  transform: translateY(-1px);
+}
+
+.goal-row__accent {
+  align-self: stretch;
+  border-radius: var(--radius-full);
+  background: var(--color-brand-500);
+}
+
+.goal-row--achieved .goal-row__accent,
+.goal-row--completed .goal-row__accent {
+  background: var(--color-positive);
+}
+
+.goal-row--danger .goal-row__accent {
+  background: var(--color-negative);
+}
+
+.goal-row--warning .goal-row__accent {
+  background: var(--color-warning);
+}
+
+.goal-row--paused .goal-row__accent,
+.goal-row--cancelled .goal-row__accent {
+  background: var(--color-text-muted);
+}
+
+.goal-row__main,
+.goal-row__numbers,
+.goal-row__progress {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.goal-row__name {
+  overflow: hidden;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-extrabold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.goal-row__meta {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-  border: 1px solid var(--mp-border);
-  border-radius: var(--radius-full);
-  padding: 7px 10px;
-  background: var(--mp-surface-strong);
-  color: var(--mp-muted);
+  gap: 6px;
+}
+
+.goal-row__numbers strong,
+.goal-row__remaining,
+.detail-panel__hero-copy strong,
+.detail-panel__facts strong,
+.detail-panel__movement strong {
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+}
+
+.goal-row__numbers > span {
+  display: grid;
+  gap: 3px;
+}
+
+.goal-row__progress > span {
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-extrabold);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-weight: var(--font-weight-bold);
 }
 
-.goal-status-card--lime .status-badge {
-  color: var(--mp-lime);
+.goal-row__remaining {
+  justify-self: end;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
 }
 
-.goal-status-card--orange .status-badge {
-  color: var(--mp-orange);
+.goals-hub__detail-panel {
+  position: sticky;
+  top: var(--space-4);
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
 }
 
-.goal-status-card--red .status-badge {
-  color: var(--mp-red);
+.detail-panel__header,
+.detail-panel__hero,
+.detail-panel__actions,
+.detail-panel__ai-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
 }
 
-.goal-status-card--cyan .status-badge {
-  color: var(--mp-cyan);
+.detail-panel__header h2 {
+  margin: 4px 0 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-xl);
+  line-height: 1.18;
 }
 
-.status-badge i {
-  width: 8px;
-  height: 8px;
-  border-radius: var(--radius-full);
-  box-shadow: 0 0 10px currentColor;
+.detail-panel__hero {
+  align-items: center;
+  padding: var(--space-3);
+  border: 1px solid var(--color-outline-soft);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(135deg, var(--color-brand-glow-2xs), transparent 48%),
+    var(--color-bg-elevated);
 }
 
-.goal-progress__amounts strong {
-  font-family: "IBM Plex Mono", ui-monospace, monospace;
+.detail-panel__hero-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.detail-panel__hero-copy strong {
   font-size: var(--font-size-2xl);
 }
 
-.goal-progress__amounts span,
-.goal-progress__footer span,
-.goal-status-card__footer span {
-  color: var(--mp-muted);
-  font-family: "IBM Plex Mono", ui-monospace, monospace;
+.detail-panel__hero-copy small {
+  color: var(--color-text-secondary);
+}
+
+.detail-panel__orb {
+  display: inline-flex;
+  width: 86px;
+  height: 86px;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  border: 1px solid var(--color-brand-glow-md);
+  border-radius: var(--radius-full);
+  color: var(--color-brand-500);
+  background: var(--color-brand-hover-surface);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+}
+
+.detail-panel__orb--achieved,
+.detail-panel__orb--completed {
+  border-color: var(--color-positive-border);
+  color: var(--color-positive);
+  background: var(--color-positive-bg);
+}
+
+.detail-panel__orb--danger {
+  border-color: color-mix(in srgb, var(--color-negative) 42%, transparent);
+  color: var(--color-negative);
+  background: var(--color-negative-bg);
+}
+
+.detail-panel__orb--warning {
+  border-color: var(--color-warning-glow);
+  color: var(--color-warning);
+  background: var(--color-warning-bg);
+}
+
+.detail-panel__facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.detail-panel__facts article {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  padding: var(--space-2);
+  border: 1px solid var(--color-outline-soft);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-elevated);
+}
+
+.detail-panel__facts svg {
+  color: var(--color-brand-500);
+}
+
+.detail-panel__facts strong {
+  overflow-wrap: anywhere;
   font-size: var(--font-size-sm);
 }
 
-.progress-track {
-  overflow: hidden;
-  height: 8px;
-  margin: 12px 0 9px;
-  border-radius: var(--radius-full);
-  background: var(--mp-track);
-}
-
-.progress-track span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  box-shadow: 0 0 16px currentColor;
-}
-
-.goal-progress__footer strong {
-  font-family: "IBM Plex Mono", ui-monospace, monospace;
-  font-size: var(--font-size-xs);
-}
-
-.goal-status-card--lime .goal-progress__footer strong {
-  color: var(--mp-lime);
-}
-
-.goal-status-card--orange .goal-progress__footer strong {
-  color: var(--mp-orange);
-}
-
-.goal-status-card--red .goal-progress__footer strong {
-  color: var(--mp-red);
-}
-
-.goal-status-card__footer {
-  margin-top: 20px;
-  border-top: 1px solid var(--mp-border);
-  padding-top: 16px;
-}
-
-.goal-status-card__footer strong {
-  color: var(--mp-text);
-}
-
-.goal-status-card__footer-actions {
+.detail-panel__diagnosis {
   display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.goal-status-card__footer button {
-  border: 0;
-  padding: 4px;
-  background: transparent;
-  color: var(--mp-muted);
-}
-
-.goal-status-card__details {
-  display: inline-flex;
-  min-height: 32px;
-  align-items: center;
-  gap: 6px;
-  border: 1px solid var(--color-brand-glow-md) !important;
-  border-radius: var(--radius-full);
-  padding: 0 10px !important;
-  color: var(--mp-cyan) !important;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-extrabold);
-}
-
-.goals-analytics-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(310px, 1fr);
-  gap: 24px;
-}
-
-.chart-heading {
   align-items: flex-start;
-  margin-bottom: 18px;
-}
-
-.range-tabs {
-  border: 1px solid var(--mp-border);
-  border-radius: var(--radius-sm);
-  padding: 4px;
-  background: var(--mp-surface);
-}
-
-.contribution-simulator {
-  display: flex;
-  flex-direction: column;
-}
-
-.field-label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: var(--font-weight-bold);
-}
-
-.mp-select {
-  width: 100%;
-  min-height: 44px;
-  border: 1px solid var(--mp-border);
-  border-radius: var(--radius-sm);
-  margin-bottom: 26px;
-  padding: 0 14px;
-  background: var(--mp-surface);
-  color: var(--mp-text);
-  font: inherit;
-}
-
-.slider-block {
-  display: grid;
-  gap: 14px;
-  margin-bottom: 28px;
-}
-
-.slider-block strong {
-  color: var(--mp-cyan);
-  font-family: "IBM Plex Mono", ui-monospace, monospace;
-  font-size: var(--font-size-xl);
-}
-
-.slider-block input {
-  accent-color: var(--mp-cyan);
-}
-
-.slider-limits {
-  display: flex;
-  justify-content: space-between;
-  color: var(--mp-muted);
-  font-family: "IBM Plex Mono", ui-monospace, monospace;
-  font-size: var(--font-size-xs);
-}
-
-.simulation-impact {
-  margin-top: auto;
-  border: 1px solid var(--mp-border);
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-positive-border);
   border-radius: var(--radius-md);
-  padding: 20px;
-  background: var(--mp-surface);
+  color: var(--color-positive);
+  background: var(--color-positive-bg);
 }
 
-.simulation-impact h3 {
-  margin: 0 0 16px;
-  color: var(--mp-muted);
+.detail-panel__diagnosis--danger {
+  border-color: color-mix(in srgb, var(--color-negative) 42%, transparent);
+  color: var(--color-negative);
+  background: var(--color-negative-bg);
+}
+
+.detail-panel__diagnosis--warning {
+  border-color: var(--color-warning-glow);
+  color: var(--color-warning);
+  background: var(--color-warning-bg);
+}
+
+.detail-panel__diagnosis--paused,
+.detail-panel__diagnosis--cancelled {
+  border-color: var(--color-outline-soft);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-elevated);
+}
+
+.detail-panel__diagnosis p {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+
+.detail-panel__completion {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-positive-border);
+  border-radius: var(--radius-md);
+  color: var(--color-positive);
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--color-positive) 14%, transparent), transparent 42%),
+    var(--color-positive-bg);
+}
+
+.detail-panel__completion strong {
+  display: block;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+}
+
+.detail-panel__completion p {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text-secondary);
   font-size: var(--font-size-xs);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  line-height: 1.45;
 }
 
-.simulation-impact dl {
+.detail-panel__movement,
+.detail-panel__ai {
   display: grid;
-  gap: 12px;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-outline-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-elevated);
+}
+
+.detail-panel__movement > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.detail-panel__movement p,
+.detail-panel__ai-head p {
   margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.45;
 }
 
-.simulation-impact dd {
-  margin: 0;
-  color: var(--mp-text);
-  font-family: "IBM Plex Mono", ui-monospace, monospace;
-  font-weight: var(--font-weight-bold);
+.detail-panel__ai {
+  background:
+    linear-gradient(135deg, var(--color-brand-glow-2xs), transparent 52%),
+    var(--color-bg-elevated);
 }
 
-.simulation-impact dd.is-lime {
-  color: var(--mp-lime);
+.detail-panel__ai-head {
+  justify-content: flex-start;
 }
 
-.simulation-impact dd.is-cyan {
-  color: var(--mp-cyan);
+.detail-panel__ai-head svg {
+  flex: 0 0 auto;
+  color: var(--color-brand-500);
 }
 
-@media (max-width: 1100px) {
-  .action-grid,
-  .goal-card-grid,
-  .goals-analytics-grid {
+@media (prefers-reduced-motion: reduce) {
+  .goal-row {
+    transition: none;
+  }
+}
+
+@media (max-width: 1180px) {
+  .goals-hub__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .goals-hub__review-grid {
     grid-template-columns: 1fr;
   }
+
+  .goals-hub__detail-panel {
+    position: static;
+  }
 }
 
-@media (max-width: 720px) {
-  .goals-market-pulse {
-    gap: 22px;
+@media (max-width: 760px) {
+  .goals-hub {
+    padding: var(--space-3);
   }
 
-  .goals-market-pulse__header,
-  .section-toolbar,
-  .chart-heading {
-    flex-direction: column;
+  .goals-hub__command,
+  .goals-hub__command-actions,
+  .detail-panel__header,
+  .detail-panel__hero,
+  .detail-panel__movement > div {
     align-items: stretch;
+    flex-direction: column;
   }
 
-  .goals-market-pulse__actions,
-  .toolbar-actions {
-    flex-wrap: wrap;
-  }
-
-  .filter-tabs {
-    overflow-x: auto;
+  .goals-hub__command-actions {
     width: 100%;
   }
 
-  .action-highlights,
-  .goals-timeline,
-  .contribution-simulator,
-  .goal-status-card {
-    padding: 18px;
+  .goals-hub__command-actions :deep(.n-button) {
+    width: 100%;
   }
 
-  .goal-status-card__header,
-  .goal-progress__amounts,
-  .goal-progress__footer,
-  .goal-status-card__footer {
-    align-items: flex-start;
-    flex-direction: column;
+  .goals-hub__metrics,
+  .detail-panel__facts {
+    grid-template-columns: 1fr;
+  }
+
+  .goal-row {
+    grid-template-columns: 4px minmax(0, 1fr);
+  }
+
+  .goal-row__numbers,
+  .goal-row__progress,
+  .goal-row__remaining {
+    grid-column: 2;
+    justify-self: stretch;
+  }
+
+  .detail-panel__actions {
+    justify-content: stretch;
+  }
+
+  .detail-panel__actions :deep(.n-button) {
+    flex: 1 1 100%;
   }
 }
 </style>

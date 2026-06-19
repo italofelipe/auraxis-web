@@ -18,6 +18,7 @@ const props = withDefaults(defineProps<{
 
 const {
   generate,
+  checkChangeStatus,
   grantAIConsent,
   hasAIConsent,
   hasPremium,
@@ -30,6 +31,7 @@ const {
 const showLoadingModal = ref(false);
 const showPaywallModal = ref(false);
 const showConsentModal = ref(false);
+const showNoChangeModal = ref(false);
 
 /**
  * Detects the API error emitted when AI consent has not been granted yet.
@@ -60,7 +62,43 @@ const generateWithLoading = async (): Promise<void> => {
 };
 
 /**
- * Handles the AI insight trigger, gating free users behind the upgrade modal.
+ * Runs generation, recovering from the backend AI-consent gate.
+ */
+const runGenerate = async (): Promise<void> => {
+  try {
+    await generateWithLoading();
+  } catch (error) {
+    if (isAIConsentRequiredError(error)) {
+      showConsentModal.value = true;
+      return;
+    }
+    throw error;
+  }
+};
+
+/**
+ * Returns true when nothing changed since the last insight for the period.
+ *
+ * Degrades gracefully: any failure (e.g. endpoint unavailable) is treated as
+ * "changed" so generation is never blocked by the pre-check.
+ *
+ * @returns Whether the snapshot is unchanged since the last insight.
+ */
+const isUnchangedSinceLastInsight = async (): Promise<boolean> => {
+  try {
+    const status = await checkChangeStatus({
+      periodType: "daily",
+      ...(props.anchorDate ? { anchorDate: props.anchorDate } : {}),
+    });
+    return status.changed === false;
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Handles the AI insight trigger, gating free users behind the upgrade modal
+ * and confirming generation when nothing has changed since the last insight.
  */
 const handleClick = async (): Promise<void> => {
   if (!hasPremium.value) {
@@ -73,15 +111,20 @@ const handleClick = async (): Promise<void> => {
     return;
   }
 
-  try {
-    await generateWithLoading();
-  } catch (error) {
-    if (isAIConsentRequiredError(error)) {
-      showConsentModal.value = true;
-      return;
-    }
-    throw error;
+  if (await isUnchangedSinceLastInsight()) {
+    showNoChangeModal.value = true;
+    return;
   }
+
+  await runGenerate();
+};
+
+/**
+ * Confirms generation from the "nothing changed" modal and proceeds anyway.
+ */
+const handleGenerateAnyway = async (): Promise<void> => {
+  showNoChangeModal.value = false;
+  await runGenerate();
 };
 
 /**
@@ -145,6 +188,33 @@ const handleConsentAccept = async (): Promise<void> => {
         description="Usuários free recebem 1 insight automático por mês. Para gerar novas análises quando quiser, assine o plano Premium."
         cta-label="Assinar Premium"
       />
+    </NModal>
+
+    <NModal
+      v-model:show="showNoChangeModal"
+      preset="card"
+      class="ai-insight-button__no-change"
+      style="width: min(480px, calc(100vw - 32px))"
+      title="Gerar novo insight?"
+      data-testid="ai-no-change-modal"
+    >
+      <section class="ai-insight-no-change">
+        <p>
+          Notamos que não houve movimentação desde o último insight gerado.
+          Deseja gerar mesmo assim? Isso consome 1 geração do seu dia.
+        </p>
+        <footer class="ai-insight-no-change__actions">
+          <NButton @click="showNoChangeModal = false">Cancelar</NButton>
+          <NButton
+            type="primary"
+            :loading="isLoading"
+            data-testid="ai-generate-anyway"
+            @click="handleGenerateAnyway"
+          >
+            Gerar mesmo assim
+          </NButton>
+        </footer>
+      </section>
     </NModal>
 
     <NModal
@@ -237,6 +307,23 @@ const handleConsentAccept = async (): Promise<void> => {
 }
 
 .ai-insight-consent__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.ai-insight-no-change {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.ai-insight-no-change p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.ai-insight-no-change__actions {
   display: flex;
   justify-content: flex-end;
   gap: var(--space-2);

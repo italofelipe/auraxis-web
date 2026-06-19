@@ -40,11 +40,9 @@ const CARD: CreditCardDto = {
   limit_amount: 5000,
   closing_day: 3,
   due_day: 10,
-  last_four_digits: "1234",
   bank: "Nubank",
   description: null,
   benefits: ["Cashback"],
-  validity_date: "2030-12-31",
   created_at: null,
   updated_at: null,
 };
@@ -52,10 +50,14 @@ const CARD: CreditCardDto = {
 /**
  * Monta o card com o cartão fixo de teste.
  *
+ * @param props Sobrescritas de props para cenários específicos.
  * @returns Wrapper do componente montado.
  */
-const mountCard = (): ReturnType<typeof mount> =>
-  mount(CreditCardCard, { props: { card: CARD }, global: { stubs: STUBS } });
+const mountCard = (props: Partial<InstanceType<typeof CreditCardCard>["$props"]> = {}): ReturnType<typeof mount> =>
+  mount(CreditCardCard, {
+    props: { card: CARD, ...props },
+    global: { stubs: STUBS },
+  });
 
 describe("CreditCardCard", () => {
   beforeEach(() => {
@@ -77,11 +79,15 @@ describe("CreditCardCard", () => {
     utilizationPct: pct,
   });
 
-  it("renderiza nome, validade MM/YYYY e benefits", () => {
+  it("renderiza nome, ciclo e benefits sem dados sensíveis", () => {
     const w = mountCard();
     expect(w.text()).toContain("Nubank");
-    expect(w.text()).toContain("12/2030");
+    expect(w.text()).toContain("Fecha dia 3");
+    expect(w.text()).toContain("Vence dia 10");
     expect(w.text()).toContain("Cashback");
+    expect(w.text()).not.toContain("1234");
+    expect(w.text()).not.toContain("12/2030");
+    expect(w.text()).not.toContain("Final não informado");
   });
 
   it.each([
@@ -100,9 +106,29 @@ describe("CreditCardCard", () => {
     expect(w.find("[data-testid='cc-util']").exists()).toBe(false);
   });
 
+  it("marca o cartão selecionado na lista premium", () => {
+    const w = mountCard({ selected: true });
+    expect(w.get("[data-testid='credit-card-card']").classes()).toContain("cc-card--selected");
+  });
+
+  it("emite select pelo controle dedicado sem acionar ações secundárias", async () => {
+    const w = mountCard();
+    await w.get("[data-testid='cc-select-card']").trigger("click");
+
+    expect(w.emitted("select")).toHaveLength(1);
+    expect(w.emitted("view-bill")).toBeUndefined();
+    expect(w.emitted("edit")).toBeUndefined();
+    expect(w.emitted("delete")).toBeUndefined();
+  });
+
   it("emite view-bill, edit e delete", async () => {
     const w = mountCard();
     await w.get("[data-testid='cc-view-bill']").trigger("click");
+    await w.get("[data-testid='cc-edit']").trigger("click");
+    await w.get("[data-testid='cc-delete']").trigger("click");
+
     expect(w.emitted("view-bill")).toHaveLength(1);
+    expect(w.emitted("edit")).toHaveLength(1);
+    expect(w.emitted("delete")).toHaveLength(1);
   });
 });

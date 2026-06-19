@@ -1,5 +1,6 @@
 import type { BudgetDto } from "~/features/budgets/contracts/budget.contracts";
 import type { Subscription } from "~/features/subscription/model/subscription";
+import type { ListTransactionsFilters } from "~/features/transactions/services/transactions.client";
 import { parseCurrencyAmount } from "~/utils/currencyInput";
 
 export const BUDGET_FREE_ENVELOPE_LIMIT = 3;
@@ -47,6 +48,12 @@ interface BudgetQuotaInput {
   readonly budgetCount: number;
   readonly subscription: Subscription | null | undefined;
 }
+
+const usageRiskRank: Record<BudgetUsageLevel, number> = {
+  healthy: 0,
+  warning: 1,
+  danger: 2,
+};
 
 /**
  * Converts a loose numeric value into a finite number.
@@ -196,6 +203,119 @@ export const summarizeBudgetEnvelopes = (
     overallPercentage,
     warningCount: envelopes.filter((envelope) => envelope.usageLevel === "warning").length,
     dangerCount: envelopes.filter((envelope) => envelope.usageLevel === "danger").length,
+  };
+};
+
+/**
+ * Selects the envelope that deserves attention first.
+ *
+ * @param envelopes Normalized budget envelopes.
+ * @returns Most critical envelope, or null for an empty list.
+ */
+export const pickDefaultBudgetEnvelope = (
+  envelopes: readonly BudgetEnvelopeView[],
+): BudgetEnvelopeView | null => {
+  if (envelopes.length === 0) {
+    return null;
+  }
+
+  return [...envelopes].sort((left, right) => {
+    const riskDelta = usageRiskRank[right.usageLevel] - usageRiskRank[left.usageLevel];
+    if (riskDelta !== 0) {
+      return riskDelta;
+    }
+
+    const percentageDelta = right.percentageUsed - left.percentageUsed;
+    if (percentageDelta !== 0) {
+      return percentageDelta;
+    }
+
+    const spentDelta = right.spent - left.spent;
+    if (spentDelta !== 0) {
+      return spentDelta;
+    }
+
+    return left.name.localeCompare(right.name, "pt-BR");
+  })[0] ?? null;
+};
+
+/**
+ * Formats a Date using local calendar parts instead of ISO UTC conversion.
+ *
+ * @param date Date to format.
+ * @returns YYYY-MM-DD string.
+ */
+const formatDateOnly = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getDate()}`.padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+/**
+ * Gets the first and last day of the current month.
+ *
+ * @param today Reference date.
+ * @returns Monthly range.
+ */
+const buildMonthlyRange = (today: Date): Pick<ListTransactionsFilters, "start_date" | "end_date"> => {
+  const start = new Date(today.getFullYear(), today.getMonth(), 1);
+  const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  return {
+    start_date: formatDateOnly(start),
+    end_date: formatDateOnly(end),
+  };
+};
+
+/**
+ * Gets the Monday-Sunday week range for a reference date.
+ *
+ * @param today Reference date.
+ * @returns Weekly range.
+ */
+const buildWeeklyRange = (today: Date): Pick<ListTransactionsFilters, "start_date" | "end_date"> => {
+  const start = new Date(today);
+  const day = start.getDay();
+  const mondayOffset = day === 0 ? -6 : 1 - day;
+  start.setDate(start.getDate() + mondayOffset);
+
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+
+  return {
+    start_date: formatDateOnly(start),
+    end_date: formatDateOnly(end),
+  };
+};
+
+/**
+ * Builds the transaction preview filters for a selected budget envelope.
+ *
+ * @param budget Raw budget DTO.
+ * @param today Reference date used for monthly/weekly envelopes.
+ * @returns Expense filters compatible with the transactions client.
+ */
+export const buildBudgetTransactionFilters = (
+  budget: BudgetDto,
+  today: Date = new Date(),
+): ListTransactionsFilters => {
+  let periodFilters: Pick<ListTransactionsFilters, "start_date" | "end_date">;
+
+  if (budget.period === "custom" && budget.start_date && budget.end_date) {
+    periodFilters = {
+      start_date: budget.start_date,
+      end_date: budget.end_date,
+    };
+  } else if (budget.period === "weekly") {
+    periodFilters = buildWeeklyRange(today);
+  } else {
+    periodFilters = buildMonthlyRange(today);
+  }
+
+  return {
+    type: "expense",
+    ...periodFilters,
+    ...(budget.tag_id ? { tag_id: budget.tag_id } : {}),
   };
 };
 

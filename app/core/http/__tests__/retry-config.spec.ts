@@ -7,8 +7,8 @@ import { DEFAULT_RETRY_CONFIG, isRetryableStatus } from "../retry-config";
 // ---------------------------------------------------------------------------
 
 describe("isRetryableStatus", () => {
-  it("retorna true para 429 (rate-limit)", () => {
-    expect(isRetryableStatus(429)).toBe(true);
+  it("retorna false para 429 (AI daily limit nao e transiente)", () => {
+    expect(isRetryableStatus(429)).toBe(false);
   });
 
   it("retorna true para 502 (Bad Gateway)", () => {
@@ -107,8 +107,8 @@ describe("DEFAULT_RETRY_CONFIG.retryCondition", () => {
     expect(retryCondition(makeError(504))).toBe(true);
   });
 
-  it("retorna true para 429 (rate-limit)", () => {
-    expect(retryCondition(makeError(429))).toBe(true);
+  it("retorna false para 429 (AI daily limit nao e transiente)", () => {
+    expect(retryCondition(makeError(429))).toBe(false);
   });
 
   it("retorna false para 401", () => {

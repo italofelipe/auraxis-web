@@ -7,12 +7,12 @@ export type CreditCardDto = {
   readonly limit_amount: number | null;
   readonly closing_day: number | null;
   readonly due_day: number | null;
-  readonly last_four_digits: string | null;
   // cc-4 (#864) — campos estendidos do Sprint 1 do backend.
   readonly bank: string | null;
   readonly description: string | null;
   readonly benefits: readonly string[] | null;
-  readonly validity_date: string | null; // ISO YYYY-MM-DD
+  readonly last_four_digits?: string | null;
+  readonly validity_date?: string | null;
   readonly created_at: string | null;
   readonly updated_at: string | null;
 };
@@ -23,11 +23,9 @@ export type CreateCreditCardPayload = {
   readonly limit_amount?: number | null;
   readonly closing_day?: number | null;
   readonly due_day?: number | null;
-  readonly last_four_digits?: string | null;
   readonly bank?: string | null;
   readonly description?: string | null;
   readonly benefits?: readonly string[] | null;
-  readonly validity_date?: string | null;
 };
 
 /** Limite de benefits aceito pelo backend (cc-4). */

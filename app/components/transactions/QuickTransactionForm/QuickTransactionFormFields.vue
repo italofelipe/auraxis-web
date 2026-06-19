@@ -15,10 +15,12 @@ import {
   QUICK_TRANSACTION_FORM_KEY,
   type QuickTransactionFormState,
 } from "./useQuickTransactionForm";
+import type { BudgetImpactPreview } from "~/features/budgets/model/budget-impact-preview";
 import {
   previewInstallments,
   type InstallmentPreview,
 } from "~/features/transactions/utils/preview-installments";
+import { formatCurrency } from "~/utils/currency";
 
 defineOptions({ name: "QuickTransactionFormFields" });
 
@@ -33,6 +35,7 @@ defineProps<{
   showInstallmentCount: boolean;
   showEndDate: boolean;
   showRecurrenceCadence: boolean;
+  budgetImpactPreview: BudgetImpactPreview | null;
   recurrenceUnitOptions: SelectOption[];
   recurringDisabled: boolean;
 }>();
@@ -88,6 +91,18 @@ const installmentPreview = computed<InstallmentPreview | null>(() => {
           {{ $t('transaction.form.tag.createHint') }}
         </NuxtLink>
       </template>
+      <div
+        v-if="budgetImpactPreview"
+        class="quick-transaction-form__budget-preview"
+        :class="{ 'quick-transaction-form__budget-preview--danger': budgetImpactPreview.isOverBudget }"
+      >
+        <strong>{{ budgetImpactPreview.budgetName }}</strong>
+        ficará em
+        <strong>{{ formatCurrency(budgetImpactPreview.projectedSpent) }}</strong>
+        de
+        <strong>{{ formatCurrency(budgetImpactPreview.limitAmount) }}</strong>
+        com esta transação.
+      </div>
     </NFormItem>
 
     <NFormItem :label="$t('transaction.form.account.label')" path="account_id">
@@ -189,5 +204,26 @@ const installmentPreview = computed<InstallmentPreview | null>(() => {
 
 .quick-transaction-form__settings-link:hover {
   text-decoration: underline;
+}
+
+.quick-transaction-form__budget-preview {
+  margin-top: var(--space-2);
+  border: 1px solid var(--color-outline-soft);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2);
+  background: var(--color-bg-subtle);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  line-height: 1.45;
+}
+
+.quick-transaction-form__budget-preview strong {
+  color: var(--color-text-primary);
+}
+
+.quick-transaction-form__budget-preview--danger {
+  border-color: var(--color-negative-border, var(--color-negative));
+  background: var(--color-negative-bg);
+  color: var(--color-negative);
 }
 </style>

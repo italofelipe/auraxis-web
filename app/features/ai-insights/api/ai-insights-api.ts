@@ -6,6 +6,7 @@ import type {
   GenerateInsightRequestDTO,
   GenerateInsightResponseDTO,
   GenerateInsightResponseWithMetaDTO,
+  InsightChangeStatusDTO,
   InsightFeedbackDTO,
   InsightPeriodType,
   InsightSourceSurface,
@@ -123,6 +124,37 @@ export class AIInsightsApiClient {
         response.headers["x-ai-calls-remaining-month"],
       ),
     };
+  }
+
+  /**
+   * Checks whether the financial snapshot changed since the last insight for a
+   * period — without triggering an LLM call (no token cost, no quota use).
+   *
+   * Used by the UI to confirm "nothing changed, generate anyway?" before the
+   * user spends their daily generation.
+   *
+   * @param variables Change-status query variables.
+   * @param variables.periodType Daily, weekly or monthly granularity.
+   * @param variables.anchorDate Optional YYYY-MM-DD anchor date.
+   * @returns The change status for the requested period.
+   */
+  async checkChangeStatus(variables: {
+    readonly periodType: InsightPeriodType;
+    readonly anchorDate?: string;
+  }): Promise<InsightChangeStatusDTO> {
+    const timezone = resolveBrowserTimezone();
+    const response = await this.#http.get<V2EnvelopeDTO<InsightChangeStatusDTO>>(
+      "/ai/insights/change-status",
+      {
+        params: {
+          period_type: variables.periodType,
+          ...(variables.anchorDate ? { anchor_date: variables.anchorDate } : {}),
+        },
+        ...(timezone ? { headers: { "X-Auraxis-Timezone": timezone } } : {}),
+      },
+    );
+
+    return unwrap<InsightChangeStatusDTO>(response.data);
   }
 
   /**

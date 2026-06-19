@@ -62,6 +62,15 @@ export interface GenerateInsightResponseWithMetaDTO extends GenerateInsightRespo
   readonly callsRemainingMonth: number | null;
 }
 
+export interface InsightChangeStatusDTO {
+  readonly period_type: InsightPeriodType;
+  readonly period_label: string;
+  readonly changed: boolean;
+  readonly current_context_hash: string;
+  readonly last_context_hash: string | null;
+  readonly last_generated_at: string | null;
+}
+
 export interface SubmitInsightFeedbackRequestDTO {
   readonly relevance: number;
   readonly truthfulness: number;

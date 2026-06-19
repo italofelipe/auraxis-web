@@ -50,6 +50,7 @@ vi.mock("~/features/transactions/queries/use-create-transaction-mutation", () =>
 vi.mock("~/features/tags/queries/use-tags-query", () => ({ useTagsQuery: (): object => ({ data: { value: [] } }) }));
 vi.mock("~/features/accounts/queries/use-accounts-query", () => ({ useAccountsQuery: (): object => ({ data: { value: [] } }) }));
 vi.mock("~/features/credit-cards/queries/use-credit-cards-query", () => ({ useCreditCardsQuery: (): object => ({ data: { value: [] } }) }));
+vi.mock("~/features/budgets/queries/use-budgets-query", () => ({ useBudgetsQuery: (): object => ({ data: { value: [] } }) }));
 
 vi.mock("vue-i18n");
 

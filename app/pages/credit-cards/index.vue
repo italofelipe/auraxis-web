@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useQueryClient } from "@tanstack/vue-query";
 import {
@@ -54,6 +54,7 @@ const deleteMutation = useDeleteCreditCardMutation();
 
 const showModal = ref(false);
 const editingCard = ref<CreditCardDto | null>(null);
+const deleteTarget = ref<CreditCardDto | null>(null);
 const selectedCardId = ref<string | null>(null);
 const expenseDrawerVisible = ref(false);
 const expensePresetCardId = ref<string | null>(null);
@@ -66,6 +67,18 @@ const cards = computed<CreditCardDto[]>(() => creditCards.value ?? []);
 const selectedCard = computed<CreditCardDto | null>(
   () => cards.value.find((card) => card.id === selectedCardId.value) ?? cards.value[0] ?? null,
 );
+
+watch(cards, (currentCards) => {
+  if (currentCards.length === 0) {
+    selectedCardId.value = null;
+    return;
+  }
+
+  if (!selectedCardId.value || !currentCards.some((card) => card.id === selectedCardId.value)) {
+    selectedCardId.value = currentCards[0]?.id ?? null;
+  }
+}, { immediate: true });
+
 const totalLimit = computed<number>(() =>
   cards.value.reduce((sum, card) => sum + (card.limit_amount ?? 0), 0),
 );
@@ -116,12 +129,29 @@ const onSubmit = async (payload: CreateCreditCardPayload): Promise<void> => {
 };
 
 /**
- * Deletes a card.
+ * Opens the delete confirmation without mutating immediately.
  *
- * @param card Card to remove.
+ * @param card Card the user intends to remove.
  */
-const onDelete = async (card: CreditCardDto): Promise<void> => {
-  await deleteMutation.mutateAsync(card.id);
+const openDeleteConfirm = (card: CreditCardDto): void => {
+  deleteTarget.value = card;
+};
+
+/** Closes delete confirmation unless a deletion is already pending. */
+const cancelDelete = (): void => {
+  if (!deleteMutation.isPending.value) {
+    deleteTarget.value = null;
+  }
+};
+
+/** Deletes the confirmed card and then closes the confirmation dialog. */
+const confirmDelete = async (): Promise<void> => {
+  if (!deleteTarget.value) {
+    return;
+  }
+
+  await deleteMutation.mutateAsync(deleteTarget.value.id);
+  deleteTarget.value = null;
 };
 
 /**
@@ -168,7 +198,7 @@ const onViewBill = (card: CreditCardDto): void => {
         <span class="cc-page__subtitle">{{ t("pages.settings.creditCards.subtitle") }}</span>
       </div>
       <NButtonGroup>
-        <NButton size="medium" data-testid="cc-global-expense" @click="openExpenseDrawer()">
+        <NButton size="medium" data-testid="cc-add-expense" @click="openExpenseDrawer()">
           <template #icon><PlusCircle :size="16" /></template>
           Lançar despesa
         </NButton>
@@ -217,12 +247,12 @@ const onViewBill = (card: CreditCardDto): void => {
           <CreditCardsTable
             v-if="viewMode === 'table'"
             :cards="cards"
-            :selected-card-id="selectedCard?.id"
+            :selected-card-id="selectedCard?.id ?? null"
             @select="selectCard"
             @view-dashboard="onViewBill"
             @add-expense="openExpenseDrawer"
             @edit="openEdit"
-            @delete="onDelete"
+            @delete="openDeleteConfirm"
           />
 
           <section v-else-if="viewMode === 'detail'" class="cc-grid">
@@ -231,7 +261,7 @@ const onViewBill = (card: CreditCardDto): void => {
               :key="card.id"
               :card="card"
               @edit="openEdit"
-              @delete="onDelete"
+              @delete="openDeleteConfirm"
               @view-bill="onViewBill"
             />
           </section>
@@ -276,6 +306,7 @@ const onViewBill = (card: CreditCardDto): void => {
               </NButton>
               <NButton block @click="onViewBill(selectedCard)">Abrir dashboard</NButton>
               <NButton block tertiary @click="openEdit(selectedCard)">Editar cartão</NButton>
+              <NButton block tertiary type="error" @click="openDeleteConfirm(selectedCard)">Remover cartão</NButton>
             </div>
             <div class="cc-context__tags">
               <NTag
@@ -308,6 +339,40 @@ const onViewBill = (card: CreditCardDto): void => {
         @submit="onSubmit"
         @cancel="closeModal"
       />
+    </NModal>
+
+    <NModal
+      :show="deleteTarget !== null"
+      preset="dialog"
+      type="error"
+      title="Remover cartão?"
+      style="width: min(440px, calc(100vw - 32px))"
+      :mask-closable="!deleteMutation.isPending.value"
+      :close-on-esc="!deleteMutation.isPending.value"
+      @close="cancelDelete"
+    >
+      <p class="cc-delete-copy">
+        Você está removendo <strong>{{ deleteTarget?.name }}</strong>.
+        Esta ação é irreversível e o cartão deixará de aparecer no hub.
+      </p>
+      <template #action>
+        <NButton
+          tertiary
+          data-testid="cc-delete-cancel"
+          :disabled="deleteMutation.isPending.value"
+          @click="cancelDelete"
+        >
+          Cancelar
+        </NButton>
+        <NButton
+          type="error"
+          data-testid="cc-delete-confirm"
+          :loading="deleteMutation.isPending.value"
+          @click="confirmDelete"
+        >
+          Remover
+        </NButton>
+      </template>
     </NModal>
 
     <CreditCardExpenseDrawer
@@ -460,6 +525,16 @@ const onViewBill = (card: CreditCardDto): void => {
   flex-wrap: wrap;
   gap: var(--space-1);
   margin-top: var(--space-2);
+}
+
+.cc-delete-copy {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.55;
+}
+
+.cc-delete-copy strong {
+  color: var(--color-text-primary);
 }
 
 @media (max-width: 1080px) {

@@ -11,7 +11,17 @@ import {
   type GeneratedAIInsight,
   type GenerateAIInsightVariables,
 } from "~/features/ai-insights/model/ai-insight";
-import type { GenerateInsightResponseWithMetaDTO, InsightItem } from "~/features/ai-insights/contracts/ai-insight";
+import type {
+  GenerateInsightResponseWithMetaDTO,
+  InsightChangeStatusDTO,
+  InsightItem,
+  InsightPeriodType,
+} from "~/features/ai-insights/contracts/ai-insight";
+
+export interface CheckChangeStatusVariables {
+  readonly periodType: InsightPeriodType;
+  readonly anchorDate?: string;
+}
 
 interface EntitlementLike {
   readonly data: Ref<boolean | undefined>;
@@ -33,11 +43,18 @@ interface ConsentStatusLike {
   readonly hasAIConsent: () => Promise<boolean>;
 }
 
+interface ChangeStatusCheckerLike {
+  readonly checkChangeStatus: (
+    variables: CheckChangeStatusVariables,
+  ) => Promise<InsightChangeStatusDTO>;
+}
+
 interface UseAIInsightsDeps {
   readonly entitlement?: EntitlementLike;
   readonly mutation?: MutationLike;
   readonly consentMutation?: ConsentMutationLike;
   readonly consentStatus?: ConsentStatusLike;
+  readonly changeStatus?: ChangeStatusCheckerLike;
 }
 
 type DerivedAIInsightState = Pick<
@@ -77,6 +94,9 @@ export interface UseAIInsightsResult {
   readonly hasPremium: ComputedRef<boolean>;
   readonly entitlementLoading: ComputedRef<boolean>;
   readonly hasAIConsent: () => Promise<boolean>;
+  readonly checkChangeStatus: (
+    variables: CheckChangeStatusVariables,
+  ) => Promise<InsightChangeStatusDTO>;
   readonly grantAIConsent: () => Promise<void>;
   readonly isGrantingAIConsent: ComputedRef<boolean>;
   readonly insightPeriodLabel: ComputedRef<string>;
@@ -255,8 +275,22 @@ export const useAIInsights = (deps?: UseAIInsightsDeps): UseAIInsightsResult => 
    */
   const hasAIConsentStatus = async (): Promise<boolean> => consentStatus.hasAIConsent();
 
+  /**
+   * Checks whether the snapshot changed since the last insight (no LLM call).
+   *
+   * @param variables Period and optional anchor date to check.
+   * @returns The backend change-status payload.
+   */
+  const checkChangeStatus = (
+    variables: CheckChangeStatusVariables,
+  ): Promise<InsightChangeStatusDTO> =>
+    deps?.changeStatus
+      ? deps.changeStatus.checkChangeStatus(variables)
+      : apiClient!.checkChangeStatus(variables);
+
   return {
     generate,
+    checkChangeStatus,
     isLoading: state.isLoading,
     currentInsight: state.currentInsight,
     currentInsightId: state.currentInsightId,

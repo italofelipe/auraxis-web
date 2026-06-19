@@ -3,7 +3,10 @@ import { ArrowLeft, CalendarClock, PiggyBank, Target, TrendingUp } from "lucide-
 
 import GoalAiContextPanel from "~/components/goal/GoalAiContextPanel/GoalAiContextPanel.vue";
 import GoalProjectionPanel from "~/components/goal/GoalProjectionPanel/GoalProjectionPanel.vue";
+import GoalContributionModal from "~/components/goal/GoalContributionModal/GoalContributionModal.vue";
+import GoalContributionsTimeline from "~/components/goal/GoalContributionsTimeline/GoalContributionsTimeline.vue";
 import { useGoalProjectionQuery } from "~/features/goals/queries/use-goal-projection-query";
+import { useGoalContributionsQuery } from "~/features/goals/queries/use-goal-contributions-query";
 import { useGoalsQuery } from "~/features/goals/queries/use-goals-query";
 import type { GoalDto } from "~/features/goals/contracts/goal.dto";
 import { useListTransactionsQuery } from "~/features/transactions/queries/use-list-transactions-query";
@@ -58,6 +61,17 @@ const savedNote = ref<string | null>(null);
 
 const goalsQuery = useGoalsQuery();
 const projectionQuery = useGoalProjectionQuery(goalIdRef);
+
+const isContributionModalOpen = ref(false);
+const contributionsPage = ref(1);
+const contributionsQuery = useGoalContributionsQuery(goalIdRef, contributionsPage);
+
+const contributions = computed(() => contributionsQuery.data.value?.items ?? []);
+
+/** Opens the contribution modal for the selected goal. */
+const onOpenContributionModal = (): void => {
+  isContributionModalOpen.value = true;
+};
 
 const endDate = computed(() => new Date().toISOString().slice(0, 10));
 const startDate = computed(() => {
@@ -235,7 +249,26 @@ const onSaveNote = (projection: { narrative: string }): void => {
         <p>{{ savedNote }}</p>
       </section>
 
+      <section class="goal-detail-contributions">
+        <header class="goal-detail-contributions__header">
+          <h2>{{ $t('goal.contribution.timeline.title') }}</h2>
+          <NButton type="primary" size="small" @click="onOpenContributionModal">
+            {{ $t('goal.card.registerContribution') }}
+          </NButton>
+        </header>
+        <GoalContributionsTimeline
+          :items="contributions"
+          :loading="contributionsQuery.isLoading.value"
+          :error="contributionsQuery.isError.value"
+        />
+      </section>
+
       <GoalProjectionPanel :goal-id="goalId" />
+
+      <GoalContributionModal
+        v-model:visible="isContributionModalOpen"
+        :goal="selectedGoal"
+      />
     </template>
   </div>
 </template>
@@ -280,12 +313,33 @@ const onSaveNote = (projection: { narrative: string }): void => {
 .goal-detail-metrics article,
 .goal-detail-progress,
 .goal-detail-ai,
-.goal-detail-note {
+.goal-detail-note,
+.goal-detail-contributions {
   min-width: 0;
   border: 1px solid var(--goal-border);
   border-radius: var(--radius-lg);
   background: var(--goal-surface);
   box-shadow: var(--shadow-card);
+}
+
+.goal-detail-contributions {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+}
+
+.goal-detail-contributions__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.goal-detail-contributions__header h2 {
+  margin: 0;
+  color: var(--goal-text);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-extrabold);
 }
 
 .goal-detail-hero {
