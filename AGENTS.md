@@ -43,6 +43,7 @@ fix/claude-<desc>     fix/codex-<desc>
 
 - ❌ `git add .` ou `git add -A`
 - ❌ commit direto em `main`
+- ❌ prefixar commits, PRs ou títulos de alterações com `[codex]`; use o escopo funcional (`feat:`, `fix:` etc.)
 - ❌ escrever em `.env*` (exceto `.env.example`)
 - ❌ usar `useMessage()` diretamente → usar `useToast()` de `app/composables/useToast/`
 - ❌ `<img>` direto no template → usar `<UiImage>`

@@ -137,12 +137,14 @@
       "serialize-javascript": ">=7.0.5",
       "protobufjs": ">=7.5.5",
       "follow-redirects": ">=1.16.0",
+      "form-data": ">=4.0.6",
       "unhead": ">=2.1.13",
       "nuxt-og-image": ">=6.2.5",
       "js-yaml": ">=4.1.1",
       "dompurify": ">=3.4.0",
       "lodash-es": "4.17.23",
-      "js-cookie": ">=3.0.7"
+      "js-cookie": ">=3.0.7",
+      "ws": ">=8.21.0"
     },
     "onlyBuiltDependencies": [
       "@parcel/watcher",

@@ -71,15 +71,32 @@ vi.mock("~/features/credit-cards/queries/use-delete-credit-card-mutation", () =>
   useDeleteCreditCardMutation: (): typeof deleteMutationHarness => deleteMutationHarness,
 }));
 
+vi.mock("~/features/credit-cards/components/CreditCardsTable.vue", () => ({
+  default: {
+    props: ["cards", "selectedCardId"],
+    emits: ["select", "delete", "add-expense", "edit", "view-dashboard"],
+    template: `
+      <section data-testid="credit-cards-table" :data-selected-card-id="selectedCardId">
+        <article v-for="card in cards" :key="card.id" :data-testid="'row-' + card.id">
+          <button :data-testid="'select-' + card.id" @click="$emit('select', card)">{{ card.name }}</button>
+          <button :data-testid="'delete-' + card.id" @click="$emit('delete', card)">Remover</button>
+          <button :data-testid="'expense-' + card.id" @click="$emit('add-expense', card)">Lançar</button>
+          <button :data-testid="'bill-' + card.id" @click="$emit('view-dashboard', card)">Abrir dashboard</button>
+        </article>
+      </section>
+    `,
+  },
+}));
+
 vi.mock("~/features/credit-cards/components/CreditCardCard.vue", () => ({
   default: {
     props: ["card", "selected"],
     emits: ["delete", "edit", "select", "view-bill"],
     template: `
       <article :data-testid="'card-' + card.id" :data-selected="selected ? 'true' : 'false'">
-        <button :data-testid="'select-' + card.id" @click="$emit('select', card)">{{ card.name }}</button>
-        <button :data-testid="'delete-' + card.id" @click="$emit('delete', card)">Remover</button>
-        <button :data-testid="'bill-' + card.id" @click="$emit('view-bill', card)">Ver fatura</button>
+        <button :data-testid="'select-detail-' + card.id" @click="$emit('select', card)">{{ card.name }}</button>
+        <button :data-testid="'delete-detail-' + card.id" @click="$emit('delete', card)">Remover</button>
+        <button :data-testid="'bill-detail-' + card.id" @click="$emit('view-bill', card)">Ver fatura</button>
       </article>
     `,
   },
@@ -93,18 +110,17 @@ vi.mock("~/features/ai-insights/components/AiInsightSurface.vue", () => ({
   default: { template: "<aside data-testid='ai-insight' />" },
 }));
 
-vi.mock("~/components/transactions/QuickTransactionForm/QuickTransactionForm.vue", () => ({
+vi.mock("~/features/credit-cards/components/CreditCardExpenseDrawer.vue", () => ({
   default: {
-    props: ["visible", "type", "presetCreditCardId"],
+    props: ["visible", "presetCreditCardId"],
     emits: ["update:visible", "success"],
     template: `
       <section
         v-if="visible"
-        data-testid="quick-transaction-form"
-        :data-type="type"
-        :data-card-id="presetCreditCardId"
+        data-testid="credit-card-expense-drawer"
+        :data-card-id="presetCreditCardId ?? ''"
       >
-        <button data-testid="quick-success" @click="$emit('success')">success</button>
+        <button data-testid="drawer-success" @click="$emit('success')">success</button>
       </section>
     `,
   },
@@ -116,6 +132,7 @@ vi.mock("naive-ui", () => ({
     emits: ["click"],
     template: "<button :disabled='disabled || loading' @click='$emit(\"click\", $event)'><slot /></button>",
   },
+  NButtonGroup: { template: "<div><slot /></div>" },
   NEmpty: { props: ["description"], template: "<div data-testid='empty'>{{ description }}</div>" },
   NModal: {
     props: ["show", "title", "content", "loading"],
@@ -129,7 +146,11 @@ vi.mock("naive-ui", () => ({
       </section>
     `,
   },
+  NRadioButton: { props: ["value"], template: "<button><slot /></button>" },
+  NRadioGroup: { props: ["value"], template: "<div><slot /></div>" },
   NSpin: { template: "<div data-testid='spinner' />" },
+  NStatistic: { props: ["label"], template: "<div><span>{{ label }}</span><slot /></div>" },
+  NTag: { template: "<span><slot /></span>" },
 }));
 
 /**
@@ -259,17 +280,18 @@ describe("CreditCardsPage", () => {
     expect(wrapper.get("[data-testid='cc-delete-confirm']").attributes("disabled")).toBeDefined();
   });
 
-  it("abre QuickTransactionForm com o cartao selecionado", async () => {
+  it("abre o drawer de despesa com o cartao selecionado", async () => {
     const wrapper = mountPage();
 
     await wrapper.get("[data-testid='select-cc-2']").trigger("click");
     await wrapper.get("[data-testid='cc-add-expense']").trigger("click");
 
-    const form = wrapper.get("[data-testid='quick-transaction-form']");
-    expect(form.attributes("data-type")).toBe("expense");
-    expect(form.attributes("data-card-id")).toBe("cc-2");
+    const drawer = wrapper.get("[data-testid='credit-card-expense-drawer']");
+    expect(drawer.attributes("data-card-id")).toBe("cc-2");
 
-    await wrapper.get("[data-testid='quick-success']").trigger("click");
+    await wrapper.get("[data-testid='drawer-success']").trigger("click");
     expect(queryClientHarness.invalidateQueries).toHaveBeenCalledWith({ queryKey: ["credit-cards"] });
+    expect(queryClientHarness.invalidateQueries).toHaveBeenCalledWith({ queryKey: ["transactions"] });
+    expect(queryClientHarness.invalidateQueries).toHaveBeenCalledWith({ queryKey: ["dashboard"] });
   });
 });

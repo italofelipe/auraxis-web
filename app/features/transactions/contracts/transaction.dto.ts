@@ -9,6 +9,12 @@ export type TransactionStatusDto =
 /** Transaction type discriminator. */
 export type TransactionTypeDto = "income" | "expense";
 
+/** How a transaction should impact cards, dashboards and budgets. */
+export type TransactionImpactPolicyDto =
+  | "full"
+  | "cards_only"
+  | "planned_until_bill";
+
 /** Cadence unit for a recurring transaction (combined with an interval). */
 export type RecurrenceUnitDto = "day" | "week" | "month" | "year";
 
@@ -72,6 +78,9 @@ export interface CreateTransactionPayload {
 
   /** UUID of the credit card associated with this transaction. */
   readonly credit_card_id?: string | null;
+
+  /** Integration policy between credit cards and other financial surfaces. */
+  readonly impact_policy?: TransactionImpactPolicyDto;
 }
 
 /**
@@ -113,6 +122,9 @@ export interface UpdateTransactionPayload {
 
   /** UUID of the credit card associated with this transaction. */
   readonly credit_card_id?: string | null;
+
+  /** Integration policy between credit cards and other financial surfaces. */
+  readonly impact_policy?: TransactionImpactPolicyDto;
 }
 
 /**
@@ -142,6 +154,8 @@ export interface TransactionDto {
   readonly tag_id: string | null;
   readonly account_id: string | null;
   readonly credit_card_id: string | null;
+  /** Integration policy. Legacy fixtures/responses may omit it; clients default to "full". */
+  readonly impact_policy?: TransactionImpactPolicyDto;
   readonly installment_group_id: string | null;
   readonly paid_at: string | null;
   readonly created_at: string | null;

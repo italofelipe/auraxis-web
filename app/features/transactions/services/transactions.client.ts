@@ -52,6 +52,8 @@ export interface ListTransactionsFilters {
   readonly end_date?: string;
   /** Filter by tag UUID. */
   readonly tag_id?: string;
+  /** Filter by credit card UUID. */
+  readonly credit_card_id?: string;
 }
 
 /**

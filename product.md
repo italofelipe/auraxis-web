@@ -31,6 +31,7 @@ Aplicação web do Auraxis para gestão financeira pessoal com foco em clareza, 
 - dashboard e fluxos financeiros
 - salvamento de simulações como metas
 - integrações com dados reais e experiências premium
+- cartões de crédito com lista operacional, dashboard por cartão e lançamento de despesa com política de integração
 
 ## Estratégia de produto
 
@@ -42,4 +43,4 @@ Aplicação web do Auraxis para gestão financeira pessoal com foco em clareza, 
 
 - Open Finance nativo
 - ERP/contabilidade completa
-- cartão de crédito dentro do pacote atual da dashboard
+- conciliação automática de cartão via Open Finance
