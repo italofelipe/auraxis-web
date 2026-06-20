@@ -34,5 +34,9 @@ export type AuraxisIconName =
   | "pieChart"
   | "chartLine"
   | "target"
+  | "layers"
+  | "chevronLeft"
+  | "creditCard"
+  | "clock"
 
 export type IconMap = Record<AuraxisIconName, LucideIcon>

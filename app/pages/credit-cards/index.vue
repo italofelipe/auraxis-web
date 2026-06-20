@@ -1,26 +1,11 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useQueryClient } from "@tanstack/vue-query";
-import {
-  BarChart3,
-  CreditCard,
-  LayoutGrid,
-  PlusCircle,
-  Table2,
-} from "lucide-vue-next";
-import {
-  NButton,
-  NButtonGroup,
-  NEmpty,
-  NModal,
-  NRadioButton,
-  NRadioGroup,
-  NSpin,
-  NStatistic,
-  NTag,
-} from "naive-ui";
+import { NButton, NButtonGroup, NEmpty, NModal, NSpin } from "naive-ui";
 
+import UiIcon from "~/components/ui/UiIcon/UiIcon.vue";
+import UiSegmentedControl from "~/components/ui/UiSegmentedControl/UiSegmentedControl.vue";
 import type {
   CreateCreditCardPayload,
   CreditCardDto,
@@ -29,12 +14,17 @@ import { useCreditCardsQuery } from "~/features/credit-cards/queries/use-credit-
 import { useCreateCreditCardMutation } from "~/features/credit-cards/queries/use-create-credit-card-mutation";
 import { useUpdateCreditCardMutation } from "~/features/credit-cards/queries/use-update-credit-card-mutation";
 import { useDeleteCreditCardMutation } from "~/features/credit-cards/queries/use-delete-credit-card-mutation";
-import CreditCardCard from "~/features/credit-cards/components/CreditCardCard.vue";
-import CreditCardExpenseDrawer from "~/features/credit-cards/components/CreditCardExpenseDrawer.vue";
+import {
+  type CreditCardsView,
+  useCreditCardsViewState,
+} from "~/features/credit-cards/composables/useCreditCardsViewState";
+import { useCreditCardsStatement } from "~/features/credit-cards/composables/useCreditCardsStatement";
+import { useCreditCardsAnalytics } from "~/features/credit-cards/composables/useCreditCardsAnalytics";
+import FaturasView from "~/features/credit-cards/components/FaturasView.vue";
+import AnaliticoView from "~/features/credit-cards/components/AnaliticoView.vue";
+import CreditCardExpenseSheet from "~/features/credit-cards/components/CreditCardExpenseSheet.vue";
 import CreditCardForm from "~/features/credit-cards/components/CreditCardForm.vue";
-import CreditCardsTable from "~/features/credit-cards/components/CreditCardsTable.vue";
 import AiInsightSurface from "~/features/ai-insights/components/AiInsightSurface.vue";
-import { formatCurrency } from "~/utils/currency";
 
 const { t } = useI18n();
 const queryClient = useQueryClient();
@@ -52,72 +42,60 @@ const createMutation = useCreateCreditCardMutation();
 const updateMutation = useUpdateCreditCardMutation();
 const deleteMutation = useDeleteCreditCardMutation();
 
+const cards = computed<CreditCardDto[]>(() => creditCards.value ?? []);
+
+const { view, month, selectedCardId, monthLabel, setView, shiftMonth, selectCard } =
+  useCreditCardsViewState();
+
+const { statement } = useCreditCardsStatement(month, selectedCardId);
+const { analytics } = useCreditCardsAnalytics(month, selectedCardId);
+
+const viewOptions: { value: CreditCardsView; label: string }[] = [
+  { value: "faturas", label: "Faturas" },
+  { value: "analitico", label: "Analítico" },
+];
+
+const selectedCard = computed<CreditCardDto | null>(
+  () => cards.value.find((card) => card.id === selectedCardId.value) ?? null,
+);
+
+// ── CRUD de cartão (preservado) ────────────────────────────────────────────
 const showModal = ref(false);
 const editingCard = ref<CreditCardDto | null>(null);
 const deleteTarget = ref<CreditCardDto | null>(null);
-const selectedCardId = ref<string | null>(null);
 const expenseDrawerVisible = ref(false);
 const expensePresetCardId = ref<string | null>(null);
-const viewMode = ref<"table" | "detail" | "analytic">("table");
 
 const submitting = computed<boolean>(
   () => createMutation.isPending.value || updateMutation.isPending.value,
 );
-const cards = computed<CreditCardDto[]>(() => creditCards.value ?? []);
-const selectedCard = computed<CreditCardDto | null>(
-  () => cards.value.find((card) => card.id === selectedCardId.value) ?? cards.value[0] ?? null,
-);
 
-watch(cards, (currentCards) => {
-  if (currentCards.length === 0) {
-    selectedCardId.value = null;
-    return;
-  }
-
-  if (!selectedCardId.value || !currentCards.some((card) => card.id === selectedCardId.value)) {
-    selectedCardId.value = currentCards[0]?.id ?? null;
-  }
-}, { immediate: true });
-
-const totalLimit = computed<number>(() =>
-  cards.value.reduce((sum, card) => sum + (card.limit_amount ?? 0), 0),
-);
-const mappedBenefits = computed<number>(() =>
-  cards.value.reduce((sum, card) => sum + (card.benefits?.length ?? 0), 0),
-);
-const nextDueCard = computed<CreditCardDto | null>(() =>
-  [...cards.value]
-    .filter((card) => card.due_day !== null)
-    .sort((a, b) => (a.due_day ?? 99) - (b.due_day ?? 99))[0]
-    ?? null,
-);
-
-/** Opens the modal in create mode. */
+/** Abre o modal em modo criação. */
 const openCreate = (): void => {
   editingCard.value = null;
   showModal.value = true;
 };
 
 /**
- * Opens the modal in edit mode for a given card.
+ * Abre o modal em modo edição.
  *
- * @param card Card to edit.
+ * @param card Cartão a editar.
  */
 const openEdit = (card: CreditCardDto): void => {
   editingCard.value = card;
   showModal.value = true;
 };
 
-/** Closes the modal and clears the editing target. */
+/** Fecha o modal e limpa o cartão em edição. */
 const closeModal = (): void => {
   showModal.value = false;
   editingCard.value = null;
 };
 
 /**
- * Persists a created or edited card, then closes the modal.
+ * Persiste um cartão criado/editado e fecha o modal.
  *
- * @param payload Card payload from the form.
+ * @param payload Payload do formulário.
  */
 const onSubmit = async (payload: CreateCreditCardPayload): Promise<void> => {
   if (editingCard.value) {
@@ -129,64 +107,43 @@ const onSubmit = async (payload: CreateCreditCardPayload): Promise<void> => {
 };
 
 /**
- * Opens the delete confirmation without mutating immediately.
+ * Abre a confirmação de remoção sem mutar imediatamente.
  *
- * @param card Card the user intends to remove.
+ * @param card Cartão que o usuário pretende remover.
  */
 const openDeleteConfirm = (card: CreditCardDto): void => {
   deleteTarget.value = card;
 };
 
-/** Closes delete confirmation unless a deletion is already pending. */
+/** Fecha a confirmação de remoção, exceto durante a operação. */
 const cancelDelete = (): void => {
   if (!deleteMutation.isPending.value) {
     deleteTarget.value = null;
   }
 };
 
-/** Deletes the confirmed card and then closes the confirmation dialog. */
+/** Remove o cartão confirmado e fecha o diálogo. */
 const confirmDelete = async (): Promise<void> => {
   if (!deleteTarget.value) {
     return;
   }
-
   await deleteMutation.mutateAsync(deleteTarget.value.id);
   deleteTarget.value = null;
 };
 
 /**
- * Selects the contextual card used by the side panel and quick actions.
- *
- * @param card Card selected from a table row or detailed card.
+ * Abre o lançador de despesa, pré-selecionando o cartão atual quando houver.
  */
-const selectCard = (card: CreditCardDto): void => {
-  selectedCardId.value = card.id;
-};
-
-/**
- * Opens the global expense drawer, optionally preselecting a card.
- *
- * @param card Card that originated the action.
- */
-const openExpenseDrawer = (card?: CreditCardDto): void => {
-  expensePresetCardId.value = card?.id ?? selectedCard.value?.id ?? null;
+const openExpense = (): void => {
+  expensePresetCardId.value = selectedCard.value?.id ?? selectedCardId.value ?? null;
   expenseDrawerVisible.value = true;
 };
 
-/** Invalidates all card-adjacent queries after a successful expense launch. */
+/** Invalida as queries adjacentes após lançar uma despesa. */
 const onExpenseCreated = (): void => {
   void queryClient.invalidateQueries({ queryKey: ["credit-cards"] });
   void queryClient.invalidateQueries({ queryKey: ["transactions"] });
   void queryClient.invalidateQueries({ queryKey: ["dashboard"] });
-};
-
-/**
- * Navigates to the dedicated card detail page (bill + add expense).
- *
- * @param card Card to open.
- */
-const onViewBill = (card: CreditCardDto): void => {
-  void navigateTo(`/credit-cards/${card.id}`);
 };
 </script>
 
@@ -197,16 +154,25 @@ const onViewBill = (card: CreditCardDto): void => {
         <span class="cc-page__title">{{ t("pages.settings.creditCards.title") }}</span>
         <span class="cc-page__subtitle">{{ t("pages.settings.creditCards.subtitle") }}</span>
       </div>
-      <NButtonGroup>
-        <NButton size="medium" data-testid="cc-add-expense" @click="openExpenseDrawer()">
-          <template #icon><PlusCircle :size="16" /></template>
-          Lançar despesa
-        </NButton>
-        <NButton type="primary" size="medium" data-testid="cc-new" @click="openCreate">
-          <template #icon><CreditCard :size="16" /></template>
-          {{ t("pages.settings.creditCards.newCard") }}
-        </NButton>
-      </NButtonGroup>
+      <div class="cc-page__header-actions">
+        <UiSegmentedControl
+          v-if="cards.length"
+          :model-value="view"
+          :options="viewOptions"
+          aria-label="Selecionar visão de cartões"
+          @update:model-value="setView"
+        />
+        <NButtonGroup>
+          <NButton size="medium" data-testid="cc-add-expense" @click="openExpense">
+            <template #icon><UiIcon name="plus" :size="16" /></template>
+            Lançar despesa
+          </NButton>
+          <NButton type="primary" size="medium" data-testid="cc-new" @click="openCreate">
+            <template #icon><UiIcon name="creditCard" :size="16" /></template>
+            {{ t("pages.settings.creditCards.newCard") }}
+          </NButton>
+        </NButtonGroup>
+      </div>
     </div>
 
     <div v-if="isLoading" class="cc-page__loading">
@@ -216,112 +182,36 @@ const onViewBill = (card: CreditCardDto): void => {
     <NEmpty
       v-else-if="cards.length === 0"
       :description="t('pages.settings.creditCards.empty')"
-    />
+    >
+      <template #extra>
+        <NButton type="primary" @click="openCreate">
+          {{ t("pages.settings.creditCards.newCard") }}
+        </NButton>
+      </template>
+    </NEmpty>
 
     <template v-else>
-      <section class="cc-kpis">
-        <NStatistic label="Cartões ativos">{{ cards.length }}</NStatistic>
-        <NStatistic label="Limite total">{{ formatCurrency(totalLimit) }}</NStatistic>
-        <NStatistic label="Benefícios mapeados">{{ mappedBenefits }}</NStatistic>
-        <NStatistic label="Próximo vencimento">
-          {{ nextDueCard?.due_day ? `Dia ${nextDueCard.due_day}` : "—" }}
-        </NStatistic>
-      </section>
-
-      <section class="cc-workspace">
-        <div class="cc-workspace__main">
-          <div class="cc-toolbar">
-            <NRadioGroup v-model:value="viewMode" size="small">
-              <NRadioButton value="table">
-                <Table2 :size="14" /> Tabela
-              </NRadioButton>
-              <NRadioButton value="detail">
-                <LayoutGrid :size="14" /> Detalhado
-              </NRadioButton>
-              <NRadioButton value="analytic">
-                <BarChart3 :size="14" /> Analítico
-              </NRadioButton>
-            </NRadioGroup>
-          </div>
-
-          <CreditCardsTable
-            v-if="viewMode === 'table'"
-            :cards="cards"
-            :selected-card-id="selectedCard?.id ?? null"
-            @select="selectCard"
-            @view-dashboard="onViewBill"
-            @add-expense="openExpenseDrawer"
-            @edit="openEdit"
-            @delete="openDeleteConfirm"
-          />
-
-          <section v-else-if="viewMode === 'detail'" class="cc-grid">
-            <CreditCardCard
-              v-for="card in cards"
-              :key="card.id"
-              :card="card"
-              @edit="openEdit"
-              @delete="openDeleteConfirm"
-              @view-bill="onViewBill"
-            />
-          </section>
-
-          <section v-else class="cc-analytic">
-            <article>
-              <span>Concentração de limite</span>
-              <strong>{{ selectedCard ? formatCurrency(selectedCard.limit_amount ?? 0) : "—" }}</strong>
-              <small>Cartão selecionado comparado ao limite total.</small>
-            </article>
-            <article>
-              <span>Ciclos sem configuração</span>
-              <strong>{{ cards.filter((card) => card.closing_day === null || card.due_day === null).length }}</strong>
-              <small>Cartões sem fechamento/vencimento impedem análise de fatura.</small>
-            </article>
-            <article>
-              <span>Benefícios por cartão</span>
-              <strong>{{ cards.length ? (mappedBenefits / cards.length).toFixed(1) : "0" }}</strong>
-              <small>Ajuda a comparar cartões além do limite nominal.</small>
-            </article>
-          </section>
-        </div>
-
-        <aside class="cc-context">
-          <p class="cc-context__eyebrow">Cartão selecionado</p>
-          <template v-if="selectedCard">
-            <h2>{{ selectedCard.name }}</h2>
-            <p>{{ selectedCard.bank ?? "Banco não informado" }}</p>
-            <div class="cc-context__facts">
-              <span>Limite</span>
-              <strong>{{ selectedCard.limit_amount !== null ? formatCurrency(selectedCard.limit_amount) : "—" }}</strong>
-              <span>Ciclo</span>
-              <strong>
-                {{ selectedCard.closing_day && selectedCard.due_day ? `Fecha ${selectedCard.closing_day} · vence ${selectedCard.due_day}` : "Incompleto" }}
-              </strong>
-              <span>Benefícios</span>
-              <strong>{{ selectedCard.benefits?.length ?? 0 }}</strong>
-            </div>
-            <div class="cc-context__actions">
-              <NButton type="primary" block @click="openExpenseDrawer(selectedCard)">
-                Lançar despesa
-              </NButton>
-              <NButton block @click="onViewBill(selectedCard)">Abrir dashboard</NButton>
-              <NButton block tertiary @click="openEdit(selectedCard)">Editar cartão</NButton>
-              <NButton block tertiary type="error" @click="openDeleteConfirm(selectedCard)">Remover cartão</NButton>
-            </div>
-            <div class="cc-context__tags">
-              <NTag
-                v-for="benefit in selectedCard.benefits ?? []"
-                :key="benefit"
-                size="small"
-                type="success"
-                :bordered="false"
-              >
-                {{ benefit }}
-              </NTag>
-            </div>
-          </template>
-        </aside>
-      </section>
+      <FaturasView
+        v-if="view === 'faturas'"
+        :statement="statement"
+        :cards="cards"
+        :selected-card-id="selectedCardId"
+        @select-card="selectCard"
+        @shift-month="shiftMonth"
+        @add-expense="openExpense"
+        @add-card="openCreate"
+        @edit-card="openEdit"
+        @delete-card="openDeleteConfirm"
+      />
+      <AnaliticoView
+        v-else
+        :analytics="analytics"
+        :cards="cards"
+        :selected-card-id="selectedCardId"
+        :month-label="monthLabel"
+        @select-card="selectCard"
+        @shift-month="shiftMonth"
+      />
     </template>
 
     <AiInsightSurface class="cc-page__insights" />
@@ -375,7 +265,7 @@ const onViewBill = (card: CreditCardDto): void => {
       </template>
     </NModal>
 
-    <CreditCardExpenseDrawer
+    <CreditCardExpenseSheet
       v-model:visible="expenseDrawerVisible"
       :preset-credit-card-id="expensePresetCardId"
       @success="onExpenseCreated"
@@ -389,179 +279,45 @@ const onViewBill = (card: CreditCardDto): void => {
   flex-direction: column;
   gap: var(--space-3);
 }
-
 .cc-page__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: var(--space-2);
+  flex-wrap: wrap;
 }
-
 .cc-page__title {
   display: block;
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
 }
-
 .cc-page__subtitle {
   font-size: var(--font-size-sm);
   opacity: 0.75;
 }
-
+.cc-page__header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
 .cc-page__loading {
   display: flex;
   justify-content: center;
   padding: var(--space-5);
 }
-
-.cc-kpis {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--space-2);
-}
-
-.cc-kpis :deep(.n-statistic) {
-  padding: var(--space-3);
-  border: 1px solid var(--color-outline-soft);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface);
-}
-
-.cc-workspace {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: var(--space-3);
-  align-items: start;
-}
-
-.cc-workspace__main {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.cc-toolbar {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.cc-toolbar :deep(.n-radio-button__label) {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.cc-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--space-3);
-}
-
-.cc-analytic {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-3);
-}
-
-.cc-analytic article,
-.cc-context {
-  border: 1px solid var(--color-outline-soft);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface);
-}
-
-.cc-analytic article {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  min-height: 150px;
-  padding: var(--space-3);
-}
-
-.cc-analytic span,
-.cc-analytic small,
-.cc-context p,
-.cc-context__eyebrow,
-.cc-context__facts span {
-  color: var(--color-text-secondary);
-}
-
-.cc-analytic strong {
-  font-size: var(--font-size-lg);
-}
-
-.cc-context {
-  position: sticky;
-  top: var(--space-3);
-  padding: var(--space-3);
-}
-
-.cc-context h2,
-.cc-context p {
-  margin: 0;
-}
-
-.cc-context__eyebrow {
-  margin: 0 0 var(--space-1);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-  text-transform: uppercase;
-}
-
-.cc-context__facts {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: var(--space-1) var(--space-2);
-  margin: var(--space-3) 0;
-}
-
-.cc-context__actions {
-  display: grid;
-  gap: var(--space-1);
-}
-
-.cc-context__tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1);
-  margin-top: var(--space-2);
-}
-
 .cc-delete-copy {
   margin: 0;
   color: var(--color-text-secondary);
   line-height: 1.55;
 }
-
 .cc-delete-copy strong {
   color: var(--color-text-primary);
 }
-
-@media (max-width: 1080px) {
-  .cc-workspace,
-  .cc-analytic {
-    grid-template-columns: 1fr;
-  }
-
-  .cc-context {
-    position: static;
-  }
-}
-
 @media (max-width: 760px) {
   .cc-page__header {
     align-items: stretch;
     flex-direction: column;
-  }
-
-  .cc-kpis {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 520px) {
-  .cc-kpis {
-    grid-template-columns: 1fr;
   }
 }
 </style>
