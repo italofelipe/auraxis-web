@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 32" width="48" height="32" role="img" aria-label="Cartão">
+  <rect width="48" height="32" rx="4" fill="#33485A"/>
+  <rect x="6" y="11" width="36" height="4" rx="1" fill="#fff" opacity="0.9"/>
+  <rect x="6" y="20" width="16" height="3" rx="1.5" fill="#fff" opacity="0.55"/>
+</svg>

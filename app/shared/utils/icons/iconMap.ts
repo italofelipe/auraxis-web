@@ -2,10 +2,10 @@ import {
   LayoutDashboard, Wallet, Target, Wrench,
   ArrowRightLeft, BarChart3, Settings, LogOut,
   User, Bell, Plus, Minus, Search, X,
-  ChevronRight, ChevronDown, TrendingUp, TrendingDown,
+  ChevronRight, ChevronDown, ChevronLeft, TrendingUp, TrendingDown,
   Eye, EyeOff, Check, AlertTriangle, Info,
   Upload, Download, Filter, Calendar, CalendarCheck,
-  Menu, PieChart, ChartLine,
+  Menu, PieChart, ChartLine, Layers, CreditCard, Clock,
 } from "lucide-vue-next";
 import type { IconMap } from "./icons.types";
 
@@ -47,4 +47,8 @@ export const ICON_MAP: IconMap = {
   pieChart:      PieChart,
   chartLine:     ChartLine,
   target:        Target,
+  layers:        Layers,
+  chevronLeft:   ChevronLeft,
+  creditCard:    CreditCard,
+  clock:         Clock,
 };
