@@ -2,17 +2,25 @@
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useQueryClient } from "@tanstack/vue-query";
-import { ArrowLeft } from "lucide-vue-next";
 import { NButton, NEmpty, NSpin } from "naive-ui";
 
+import UiIcon from "~/components/ui/UiIcon/UiIcon.vue";
+import UiSegmentedControl from "~/components/ui/UiSegmentedControl/UiSegmentedControl.vue";
 import type { CreditCardDto } from "~/features/credit-cards/contracts/credit-card.dto";
 import { useCreditCardsQuery } from "~/features/credit-cards/queries/use-credit-cards-query";
-import { useCreditCardBillQuery } from "~/features/credit-cards/queries/use-credit-card-bill-query";
-import { useCreditCardUtilizationQuery } from "~/features/credit-cards/queries/use-credit-card-utilization-query";
-import CreditCardDashboard from "~/features/credit-cards/components/CreditCardDashboard.vue";
-import CreditCardExpenseDrawer from "~/features/credit-cards/components/CreditCardExpenseDrawer.vue";
+import {
+  type CreditCardsView,
+  useCreditCardsViewState,
+} from "~/features/credit-cards/composables/useCreditCardsViewState";
+import { useCreditCardsStatement } from "~/features/credit-cards/composables/useCreditCardsStatement";
+import { useCreditCardsAnalytics } from "~/features/credit-cards/composables/useCreditCardsAnalytics";
+import FaturasView from "~/features/credit-cards/components/FaturasView.vue";
+import AnaliticoView from "~/features/credit-cards/components/AnaliticoView.vue";
+import CreditCardExpenseSheet from "~/features/credit-cards/components/CreditCardExpenseSheet.vue";
 
 definePageMeta({ middleware: ["authenticated", "coming-soon"] });
+
+useHead({ title: "Cartão | Auraxis" });
 
 const { t } = useI18n();
 const route = useRoute();
@@ -22,35 +30,21 @@ const cardId = computed<string>(() => String(route.params.id ?? ""));
 
 const { data: creditCards, isLoading: cardsLoading } = useCreditCardsQuery();
 const card = computed<CreditCardDto | null>(
-  () => (creditCards.value ?? []).find((c) => c.id === cardId.value) ?? null,
+  () => (creditCards.value ?? []).find((entry) => entry.id === cardId.value) ?? null,
 );
+const cards = computed<CreditCardDto[]>(() => (card.value ? [card.value] : []));
 
-/**
- * Mês corrente em YYYY-MM (calendário local).
- *
- * @returns String no formato YYYY-MM.
- */
-const currentMonth = (): string => {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-};
+const { view, month, monthLabel, setView, shiftMonth } = useCreditCardsViewState({
+  initialCardId: cardId.value,
+});
 
-const month = ref<string>(currentMonth());
-const billQuery = useCreditCardBillQuery(cardId, month);
-const bill = computed(() => billQuery.data.value ?? null);
-const utilizationQuery = useCreditCardUtilizationQuery(cardId);
-const utilization = computed(() => utilizationQuery.data.value ?? null);
+const { statement } = useCreditCardsStatement(month, cardId);
+const { analytics } = useCreditCardsAnalytics(month, cardId);
 
-/**
- * Avança/retrocede o mês exibido.
- *
- * @param delta Número de meses a deslocar.
- */
-const shiftMonth = (delta: number): void => {
-  const [y, m] = month.value.split("-").map(Number);
-  const date = new Date(y ?? 2026, (m ?? 1) - 1 + delta, 1);
-  month.value = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-};
+const viewOptions: { value: CreditCardsView; label: string }[] = [
+  { value: "faturas", label: "Faturas" },
+  { value: "analitico", label: "Analítico" },
+];
 
 const showExpenseForm = ref(false);
 
@@ -65,31 +59,59 @@ const onExpenseCreated = (): void => {
 <template>
   <div class="cc-detail">
     <header class="cc-detail__header">
-      <NButton text @click="navigateTo('/credit-cards')">
-        <template #icon><ArrowLeft :size="16" /></template>
+      <NButton text data-testid="cc-detail-back" @click="navigateTo('/credit-cards')">
+        <template #icon><UiIcon name="chevronLeft" :size="16" /></template>
         {{ t("pages.settings.creditCards.bill.back") }}
       </NButton>
+
+      <div v-if="card" class="cc-detail__id">
+        <h1 class="cc-detail__name">{{ card.name }}</h1>
+        <span class="cc-detail__bank">{{ card.bank ?? "Cartão de crédito" }}</span>
+      </div>
+
+      <div class="cc-detail__actions">
+        <UiSegmentedControl
+          v-if="card"
+          :model-value="view"
+          :options="viewOptions"
+          aria-label="Selecionar visão do cartão"
+          @update:model-value="setView"
+        />
+        <NButton v-if="card" type="primary" data-testid="cc-detail-add-expense" @click="showExpenseForm = true">
+          <template #icon><UiIcon name="plus" :size="16" /></template>
+          Lançar despesa
+        </NButton>
+      </div>
     </header>
 
     <div v-if="cardsLoading" class="cc-detail__loading">
       <NSpin size="large" />
     </div>
 
-    <CreditCardDashboard
-      v-else-if="card"
-      :card="card"
-      :bill="bill"
-      :utilization="utilization"
-      :month="month"
-      :loading="billQuery.isLoading.value || utilizationQuery.isLoading.value"
-      :error="billQuery.isError.value"
-      @add-expense="showExpenseForm = true"
-      @shift-month="shiftMonth"
-    />
+    <template v-else-if="card">
+      <FaturasView
+        v-if="view === 'faturas'"
+        :statement="statement"
+        :cards="cards"
+        :selected-card-id="cardId"
+        single-card
+        @shift-month="shiftMonth"
+        @add-expense="showExpenseForm = true"
+      />
+      <AnaliticoView
+        v-else
+        :analytics="analytics"
+        :cards="cards"
+        :selected-card-id="cardId"
+        :month-label="monthLabel"
+        single-card
+        @shift-month="shiftMonth"
+      />
+    </template>
 
     <NEmpty v-else :description="t('pages.settings.creditCards.empty')" />
 
-    <CreditCardExpenseDrawer
+    <CreditCardExpenseSheet
       v-model:visible="showExpenseForm"
       :preset-credit-card-id="cardId"
       @success="onExpenseCreated"
@@ -103,18 +125,43 @@ const onExpenseCreated = (): void => {
   flex-direction: column;
   gap: var(--space-3);
 }
-
 .cc-detail__header {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: var(--space-2);
+  gap: var(--space-3);
   flex-wrap: wrap;
 }
-
+.cc-detail__id {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cc-detail__name {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+.cc-detail__bank {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+.cc-detail__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+  flex-wrap: wrap;
+}
 .cc-detail__loading {
   display: flex;
   justify-content: center;
   padding: var(--space-5);
+}
+@media (max-width: 760px) {
+  .cc-detail__actions {
+    margin-left: 0;
+    width: 100%;
+  }
 }
 </style>
