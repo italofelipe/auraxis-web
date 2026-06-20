@@ -321,7 +321,7 @@ const toExpenseCategoriesFromTopCategories = (
   raw: Record<string, unknown>,
 ): DashboardExpenseCategory[] => {
   if (Array.isArray(raw.expenses_by_category)) {
-    return (raw.expenses_by_category as unknown[]).map(toExpenseCategory);
+    return (raw.expenses_by_category as unknown[]).map((item, index) => toExpenseCategory(item, index));
   }
 
   if (isRecord(raw.top_categories) && Array.isArray((raw.top_categories as Record<string, unknown>).expense)) {
@@ -387,20 +387,20 @@ export const mapDashboardOverviewDto = (input: unknown): DashboardOverview => {
       summary: toSummary(data.summary),
       comparison: toComparison(data.comparison),
       timeseries: Array.isArray(data.timeseries)
-        ? (data.timeseries as unknown[]).map(toTimeseriesPoint)
+        ? (data.timeseries as unknown[]).map((item, index) => toTimeseriesPoint(item, index))
         : [],
       expensesByCategory: Array.isArray(data.expenses_by_category)
-        ? (data.expenses_by_category as unknown[]).map(toExpenseCategory)
+        ? (data.expenses_by_category as unknown[]).map((item, index) => toExpenseCategory(item, index))
         : [],
       upcomingDues: Array.isArray(data.upcoming_dues)
-        ? (data.upcoming_dues as unknown[]).map(toUpcomingDue)
+        ? (data.upcoming_dues as unknown[]).map((item, index) => toUpcomingDue(item, index))
         : [],
       goals: Array.isArray(data.goals)
-        ? (data.goals as unknown[]).map(toGoalSummary)
+        ? (data.goals as unknown[]).map((item, index) => toGoalSummary(item, index))
         : [],
       portfolio: isRecord(data.portfolio) ? toPortfolio(data.portfolio) : { currentValue: 0, changePercent: null },
       alerts: Array.isArray(data.alerts)
-        ? (data.alerts as unknown[]).map(toAlert)
+        ? (data.alerts as unknown[]).map((item, index) => toAlert(item, index))
         : [],
     };
   }
