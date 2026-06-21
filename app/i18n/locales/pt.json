@@ -1869,6 +1869,48 @@
       "empty": "Nenhum insight gerado ainda. Gere o primeiro insight para começar.",
       "loadErrorTitle": "Não foi possível carregar os insights",
       "loadErrorMessage": "Tente novamente em alguns instantes."
+    },
+    "fluida": {
+      "brand": "Insights de IA",
+      "cadence": {
+        "daily": "Diário",
+        "weekly": "Semanal",
+        "dailyReading": "Leitura diária",
+        "weeklyReading": "Leitura semanal"
+      },
+      "tabs": {
+        "general": "Geral",
+        "transactions": "Transações",
+        "goals": "Metas",
+        "budgets": "Orçamentos",
+        "credit_cards": "Cartões"
+      },
+      "theme": {
+        "toLight": "Mudar para tema claro",
+        "toDark": "Mudar para tema escuro"
+      },
+      "readTime": "{min} min de leitura",
+      "sections": {
+        "compare": "Como se compara",
+        "rhythm": "O ritmo de saídas",
+        "alerts": "Pontos de atenção",
+        "highlights": "Destaques"
+      },
+      "chart": {
+        "daily": "Saídas · últimos 7 dias",
+        "weekly": "Saídas · últimas 6 semanas",
+        "peak": "pico: {value}",
+        "ariaLabel": "Gráfico de barras das saídas recentes, com o pico destacado"
+      },
+      "nextStep": "Para onde seguir agora",
+      "provenance": "Gerado por {model} · {generatedAt} · referente à {reference}.",
+      "severity": {
+        "ok": "Tudo certo",
+        "atencao": "Atenção",
+        "alerta": "Alerta",
+        "alta": "Alta",
+        "media": "Média"
+      }
     }
   },
   "transactions": {
