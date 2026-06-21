@@ -224,6 +224,7 @@ describe("useTransactionTable", () => {
       filterStartDate: ref(null),
       filterEndDate: ref(null),
       filterTagId: ref("all"),
+      periodMode: computed(() => "month" as const),
       deleteMutation: { isPending: ref(false) },
       markPaidMutation: { isPending: ref(false) },
       duplicateMutation: { isPending: ref(false) },
