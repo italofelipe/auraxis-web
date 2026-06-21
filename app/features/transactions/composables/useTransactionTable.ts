@@ -19,6 +19,10 @@ import {
 } from "lucide-vue-next";
 import type { TransactionDto } from "~/features/transactions/contracts/transaction.dto";
 import type { TagLookup } from "./useTransactionFilters";
+import {
+  resolveCreditCardBillBadge,
+  type BillBadgePeriodMode,
+} from "~/features/transactions/utils/credit-card-bill-badge";
 import { formatCurrency } from "~/utils/currency";
 import { parseCurrencyAmount } from "~/utils/currencyInput";
 
@@ -128,6 +132,8 @@ export type UseTransactionTableOptions = {
   filterStartDate: Ref<number | null>;
   filterEndDate: Ref<number | null>;
   filterTagId: Ref<string>;
+  /** Active period mode; drives the credit-card bill badge visibility. */
+  periodMode: ComputedRef<BillBadgePeriodMode>;
   deleteMutation: { isPending: Ref<boolean> };
   markPaidMutation: { isPending: Ref<boolean> };
   duplicateMutation: { isPending: Ref<boolean> };
@@ -283,20 +289,51 @@ function renderAmount(row: TransactionDto): ReturnType<typeof h> {
   return h("span", { class: ["tx-amount", row.type === "income" ? "tx-amount--income" : "tx-amount--expense"] }, [row.type === "expense" ? "−" : "+", formatCurrency(parseCurrencyAmount(row.amount))]);
 }
 
+/** Period context the title cell needs to derive the credit-card bill chip. */
+interface TitleBillContext {
+  /** Start-of-month timestamp of the viewed month, or null. */
+  readonly selectedMonth: number | null;
+  /** Active period mode (`"month"` enables the bill chip). */
+  readonly periodMode: BillBadgePeriodMode;
+}
+
 /**
- * Renders the description cell with optional recurring/installment badges.
+ * Renders the description cell with optional recurring/installment badges and,
+ * for credit-card rows borrowed from another month by the bill cycle, a
+ * discreet "fatura {mmm/aa}" chip.
  *
- * @param row Transaction row data.
- * @param t   i18n translation function.
+ * @param row     Transaction row data.
+ * @param t       i18n translation function.
+ * @param billCtx Selected month and period mode driving the bill chip.
  * @returns VNode for the title cell.
  */
-function renderTitle(row: TransactionDto, t: (key: string, ctx?: Record<string, unknown>) => string): ReturnType<typeof h> {
+function renderTitle(
+  row: TransactionDto,
+  t: (key: string, ctx?: Record<string, unknown>) => string,
+  billCtx: TitleBillContext,
+): ReturnType<typeof h> {
   const paidFeedback = buildPaidStatusFeedback(row);
+  const billBadge = resolveCreditCardBillBadge({
+    creditCardId: row.credit_card_id,
+    dueDate: row.due_date,
+    periodMode: billCtx.periodMode,
+    selectedMonthTimestamp: billCtx.selectedMonth,
+  });
   return h("div", { class: "tx-title-cell" }, [
     h("span", { class: "tx-title-cell__heading" }, [
       h("span", { class: "tx-title-cell__name" }, row.title),
       paidFeedback
         ? h("span", { class: "tx-paid-chip", title: paidFeedback.title }, paidFeedback.label)
+        : null,
+      billBadge
+        ? h(
+            "span",
+            {
+              class: "tx-bill-chip",
+              title: t("transactions.creditCardBill", { month: billBadge.billMonthLabel }),
+            },
+            t("transactions.creditCardBill", { month: billBadge.billMonthLabel }),
+          )
         : null,
     ]),
     row.is_recurring ? h("span", { class: "tx-badge" }, [h(RefreshCw, { size: 9 }), t("transactions.recurring")]) : null,
@@ -431,11 +468,17 @@ export function useTransactionTable(opts: UseTransactionTableOptions): UseTransa
 
   const columns = computed((): DataTableColumns<TransactionDto> => {
     const withSort = !drag.reorderMode.value;
+    // Track the viewed month and period mode so the title column's render
+    // closure (and thus the bill chip) refreshes when the user navigates months.
+    const billCtx: TitleBillContext = {
+      selectedMonth: opts.filterStartDate.value,
+      periodMode: opts.periodMode.value,
+    };
     return [
       ...(drag.reorderMode.value ? [{ key: "__drag" as DataTableRowKey, title: "", width: 36, render: (): ReturnType<typeof h> => h("span", { class: "tx-drag-handle", "aria-hidden": "true" }, [h(GripVertical, { size: 14 })]) }] : []),
       { key: "status" as DataTableRowKey, title: t("transactions.table.status"), width: 64, render: (row: TransactionDto) => renderStatusIcon(row, t) },
       { key: "due_date" as DataTableRowKey, title: t("transactions.table.date"), width: 108, defaultSortOrder: "descend" as const, sorter: withSort ? (a: TransactionDto, b: TransactionDto): number => a.due_date.localeCompare(b.due_date) : undefined, render: (row: TransactionDto): string => formatTransactionDate(row.due_date) },
-      { key: "title" as DataTableRowKey, title: t("transactions.table.description"), ellipsis: { tooltip: true }, sorter: withSort ? (a: TransactionDto, b: TransactionDto): number => a.title.localeCompare(b.title, "pt-BR") : undefined, render: (row: TransactionDto) => renderTitle(row, t) },
+      { key: "title" as DataTableRowKey, title: t("transactions.table.description"), ellipsis: { tooltip: true }, sorter: withSort ? (a: TransactionDto, b: TransactionDto): number => a.title.localeCompare(b.title, "pt-BR") : undefined, render: (row: TransactionDto) => renderTitle(row, t, billCtx) },
       { key: "tag_id" as DataTableRowKey, title: t("transactions.table.category"), width: 150, ellipsis: { tooltip: true }, render: (row: TransactionDto) => renderTagBadge(row, opts.tagDetailMap) },
       { key: "account_id" as DataTableRowKey, title: t("transactions.table.account"), width: 120, ellipsis: { tooltip: true }, render: (row: TransactionDto): string => opts.accountMap.value.get(row.account_id ?? "") ?? "—" },
       { key: "amount" as DataTableRowKey, title: t("transactions.table.amount"), width: 138, sorter: withSort ? (a: TransactionDto, b: TransactionDto): number => parseCurrencyAmount(a.amount) - parseCurrencyAmount(b.amount) : undefined, render: (row: TransactionDto) => renderAmount(row) },

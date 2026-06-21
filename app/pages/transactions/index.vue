@@ -73,6 +73,7 @@ const {
   filterStartDate,
   filterEndDate,
   filterTagId,
+  periodMode,
   deleteMutation,
   markPaidMutation,
   duplicateMutation,
@@ -420,6 +421,19 @@ const totalBalance = computed(() => totalIncome.value - totalExpense.value);
 :deep(.tx-drag-handle) { display: flex; align-items: center; justify-content: center; cursor: grab; color: var(--color-text-muted); }
 :deep(.tx-drag-handle):active { cursor: grabbing; }
 :deep(.tx-tag-badge) { display: inline-block; padding: 2px 8px; border-radius: var(--radius-full, 9999px); font-size: var(--font-size-xs); font-weight: var(--font-weight-medium, 500); line-height: 1.4; white-space: nowrap; }
+:deep(.tx-bill-chip) {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: var(--radius-full, 9999px);
+  border: 1px solid color-mix(in srgb, var(--color-warning) 28%, transparent);
+  background: color-mix(in srgb, var(--color-warning) 12%, transparent);
+  color: var(--color-warning-text, var(--color-warning));
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium, 500);
+  line-height: 1.45;
+  white-space: nowrap;
+}
 
 @media (max-width: 640px) {
   .transactions-page {
