@@ -24,18 +24,34 @@ export interface InsightItem {
  */
 export type InsightFluidaSeverity = "ok" | "atencao" | "alerta" | "alta" | "media";
 
-/** A retrospective comparison entry ("ontem · anteontem · vs. semana"). */
+/**
+ * Direction of a retrospective movement, as computed by the backend builder
+ * (`insight_fluida_builder.py`). `pos` is a favourable movement (e.g. spending
+ * less than the baseline), `neg` unfavourable, `neutral` flat.
+ */
+export type InsightRetroSign = "pos" | "neg" | "neutral";
+
+/**
+ * A retrospective comparison entry of the `general` dimension. Shape mirrors the
+ * backend builder: `value` is a decimal currency amount and `sign` encodes
+ * whether the movement is favourable.
+ */
 export interface InsightRetroEntryDTO {
-  readonly when: string;
+  readonly key: string;
+  readonly label: string;
   readonly value: number;
-  readonly text: string;
+  readonly caption: string;
+  readonly sign: InsightRetroSign;
 }
 
-/** A numeric highlight tile / pull-stat. */
+/**
+ * A per-theme numeric highlight tile. Shape mirrors the backend builder:
+ * `value` is a decimal currency amount and `sub` is the supporting caption.
+ */
 export interface InsightHighlightDTO {
   readonly label: string;
-  readonly value: string;
-  readonly caption: string;
+  readonly value: number;
+  readonly sub: string;
 }
 
 /** An attention point with its own severity. */
@@ -44,17 +60,22 @@ export interface InsightAlertDTO {
   readonly text: string;
 }
 
-/** A bar series (7 days / 6 weeks) with its axis labels. */
+/**
+ * Calculated outflow series: daily over the last 7 days, weekly over the last 6
+ * weeks. Both windows end on (and include) the anchor; the backend emits values
+ * only and the web derives the axis labels.
+ */
 export interface InsightSeriesDTO {
-  readonly values: readonly number[];
-  readonly labels: readonly string[];
+  readonly daily: readonly number[];
+  readonly weekly: readonly number[];
 }
 
 /**
  * Additive fields on the `/ai/insights` response that power the Fluida reading
- * (auraxis-api PR #1502). All optional: the legacy `items`/`content` payload is
- * unchanged, and clients that do not consume these fields keep working. When
- * absent, the web falls back to the Fluida mock behind `web.insights.fluida`.
+ * (auraxis-api PR #1501/#1502). All optional: the legacy `items`/`content`
+ * payload is unchanged, and clients that do not consume these fields keep
+ * working. When absent, the web falls back to the Fluida mock behind
+ * `web.insights.fluida`.
  */
 export interface InsightFluidaFieldsDTO {
   readonly severity?: InsightFluidaSeverity;
