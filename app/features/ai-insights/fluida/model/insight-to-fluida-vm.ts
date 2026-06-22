@@ -3,15 +3,19 @@
  *
  * The backend (auraxis-api PR #1501/#1502) enriches a single generated insight
  * with the structured Fluida **body** fields (`paragraphs` / `retro` / `series`
- * / `highlights`) for ONE period (daily OR weekly) and ONE dimension. It does
- * NOT emit the editorial lead (severity / headline / opening / reading time /
- * next step) — that always comes from the mock recorte, mirroring the mobile
- * mapper (`auraxis-app/features/insights/fluida/insight-to-fluida-vm.ts`). The
- * Fluida screen, however, renders a full source object covering both cadences
- * and every theme. This mapper therefore OVERLAYS the real body onto the Fluida
- * mock skeleton at the node addressed by `{ dimension, cadence }`, keeping the
- * screen full (and the lead always mock-derived) while the remaining slots fall
- * back to mock content.
+ * / `highlights`) for ONE period (daily OR weekly) and ONE dimension, and — once
+ * #1503/#1508 ships — the editorial **lead** (`lead`: severity / headline /
+ * opening / reading time / next step). The Fluida screen, however, renders a
+ * full source object covering both cadences and every theme. This mapper
+ * therefore OVERLAYS the real body AND the real lead onto the Fluida mock
+ * skeleton at the node addressed by `{ dimension, cadence }`, keeping the screen
+ * full while the remaining slots fall back to mock content.
+ *
+ * Lead fallback (parity with the mobile mapper
+ * `auraxis-app/features/insights/fluida/insight-to-fluida-vm.ts`, which uses the
+ * real value when present and the mock otherwise): when the payload carries a
+ * `lead`, the reading's severity/headline/opening/reading time/next step come
+ * from the backend; when it is absent, they stay on the mock recorte.
  *
  * Fallback rule: when the DTO carries none of the structured fields (backend not
  * deployed, or a legacy payload), the mock source is returned verbatim so the
@@ -24,6 +28,8 @@ import type {
   InsightDimension,
   InsightFluidaFieldsDTO,
   InsightHighlightDTO,
+  InsightLeadDTO,
+  InsightLeadSeverity,
   InsightRetroEntryDTO,
 } from "~/features/ai-insights/contracts/ai-insight";
 
@@ -35,10 +41,22 @@ import {
   type FluidaNode,
   type FluidaRetroEntry,
   type FluidaSeriesData,
+  type FluidaSeverity,
   type FluidaStat,
   type FluidaThemeId,
   type FluidaThemeSource,
 } from "./insight-fluida";
+
+/**
+ * Translates the backend lead severity vocabulary (`ok` | `attention` | `alert`,
+ * mirroring `AIInsightLeadType.severity` and the mobile `InsightSeverity`) onto
+ * the web's `FluidaSeverity` vocabulary that drives the chip presentation.
+ */
+const LEAD_SEVERITY_TO_FLUIDA: Record<InsightLeadSeverity, FluidaSeverity> = {
+  ok: "ok",
+  attention: "atencao",
+  alert: "alerta",
+};
 
 /** The dimension + cadence the screen is currently reading. */
 export interface FluidaMapContext {
@@ -60,9 +78,29 @@ const DAILY_AXIS_LENGTH = 7;
 const WEEKLY_AXIS_LENGTH = 6;
 
 /**
- * Reports whether a DTO carries any of the structured Fluida fields. Empty
- * arrays/series count as "no data" so an enriched-but-empty payload still falls
- * back to the mock instead of blanking the screen.
+ * Reports whether an array field actually carries entries (guards against
+ * `undefined` and empty arrays uniformly).
+ *
+ * @param value Candidate array field.
+ * @returns True when the value is a non-empty array.
+ */
+const hasItems = (value: readonly unknown[] | undefined): boolean =>
+  Array.isArray(value) && value.length > 0;
+
+/**
+ * Reports whether a series object carries at least one cadence with data.
+ *
+ * @param series Candidate series field.
+ * @returns True when the daily or weekly array has entries.
+ */
+const hasSeriesData = (series: InsightFluidaFieldsDTO["series"]): boolean =>
+  series !== undefined && (hasItems(series.daily) || hasItems(series.weekly));
+
+/**
+ * Reports whether a DTO carries any of the structured Fluida fields — body,
+ * numbers OR the editorial lead. Empty arrays/series count as "no data" so an
+ * enriched-but-empty payload still falls back to the mock instead of blanking
+ * the screen; a lead alone is enough to treat the payload as real.
  *
  * @param dto Candidate insight payload (may be undefined).
  * @returns True when at least one structured field has data.
@@ -71,15 +109,14 @@ export const hasFluidaPayload = (dto: InsightFluidaFieldsDTO | undefined): boole
   if (!dto) {
     return false;
   }
-  const hasParagraphs = Array.isArray(dto.paragraphs) && dto.paragraphs.length > 0;
-  const hasRetro = Array.isArray(dto.retro) && dto.retro.length > 0;
-  const hasHighlights = Array.isArray(dto.highlights) && dto.highlights.length > 0;
-  const hasSeries =
-    dto.series !== undefined &&
-    ((Array.isArray(dto.series.daily) && dto.series.daily.length > 0) ||
-      (Array.isArray(dto.series.weekly) && dto.series.weekly.length > 0));
 
-  return hasParagraphs || hasRetro || hasHighlights || hasSeries;
+  return (
+    hasItems(dto.paragraphs) ||
+    hasItems(dto.retro) ||
+    hasItems(dto.highlights) ||
+    hasSeriesData(dto.series) ||
+    (dto.lead !== undefined && dto.lead !== null)
+  );
 };
 
 /**
@@ -163,16 +200,44 @@ const toHighlightStat = (highlight: InsightHighlightDTO): FluidaStat => ({
 });
 
 /**
- * Overlays the DTO's **body** prose (`paragraphs`) onto a base node, keeping the
- * editorial lead (severity, headline, opening summary, reading time, next step)
- * from the mock recorte. The backend builder never emits the lead — it always
- * comes from the mock, mirroring the mobile mapper
- * (`auraxis-app/features/insights/fluida/insight-to-fluida-vm.ts`). Empty prose
- * is ignored so the mock copy survives.
+ * Overlays the DTO's editorial **lead** (severity, headline, opening summary,
+ * reading time, next step) onto a base node when the backend supplies it
+ * (additive #1503/#1508). The backend `lead.lead` is the opening paragraph and
+ * becomes the node `summary`; `lead.severity` is mapped onto the Fluida
+ * vocabulary. When no `lead` is present the mock recorte survives verbatim —
+ * the same fallback the mobile mapper applies to the body.
  *
- * @param base Mock node supplying the editorial lead.
- * @param dto Real payload (body only).
- * @returns A new node with the real paragraphs applied over the mock lead.
+ * @param base Node already carrying the body overlay (and the mock lead).
+ * @param dto Real payload.
+ * @returns A node with the real lead applied, or the base node unchanged.
+ */
+const overlayLead = (base: FluidaNode, dto: InsightFluidaFieldsDTO): FluidaNode => {
+  const lead: InsightLeadDTO | undefined | null = dto.lead;
+  if (!lead) {
+    return base;
+  }
+
+  return {
+    ...base,
+    severity: LEAD_SEVERITY_TO_FLUIDA[lead.severity] ?? base.severity,
+    readMin: lead.read_min,
+    title: lead.title,
+    summary: lead.lead,
+    nextStep: lead.next_step,
+  };
+};
+
+/**
+ * Overlays the DTO's **body** prose (`paragraphs`) and editorial **lead** onto a
+ * base node. The body and the lead are each absence-safe: empty prose keeps the
+ * mock paragraphs, and a missing `lead` keeps the mock recorte's lead — mirroring
+ * the mobile mapper (`auraxis-app/features/insights/fluida/insight-to-fluida-vm.ts`),
+ * where the real reading uses the backend value when present and the mock
+ * otherwise.
+ *
+ * @param base Mock node supplying the fallback lead/prose.
+ * @param dto Real payload.
+ * @returns A new node with the real prose and lead applied over the mock.
  */
 const overlayCommon = (base: FluidaNode, dto: InsightFluidaFieldsDTO): FluidaNode => {
   const paragraphs =
@@ -180,7 +245,7 @@ const overlayCommon = (base: FluidaNode, dto: InsightFluidaFieldsDTO): FluidaNod
       ? [...dto.paragraphs]
       : base.paragraphs;
 
-  return { ...base, paragraphs };
+  return overlayLead({ ...base, paragraphs }, dto);
 };
 
 /**

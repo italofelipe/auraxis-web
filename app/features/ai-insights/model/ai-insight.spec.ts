@@ -361,10 +361,51 @@ describe("Fluida fields passthrough", () => {
       retro: [{ key: "yesterday", label: "Ontem", value: 1, caption: "c", sign: "neg" }],
       highlights: undefined,
       series: undefined,
+      lead: undefined,
     });
   });
 
   it("selectFluidaFields returns null when no Fluida field is present", () => {
     expect(selectFluidaFields(makeGenerated())).toBeNull();
+  });
+
+  it("carries the editorial lead through mapGeneratedInsight (additive #1508)", () => {
+    const mapped = mapGeneratedInsight(
+      makeGenerated({
+        lead: {
+          severity: "alert",
+          read_min: 9,
+          title: "Título real",
+          lead: "Abertura real.",
+          next_step: "Próximo passo real.",
+        },
+      }),
+    );
+
+    expect(mapped.fluida).not.toBeNull();
+    expect(mapped.fluida?.lead).toEqual({
+      severity: "alert",
+      read_min: 9,
+      title: "Título real",
+      lead: "Abertura real.",
+      next_step: "Próximo passo real.",
+    });
+  });
+
+  it("treats a lead-only payload as a usable Fluida payload (not null)", () => {
+    const mapped = mapGeneratedInsight(
+      makeGenerated({
+        lead: {
+          severity: "ok",
+          read_min: 3,
+          title: "Só lead",
+          lead: "Abertura.",
+          next_step: "Passo.",
+        },
+      }),
+    );
+
+    expect(mapped.fluida).not.toBeNull();
+    expect(mapped.fluida?.lead?.title).toBe("Só lead");
   });
 });

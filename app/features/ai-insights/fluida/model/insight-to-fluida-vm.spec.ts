@@ -185,6 +185,112 @@ describe("insightToFluidaVM — theme overlay", () => {
   });
 });
 
+describe("hasFluidaPayload — lead", () => {
+  it("returns true when only the editorial lead is present", () => {
+    expect(
+      hasFluidaPayload({
+        lead: {
+          severity: "alert",
+          read_min: 4,
+          title: "Lead real",
+          lead: "Abertura real do lead.",
+          next_step: "Próximo passo real.",
+        },
+      }),
+    ).toBe(true);
+  });
+});
+
+describe("insightToFluidaVM — lead overlay", () => {
+  const leadDto: InsightFluidaFieldsDTO = {
+    paragraphs: ["Corpo real 1.", "Corpo real 2."],
+    lead: {
+      severity: "alert",
+      read_min: 9,
+      title: "Título editorial real",
+      lead: "Abertura editorial real do lead.",
+      next_step: "Próximo passo editorial real.",
+    },
+  };
+
+  it("overlays the real lead (severity/title/summary/readMin/nextStep) onto the general node", () => {
+    const vm = insightToFluidaVM(leadDto, { dimension: "general", cadence: "daily" });
+    const node = vm.general.daily;
+    // backend severity "alert" maps onto the Fluida "alerta" vocabulary
+    expect(node.severity).toBe("alerta");
+    expect(node.readMin).toBe(9);
+    expect(node.title).toBe("Título editorial real");
+    // backend `lead` is the opening summary in the VM
+    expect(node.summary).toBe("Abertura editorial real do lead.");
+    expect(node.nextStep).toBe("Próximo passo editorial real.");
+    // body still overlaid from the same payload
+    expect(node.paragraphs).toEqual(["Corpo real 1.", "Corpo real 2."]);
+  });
+
+  it("maps every backend severity onto the Fluida vocabulary", () => {
+    const cases: ReadonlyArray<["ok" | "attention" | "alert", string]> = [
+      ["ok", "ok"],
+      ["attention", "atencao"],
+      ["alert", "alerta"],
+    ];
+    for (const [backendSeverity, fluidaSeverity] of cases) {
+      const dto: InsightFluidaFieldsDTO = {
+        lead: { severity: backendSeverity, read_min: 3, title: "t", lead: "l", next_step: "n" },
+      };
+      const vm = insightToFluidaVM(dto, { dimension: "general", cadence: "daily" });
+      expect(vm.general.daily.severity).toBe(fluidaSeverity);
+    }
+  });
+
+  it("overlays the real lead onto the requested theme + cadence node", () => {
+    const vm = insightToFluidaVM(leadDto, { dimension: "transactions", cadence: "weekly" });
+    const node = vm.themes.transactions?.weekly;
+    expect(node?.severity).toBe("alerta");
+    expect(node?.title).toBe("Título editorial real");
+    expect(node?.summary).toBe("Abertura editorial real do lead.");
+    expect(node?.readMin).toBe(9);
+    expect(node?.nextStep).toBe("Próximo passo editorial real.");
+  });
+
+  it("keeps the mock lead when the payload carries body but no lead (parity with the app body rule)", () => {
+    const bodyOnly: InsightFluidaFieldsDTO = {
+      paragraphs: ["Só corpo real."],
+    };
+    const vm = insightToFluidaVM(bodyOnly, { dimension: "general", cadence: "daily" });
+    const node = vm.general.daily;
+    expect(node.severity).toBe(FLUIDA_MOCK_SOURCE.general.daily.severity);
+    expect(node.title).toBe(FLUIDA_MOCK_SOURCE.general.daily.title);
+    expect(node.summary).toBe(FLUIDA_MOCK_SOURCE.general.daily.summary);
+    expect(node.readMin).toBe(FLUIDA_MOCK_SOURCE.general.daily.readMin);
+    expect(node.nextStep).toBe(FLUIDA_MOCK_SOURCE.general.daily.nextStep);
+    // body still real
+    expect(node.paragraphs).toEqual(["Só corpo real."]);
+  });
+
+  it("uses the mock skeleton when only a lead is present (no body), still overlaying the real lead", () => {
+    const vm = insightToFluidaVM(
+      { lead: { severity: "ok", read_min: 2, title: "Apenas lead", lead: "Abertura.", next_step: "Passo." } },
+      { dimension: "general", cadence: "daily" },
+    );
+    const node = vm.general.daily;
+    expect(node.severity).toBe("ok");
+    expect(node.title).toBe("Apenas lead");
+    expect(node.summary).toBe("Abertura.");
+    // body falls back to the mock (no paragraphs in the payload)
+    expect(node.paragraphs).toEqual(FLUIDA_MOCK_SOURCE.general.daily.paragraphs);
+  });
+
+  it("derives a view whose lead is the real one when the payload carries it", () => {
+    const vm = insightToFluidaVM(leadDto, { dimension: "general", cadence: "daily" });
+    const view = deriveFluidaView(vm, { cadence: "daily", theme: "general" });
+    expect(view.lead.title).toBe("Título editorial real");
+    expect(view.lead.summary).toBe("Abertura editorial real do lead.");
+    expect(view.lead.readMinutes).toBe(9);
+    expect(view.lead.severity.tone).toBe("danger");
+    expect(view.nextStep).toBe("Próximo passo editorial real.");
+  });
+});
+
 describe("insightToFluidaVM — partial payloads", () => {
   it("overlays only the series when that is the sole field provided", () => {
     const vm = insightToFluidaVM(

@@ -59,13 +59,49 @@ export interface InsightSeriesDTO {
 }
 
 /**
- * Additive **body** fields on the `/ai/insights` response that power the Fluida
- * reading (auraxis-api PR #1501/#1502). The backend builder
- * (`insight_fluida_builder.py`) computes ONLY the editorial body and numbers —
- * `paragraphs` / `retro` / `series` / `highlights`. It does NOT emit the
- * per-dimension editorial lead (severity / headline / opening / reading time /
- * next step); that always comes from the mock recorte, mirroring the mobile
- * mapper (`auraxis-app/features/insights/fluida/insight-to-fluida-vm.ts`).
+ * Editorial severity of a Fluida lead, as emitted by the backend heuristic
+ * (auraxis-api #1503): `ok` (green), `attention` (amber) and `alert` (red).
+ * Mirrors `AIInsightLeadType.severity` and the mobile `InsightSeverity`. The
+ * Fluida mapper translates it onto the web's `FluidaSeverity` vocabulary.
+ */
+export type InsightLeadSeverity = "ok" | "attention" | "alert";
+
+/**
+ * Additive editorial **lead** (masthead) of a Fluida insight (auraxis-api #1503
+ * / #1508). `severity` is a deterministic heuristic over the calculated
+ * retro/highlights; `read_min` is fixed by cadence; `title` / `lead` /
+ * `next_step` are derived from the AI `summary` (no extra LLM call).
+ *
+ * Field names are **snake_case** because this is the REST `/ai/insights/generate`
+ * wire shape (`build_lead` in `insight_lead_builder.py`), matching the sibling
+ * Fluida fields (`paragraphs` / `retro` / `series` / `highlights`) and the rest
+ * of the REST contract (`period_label`, `tokens_used`, …). The GraphQL
+ * `AIInsightLeadType` exposes the same data camelCased, but the web consumes the
+ * REST endpoint, so the camelCase generated type is not the runtime shape here.
+ *
+ * When present, the Fluida reading takes its lead (severity / headline / opening
+ * / reading time / next step) from here instead of the mock recorte; when
+ * absent, the mapper falls back to the mock lead — same fallback semantics the
+ * mobile mapper applies to the body.
+ */
+export interface InsightLeadDTO {
+  readonly severity: InsightLeadSeverity;
+  readonly read_min: number;
+  readonly title: string;
+  /** Opening paragraph of the reading (becomes the VM `summary`). */
+  readonly lead: string;
+  readonly next_step: string;
+}
+
+/**
+ * Additive Fluida fields on the `/ai/insights` response that power the editorial
+ * reading. The body + numbers (`paragraphs` / `retro` / `series` / `highlights`)
+ * land in auraxis-api PR #1501/#1502; the editorial **lead** (`lead`) is the
+ * later additive contract (#1503/#1508). When the lead is present the reading
+ * takes its severity / headline / opening / reading time / next step from the
+ * backend; when absent it falls back to the mock recorte — the same fallback the
+ * mobile mapper applies to the body
+ * (`auraxis-app/features/insights/fluida/insight-to-fluida-vm.ts`).
  *
  * All optional: the legacy `items`/`content` payload is unchanged, and clients
  * that do not consume these fields keep working. When absent, the web falls back
@@ -76,6 +112,7 @@ export interface InsightFluidaFieldsDTO {
   readonly retro?: readonly InsightRetroEntryDTO[];
   readonly highlights?: readonly InsightHighlightDTO[];
   readonly series?: InsightSeriesDTO;
+  readonly lead?: InsightLeadDTO;
 }
 
 export interface AIInsightDTO {

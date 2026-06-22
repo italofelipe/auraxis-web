@@ -357,22 +357,24 @@ const hasAnyFluidaField = (dto: InsightFluidaFieldsDTO): boolean => {
     [dto.series.daily, dto.series.weekly].some(
       (value) => Array.isArray(value) && value.length > 0,
     );
+  const hasLead = dto.lead !== undefined && dto.lead !== null;
 
-  return nonEmptyArrays || nonEmptySeries;
+  return nonEmptyArrays || nonEmptySeries || hasLead;
 };
 
 /**
- * Extracts the additive Fluida **body** fields from a generation response,
- * returning null when none are present so callers can cleanly fall back to the
- * mock. Only the body the backend builder computes is carried (`paragraphs` /
- * `retro` / `highlights` / `series`); the editorial lead is never in the payload
- * and always comes from the mock recorte (parity with the mobile mapper).
+ * Extracts the additive Fluida fields from a generation response, returning null
+ * when none are present so callers can cleanly fall back to the mock. The body +
+ * numbers (`paragraphs` / `retro` / `highlights` / `series`) and the editorial
+ * `lead` (additive #1503/#1508) are all carried; when the backend omits the lead
+ * the Fluida mapper keeps the mock recorte (parity with the mobile mapper, which
+ * applies the same fallback to the body).
  *
- * The extraction is shallow and lossless: every Fluida body key is copied
- * verbatim (the pure Fluida mapper owns the DTO→VM transformation).
+ * The extraction is shallow and lossless: every Fluida key is copied verbatim
+ * (the pure Fluida mapper owns the DTO→VM transformation).
  *
  * @param dto Generation response payload (may lack the Fluida fields).
- * @returns The Fluida body fields, or null when the backend omitted all of them.
+ * @returns The Fluida fields, or null when the backend omitted all of them.
  */
 export const selectFluidaFields = (
   dto: InsightFluidaFieldsDTO,
@@ -386,6 +388,7 @@ export const selectFluidaFields = (
     retro: dto.retro,
     highlights: dto.highlights,
     series: dto.series,
+    lead: dto.lead,
   };
 };
 
