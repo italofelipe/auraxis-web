@@ -1,7 +1,9 @@
 import { mount } from "@vue/test-utils";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { ref } from "vue";
 
 import InsightsFluida from "./InsightsFluida.vue";
+import type { GeneratedAIInsight } from "~/features/ai-insights/model/ai-insight";
 
 // useTheme is a Nuxt auto-import resolved via the ~/composables alias; provide a
 // light-mode stub so the editorial scope starts in light without app state.
@@ -10,6 +12,17 @@ vi.mock("~/composables/useTheme", () => ({
     resolvedTheme: { value: "light" },
   }),
 }));
+
+// Shared generated-insight state is the real data source. Default: no insight
+// (currentResult null) → the screen falls back to the Fluida mock.
+const currentResult = ref<GeneratedAIInsight | null>(null);
+vi.mock("~/features/ai-insights/composables/useAIInsights", () => ({
+  useAIInsights: (): { currentResult: typeof currentResult } => ({ currentResult }),
+}));
+
+afterEach(() => {
+  currentResult.value = null;
+});
 
 const stubs = {
   // UiChart is a global Nuxt component (ECharts). Stub it to a marker element so
@@ -88,5 +101,49 @@ describe("InsightsFluida", () => {
 
     expect(wrapper.text()).toContain("30 min de leitura");
     expect(wrapper.text()).toContain("A semana de 15 a 21: o mês inteiro decidido em dois dias");
+  });
+
+  it("renders the real AI body while keeping the mock editorial lead", () => {
+    currentResult.value = {
+      id: "real-1",
+      summary: "Resumo real",
+      items: [],
+      periodType: "daily",
+      periodLabel: "2026-06-20",
+      periodStart: "2026-06-20",
+      periodEnd: "2026-06-20",
+      model: "gpt-4o",
+      tokensUsed: 100,
+      costUsd: 0.0001,
+      cached: false,
+      forecast: false,
+      callsRemaining: 1,
+      callsRemainingMonth: 10,
+      // Only the body the backend builder computes — no lead fields.
+      fluida: {
+        paragraphs: ["Leitura real da IA sobre o seu dia.", "Segundo parágrafo real."],
+        retro: [
+          { key: "yesterday", label: "Ontem (real)", value: -156.3, caption: "Saídas de ontem", sign: "neg" },
+        ],
+        series: { daily: [1, 2, 3, 4, 5, 6, 7], weekly: [1, 2, 3, 4, 5, 6] },
+      },
+    };
+
+    const wrapper = mountFluida();
+    // body comes from the real payload…
+    expect(wrapper.text()).toContain("Leitura real da IA sobre o seu dia.");
+    expect(wrapper.text()).toContain("Ontem (real)");
+    // the real paragraphs replace the mock prose on the overlaid node
+    expect(wrapper.text()).not.toContain(
+      "A leitura de ontem precisa ser feita no contexto da semana",
+    );
+    // …while the editorial lead (title, reading time, next step) stays from the
+    // mock — the backend sends none of those (parity with the mobile mapper).
+    expect(wrapper.text()).toContain("Ontem em foco: muita saída, nenhuma entrada");
+    expect(wrapper.text()).toContain("15 min de leitura");
+    expect(wrapper.text()).toContain(
+      "Priorize quitar ou renegociar a Fatura Maio",
+    );
+    expect(wrapper.text()).not.toContain("Próximo passo real.");
   });
 });

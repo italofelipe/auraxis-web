@@ -14,8 +14,16 @@ import FluidaTextBeat from "./FluidaTextBeat.vue";
 import { useInsightsFluida } from "../composables/use-insights-fluida";
 import { useI18n } from "vue-i18n";
 import { useTheme } from "~/composables/useTheme";
+import { useAIInsights } from "~/features/ai-insights/composables/useAIInsights";
 
-const fluida = useInsightsFluida();
+// Real AI source: the shared generated insight carries the additive Fluida
+// fields (`paragraphs` / `retro` / `series` / `highlights`). When absent the
+// mapper falls back to the mock so the screen is never empty. The /insights hub
+// reads the cross-cutting `general` dimension.
+const { currentResult } = useAIInsights();
+const insight = computed(() => currentResult.value?.fluida ?? null);
+
+const fluida = useInsightsFluida({ insight, dimension: "general" });
 const { t } = useI18n();
 
 // Local editorial light/dark scope. Initialised from the global app theme, then

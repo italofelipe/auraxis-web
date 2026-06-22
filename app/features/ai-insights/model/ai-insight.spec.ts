@@ -8,8 +8,13 @@ import {
   mapGeneratedInsight,
   parseInsightItems,
   resolveInsightAnchorDate,
+  selectFluidaFields,
 } from "./ai-insight";
-import type { AIInsightDTO, InsightItem } from "~/features/ai-insights/contracts/ai-insight";
+import type {
+  AIInsightDTO,
+  GenerateInsightResponseWithMetaDTO,
+  InsightItem,
+} from "~/features/ai-insights/contracts/ai-insight";
 
 /**
  * Builds a valid AIInsightDTO fixture for model tests.
@@ -290,5 +295,117 @@ describe("resolveInsightAnchorDate", () => {
   it("anchors to the first day of a past month for history", () => {
     const pastMonthStart = new Date(2026, 2, 1).getTime();
     expect(resolveInsightAnchorDate(pastMonthStart, now)).toBe("2026-03-01");
+  });
+});
+
+describe("Fluida fields passthrough", () => {
+  /**
+   * Builds a generation-response fixture carrying the additive Fluida fields.
+   *
+   * @param overrides Partial overrides on the base payload.
+   * @returns Generation response DTO with rate-limit metadata.
+   */
+  const makeGenerated = (
+    overrides: Partial<GenerateInsightResponseWithMetaDTO> = {},
+  ): GenerateInsightResponseWithMetaDTO => ({
+    summary: "Resumo",
+    items: [
+      { type: "saude_financeira", dimension: "general", title: "Ok", message: "Equilibrado." },
+    ],
+    period_type: "daily",
+    period_label: "2026-06-20",
+    period_start: "2026-06-20",
+    period_end: "2026-06-20",
+    model: "gpt-4o",
+    tokens_used: 100,
+    cost_usd: 0.0001,
+    cached: false,
+    callsRemaining: 1,
+    callsRemainingMonth: 10,
+    ...overrides,
+  });
+
+  it("carries the structured Fluida body fields through mapGeneratedInsight", () => {
+    // The backend builder computes only the body (`paragraphs` / `retro` /
+    // `series` / `highlights`); the editorial lead is never in the payload.
+    const mapped = mapGeneratedInsight(
+      makeGenerated({
+        paragraphs: ["P1.", "P2."],
+        retro: [{ key: "yesterday", label: "Ontem", value: 156.3, caption: "Saídas", sign: "neg" }],
+        series: { daily: [1, 2, 3, 4, 5, 6, 7], weekly: [1, 2, 3, 4, 5, 6] },
+        highlights: [{ label: "Maior gasto", value: 11000, sub: "Fatura" }],
+      }),
+    );
+
+    expect(mapped.fluida).toBeDefined();
+    expect(mapped.fluida?.paragraphs).toEqual(["P1.", "P2."]);
+    expect(mapped.fluida?.retro?.[0]?.label).toBe("Ontem");
+    expect(mapped.fluida?.series?.daily).toHaveLength(7);
+    expect(mapped.fluida?.highlights?.[0]?.value).toBe(11000);
+  });
+
+  it("yields a null fluida payload when the backend omits the structured fields", () => {
+    const mapped = mapGeneratedInsight(makeGenerated());
+    expect(mapped.fluida).toBeNull();
+  });
+
+  it("selectFluidaFields extracts only the additive Fluida body keys", () => {
+    const fields = selectFluidaFields(
+      makeGenerated({
+        paragraphs: ["only paragraphs"],
+        retro: [{ key: "yesterday", label: "Ontem", value: 1, caption: "c", sign: "neg" }],
+      }),
+    );
+    expect(fields).toEqual({
+      paragraphs: ["only paragraphs"],
+      retro: [{ key: "yesterday", label: "Ontem", value: 1, caption: "c", sign: "neg" }],
+      highlights: undefined,
+      series: undefined,
+      lead: undefined,
+    });
+  });
+
+  it("selectFluidaFields returns null when no Fluida field is present", () => {
+    expect(selectFluidaFields(makeGenerated())).toBeNull();
+  });
+
+  it("carries the editorial lead through mapGeneratedInsight (additive #1508)", () => {
+    const mapped = mapGeneratedInsight(
+      makeGenerated({
+        lead: {
+          severity: "alert",
+          read_min: 9,
+          title: "Título real",
+          lead: "Abertura real.",
+          next_step: "Próximo passo real.",
+        },
+      }),
+    );
+
+    expect(mapped.fluida).not.toBeNull();
+    expect(mapped.fluida?.lead).toEqual({
+      severity: "alert",
+      read_min: 9,
+      title: "Título real",
+      lead: "Abertura real.",
+      next_step: "Próximo passo real.",
+    });
+  });
+
+  it("treats a lead-only payload as a usable Fluida payload (not null)", () => {
+    const mapped = mapGeneratedInsight(
+      makeGenerated({
+        lead: {
+          severity: "ok",
+          read_min: 3,
+          title: "Só lead",
+          lead: "Abertura.",
+          next_step: "Passo.",
+        },
+      }),
+    );
+
+    expect(mapped.fluida).not.toBeNull();
+    expect(mapped.fluida?.lead?.title).toBe("Só lead");
   });
 });

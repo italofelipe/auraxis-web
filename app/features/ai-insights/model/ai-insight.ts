@@ -1,6 +1,7 @@
 import type {
   AIInsightDTO,
   InsightDimension,
+  InsightFluidaFieldsDTO,
   InsightItem,
   InsightPeriodType,
   InsightSourceSurface,
@@ -51,6 +52,12 @@ export interface GeneratedAIInsight {
   readonly forecast: boolean;
   readonly callsRemaining: number | null;
   readonly callsRemainingMonth: number | null;
+  /**
+   * Additive structured fields powering the Fluida reading. Null when the
+   * backend response carries none of them (legacy/undeployed builder), so the
+   * Fluida screen falls back to its mock.
+   */
+  readonly fluida: InsightFluidaFieldsDTO | null;
 }
 
 export const FALLBACK_INSIGHT_ITEM: InsightItem = {
@@ -334,6 +341,58 @@ export const mapAIInsightDto = (dto: AIInsightDTO): AIInsight => ({
 });
 
 /**
+ * Reports whether a generation response carries any meaningful Fluida field.
+ * Empty arrays/series count as "no data" so an enriched-but-empty payload still
+ * resolves to the mock instead of blanking the Fluida screen.
+ *
+ * @param dto Generation response payload.
+ * @returns True when at least one structured Fluida field has data.
+ */
+const hasAnyFluidaField = (dto: InsightFluidaFieldsDTO): boolean => {
+  const nonEmptyArrays = [dto.paragraphs, dto.retro, dto.highlights].some(
+    (value) => Array.isArray(value) && value.length > 0,
+  );
+  const nonEmptySeries =
+    dto.series !== undefined &&
+    [dto.series.daily, dto.series.weekly].some(
+      (value) => Array.isArray(value) && value.length > 0,
+    );
+  const hasLead = dto.lead !== undefined && dto.lead !== null;
+
+  return nonEmptyArrays || nonEmptySeries || hasLead;
+};
+
+/**
+ * Extracts the additive Fluida fields from a generation response, returning null
+ * when none are present so callers can cleanly fall back to the mock. The body +
+ * numbers (`paragraphs` / `retro` / `highlights` / `series`) and the editorial
+ * `lead` (additive #1503/#1508) are all carried; when the backend omits the lead
+ * the Fluida mapper keeps the mock recorte (parity with the mobile mapper, which
+ * applies the same fallback to the body).
+ *
+ * The extraction is shallow and lossless: every Fluida key is copied verbatim
+ * (the pure Fluida mapper owns the DTO→VM transformation).
+ *
+ * @param dto Generation response payload (may lack the Fluida fields).
+ * @returns The Fluida fields, or null when the backend omitted all of them.
+ */
+export const selectFluidaFields = (
+  dto: InsightFluidaFieldsDTO,
+): InsightFluidaFieldsDTO | null => {
+  if (!hasAnyFluidaField(dto)) {
+    return null;
+  }
+
+  return {
+    paragraphs: dto.paragraphs,
+    retro: dto.retro,
+    highlights: dto.highlights,
+    series: dto.series,
+    lead: dto.lead,
+  };
+};
+
+/**
  * Maps the generation endpoint payload into UI state.
  *
  * @param dto Generation endpoint payload with rate-limit metadata.
@@ -356,6 +415,7 @@ export const mapGeneratedInsight = (
   forecast: dto.forecast === true,
   callsRemaining: dto.callsRemaining,
   callsRemainingMonth: dto.callsRemainingMonth,
+  fluida: selectFluidaFields(dto),
 });
 
 /**
