@@ -14,10 +14,14 @@ import type { InsightFluidaFieldsDTO } from "~/features/ai-insights/contracts/ai
  */
 const normalizeSpaces = (value: string): string => value.replace(/\u00a0/g, " ");
 
-/** A complete, realistic `general` daily payload mirroring the backend builder. */
+/**
+ * A complete, realistic `general` daily payload mirroring the backend builder
+ * (`insight_fluida_builder.py`). The builder emits ONLY the editorial body and
+ * numbers — `paragraphs` / `retro` / `series` / `highlights`. It does NOT emit
+ * the per-dimension lead (`severity` / title / opening / reading time / next
+ * step); those always come from the mock recorte, mirroring the mobile mapper.
+ */
 const generalDailyDto: InsightFluidaFieldsDTO = {
-  severity: "alerta",
-  read_min: 9,
   paragraphs: ["Parágrafo real 1.", "Parágrafo real 2.", "Parágrafo real 3."],
   retro: [
     { key: "yesterday", label: "Ontem", value: 156.3, caption: "Saídas de ontem", sign: "neg" },
@@ -32,7 +36,6 @@ const generalDailyDto: InsightFluidaFieldsDTO = {
     { label: "Maior gasto do mês", value: 11000, sub: "Fatura Maio" },
     { label: "Único crédito", value: 27675.37, sub: "Salário gringo" },
   ],
-  next_step: "Quite a fatura em atraso.",
 };
 
 describe("hasFluidaPayload", () => {
@@ -80,10 +83,14 @@ describe("insightToFluidaVM — general daily overlay", () => {
     ]);
   });
 
-  it("overlays severity, reading time and next step", () => {
-    expect(vm.general.daily.severity).toBe("alerta");
-    expect(vm.general.daily.readMin).toBe(9);
-    expect(vm.general.daily.nextStep).toBe("Quite a fatura em atraso.");
+  it("keeps the editorial lead (severity, reading time, next step, title) from the mock", () => {
+    // The backend builder never sends the lead — it must come from the mock
+    // recorte, exactly like the mobile mapper.
+    expect(vm.general.daily.severity).toBe(FLUIDA_MOCK_SOURCE.general.daily.severity);
+    expect(vm.general.daily.readMin).toBe(FLUIDA_MOCK_SOURCE.general.daily.readMin);
+    expect(vm.general.daily.nextStep).toBe(FLUIDA_MOCK_SOURCE.general.daily.nextStep);
+    expect(vm.general.daily.title).toBe(FLUIDA_MOCK_SOURCE.general.daily.title);
+    expect(vm.general.daily.summary).toBe(FLUIDA_MOCK_SOURCE.general.daily.summary);
   });
 
   it("maps the backend retro shape into Fluida retro entries", () => {
@@ -107,10 +114,14 @@ describe("insightToFluidaVM — general daily overlay", () => {
     expect(vm.general.weekly.paragraphs).toEqual(FLUIDA_MOCK_SOURCE.general.weekly.paragraphs);
   });
 
-  it("produces a derivable general daily view with the real lead and compare cards", () => {
+  it("produces a derivable general daily view with the mock lead and real body", () => {
     const view = deriveFluidaView(vm, { cadence: "daily", theme: "general" });
     expect(view.isGeneral).toBe(true);
+    // lead (title + opening + reading time) is mock-derived…
     expect(view.lead.title).toBe(FLUIDA_MOCK_SOURCE.general.daily.title);
+    expect(view.lead.summary).toBe(FLUIDA_MOCK_SOURCE.general.daily.summary);
+    expect(view.lead.readMinutes).toBe(FLUIDA_MOCK_SOURCE.general.daily.readMin);
+    // …while the body (paragraphs + compare + chart) is real
     expect(view.paragraphs).toEqual(["Parágrafo real 1.", "Parágrafo real 2.", "Parágrafo real 3."]);
     expect(view.compare).toHaveLength(3);
     expect(normalizeSpaces(view.compare?.[0]?.amountLabel ?? "")).toBe("+ R$ 156,30");
@@ -120,27 +131,32 @@ describe("insightToFluidaVM — general daily overlay", () => {
 
 describe("insightToFluidaVM — theme overlay", () => {
   const themeDto: InsightFluidaFieldsDTO = {
-    severity: "atencao",
-    read_min: 4,
     paragraphs: ["Tema real 1.", "Tema real 2."],
     highlights: [
       { label: "Saídas da semana", value: 13650, sub: "4 lançamentos" },
       { label: "Maior gasto", value: 11000, sub: "Fatura" },
     ],
     series: { daily: [1, 2, 3, 4, 5, 6, 7], weekly: [1, 2, 3, 4, 5, 6] },
-    next_step: "Revise os lançamentos.",
   };
 
   it("overlays highlights (formatted BRL) onto the requested theme + cadence node", () => {
     const vm = insightToFluidaVM(themeDto, { dimension: "transactions", cadence: "weekly" });
     const node = vm.themes.transactions?.weekly;
     expect(node?.paragraphs).toEqual(["Tema real 1.", "Tema real 2."]);
-    expect(node?.severity).toBe("atencao");
-    expect(node?.readMin).toBe(4);
     expect(node?.highlights).toHaveLength(2);
     expect(normalizeSpaces(node?.highlights?.[0]?.value ?? "")).toBe("R$ 13.650,00");
     expect(node?.highlights?.[0]?.label).toBe("Saídas da semana");
     expect(node?.highlights?.[0]?.caption).toBe("4 lançamentos");
+  });
+
+  it("keeps the per-theme lead (severity, reading time, title) from the mock recorte", () => {
+    // The backend sends no lead per theme either — it must come from the mock.
+    const vm = insightToFluidaVM(themeDto, { dimension: "transactions", cadence: "weekly" });
+    const node = vm.themes.transactions?.weekly;
+    const mockNode = FLUIDA_MOCK_SOURCE.themes.transactions?.weekly;
+    expect(node?.severity).toBe(mockNode?.severity);
+    expect(node?.readMin).toBe(mockNode?.readMin);
+    expect(node?.title).toBe(mockNode?.title);
   });
 
   it("derives a theme view with real highlight tiles", () => {

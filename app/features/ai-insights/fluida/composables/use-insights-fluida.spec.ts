@@ -5,9 +5,11 @@ import { useInsightsFluida } from "./use-insights-fluida";
 import { FLUIDA_MOCK_SOURCE } from "../model/insight-fluida-mock";
 import type { InsightFluidaFieldsDTO } from "~/features/ai-insights/contracts/ai-insight";
 
+// Real payloads carry ONLY the body the backend builder computes
+// (`paragraphs` / `retro` / `series` / `highlights`). The editorial lead
+// (severity / title / opening / reading time / next step) always comes from
+// the mock recorte — same contract the mobile app honours.
 const realGeneralDaily: InsightFluidaFieldsDTO = {
-  severity: "alerta",
-  read_min: 8,
   paragraphs: ["Real A.", "Real B.", "Real C."],
   retro: [
     { key: "yesterday", label: "Ontem (real)", value: -156.3, caption: "Saídas de ontem", sign: "neg" },
@@ -15,16 +17,12 @@ const realGeneralDaily: InsightFluidaFieldsDTO = {
     { key: "vs_week", label: "Semana (real)", value: 9800, caption: "Variação", sign: "neg" },
   ],
   series: { daily: [1, 2, 3, 4, 5, 6, 7], weekly: [10, 20, 30, 40, 50, 60] },
-  next_step: "Passo real.",
 };
 
 const realTransactions: InsightFluidaFieldsDTO = {
-  severity: "ok",
-  read_min: 3,
   paragraphs: ["Tx real 1.", "Tx real 2."],
   highlights: [{ label: "Maior gasto", value: 11000, sub: "Fatura" }],
   series: { daily: [9, 9, 9, 9, 9, 9, 9], weekly: [8, 8, 8, 8, 8, 8] },
-  next_step: "Categorize.",
 };
 
 describe("useInsightsFluida — backward-compatible source override", () => {
@@ -58,15 +56,17 @@ describe("useInsightsFluida — backward-compatible source override", () => {
 });
 
 describe("useInsightsFluida — real insight payload", () => {
-  it("maps the real general daily payload onto the view", () => {
+  it("maps the real body onto the view while keeping the mock lead", () => {
     const fluida = useInsightsFluida({ insight: ref(realGeneralDaily) });
     expect(fluida.usingRealData.value).toBe(true);
     expect(fluida.view.value.isGeneral).toBe(true);
+    // body (paragraphs + compare + chart) is real
     expect(fluida.view.value.paragraphs).toEqual(["Real A.", "Real B.", "Real C."]);
-    expect(fluida.view.value.lead.readMinutes).toBe(8);
     expect(fluida.view.value.compare?.[0]?.when).toBe("Ontem (real)");
     expect(fluida.view.value.chart.peakValue).toBe(7);
-    expect(fluida.view.value.nextStep).toBe("Passo real.");
+    // lead (reading time + next step) stays mock-derived
+    expect(fluida.view.value.lead.readMinutes).toBe(FLUIDA_MOCK_SOURCE.general.daily.readMin);
+    expect(fluida.view.value.nextStep).toBe(FLUIDA_MOCK_SOURCE.general.daily.nextStep);
   });
 
   it("falls back to the mock when the insight has no structured fields", () => {

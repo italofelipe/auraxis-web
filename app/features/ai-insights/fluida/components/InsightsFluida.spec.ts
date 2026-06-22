@@ -103,7 +103,7 @@ describe("InsightsFluida", () => {
     expect(wrapper.text()).toContain("A semana de 15 a 21: o mês inteiro decidido em dois dias");
   });
 
-  it("renders the real AI paragraphs when a generated insight is present", () => {
+  it("renders the real AI body while keeping the mock editorial lead", () => {
     currentResult.value = {
       id: "real-1",
       summary: "Resumo real",
@@ -119,27 +119,31 @@ describe("InsightsFluida", () => {
       forecast: false,
       callsRemaining: 1,
       callsRemainingMonth: 10,
+      // Only the body the backend builder computes — no lead fields.
       fluida: {
-        severity: "alerta",
-        read_min: 7,
         paragraphs: ["Leitura real da IA sobre o seu dia.", "Segundo parágrafo real."],
         retro: [
           { key: "yesterday", label: "Ontem (real)", value: -156.3, caption: "Saídas de ontem", sign: "neg" },
         ],
         series: { daily: [1, 2, 3, 4, 5, 6, 7], weekly: [1, 2, 3, 4, 5, 6] },
-        next_step: "Próximo passo real.",
       },
     };
 
     const wrapper = mountFluida();
+    // body comes from the real payload…
     expect(wrapper.text()).toContain("Leitura real da IA sobre o seu dia.");
     expect(wrapper.text()).toContain("Ontem (real)");
-    expect(wrapper.text()).toContain("Próximo passo real.");
-    expect(wrapper.text()).toContain("7 min de leitura");
-    // the mock prose for the overlaid (general daily) node is replaced by the
-    // real AI paragraphs — the editorial lead title stays (backend sends no title)
+    // the real paragraphs replace the mock prose on the overlaid node
     expect(wrapper.text()).not.toContain(
       "A leitura de ontem precisa ser feita no contexto da semana",
     );
+    // …while the editorial lead (title, reading time, next step) stays from the
+    // mock — the backend sends none of those (parity with the mobile mapper).
+    expect(wrapper.text()).toContain("Ontem em foco: muita saída, nenhuma entrada");
+    expect(wrapper.text()).toContain("15 min de leitura");
+    expect(wrapper.text()).toContain(
+      "Priorize quitar ou renegociar a Fatura Maio",
+    );
+    expect(wrapper.text()).not.toContain("Próximo passo real.");
   });
 });

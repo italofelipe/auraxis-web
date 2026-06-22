@@ -2,12 +2,16 @@
  * Pure mapper: real `/ai/insights` payload → {@link FluidaInsightSource} VM.
  *
  * The backend (auraxis-api PR #1501/#1502) enriches a single generated insight
- * with the structured Fluida fields (`paragraphs` / `retro` / `series` /
- * `highlights`) for ONE period (daily OR weekly) and ONE dimension. The Fluida
- * screen, however, renders a full source object covering both cadences and every
- * theme. This mapper therefore OVERLAYS the real fields onto the Fluida mock
- * skeleton at the node addressed by `{ dimension, cadence }`, keeping the screen
- * full while the remaining slots fall back to mock content.
+ * with the structured Fluida **body** fields (`paragraphs` / `retro` / `series`
+ * / `highlights`) for ONE period (daily OR weekly) and ONE dimension. It does
+ * NOT emit the editorial lead (severity / headline / opening / reading time /
+ * next step) — that always comes from the mock recorte, mirroring the mobile
+ * mapper (`auraxis-app/features/insights/fluida/insight-to-fluida-vm.ts`). The
+ * Fluida screen, however, renders a full source object covering both cadences
+ * and every theme. This mapper therefore OVERLAYS the real body onto the Fluida
+ * mock skeleton at the node addressed by `{ dimension, cadence }`, keeping the
+ * screen full (and the lead always mock-derived) while the remaining slots fall
+ * back to mock content.
  *
  * Fallback rule: when the DTO carries none of the structured fields (backend not
  * deployed, or a legacy payload), the mock source is returned verbatim so the
@@ -159,12 +163,16 @@ const toHighlightStat = (highlight: InsightHighlightDTO): FluidaStat => ({
 });
 
 /**
- * Overlays the DTO's scalar/prose fields (paragraphs, severity, reading time,
- * next step) onto a base node. Empty prose is ignored so the mock copy survives.
+ * Overlays the DTO's **body** prose (`paragraphs`) onto a base node, keeping the
+ * editorial lead (severity, headline, opening summary, reading time, next step)
+ * from the mock recorte. The backend builder never emits the lead — it always
+ * comes from the mock, mirroring the mobile mapper
+ * (`auraxis-app/features/insights/fluida/insight-to-fluida-vm.ts`). Empty prose
+ * is ignored so the mock copy survives.
  *
- * @param base Mock node to overlay onto.
- * @param dto Real payload.
- * @returns A new node with the real fields applied.
+ * @param base Mock node supplying the editorial lead.
+ * @param dto Real payload (body only).
+ * @returns A new node with the real paragraphs applied over the mock lead.
  */
 const overlayCommon = (base: FluidaNode, dto: InsightFluidaFieldsDTO): FluidaNode => {
   const paragraphs =
@@ -172,17 +180,7 @@ const overlayCommon = (base: FluidaNode, dto: InsightFluidaFieldsDTO): FluidaNod
       ? [...dto.paragraphs]
       : base.paragraphs;
 
-  return {
-    ...base,
-    paragraphs,
-    ...(dto.severity ? { severity: dto.severity } : {}),
-    ...(typeof dto.read_min === "number" && Number.isFinite(dto.read_min)
-      ? { readMin: dto.read_min }
-      : {}),
-    ...(typeof dto.next_step === "string" && dto.next_step.length > 0
-      ? { nextStep: dto.next_step }
-      : {}),
-  };
+  return { ...base, paragraphs };
 };
 
 /**

@@ -19,12 +19,6 @@ export interface InsightItem {
 }
 
 /**
- * Severity vocabulary emitted by the Fluida editorial payload.
- * `ok | atencao | alerta` tag a section; `alta | media` tag individual alerts.
- */
-export type InsightFluidaSeverity = "ok" | "atencao" | "alerta" | "alta" | "media";
-
-/**
  * Direction of a retrospective movement, as computed by the backend builder
  * (`insight_fluida_builder.py`). `pos` is a favourable movement (e.g. spending
  * less than the baseline), `neg` unfavourable, `neutral` flat.
@@ -54,12 +48,6 @@ export interface InsightHighlightDTO {
   readonly sub: string;
 }
 
-/** An attention point with its own severity. */
-export interface InsightAlertDTO {
-  readonly severity: InsightFluidaSeverity;
-  readonly text: string;
-}
-
 /**
  * Calculated outflow series: daily over the last 7 days, weekly over the last 6
  * weeks. Both windows end on (and include) the anchor; the backend emits values
@@ -71,21 +59,23 @@ export interface InsightSeriesDTO {
 }
 
 /**
- * Additive fields on the `/ai/insights` response that power the Fluida reading
- * (auraxis-api PR #1501/#1502). All optional: the legacy `items`/`content`
- * payload is unchanged, and clients that do not consume these fields keep
- * working. When absent, the web falls back to the Fluida mock behind
- * `web.insights.fluida`.
+ * Additive **body** fields on the `/ai/insights` response that power the Fluida
+ * reading (auraxis-api PR #1501/#1502). The backend builder
+ * (`insight_fluida_builder.py`) computes ONLY the editorial body and numbers —
+ * `paragraphs` / `retro` / `series` / `highlights`. It does NOT emit the
+ * per-dimension editorial lead (severity / headline / opening / reading time /
+ * next step); that always comes from the mock recorte, mirroring the mobile
+ * mapper (`auraxis-app/features/insights/fluida/insight-to-fluida-vm.ts`).
+ *
+ * All optional: the legacy `items`/`content` payload is unchanged, and clients
+ * that do not consume these fields keep working. When absent, the web falls back
+ * to the Fluida mock behind `web.insights.fluida`.
  */
 export interface InsightFluidaFieldsDTO {
-  readonly severity?: InsightFluidaSeverity;
-  readonly read_min?: number;
   readonly paragraphs?: readonly string[];
   readonly retro?: readonly InsightRetroEntryDTO[];
   readonly highlights?: readonly InsightHighlightDTO[];
-  readonly alerts?: readonly InsightAlertDTO[];
   readonly series?: InsightSeriesDTO;
-  readonly next_step?: string;
 }
 
 export interface AIInsightDTO {

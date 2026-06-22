@@ -349,7 +349,7 @@ export const mapAIInsightDto = (dto: AIInsightDTO): AIInsight => ({
  * @returns True when at least one structured Fluida field has data.
  */
 const hasAnyFluidaField = (dto: InsightFluidaFieldsDTO): boolean => {
-  const nonEmptyArrays = [dto.paragraphs, dto.retro, dto.highlights, dto.alerts].some(
+  const nonEmptyArrays = [dto.paragraphs, dto.retro, dto.highlights].some(
     (value) => Array.isArray(value) && value.length > 0,
   );
   const nonEmptySeries =
@@ -357,23 +357,22 @@ const hasAnyFluidaField = (dto: InsightFluidaFieldsDTO): boolean => {
     [dto.series.daily, dto.series.weekly].some(
       (value) => Array.isArray(value) && value.length > 0,
     );
-  const hasScalars =
-    dto.severity !== undefined ||
-    typeof dto.read_min === "number" ||
-    (typeof dto.next_step === "string" && dto.next_step.length > 0);
 
-  return nonEmptyArrays || nonEmptySeries || hasScalars;
+  return nonEmptyArrays || nonEmptySeries;
 };
 
 /**
- * Extracts the additive Fluida fields from a generation response, returning null
- * when none are present so callers can cleanly fall back to the mock.
+ * Extracts the additive Fluida **body** fields from a generation response,
+ * returning null when none are present so callers can cleanly fall back to the
+ * mock. Only the body the backend builder computes is carried (`paragraphs` /
+ * `retro` / `highlights` / `series`); the editorial lead is never in the payload
+ * and always comes from the mock recorte (parity with the mobile mapper).
  *
- * The extraction is shallow and lossless: every Fluida key is copied verbatim
- * (the pure Fluida mapper owns the DTO→VM transformation).
+ * The extraction is shallow and lossless: every Fluida body key is copied
+ * verbatim (the pure Fluida mapper owns the DTO→VM transformation).
  *
  * @param dto Generation response payload (may lack the Fluida fields).
- * @returns The Fluida fields, or null when the backend omitted all of them.
+ * @returns The Fluida body fields, or null when the backend omitted all of them.
  */
 export const selectFluidaFields = (
   dto: InsightFluidaFieldsDTO,
@@ -383,14 +382,10 @@ export const selectFluidaFields = (
   }
 
   return {
-    severity: dto.severity,
-    read_min: dto.read_min,
     paragraphs: dto.paragraphs,
     retro: dto.retro,
     highlights: dto.highlights,
-    alerts: dto.alerts,
     series: dto.series,
-    next_step: dto.next_step,
   };
 };
 

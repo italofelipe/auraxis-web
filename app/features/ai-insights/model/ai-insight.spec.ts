@@ -325,16 +325,15 @@ describe("Fluida fields passthrough", () => {
     ...overrides,
   });
 
-  it("carries the structured Fluida fields through mapGeneratedInsight", () => {
+  it("carries the structured Fluida body fields through mapGeneratedInsight", () => {
+    // The backend builder computes only the body (`paragraphs` / `retro` /
+    // `series` / `highlights`); the editorial lead is never in the payload.
     const mapped = mapGeneratedInsight(
       makeGenerated({
         paragraphs: ["P1.", "P2."],
         retro: [{ key: "yesterday", label: "Ontem", value: 156.3, caption: "Saídas", sign: "neg" }],
         series: { daily: [1, 2, 3, 4, 5, 6, 7], weekly: [1, 2, 3, 4, 5, 6] },
         highlights: [{ label: "Maior gasto", value: 11000, sub: "Fatura" }],
-        severity: "alerta",
-        read_min: 9,
-        next_step: "Quite a fatura.",
       }),
     );
 
@@ -343,9 +342,6 @@ describe("Fluida fields passthrough", () => {
     expect(mapped.fluida?.retro?.[0]?.label).toBe("Ontem");
     expect(mapped.fluida?.series?.daily).toHaveLength(7);
     expect(mapped.fluida?.highlights?.[0]?.value).toBe(11000);
-    expect(mapped.fluida?.severity).toBe("alerta");
-    expect(mapped.fluida?.read_min).toBe(9);
-    expect(mapped.fluida?.next_step).toBe("Quite a fatura.");
   });
 
   it("yields a null fluida payload when the backend omits the structured fields", () => {
@@ -353,22 +349,18 @@ describe("Fluida fields passthrough", () => {
     expect(mapped.fluida).toBeNull();
   });
 
-  it("selectFluidaFields extracts only the additive Fluida keys", () => {
+  it("selectFluidaFields extracts only the additive Fluida body keys", () => {
     const fields = selectFluidaFields(
       makeGenerated({
         paragraphs: ["only paragraphs"],
-        next_step: "do this",
+        retro: [{ key: "yesterday", label: "Ontem", value: 1, caption: "c", sign: "neg" }],
       }),
     );
     expect(fields).toEqual({
-      severity: undefined,
-      read_min: undefined,
       paragraphs: ["only paragraphs"],
-      retro: undefined,
+      retro: [{ key: "yesterday", label: "Ontem", value: 1, caption: "c", sign: "neg" }],
       highlights: undefined,
-      alerts: undefined,
       series: undefined,
-      next_step: "do this",
     });
   });
 
