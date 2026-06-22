@@ -506,8 +506,8 @@
       "createdAt": "2026-06-21",
       "removeBy": "2027-12-31",
       "type": "release",
-      "status": "draft",
-      "description": "Leitura editorial \"Fluida\" da tela de Insights de IA (masthead + lead + beats). Default OFF até o backend (auraxis-api #1502) entregar paragraphs/retro/series/highlights; ligar via NUXT_PUBLIC_FLAG_WEB_INSIGHTS_FLUIDA=true.",
+      "status": "enabled-prod",
+      "description": "Leitura editorial \"Fluida\" da tela de Insights de IA (masthead + lead + beats). Ativada em producao apos o backend (auraxis-api #1502) entregar paragraphs/retro/series/highlights.",
       "repositories": ["auraxis-web"]
     }
   ]
