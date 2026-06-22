@@ -18,6 +18,55 @@ export interface InsightItem {
   readonly evidence?: readonly string[];
 }
 
+/**
+ * Severity vocabulary emitted by the Fluida editorial payload.
+ * `ok | atencao | alerta` tag a section; `alta | media` tag individual alerts.
+ */
+export type InsightFluidaSeverity = "ok" | "atencao" | "alerta" | "alta" | "media";
+
+/** A retrospective comparison entry ("ontem · anteontem · vs. semana"). */
+export interface InsightRetroEntryDTO {
+  readonly when: string;
+  readonly value: number;
+  readonly text: string;
+}
+
+/** A numeric highlight tile / pull-stat. */
+export interface InsightHighlightDTO {
+  readonly label: string;
+  readonly value: string;
+  readonly caption: string;
+}
+
+/** An attention point with its own severity. */
+export interface InsightAlertDTO {
+  readonly severity: InsightFluidaSeverity;
+  readonly text: string;
+}
+
+/** A bar series (7 days / 6 weeks) with its axis labels. */
+export interface InsightSeriesDTO {
+  readonly values: readonly number[];
+  readonly labels: readonly string[];
+}
+
+/**
+ * Additive fields on the `/ai/insights` response that power the Fluida reading
+ * (auraxis-api PR #1502). All optional: the legacy `items`/`content` payload is
+ * unchanged, and clients that do not consume these fields keep working. When
+ * absent, the web falls back to the Fluida mock behind `web.insights.fluida`.
+ */
+export interface InsightFluidaFieldsDTO {
+  readonly severity?: InsightFluidaSeverity;
+  readonly read_min?: number;
+  readonly paragraphs?: readonly string[];
+  readonly retro?: readonly InsightRetroEntryDTO[];
+  readonly highlights?: readonly InsightHighlightDTO[];
+  readonly alerts?: readonly InsightAlertDTO[];
+  readonly series?: InsightSeriesDTO;
+  readonly next_step?: string;
+}
+
 export interface AIInsightDTO {
   readonly id: string;
   readonly content: string;
@@ -40,7 +89,7 @@ export interface GenerateInsightRequestDTO {
   readonly timezone?: string;
 }
 
-export interface GenerateInsightResponseDTO {
+export interface GenerateInsightResponseDTO extends InsightFluidaFieldsDTO {
   readonly id?: string;
   readonly summary: string;
   readonly items: InsightItem[];

@@ -298,6 +298,9 @@ export default defineNuxtConfig({
     families: {
       Inter: [400, 500, 600, 700],
       "IBM Plex Mono": [400, 500, 600],
+      // Newsreader: serif headline for the Insights "Fluida" editorial reading
+      // (feature web.insights.fluida). Used only on the headline; body stays Inter.
+      Newsreader: [500, 600],
     },
     subsets: ["latin", "latin-ext"],
     display: "swap",

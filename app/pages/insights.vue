@@ -3,6 +3,8 @@ import { computed, ref, watch } from "vue";
 import { NButton, NTag } from "naive-ui";
 
 import AiInsightButton from "~/features/ai-insights/components/AiInsightButton.vue";
+import InsightsFluida from "~/features/ai-insights/fluida/components/InsightsFluida.vue";
+import { useFeatureFlag } from "~/shared/feature-flags/use-feature-flag";
 import {
   getInsightDimensionLabel,
   groupInsightItemsByDimension,
@@ -25,6 +27,10 @@ definePageMeta({
 });
 
 useHead({ title: "Insights de IA | Auraxis" });
+
+// Editorial "Fluida" reading, gated behind web.insights.fluida (default OFF).
+// When the flag is off the legacy report below renders unchanged.
+const isFluidaEnabled = useFeatureFlag("web.insights.fluida");
 
 const route = useRoute();
 const currentPage = ref(1);
@@ -162,7 +168,9 @@ watch(
 </script>
 
 <template>
-  <div class="insights-page">
+  <InsightsFluida v-if="isFluidaEnabled" />
+
+  <div v-else class="insights-page">
     <section class="insights-page__hero">
       <div class="insights-page__hero-copy">
         <span class="insights-page__eyebrow">Auraxis AI</span>

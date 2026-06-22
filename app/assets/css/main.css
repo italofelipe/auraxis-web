@@ -249,6 +249,137 @@
   --shadow-brand-glow-sm: 0 0 10px rgba(68, 212, 255, 0.2);
 }
 
+/* ──────────────────────────────────────────────────────────────────────────
+   Insights "Fluida" — editorial reading scope (feature flag web.insights.fluida)
+
+   The Fluida screen carries an editorial palette + serif headline that differ
+   from the app shell. These tokens live here (not in component styles) because
+   the frontend-governance scanner forbids literal px/weights in .vue/.css under
+   app/** EXCEPT app/assets/css/main.css. Components consume only var(--fluida-*).
+
+   `.fluida` defines the LIGHT scope. The reading can be flipped independently of
+   the global app theme via the masthead toggle, which sets
+   `data-fluida-scheme="dark"` on the same element. The global app dark theme
+   (`:root[data-theme="dark"] .fluida`) is honoured too, so the reading follows
+   the app unless the local toggle overrides it.
+   ────────────────────────────────────────────────────────────────────────── */
+.fluida {
+  /* Editorial palette (light) */
+  --fluida-brand: #0e6376;
+  --fluida-brand-soft: #e9f1f3;
+  --fluida-page: #eef1f3;
+  --fluida-surface: #ffffff;
+  --fluida-surface-2: #f1f4f5;
+  --fluida-ink: #15272e;
+  --fluida-body: #52646c;
+  --fluida-muted: #8a979d;
+  --fluida-line: #e7ebed;
+  --fluida-line-soft: #eff2f3;
+  --fluida-track: #e7ebed;
+  --fluida-pos: #11a36b;
+  --fluida-neg: #e5484d;
+  --fluida-warn: #c77d1a;
+  --fluida-sev-ok-bg: #e7f6ee;
+  --fluida-sev-warn-bg: #fbf0d8;
+  --fluida-sev-alert-bg: #fdecec;
+  --fluida-on-accent: #ffffff;
+  --fluida-card-border: transparent;
+  --fluida-shadow: 0 2px 12px rgba(16, 28, 33, 0.06);
+  --fluida-seguir-grad: linear-gradient(135deg, #0e6376, #0a4f5f);
+
+  /* Editorial typography */
+  --fluida-font-serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --fluida-font-mono: var(--font-mono);
+
+  /* Editorial type scale (web) */
+  --fluida-size-headline: 36px;
+  --fluida-size-headline-narrow: 26px;
+  --fluida-size-lead: 19px;
+  --fluida-size-prose: 17px;
+  --fluida-size-pullstat: 34px;
+  --fluida-size-compare-amount: 18px;
+  --fluida-size-tile-value: 18px;
+  --fluida-size-section: 14px;
+  --fluida-size-body-sm: 13px;
+  --fluida-size-caption: 12px;
+  --fluida-size-kicker: 11px;
+  --fluida-size-label: 10px;
+  --fluida-size-capital: 52px;
+
+  /* Editorial line-heights */
+  --fluida-leading-headline: 1.16;
+  --fluida-leading-lead: 1.6;
+  --fluida-leading-prose: 1.72;
+  --fluida-leading-snug: 1.45;
+
+  /* Editorial weights */
+  --fluida-weight-headline: 600;
+  --fluida-weight-strong: 700;
+  --fluida-weight-heavy: 800;
+  --fluida-weight-medium: 500;
+  --fluida-weight-semibold: 600;
+
+  /* Editorial radii */
+  --fluida-radius-card: 14px;
+  --fluida-radius-chart: 16px;
+  --fluida-radius-seguir: 18px;
+  --fluida-radius-pill: 9999px;
+  --fluida-radius-chip: 8px;
+
+  /* Layout */
+  --fluida-max-width: 740px;
+  --fluida-bar-max-width: 30px;
+}
+
+:root[data-theme="dark"] .fluida,
+.fluida[data-fluida-scheme="dark"] {
+  --fluida-brand: #14b0c9;
+  --fluida-brand-soft: #12313b;
+  --fluida-page: #0a1316;
+  --fluida-surface: #15242a;
+  --fluida-surface-2: #1d2e35;
+  --fluida-ink: #eaf1f3;
+  --fluida-body: #aebfc4;
+  --fluida-muted: #708488;
+  --fluida-line: #27383f;
+  --fluida-line-soft: #1d2c32;
+  --fluida-track: #22343b;
+  --fluida-pos: #2fbe85;
+  --fluida-neg: #ff6f79;
+  --fluida-warn: #e3a64a;
+  --fluida-sev-ok-bg: #0f2c22;
+  --fluida-sev-warn-bg: #332710;
+  --fluida-sev-alert-bg: #33191b;
+  --fluida-on-accent: #ffffff;
+  --fluida-card-border: #243740;
+  --fluida-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  --fluida-seguir-grad: linear-gradient(135deg, #0e6376, #08323c);
+}
+
+/* Local override wins over the global app theme when explicitly set to light. */
+.fluida[data-fluida-scheme="light"] {
+  --fluida-brand: #0e6376;
+  --fluida-brand-soft: #e9f1f3;
+  --fluida-page: #eef1f3;
+  --fluida-surface: #ffffff;
+  --fluida-surface-2: #f1f4f5;
+  --fluida-ink: #15272e;
+  --fluida-body: #52646c;
+  --fluida-muted: #8a979d;
+  --fluida-line: #e7ebed;
+  --fluida-line-soft: #eff2f3;
+  --fluida-track: #e7ebed;
+  --fluida-pos: #11a36b;
+  --fluida-neg: #e5484d;
+  --fluida-warn: #c77d1a;
+  --fluida-sev-ok-bg: #e7f6ee;
+  --fluida-sev-warn-bg: #fbf0d8;
+  --fluida-sev-alert-bg: #fdecec;
+  --fluida-card-border: transparent;
+  --fluida-shadow: 0 2px 12px rgba(16, 28, 33, 0.06);
+  --fluida-seguir-grad: linear-gradient(135deg, #0e6376, #0a4f5f);
+}
+
 /* Reset and base */
 *,
 *::before,

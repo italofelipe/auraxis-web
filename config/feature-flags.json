@@ -499,6 +499,16 @@
       "status": "enabled-dev",
       "description": "A/B test do novo layout de dashboard. Provider runtime (PostHog) decide variante em staging/prod.",
       "repositories": ["auraxis-web"]
+    },
+    {
+      "key": "web.insights.fluida",
+      "owner": "growth",
+      "createdAt": "2026-06-21",
+      "removeBy": "2027-12-31",
+      "type": "release",
+      "status": "draft",
+      "description": "Leitura editorial \"Fluida\" da tela de Insights de IA (masthead + lead + beats). Default OFF até o backend (auraxis-api #1502) entregar paragraphs/retro/series/highlights; ligar via NUXT_PUBLIC_FLAG_WEB_INSIGHTS_FLUIDA=true.",
+      "repositories": ["auraxis-web"]
     }
   ]
 }
