@@ -8,8 +8,13 @@ import {
   mapGeneratedInsight,
   parseInsightItems,
   resolveInsightAnchorDate,
+  selectFluidaFields,
 } from "./ai-insight";
-import type { AIInsightDTO, InsightItem } from "~/features/ai-insights/contracts/ai-insight";
+import type {
+  AIInsightDTO,
+  GenerateInsightResponseWithMetaDTO,
+  InsightItem,
+} from "~/features/ai-insights/contracts/ai-insight";
 
 /**
  * Builds a valid AIInsightDTO fixture for model tests.
@@ -290,5 +295,84 @@ describe("resolveInsightAnchorDate", () => {
   it("anchors to the first day of a past month for history", () => {
     const pastMonthStart = new Date(2026, 2, 1).getTime();
     expect(resolveInsightAnchorDate(pastMonthStart, now)).toBe("2026-03-01");
+  });
+});
+
+describe("Fluida fields passthrough", () => {
+  /**
+   * Builds a generation-response fixture carrying the additive Fluida fields.
+   *
+   * @param overrides Partial overrides on the base payload.
+   * @returns Generation response DTO with rate-limit metadata.
+   */
+  const makeGenerated = (
+    overrides: Partial<GenerateInsightResponseWithMetaDTO> = {},
+  ): GenerateInsightResponseWithMetaDTO => ({
+    summary: "Resumo",
+    items: [
+      { type: "saude_financeira", dimension: "general", title: "Ok", message: "Equilibrado." },
+    ],
+    period_type: "daily",
+    period_label: "2026-06-20",
+    period_start: "2026-06-20",
+    period_end: "2026-06-20",
+    model: "gpt-4o",
+    tokens_used: 100,
+    cost_usd: 0.0001,
+    cached: false,
+    callsRemaining: 1,
+    callsRemainingMonth: 10,
+    ...overrides,
+  });
+
+  it("carries the structured Fluida fields through mapGeneratedInsight", () => {
+    const mapped = mapGeneratedInsight(
+      makeGenerated({
+        paragraphs: ["P1.", "P2."],
+        retro: [{ key: "yesterday", label: "Ontem", value: 156.3, caption: "Saídas", sign: "neg" }],
+        series: { daily: [1, 2, 3, 4, 5, 6, 7], weekly: [1, 2, 3, 4, 5, 6] },
+        highlights: [{ label: "Maior gasto", value: 11000, sub: "Fatura" }],
+        severity: "alerta",
+        read_min: 9,
+        next_step: "Quite a fatura.",
+      }),
+    );
+
+    expect(mapped.fluida).toBeDefined();
+    expect(mapped.fluida?.paragraphs).toEqual(["P1.", "P2."]);
+    expect(mapped.fluida?.retro?.[0]?.label).toBe("Ontem");
+    expect(mapped.fluida?.series?.daily).toHaveLength(7);
+    expect(mapped.fluida?.highlights?.[0]?.value).toBe(11000);
+    expect(mapped.fluida?.severity).toBe("alerta");
+    expect(mapped.fluida?.read_min).toBe(9);
+    expect(mapped.fluida?.next_step).toBe("Quite a fatura.");
+  });
+
+  it("yields a null fluida payload when the backend omits the structured fields", () => {
+    const mapped = mapGeneratedInsight(makeGenerated());
+    expect(mapped.fluida).toBeNull();
+  });
+
+  it("selectFluidaFields extracts only the additive Fluida keys", () => {
+    const fields = selectFluidaFields(
+      makeGenerated({
+        paragraphs: ["only paragraphs"],
+        next_step: "do this",
+      }),
+    );
+    expect(fields).toEqual({
+      severity: undefined,
+      read_min: undefined,
+      paragraphs: ["only paragraphs"],
+      retro: undefined,
+      highlights: undefined,
+      alerts: undefined,
+      series: undefined,
+      next_step: "do this",
+    });
+  });
+
+  it("selectFluidaFields returns null when no Fluida field is present", () => {
+    expect(selectFluidaFields(makeGenerated())).toBeNull();
   });
 });
