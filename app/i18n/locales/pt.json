@@ -1965,6 +1965,7 @@
       "status": "Status",
       "date": "Data",
       "description": "Descrição",
+      "notes": "Observações",
       "category": "Categoria",
       "account": "Conta",
       "amount": "Valor",

@@ -237,7 +237,7 @@ const totalBalance = computed(() => totalIncome.value - totalExpense.value);
     </UiEmptyState>
 
     <!-- ── Data table ──────────────────────────────────────────────────────── -->
-    <NDataTable v-else-if="viewMode === 'list'" :columns="columns" :data="tableData" :loading="isLoading" :pagination="pagination" :row-key="rowKey" :row-props="rowProps" :scroll-x="780" size="small" class="transactions-page__table" />
+    <NDataTable v-else-if="viewMode === 'list'" :columns="columns" :data="tableData" :loading="isLoading" :pagination="pagination" :row-key="rowKey" :row-props="rowProps" :scroll-x="960" size="small" class="transactions-page__table" />
 
     <!-- ── Financial calendar ──────────────────────────────────────────────── -->
     <FinancialCalendar v-else-if="viewMode === 'calendar'" class="transactions-page__calendar" @day-click="onDayClick" />
@@ -405,6 +405,15 @@ const totalBalance = computed(() => totalIncome.value - totalExpense.value);
 :deep(.tx-title-cell__heading) { display: inline-flex; align-items: center; gap: var(--space-2); min-width: 0; }
 :deep(.tx-title-cell__name) { font-size: var(--font-size-sm); color: var(--color-text-primary); }
 :deep(.tx-badge) { display: inline-flex; align-items: center; gap: 3px; font-size: var(--font-size-xs); color: var(--color-text-muted); }
+:deep(.tx-notes-cell) {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: var(--font-size-sm);
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
 :deep(.tx-paid-chip) {
   display: inline-flex;
   align-items: center;

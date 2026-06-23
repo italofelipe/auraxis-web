@@ -7,6 +7,7 @@ import {
   buildPaidStatusFeedback,
   isTransactionNearDue,
   isTransactionOverdue,
+  renderNotes,
   renderTagBadge,
   resolveSwipeGestureAction,
   useTransactionTable,
@@ -128,6 +129,49 @@ describe("renderTagBadge", () => {
     expect(JSON.stringify(result)).toContain("Urgent");
     // Style string includes the background colour + 20 alpha suffix
     expect(JSON.stringify(result)).toContain("#FF6B6B20");
+  });
+});
+
+describe("renderNotes", () => {
+  /**
+   * Builds a minimal transaction fixture for notes-cell tests.
+   *
+   * @param description - Free-text observation ("Observações") field value.
+   * @returns A TransactionDto with the given description.
+   */
+  function buildTx(description: string | null): TransactionDto {
+    return {
+      id: "tx-1",
+      title: "Payment",
+      amount: "10.00",
+      type: "expense",
+      status: "pending",
+      due_date: "2026-01-01",
+      description,
+    } as unknown as TransactionDto;
+  }
+
+  it("returns em-dash placeholder when there is no observation", () => {
+    expect(renderNotes(buildTx(null))).toBe("—");
+  });
+
+  it("returns em-dash placeholder when the observation is blank whitespace", () => {
+    expect(renderNotes(buildTx("   "))).toBe("—");
+  });
+
+  it("returns a truncating VNode carrying the full text as tooltip", () => {
+    const text = "Pagar antes do dia 10 — combinado com o financeiro";
+    const result = renderNotes(buildTx(text));
+    expect(typeof result).toBe("object");
+    // VNode renders the observation text...
+    expect(JSON.stringify(result)).toContain(text);
+    // ...and exposes the full text via the title attribute for hover tooltip.
+    expect((result as { props?: Record<string, unknown> }).props?.title).toBe(text);
+  });
+
+  it("trims surrounding whitespace before rendering", () => {
+    const result = renderNotes(buildTx("  nota com espaços  "));
+    expect((result as { props?: Record<string, unknown> }).props?.title).toBe("nota com espaços");
   });
 });
 
