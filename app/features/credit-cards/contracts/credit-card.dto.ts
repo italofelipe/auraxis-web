@@ -1,3 +1,5 @@
+import type { TransactionDto } from "~/features/transactions/contracts/transaction.dto";
+
 export type CreditCardBrand = "visa" | "mastercard" | "elo" | "hipercard" | "amex" | "other";
 
 export type CreditCardDto = {
@@ -43,20 +45,15 @@ export interface BillCycle {
   readonly status: string;
 }
 
-export interface BillTransaction {
-  readonly id: string;
-  readonly title: string;
-  readonly amount: number;
-  readonly dueDate: string | null;
-  readonly status: string;
-  readonly type: string;
-  readonly impactPolicy: "full" | "cards_only" | "planned_until_bill";
-}
-
 /** View-model de domínio da fatura (valores já coagidos para number). */
 export interface CreditCardBill {
   readonly cycle: BillCycle;
-  readonly transactions: readonly BillTransaction[];
+  /**
+   * Lançamentos da fatura, no mesmo shape de `GET /transactions` (payload
+   * completo). É a fonte de verdade dos itens da fatura — server-side já aplica
+   * o ciclo de fechamento e não sofre do truncamento de paginação do client.
+   */
+  readonly transactions: readonly TransactionDto[];
   readonly totalAmount: number;
   readonly paidAmount: number;
   readonly pendingAmount: number;
@@ -81,19 +78,9 @@ interface BillCycleRaw {
   readonly status: string;
 }
 
-interface BillTransactionRaw {
-  readonly id: string;
-  readonly title: string;
-  readonly amount: string;
-  readonly due_date: string | null;
-  readonly status: string;
-  readonly type: string;
-  readonly impact_policy?: "full" | "cards_only" | "planned_until_bill";
-}
-
 interface CreditCardBillRaw {
   readonly cycle: BillCycleRaw;
-  readonly transactions: readonly BillTransactionRaw[];
+  readonly transactions: readonly TransactionDto[];
   readonly total_amount: string;
   readonly paid_amount: string;
   readonly pending_amount: string;
@@ -172,15 +159,10 @@ export const toCreditCardBill = (
   const raw = unwrap(payload);
   return {
     cycle: toCycle(raw!.cycle),
-    transactions: (raw?.transactions ?? []).map((tx) => ({
-      id: tx.id,
-      title: tx.title,
-      amount: toNumber(tx.amount),
-      dueDate: tx.due_date,
-      status: tx.status,
-      type: tx.type,
-      impactPolicy: tx.impact_policy ?? "full",
-    })),
+    // Itens já vêm no shape de TransactionDto (igual a /transactions); repassa
+    // sem remapear para preservar o payload completo (categoria, observações,
+    // e os campos que as ações editar/duplicar/remover precisam).
+    transactions: [...(raw?.transactions ?? [])],
     totalAmount: toNumber(raw?.total_amount),
     paidAmount: toNumber(raw?.paid_amount),
     pendingAmount: toNumber(raw?.pending_amount),

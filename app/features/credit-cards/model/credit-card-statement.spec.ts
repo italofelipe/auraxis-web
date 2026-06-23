@@ -101,11 +101,26 @@ describe("buildStatement — consolidated (all cards)", () => {
 });
 
 describe("buildStatement — single card with official bill", () => {
+  // Bill items now carry the full TransactionDto payload (server is the source of
+  // truth, immune to the client pagination truncation that left bills at R$ 0,00).
+  /**
+   * Builds a bill TransactionDto fixture with sensible defaults.
+   *
+   * @param partial Fields to override.
+   * @returns A TransactionDto-shaped bill item.
+   */
+  const billTx = (partial: Partial<TransactionDto>): TransactionDto =>
+    ({
+      id: "x", title: "A", amount: "0", type: "expense", due_date: "2026-05-20",
+      status: "pending", tag_id: null, credit_card_id: "cc-1",
+      ...partial,
+    }) as unknown as TransactionDto;
+
   const bill: CreditCardBill = {
     cycle: { startDate: "2026-05-04", endDate: "2026-06-03", dueDate: "2026-06-10", status: "closed" },
     transactions: [
-      { id: "x", title: "A", amount: 600, dueDate: "2026-05-20", status: "paid", type: "expense", impactPolicy: "full" },
-      { id: "y", title: "B", amount: 399, dueDate: "2026-05-22", status: "pending", type: "expense", impactPolicy: "full" },
+      billTx({ id: "x", title: "A", amount: "600.00", status: "paid", tag_id: "t-food", due_date: "2026-05-20" }),
+      billTx({ id: "y", title: "B", amount: "399.00", status: "pending", tag_id: "t-food", due_date: "2026-05-22" }),
     ],
     totalAmount: 999,
     paidAmount: 600,
@@ -123,9 +138,9 @@ describe("buildStatement — single card with official bill", () => {
     transactions: TXS, tags: TAGS, cards: CARDS, month: "2026-06", cardId: "cc-1", bill, utilization,
   });
 
-  it("derives total and item count from synchronized transaction items", () => {
-    expect(vm.total).toBe(100);
-    expect(vm.itemCount).toBe(1);
+  it("derives total from the official bill and item count from its transactions", () => {
+    expect(vm.total).toBe(999);
+    expect(vm.itemCount).toBe(2);
   });
 
   it("uses the official cycle status and due date", () => {
@@ -138,7 +153,7 @@ describe("buildStatement — single card with official bill", () => {
     expect(vm.limitAmount).toBe(5000);
   });
 
-  it("still groups categories from real transactions (bill lacks category)", () => {
+  it("groups categories from the official bill transactions", () => {
     expect(vm.categories.map((c) => c.name)).toEqual(["Alimentação"]);
   });
 });

@@ -8,6 +8,7 @@ import type {
 import {
   type EnrichedTransaction,
   billMonthsWindow,
+  enrichCardTransactions,
   monthKeyLabel,
   monthKeyShort,
   resolveCardCycleForMonth,
@@ -235,15 +236,20 @@ const sortStatementItems = (
 export const buildStatement = (params: StatementParams): StatementViewModel => {
   const trendMonths = params.trendMonths ?? 6;
   const scoped = filterByCard(params.transactions, params.cardId);
-  const monthTxs = filterByBillMonth(scoped, params.month);
-  const aggregatedTotal = sumAmount(monthTxs);
-  const statementItems = sortStatementItems(monthTxs);
 
   const isSingleCard = params.cardId !== null;
   const card = isSingleCard
     ? params.cards.find((entry) => entry.id === params.cardId) ?? null
     : null;
   const bill = isSingleCard ? params.bill ?? null : null;
+
+  // Cartão único com fatura oficial: itens e total vêm da /bill (fonte de verdade,
+  // imune ao truncamento de paginação da lista client-side). Sem bill (consolidado
+  // ou fatura ainda carregando), deriva da janela sincronizada.
+  const billItems = bill ? enrichCardTransactions(bill.transactions, params.cards) : null;
+  const monthTxs = billItems ?? filterByBillMonth(scoped, params.month);
+  const aggregatedTotal = bill ? bill.totalAmount : sumAmount(monthTxs);
+  const statementItems = sortStatementItems(monthTxs);
 
   const cycle = resolveStatementCycle(params, card, bill);
   const limitAmount = isSingleCard ? card?.limit_amount ?? null : sumLimits(params.cards);

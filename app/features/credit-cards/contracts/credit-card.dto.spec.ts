@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import type { TransactionDto } from "~/features/transactions/contracts/transaction.dto";
+
 import {
   toCreditCardBill,
   toCreditCardUtilization,
@@ -23,7 +25,7 @@ describe("toCreditCardBill", () => {
         due_date: "2026-06-10",
         status: "paid",
         type: "expense",
-      },
+      } as unknown as TransactionDto,
     ],
     total_amount: "3250.00",
     paid_amount: "1000.00",
@@ -35,7 +37,9 @@ describe("toCreditCardBill", () => {
     expect(bill.totalAmount).toBe(3250);
     expect(bill.paidAmount).toBe(1000);
     expect(bill.pendingAmount).toBe(2250);
-    expect(bill.transactions[0]!.amount).toBe(150.5);
+    // Bill items preserve the full TransactionDto shape (amount stays a string),
+    // so the bill view renders category/notes and edits from /bill alone.
+    expect(bill.transactions[0]!.amount).toBe("150.50");
     expect(bill.cycle.status).toBe("open");
   });
 
