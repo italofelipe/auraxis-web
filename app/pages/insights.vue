@@ -73,6 +73,9 @@ const requestedOpenInsightId = computed(() => {
   const open = route.query.open;
   return Array.isArray(open) ? open[0] : open;
 });
+const showFluidaReading = computed(() =>
+  isFluidaEnabled.value && !requestedOpenInsightId.value,
+);
 const selectedInsightId = ref<string | null>(null);
 const selectedInsight = computed<AIInsight | null>(() =>
   sortedInsights.value.find((item) => item.id === selectedInsightId.value) ?? null,
@@ -168,7 +171,7 @@ watch(
 </script>
 
 <template>
-  <InsightsFluida v-if="isFluidaEnabled" />
+  <InsightsFluida v-if="showFluidaReading" />
 
   <div v-else class="insights-page">
     <section class="insights-page__hero">

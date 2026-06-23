@@ -192,23 +192,6 @@ const login = async (page: Page): Promise<void> => {
 	await expect(page).toHaveURL(/\/dashboard/, { timeout: 10_000 });
 };
 
-/**
- * Opens the insights hub through the registered app link.
- *
- * Mobile keeps sidebar links outside the viewport until the menu is expanded, so
- * the test activates the route through the anchor element without depending on
- * the sidebar's visual state.
- *
- * @param page Playwright page.
- */
-const openInsightsHub = async (page: Page): Promise<void> => {
-	await page.locator("a[href=\"/insights\"]").first().evaluate((element) => {
-		if (element instanceof HTMLElement) {
-			element.click();
-		}
-	});
-};
-
 test.describe("AI Insights — surface slices", () => {
 	test("transactions generates a global insight request and shows only transaction slice", async ({ page }) => {
 		await login(page);
@@ -263,12 +246,7 @@ test.describe("AI Insights — surface slices", () => {
 
 	test("insights hub opens a monthly report from the deep link", async ({ page }) => {
 		await login(page);
-		await openInsightsHub(page);
-		await expect(page).toHaveURL(/\/insights/, { timeout: 10_000 });
-		await page.evaluate(() => {
-			window.history.replaceState({}, "", "/insights?open=ai-1");
-			window.dispatchEvent(new PopStateEvent("popstate"));
-		});
+		await page.goto("/insights?open=ai-1");
 		await waitForHydration(page);
 
 		await expect(page.getByRole("heading", { name: "Insight de maio de 2026" })).toBeVisible({ timeout: 10_000 });
