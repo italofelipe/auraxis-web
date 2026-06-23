@@ -85,7 +85,7 @@ run_core_pipeline() {
   if [[ "$RUN_E2E" -eq 1 ]]; then
     echo "[ci-like-local] step=e2e"
     pnpm exec playwright install --with-deps chromium
-    pnpm test:e2e
+    CI=true BASE_URL="${BASE_URL:-http://localhost:3000}" pnpm test:e2e
   else
     echo "[ci-like-local] step=e2e skipped (use --with-e2e)"
   fi
