@@ -415,6 +415,21 @@ export function renderTagBadge(
 }
 
 /**
+ * Renders the "Observações" (notes) cell with the transaction's free-text
+ * observation, truncated to two lines and exposing the full text as a hover
+ * tooltip. Empty observations fall back to the same em-dash placeholder used by
+ * the category/account columns.
+ *
+ * @param row - Transaction row data (observation lives in `description`).
+ * @returns VNode with the truncated note, or the em-dash placeholder string.
+ */
+export function renderNotes(row: TransactionDto): ReturnType<typeof h> | string {
+  const note = row.description?.trim();
+  if (!note) { return "—"; }
+  return h("span", { class: "tx-notes-cell", title: note }, note);
+}
+
+/**
  * Manages table columns, drag-and-drop reorder, touch swipe gestures,
  * row props, pagination and summary totals for the transactions page.
  *
@@ -479,6 +494,7 @@ export function useTransactionTable(opts: UseTransactionTableOptions): UseTransa
       { key: "status" as DataTableRowKey, title: t("transactions.table.status"), width: 64, render: (row: TransactionDto) => renderStatusIcon(row, t) },
       { key: "due_date" as DataTableRowKey, title: t("transactions.table.date"), width: 108, defaultSortOrder: "descend" as const, sorter: withSort ? (a: TransactionDto, b: TransactionDto): number => a.due_date.localeCompare(b.due_date) : undefined, render: (row: TransactionDto): string => formatTransactionDate(row.due_date) },
       { key: "title" as DataTableRowKey, title: t("transactions.table.description"), ellipsis: { tooltip: true }, sorter: withSort ? (a: TransactionDto, b: TransactionDto): number => a.title.localeCompare(b.title, "pt-BR") : undefined, render: (row: TransactionDto) => renderTitle(row, t, billCtx) },
+      { key: "description" as DataTableRowKey, title: t("transactions.table.notes"), width: 180, render: (row: TransactionDto) => renderNotes(row) },
       { key: "tag_id" as DataTableRowKey, title: t("transactions.table.category"), width: 150, ellipsis: { tooltip: true }, render: (row: TransactionDto) => renderTagBadge(row, opts.tagDetailMap) },
       { key: "account_id" as DataTableRowKey, title: t("transactions.table.account"), width: 120, ellipsis: { tooltip: true }, render: (row: TransactionDto): string => opts.accountMap.value.get(row.account_id ?? "") ?? "—" },
       { key: "amount" as DataTableRowKey, title: t("transactions.table.amount"), width: 138, sorter: withSort ? (a: TransactionDto, b: TransactionDto): number => parseCurrencyAmount(a.amount) - parseCurrencyAmount(b.amount) : undefined, render: (row: TransactionDto) => renderAmount(row) },
