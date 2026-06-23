@@ -6,6 +6,7 @@ import {
   Eye, EyeOff, Check, AlertTriangle, Info,
   Upload, Download, Filter, Calendar, CalendarCheck,
   Menu, PieChart, ChartLine, Layers, CreditCard, Clock,
+  Pencil, Copy, Trash2, RefreshCw,
 } from "lucide-vue-next";
 import type { IconMap } from "./icons.types";
 
@@ -51,4 +52,8 @@ export const ICON_MAP: IconMap = {
   chevronLeft:   ChevronLeft,
   creditCard:    CreditCard,
   clock:         Clock,
+  edit:          Pencil,
+  copy:          Copy,
+  trash:         Trash2,
+  sync:          RefreshCw,
 };

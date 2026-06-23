@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { TagDto } from "~/features/tags/contracts/tag.dto";
+import type { TransactionDto } from "~/features/transactions/contracts/transaction.dto";
 
 import type { CreditCardDto } from "../contracts/credit-card.dto";
 import type { EnrichedTransaction } from "../utils/transaction-billing";
@@ -23,6 +24,7 @@ import {
  * @returns Complete EnrichedTransaction.
  */
 const etx = (partial: Partial<EnrichedTransaction>): EnrichedTransaction => ({
+  transaction: { id: partial.id ?? "tx-1" } as TransactionDto,
   id: "tx-1",
   title: "Compra",
   amount: 100,
@@ -33,6 +35,7 @@ const etx = (partial: Partial<EnrichedTransaction>): EnrichedTransaction => ({
   isInstallment: false,
   installmentCount: null,
   installmentGroupId: null,
+  isRecurring: false,
   status: "pending",
   ...partial,
 });

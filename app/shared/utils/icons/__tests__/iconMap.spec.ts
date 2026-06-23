@@ -9,6 +9,7 @@ const ALL_ICON_NAMES: AuraxisIconName[] = [
   "close", "chevronRight", "chevronDown", "trendingUp", "trendingDown",
   "eye", "eyeOff", "check", "warning", "info", "upload", "download",
   "filter", "calendar", "calendarCheck", "menu", "pieChart", "chartLine", "target",
+  "layers", "chevronLeft", "creditCard", "clock", "edit", "copy", "trash", "sync",
 ];
 
 describe("ICON_MAP", () => {

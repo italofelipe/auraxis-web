@@ -4,18 +4,20 @@
 
 The credit-card area is implemented as a hybrid workspace:
 
-- `/credit-cards` is the operational list. It defaults to a table-like view, with optional detailed cards and an analytical summary mode.
-- `/credit-cards/[id]` is the card dashboard. It uses a less dense layout, larger charts, and tabs for `Visão geral`, `Fatura`, `Categorias`, `Parcelamentos`, `Benefícios` and `Analítico`.
-- `CreditCardExpenseDrawer` is the card-specific transaction launcher. It replaces the dense modal for card launches and can be opened globally without requiring a pre-selected card.
+- `/credit-cards` is the operational card workspace. It defaults to `Faturas`, with a rail for card selection, a statement panel and an analytical summary mode.
+- `/credit-cards/[id]` is the single-card dashboard. It reuses the statement/analytics views scoped to the route card id.
+- `CreditCardExpenseModal` is the canonical card-expense editor/launcher for statement rows. It follows the existing `EditTransactionModal` form pattern and always persists through the transactions resource.
 
 Core components:
 
-- `app/features/credit-cards/components/CreditCardsTable.vue`
-- `app/features/credit-cards/components/CreditCardDashboard.vue`
-- `app/features/credit-cards/components/CreditCardExpenseDrawer.vue`
+- `app/features/credit-cards/components/FaturasView.vue`
+- `app/features/credit-cards/components/AnaliticoView.vue`
+- `app/features/credit-cards/components/CreditCardExpenseModal.vue`
+- `app/features/credit-cards/model/credit-card-statement.ts`
+- `app/features/credit-cards/utils/transaction-billing.ts`
 - `app/features/credit-cards/utils/billing-cycle.ts`
 
-Transactions remain the canonical source of truth. Card screens consume card DTOs, bill/utilization endpoints and transaction creation APIs; they do not create a separate "card expense" model in the frontend.
+Transactions remain the canonical source of truth. A card expense is a `TransactionDto` with `credit_card_id` filled. Card statements list enriched transactions filtered by `credit_card_id` plus bill month; create, edit, duplicate and delete actions call the same transaction mutations used by the Transactions surface. The statement total and item count are derived from those transaction rows, not from a separate card-expense entity.
 
 ## Impact Policy Contract
 

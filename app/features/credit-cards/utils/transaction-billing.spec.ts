@@ -80,6 +80,14 @@ describe("enrichCardTransactions", () => {
     expect(enriched?.amount).toBe(1234.56);
   });
 
+  it("preserves the source transaction and recurrence flag for shared card actions", () => {
+    const source = tx({ id: "tx-rec", is_recurring: true, description: "Mensal" });
+    const [enriched] = enrichCardTransactions([source], MOCK_CREDIT_CARDS);
+
+    expect(enriched?.transaction).toBe(source);
+    expect(enriched?.isRecurring).toBe(true);
+  });
+
   it("keeps the transaction but leaves billMonth null for an unknown card", () => {
     const [enriched] = enrichCardTransactions(
       [tx({ credit_card_id: "cc-unknown" })],

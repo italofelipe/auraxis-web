@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { TagDto } from "~/features/tags/contracts/tag.dto";
+import type { TransactionDto } from "~/features/transactions/contracts/transaction.dto";
 
 import type { CreditCardBill, CreditCardDto, CreditCardUtilization } from "../contracts/credit-card.dto";
 import type { EnrichedTransaction } from "../utils/transaction-billing";
@@ -13,6 +14,7 @@ import { buildStatement } from "./credit-card-statement";
  * @returns Complete EnrichedTransaction.
  */
 const etx = (partial: Partial<EnrichedTransaction>): EnrichedTransaction => ({
+  transaction: { id: partial.id ?? "tx-1" } as TransactionDto,
   id: "tx-1",
   title: "Compra",
   amount: 100,
@@ -23,6 +25,7 @@ const etx = (partial: Partial<EnrichedTransaction>): EnrichedTransaction => ({
   isInstallment: false,
   installmentCount: null,
   installmentGroupId: null,
+  isRecurring: false,
   status: "pending",
   ...partial,
 });
@@ -46,9 +49,9 @@ const CARDS: CreditCardDto[] = [
 ];
 
 const TXS: EnrichedTransaction[] = [
-  etx({ id: "a", creditCardId: "cc-1", billMonth: "2026-06", tagId: "t-food", amount: 100 }),
-  etx({ id: "b", creditCardId: "cc-2", billMonth: "2026-06", tagId: "t-transport", amount: 50 }),
-  etx({ id: "c", creditCardId: "cc-1", billMonth: "2026-05", tagId: "t-food", amount: 30 }),
+  etx({ id: "a", creditCardId: "cc-1", billMonth: "2026-06", tagId: "t-food", amount: 100, purchaseDate: "2026-06-02" }),
+  etx({ id: "b", creditCardId: "cc-2", billMonth: "2026-06", tagId: "t-transport", amount: 50, purchaseDate: "2026-06-12" }),
+  etx({ id: "c", creditCardId: "cc-1", billMonth: "2026-05", tagId: "t-food", amount: 30, purchaseDate: "2026-05-20" }),
 ];
 
 describe("buildStatement — consolidated (all cards)", () => {
@@ -69,6 +72,10 @@ describe("buildStatement — consolidated (all cards)", () => {
       ["Alimentação", 100],
       ["Transporte", 50],
     ]);
+  });
+
+  it("exposes bill items sorted by purchase date descending", () => {
+    expect(vm.items.map((item) => item.id)).toEqual(["b", "a"]);
   });
 
   it("builds a 6-month trend marking the current month", () => {
@@ -116,9 +123,9 @@ describe("buildStatement — single card with official bill", () => {
     transactions: TXS, tags: TAGS, cards: CARDS, month: "2026-06", cardId: "cc-1", bill, utilization,
   });
 
-  it("prefers the official bill total and item count", () => {
-    expect(vm.total).toBe(999);
-    expect(vm.itemCount).toBe(2);
+  it("derives total and item count from synchronized transaction items", () => {
+    expect(vm.total).toBe(100);
+    expect(vm.itemCount).toBe(1);
   });
 
   it("uses the official cycle status and due date", () => {

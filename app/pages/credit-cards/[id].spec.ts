@@ -5,7 +5,7 @@ import type { App } from "vue";
 import type { CreditCardDto } from "~/features/credit-cards/contracts/credit-card.dto";
 import type { TransactionDto } from "~/features/transactions/contracts/transaction.dto";
 
-import CreditCardsPage from "./index.vue";
+import CreditCardDetailPage from "./[id].vue";
 
 const navigateToMock = vi.hoisted(() => vi.fn());
 const queryClientHarness = vi.hoisted(() => ({ invalidateQueries: vi.fn() }));
@@ -13,17 +13,12 @@ const creditCardsHarness = vi.hoisted(() => ({
   data: { __v_isRef: true, value: [] as CreditCardDto[] },
   isLoading: { __v_isRef: true, value: false },
 }));
-const deleteMutationHarness = vi.hoisted(() => ({
-  isPending: { __v_isRef: true, value: false },
-  mutateAsync: vi.fn(),
-}));
-const createMutationHarness = vi.hoisted(() => ({
-  isPending: { __v_isRef: true, value: false },
-  mutateAsync: vi.fn(),
-}));
-const updateMutationHarness = vi.hoisted(() => ({
-  isPending: { __v_isRef: true, value: false },
-  mutateAsync: vi.fn(),
+const viewStateHarness = vi.hoisted(() => ({
+  view: { __v_isRef: true, value: "faturas" as const },
+  month: { __v_isRef: true, value: "2026-06" },
+  monthLabel: { __v_isRef: true, value: "junho de 2026" },
+  setView: vi.fn(),
+  shiftMonth: vi.fn(),
 }));
 const createTransactionMutationHarness = vi.hoisted(() => ({
   isPending: { __v_isRef: true, value: false },
@@ -44,16 +39,22 @@ vi.mock("#imports", () => ({
   definePageMeta: vi.fn(),
   navigateTo: navigateToMock,
   useHead: vi.fn(),
+  useRoute: (): { params: { id: string } } => ({ params: { id: "cc-1" } }),
 }));
 
 vi.mock("#app", () => ({
   definePageMeta: vi.fn(),
   navigateTo: navigateToMock,
   useHead: vi.fn(),
+  useRoute: (): { params: { id: string } } => ({ params: { id: "cc-1" } }),
 }));
 
 vi.mock("#app/composables/head", () => ({ useHead: vi.fn() }));
 vi.mock("#app/composables/pages", () => ({ definePageMeta: vi.fn() }));
+vi.mock("#app/composables/router", () => ({
+  useRoute: (): { params: { id: string } } => ({ params: { id: "cc-1" } }),
+  navigateTo: navigateToMock,
+}));
 
 vi.mock("vue-i18n", () => ({
   useI18n: (): { t: (key: string) => string } => ({ t: (key: string): string => key }),
@@ -66,14 +67,18 @@ vi.mock("@tanstack/vue-query", () => ({
 vi.mock("~/features/credit-cards/queries/use-credit-cards-query", () => ({
   useCreditCardsQuery: (): typeof creditCardsHarness => creditCardsHarness,
 }));
-vi.mock("~/features/credit-cards/queries/use-create-credit-card-mutation", () => ({
-  useCreateCreditCardMutation: (): typeof createMutationHarness => createMutationHarness,
+vi.mock("~/features/credit-cards/composables/useCreditCardsViewState", () => ({
+  useCreditCardsViewState: (): typeof viewStateHarness => viewStateHarness,
 }));
-vi.mock("~/features/credit-cards/queries/use-update-credit-card-mutation", () => ({
-  useUpdateCreditCardMutation: (): typeof updateMutationHarness => updateMutationHarness,
+vi.mock("~/features/credit-cards/composables/useCreditCardsStatement", () => ({
+  useCreditCardsStatement: (): { statement: { value: unknown } } => ({
+    statement: { value: { categories: [], monthlyTrend: [], railTotals: [], allCardsTotal: 0 } },
+  }),
 }));
-vi.mock("~/features/credit-cards/queries/use-delete-credit-card-mutation", () => ({
-  useDeleteCreditCardMutation: (): typeof deleteMutationHarness => deleteMutationHarness,
+vi.mock("~/features/credit-cards/composables/useCreditCardsAnalytics", () => ({
+  useCreditCardsAnalytics: (): { analytics: { value: unknown } } => ({
+    analytics: { value: { categories: [], cardTotals: [], topRows: [], monthlySeries: { months: [], series: [] }, kpis: {} } },
+  }),
 }));
 vi.mock("~/features/transactions/queries/use-create-transaction-mutation", () => ({
   useCreateTransactionMutation: (): typeof createTransactionMutationHarness => createTransactionMutationHarness,
@@ -85,33 +90,10 @@ vi.mock("~/composables/useToast", () => ({
   useToast: (): typeof toastHarness => toastHarness,
 }));
 
-// Composables de dados — mockados (lógica testada nos models). Retornam objetos
-// "ref-like" que a página apenas repassa às views mockadas.
-vi.mock("~/features/credit-cards/composables/useCreditCardsStatement", () => ({
-  useCreditCardsStatement: (): { statement: { value: unknown } } => ({
-    statement: { value: { categories: [], monthlyTrend: [], railTotals: [], allCardsTotal: 0 } },
-  }),
-}));
-vi.mock("~/features/credit-cards/composables/useCreditCardsAnalytics", () => ({
-  useCreditCardsAnalytics: (): { analytics: { value: unknown } } => ({
-    analytics: { value: { categories: [], cardTotals: [], topRows: [], monthlySeries: { months: [], series: [] }, kpis: {} } },
-  }),
-}));
-
 vi.mock("~/features/credit-cards/components/FaturasView.vue", () => ({
   default: {
-    props: ["statement", "cards", "selectedCardId"],
-    emits: [
-      "select-card",
-      "shift-month",
-      "add-expense",
-      "add-card",
-      "edit-card",
-      "delete-card",
-      "edit-expense",
-      "duplicate-expense",
-      "delete-expense",
-    ],
+    props: ["statement", "cards", "selectedCardId", "singleCard"],
+    emits: ["shift-month", "add-expense", "edit-expense", "duplicate-expense", "delete-expense"],
     data(): { invoiceItem: { creditCardId: string; transaction: Partial<TransactionDto> } } {
       return {
         invoiceItem: {
@@ -136,11 +118,7 @@ vi.mock("~/features/credit-cards/components/FaturasView.vue", () => ({
     },
     template: `
       <section data-testid="faturas-view">
-        <button data-testid="fv-select-cc-2" @click="$emit('select-card', 'cc-2')">select</button>
         <button data-testid="fv-add-expense" @click="$emit('add-expense')">expense</button>
-        <button data-testid="fv-add-card" @click="$emit('add-card')">add</button>
-        <button data-testid="fv-edit" @click="$emit('edit-card', { id: 'cc-1', name: 'Cartao Inter' })">edit</button>
-        <button data-testid="fv-delete" @click="$emit('delete-card', { id: 'cc-1', name: 'Cartao Inter' })">del</button>
         <button data-testid="fv-edit-expense" @click="$emit('edit-expense', invoiceItem)">edit expense</button>
         <button data-testid="fv-duplicate-expense" @click="$emit('duplicate-expense', invoiceItem)">duplicate expense</button>
         <button data-testid="fv-delete-expense" @click="$emit('delete-expense', invoiceItem)">delete expense</button>
@@ -151,17 +129,39 @@ vi.mock("~/features/credit-cards/components/FaturasView.vue", () => ({
 
 vi.mock("~/features/credit-cards/components/AnaliticoView.vue", () => ({
   default: {
-    props: ["analytics", "cards", "selectedCardId", "monthLabel"],
-    emits: ["select-card", "shift-month"],
+    props: ["analytics", "cards", "selectedCardId", "monthLabel", "singleCard"],
+    emits: ["shift-month"],
     template: "<section data-testid='analitico-view' />",
   },
 }));
-
-vi.mock("~/features/credit-cards/components/CreditCardForm.vue", () => ({
-  default: { template: "<form data-testid='credit-card-form' />" },
+vi.mock("~/features/credit-cards/components/CreditCardExpenseSheet.vue", () => ({
+  default: {
+    props: ["visible", "presetCreditCardId"],
+    emits: ["update:visible", "success"],
+    template: `
+      <section v-if="visible" data-testid="credit-card-expense-drawer" :data-card-id="presetCreditCardId ?? ''">
+        <button data-testid="drawer-success" @click="$emit('success')">success</button>
+      </section>
+    `,
+  },
 }));
-vi.mock("~/features/ai-insights/components/AiInsightSurface.vue", () => ({
-  default: { template: "<aside data-testid='ai-insight' />" },
+vi.mock("~/features/credit-cards/components/CreditCardExpenseModal.vue", () => ({
+  default: {
+    props: ["visible", "transaction", "presetCreditCardId"],
+    emits: ["update:visible", "saved", "duplicate", "remove"],
+    template: `
+      <section
+        v-if="visible"
+        data-testid="credit-card-expense-modal"
+        :data-card-id="presetCreditCardId ?? ''"
+        :data-transaction-id="transaction?.id ?? ''"
+      >
+        <button data-testid="expense-modal-saved-updated" @click="$emit('saved', 'updated')">updated</button>
+        <button v-if="transaction" data-testid="expense-modal-duplicate" @click="$emit('duplicate', transaction)">duplicate</button>
+        <button v-if="transaction" data-testid="expense-modal-remove" @click="$emit('remove', transaction)">remove</button>
+      </section>
+    `,
+  },
 }));
 vi.mock("~/components/ui/UiIcon/UiIcon.vue", () => ({
   default: { props: ["name", "size"], template: "<i />" },
@@ -174,46 +174,13 @@ vi.mock("~/components/ui/UiSegmentedControl/UiSegmentedControl.vue", () => ({
   },
 }));
 
-vi.mock("~/features/credit-cards/components/CreditCardExpenseSheet.vue", () => ({
-  default: {
-    props: ["visible", "presetCreditCardId"],
-    emits: ["update:visible", "success"],
-    template: `
-      <section v-if="visible" data-testid="credit-card-expense-drawer" :data-card-id="presetCreditCardId ?? ''">
-        <button data-testid="drawer-success" @click="$emit('success')">success</button>
-      </section>
-    `,
-  },
-}));
-
-vi.mock("~/features/credit-cards/components/CreditCardExpenseModal.vue", () => ({
-  default: {
-    props: ["visible", "transaction", "presetCreditCardId"],
-    emits: ["update:visible", "saved", "duplicate", "remove"],
-    template: `
-      <section
-        v-if="visible"
-        data-testid="credit-card-expense-modal"
-        :data-card-id="presetCreditCardId ?? ''"
-        :data-transaction-id="transaction?.id ?? ''"
-      >
-        <button data-testid="expense-modal-saved-created" @click="$emit('saved', 'created')">created</button>
-        <button data-testid="expense-modal-saved-updated" @click="$emit('saved', 'updated')">updated</button>
-        <button v-if="transaction" data-testid="expense-modal-duplicate" @click="$emit('duplicate', transaction)">duplicate</button>
-        <button v-if="transaction" data-testid="expense-modal-remove" @click="$emit('remove', transaction)">remove</button>
-      </section>
-    `,
-  },
-}));
-
 vi.mock("naive-ui", () => ({
   NButton: {
-    props: ["disabled", "loading", "type"],
+    props: ["disabled", "loading", "type", "text"],
     emits: ["click"],
     template: "<button :disabled='disabled || loading' @click='$emit(\"click\", $event)'><slot /></button>",
   },
-  NButtonGroup: { template: "<div><slot /></div>" },
-  NEmpty: { props: ["description"], template: "<div data-testid='empty'>{{ description }}<slot name='extra' /></div>" },
+  NEmpty: { props: ["description"], template: "<div data-testid='empty'>{{ description }}</div>" },
   NModal: {
     props: ["show", "title"],
     emits: ["update:show", "close"],
@@ -229,7 +196,7 @@ vi.mock("naive-ui", () => ({
 }));
 
 /**
- * Builds a credit card fixture.
+ * Builds a credit card fixture for the route card.
  *
  * @param overrides Fields to override.
  * @returns Credit card fixture.
@@ -250,13 +217,13 @@ const cardFixture = (overrides: Partial<CreditCardDto> = {}): CreditCardDto => (
 });
 
 /**
- * Installs the minimal Nuxt app context for page-level auto-imports.
+ * Installs the minimal Nuxt app context used by page tests.
  *
  * @param app Vue test app instance.
  */
 function nuxtContextPlugin(app: App): void {
   Reflect.set(app, "$nuxt", {
-    _route: { path: "/credit-cards", meta: {}, params: {}, query: {} },
+    _route: { path: "/credit-cards/cc-1", meta: {}, params: { id: "cc-1" }, query: {} },
     $config: { public: {} },
     payload: { serverRendered: false },
     ssrContext: { head: { push: vi.fn(() => ({ patch: vi.fn(), dispose: vi.fn() })) } },
@@ -271,21 +238,19 @@ function nuxtContextPlugin(app: App): void {
 }
 
 /**
- * Mounts the credit cards page with the mocked Nuxt context.
+ * Mounts the credit card detail page with the mocked Nuxt context.
  *
  * @returns Mounted page wrapper.
  */
 const mountPage = (): ReturnType<typeof mount> =>
-  mount(CreditCardsPage, { global: { plugins: [{ install: nuxtContextPlugin }] } });
+  mount(CreditCardDetailPage, { global: { plugins: [{ install: nuxtContextPlugin }] } });
 
-describe("CreditCardsPage", () => {
+describe("CreditCardDetailPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    creditCardsHarness.data.value = [cardFixture(), cardFixture({ id: "cc-2", name: "Cartao Azul", bank: "Itau" })];
+    creditCardsHarness.data.value = [cardFixture()];
     creditCardsHarness.isLoading.value = false;
-    deleteMutationHarness.isPending.value = false;
-    deleteMutationHarness.mutateAsync.mockResolvedValue(undefined);
-    createTransactionMutationHarness.isPending.value = false;
+    viewStateHarness.view.value = "faturas";
     createTransactionMutationHarness.mutate.mockImplementation(
       (_payload: unknown, options?: { onSuccess?: () => void }) => options?.onSuccess?.(),
     );
@@ -295,45 +260,14 @@ describe("CreditCardsPage", () => {
     );
   });
 
-  it("renders the view selector and the Faturas view by default", () => {
-    const wrapper = mountPage();
-    expect(wrapper.find("[data-testid='view-seg']").exists()).toBe(true);
-    expect(wrapper.find("[data-testid='faturas-view']").exists()).toBe(true);
-  });
-
-  it("opens the delete confirmation from the Faturas view without mutating", async () => {
-    const wrapper = mountPage();
-    await wrapper.get("[data-testid='fv-delete']").trigger("click");
-
-    expect(deleteMutationHarness.mutateAsync).not.toHaveBeenCalled();
-    expect(wrapper.get("[data-testid='delete-modal']").text()).toContain("Remover cartão?");
-    expect(wrapper.get("[data-testid='delete-modal']").text()).toContain("Cartao Inter");
-  });
-
-  it("confirms removal calling the mutation with the card id", async () => {
-    const wrapper = mountPage();
-    await wrapper.get("[data-testid='fv-delete']").trigger("click");
-    await wrapper.get("[data-testid='cc-delete-confirm']").trigger("click");
-    await flushPromises();
-
-    expect(deleteMutationHarness.mutateAsync).toHaveBeenCalledWith("cc-1");
-  });
-
-  it("opens the expense modal preset with the selected card and invalidates on create", async () => {
+  it("opens the expense modal in new mode with the route card preselected", async () => {
     const wrapper = mountPage();
 
-    await wrapper.get("[data-testid='fv-select-cc-2']").trigger("click");
-    await wrapper.get("[data-testid='cc-add-expense']").trigger("click");
+    await wrapper.get("[data-testid='cc-detail-add-expense']").trigger("click");
 
     const modal = wrapper.get("[data-testid='credit-card-expense-modal']");
-    expect(modal.attributes("data-card-id")).toBe("cc-2");
+    expect(modal.attributes("data-card-id")).toBe("cc-1");
     expect(modal.attributes("data-transaction-id")).toBe("");
-
-    await wrapper.get("[data-testid='expense-modal-saved-created']").trigger("click");
-    expect(queryClientHarness.invalidateQueries).toHaveBeenCalledWith({ queryKey: ["credit-cards"] });
-    expect(queryClientHarness.invalidateQueries).toHaveBeenCalledWith({ queryKey: ["transactions"] });
-    expect(queryClientHarness.invalidateQueries).toHaveBeenCalledWith({ queryKey: ["dashboard"] });
-    expect(toastHarness.success).toHaveBeenCalledWith("Despesa lançada e sincronizada com Transações");
   });
 
   it("opens the expense modal from an invoice row using the source transaction", async () => {
@@ -374,7 +308,6 @@ describe("CreditCardsPage", () => {
 
     expect(deleteTransactionMutationHarness.mutate).not.toHaveBeenCalled();
     expect(wrapper.get("[data-testid='delete-modal']").text()).toContain("Remover despesa?");
-    expect(wrapper.get("[data-testid='delete-modal']").text()).toContain("Notebook Dell Inspiron");
     expect(wrapper.get("[data-testid='delete-modal']").text()).toContain("desta fatura e das Transações");
 
     await wrapper.get("[data-testid='cc-expense-delete-confirm']").trigger("click");

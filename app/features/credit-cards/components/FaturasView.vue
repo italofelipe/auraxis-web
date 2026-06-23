@@ -8,6 +8,7 @@ import { formatCurrency } from "~/utils/currency";
 
 import type { CreditCardDto } from "../contracts/credit-card.dto";
 import type { StatementViewModel } from "../model/credit-card-statement";
+import type { EnrichedTransaction } from "../utils/transaction-billing";
 import { resolveCardTheme } from "../utils/card-brand-theme";
 import { formatDayMonth } from "../utils/format";
 import CreditCardBillsAreaTrend from "./charts/CreditCardBillsAreaTrend.vue";
@@ -30,6 +31,9 @@ const emit = defineEmits<{
   "add-card": [];
   "edit-card": [card: CreditCardDto];
   "delete-card": [card: CreditCardDto];
+  "edit-expense": [transaction: EnrichedTransaction];
+  "duplicate-expense": [transaction: EnrichedTransaction];
+  "delete-expense": [transaction: EnrichedTransaction];
 }>();
 
 const selectedCard = computed<CreditCardDto | null>(
@@ -57,6 +61,44 @@ const hbarItems = computed(() =>
     color: category.color,
   })),
 );
+
+const categoryByItemId = computed(() => {
+  const map = new Map<string, { name: string; color: string }>();
+  for (const category of props.statement.categories) {
+    for (const item of category.items) {
+      map.set(item.id, { name: category.name, color: category.color });
+    }
+  }
+  return map;
+});
+
+/**
+ * Resolve categoria visual de um lançamento da fatura.
+ *
+ * @param item Lançamento enriquecido.
+ * @returns Nome e cor já derivados da categoria/tag.
+ */
+const categoryForItem = (item: EnrichedTransaction): { name: string; color: string } =>
+  categoryByItemId.value.get(item.id) ?? { name: "Sem categoria", color: "var(--color-text-muted)" };
+
+/**
+ * Formata a data do lançamento como DD/MM/AAAA para a lista da fatura.
+ *
+ * @param isoDate Data ISO YYYY-MM-DD.
+ * @returns Data em formato brasileiro.
+ */
+const formatFullDate = (isoDate: string): string => {
+  const [year, month, day] = isoDate.split("-");
+  return `${day ?? "--"}/${month ?? "--"}/${year ?? "----"}`;
+};
+
+/**
+ * Formata despesa com sinal negativo, preservando a tipografia monetária local.
+ *
+ * @param amount Valor positivo da despesa.
+ * @returns Valor exibido na linha.
+ */
+const formatExpenseAmount = (amount: number): string => `- ${formatCurrency(amount)}`;
 
 const trendColor = computed<string>(() => {
   if (selectedCard.value) {
@@ -119,7 +161,7 @@ const trendColor = computed<string>(() => {
             data-testid="cc-edit-card"
             @click="emit('edit-card', selectedCard)"
           >
-            Editar
+            Editar cartão
           </NButton>
           <NButton
             v-if="selectedCard && !singleCard"
@@ -129,7 +171,7 @@ const trendColor = computed<string>(() => {
             data-testid="cc-delete-card"
             @click="emit('delete-card', selectedCard)"
           >
-            Remover
+            Remover cartão
           </NButton>
           <NButton size="small" type="primary" data-testid="cc-add-expense-faturas" @click="emit('add-expense')">
             <template #icon><UiIcon name="plus" :size="14" /></template>
@@ -162,30 +204,80 @@ const trendColor = computed<string>(() => {
         <CreditCardCategoryHBars :items="hbarItems" :limit="6" />
       </section>
 
-      <section v-if="statement.categories.length" class="fat__section">
+      <section v-if="statement.items.length" class="fat__section">
         <span class="fat__section-title">Itens da fatura</span>
-        <div class="fat__groups">
-          <div v-for="group in statement.categories" :key="group.tagId ?? 'none'" class="fat__group">
-            <div class="fat__group-head">
-              <span class="fat__dot" :style="{ background: group.color }" />
-              <span class="fat__group-name">{{ group.name }}</span>
-              <span class="fat__group-line" />
-              <span class="fat__group-total">{{ formatCurrency(group.total) }}</span>
-            </div>
-            <ul class="fat__items">
-              <li v-for="item in group.items" :key="item.id" class="fat__item">
-                <span class="fat__item-title">{{ item.title }}</span>
+        <ul class="fat__items" aria-label="Lançamentos da fatura">
+          <li v-for="item in statement.items" :key="item.id" class="fat__item">
+            <span class="fat__item-date">{{ formatFullDate(item.purchaseDate) }}</span>
+            <span class="fat__item-main">
+              <span class="fat__item-topline">
+                <button
+                  type="button"
+                  class="fat__item-title"
+                  :data-testid="`cc-bill-item-title-${item.id}`"
+                  @click="emit('edit-expense', item)"
+                >
+                  {{ item.title }}
+                </button>
+                <span
+                  class="fat__category-chip"
+                  :style="{ color: categoryForItem(item).color }"
+                >
+                  {{ categoryForItem(item).name }}
+                </span>
                 <span
                   v-if="item.isInstallment && item.installmentCount"
                   class="fat__badge"
-                >{{ item.installmentCount }}x</span>
-                <span class="fat__item-spacer" />
-                <span class="fat__item-date">{{ formatDayMonth(item.purchaseDate) }}</span>
-                <span class="fat__item-amount">{{ formatCurrency(item.amount) }}</span>
-              </li>
-            </ul>
-          </div>
-        </div>
+                >
+                  {{ item.installmentCount }}x
+                </span>
+                <span v-if="item.isRecurring" class="fat__recurring">
+                  Recorrente
+                </span>
+              </span>
+              <button
+                type="button"
+                class="fat__sync"
+                @click="emit('edit-expense', item)"
+              >
+                <UiIcon name="transactions" :size="12" /> Também em Transações
+              </button>
+            </span>
+            <span class="fat__item-amount">{{ formatExpenseAmount(item.amount) }}</span>
+            <span class="fat__item-actions" aria-label="Ações do lançamento">
+              <button
+                type="button"
+                class="fat__icon-button"
+                :data-testid="`cc-bill-item-edit-${item.id}`"
+                aria-label="Editar despesa"
+                title="Editar despesa"
+                @click="emit('edit-expense', item)"
+              >
+                <UiIcon name="edit" :size="15" />
+              </button>
+              <button
+                type="button"
+                class="fat__icon-button"
+                :data-testid="`cc-bill-item-duplicate-${item.id}`"
+                aria-label="Duplicar despesa"
+                title="Duplicar despesa"
+                @click="emit('duplicate-expense', item)"
+              >
+                <UiIcon name="copy" :size="15" />
+              </button>
+              <button
+                type="button"
+                class="fat__icon-button fat__icon-button--danger"
+                :data-testid="`cc-bill-item-delete-${item.id}`"
+                aria-label="Remover despesa"
+                title="Remover despesa"
+                @click="emit('delete-expense', item)"
+              >
+                <UiIcon name="trash" :size="15" />
+              </button>
+            </span>
+          </li>
+        </ul>
       </section>
 
       <p v-else class="fat__empty">Nenhum lançamento nesta fatura.</p>
@@ -311,8 +403,8 @@ const trendColor = computed<string>(() => {
   color: var(--color-brand-500);
 }
 .fat__status--closed {
-  background: rgba(22, 163, 74, 0.14);
-  color: #16a34a;
+  background: var(--color-positive-bg);
+  color: var(--color-positive);
 }
 .fat__meta {
   font-size: var(--font-size-sm);
@@ -330,38 +422,6 @@ const trendColor = computed<string>(() => {
   font-weight: var(--font-weight-bold);
   color: var(--color-text-primary);
 }
-.fat__groups {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-.fat__group-head {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-bottom: 4px;
-}
-.fat__dot {
-  width: 9px;
-  height: 9px;
-  border-radius: var(--radius-xs);
-  flex-shrink: 0;
-}
-.fat__group-name {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-}
-.fat__group-line {
-  flex: 1;
-  border-bottom: 1px dashed var(--color-outline-soft);
-}
-.fat__group-total {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
-}
 .fat__items {
   display: flex;
   flex-direction: column;
@@ -373,32 +433,130 @@ const trendColor = computed<string>(() => {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 7px 4px;
+  padding: 15px 6px;
+  border-bottom: 1px solid var(--color-outline-soft);
+}
+.fat__item:last-child {
+  border-bottom: 0;
 }
 .fat__item-title {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-body);
   font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
+  transition: color 0.15s ease, text-decoration-color 0.15s ease;
 }
-.fat__badge {
-  padding: 1px 7px;
+.fat__item-title:hover,
+.fat__item-title:focus-visible {
+  color: var(--color-brand-500);
+  text-decoration: underline;
+  outline: none;
+}
+.fat__item-main {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.fat__item-topline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.fat__category-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
   border-radius: var(--radius-full);
   background: var(--color-bg-elevated);
   font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+.fat__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-elevated);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-muted);
 }
-.fat__item-spacer {
-  flex: 1;
-}
 .fat__item-date {
+  width: 82px;
+  flex: none;
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
 }
 .fat__item-amount {
+  min-width: 126px;
+  text-align: right;
   font-family: var(--font-mono);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
+  color: var(--color-negative);
+  white-space: nowrap;
+}
+.fat__sync {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  align-self: flex-start;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--color-brand-500);
+  cursor: pointer;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+.fat__sync:hover,
+.fat__sync:focus-visible {
+  text-decoration: underline;
+  outline: none;
+}
+.fat__recurring {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+.fat__item-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.fat__icon-button {
+  width: 34px;
+  height: 34px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--color-outline-soft);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.fat__icon-button:hover,
+.fat__icon-button:focus-visible {
+  border-color: var(--color-brand-500);
+  background: var(--color-bg-elevated);
+  color: var(--color-brand-500);
+  outline: none;
+}
+.fat__icon-button--danger:hover,
+.fat__icon-button--danger:focus-visible {
+  border-color: var(--color-negative);
+  background: var(--color-negative-bg);
+  color: var(--color-negative);
 }
 .fat__empty {
   margin: 0;
@@ -409,6 +567,16 @@ const trendColor = computed<string>(() => {
 @media (max-width: 980px) {
   .fat {
     grid-template-columns: 1fr;
+  }
+  .fat__item {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .fat__item-date {
+    width: auto;
+  }
+  .fat__item-amount {
+    margin-left: auto;
   }
 }
 </style>
