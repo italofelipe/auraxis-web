@@ -391,6 +391,10 @@ export default defineNuxtConfig({
   // Only public SSG routes are included — private SPA routes are excluded.
   // Locale alternates are injected automatically by @nuxtjs/i18n integration.
   sitemap: {
+    // Disable the decorative XSL route. The XML sitemap remains intact, and
+    // this avoids a transitive @nuxtjs/seo mismatch where sitemap v7 imports a
+    // nuxt-site-config v3 server composable while og-image pulls v4.
+    xsl: false,
     // Explicitly exclude private SPA routes (ssr: false in routeRules).
     // @nuxtjs/sitemap normally skips them, but listing is belt-and-suspenders.
     exclude: [
