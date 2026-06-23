@@ -63,7 +63,11 @@ pnpm test
 pnpm test:coverage
 pnpm quality-check
 pnpm build
+bash scripts/run_ci_like_actions_local.sh --local --with-e2e
 ```
+
+O gate local com `--with-e2e` executa Playwright com `CI=true`, espelhando o
+workflow remoto: `chromium` e `mobile-chrome`.
 
 ## Notas importantes
 

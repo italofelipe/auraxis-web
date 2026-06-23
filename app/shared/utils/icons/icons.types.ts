@@ -38,5 +38,9 @@ export type AuraxisIconName =
   | "chevronLeft"
   | "creditCard"
   | "clock"
+  | "edit"
+  | "copy"
+  | "trash"
+  | "sync"
 
 export type IconMap = Record<AuraxisIconName, LucideIcon>

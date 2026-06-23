@@ -9,6 +9,8 @@ describe("Insights page — deep link and source surface", () => {
     expect(source).toContain("useRoute()");
     expect(source).toContain("route.query.open");
     expect(source).toContain("selectedInsightId");
+    expect(source).toContain("showFluidaReading");
+    expect(source).toContain("!requestedOpenInsightId.value");
     expect(source).toContain("Relatório global");
     expect(source).toContain("Histórico de insights gerados");
   });

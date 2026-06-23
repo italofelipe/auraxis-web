@@ -74,6 +74,7 @@ Regras editoriais:
 - Rotas autenticadas continuam `ssr: false` e fora do sitemap para evitar HTML estatico de superficie privada.
 - `/privacy` e `/terms` sao as rotas canonicas legais. `/privacy-policy` e `/terms-of-service` continuam como compatibilidade, com canonical apontando para as novas rotas.
 - Slugs comerciais antigos (`/controle-de-financas`, `/controle-de-gastos`, `/planejador-financeiro`, `/analises-financeiras`) redirecionam para o novo cluster canonico equivalente.
+- A folha XSL decorativa do sitemap fica desativada (`sitemap.xsl=false`). O XML continua publicado em `/sitemap.xml`; a rota XSL era apenas visual e conflitava com versões transitivas diferentes de `nuxt-site-config`.
 
 ## Search Console E Bing
 

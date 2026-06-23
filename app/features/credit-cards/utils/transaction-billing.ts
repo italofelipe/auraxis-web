@@ -20,6 +20,8 @@ const MONTH_ABBR_PT = [
  * coagido para number. Forma de domínio consumida pelas agregações e views.
  */
 export interface EnrichedTransaction {
+  /** Registro canônico de Transações usado para editar/duplicar/remover. */
+  readonly transaction: TransactionDto;
   readonly id: string;
   readonly title: string;
   readonly amount: number;
@@ -32,6 +34,7 @@ export interface EnrichedTransaction {
   readonly isInstallment: boolean;
   readonly installmentCount: number | null;
   readonly installmentGroupId: string | null;
+  readonly isRecurring: boolean;
   readonly status: string;
 }
 
@@ -78,6 +81,7 @@ export const enrichCardTransactions = (
       }
 
       return {
+        transaction: tx,
         id: tx.id,
         title: tx.title,
         amount: toAmount(tx.amount),
@@ -88,6 +92,7 @@ export const enrichCardTransactions = (
         isInstallment: tx.is_installment,
         installmentCount: tx.installment_count,
         installmentGroupId: tx.installment_group_id,
+        isRecurring: tx.is_recurring,
         status: tx.status,
       };
     });

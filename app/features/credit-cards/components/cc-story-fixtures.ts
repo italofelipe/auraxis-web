@@ -1,5 +1,6 @@
 import type { CreditCardDto } from "../contracts/credit-card.dto";
 import type { TagDto } from "~/features/tags/contracts/tag.dto";
+import type { TransactionDto } from "~/features/transactions/contracts/transaction.dto";
 import type { EnrichedTransaction } from "../utils/transaction-billing";
 
 /** Cartões fictícios para stories. */
@@ -28,8 +29,10 @@ let sequence = 0;
  */
 const etx = (partial: Partial<EnrichedTransaction>): EnrichedTransaction => {
   sequence += 1;
+  const id = `tx-${sequence}`;
   return {
-    id: `tx-${sequence}`,
+    transaction: { id } as TransactionDto,
+    id,
     title: "Compra",
     amount: 100,
     purchaseDate: "2026-06-12",
@@ -39,6 +42,7 @@ const etx = (partial: Partial<EnrichedTransaction>): EnrichedTransaction => {
     isInstallment: false,
     installmentCount: null,
     installmentGroupId: null,
+    isRecurring: false,
     status: "pending",
     ...partial,
   };

@@ -14,20 +14,27 @@ import { useCreditCardsQuery } from "~/features/credit-cards/queries/use-credit-
 import { useCreateCreditCardMutation } from "~/features/credit-cards/queries/use-create-credit-card-mutation";
 import { useUpdateCreditCardMutation } from "~/features/credit-cards/queries/use-update-credit-card-mutation";
 import { useDeleteCreditCardMutation } from "~/features/credit-cards/queries/use-delete-credit-card-mutation";
+import { useCreateTransactionMutation } from "~/features/transactions/queries/use-create-transaction-mutation";
+import { useDeleteTransactionMutation } from "~/features/transactions/queries/use-delete-transaction-mutation";
+import type { TransactionDto } from "~/features/transactions/contracts/transaction.dto";
+import { buildDuplicatePayload } from "~/features/transactions/composables/useTransactionActions";
 import {
   type CreditCardsView,
   useCreditCardsViewState,
 } from "~/features/credit-cards/composables/useCreditCardsViewState";
 import { useCreditCardsStatement } from "~/features/credit-cards/composables/useCreditCardsStatement";
 import { useCreditCardsAnalytics } from "~/features/credit-cards/composables/useCreditCardsAnalytics";
+import type { EnrichedTransaction } from "~/features/credit-cards/utils/transaction-billing";
 import FaturasView from "~/features/credit-cards/components/FaturasView.vue";
 import AnaliticoView from "~/features/credit-cards/components/AnaliticoView.vue";
-import CreditCardExpenseSheet from "~/features/credit-cards/components/CreditCardExpenseSheet.vue";
+import CreditCardExpenseModal from "~/features/credit-cards/components/CreditCardExpenseModal.vue";
 import CreditCardForm from "~/features/credit-cards/components/CreditCardForm.vue";
 import AiInsightSurface from "~/features/ai-insights/components/AiInsightSurface.vue";
+import { useToast } from "~/composables/useToast";
 
 const { t } = useI18n();
 const queryClient = useQueryClient();
+const toast = useToast();
 
 definePageMeta({
   middleware: ["authenticated", "coming-soon"],
@@ -41,6 +48,8 @@ const { data: creditCards, isLoading } = useCreditCardsQuery();
 const createMutation = useCreateCreditCardMutation();
 const updateMutation = useUpdateCreditCardMutation();
 const deleteMutation = useDeleteCreditCardMutation();
+const duplicateTransactionMutation = useCreateTransactionMutation();
+const deleteTransactionMutation = useDeleteTransactionMutation();
 
 const cards = computed<CreditCardDto[]>(() => creditCards.value ?? []);
 
@@ -63,8 +72,10 @@ const selectedCard = computed<CreditCardDto | null>(
 const showModal = ref(false);
 const editingCard = ref<CreditCardDto | null>(null);
 const deleteTarget = ref<CreditCardDto | null>(null);
-const expenseDrawerVisible = ref(false);
+const expenseModalVisible = ref(false);
+const expenseModalTransaction = ref<TransactionDto | null>(null);
 const expensePresetCardId = ref<string | null>(null);
+const expenseDeleteTarget = ref<TransactionDto | null>(null);
 
 const submitting = computed<boolean>(
   () => createMutation.isPending.value || updateMutation.isPending.value,
@@ -131,19 +142,123 @@ const confirmDelete = async (): Promise<void> => {
   deleteTarget.value = null;
 };
 
+type ExpenseActionTarget = EnrichedTransaction | TransactionDto;
+
+/**
+ * Normaliza um alvo de ação vindo da fatura ou do modal para a transação canônica.
+ *
+ * @param target Item enriquecido da fatura ou DTO de transação.
+ * @returns Transação fonte.
+ */
+const transactionFromExpenseTarget = (target: ExpenseActionTarget): TransactionDto =>
+  "transaction" in target ? target.transaction : target;
+
+/**
+ * Resolve o cartão associado a um alvo de despesa.
+ *
+ * @param target Item enriquecido da fatura ou DTO de transação.
+ * @returns Id do cartão, quando houver.
+ */
+const cardIdFromExpenseTarget = (target: ExpenseActionTarget): string | null =>
+  "transaction" in target
+    ? target.creditCardId ?? target.transaction.credit_card_id
+    : target.credit_card_id;
+
 /**
  * Abre o lançador de despesa, pré-selecionando o cartão atual quando houver.
  */
 const openExpense = (): void => {
+  expenseModalTransaction.value = null;
   expensePresetCardId.value = selectedCard.value?.id ?? selectedCardId.value ?? null;
-  expenseDrawerVisible.value = true;
+  expenseModalVisible.value = true;
 };
 
-/** Invalida as queries adjacentes após lançar uma despesa. */
-const onExpenseCreated = (): void => {
+/**
+ * Abre o modal de detalhes/edição para um lançamento da fatura.
+ *
+ * @param item Lançamento enriquecido com a transação fonte.
+ */
+const openExpenseEdit = (item: EnrichedTransaction): void => {
+  expenseModalTransaction.value = item.transaction;
+  expensePresetCardId.value = item.creditCardId ?? item.transaction.credit_card_id;
+  expenseModalVisible.value = true;
+};
+
+/** Invalida as queries adjacentes após mutações de despesa/transação. */
+const invalidateTransactionSurfaces = (): void => {
   void queryClient.invalidateQueries({ queryKey: ["credit-cards"] });
   void queryClient.invalidateQueries({ queryKey: ["transactions"] });
   void queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+};
+
+/**
+ * Trata salvamento feito pelo modal de despesa.
+ *
+ * @param mode Modo salvo pelo modal.
+ */
+const onExpenseSaved = (mode: "created" | "updated"): void => {
+  invalidateTransactionSurfaces();
+  toast.success(
+    mode === "created"
+      ? "Despesa lançada e sincronizada com Transações"
+      : "Despesa atualizada em Cartões e Transações",
+  );
+};
+
+/**
+ * Duplica uma despesa criando uma nova transação com sufixo "(cópia)".
+ *
+ * @param target Item da fatura ou transação do modal.
+ */
+const duplicateExpense = (target: ExpenseActionTarget): void => {
+  const transaction = transactionFromExpenseTarget(target);
+  duplicateTransactionMutation.mutate(buildDuplicatePayload(transaction), {
+    onSuccess: () => {
+      expenseModalVisible.value = false;
+      invalidateTransactionSurfaces();
+      toast.success("Despesa duplicada");
+    },
+  });
+};
+
+/**
+ * Abre a confirmação de remoção de uma despesa/transação.
+ *
+ * @param target Item da fatura ou transação do modal.
+ */
+const requestRemoveExpense = (target: ExpenseActionTarget): void => {
+  const transaction = transactionFromExpenseTarget(target);
+  expensePresetCardId.value = cardIdFromExpenseTarget(target);
+  expenseDeleteTarget.value = transaction;
+};
+
+/** Fecha a confirmação de remoção da despesa quando não há mutação pendente. */
+const cancelExpenseDelete = (): void => {
+  if (!deleteTransactionMutation.isPending.value) {
+    expenseDeleteTarget.value = null;
+  }
+};
+
+/** Remove a despesa confirmada da fatura e de Transações. */
+const confirmExpenseDelete = (): void => {
+  if (!expenseDeleteTarget.value) {
+    return;
+  }
+  const deletedTransactionId = expenseDeleteTarget.value.id;
+  deleteTransactionMutation.mutate(
+    { id: deletedTransactionId, scope: "occurrence" },
+    {
+      onSuccess: () => {
+        expenseDeleteTarget.value = null;
+        if (expenseModalTransaction.value?.id === deletedTransactionId) {
+          expenseModalVisible.value = false;
+          expenseModalTransaction.value = null;
+        }
+        invalidateTransactionSurfaces();
+        toast.success("Despesa removida de Cartões e Transações");
+      },
+    },
+  );
 };
 </script>
 
@@ -202,6 +317,9 @@ const onExpenseCreated = (): void => {
         @add-card="openCreate"
         @edit-card="openEdit"
         @delete-card="openDeleteConfirm"
+        @edit-expense="openExpenseEdit"
+        @duplicate-expense="duplicateExpense"
+        @delete-expense="requestRemoveExpense"
       />
       <AnaliticoView
         v-else
@@ -265,10 +383,47 @@ const onExpenseCreated = (): void => {
       </template>
     </NModal>
 
-    <CreditCardExpenseSheet
-      v-model:visible="expenseDrawerVisible"
+    <NModal
+      :show="expenseDeleteTarget !== null"
+      preset="dialog"
+      type="error"
+      title="Remover despesa?"
+      style="width: min(420px, calc(100vw - 32px))"
+      :mask-closable="!deleteTransactionMutation.isPending.value"
+      :close-on-esc="!deleteTransactionMutation.isPending.value"
+      @close="cancelExpenseDelete"
+    >
+      <p class="cc-delete-copy">
+        <strong>{{ expenseDeleteTarget?.title }}</strong> será removida desta fatura
+        e das Transações. Esta ação não pode ser desfeita.
+      </p>
+      <template #action>
+        <NButton
+          tertiary
+          data-testid="cc-expense-delete-cancel"
+          :disabled="deleteTransactionMutation.isPending.value"
+          @click="cancelExpenseDelete"
+        >
+          Cancelar
+        </NButton>
+        <NButton
+          type="error"
+          data-testid="cc-expense-delete-confirm"
+          :loading="deleteTransactionMutation.isPending.value"
+          @click="confirmExpenseDelete"
+        >
+          Remover
+        </NButton>
+      </template>
+    </NModal>
+
+    <CreditCardExpenseModal
+      v-model:visible="expenseModalVisible"
+      :transaction="expenseModalTransaction"
       :preset-credit-card-id="expensePresetCardId"
-      @success="onExpenseCreated"
+      @saved="onExpenseSaved"
+      @duplicate="duplicateExpense"
+      @remove="requestRemoveExpense"
     />
   </div>
 </template>

@@ -46,6 +46,8 @@ export interface StatementViewModel {
   readonly status: BillStatusVM | null;
   readonly closingDate: string | null;
   readonly dueDate: string | null;
+  /** Lançamentos da fatura no mês, ordenados para leitura operacional. */
+  readonly items: readonly EnrichedTransaction[];
   readonly categories: readonly CategoryGroup[];
   readonly monthlyTrend: readonly MonthlyTrendPoint[];
   readonly utilizationPct: number | null;
@@ -203,10 +205,29 @@ const resolveStatementUtilization = (
 };
 
 /**
+ * Ordena lançamentos da fatura do mais recente para o mais antigo, mantendo uma
+ * ordem estável por título quando datas empatam.
+ *
+ * @param transactions Transações já filtradas para o mês/escopo.
+ * @returns Nova lista ordenada para renderização.
+ */
+const sortStatementItems = (
+  transactions: readonly EnrichedTransaction[],
+): EnrichedTransaction[] =>
+  [...transactions].sort((a, b) => {
+    const dateOrder = b.purchaseDate.localeCompare(a.purchaseDate);
+    if (dateOrder !== 0) {
+      return dateOrder;
+    }
+    return a.title.localeCompare(b.title, "pt-BR");
+  });
+
+/**
  * Monta o view-model da visão Faturas a partir dos dados já carregados.
  *
- * Para cartão único usa os números oficiais da fatura/utilização do backend;
- * para o consolidado ("Todos") agrega as transações da janela.
+ * Totais, contagem e linhas são sempre derivados das transações sincronizadas.
+ * Para cartão único ainda reaproveita ciclo/status/utilização oficiais quando
+ * disponíveis; para o consolidado ("Todos") agrega as transações da janela.
  *
  * @param params Dados e seleção atuais.
  * @returns View-model da visão Faturas.
@@ -216,6 +237,7 @@ export const buildStatement = (params: StatementParams): StatementViewModel => {
   const scoped = filterByCard(params.transactions, params.cardId);
   const monthTxs = filterByBillMonth(scoped, params.month);
   const aggregatedTotal = sumAmount(monthTxs);
+  const statementItems = sortStatementItems(monthTxs);
 
   const isSingleCard = params.cardId !== null;
   const card = isSingleCard
@@ -238,11 +260,12 @@ export const buildStatement = (params: StatementParams): StatementViewModel => {
     month: params.month,
     monthLabel: monthKeyLabel(params.month),
     cardId: params.cardId,
-    total: bill ? bill.totalAmount : aggregatedTotal,
-    itemCount: bill ? bill.transactions.length : monthTxs.length,
+    total: aggregatedTotal,
+    itemCount: statementItems.length,
     status: cycle.status,
     closingDate: cycle.closingDate,
     dueDate: cycle.dueDate,
+    items: statementItems,
     categories: groupByCategory(monthTxs, params.tags),
     monthlyTrend,
     utilizationPct: resolveStatementUtilization(params, limitAmount, aggregatedTotal),
