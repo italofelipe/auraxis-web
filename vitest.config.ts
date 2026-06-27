@@ -101,6 +101,17 @@ const nuxtConfig = defineVitestConfig({
       "**/.output/**",
       "**/e2e/**",
     ],
+
+    // CI: limita os forks paralelos para baixar o pico de memória e evitar
+    // "[vitest-pool]: Worker forks emitted error / Worker exited unexpectedly"
+    // — worker fork morto por pressão de memória no runner (sem "JS heap out of
+    // memory", logo OOM do container, não do heap V8). Era flaky no job
+    // SonarCloud, que regenera o coverage com `pnpm test:coverage`. Localmente
+    // (sem `CI`) mantém paralelismo total. Ver PR #1086.
+    pool: "forks",
+    poolOptions: {
+      forks: process.env.CI ? { maxForks: 2, minForks: 1 } : {},
+    },
   },
 });
 
