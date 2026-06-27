@@ -107,7 +107,7 @@ const chips = computed(() => [
   padding: 7px 13px;
   border-radius: var(--radius-full);
   background: color-mix(in srgb, var(--color-positive) 14%, var(--color-bg-surface));
-  color: var(--color-positive);
+  color: var(--color-positive-dark);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
 }
