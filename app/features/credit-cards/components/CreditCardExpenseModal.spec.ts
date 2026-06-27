@@ -247,7 +247,7 @@ describe("CreditCardExpenseModal", () => {
     );
   });
 
-  it("creates a new expense transaction with the preset credit card", async () => {
+  it("anchors a new expense to the current bill month by default", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-06-15T09:00:00"));
 
@@ -268,8 +268,56 @@ describe("CreditCardExpenseModal", () => {
         title: "Nova compra",
         amount: "55.50",
         type: "expense",
-        due_date: "2026-06-15",
+        // Competência = mês atual; cartão de teste sem ciclo → dia 1 do mês.
+        due_date: "2026-06-01",
         credit_card_id: "cc-1",
+      }),
+      expect.any(Object),
+    );
+  });
+
+  it("anchors a new expense to the navigated month prop", async () => {
+    const wrapper = mount(CreditCardExpenseModal, {
+      props: {
+        visible: true,
+        transaction: null,
+        presetCreditCardId: "cc-1",
+        month: "2026-04",
+      },
+    });
+
+    await wrapper.get("[data-testid='cc-expense-title']").setValue("Compra de abril");
+    await wrapper.get("[data-testid='money-input']").setValue("100");
+    await wrapper.get("[data-testid='cc-expense-modal-submit']").trigger("click");
+
+    expect(createMutate).toHaveBeenCalledWith(
+      expect.objectContaining({ title: "Compra de abril", due_date: "2026-04-01" }),
+      expect.any(Object),
+    );
+  });
+
+  it("sends installment fields when the expense is split", async () => {
+    const wrapper = mount(CreditCardExpenseModal, {
+      props: {
+        visible: true,
+        transaction: null,
+        presetCreditCardId: "cc-1",
+        month: "2026-01",
+      },
+    });
+
+    await wrapper.get("[data-testid='cc-expense-title']").setValue("Notebook");
+    await wrapper.get("[data-testid='money-input']").setValue("1000");
+    await wrapper.get("[data-testid='cc-expense-installment-toggle']").setValue(true);
+    await wrapper.get("[data-testid='cc-expense-modal-submit']").trigger("click");
+
+    expect(createMutate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Notebook",
+        amount: "1000.00",
+        is_installment: true,
+        installment_count: 2,
+        due_date: "2026-01-01",
       }),
       expect.any(Object),
     );
