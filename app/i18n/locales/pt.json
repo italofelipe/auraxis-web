@@ -1119,7 +1119,44 @@
       "submitLoading": "Entrando...",
       "noAccount": "Não tem conta?",
       "createAccount": "Criar conta gratuita",
-      "metaDescription": "Faça login na Auraxis para acessar seu painel de investimentos."
+      "metaDescription": "Faça login na Auraxis para acessar seu painel de investimentos.",
+      "rememberMe": "Manter conectado",
+      "hero": {
+        "badge": "Bom te ver de volta",
+        "headline": "Organize suas finanças com clareza.",
+        "subtitle": "Entre para acompanhar seu mês, revisar movimentações, cumprir metas e transformar dados financeiros em decisões mais tranquilas.",
+        "ctaCreate": "Criar conta gratuita",
+        "ctaRecover": "Recuperar acesso"
+      },
+      "chips": {
+        "month": "Seu mês em ordem",
+        "goals": "Metas que saem do papel",
+        "insights": "Insights com consentimento"
+      },
+      "summary": {
+        "month": "Maio de 2026",
+        "title": "Resumo financeiro",
+        "balanceLabel": "Saldo previsto",
+        "balanceValue": "R$ 8.420",
+        "reserveLabel": "Meta reserva",
+        "reserveValue": "78%",
+        "alertsLabel": "Atenções",
+        "alertsValue": "3",
+        "insightLabel": "Insight recente.",
+        "insightText": "Despesas fixas subiram 8% neste mês. Vale revisar assinaturas antes do fechamento.",
+        "protected": "Dados protegidos"
+      }
+    },
+    "topbar": {
+      "signIn": "Entrar",
+      "createAccount": "Criar conta"
+    },
+    "footer": {
+      "copyright": "© 2026 Auraxis · Precision Layered Analytics",
+      "blog": "Blog",
+      "privacy": "Privacidade",
+      "terms": "Termos de Uso",
+      "cookies": "Cookies"
     },
     "register": {
       "title": "Criar conta",
