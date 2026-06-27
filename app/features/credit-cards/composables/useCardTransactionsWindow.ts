@@ -2,7 +2,7 @@ import { type ComputedRef, type MaybeRefOrGetter, computed, toValue } from "vue"
 
 import type { TagDto } from "~/features/tags/contracts/tag.dto";
 import { useTagsQuery } from "~/features/tags/queries/use-tags-query";
-import { useListTransactionsQuery } from "~/features/transactions/queries/use-list-transactions-query";
+import { useListAllTransactionsQuery } from "~/features/transactions/queries/use-list-all-transactions-query";
 
 import type { CreditCardDto } from "../contracts/credit-card.dto";
 import { useCreditCardsQuery } from "../queries/use-credit-cards-query";
@@ -32,6 +32,11 @@ export interface CardTransactionsWindow {
  * de fatura. Compartilhado por Faturas e Analítico — a mesma queryKey é deduzida
  * pelo Vue Query, evitando refetch ao alternar de visão.
  *
+ * Usa `useListAllTransactionsQuery` (todas as páginas), não a versão paginada:
+ * o gráfico de tendência, o rail de totais e o consolidado "Todos" precisam do
+ * conjunto COMPLETO da janela. Carregar só a 1ª página zera cartões cujas
+ * transações de fatura caem em páginas posteriores (issue #1083).
+ *
  * @param month Mês selecionado (YYYY-MM), reativo.
  * @returns Dados reativos da janela.
  */
@@ -46,7 +51,7 @@ export const useCardTransactionsWindow = (
     start_date: billWindowStartDate(toValue(month), CREDIT_CARDS_WINDOW_MONTHS),
     end_date: monthEndDate(toValue(month)),
   }));
-  const transactionsQuery = useListTransactionsQuery(filters);
+  const transactionsQuery = useListAllTransactionsQuery(filters);
 
   const cards = computed<CreditCardDto[]>(() => cardsQuery.data.value ?? []);
   const tags = computed<TagDto[]>(() => tagsQuery.data.value ?? []);

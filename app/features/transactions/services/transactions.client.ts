@@ -27,6 +27,14 @@ interface TransactionCreateResponseEnvelope {
   readonly transactions?: TransactionDto | TransactionDto[];
 }
 
+/** Bloco de paginação retornado em `meta.pagination` pela API v2. */
+interface PaginationMeta {
+  readonly page: number;
+  readonly pages: number;
+  readonly per_page: number;
+  readonly total: number;
+}
+
 /**
  * Raw envelope returned by GET /transactions.
  *
@@ -38,7 +46,13 @@ interface TransactionListResponseEnvelope {
     readonly transactions?: TransactionDto[];
   };
   readonly transactions?: TransactionDto[];
+  readonly meta?: {
+    readonly pagination?: PaginationMeta;
+  };
 }
+
+/** Tamanho de página usado ao varrer todas as páginas (`listAllTransactions`). */
+const LIST_ALL_PER_PAGE = 100;
 
 /** Optional filters accepted by GET /transactions. */
 export interface ListTransactionsFilters {
@@ -54,6 +68,10 @@ export interface ListTransactionsFilters {
   readonly tag_id?: string;
   /** Filter by credit card UUID. */
   readonly credit_card_id?: string;
+  /** 1-based page index (server-side pagination). */
+  readonly page?: number;
+  /** Page size (server-side pagination). */
+  readonly per_page?: number;
 }
 
 /**
@@ -211,6 +229,58 @@ export class TransactionsClient {
    * @returns Array of TransactionDto records.
    */
   async listTransactions(filters?: ListTransactionsFilters): Promise<TransactionDto[]> {
+    const { items } = await this.#fetchTransactionsPage(filters);
+    return items;
+  }
+
+  /**
+   * Lists the COMPLETE set of transactions for the given filters by following
+   * server-side pagination.
+   *
+   * `listTransactions` only returns the first page (the backend defaults to
+   * `per_page: 10`), which silently truncates any aggregation that assumes it
+   * holds every record in the range. This method requests a large page and,
+   * if the response reports more pages, fetches the remainder and concatenates
+   * them in order. Use it whenever correctness depends on having all records
+   * (e.g. the credit-cards billing window).
+   *
+   * @param filters Optional query-parameter filters.
+   * @returns Every TransactionDto matching the filters, across all pages.
+   */
+  async listAllTransactions(filters?: ListTransactionsFilters): Promise<TransactionDto[]> {
+    const first = await this.#fetchTransactionsPage({
+      ...filters,
+      page: 1,
+      per_page: LIST_ALL_PER_PAGE,
+    });
+
+    if (first.pages <= 1) {
+      return first.items;
+    }
+
+    const remaining = await Promise.all(
+      Array.from({ length: first.pages - 1 }, (_unused, index) =>
+        this.#fetchTransactionsPage({
+          ...filters,
+          page: index + 2,
+          per_page: LIST_ALL_PER_PAGE,
+        }).then((page) => page.items),
+      ),
+    );
+
+    return [first.items, ...remaining].flat();
+  }
+
+  /**
+   * Fetches a single page of GET /transactions, normalising the envelope and
+   * extracting the pagination page count.
+   *
+   * @param filters Query-parameter filters (may include `page`/`per_page`).
+   * @returns The page's transactions and the total number of pages (>= 1).
+   */
+  async #fetchTransactionsPage(
+    filters?: ListTransactionsFilters,
+  ): Promise<{ items: TransactionDto[]; pages: number }> {
     const response = await this.#http.get<TransactionListResponseEnvelope | TransactionDto[]>(
       "/transactions",
       { params: filters },
@@ -219,12 +289,13 @@ export class TransactionsClient {
     const raw = response.data;
 
     if (Array.isArray(raw)) {
-      return raw;
+      return { items: raw, pages: 1 };
     }
 
-    return (raw as TransactionListResponseEnvelope).data?.transactions
-      ?? (raw as TransactionListResponseEnvelope).transactions
-      ?? [];
+    const envelope = raw as TransactionListResponseEnvelope;
+    const items = envelope.data?.transactions ?? envelope.transactions ?? [];
+    const pages = envelope.meta?.pagination?.pages ?? 1;
+    return { items, pages };
   }
 }
 
