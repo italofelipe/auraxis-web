@@ -421,6 +421,7 @@ const confirmExpenseDelete = (): void => {
       v-model:visible="expenseModalVisible"
       :transaction="expenseModalTransaction"
       :preset-credit-card-id="expensePresetCardId"
+      :month="month"
       @saved="onExpenseSaved"
       @duplicate="duplicateExpense"
       @remove="requestRemoveExpense"

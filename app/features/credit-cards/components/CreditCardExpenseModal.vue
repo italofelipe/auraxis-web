@@ -29,6 +29,13 @@ import { useTagsQuery } from "~/features/tags/queries/use-tags-query";
 import { useAccountsQuery } from "~/features/accounts/queries/use-accounts-query";
 import { useCreditCardsQuery } from "~/features/credit-cards/queries/use-credit-cards-query";
 import type { CreditCardDto } from "~/features/credit-cards/contracts/credit-card.dto";
+import { dueDateForBillMonth } from "~/features/credit-cards/model/bill-competence";
+import {
+  type DistributionChip,
+  buildDistribution,
+} from "~/features/credit-cards/model/installment-plan";
+import { currentMonthKey } from "~/features/credit-cards/composables/useCreditCardsViewState";
+import { monthKeyLabel } from "~/features/credit-cards/utils/transaction-billing";
 import { resolveCardTheme } from "~/features/credit-cards/utils/card-brand-theme";
 import {
   parseCurrencyAmount,
@@ -42,6 +49,8 @@ const props = defineProps<{
   readonly transaction: TransactionDto | null;
   /** Credit card selected in the invoice, preselected for new expenses. */
   readonly presetCreditCardId: string | null;
+  /** Navigated bill month (YYYY-MM); anchors new expenses. Defaults to current month. */
+  readonly month?: string;
 }>();
 
 const emit = defineEmits<{
@@ -55,11 +64,15 @@ interface ExpenseFormState {
   title: string;
   amount: number | null;
   dueDate: number | null;
+  /** Bill competence month (timestamp of month start) — drives `dueDate` on create. */
+  billMonthTs: number | null;
   tagId: string | null;
   accountId: string | null;
   creditCardId: string | null;
   status: TransactionStatusDto;
   isRecurring: boolean;
+  isInstallment: boolean;
+  installments: number;
   description: string;
 }
 
@@ -68,11 +81,14 @@ const form = reactive<ExpenseFormState>({
   title: "",
   amount: null,
   dueDate: null,
+  billMonthTs: null,
   tagId: null,
   accountId: null,
   creditCardId: null,
   status: "pending",
   isRecurring: false,
+  isInstallment: false,
+  installments: 2,
   description: "",
 });
 
@@ -101,6 +117,25 @@ const statusOptions: SelectOption[] = [
   { label: "Postergado", value: "postponed" },
   { label: "Vencido", value: "overdue" },
 ];
+
+/** Opções de número de parcelas (2x a 24x). */
+const installmentOptions: SelectOption[] = Array.from({ length: 23 }, (_unused, index) => ({
+  label: `${index + 2}x`,
+  value: index + 2,
+}));
+
+const currencyFormatter = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+});
+
+/**
+ * Formata um valor numérico como moeda BRL.
+ *
+ * @param value Valor a formatar.
+ * @returns String formatada (ex.: "R$ 1.234,56").
+ */
+const formatCurrency = (value: number): string => currencyFormatter.format(value);
 
 const rules: FormRules = {
   title: [{ required: true, message: "Informe o título da despesa.", trigger: "blur" }],
@@ -133,6 +168,26 @@ const selectedCardName = computed<string>(() => {
 
 const selectedCardColor = computed<string>(() =>
   selectedCard.value ? resolveCardTheme(selectedCard.value).color : "var(--color-brand-500)",
+);
+
+/** Mês de competência (YYYY-MM) selecionado no modo criação. */
+const billMonthKey = computed<string>(() =>
+  form.billMonthTs !== null ? tsToMonthKey(form.billMonthTs) : props.month ?? currentMonthKey(),
+);
+
+/** Rótulo extenso da fatura de competência ("maio de 2026"). */
+const billMonthLabel = computed<string>(() => monthKeyLabel(billMonthKey.value));
+
+/** Distribuição da despesa nas faturas (à vista ou parcelas), para preview. */
+const distributionChips = computed<DistributionChip[]>(() =>
+  buildDistribution({
+    mode: form.isInstallment ? "parcelado" : "avista",
+    total: form.amount ?? 0,
+    downPayment: 0,
+    hasDownPayment: false,
+    installments: form.installments,
+    startBillMonth: billMonthKey.value,
+  }),
 );
 
 const modalTitle = computed<string>(() =>
@@ -179,26 +234,54 @@ const tsToDate = (timestamp: number): string => {
 };
 
 /**
- * Today's local midnight timestamp for new expenses.
+ * Converts a YYYY-MM key to the local timestamp of the month's first day.
  *
+ * @param monthKey Month key (YYYY-MM).
  * @returns Timestamp in milliseconds.
  */
-const todayTs = (): number => {
-  const now = new Date();
-  return new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+const monthKeyToTs = (monthKey: string): number => {
+  const [year, month] = monthKey.split("-").map(Number);
+  return new Date(year ?? 1970, (month ?? 1) - 1, 1).getTime();
+};
+
+/**
+ * Converts a timestamp to its YYYY-MM month key (local).
+ *
+ * @param timestamp Milliseconds timestamp.
+ * @returns Month key (YYYY-MM).
+ */
+const tsToMonthKey = (timestamp: number): string => {
+  const date = new Date(timestamp);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+};
+
+/**
+ * Derives `form.dueDate` from the selected competence month + card cycle, so the
+ * new expense lands in the navigated month's bill (and installments cascade from
+ * there). No-op when no competence month is set.
+ */
+const deriveCreateDueDate = (): void => {
+  if (form.billMonthTs === null) {
+    return;
+  }
+  const monthKey = tsToMonthKey(form.billMonthTs);
+  form.dueDate = dateToTs(dueDateForBillMonth(selectedCard.value, monthKey));
 };
 
 /** Resets the form to the "new card expense" defaults. */
 const populateNewForm = (): void => {
   form.title = "";
   form.amount = null;
-  form.dueDate = todayTs();
+  form.billMonthTs = monthKeyToTs(props.month ?? currentMonthKey());
   form.tagId = null;
   form.accountId = null;
   form.creditCardId = props.presetCreditCardId;
   form.status = "pending";
   form.isRecurring = false;
+  form.isInstallment = false;
+  form.installments = 2;
   form.description = "";
+  deriveCreateDueDate();
 };
 
 /**
@@ -210,11 +293,14 @@ const populateEditForm = (transaction: TransactionDto): void => {
   form.title = transaction.title;
   form.amount = parseCurrencyAmount(transaction.amount);
   form.dueDate = dateToTs(transaction.due_date);
+  form.billMonthTs = null;
   form.tagId = transaction.tag_id;
   form.accountId = transaction.account_id;
   form.creditCardId = transaction.credit_card_id ?? props.presetCreditCardId;
   form.status = transaction.status;
   form.isRecurring = transaction.is_recurring;
+  form.isInstallment = false;
+  form.installments = 2;
   form.description = transaction.description ?? "";
 };
 
@@ -233,6 +319,17 @@ watch(
   { immediate: true },
 );
 
+// No modo criação, re-deriva a data sempre que a competência ou o cartão mudam,
+// mantendo a despesa ancorada à fatura do mês escolhido.
+watch(
+  () => [form.billMonthTs, form.creditCardId] as const,
+  () => {
+    if (props.visible && !props.transaction) {
+      deriveCreateDueDate();
+    }
+  },
+);
+
 /** Closes the modal without persisting changes. */
 const close = (): void => {
   emit("update:visible", false);
@@ -243,18 +340,32 @@ const close = (): void => {
  *
  * @returns Payload for POST/PATCH /transactions.
  */
-const buildPayload = (): CreateTransactionPayload => ({
-  title: form.title.trim(),
-  amount: serializeCurrencyAmount(form.amount),
-  type: "expense",
-  due_date: form.dueDate ? tsToDate(form.dueDate) : "",
-  status: form.status,
-  tag_id: form.tagId,
-  account_id: form.accountId,
-  credit_card_id: form.creditCardId,
-  is_recurring: form.isRecurring,
-  ...(form.description.trim() ? { description: form.description.trim() } : {}),
-});
+const buildPayload = (): CreateTransactionPayload => {
+  const base = {
+    title: form.title.trim(),
+    amount: serializeCurrencyAmount(form.amount),
+    type: "expense" as const,
+    due_date: form.dueDate ? tsToDate(form.dueDate) : "",
+    status: form.status,
+    tag_id: form.tagId,
+    account_id: form.accountId,
+    credit_card_id: form.creditCardId,
+    ...(form.description.trim() ? { description: form.description.trim() } : {}),
+  };
+
+  // Criação parcelada: o backend gera N transações (+1 mês cada, valor dividido,
+  // mesmo installment_group_id) a partir da due_date da fatura de competência.
+  // Parcelado e recorrente são mutuamente exclusivos no backend.
+  if (!props.transaction && form.isInstallment && form.installments >= 2) {
+    return {
+      ...base,
+      is_installment: true,
+      installment_count: Math.floor(form.installments),
+    };
+  }
+
+  return { ...base, is_recurring: form.isRecurring };
+};
 
 /**
  * Validates the required fields before delegating to the API mutation.
@@ -343,7 +454,7 @@ const submit = async (): Promise<void> => {
           />
         </NFormItem>
 
-        <NFormItem label="Data*" path="dueDate">
+        <NFormItem v-if="props.transaction" label="Data*" path="dueDate">
           <NDatePicker
             v-model:value="form.dueDate"
             type="date"
@@ -351,7 +462,20 @@ const submit = async (): Promise<void> => {
             style="width: 100%"
           />
         </NFormItem>
+        <NFormItem v-else label="Mês da fatura*" path="dueDate">
+          <NDatePicker
+            v-model:value="form.billMonthTs"
+            type="month"
+            format="MMM/yyyy"
+            style="width: 100%"
+            data-testid="cc-expense-bill-month"
+          />
+        </NFormItem>
       </div>
+
+      <p v-if="!props.transaction" class="cc-expense-modal__hint">
+        Entra na fatura de <strong>{{ billMonthLabel }}</strong>.
+      </p>
 
       <div class="cc-expense-modal__row">
         <NFormItem label="Categoria" path="tagId">
@@ -371,7 +495,49 @@ const submit = async (): Promise<void> => {
         <NSelect v-model:value="form.creditCardId" :options="creditCardOptions" clearable />
       </NFormItem>
 
-      <NFormItem label="Recorrente?" path="isRecurring">
+      <template v-if="!props.transaction">
+        <NFormItem label="Parcelar?" path="isInstallment">
+          <div class="cc-expense-modal__switch-row">
+            <div>
+              <strong>Dividir em parcelas</strong>
+              <span>Distribui o total nas próximas faturas, a partir do mês da fatura</span>
+            </div>
+            <NSwitch
+              v-model:value="form.isInstallment"
+              data-testid="cc-expense-installment-toggle"
+            />
+          </div>
+        </NFormItem>
+
+        <NFormItem v-if="form.isInstallment" label="Parcelas" path="installments">
+          <NSelect
+            v-model:value="form.installments"
+            :options="installmentOptions"
+            data-testid="cc-expense-installments"
+          />
+        </NFormItem>
+
+        <div v-if="form.isInstallment" class="cc-expense-modal__distribution">
+          <span class="cc-expense-modal__distribution-label">Distribuição nas faturas</span>
+          <div class="cc-expense-modal__chips">
+            <span
+              v-for="chip in distributionChips"
+              :key="chip.key"
+              class="cc-expense-modal__chip"
+            >
+              <span class="cc-expense-modal__chip-label">{{ chip.label }}</span>
+              <span class="cc-expense-modal__chip-sub">{{ chip.sub }}</span>
+              <span class="cc-expense-modal__chip-value">{{ formatCurrency(chip.value) }}</span>
+            </span>
+          </div>
+        </div>
+      </template>
+
+      <NFormItem
+        v-if="props.transaction || !form.isInstallment"
+        label="Recorrente?"
+        path="isRecurring"
+      >
         <div class="cc-expense-modal__switch-row">
           <div>
             <strong>Repete esta despesa</strong>
@@ -473,6 +639,52 @@ const submit = async (): Promise<void> => {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-2);
+}
+.cc-expense-modal__hint {
+  margin: calc(-1 * var(--space-1)) 0 var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+.cc-expense-modal__hint strong {
+  color: var(--color-text-primary);
+}
+.cc-expense-modal__distribution {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+.cc-expense-modal__distribution-label {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+}
+.cc-expense-modal__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+.cc-expense-modal__chip {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2, color-mix(in srgb, var(--color-brand-500) 6%, white));
+  min-width: 72px;
+}
+.cc-expense-modal__chip-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+.cc-expense-modal__chip-sub {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+.cc-expense-modal__chip-value {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
 }
 .cc-expense-modal__switch-row {
   width: 100%;
