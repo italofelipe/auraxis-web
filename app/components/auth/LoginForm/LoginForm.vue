@@ -62,7 +62,7 @@ const isPending = computed(() => props.loading || isSubmitting.value);
       <div class="auth-card__inline-row">
         <label class="auth-card__remember" for="login-remember">
           <input id="login-remember" type="checkbox" :disabled="isPending">
-          <span>Manter conectado</span>
+          <span>{{ t('auth.login.rememberMe') }}</span>
         </label>
         <NuxtLink to="/forgot-password" class="auth-card__link">
           {{ t('auth.login.forgotPassword') }}
@@ -93,15 +93,14 @@ const isPending = computed(() => props.loading || isSubmitting.value);
 
 <style scoped>
 .auth-card {
-  border-radius: var(--radius-xl, 28px);
-  padding: var(--space-7);
+  border-radius: var(--radius-lg);
+  padding: 32px;
 }
 
 .glass {
-  background: linear-gradient(175deg, var(--color-bg-glass), var(--color-bg-surface));
+  background: var(--color-bg-surface);
   border: 1px solid var(--color-outline-soft);
-  box-shadow: var(--shadow-card);
-  backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-card-lg, 0 22px 50px rgba(13, 40, 64, 0.12));
 }
 
 .auth-card__title {

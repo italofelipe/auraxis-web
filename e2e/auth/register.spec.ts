@@ -59,7 +59,9 @@ test.describe("Auth — Register", () => {
   test("register page has a link back to login", async ({ page }) => {
     await page.goto("/register");
 
-    const loginLink = page.getByRole("link", { name: /entrar/i });
+    // A topbar (Proposta C) também expõe "Entrar"; aqui validamos o link de
+    // volta ao login dentro do formulário de cadastro (em <main>).
+    const loginLink = page.getByRole("main").getByRole("link", { name: /entrar/i });
     await expect(loginLink).toBeVisible();
     await expect(loginLink).toHaveAttribute("href", "/login");
   });
