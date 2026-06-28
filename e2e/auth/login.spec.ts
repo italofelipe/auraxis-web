@@ -54,7 +54,9 @@ test.describe("Auth — Login", () => {
   test("login page has a link to register", async ({ page }) => {
     await page.goto("/login");
 
-    const registerLink = page.getByRole("link", { name: /criar conta/i });
+    // O layout (Proposta C) também expõe "Criar conta" na topbar e no hero;
+    // aqui validamos o link dentro do card de login (em <main>).
+    const registerLink = page.getByRole("main").getByRole("link", { name: /criar conta/i });
     await expect(registerLink).toBeVisible();
     await expect(registerLink).toHaveAttribute("href", "/register");
   });
