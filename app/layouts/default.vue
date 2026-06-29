@@ -31,6 +31,7 @@ import AdminImpersonationBanner from "~/features/admin/impersonation/components/
 import EmailVerificationGate from "~/features/auth/components/EmailVerificationGate.vue";
 import OnboardingWizard from "~/features/onboarding/components/OnboardingWizard.vue";
 import OnboardingTriggerButton from "~/features/onboarding/components/OnboardingTriggerButton.vue";
+import PaymentAssistantModal from "~/features/payments-assistant/components/PaymentAssistantModal/PaymentAssistantModal.vue";
 
 const { t } = useI18n();
 const route = useRoute();
@@ -92,6 +93,14 @@ const { shouldShow: showOnboardingWizard } = onboarding;
 
 const showProfileModal = ref(false);
 const shouldHoldSecondaryModals = computed(() => sessionStore.emailConfirmed === false);
+
+/**
+ * The Payments Assistant must wait for higher-priority modals (email gate,
+ * onboarding, profile completion) to resolve before auto-opening.
+ */
+const paymentsAssistantHold = computed(
+  () => shouldHoldSecondaryModals.value || showOnboardingWizard.value || showProfileModal.value,
+);
 
 const _profileModalFlagKey = computed((): string => {
   const uid = userStore.profile?.id ?? sessionStore.userEmail ?? "guest";
@@ -171,5 +180,6 @@ function onReplayOnboarding(): void {
   </UiAppShell>
   <OnboardingWizard />
   <OnboardingTriggerButton />
+  <PaymentAssistantModal :hold="paymentsAssistantHold" />
   </div>
 </template>
