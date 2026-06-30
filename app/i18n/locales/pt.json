@@ -4232,5 +4232,38 @@
         }
       ]
     }
+  },
+  "paymentsAssistant": {
+    "title": "Pendências em aberto",
+    "progress": "{current} de {total}",
+    "emptyTitle": "Tudo em dia ✓",
+    "emptyBody": "Você não tem contas em aberto vencidas há mais de um mês.",
+    "statusHint": "Marcar aqui só atualiza o status no Auraxis — não move dinheiro de verdade.",
+    "type": {
+      "income": "Receita",
+      "expense": "Despesa"
+    },
+    "fields": {
+      "createdAt": "Criada em",
+      "dueDate": "Vencimento",
+      "observation": "Observações"
+    },
+    "actions": {
+      "payExpense": "Marcar como pago",
+      "payIncome": "Marcar como recebido",
+      "delete": "Excluir",
+      "skip": "Pular",
+      "markAllPaid": "Marcar todas como pagas",
+      "undo": "Desfazer",
+      "close": "Fechar"
+    },
+    "confirmDelete": "Excluir esta transação? Você pode desfazer logo em seguida.",
+    "toast": {
+      "paid": "Transação marcada como paga.",
+      "received": "Transação marcada como recebida.",
+      "deleted": "Transação excluída.",
+      "allPaid": "Todas as pendências foram quitadas.",
+      "undone": "Ação desfeita."
+    }
   }
 }

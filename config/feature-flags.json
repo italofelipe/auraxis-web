@@ -509,6 +509,16 @@
       "status": "enabled-prod",
       "description": "Leitura editorial \"Fluida\" da tela de Insights de IA (masthead + lead + beats). Ativada em producao apos o backend (auraxis-api #1502) entregar paragraphs/retro/series/highlights.",
       "repositories": ["auraxis-web"]
+    },
+    {
+      "key": "web.features.payments-assistant",
+      "owner": "growth",
+      "createdAt": "2026-06-29",
+      "removeBy": "2027-12-31",
+      "type": "release",
+      "status": "enabled-prod",
+      "description": "Assistente de Pagamentos: modal 1x/sessao (Premium) que lista transacoes em aberto vencidas ha mais de 30 dias para marcar como paga/recebida ou excluir, com desfazer. Kill-switch da feature.",
+      "repositories": ["auraxis-web"]
     }
   ]
 }

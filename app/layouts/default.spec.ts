@@ -104,6 +104,7 @@ const globalStubs = {
   EmailConfirmationModal: true,
   EmailVerificationGate: true,
   AdminImpersonationBanner: true,
+  PaymentAssistantModal: true,
 };
 
 describe("DefaultLayout", () => {
