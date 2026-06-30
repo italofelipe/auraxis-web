@@ -1315,6 +1315,10 @@
       "endDate": {
         "label": "Repetir até (opcional)"
       },
+      "autoSettle": {
+        "label": "Marcar como pago/recebido automaticamente",
+        "hint": "No vencimento, o Auraxis marca esta transação como paga/recebida automaticamente. Você pode desfazer quando quiser."
+      },
       "description": {
         "label": "Observações",
         "placeholder": "Notas adicionais sobre este lançamento"
