@@ -81,6 +81,9 @@ export interface CreateTransactionPayload {
 
   /** Integration policy between credit cards and other financial surfaces. */
   readonly impact_policy?: TransactionImpactPolicyDto;
+
+  /** Opt-in: auto-mark as paid/received when it comes due. Defaults to false. */
+  readonly auto_settle?: boolean;
 }
 
 /**
@@ -125,6 +128,9 @@ export interface UpdateTransactionPayload {
 
   /** Integration policy between credit cards and other financial surfaces. */
   readonly impact_policy?: TransactionImpactPolicyDto;
+
+  /** Opt-in: auto-mark as paid/received when it comes due. */
+  readonly auto_settle?: boolean;
 }
 
 /**
@@ -156,6 +162,8 @@ export interface TransactionDto {
   readonly credit_card_id: string | null;
   /** Integration policy. Legacy fixtures/responses may omit it; clients default to "full". */
   readonly impact_policy?: TransactionImpactPolicyDto;
+  /** Opt-in: auto-mark as paid/received when it comes due. */
+  readonly auto_settle?: boolean;
   readonly installment_group_id: string | null;
   readonly paid_at: string | null;
   readonly created_at: string | null;
