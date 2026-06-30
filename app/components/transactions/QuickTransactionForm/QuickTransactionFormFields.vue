@@ -182,6 +182,11 @@ const installmentPreview = computed<InstallmentPreview | null>(() => {
       <NDatePicker v-model:value="form.end_date" type="date" format="dd/MM/yyyy" style="width: 100%" clearable />
     </NFormItem>
 
+    <NFormItem :label="$t('transaction.form.autoSettle.label')" path="auto_settle">
+      <NSwitch v-model:value="form.auto_settle" />
+      <div class="quick-transaction-form__hint">{{ $t('transaction.form.autoSettle.hint') }}</div>
+    </NFormItem>
+
     <NFormItem :label="$t('transaction.form.description.label')" path="description">
       <NInput
         v-model:value="form.description"
@@ -204,6 +209,13 @@ const installmentPreview = computed<InstallmentPreview | null>(() => {
 
 .quick-transaction-form__settings-link:hover {
   text-decoration: underline;
+}
+
+.quick-transaction-form__hint {
+  margin-top: 4px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  line-height: 1.45;
 }
 
 .quick-transaction-form__budget-preview {
