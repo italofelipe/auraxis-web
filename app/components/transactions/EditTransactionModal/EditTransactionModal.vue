@@ -82,6 +82,7 @@ const form = reactive({
   description: "",
   is_recurring: false,
   end_date: null as number | null,
+  auto_settle: false,
 });
 
 // ── Computed field visibility ──────────────────────────────────────────────────
@@ -162,6 +163,7 @@ const populateForm = (tx: TransactionDto): void => {
   form.description = tx.description ?? "";
   form.is_recurring = tx.is_recurring;
   form.end_date = dateToTs(tx.end_date);
+  form.auto_settle = tx.auto_settle ?? false;
 };
 
 // Re-populate whenever the modal opens with a new transaction.
@@ -242,6 +244,7 @@ const handleSubmit = async (): Promise<void> => {
       credit_card_id: form.credit_card_id ?? null,
       description: form.description.trim() || null,
       is_recurring: form.is_recurring,
+      auto_settle: form.auto_settle,
       ...(form.is_recurring && form.end_date
         ? { end_date: tsToDate(form.end_date) }
         : { end_date: null }),
@@ -381,6 +384,12 @@ const handleClose = (): void => {
         />
       </NFormItem>
 
+      <!-- Auto-settle toggle -->
+      <NFormItem :label="$t('transaction.form.autoSettle.label')" path="auto_settle">
+        <NSwitch v-model:value="form.auto_settle" />
+        <div class="edit-transaction-modal__hint">{{ $t('transaction.form.autoSettle.hint') }}</div>
+      </NFormItem>
+
       <!-- Description / notes -->
       <NFormItem :label="$t('transaction.form.description.label')" path="description">
         <NInput
@@ -423,6 +432,13 @@ const handleClose = (): void => {
   background: var(--color-bg-subtle);
   color: var(--color-text-secondary);
   font-size: var(--font-size-xs);
+  line-height: 1.45;
+}
+
+.edit-transaction-modal__hint {
+  margin-top: 4px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
   line-height: 1.45;
 }
 

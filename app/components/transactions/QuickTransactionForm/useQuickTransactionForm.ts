@@ -42,6 +42,7 @@ export interface QuickTransactionFormState {
   recurrence_interval: number;
   recurrence_unit: RecurrenceUnitDto;
   end_date: number | null;
+  auto_settle: boolean;
 }
 
 /**
@@ -82,6 +83,7 @@ function createDefaultFormState(
     recurrence_interval: 1,
     recurrence_unit: "month",
     end_date: null,
+    auto_settle: false,
   };
 }
 
@@ -211,6 +213,7 @@ export function useQuickTransactionForm(opts: UseQuickTransactionFormOptions) {
       status: form.status,
       tag_id: form.tag_id ?? null,
       account_id: form.account_id ?? null,
+      auto_settle: form.auto_settle,
       ...(form.description.trim() ? { description: form.description } : {}),
       ...buildInstallmentFields(),
       ...buildRecurringFields(),
