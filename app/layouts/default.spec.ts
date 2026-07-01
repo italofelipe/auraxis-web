@@ -105,6 +105,7 @@ const globalStubs = {
   EmailVerificationGate: true,
   AdminImpersonationBanner: true,
   PaymentAssistantModal: true,
+  AiChatWidget: true,
 };
 
 describe("DefaultLayout", () => {

@@ -32,6 +32,7 @@ import EmailVerificationGate from "~/features/auth/components/EmailVerificationG
 import OnboardingWizard from "~/features/onboarding/components/OnboardingWizard.vue";
 import OnboardingTriggerButton from "~/features/onboarding/components/OnboardingTriggerButton.vue";
 import PaymentAssistantModal from "~/features/payments-assistant/components/PaymentAssistantModal/PaymentAssistantModal.vue";
+import AiChatWidget from "~/features/ai-chat/components/AiChatWidget.vue";
 
 const { t } = useI18n();
 const route = useRoute();
@@ -181,5 +182,6 @@ function onReplayOnboarding(): void {
   <OnboardingWizard />
   <OnboardingTriggerButton />
   <PaymentAssistantModal :hold="paymentsAssistantHold" />
+  <AiChatWidget />
   </div>
 </template>
