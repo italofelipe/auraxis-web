@@ -1110,6 +1110,10 @@
       "title": "Session expired",
       "message": "Your session has expired. Please sign in again to continue.",
       "action": "OK, got it"
+    },
+    "social": {
+      "completing": "Completing sign-in…",
+      "callbackError": "We couldn't complete your sign-in. Please try again."
     }
   },
   "transaction": {
@@ -1644,8 +1648,8 @@
     "socialAuth": {
       "google": "Continue with Google",
       "googleAriaLabel": "Sign in with Google",
-      "apple": "Continue with Apple",
-      "appleAriaLabel": "Sign in with Apple"
+      "facebook": "Continue with Facebook",
+      "facebookAriaLabel": "Sign in with Facebook"
     },
     "passwordField": {
       "label": "Password",

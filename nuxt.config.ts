@@ -258,6 +258,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE ?? "http://localhost:5000",
+      apiV2Base: process.env.NUXT_PUBLIC_API_V2_BASE ?? "http://localhost:8001",
       sentryDsn: process.env.NUXT_PUBLIC_SENTRY_DSN ?? "",
       appEnv: process.env.NUXT_PUBLIC_APP_ENV ?? process.env.NODE_ENV ?? "development",
       siteSurface,
@@ -574,6 +575,8 @@ export default defineNuxtConfig({
     // resend-confirmation requires authentication (logged-in user resending
     // their verification email) — must be SPA, not prerendered.
     "/resend-confirmation": { ssr: false },
+    // Social-login OAuth landing — establishes the session client-side.
+    "/auth/callback": { ssr: false },
     "/checkout/success": { ssr: false },
     "/checkout/cancel": { prerender: true },
 

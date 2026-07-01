@@ -1251,6 +1251,10 @@
       "title": "Sessão expirada",
       "message": "Sua sessão expirou. Por favor, faça login novamente para continuar.",
       "action": "OK, entendido"
+    },
+    "social": {
+      "completing": "Concluindo login…",
+      "callbackError": "Não foi possível concluir o login. Tente novamente."
     }
   },
   "transaction": {
@@ -1832,8 +1836,8 @@
     "socialAuth": {
       "google": "Continuar com Google",
       "googleAriaLabel": "Entrar com Google",
-      "apple": "Continuar com Apple",
-      "appleAriaLabel": "Entrar com Apple"
+      "facebook": "Continuar com Facebook",
+      "facebookAriaLabel": "Entrar com Facebook"
     },
     "passwordField": {
       "label": "Senha",
