@@ -3,18 +3,18 @@ import { mount } from "@vue/test-utils";
 import UiSocialAuthButtons from "../UiSocialAuthButtons.vue";
 
 describe("UiSocialAuthButtons", () => {
-  it("renders Google and Apple buttons by default", () => {
+  it("renders Google and Facebook buttons by default", () => {
     const wrapper = mount(UiSocialAuthButtons);
     const buttons = wrapper.findAll("button");
     expect(buttons).toHaveLength(2);
     expect(buttons[0]!.classes()).toContain("ui-social-auth__btn--google");
-    expect(buttons[1]!.classes()).toContain("ui-social-auth__btn--apple");
+    expect(buttons[1]!.classes()).toContain("ui-social-auth__btn--facebook");
   });
 
   it("displays labels when not compact", () => {
     const wrapper = mount(UiSocialAuthButtons);
     expect(wrapper.text()).toContain("Continuar com Google");
-    expect(wrapper.text()).toContain("Continuar com Apple");
+    expect(wrapper.text()).toContain("Continuar com Facebook");
   });
 
   it("hides labels in compact mode", () => {
@@ -22,7 +22,7 @@ describe("UiSocialAuthButtons", () => {
       props: { compact: true },
     });
     expect(wrapper.text()).not.toContain("Continuar com Google");
-    expect(wrapper.text()).not.toContain("Continuar com Apple");
+    expect(wrapper.text()).not.toContain("Continuar com Facebook");
   });
 
   it("emits google-click when Google button is clicked", async () => {
@@ -31,10 +31,10 @@ describe("UiSocialAuthButtons", () => {
     expect(wrapper.emitted("google-click")).toHaveLength(1);
   });
 
-  it("emits apple-click when Apple button is clicked", async () => {
+  it("emits facebook-click when Facebook button is clicked", async () => {
     const wrapper = mount(UiSocialAuthButtons);
-    await wrapper.find(".ui-social-auth__btn--apple").trigger("click");
-    expect(wrapper.emitted("apple-click")).toHaveLength(1);
+    await wrapper.find(".ui-social-auth__btn--facebook").trigger("click");
+    expect(wrapper.emitted("facebook-click")).toHaveLength(1);
   });
 
   it("disables buttons when disabled prop is true", () => {
@@ -68,6 +68,6 @@ describe("UiSocialAuthButtons", () => {
     });
     const buttons = wrapper.findAll("button");
     expect(buttons[0]!.attributes("aria-label")).toBe("Entrar com Google");
-    expect(buttons[1]!.attributes("aria-label")).toBe("Entrar com Apple");
+    expect(buttons[1]!.attributes("aria-label")).toBe("Entrar com Facebook");
   });
 });

@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { useLoginForm } from "~/composables/useAuth";
+import { useSocialLogin } from "~/features/auth/composables/useSocialLogin";
 import type { LoginSchema } from "~/schemas/auth";
 import type { LoginFormProps, LoginFormEmits } from "./LoginForm.types";
 
 const { t } = useI18n();
+const social = useSocialLogin();
 
 const props = withDefaults(defineProps<LoginFormProps>(), {
   loading: false,
@@ -81,6 +83,14 @@ const isPending = computed(() => props.loading || isSubmitting.value);
     </form>
 
     <div class="auth-card__divider"><span>{{ t('auth.login.divider') }}</span></div>
+
+    <UiSocialAuthButtons
+      v-if="social.isEnabled.value"
+      class="auth-card__social"
+      :disabled="isPending"
+      @google-click="social.initiate('google')"
+      @facebook-click="social.initiate('facebook')"
+    />
 
     <p class="auth-card__footer">
       {{ t('auth.login.noAccount') }}
