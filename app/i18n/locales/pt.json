@@ -4269,5 +4269,33 @@
       "allPaid": "Todas as pendências foram quitadas.",
       "undone": "Ação desfeita."
     }
+  },
+  "aiChat": {
+    "launcher": "Pergunte à IA",
+    "title": "Assistente financeiro",
+    "subtitle": "Respostas baseadas apenas nos seus dados.",
+    "disclaimer": "A IA responde somente com base nas suas finanças cadastradas no Auraxis.",
+    "placeholder": "Pergunte sobre gastos, metas, cartões...",
+    "send": "Enviar",
+    "sending": "Pensando...",
+    "close": "Fechar",
+    "dismiss": "Dispensar",
+    "emptyTitle": "O que você quer saber?",
+    "emptyBody": "Faça uma pergunta sobre suas finanças. Por exemplo:",
+    "examples": [
+      "Quanto gastei com alimentação este mês?",
+      "Qual foi meu maior gasto recente?",
+      "Estou perto de bater alguma meta?"
+    ],
+    "premiumTitle": "Assistente com IA",
+    "premiumBody": "O assistente que responde perguntas sobre as suas finanças é um recurso Premium. Assine para perguntar quando quiser.",
+    "premiumCta": "Assinar Premium",
+    "errors": {
+      "entitlement": "Este recurso é exclusivo para assinantes Premium.",
+      "consent": "Ative o consentimento de IA na tela de Insights para usar o assistente.",
+      "budget": "Você atingiu o limite diário de perguntas. Tente novamente amanhã.",
+      "validation": "Não entendi a pergunta. Reformule em até 1000 caracteres.",
+      "server": "Não consegui responder agora. Tente novamente em instantes."
+    }
   }
 }

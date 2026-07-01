@@ -519,6 +519,16 @@
       "status": "enabled-prod",
       "description": "Assistente de Pagamentos: modal 1x/sessao (Premium) que lista transacoes em aberto vencidas ha mais de 30 dias para marcar como paga/recebida ou excluir, com desfazer. Kill-switch da feature.",
       "repositories": ["auraxis-web"]
+    },
+    {
+      "key": "web.features.ai-chat",
+      "owner": "growth",
+      "createdAt": "2026-06-30",
+      "removeBy": "2027-12-31",
+      "type": "release",
+      "status": "enabled-staging",
+      "description": "Ask Anything: barra/drawer de chat com IA (Premium) que responde perguntas sobre as finanças do usuario via POST /ai/chat, ancoradas no snapshot financeiro. Kill-switch da feature; enabled-staging ate validacao em prod.",
+      "repositories": ["auraxis-web"]
     }
   ]
 }

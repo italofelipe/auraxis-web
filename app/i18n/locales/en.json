@@ -3725,5 +3725,33 @@
         "unavailable": "Not enough history yet to compare months."
       }
     }
+  },
+  "aiChat": {
+    "launcher": "Ask the AI",
+    "title": "Financial assistant",
+    "subtitle": "Answers grounded only in your own data.",
+    "disclaimer": "The AI answers based solely on your finances stored in Auraxis.",
+    "placeholder": "Ask about spending, goals, cards...",
+    "send": "Send",
+    "sending": "Thinking...",
+    "close": "Close",
+    "dismiss": "Dismiss",
+    "emptyTitle": "What would you like to know?",
+    "emptyBody": "Ask a question about your finances. For example:",
+    "examples": [
+      "How much did I spend on food this month?",
+      "What was my biggest recent expense?",
+      "Am I close to reaching any goal?"
+    ],
+    "premiumTitle": "AI assistant",
+    "premiumBody": "The assistant that answers questions about your finances is a Premium feature. Subscribe to ask anytime.",
+    "premiumCta": "Subscribe to Premium",
+    "errors": {
+      "entitlement": "This feature is exclusive to Premium subscribers.",
+      "consent": "Enable AI consent on the Insights screen to use the assistant.",
+      "budget": "You've reached today's question limit. Try again tomorrow.",
+      "validation": "I didn't understand the question. Rephrase it in up to 1000 characters.",
+      "server": "I couldn't answer right now. Please try again shortly."
+    }
   }
 }
