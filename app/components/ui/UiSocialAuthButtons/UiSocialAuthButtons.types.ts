@@ -6,5 +6,5 @@ export interface UiSocialAuthButtonsProps {
 }
 
 export interface UiSocialAuthButtonsEmits {
-  (e: "google-click" | "apple-click"): void
+  (e: "google-click" | "facebook-click"): void
 }
