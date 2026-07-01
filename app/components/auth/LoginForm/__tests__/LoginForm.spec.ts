@@ -6,6 +6,18 @@ import { NuxtLinkStub } from "~/test-utils";
 
 vi.mock("vue-i18n");
 
+vi.mock("~/features/auth/composables/useSocialLogin", () => ({
+  useSocialLogin: (): {
+    isEnabled: { value: boolean };
+    initiate: () => void;
+    completeCallback: () => Promise<void>;
+  } => ({
+    isEnabled: { value: false },
+    initiate: vi.fn(),
+    completeCallback: vi.fn(),
+  }),
+}));
+
 const globalConfig = {
   stubs: { NuxtLink: NuxtLinkStub },
 };
