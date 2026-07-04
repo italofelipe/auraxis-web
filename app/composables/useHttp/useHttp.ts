@@ -48,6 +48,70 @@ interface RefreshEnvelope {
 }
 
 /**
+ * Sliding window for the mass-logout rate detector (W1.4 / #1102).
+ * A cluster of refresh 401s inside this window signals a regression that
+ * logs everyone out (e.g. the 2026-07-03 broken-F5 incident), as opposed to
+ * a lone expired cookie.
+ */
+const MASS_LOGOUT_WINDOW_MS = 10_000;
+
+/** Number of refresh 401s within the window that trips the mass-logout alarm. */
+const MASS_LOGOUT_THRESHOLD = 5;
+
+/**
+ * Timestamps (ms epoch) of recent refresh 401s, pruned to the sliding window
+ * on every record. Module-scoped so it spans every `useHttp` caller/tab-less
+ * navigation in the same client session.
+ */
+let refresh401Timestamps: number[] = [];
+
+/**
+ * Debounce guard so a single sustained burst reports at most ONE Sentry event
+ * (we want a regression signal, not a flood). Resets once the burst subsides
+ * back under the threshold so a genuinely new cluster can surface again.
+ */
+let massLogoutReported = false;
+
+/**
+ * Records a refresh 401 into the sliding window and, when they cluster
+ * (>= {@link MASS_LOGOUT_THRESHOLD} within {@link MASS_LOGOUT_WINDOW_MS}),
+ * emits a single Sentry event tagged `flow:mass-logout`.
+ *
+ * Individual 401s stay OUT of Sentry — an expired cookie is an expected
+ * sign-out (see {@link performRefreshRequest}). Only the RATE is an incident:
+ * a spike of refresh failures means auth is broken for everyone, which the
+ * per-401 filter would otherwise hide.
+ *
+ * @param now Current time in ms (injectable for deterministic tests).
+ */
+const recordRefresh401 = (now: number = Date.now()): void => {
+  const windowStart = now - MASS_LOGOUT_WINDOW_MS;
+  refresh401Timestamps = refresh401Timestamps.filter((ts) => ts > windowStart);
+  refresh401Timestamps.push(now);
+
+  if (refresh401Timestamps.length < MASS_LOGOUT_THRESHOLD) {
+    // Burst subsided — re-arm so the next real cluster can report.
+    massLogoutReported = false;
+    return;
+  }
+
+  if (massLogoutReported) {
+    return;
+  }
+
+  massLogoutReported = true;
+  Sentry.captureMessage("Mass refresh-401 burst detected (possible auth regression)", {
+    level: "warning",
+    tags: { feature: "auth", flow: "mass-logout" },
+    extra: {
+      count: refresh401Timestamps.length,
+      windowMs: MASS_LOGOUT_WINDOW_MS,
+      threshold: MASS_LOGOUT_THRESHOLD,
+    },
+  });
+};
+
+/**
  * Reads a cookie value from `document.cookie` by exact name match.
  *
  * Returns null on the server (no document) and when the cookie is absent
@@ -140,6 +204,11 @@ const performRefreshRequest = async (
         tags: { feature: "auth", flow: "session-refresh" },
         extra: { apiBase, httpStatus: status ?? null },
       });
+    } else {
+      // A lone 401 stays out of Sentry (expected expiry), but a CLUSTER of them
+      // in a short window is a mass-logout regression — surface exactly one
+      // aggregate event instead (W1.4 / #1102).
+      recordRefresh401();
     }
     sessionStore.signOut();
     return null;
@@ -226,6 +295,8 @@ let isSessionDialogOpen = false;
 export const __resetHttpClientForTests = (): void => {
   cachedClient = null;
   isSessionDialogOpen = false;
+  refresh401Timestamps = [];
+  massLogoutReported = false;
 };
 
 /**

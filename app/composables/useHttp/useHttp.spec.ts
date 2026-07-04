@@ -29,9 +29,11 @@ const dialogStub = vi.hoisted(() => ({ warning: vi.fn() }));
 const verificationGateStub = vi.hoisted(() => ({ open: vi.fn() }));
 const navigateToMock = vi.hoisted(() => vi.fn());
 const captureExceptionMock = vi.hoisted(() => vi.fn());
+const captureMessageMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@sentry/nuxt", () => ({
   captureException: captureExceptionMock,
+  captureMessage: captureMessageMock,
 }));
 
 vi.mock("~/stores/session", () => ({
@@ -279,6 +281,56 @@ describe("refreshAccessToken (SEC-GAP-01 — cookie-based)", () => {
 
     expect(captureExceptionMock).not.toHaveBeenCalled();
     expect(sessionStore.signOut).toHaveBeenCalledOnce();
+  });
+
+  it("does NOT emit a mass-logout event for a lone refresh 401 (W1.4 #1102)", async () => {
+    __resetHttpClientForTests();
+    const sessionStore = {
+      signOut: vi.fn(),
+      updateTokens: vi.fn(),
+    } as unknown as Parameters<typeof refreshAccessToken>[1];
+
+    const axiosError = Object.assign(new Error("Unauthorized"), {
+      isAxiosError: true,
+      response: { status: 401 },
+    });
+    vi.spyOn(axios, "post").mockRejectedValueOnce(axiosError);
+
+    await refreshAccessToken("http://api", sessionStore);
+
+    expect(captureMessageMock).not.toHaveBeenCalled();
+  });
+
+  it("emits exactly ONE mass-logout Sentry event when refresh 401s cluster (W1.4 #1102)", async () => {
+    __resetHttpClientForTests();
+    const sessionStore = {
+      signOut: vi.fn(),
+      updateTokens: vi.fn(),
+    } as unknown as Parameters<typeof refreshAccessToken>[1];
+
+    const axiosError = Object.assign(new Error("Unauthorized"), {
+      isAxiosError: true,
+      response: { status: 401 },
+    });
+    // Persistent rejection: every sequential refresh yields a 401. Single-flight
+    // resets between awaited calls, so each fires its own POST → its own 401.
+    vi.spyOn(axios, "post").mockRejectedValue(axiosError);
+
+    for (let i = 0; i < 5; i += 1) {
+      await refreshAccessToken("http://api", sessionStore);
+    }
+
+    // Individual 401s stay filtered from captureException…
+    expect(captureExceptionMock).not.toHaveBeenCalled();
+    // …but the burst surfaces exactly ONE aggregate mass-logout event.
+    expect(captureMessageMock).toHaveBeenCalledOnce();
+    expect(captureMessageMock).toHaveBeenCalledWith(
+      expect.stringContaining("Mass refresh-401"),
+      expect.objectContaining({
+        level: "warning",
+        tags: { feature: "auth", flow: "mass-logout" },
+      }),
+    );
   });
 
   it("is single-flight: N concurrent callers share ONE POST /auth/refresh", async () => {
