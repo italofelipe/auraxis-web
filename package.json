@@ -41,7 +41,7 @@
     "test-storybook": "test-storybook --url http://localhost:6006 --testTimeout 15000"
   },
   "dependencies": {
-    "@bubblesortt/nuxt-es-toolkit": "1.0.10",
+    "@bubblesortt/nuxt-es-toolkit": "1.0.11",
     "@css-render/vue3-ssr": "^0.15.14",
     "@nuxt/a11y": "1.0.0-alpha.1",
     "@nuxt/content": "3.14.0",
