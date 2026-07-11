@@ -4275,6 +4275,7 @@
     }
   },
   "aiChat": {
+    "anchoredPeriod": "Consulta ancorada em {period}",
     "launcher": "Pergunte à IA",
     "title": "Assistente financeiro",
     "subtitle": "Respostas baseadas apenas nos seus dados.",
