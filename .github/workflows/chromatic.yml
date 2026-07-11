@@ -78,7 +78,7 @@ jobs:
       - name: Run Chromatic
         id: chromatic
         if: steps.capability.outputs.enabled == 'true'
-        uses: chromaui/action@v17
+        uses: chromaui/action@v18
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           buildScriptName: storybook:build
