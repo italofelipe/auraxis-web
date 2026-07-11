@@ -25,6 +25,13 @@ export interface AIChatResponseDTO {
   readonly tokens_used: number;
   /** Estimated cost of the request in USD. */
   readonly cost_usd: number;
+  /**
+   * Human period label the context was anchored on (#1548), e.g.
+   * "julho/2026" — rendered as a chip on the assistant message.
+   */
+  readonly period_label?: string;
+  /** Read-only function-calling rounds used to answer (#1548). */
+  readonly tool_rounds?: number;
 }
 
 /**

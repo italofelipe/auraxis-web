@@ -104,11 +104,22 @@ export const useAiChat = (options: UseAiChatOptions = {}): UseAiChatReturn => {
    *
    * @param role Author of the message.
    * @param content Rendered text.
+   * @param periodLabel Optional period the answer context was anchored on.
    */
-  const appendMessage = (role: ChatMessage["role"], content: string): void => {
+  const appendMessage = (
+    role: ChatMessage["role"],
+    content: string,
+    periodLabel?: string,
+  ): void => {
     messages.value = [
       ...messages.value,
-      { id: createId(), role, content, createdAt: now().toISOString() },
+      {
+        id: createId(),
+        role,
+        content,
+        createdAt: now().toISOString(),
+        ...(periodLabel ? { periodLabel } : {}),
+      },
     ];
   };
 
@@ -131,7 +142,7 @@ export const useAiChat = (options: UseAiChatOptions = {}): UseAiChatReturn => {
 
     try {
       const result = await mutation.mutateAsync(trimmed);
-      appendMessage("assistant", result.answer);
+      appendMessage("assistant", result.answer, result.period_label);
     } catch (error) {
       errorKind.value = classifyChatError(error as ApiError);
     } finally {
