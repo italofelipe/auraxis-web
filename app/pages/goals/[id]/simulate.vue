@@ -7,6 +7,7 @@ import { useGoalsQuery } from "~/features/goals/queries/use-goals-query";
 import { useGoalProjectionQuery } from "~/features/goals/queries/use-goal-projection-query";
 import { useUpdateGoalMutation } from "~/features/goals/queries/use-update-goal-mutation";
 import { projectGoalScenario, projectedCompletionDate } from "~/features/goals/utils/goal-projection";
+import { useFeatureFlag } from "~/shared/feature-flags";
 import { useSimulationQuota } from "~/features/simulations/composables/useSimulationQuota";
 import SimulatorPaywallOverlay from "~/features/simulations/components/SimulatorPaywallOverlay.vue";
 import SaveSimulationButton from "~/components/simulation/SaveSimulationButton.vue";
@@ -284,13 +285,17 @@ const onSelectGoal = (value: string): void => {
 const hasConsumed = ref<boolean>(false);
 const simulatorLocked = ref<boolean>(false);
 
+// #1115 — kill-switch global do paywall: desligado, o simulador não consome
+// quota nem trava o resultado.
+const paywallEnabled = useFeatureFlag("web.premium.paywall-enabled");
+
 /**
  * Consome a quota na primeira interação real do usuário com os sliders (a
  * "simulação E se?"). Free esgotado → trava o resultado e exibe o paywall.
  * Premium nunca consome nem trava.
  */
 const onUserAdjust = (): void => {
-  if (hasConsumed.value || unlimited.value || !goalId.value) { return; }
+  if (!paywallEnabled.value || hasConsumed.value || unlimited.value || !goalId.value) { return; }
   hasConsumed.value = true;
   void consume(goalId.value).then((result) => {
     simulatorLocked.value = !result.allowed;

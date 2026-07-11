@@ -5,6 +5,7 @@ import BaseSkeleton from "~/components/ui/BaseSkeleton.vue";
 import { useEntitlementQuery } from "~/features/paywall/queries/use-entitlement-query";
 import type { FeatureKey } from "~/features/paywall/model/entitlement";
 import { useAnalytics } from "~/composables/useAnalytics/useAnalytics";
+import { useFeatureFlag } from "~/shared/feature-flags";
 
 /**
  * Props for UiPaywallGate.
@@ -17,6 +18,10 @@ interface Props {
 const props = defineProps<Props>();
 const analytics = useAnalytics();
 
+// #1115 — kill-switch global do paywall: desligado, o gate rende o conteúdo
+// aberto (sem lock, sem upsell, sem evento de funil).
+const paywallEnabled = useFeatureFlag("web.premium.paywall-enabled");
+
 const { isLoading, data: hasAccessData } = useEntitlementQuery(props.feature);
 
 // #524 — emit `paywall_shown` whenever the gate renders the locked branch
@@ -24,9 +29,9 @@ const { isLoading, data: hasAccessData } = useEntitlementQuery(props.feature);
 // — PostHog sees one event per distinct gate render, which matches the
 // funnel definition (`paywall_shown → upgrade_clicked → upgrade_completed`).
 watch(
-  [(): FeatureKey => props.feature, hasAccessData, isLoading],
-  ([feature, hasAccess, loading]): void => {
-    if (loading) {
+  [(): FeatureKey => props.feature, hasAccessData, isLoading, paywallEnabled],
+  ([feature, hasAccess, loading, gateEnabled]): void => {
+    if (!gateEnabled || loading) {
       return;
     }
     if (hasAccess === false) {
@@ -42,7 +47,8 @@ watch(
 
 <template>
   <div class="ui-paywall-gate">
-    <BaseSkeleton v-if="isLoading" height="120px" />
+    <slot v-if="!paywallEnabled" />
+    <BaseSkeleton v-else-if="isLoading" height="120px" />
     <slot v-else-if="hasAccessData === true" />
     <slot v-else name="locked" />
   </div>
