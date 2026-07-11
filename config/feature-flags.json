@@ -437,7 +437,7 @@
       "removeBy": "2027-12-31",
       "type": "experiment",
       "status": "enabled-staging",
-      "description": "Exibe paywall para recursos premium. Off em produção até validarmos funil de upgrade.",
+      "description": "Kill-switch do paywall premium (PaywallGate/UiPaywallGate/simulador). Off: gates renderizam conteúdo aberto, sem lock, upsell nem consumo de quota. Promover a enabled-prod no go-live com billing ativo (platform#521); runtime override via PostHog/env (NUXT_PUBLIC_FLAG_WEB_PREMIUM_PAYWALL_ENABLED).",
       "repositories": ["auraxis-web"]
     },
     {

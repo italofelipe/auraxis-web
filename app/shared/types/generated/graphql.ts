@@ -197,7 +197,9 @@ export type AskFinancialQuestionPayload = {
   costUsd?: Maybe<Scalars['Float']['output']>;
   model?: Maybe<Scalars['String']['output']>;
   ok: Scalars['Boolean']['output'];
+  periodLabel?: Maybe<Scalars['String']['output']>;
   tokensUsed?: Maybe<Scalars['Int']['output']>;
+  toolRounds?: Maybe<Scalars['Int']['output']>;
 };
 
 export type AuthPayloadType = {
