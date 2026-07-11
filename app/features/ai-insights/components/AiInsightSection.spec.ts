@@ -1,7 +1,24 @@
 import { mount } from "@vue/test-utils";
-import { describe, expect, it } from "vitest";
+import { type ComputedRef, computed, ref } from "vue";
+import { describe, expect, it, vi } from "vitest";
 
 import AiInsightSection from "./AiInsightSection.vue";
+
+const isAdminRef = ref(false);
+
+vi.mock("~/features/admin/model/admin-access", () => ({
+  useAdminAccess: (): {
+    isAdmin: ComputedRef<boolean>;
+    claims: ComputedRef<{ isAdmin: boolean; roles: string[]; permissions: string[] }>;
+  } => ({
+    isAdmin: computed(() => isAdminRef.value),
+    claims: computed(() => ({
+      isAdmin: isAdminRef.value,
+      roles: [] as string[],
+      permissions: [] as string[],
+    })),
+  }),
+}));
 
 const stubs = {
   NAlert: { template: "<div class='n-alert'><slot /></div>" },
@@ -9,7 +26,56 @@ const stubs = {
 };
 
 describe("AiInsightSection", () => {
+  it("hides model/token/cost telemetry from regular users (#1113)", () => {
+    isAdminRef.value = false;
+    const wrapper = mount(AiInsightSection, {
+      props: {
+        insight: [
+          {
+            type: "alerta_orcamento",
+            dimension: "budgets",
+            title: "Orçamento pressionado",
+            message: "Moradia chegou a 48% da renda.",
+          },
+        ],
+        periodLabel: "2026-05",
+        isStale: false,
+        model: "gpt-4o-mini",
+        tokensUsed: 320,
+        costUsd: 0.000048,
+      },
+      global: { stubs },
+    });
+
+    expect(wrapper.find("[data-testid='insight-admin-meta']").exists()).toBe(false);
+    expect(wrapper.text()).not.toContain("320 tokens");
+    expect(wrapper.text()).toContain("Orçamento pressionado");
+  });
+
+  it("shows telemetry to admins with the real (USD) currency (#1113)", () => {
+    isAdminRef.value = true;
+    const wrapper = mount(AiInsightSection, {
+      props: {
+        insight: [],
+        periodLabel: "2026-05",
+        isStale: false,
+        model: "gpt-4o-mini",
+        tokensUsed: 320,
+        costUsd: 0.000048,
+      },
+      global: { stubs },
+    });
+
+    const meta = wrapper.find("[data-testid='insight-admin-meta']");
+    expect(meta.exists()).toBe(true);
+    expect(meta.text()).toContain("gpt-4o-mini");
+    expect(meta.text()).toContain("320 tokens");
+    expect(meta.text()).toContain("US$");
+    isAdminRef.value = false;
+  });
+
   it("renders parsed insight cards and model metadata", () => {
+    isAdminRef.value = true;
     const wrapper = mount(AiInsightSection, {
       props: {
         insight: [
