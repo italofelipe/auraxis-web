@@ -82,6 +82,10 @@ jobs:
           NUXT_PUBLIC_SENTRY_DSN: ${{ secrets.NUXT_PUBLIC_SENTRY_DSN }}
           NUXT_PUBLIC_APP_ENV: ${{ env.DEPLOY_ENVIRONMENT }}
           NUXT_PUBLIC_SITE_URL: https://${{ env.WEB_OFFICIAL_HOSTNAME }}
+          # Marketing surface (#1121): a raiz serve a landing pública
+          # (indexável) em vez do painel de login; usuários autenticados
+          # entram pelo CTA. Sem esta env o build cai no surface "app".
+          NUXT_PUBLIC_SITE_SURFACE: marketing
           # Baked into every HTML page as <meta name="x-build-id">.
           # The smoke test reads this tag to confirm CloudFront is serving
           # the current build and not a stale cached snapshot.
