@@ -134,3 +134,43 @@ describe("useAiChat", () => {
     expect(chat.errorKind.value).toBeNull();
   });
 });
+
+describe("useAiChat — period anchoring (#1548)", () => {
+  beforeEach(() => {
+    featureFlagRef.value = true;
+    subscriptionRef.value = activeSubscription;
+  });
+
+  it("propagates period_label from the answer to the assistant message", async () => {
+    const mutateAsync = vi.fn().mockResolvedValue({
+      answer: "Seu salário de julho foi R$ 10.754,00.",
+      model: "gpt-4o-mini",
+      tokens_used: 240,
+      cost_usd: 0.0004,
+      period_label: "julho/2026",
+      tool_rounds: 1,
+    });
+    const chat = buildChat({ mutation: { mutateAsync } });
+
+    await chat.ask("E o salário de julho, quanto foi?");
+
+    const assistant = chat.messages.value.at(-1);
+    expect(assistant?.role).toBe("assistant");
+    expect(assistant?.periodLabel).toBe("julho/2026");
+  });
+
+  it("omits periodLabel when the backend does not send one", async () => {
+    const mutateAsync = vi.fn().mockResolvedValue({
+      answer: "Você gastou R$ 120,00 hoje.",
+      model: "gpt-4o-mini",
+      tokens_used: 100,
+      cost_usd: 0.0002,
+    });
+    const chat = buildChat({ mutation: { mutateAsync } });
+
+    await chat.ask("Quanto gastei hoje?");
+
+    const assistant = chat.messages.value.at(-1);
+    expect(assistant?.periodLabel).toBeUndefined();
+  });
+});

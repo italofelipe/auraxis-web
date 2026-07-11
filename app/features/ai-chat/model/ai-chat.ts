@@ -18,6 +18,11 @@ export interface ChatMessage {
   readonly content: string;
   /** ISO-8601 timestamp of when the message was appended. */
   readonly createdAt: string;
+  /**
+   * Period the answer context was anchored on (assistant messages, #1548) —
+   * e.g. "julho/2026" when the question referenced a month.
+   */
+  readonly periodLabel?: string;
 }
 
 /**

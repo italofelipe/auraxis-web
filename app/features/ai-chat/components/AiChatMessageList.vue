@@ -52,6 +52,13 @@ const examples = computed<string[]>(() => {
         :class="`ai-chat-messages__row--${message.role}`"
       >
         <div class="ai-chat-messages__bubble" :class="`ai-chat-messages__bubble--${message.role}`">
+          <span
+            v-if="message.periodLabel"
+            class="ai-chat-messages__period"
+            data-testid="chat-period-chip"
+          >
+            {{ t("aiChat.anchoredPeriod", { period: message.periodLabel }) }}
+          </span>
           {{ message.content }}
         </div>
       </div>
@@ -145,6 +152,15 @@ const examples = computed<string[]>(() => {
   background: var(--color-bg-subtle);
   color: var(--color-text-primary);
   border-bottom-left-radius: var(--radius-xs);
+}
+.ai-chat-messages__period {
+  display: block;
+  margin-bottom: var(--space-1);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.02em;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
 }
 .ai-chat-messages__typing {
   display: inline-flex;

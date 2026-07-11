@@ -135,6 +135,11 @@ export interface GenerateInsightRequestDTO {
   readonly anchor_date?: string;
   readonly source_surface?: InsightSourceSurface;
   readonly timezone?: string;
+  /**
+   * Regenerates even when an insight already exists for the period (#1546).
+   * Sent on explicit user clicks; the backend dedupes anything without it.
+   */
+  readonly force_regenerate?: boolean;
 }
 
 export interface GenerateInsightResponseDTO extends InsightFluidaFieldsDTO {

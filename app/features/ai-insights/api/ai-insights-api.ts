@@ -96,12 +96,14 @@ export class AIInsightsApiClient {
    * @param variables.periodType Daily, weekly or monthly insight granularity.
    * @param variables.anchorDate Optional YYYY-MM-DD anchor date for the period.
    * @param variables.sourceSurface UI surface where the generation was requested.
+   * @param variables.forceRegenerate Explicit regeneration past the server-side dedupe.
    * @returns Generated insight payload plus remaining daily call count.
    */
   async generateInsight(variables: {
     readonly periodType: InsightPeriodType;
     readonly anchorDate?: string;
     readonly sourceSurface?: InsightSourceSurface;
+    readonly forceRegenerate?: boolean;
   }): Promise<GenerateInsightResponseWithMetaDTO> {
     const timezone = resolveBrowserTimezone();
     const payload: GenerateInsightRequestDTO = {
@@ -109,6 +111,7 @@ export class AIInsightsApiClient {
       ...(variables.anchorDate ? { anchor_date: variables.anchorDate } : {}),
       ...(variables.sourceSurface ? { source_surface: variables.sourceSurface } : {}),
       ...(timezone ? { timezone } : {}),
+      ...(variables.forceRegenerate ? { force_regenerate: true } : {}),
     };
 
     const response = await this.#http.post<V2EnvelopeDTO<GenerateInsightResponseDTO>>(

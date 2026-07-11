@@ -57,3 +57,37 @@ describe("AiChatMessageList", () => {
     expect(wrapper.find(".ai-chat-messages__typing").exists()).toBe(true);
   });
 });
+
+describe("AiChatMessageList — period chip (#1548)", () => {
+  it("renders the anchored-period chip on assistant messages that carry it", () => {
+    const wrapper = mount(AiChatMessageList, {
+      props: {
+        messages: [
+          buildMessage({
+            role: "assistant",
+            content: "Seu salário de julho foi R$ 10.754,00.",
+            periodLabel: "julho/2026",
+          }),
+        ],
+      },
+      global: { stubs },
+    });
+
+    const chip = wrapper.find("[data-testid='chat-period-chip']");
+    expect(chip.exists()).toBe(true);
+    expect(chip.text()).toContain("julho/2026");
+  });
+
+  it("renders no chip when the message has no periodLabel", () => {
+    const wrapper = mount(AiChatMessageList, {
+      props: {
+        messages: [
+          buildMessage({ role: "assistant", content: "Você gastou R$ 120,00 hoje." }),
+        ],
+      },
+      global: { stubs },
+    });
+
+    expect(wrapper.find("[data-testid='chat-period-chip']").exists()).toBe(false);
+  });
+});

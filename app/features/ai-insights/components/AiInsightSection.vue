@@ -19,6 +19,7 @@ import {
   splitParagraphs,
 } from "~/features/ai-insights/model/insight-text";
 import { filterInsightItemsByDimension } from "~/features/ai-insights/composables/use-insights-by-dimension";
+import { useAdminAccess } from "~/features/admin/model/admin-access";
 import type { InsightDimension, InsightItem } from "~/features/ai-insights/contracts/ai-insight";
 
 const props = defineProps<{
@@ -38,10 +39,14 @@ const visibleInsights = computed(() => {
   return props.dimension ? filterInsightItemsByDimension(items, props.dimension) : items;
 });
 const readingMinutes = computed(() => estimateReadingMinutes(visibleInsights.value));
+// Model/token/cost telemetry is dev noise for end users — admin-only (#1113).
+const { isAdmin } = useAdminAccess();
+// The API reports cost in USD; the old label formatted it as BRL without
+// converting. Label the real currency instead of pretending a conversion.
 const costLabel = computed(() =>
   props.costUsd.toLocaleString("pt-BR", {
     style: "currency",
-    currency: "BRL",
+    currency: "USD",
     minimumFractionDigits: 6,
     maximumFractionDigits: 6,
   }),
@@ -84,7 +89,13 @@ const iconForType = (type: string): typeof BarChart2 => {
         >
           {{ readingMinutes }} min de leitura
         </NTag>
-        <NTag size="small" round class="ai-insight-section__meta">
+        <NTag
+          v-if="isAdmin"
+          size="small"
+          round
+          class="ai-insight-section__meta"
+          data-testid="insight-admin-meta"
+        >
           {{ model || 'modelo IA' }} · {{ tokensUsed }} tokens · {{ costLabel }}
         </NTag>
       </div>

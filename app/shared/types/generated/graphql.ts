@@ -918,9 +918,11 @@ export type Mutation = {
   /**
    * GraphQL parity for POST /ai/insights/generate.
    *
-   * Reuses AIAdvisoryService — quota (2x/day Premium), entitlement gate and
-   * LGPD consent are enforced inside the service. GraphQL surface exposes the
-   * same payload shape so the frontend hub can render either path identically.
+   * Reuses AIAdvisoryService — the daily quota (1/day, scoped), Premium
+   * entitlement gate and LGPD consent are enforced INSIDE the service (#1546),
+   * so REST and GraphQL share one enforcement point. GraphQL surface exposes
+   * the same payload shape so the frontend hub can render either path
+   * identically.
    */
   generateAiInsight?: Maybe<GenerateAiInsightPayload>;
   login?: Maybe<AuthPayloadType>;
@@ -1186,6 +1188,7 @@ export type MutationForgotPasswordArgs = {
 
 export type MutationGenerateAiInsightArgs = {
   anchorDate?: InputMaybe<Scalars['String']['input']>;
+  forceRegenerate?: InputMaybe<Scalars['Boolean']['input']>;
   periodType: Scalars['String']['input'];
 };
 
