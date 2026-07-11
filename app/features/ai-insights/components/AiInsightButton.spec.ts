@@ -110,6 +110,7 @@ describe("AiInsightButton", () => {
     expect(generate).toHaveBeenCalledWith({
       periodType: "daily",
       sourceSurface: "transactions",
+      forceRegenerate: true,
     });
   });
 
@@ -135,6 +136,7 @@ describe("AiInsightButton", () => {
     expect(generate).toHaveBeenCalledWith({
       periodType: "daily",
       sourceSurface: "transactions",
+      forceRegenerate: true,
       anchorDate: "2026-06-01",
     });
   });

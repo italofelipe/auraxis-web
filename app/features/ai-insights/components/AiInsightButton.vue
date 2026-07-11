@@ -54,6 +54,9 @@ const generateWithLoading = async (): Promise<void> => {
     await generate({
       periodType: "daily",
       sourceSurface: props.sourceSurface,
+      // Explicit user click (#1546): regenerate past the server-side dedupe.
+      // Quota (1/day) still applies server-side for non-admin users.
+      forceRegenerate: true,
       ...(props.anchorDate ? { anchorDate: props.anchorDate } : {}),
     });
   } finally {

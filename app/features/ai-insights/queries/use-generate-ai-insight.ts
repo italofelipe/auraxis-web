@@ -55,6 +55,7 @@ export const useGenerateAIInsight = (
       periodType: variables?.periodType ?? "daily",
       ...(variables?.anchorDate ? { anchorDate: variables.anchorDate } : {}),
       ...(variables?.sourceSurface ? { sourceSurface: variables.sourceSurface } : {}),
+      ...(variables?.forceRegenerate ? { forceRegenerate: true } : {}),
     }),
     // Generation is a one-shot user action; a 429 daily-limit (or any error) is
     // a legitimate terminal response, never a transient failure to retry.

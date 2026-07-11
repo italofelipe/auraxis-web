@@ -35,6 +35,8 @@ export interface GenerateAIInsightVariables {
   readonly periodType?: InsightPeriodType;
   readonly anchorDate?: string;
   readonly sourceSurface?: InsightSourceSurface;
+  /** Explicit user action: regenerate even if the period already has one. */
+  readonly forceRegenerate?: boolean;
 }
 
 export interface GeneratedAIInsight {
