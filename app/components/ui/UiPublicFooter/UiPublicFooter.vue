@@ -24,6 +24,7 @@ const copyrightYear = computed<number>(() =>
         :aria-label="t('components.publicFooter.columns.legal.title')"
       >
         <NuxtLink to="/about-us" class="ui-public-footer__link"> Sobre nós </NuxtLink>
+        <NuxtLink to="/support" class="ui-public-footer__link"> Suporte </NuxtLink>
         <NuxtLink to="/blog" class="ui-public-footer__link"> Blog </NuxtLink>
         <NuxtLink to="/privacy" class="ui-public-footer__link">
           {{ t("components.publicFooter.columns.legal.links.privacy") }}
