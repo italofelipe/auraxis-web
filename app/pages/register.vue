@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useLoginMutation, useRegisterMutation } from "~/composables/useAuth";
+import { useAnalytics } from "~/composables/useAnalytics/useAnalytics";
 import { useCaptcha } from "~/features/auth/composables/useCaptcha";
+import { useRecordSignupConsentsMutation } from "~/features/privacy/queries/use-record-signup-consents-mutation";
 import { useApiError } from "~/composables/useApiError";
 import { useToast } from "~/composables/useToast";
 import type { RegisterSchema } from "~/schemas/auth";
@@ -16,6 +18,8 @@ useSeoMeta({
 const toast = useToast();
 const registerMutation = useRegisterMutation();
 const loginMutation = useLoginMutation();
+const recordConsentsMutation = useRecordSignupConsentsMutation();
+const analytics = useAnalytics();
 const captcha = useCaptcha();
 const { getErrorMessage } = useApiError();
 const isSubmitting = computed(
@@ -46,6 +50,14 @@ const onSubmit = async (values: RegisterSchema): Promise<void> => {
       password: values.password,
       captchaToken: loginCaptchaToken,
     });
+
+    // #1118 — grava o aceite versionado de Termos/Privacidade com timestamp.
+    // Best-effort: falha não bloqueia o onboarding, mas fica rastreável.
+    try {
+      await recordConsentsMutation.mutateAsync();
+    } catch {
+      analytics.capture("signup_consent_record_failed", { source: "register" });
+    }
 
     toast.success(t("auth.register.successToast"), { duration: 3000 });
     await navigateTo("/dashboard");

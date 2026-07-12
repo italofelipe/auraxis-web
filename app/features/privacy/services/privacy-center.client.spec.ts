@@ -23,6 +23,22 @@ describe("PrivacyCenterClient", () => {
     expect(result.items[0]?.kind).toBe("ai");
   });
 
+  it("records a versioned consent grant on /me/consents", async () => {
+    const http = {
+      post: vi.fn().mockResolvedValue({ data: { success: true, data: null } }),
+    };
+    const client = new PrivacyCenterClient(http as never);
+
+    await client.recordConsent({ kind: "terms", version: "2.1.0" });
+
+    expect(http.post).toHaveBeenCalledWith("/me/consents", {
+      kind: "terms",
+      version: "2.1.0",
+      action: "granted",
+      source: "web",
+    });
+  });
+
   it("requests a JSON data export package", async () => {
     const http = {
       post: vi.fn().mockResolvedValue({

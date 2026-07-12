@@ -99,7 +99,12 @@ const isPending = computed(() => props.loading || isSubmitting.value);
 
       <label class="signup-form__terms" for="signup-terms">
         <input id="signup-terms" type="checkbox" required :disabled="isPending">
-        <span>Concordo com termos e privacidade.</span>
+        <span>
+          Li e concordo com os
+          <NuxtLink to="/terms" target="_blank" class="signup-form__link">Termos de Uso</NuxtLink>
+          e a
+          <NuxtLink to="/privacy" target="_blank" class="signup-form__link">Política de Privacidade</NuxtLink>.
+        </span>
       </label>
 
       <button
