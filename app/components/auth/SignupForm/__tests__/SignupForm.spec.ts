@@ -46,6 +46,13 @@ describe("SignupForm", () => {
     expect(wrapper.find("#signup-terms").exists()).toBe(true);
   });
 
+  it("links the terms label to /terms and /privacy (#1118)", () => {
+    const wrapper = mount(SignupForm, { global: globalConfig });
+    const label = wrapper.find(".signup-form__terms");
+    expect(label.find("a[href='/terms']").exists()).toBe(true);
+    expect(label.find("a[href='/privacy']").exists()).toBe(true);
+  });
+
   it("renders title and subtitle", () => {
     const wrapper = mount(SignupForm, { global: globalConfig });
     expect(wrapper.text()).toContain("auth.register.title");

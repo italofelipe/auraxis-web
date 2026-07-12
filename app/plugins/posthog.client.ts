@@ -32,7 +32,9 @@ export type AuraxisEvent =
   // ── Account trust (#922) ──────────────────────────────────────────────
   | "email_confirmation_completed"
   // ── Freemium simulador (#566) ─────────────────────────────────────────
-  | "free_simulation_used";
+  | "free_simulation_used"
+  // ── Aceite de termos no signup (#1118) ────────────────────────────────
+  | "signup_consent_record_failed";
 
 /** Typed analytics client exposed as `$analytics` in the Nuxt app. */
 export interface AnalyticsClient {
