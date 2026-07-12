@@ -526,8 +526,8 @@
       "createdAt": "2026-06-30",
       "removeBy": "2027-12-31",
       "type": "release",
-      "status": "enabled-staging",
-      "description": "Ask Anything: barra/drawer de chat com IA (Premium) que responde perguntas sobre as finanças do usuario via POST /ai/chat, ancoradas no snapshot financeiro. Kill-switch da feature; enabled-staging ate validacao em prod.",
+      "status": "enabled-prod",
+      "description": "Ask Anything: barra/drawer de chat com IA (Premium) que responde perguntas sobre as finanças do usuario via POST /ai/chat, ancoradas no snapshot financeiro. Kill-switch da feature; promovida a enabled-prod em 2026-07-12 (go-live G2, pós-deploy da Onda IA v3 na API).",
       "repositories": ["auraxis-web"]
     },
     {
