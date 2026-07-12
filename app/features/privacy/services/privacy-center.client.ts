@@ -52,6 +52,22 @@ export class PrivacyCenterClient {
   }
 
   /**
+   * Records a versioned consent grant for the authenticated user (#1118).
+   *
+   * @param input Consent kind and the document version being accepted.
+   * @param input.kind
+   * @param input.version
+   */
+  async recordConsent(input: { kind: "terms" | "privacy"; version: string }): Promise<void> {
+    await this.#http.post("/me/consents", {
+      kind: input.kind,
+      version: input.version,
+      action: "granted",
+      source: "web",
+    });
+  }
+
+  /**
    * Requests a portable data package for the authenticated user.
    *
    * Endpoint is intentionally isolated behind the privacy-center feature flag

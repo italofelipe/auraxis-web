@@ -27,9 +27,15 @@ export interface LegalDocument {
 
 const supportEmail = "suporte@auraxis.com.br";
 
+/** Versão vigente da Política de Privacidade — gravada no aceite (#1118). */
+export const PRIVACY_POLICY_VERSION = "2.1.0";
+
+/** Versão vigente dos Termos de Uso — gravada no aceite (#1118). */
+export const TERMS_OF_USE_VERSION = "2.1.0";
+
 export const privacyPolicyDocument: LegalDocument = {
   title: "Política de Privacidade",
-  versionLabel: "Versão 2.1.0",
+  versionLabel: `Versão ${PRIVACY_POLICY_VERSION}`,
   updatedAtLabel: "Atualizado em 2026-05-20",
   contactEmail: supportEmail,
   navLinks: [
@@ -181,7 +187,7 @@ export const privacyPolicyDocument: LegalDocument = {
 
 export const termsOfUseDocument: LegalDocument = {
   title: "Termos de Uso",
-  versionLabel: "Versão 2.1.0",
+  versionLabel: `Versão ${TERMS_OF_USE_VERSION}`,
   updatedAtLabel: "Atualizado em 2026-05-20",
   contactEmail: supportEmail,
   navLinks: [
