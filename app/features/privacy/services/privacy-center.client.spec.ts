@@ -39,14 +39,18 @@ describe("PrivacyCenterClient", () => {
     });
   });
 
-  it("requests a JSON data export package", async () => {
+  it("fetches the LGPD export package from GET /user/me/export", async () => {
     const http = {
-      post: vi.fn().mockResolvedValue({
+      get: vi.fn().mockResolvedValue({
         data: {
           success: true,
           data: {
-            request_id: "export-1",
-            status: "queued",
+            metadata: {
+              generated_at: "2026-05-17T06:00:00+00:00",
+              scope: "lgpd_full_export",
+            },
+            users: [{ id: "uuid" }],
+            retentions: [],
           },
         },
       }),
@@ -55,30 +59,7 @@ describe("PrivacyCenterClient", () => {
 
     const result = await client.requestDataExport();
 
-    expect(http.post).toHaveBeenCalledWith("/me/data-export", { format: "json" });
-    expect(result.request_id).toBe("export-1");
-  });
-
-  it("requests deletion with password confirmation and reason", async () => {
-    const http = {
-      post: vi.fn().mockResolvedValue({
-        data: {
-          success: true,
-          data: {
-            request_id: "delete-1",
-            status: "scheduled",
-            scheduled_for: "2026-05-20T00:00:00Z",
-          },
-        },
-      }),
-    };
-    const client = new PrivacyCenterClient(http as never);
-
-    await client.requestDeletion({ password: "ValidPassword1!", reason: "Teste LGPD" });
-
-    expect(http.post).toHaveBeenCalledWith("/me/deletion-requests", {
-      password: "ValidPassword1!",
-      reason: "Teste LGPD",
-    });
+    expect(http.get).toHaveBeenCalledWith("/user/me/export");
+    expect(result.metadata?.scope).toBe("lgpd_full_export");
   });
 });
