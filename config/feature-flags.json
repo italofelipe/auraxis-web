@@ -336,8 +336,8 @@
       "createdAt": "2026-05-19",
       "removeBy": "2026-08-31",
       "type": "release",
-      "status": "enabled-dev",
-      "description": "Central autenticada de privacidade LGPD: consentimentos, exportação e solicitação de exclusão.",
+      "status": "enabled-prod",
+      "description": "Central autenticada de privacidade LGPD: consentimentos, exportação (GET /user/me/export) e exclusão de conta (DELETE /user/me). Contrato alinhado à API em #1119; remover flag após validação em prod.",
       "repositories": ["auraxis-web"]
     },
     {

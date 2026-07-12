@@ -3,9 +3,7 @@ import type { AxiosInstance } from "axios";
 import { useHttp } from "~/composables/useHttp";
 import type {
   PrivacyConsentListDto,
-  PrivacyDataExportDto,
-  PrivacyDeletionRequestDto,
-  PrivacyDeletionRequestPayload,
+  PrivacyDataExportPackageDto,
   V2EnvelopeDto,
 } from "~/features/privacy/contracts/privacy-center.dto";
 
@@ -68,35 +66,18 @@ export class PrivacyCenterClient {
   }
 
   /**
-   * Requests a portable data package for the authenticated user.
+   * Fetches the full LGPD portability package for the authenticated user.
    *
-   * Endpoint is intentionally isolated behind the privacy-center feature flag
-   * until the API task publishes the contract in production.
+   * Aligned with the published API contract `GET /user/me/export` (#1119) —
+   * the previous `POST /me/data-export` endpoint never existed in the API.
    *
-   * @returns Data export request payload.
+   * @returns Complete LGPD export package (entities + retentions).
    */
-  async requestDataExport(): Promise<PrivacyDataExportDto> {
-    const response = await this.#http.post<V2EnvelopeDto<PrivacyDataExportDto>>(
-      "/me/data-export",
-      { format: "json" },
+  async requestDataExport(): Promise<PrivacyDataExportPackageDto> {
+    const response = await this.#http.get<V2EnvelopeDto<PrivacyDataExportPackageDto>>(
+      "/user/me/export",
     );
-    return unwrap<PrivacyDataExportDto>(response.data);
-  }
-
-  /**
-   * Requests account deletion/anonymisation with password confirmation.
-   *
-   * @param payload Password confirmation and optional user reason.
-   * @returns Deletion request payload.
-   */
-  async requestDeletion(
-    payload: PrivacyDeletionRequestPayload,
-  ): Promise<PrivacyDeletionRequestDto> {
-    const response = await this.#http.post<V2EnvelopeDto<PrivacyDeletionRequestDto>>(
-      "/me/deletion-requests",
-      payload,
-    );
-    return unwrap<PrivacyDeletionRequestDto>(response.data);
+    return unwrap<PrivacyDataExportPackageDto>(response.data);
   }
 }
 
