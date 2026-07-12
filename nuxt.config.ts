@@ -553,6 +553,7 @@ export default defineNuxtConfig({
     "/": { prerender: true },
     "/plans": { prerender: true },
     "/about-us": { prerender: true },
+    "/support": { prerender: true },
     "/tools": { prerender: true },
     // Tool routes are generated automatically from app/data/tools.ts
     // DO NOT add individual tool routes here — edit app/data/tools.ts instead.
