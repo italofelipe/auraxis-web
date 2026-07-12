@@ -2,14 +2,16 @@
 import { NAlert, NButton, NInput, NModal, NSkeleton, NTag } from "naive-ui";
 import { Download, FileCheck2, RotateCw, ShieldCheck, Trash2 } from "lucide-vue-next";
 
-import type {
-  PrivacyDataExportDto,
-  PrivacyDeletionRequestDto,
-} from "~/features/privacy/contracts/privacy-center.dto";
+import type { PrivacyExportMetadataDto } from "~/features/privacy/contracts/privacy-center.dto";
 import { buildConsentViewModels } from "~/features/privacy/model/privacy-center";
 import { usePrivacyConsentsQuery } from "~/features/privacy/queries/use-privacy-consents-query";
-import { useRequestAccountDeletionMutation } from "~/features/privacy/queries/use-request-account-deletion-mutation";
 import { useRequestDataExportMutation } from "~/features/privacy/queries/use-request-data-export-mutation";
+import {
+  buildExportFilename,
+  downloadJsonFile,
+} from "~/features/privacy/services/export-download";
+import { useDeleteAccountMutation } from "~/features/user/mutations/use-delete-account-mutation";
+import { useLogout } from "~/composables/useLogout";
 
 definePageMeta({
   middleware: ["authenticated"],
@@ -21,13 +23,12 @@ useHead({ title: "Privacidade | Auraxis" });
 
 const consentsQuery = usePrivacyConsentsQuery();
 const exportMutation = useRequestDataExportMutation();
-const deletionMutation = useRequestAccountDeletionMutation();
+const deletionMutation = useDeleteAccountMutation();
+const { logout } = useLogout();
 
 const showDeletionModal = ref(false);
 const deletionPassword = ref("");
-const deletionReason = ref("");
-const exportResult = ref<PrivacyDataExportDto | null>(null);
-const deletionResult = ref<PrivacyDeletionRequestDto | null>(null);
+const exportMetadata = ref<PrivacyExportMetadataDto | null>(null);
 
 const consentRows = computed(() => buildConsentViewModels(consentsQuery.data.value?.items ?? []));
 const grantedConsentCount = computed(() => consentRows.value.filter((row) => row.granted).length);
@@ -40,25 +41,24 @@ function retryConsents(): void {
   void consentsQuery.refetch();
 }
 
-/** Sends a request to generate a portable data package. */
+/** Baixa o pacote LGPD completo como arquivo JSON (#1119). */
 function requestDataExport(): void {
-  exportResult.value = null;
+  exportMetadata.value = null;
   exportMutation.mutate(undefined, {
     onSuccess: (result): void => {
-      exportResult.value = result;
+      downloadJsonFile(result, buildExportFilename(result.metadata?.generated_at));
+      exportMetadata.value = result.metadata ?? {};
     },
   });
 }
 
-/** Opens the deletion request modal with a clean form. */
+/** Opens the deletion modal with a clean form. */
 function openDeletionModal(): void {
   deletionPassword.value = "";
-  deletionReason.value = "";
-  deletionResult.value = null;
   showDeletionModal.value = true;
 }
 
-/** Closes the deletion request modal when no request is running. */
+/** Closes the deletion modal when no request is running. */
 function closeDeletionModal(): void {
   if (deletionMutation.isPending.value) {
     return;
@@ -66,29 +66,24 @@ function closeDeletionModal(): void {
 
   showDeletionModal.value = false;
   deletionPassword.value = "";
-  deletionReason.value = "";
 }
 
-/** Sends an authenticated LGPD deletion/anonymisation request. */
+/**
+ * Exclui a conta imediatamente via `DELETE /user/me` (mesmo fluxo do
+ * danger-zone) e encerra a sessão em seguida.
+ */
 function submitDeletionRequest(): void {
   if (deletionDisabled.value) {
     return;
   }
 
-  deletionMutation.mutate(
-    {
-      password: deletionPassword.value,
-      reason: deletionReason.value.trim() || null,
+  deletionMutation.mutate(deletionPassword.value, {
+    onSuccess: (): void => {
+      showDeletionModal.value = false;
+      deletionPassword.value = "";
+      logout();
     },
-    {
-      onSuccess: (result): void => {
-        deletionResult.value = result;
-        showDeletionModal.value = false;
-        deletionPassword.value = "";
-        deletionReason.value = "";
-      },
-    },
-  );
+  });
 }
 </script>
 
@@ -215,9 +210,10 @@ function submitDeletionRequest(): void {
             Gere um pacote com perfil, transações, metas, carteira, consentimentos, assinatura e
             insights registrados na sua conta.
           </p>
-          <NAlert v-if="exportResult" type="success" title="Exportação solicitada">
-            Protocolo {{ exportResult.request_id }} em status {{ exportResult.status }}. Você
-            receberá o pacote quando o processamento terminar.
+          <NAlert v-if="exportMetadata" type="success" title="Pacote baixado">
+            O download do arquivo JSON começou automaticamente{{
+              exportMetadata.generated_at ? ` (gerado em ${exportMetadata.generated_at})` : ""
+            }}. Guarde-o em local seguro — ele contém seus dados pessoais.
           </NAlert>
         </div>
         <NButton
@@ -225,7 +221,7 @@ function submitDeletionRequest(): void {
           :loading="exportMutation.isPending.value"
           @click="requestDataExport"
         >
-          Solicitar pacote
+          Baixar meus dados
         </NButton>
       </UiSurfaceCard>
 
@@ -237,16 +233,14 @@ function submitDeletionRequest(): void {
           <Trash2 :size="22" />
         </div>
         <div class="privacy-center-page__action-copy">
-          <h2>Solicitar exclusão</h2>
+          <h2>Excluir conta e dados</h2>
           <p>
-            Inicie a remoção ou anonimização integral dos dados mapeados para sua conta. A ação
-            exige confirmação de senha e gera um protocolo interno.
+            Remove ou anonimiza imediatamente os dados mapeados para sua conta, mantendo apenas
+            retenções mínimas exigidas por lei. A ação exige confirmação de senha e é
+            irreversível.
           </p>
-          <NAlert v-if="deletionResult" type="warning" title="Exclusão solicitada">
-            Protocolo {{ deletionResult.request_id }} em status {{ deletionResult.status }}.
-          </NAlert>
         </div>
-        <NButton type="error" ghost @click="openDeletionModal"> Solicitar exclusão </NButton>
+        <NButton type="error" ghost @click="openDeletionModal"> Excluir conta </NButton>
       </UiSurfaceCard>
     </section>
 
@@ -266,15 +260,15 @@ function submitDeletionRequest(): void {
       v-model:show="showDeletionModal"
       preset="dialog"
       type="error"
-      title="Confirmar solicitação de exclusão"
+      title="Confirmar exclusão da conta"
       :mask-closable="!deletionMutation.isPending.value"
       :close-on-esc="!deletionMutation.isPending.value"
       @close="closeDeletionModal"
     >
       <div class="privacy-deletion-modal">
         <p>
-          Para proteger sua conta, confirme sua senha. A solicitação será registrada e processada
-          conforme a política de retenção aplicável.
+          Para proteger sua conta, confirme sua senha. A exclusão é imediata e irreversível — os
+          dados são removidos ou anonimizados conforme a política de retenção.
         </p>
         <label>
           <span>Senha atual</span>
@@ -286,16 +280,6 @@ function submitDeletionRequest(): void {
             placeholder="Digite sua senha"
             :disabled="deletionMutation.isPending.value"
             @keyup.enter="submitDeletionRequest"
-          />
-        </label>
-        <label>
-          <span>Motivo (opcional)</span>
-          <NInput
-            v-model:value="deletionReason"
-            type="textarea"
-            placeholder="Conte brevemente por que deseja excluir os dados"
-            :autosize="{ minRows: 3, maxRows: 5 }"
-            :disabled="deletionMutation.isPending.value"
           />
         </label>
       </div>
@@ -311,7 +295,7 @@ function submitDeletionRequest(): void {
             :loading="deletionMutation.isPending.value"
             @click="submitDeletionRequest"
           >
-            Enviar solicitação
+            Excluir definitivamente
           </NButton>
         </div>
       </template>

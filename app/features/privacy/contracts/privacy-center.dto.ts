@@ -16,22 +16,21 @@ export interface PrivacyConsentListDto {
   readonly total?: number;
 }
 
-export interface PrivacyDataExportDto {
-  readonly request_id: string;
-  readonly status: "queued" | "ready" | "processing" | string;
-  readonly download_url?: string | null;
-  readonly expires_at?: string | null;
+export interface PrivacyExportMetadataDto {
+  readonly generated_at?: string | null;
+  readonly user_id?: string | null;
+  readonly registry_version?: string | null;
+  readonly scope?: string | null;
 }
 
-export interface PrivacyDeletionRequestDto {
-  readonly request_id: string;
-  readonly status: "queued" | "scheduled" | "processing" | string;
-  readonly scheduled_for?: string | null;
-}
-
-export interface PrivacyDeletionRequestPayload {
-  readonly password: string;
-  readonly reason?: string | null;
+/**
+ * Pacote LGPD completo retornado por `GET /user/me/export` (#1119): dados por
+ * entidade do registry + seção `retentions` com o que fica retido por lei.
+ */
+export interface PrivacyDataExportPackageDto {
+  readonly metadata?: PrivacyExportMetadataDto;
+  readonly retentions?: readonly Record<string, unknown>[];
+  readonly [entity: string]: unknown;
 }
 
 export interface V2EnvelopeDto<T> {
