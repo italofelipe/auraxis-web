@@ -11,7 +11,7 @@ import {
   downloadJsonFile,
 } from "~/features/privacy/services/export-download";
 import { useDeleteAccountMutation } from "~/features/user/mutations/use-delete-account-mutation";
-import { useLogout } from "~/composables/useAuth";
+import { useLogout } from "~/composables/useLogout";
 
 definePageMeta({
   middleware: ["authenticated"],
