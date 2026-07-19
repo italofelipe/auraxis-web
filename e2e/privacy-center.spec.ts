@@ -86,6 +86,17 @@ async function mockPrivacyCenterRoutes(page: Page): Promise<void> {
   });
 
   await page.route("**/user/me", (route) => {
+    // Account deletion is immediate on DELETE /user/me (#1119) — no queued
+    // request id, the session is terminated right after.
+    if (route.request().method() === "DELETE") {
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ success: true, data: { deleted: true } }),
+      });
+      return;
+    }
+
     route.fulfill({
       status: 200,
       contentType: "application/json",
@@ -197,29 +208,18 @@ async function mockPrivacyCenterRoutes(page: Page): Promise<void> {
     route.fallback();
   });
 
-  await page.route("**/me/data-export", (route) => {
+  // #1119 aligned these to the endpoints the API actually publishes: the old
+  // POST /me/data-export and POST /me/deletion-requests never existed.
+  await page.route("**/user/me/export", (route) => {
     route.fulfill({
-      status: 202,
+      status: 200,
       contentType: "application/json",
       body: JSON.stringify({
         success: true,
         data: {
-          request_id: "export-e2e-1",
-          status: "queued",
-        },
-      }),
-    });
-  });
-
-  await page.route("**/me/deletion-requests", (route) => {
-    route.fulfill({
-      status: 202,
-      contentType: "application/json",
-      body: JSON.stringify({
-        success: true,
-        data: {
-          request_id: "delete-e2e-1",
-          status: "scheduled",
+          metadata: { generated_at: "2026-07-19T12:00:00Z" },
+          entities: {},
+          retentions: [],
         },
       }),
     });
@@ -259,28 +259,31 @@ test.describe("Privacy center — LGPD", () => {
     await expect(page.getByText(/dados não treinam modelos/i)).toBeVisible();
   });
 
-  test("requests a portable data package", async ({ page }) => {
+  test("downloads the portable data package", async ({ page }) => {
     await loginAndGoToPrivacyCenter(page);
 
-    await page.getByRole("button", { name: /solicitar pacote/i }).click();
+    const downloadPromise = page.waitForEvent("download");
+    await page.getByRole("button", { name: /baixar meus dados/i }).click();
 
-    await expect(page.getByText(/exportação solicitada/i)).toBeVisible();
-    await expect(page.getByText(/export-e2e-1/i)).toBeVisible();
+    // The package is delivered as a JSON file, not queued as a request.
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toMatch(/\.json$/i);
+    await expect(page.getByText(/pacote baixado/i)).toBeVisible();
   });
 
-  test("requires password before deletion request", async ({ page }) => {
+  test("requires password before deleting the account", async ({ page }) => {
     await loginAndGoToPrivacyCenter(page);
 
-    await page.getByRole("button", { name: /^solicitar exclusão$/i }).click();
+    await page.getByRole("button", { name: /^excluir conta$/i }).click();
 
-    const submitButton = page.getByRole("button", { name: /enviar solicitação/i });
+    const submitButton = page.getByRole("button", { name: /excluir definitivamente/i });
     await expect(submitButton).toBeDisabled();
 
     await page.locator("#privacy-delete-password").fill(VALID_PASSWORD);
     await expect(submitButton).toBeEnabled();
     await submitButton.click();
 
-    await expect(page.getByText(/exclusão solicitada/i)).toBeVisible();
-    await expect(page.getByText(/delete-e2e-1/i)).toBeVisible();
+    // Deletion is immediate and ends the session, so the user lands on login.
+    await expect(page).toHaveURL(/\/login/, { timeout: 15_000 });
   });
 });
