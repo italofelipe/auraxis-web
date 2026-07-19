@@ -21,7 +21,7 @@ useSeoMeta({
 // plan without requiring a manual page refresh.
 const queryClient = useQueryClient();
 onMounted(async () => {
-  // #524 — Asaas redirects to this page after a confirmed payment. The
+  // #524 — the payment provider redirects to this page after a confirmed payment. The
   // webhook is the source-of-truth for entitlement state on the server;
   // this client event mirrors that success so funnel time-to-conversion
   // is computable from PostHog alone (without joining server logs).
