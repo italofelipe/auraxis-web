@@ -1,5 +1,20 @@
 # Architecture - auraxis-web
 
+## Unified User Backoffice
+
+`/admin/users` is an operational control-plane UI backed exclusively by the FastAPI v2
+admin contract. Route authorization is not inferred from JWT roles: the asynchronous
+middleware calls `GET /v2/admin/session`, and the backend validates the token, JTI and
+configured administrator allowlist.
+
+The dedicated client in `app/features/admin/shared/admin-http.ts` targets
+`NUXT_PUBLIC_API_V2_BASE`, attaches the current bearer token and, for legacy v1 sessions,
+uses the existing v1 refresh-cookie flow after a 401. The list is cursor-based and each
+mutation receives a fresh `Idempotency-Key`. `web.admin.user-mutations` controls only the
+visibility of mutation controls; server-side authorization is always authoritative.
+
+See `docs/web/unified-user-backoffice.md` for the contract, rollout and operational checks.
+
 ## Credit Cards Hybrid Experience
 
 The credit-card area is implemented as a hybrid workspace:

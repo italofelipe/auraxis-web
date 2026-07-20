@@ -40,6 +40,7 @@ describe("PRODUCTION_CSP", () => {
 
   it("inclui connect-src com a API do Auraxis, Brapi, Sentry e PostHog", () => {
     expect(PRODUCTION_CSP).toContain("https://api.auraxis.com.br");
+    expect(PRODUCTION_CSP).toContain("https://v2.auraxis.com.br");
     expect(PRODUCTION_CSP).toContain("https://brapi.dev");
     expect(PRODUCTION_CSP).toContain("https://*.sentry.io");
     expect(PRODUCTION_CSP).toContain("https://*.posthog.com");
@@ -104,6 +105,7 @@ describe("buildCsp — development", () => {
 
   it("inclui a API do Auraxis e o ingest do Sentry", () => {
     expect(csp).toContain("https://api.auraxis.com.br");
+    expect(csp).toContain("https://v2.auraxis.com.br");
     expect(csp).toContain("https://*.sentry.io");
   });
 
@@ -158,6 +160,7 @@ describe("buildCsp — staging", () => {
 
   it("inclui a API do Auraxis e o ingest do Sentry", () => {
     expect(csp).toContain("https://api.auraxis.com.br");
+    expect(csp).toContain("https://v2.auraxis.com.br");
     expect(csp).toContain("https://*.sentry.io");
   });
 });

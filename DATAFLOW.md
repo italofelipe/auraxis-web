@@ -1,5 +1,20 @@
 # Data Flow - auraxis-web
 
+## Unified User Backoffice
+
+1. The `/admin` middleware restores the normal authenticated session when necessary and
+   validates the operator with `GET /v2/admin/session`.
+2. `/admin/users` requests a federated page from `GET /v2/admin/users` using filters and an
+   opaque cursor; no numeric page state is synthesized by the browser.
+3. Selecting a row loads `GET /v2/admin/users/{source}/{user_id}`, including all safely
+   linked identities, subscription/override state and recent audit actions.
+4. When `web.admin.user-mutations` is enabled, each confirmation submits an 8–500 character
+   reason, an optional future premium expiry and a unique `Idempotency-Key`.
+5. A `200` action is immediately applied. A `202` action remains `pending` or `partial`; the
+   UI shows that durable state and reloads the detail/audit data without claiming completion.
+6. A 401 from v2 triggers one refresh through the v1 httpOnly-cookie endpoint, then retries
+   with the new in-memory bearer token. A failed refresh returns the operator to login.
+
 ## Credit Card Statement Expense Management
 
 1. `/credit-cards` and `/credit-cards/[id]` load card DTOs and the transaction list window used by `useCreditCardsStatement`.

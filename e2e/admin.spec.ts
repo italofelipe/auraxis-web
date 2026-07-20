@@ -16,6 +16,8 @@ interface MockAdminEntitlement {
 interface MockAdminAuditEvent {
   id: string;
   action: string;
+  status?: string;
+  actor?: string;
   reason: string;
   created_at: string;
 }
@@ -111,6 +113,75 @@ const adminUsers = [
   },
 ];
 
+interface MockAdminUserState {
+  blocked: boolean;
+  premiumOverride: boolean;
+}
+
+/**
+ * Maps a legacy test fixture into the FastAPI unified-user contract.
+ *
+ * @param user Legacy fixture.
+ * @param state Mutable control-plane state.
+ * @returns FastAPI user payload.
+ */
+const toUnifiedAdminUser = (
+  user: (typeof adminUsers)[number],
+  state: MockAdminUserState,
+): Record<string, unknown> => ({
+  source: "v1",
+  user_id: user.id,
+  email: user.email,
+  blocked: user.id === "admin-user-1" ? state.blocked : false,
+  premium:
+    user.subscription.plan_code === "premium" ||
+    (user.id === "admin-user-1" && state.premiumOverride),
+  identities: [
+    {
+      source: "v1",
+      user_id: user.id,
+      email: user.email,
+      email_verified: true,
+      auth_methods: ["password"],
+      created_at: user.created_at,
+      last_login_at: user.last_seen_at,
+      blocked_at: user.id === "admin-user-1" && state.blocked ? "2026-07-20T12:00:00Z" : null,
+      blocked_reason:
+        user.id === "admin-user-1" && state.blocked ? "Bloqueio operacional validado" : null,
+      blocked_by: state.blocked ? "v1/operator-1" : null,
+      subscription_status: user.subscription.status,
+      premium_override_active: user.id === "admin-user-1" && state.premiumOverride,
+      premium_override_expires_at: null,
+    },
+  ],
+});
+
+/**
+ * Applies one mocked control-plane action and returns its audit type.
+ *
+ * @param action REST action suffix.
+ * @param state Mutable test state.
+ * @returns Persisted action type.
+ */
+const applyMockAdminAction = (action: string, state: MockAdminUserState): string => {
+  switch (action) {
+    case "block":
+      state.blocked = true;
+      return "block";
+    case "unblock":
+      state.blocked = false;
+      return "unblock";
+    case "premium-override":
+      state.premiumOverride = true;
+      return "premium_override";
+    case "premium-override/revoke":
+      state.premiumOverride = false;
+      return "premium_override_revoke";
+    default:
+      throw new Error(`Unsupported mock admin action: ${action}`);
+  }
+};
+
 const adminInsights: MockAdminAIInsight[] = [
   {
     id: "insight-1",
@@ -175,8 +246,7 @@ const adminFeatureFlags: MockAdminFeatureFlag[] = [
  * @returns Token-shaped string.
  */
 const tokenWithPayload = (payload: Record<string, unknown>): string => {
-  const encodedPayload = Buffer.from(JSON.stringify(payload), "utf8")
-    .toString("base64url");
+  const encodedPayload = Buffer.from(JSON.stringify(payload), "utf8").toString("base64url");
   return `header.${encodedPayload}.signature`;
 };
 
@@ -188,12 +258,13 @@ const tokenWithPayload = (payload: Record<string, unknown>): string => {
  * @param options.isAdmin Whether the mocked session should include admin claims.
  */
 // eslint-disable-next-line max-lines-per-function -- Keeping admin route mocks together avoids cross-test shared state.
-const mockAdminSession = async (
-  page: Page,
-  options: { isAdmin: boolean },
-): Promise<void> => {
+const mockAdminSession = async (page: Page, options: { isAdmin: boolean }): Promise<void> => {
   const token = tokenWithPayload({ roles: options.isAdmin ? ["admin"] : ["user"] });
   let sessionEstablished = false;
+  const adminUserState: MockAdminUserState = {
+    blocked: false,
+    premiumOverride: false,
+  };
   const adminEntitlements = initialAdminEntitlements.map((entitlement) => ({ ...entitlement }));
   const adminAuditEvents = initialAdminAuditEvents.map((event) => ({ ...event }));
 
@@ -287,7 +358,12 @@ const mockAdminSession = async (
       status: 200,
       contentType: "application/json",
       body: JSON.stringify({
-        period: { key: "current_month", start: "2026-05-01", end: "2026-05-31", label: "maio 2026" },
+        period: {
+          key: "current_month",
+          start: "2026-05-01",
+          end: "2026-05-31",
+          label: "maio 2026",
+        },
         summary: { income: 0, expense: 0, balance: 0, upcoming_due_total: 0, net_worth: 0 },
         comparison: null,
         timeseries: [],
@@ -301,19 +377,32 @@ const mockAdminSession = async (
   });
 
   await page.route("**/dashboard/trends**", (route) => {
-    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ series: [] }) });
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ series: [] }),
+    });
   });
 
   await page.route("**/dashboard/survival-index", (route) => {
     route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify({ n_months: 0, total_assets: 0, avg_monthly_expense: 0, classification: "unknown" }),
+      body: JSON.stringify({
+        n_months: 0,
+        total_assets: 0,
+        avg_monthly_expense: 0,
+        classification: "unknown",
+      }),
     });
   });
 
   await page.route("**/entitlements/check**", (route) => {
-    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ has_access: true }) });
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ has_access: true }),
+    });
   });
 
   await page.route("**/wallet/entries**", (route) => {
@@ -321,10 +410,51 @@ const mockAdminSession = async (
   });
 
   await page.route("**/transactions/due-range**", (route) => {
-    route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ transactions: [], total: 0 }) });
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ transactions: [], total: 0 }),
+    });
   });
 
-  await page.route("**/admin/users**", async (route) => {
+  await page.route("**/v2/admin/session", (route) => {
+    route.fulfill({
+      status: options.isAdmin ? 200 : 403,
+      contentType: "application/json",
+      body: JSON.stringify(
+        options.isAdmin
+          ? { source: "v1", user_id: "operator-1", email: VALID_EMAIL, is_admin: true }
+          : { error: "FORBIDDEN", message: "Access denied." },
+      ),
+    });
+  });
+
+  // Legacy read-only impersonation still uses the v1 admin search contract.
+  // Register it before the more specific v2 route so Playwright's LIFO routing
+  // keeps the unified user backoffice on FastAPI.
+  await page.route("**/admin/users**", (route) => {
+    if (route.request().resourceType() === "document") {
+      route.fallback();
+      return;
+    }
+
+    const url = new URL(route.request().url());
+    if (url.pathname.startsWith("/v2/admin/users")) {
+      route.fallback();
+      return;
+    }
+    const query = url.searchParams.get("q")?.toLowerCase() ?? "";
+    const users = adminUsers.filter((user) =>
+      [user.id, user.name, user.email].some((value) => value.toLowerCase().includes(query)),
+    );
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ success: true, data: { users } }),
+    });
+  });
+
+  await page.route("**/v2/admin/users**", async (route) => {
     if (route.request().resourceType() === "document") {
       await route.fallback();
       return;
@@ -332,58 +462,86 @@ const mockAdminSession = async (
 
     const url = new URL(route.request().url());
     const pathParts = url.pathname.split("/").filter(Boolean);
-    const userId = pathParts.length > 2 ? pathParts.at(-1) : null;
+    const usersIndex = pathParts.indexOf("users");
+    const source = pathParts[usersIndex + 1];
+    const userId = pathParts[usersIndex + 2];
+    const action = pathParts.slice(usersIndex + 3).join("/");
 
-    if (userId && userId !== "users") {
+    if (route.request().method() === "POST" && userId && action) {
+      const body = JSON.parse(route.request().postData() ?? "{}") as {
+        reason?: string;
+      };
+      if (!body.reason || body.reason.length < 8) {
+        await route.fulfill({ status: 422, body: "{}" });
+        return;
+      }
+      const actionType = applyMockAdminAction(action, adminUserState);
+      const actionId = `action-${actionType}`;
+      adminAuditEvents.unshift({
+        id: actionId,
+        action: actionType,
+        status: "applied",
+        actor: "v1/operator-1",
+        reason: body.reason,
+        created_at: "2026-07-20T12:01:00Z",
+      });
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          id: actionId,
+          action_type: actionType,
+          status: "applied",
+          actor: "v1/operator-1",
+          target: `${source}/${userId}`,
+          reason: body.reason,
+          created_at: "2026-07-20T12:01:00Z",
+        }),
+      });
+      return;
+    }
+
+    if (source && userId) {
       const user = adminUsers.find((item) => item.id === userId);
       route.fulfill({
         status: user ? 200 : 404,
         contentType: "application/json",
-        body: JSON.stringify({
-          success: Boolean(user),
-          data: user
+        body: JSON.stringify(
+          user
             ? {
-              user: {
-                ...user,
-                entitlements: adminEntitlements,
-                audit_events: adminAuditEvents,
-              },
-            }
-            : null,
-        }),
+                ...toUnifiedAdminUser(user, adminUserState),
+                recent_actions: adminAuditEvents.map((event) => ({
+                  id: event.id,
+                  action_type: event.action,
+                  status: event.status ?? "applied",
+                  actor: event.actor ?? "v1/operator-1",
+                  reason: event.reason,
+                  created_at: event.created_at,
+                })),
+              }
+            : { error: "NOT_FOUND" },
+        ),
       });
       return;
     }
 
     const query = url.searchParams.get("q")?.toLowerCase() ?? "";
     const filteredUsers = adminUsers
-      .map((user) => ({
-        ...user,
-        entitlements_count: user.id === "admin-user-1"
-          ? adminEntitlements.filter((entitlement) => entitlement.active).length
-          : user.entitlements_count,
-      }))
       .filter((user) => {
         if (!query) {
           return true;
         }
 
-        return [user.id, user.name, user.email]
-          .some((value) => value.toLowerCase().includes(query));
-      });
+        return [user.id, user.name, user.email].some((value) =>
+          value.toLowerCase().includes(query),
+        );
+      })
+      .map((user) => toUnifiedAdminUser(user, adminUserState));
 
     route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify({
-        success: true,
-        data: {
-          users: filteredUsers,
-          page: 1,
-          per_page: 20,
-          total: filteredUsers.length,
-        },
-      }),
+      body: JSON.stringify({ items: filteredUsers, next_cursor: null }),
     });
   });
 
@@ -662,51 +820,82 @@ test.describe("Admin — shell and guard", () => {
     await expect(adminNavigation.getByRole("link", { name: /Insights IA/ })).toBeVisible();
   });
 
-  test("shows users, subscription detail and active entitlements", async ({ page }) => {
+  test("shows unified identities, subscription and premium state", async ({ page }, testInfo) => {
     await mockAdminSession(page, { isAdmin: true });
     await login(page);
 
     await page.goto("/admin/users");
 
     await expect(
-      page.getByRole("heading", { name: "Usuários, assinaturas e acessos premium" }),
+      page.getByRole("heading", { name: "Usuários, bloqueios e premium" }),
     ).toBeVisible();
-    await expect(page.getByRole("button", { name: /Ana Premium/ })).toBeVisible();
-    await expect(page.locator(".admin-users__detail").getByRole("heading", { name: "Ana Premium" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /ana@auraxis.com/ })).toBeVisible();
     await expect(
-      page.locator(".admin-users__detail-grid article")
-        .filter({ hasText: "Plano" })
-        .getByText("premium", { exact: true }),
+      page.locator(".admin-users__detail").getByRole("heading", { name: "ana@auraxis.com" }),
     ).toBeVisible();
-    await expect(page.locator(".admin-users__entitlements").getByText("Insights com IA")).toBeVisible();
+    await expect(page.getByText("Identidades vinculadas")).toBeVisible();
+    await expect(page.getByText("Assinatura").locator("..").getByText("active")).toBeVisible();
+
+    if (process.env.E2E_CAPTURE_ADMIN_SCREENSHOTS === "true") {
+      const viewport = testInfo.project.name === "mobile-chrome" ? "mobile" : "desktop";
+      for (const theme of ["light", "dark"] as const) {
+        await page.evaluate((selectedTheme) => {
+          localStorage.setItem("auraxis-theme", selectedTheme);
+        }, theme);
+        await page.reload();
+        await expect(
+          page.getByRole("heading", { name: "Usuários, bloqueios e premium" }),
+        ).toBeVisible();
+        await page.screenshot({
+          path: `docs/screenshots/backoffice-users-${viewport}-${theme}.png`,
+          fullPage: true,
+        });
+      }
+    }
   });
 
-  test("grants an entitlement with a required audit reason", async ({ page }) => {
+  test("blocks and unblocks every linked identity with an audit reason", async ({ page }) => {
     await mockAdminSession(page, { isAdmin: true });
     await login(page);
     await page.goto("/admin/users");
 
-    await page.locator(".admin-users__grant .n-base-selection").click();
-    await page.getByText("Market Pulse", { exact: true }).click();
-    await page.getByRole("button", { name: /Conceder/ }).click();
-    await page.getByPlaceholder(/ajuste solicitado/i).fill("Liberar teste premium solicitado pelo suporte");
-    await page.getByTestId("admin-entitlement-confirm").click();
+    await page.getByRole("button", { name: "Bloquear", exact: true }).click();
+    await page
+      .getByPlaceholder(/justificativa operacional/i)
+      .fill("Bloqueio operacional validado pelo suporte");
+    await page.getByTestId("admin-user-action-confirm").click();
+    await expect(page.getByText(/Ação enviada:/)).toContainText("action-block");
+    await expect(page.getByRole("button", { name: "Desbloquear", exact: true })).toBeVisible();
 
-    await expect(page.getByText(/Último audit id:/)).toContainText("audit-grant-1");
-    await expect(page.locator(".admin-users__entitlements").getByText("Market Pulse")).toBeVisible();
+    await page.getByRole("button", { name: "Desbloquear", exact: true }).click();
+    await page
+      .getByPlaceholder(/justificativa operacional/i)
+      .fill("Conta revisada e liberada pelo suporte");
+    await page.getByTestId("admin-user-action-confirm").click();
+    await expect(page.getByText(/Ação enviada:/)).toContainText("action-unblock");
+    await expect(page.getByRole("button", { name: "Bloquear", exact: true })).toBeVisible();
   });
 
-  test("revokes an entitlement with a required audit reason", async ({ page }) => {
+  test("grants and revokes premium override without changing billing", async ({ page }) => {
     await mockAdminSession(page, { isAdmin: true });
     await login(page);
     await page.goto("/admin/users");
 
-    await page.getByRole("button", { name: /Revogar Insights com IA/ }).click();
-    await page.getByPlaceholder(/ajuste solicitado/i).fill("Encerrar acesso temporário depois da validação");
-    await page.getByTestId("admin-entitlement-confirm").click();
+    await page.getByRole("button", { name: "Conceder premium", exact: true }).click();
+    await page
+      .getByPlaceholder(/justificativa operacional/i)
+      .fill("Liberar premium temporário solicitado pelo suporte");
+    await page.getByTestId("admin-user-action-confirm").click();
+    await expect(page.getByText(/Ação enviada:/)).toContainText("action-premium_override");
+    await expect(page.getByRole("button", { name: "Revogar override", exact: true })).toBeVisible();
 
-    await expect(page.getByText(/Último audit id:/)).toContainText("audit-revoke-1");
-    await expect(page.locator(".admin-users__entitlements").getByText("Insights com IA")).toHaveCount(0);
+    await page.getByRole("button", { name: "Revogar override", exact: true }).click();
+    await page
+      .getByPlaceholder(/justificativa operacional/i)
+      .fill("Período promocional concluído conforme combinado");
+    await page.getByTestId("admin-user-action-confirm").click();
+    await expect(page.getByText(/Ação enviada:/)).toContainText("action-premium_override_revoke");
+    await expect(page.getByText("Assinatura").locator("..").getByText("active")).toBeVisible();
   });
 
   test("shows AI insights audit metadata and redacted evidence", async ({ page }) => {
@@ -714,8 +903,11 @@ test.describe("Admin — shell and guard", () => {
     await login(page);
     await page.goto("/admin/insights");
 
-    await expect(page.getByRole("heading", { name: "Investigue custo, qualidade e consentimento dos insights" }))
-      .toBeVisible();
+    await expect(
+      page.getByRole("heading", {
+        name: "Investigue custo, qualidade e consentimento dos insights",
+      }),
+    ).toBeVisible();
     await expect(page.getByRole("button", { name: /ana@auraxis.com/ })).toBeVisible();
     await expect(page.getByText("Categoria [redigida] representou 41% das saídas.")).toBeVisible();
     await expect(page.getByText(/ai\.insight\.generated/)).toBeVisible();
@@ -726,17 +918,23 @@ test.describe("Admin — shell and guard", () => {
     await login(page);
     await page.goto("/admin/flags");
 
-    await expect(page.getByRole("heading", { name: "Flags, orçamento de IA e saúde operacional" }))
-      .toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Flags, orçamento de IA e saúde operacional" }),
+    ).toBeVisible();
     await expect(page.getByText("web.pages.insights")).toBeVisible();
     await expect(page.getByRole("link", { name: /Abrir Grafana Cloud/ })).toHaveAttribute(
       "href",
       "https://grafana.auraxis.com.br/d/admin",
     );
 
-    await page.locator(".admin-flags__row", { hasText: "web.pages.insights" }).locator(".n-base-selection").click();
+    await page
+      .locator(".admin-flags__row", { hasText: "web.pages.insights" })
+      .locator(".n-base-selection")
+      .click();
     await page.getByText("Staging", { exact: true }).click();
-    await page.getByPlaceholder(/motivo operacional/i).fill("Reduzir rollout durante validação de suporte");
+    await page
+      .getByPlaceholder(/motivo operacional/i)
+      .fill("Reduzir rollout durante validação de suporte");
     await page.getByRole("button", { name: /Confirmar com auditoria/ }).click();
 
     await expect(page.getByText(/Último audit id:/)).toContainText("audit-flag-1");
@@ -747,11 +945,14 @@ test.describe("Admin — shell and guard", () => {
     await login(page);
     await page.goto("/admin/impersonation");
 
-    await expect(page.getByRole("heading", { name: "Visualizar como usuário, sem alterar dados" }))
-      .toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Visualizar como usuário, sem alterar dados" }),
+    ).toBeVisible();
     await page.getByPlaceholder(/Digite ao menos 2 caracteres/).fill("ana");
     await expect(page.getByRole("button", { name: /Ana Premium/ })).toBeVisible();
-    await page.getByPlaceholder(/Reproduzir bug reportado/).fill("Reproduzir bug reportado no dashboard");
+    await page
+      .getByPlaceholder(/Reproduzir bug reportado/)
+      .fill("Reproduzir bug reportado no dashboard");
     await page.getByRole("button", { name: /Iniciar somente leitura/ }).click();
 
     await expect(page.getByText(/Visualizando Ana Premium/)).toBeVisible();
