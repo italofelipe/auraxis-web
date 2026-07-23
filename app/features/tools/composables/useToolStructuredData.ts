@@ -77,7 +77,7 @@ export const buildToolStructuredData = (
 export interface ToolStructuredDataScript {
   id: string;
   type: "application/ld+json";
-  children: string;
+  innerHTML: string;
 }
 
 /**
@@ -96,7 +96,7 @@ export const buildToolStructuredDataScripts = (
     {
       id: "ld-tool-webapp",
       type: "application/ld+json",
-      children: JSON.stringify(payload.webApplication),
+      innerHTML: JSON.stringify(payload.webApplication),
     },
   ];
 
@@ -104,7 +104,7 @@ export const buildToolStructuredDataScripts = (
     scripts.push({
       id: "ld-tool-faq",
       type: "application/ld+json",
-      children: JSON.stringify(payload.faqPage),
+      innerHTML: JSON.stringify(payload.faqPage),
     });
   }
 
@@ -112,7 +112,7 @@ export const buildToolStructuredDataScripts = (
     scripts.push({
       id: "ld-tool-breadcrumb",
       type: "application/ld+json",
-      children: JSON.stringify(payload.breadcrumbList),
+      innerHTML: JSON.stringify(payload.breadcrumbList),
     });
   }
 

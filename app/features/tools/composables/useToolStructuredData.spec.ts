@@ -106,7 +106,7 @@ describe("buildToolStructuredDataScripts", () => {
     expect(scripts).toHaveLength(1);
     expect(scripts[0]?.id).toBe("ld-tool-webapp");
     expect(scripts[0]?.type).toBe("application/ld+json");
-    const parsed = JSON.parse(scripts[0]?.children ?? "{}") as {
+    const parsed = JSON.parse(scripts[0]?.innerHTML ?? "{}") as {
       "@type": string;
     };
     expect(parsed["@type"]).toBe("WebApplication");
