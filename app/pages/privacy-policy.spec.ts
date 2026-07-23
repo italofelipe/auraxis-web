@@ -28,8 +28,8 @@ describe("PrivacyPolicyPage (/privacy-policy)", () => {
 
   it("displays document version and effective date", () => {
     const wrapper = mountPage();
-    expect(wrapper.text()).toContain("2.1.0");
-    expect(wrapper.text()).toContain("2026-05-20");
+    expect(wrapper.text()).toContain("2.2.0");
+    expect(wrapper.text()).toContain("2026-07-19");
   });
 
   it("displays the support email", () => {

@@ -54,7 +54,7 @@ const faqItems = [
   {
     question: "O Auraxis guarda os dados do meu cartão?",
     answer:
-      "Não. O pagamento é processado pela Asaas (provedor brasileiro regulado) em checkout hospedado — número de cartão, CVV e credenciais bancárias nunca passam pelos servidores do Auraxis.",
+      "Não. O pagamento é processado pela AbacatePay (provedor brasileiro) em checkout hospedado — número de cartão, CVV e credenciais bancárias nunca passam pelos servidores do Auraxis.",
   },
   {
     question: "Quanto custa o Premium?",
