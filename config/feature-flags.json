@@ -481,6 +481,16 @@
       "repositories": ["auraxis-web"]
     },
     {
+      "key": "web.admin.user-mutations",
+      "owner": "platform",
+      "createdAt": "2026-07-20",
+      "removeBy": "2027-07-20",
+      "type": "release",
+      "status": "enabled-dev",
+      "description": "Habilita bloqueio/desbloqueio e override premium no backoffice unificado após validação read-only em staging.",
+      "repositories": ["auraxis-web", "auraxis-api-v2"]
+    },
+    {
       "key": "web.admin.feature-flag-mutations",
       "owner": "platform",
       "createdAt": "2026-05-19",

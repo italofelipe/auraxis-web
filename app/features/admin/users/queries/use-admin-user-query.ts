@@ -14,9 +14,12 @@ import {
  * @param userId Selected user id.
  * @returns Stable Vue Query key.
  */
-export const adminUserDetailQueryKey = (
-  userId: string | null | undefined,
-): readonly unknown[] => ["admin", "users", "detail", userId ?? ""];
+export const adminUserDetailQueryKey = (userId: string | null | undefined): readonly unknown[] => [
+  "admin",
+  "users",
+  "detail",
+  userId ?? "",
+];
 
 /**
  * Queries one user's admin detail when an id is selected.

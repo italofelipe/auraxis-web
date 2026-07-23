@@ -1,199 +1,192 @@
 import type { AxiosInstance } from "axios";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AdminUsersClient } from "./admin-users.client";
 
 /**
- * Builds the admin users client with mocked Axios methods.
+ * Builds the service with an Axios-shaped test double.
  *
- * @returns Client and spies for HTTP methods.
+ * @returns Client and HTTP spies.
  */
 const makeClient = (): {
   readonly client: AdminUsersClient;
   readonly get: ReturnType<typeof vi.fn>;
   readonly post: ReturnType<typeof vi.fn>;
-  readonly deleteRequest: ReturnType<typeof vi.fn>;
 } => {
   const get = vi.fn();
   const post = vi.fn();
-  const deleteRequest = vi.fn();
-  const http = { get, post, delete: deleteRequest } as unknown as AxiosInstance;
-
   return {
-    client: new AdminUsersClient(http),
+    client: new AdminUsersClient({ get, post } as unknown as AxiosInstance),
     get,
     post,
-    deleteRequest,
   };
 };
 
+interface TestIdentityDto {
+  readonly source: "v1" | "v2";
+  readonly user_id: string;
+  readonly email: string;
+  readonly email_verified: boolean;
+  readonly auth_methods: string[];
+  readonly created_at: string;
+  readonly last_login_at: string;
+  readonly blocked_at: null;
+  readonly blocked_reason: null;
+  readonly blocked_by: null;
+  readonly subscription_status: string | null;
+  readonly premium_override_active: boolean;
+  readonly premium_override_expires_at: null;
+}
+
+/**
+ * Builds one FastAPI identity fixture.
+ *
+ * @param source Identity database source.
+ * @param userId Source-local user id.
+ * @returns FastAPI-shaped identity fixture.
+ */
+const identity = (source: "v1" | "v2", userId: string): TestIdentityDto => ({
+  source,
+  user_id: userId,
+  email: "ana@auraxis.com",
+  email_verified: true,
+  auth_methods: ["password"],
+  created_at: "2026-05-01T10:00:00Z",
+  last_login_at: "2026-07-19T12:00:00Z",
+  blocked_at: null,
+  blocked_reason: null,
+  blocked_by: null,
+  subscription_status: source === "v1" ? "active" : null,
+  premium_override_active: source === "v2",
+  premium_override_expires_at: null,
+});
+
 describe("AdminUsersClient", () => {
-  it("lists users with the expected admin query params and maps the v2 envelope", async () => {
+  beforeEach(() => {
+    vi.spyOn(globalThis.crypto, "randomUUID").mockReturnValue(
+      "11111111-1111-4111-8111-111111111111",
+    );
+  });
+
+  it("validates the operator session through FastAPI instead of JWT roles", async () => {
+    const { client, get } = makeClient();
+    get.mockResolvedValue({
+      data: { source: "v1", user_id: "operator-1", email: "admin@auraxis.com", is_admin: true },
+    });
+
+    await expect(client.getSession()).resolves.toEqual({
+      source: "v1",
+      userId: "operator-1",
+      email: "admin@auraxis.com",
+      isAdmin: true,
+    });
+    expect(get).toHaveBeenCalledWith("/v2/admin/session");
+  });
+
+  it("maps the federated cursor list", async () => {
     const { client, get } = makeClient();
     get.mockResolvedValue({
       data: {
-        success: true,
-        data: {
-          users: [
-            {
-              id: "user-1",
-              name: "Ana Premium",
-              email: "ana@auraxis.com",
-              status: "active",
-              created_at: "2026-05-01T10:00:00Z",
-              last_seen_at: "2026-05-19T12:00:00Z",
-              subscription: { plan_code: "premium", status: "active" },
-              entitlements_count: 3,
-            },
-          ],
-          page: 2,
-          per_page: 25,
-          total: 42,
-        },
+        items: [
+          {
+            source: "v1",
+            user_id: "user-v1",
+            email: "ana@auraxis.com",
+            identities: [identity("v1", "user-v1"), identity("v2", "user-v2")],
+            blocked: false,
+            premium: true,
+          },
+        ],
+        next_cursor: "next-page",
       },
     });
 
-    const result = await client.listUsers({ search: "ana", page: 2, perPage: 25 });
+    const result = await client.listUsers({ search: "ana", cursor: "current", limit: 25 });
 
-    expect(get).toHaveBeenCalledWith("/admin/users", {
-      params: { q: "ana", page: 2, per_page: 25 },
+    expect(get).toHaveBeenCalledWith("/v2/admin/users", {
+      params: {
+        q: "ana",
+        cursor: "current",
+        limit: 25,
+        status: undefined,
+        source: undefined,
+        premium: undefined,
+      },
     });
     expect(result).toEqual({
       users: [
         {
-          id: "user-1",
-          name: "Ana Premium",
+          id: "v1/user-v1",
+          source: "v1",
+          userId: "user-v1",
           email: "ana@auraxis.com",
           status: "active",
           createdAt: "2026-05-01T10:00:00Z",
-          lastSeenAt: "2026-05-19T12:00:00Z",
-          subscriptionPlan: "premium",
-          subscriptionStatus: "active",
-          entitlementCount: 3,
+          lastSeenAt: "2026-07-19T12:00:00Z",
+          premium: true,
+          premiumOverrideActive: true,
+          sources: ["v1", "v2"],
         },
       ],
-      page: 2,
-      perPage: 25,
-      total: 42,
+      nextCursor: "next-page",
     });
   });
 
-  it("loads user detail with subscription, entitlements and audit events", async () => {
+  it("loads operational identities and audit events", async () => {
     const { client, get } = makeClient();
     get.mockResolvedValue({
       data: {
-        data: {
-          user: {
-            id: "user-1",
-            name: "Ana Premium",
-            email: "ana@auraxis.com",
-            status: "active",
-            created_at: "2026-05-01T10:00:00Z",
-            subscription: {
-              plan_code: "premium",
-              status: "active",
-              billing_cycle: "annual",
-              current_period_end: "2036-05-16T17:08:02Z",
-            },
-            entitlements: [
-              {
-                id: "ent-1",
-                feature_key: "ai_insights",
-                label: "Insights com IA",
-                active: true,
-                granted_at: "2026-05-16T17:08:02Z",
-                expires_at: null,
-              },
-            ],
-            audit_events: [
-              {
-                id: "audit-1",
-                action: "entitlement.granted",
-                reason: "Suporte ao teste premium",
-                created_at: "2026-05-16T17:09:00Z",
-              },
-            ],
+        source: "v1",
+        user_id: "user-v1",
+        email: "ana@auraxis.com",
+        identities: [identity("v1", "user-v1")],
+        blocked: false,
+        premium: true,
+        recent_actions: [
+          {
+            id: "action-1",
+            action_type: "premium_override",
+            status: "applied",
+            actor: "v1/operator",
+            reason: "Campanha de recuperação",
+            created_at: "2026-07-20T10:00:00Z",
           },
-        },
+        ],
       },
     });
 
-    await expect(client.getUser("user-1")).resolves.toMatchObject({
-      id: "user-1",
-      subscription: {
-        planCode: "premium",
-        status: "active",
-        billingCycle: "annual",
-      },
-      entitlements: [
-        {
-          id: "ent-1",
-          featureKey: "ai_insights",
-          label: "Insights com IA",
-          active: true,
-        },
-      ],
-      auditEvents: [
-        {
-          id: "audit-1",
-          action: "entitlement.granted",
-          reason: "Suporte ao teste premium",
-        },
-      ],
+    await expect(client.getUser("v1/user-v1")).resolves.toMatchObject({
+      id: "v1/user-v1",
+      identities: [{ source: "v1", emailVerified: true }],
+      auditEvents: [{ id: "action-1", status: "applied" }],
     });
-    expect(get).toHaveBeenCalledWith("/admin/users/user-1");
+    expect(get).toHaveBeenCalledWith("/v2/admin/users/v1/user-v1");
   });
 
-  it("grants an entitlement with user id, feature key and reason", async () => {
+  it.each([
+    ["blockUser", "block"],
+    ["unblockUser", "unblock"],
+    ["grantPremiumOverride", "premium-override"],
+    ["revokePremiumOverride", "premium-override/revoke"],
+  ] as const)("sends %s with a unique idempotency key", async (method, path) => {
     const { client, post } = makeClient();
-    post.mockResolvedValue({
-      data: {
-        success: true,
-        data: {
-          audit_id: "audit-123",
-          entitlement: {
-            id: "ent-123",
-            feature_key: "ai_insights",
-            label: "Insights com IA",
-            active: true,
-            granted_at: "2026-05-19T10:00:00Z",
-          },
-        },
-      },
+    post.mockResolvedValue({ data: { id: "action-1", status: "applied" } });
+
+    await client[method]({
+      userRef: "v2/user-v2",
+      reason: "Solicitação validada pelo suporte",
+      expiresAt: "2026-08-20T10:00:00Z",
     });
 
-    const result = await client.grantEntitlement({
-      userId: "user-1",
-      featureKey: "ai_insights",
-      reason: "Liberar teste de suporte",
-    });
-
-    expect(post).toHaveBeenCalledWith("/entitlements/admin", {
-      user_id: "user-1",
-      feature_key: "ai_insights",
-      reason: "Liberar teste de suporte",
-    });
-    expect(result.auditId).toBe("audit-123");
-    expect(result.entitlement?.id).toBe("ent-123");
-  });
-
-  it("revokes an entitlement with a reason in the delete body", async () => {
-    const { client, deleteRequest } = makeClient();
-    deleteRequest.mockResolvedValue({
-      data: {
-        success: true,
-        data: { audit_id: "audit-456" },
-      },
-    });
-
-    const result = await client.revokeEntitlement({
-      entitlementId: "ent-123",
-      reason: "Acesso temporário encerrado",
-    });
-
-    expect(deleteRequest).toHaveBeenCalledWith("/entitlements/admin/ent-123", {
-      data: { reason: "Acesso temporário encerrado" },
-    });
-    expect(result.auditId).toBe("audit-456");
+    expect(post).toHaveBeenCalledWith(
+      `/v2/admin/users/v2/user-v2/${path}`,
+      path === "premium-override"
+        ? {
+            reason: "Solicitação validada pelo suporte",
+            expires_at: "2026-08-20T10:00:00Z",
+          }
+        : { reason: "Solicitação validada pelo suporte" },
+      { headers: { "Idempotency-Key": "admin-web-11111111-1111-4111-8111-111111111111" } },
+    );
   });
 });

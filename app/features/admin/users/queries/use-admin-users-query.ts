@@ -2,10 +2,7 @@ import { computed, type MaybeRefOrGetter, toValue } from "vue";
 import { type UseQueryReturnType, useQuery } from "@tanstack/vue-query";
 
 import { STALE_TIME } from "~/core/query/stale-time";
-import type {
-  AdminUserList,
-  AdminUsersFilters,
-} from "~/features/admin/users/model/admin-user";
+import type { AdminUserList, AdminUsersFilters } from "~/features/admin/users/model/admin-user";
 import {
   type AdminUsersClient,
   useAdminUsersClient,
@@ -20,15 +17,16 @@ export const ADMIN_USERS_QUERY_KEY = ["admin", "users"] as const;
  * @param filters Search and pagination filters.
  * @returns Stable Vue Query key.
  */
-export const adminUsersListQueryKey = (
-  filters: AdminUsersFilters,
-): readonly unknown[] => [
+export const adminUsersListQueryKey = (filters: AdminUsersFilters): readonly unknown[] => [
   ...ADMIN_USERS_QUERY_KEY,
   "list",
   {
     search: filters.search ?? "",
-    page: filters.page ?? 1,
-    perPage: filters.perPage ?? 20,
+    cursor: filters.cursor ?? "",
+    limit: filters.limit ?? 25,
+    status: filters.status ?? "",
+    source: filters.source ?? "",
+    premium: filters.premium ?? null,
   },
 ];
 

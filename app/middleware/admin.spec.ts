@@ -1,40 +1,35 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const mockRestore = vi.hoisted(() => vi.fn());
-const mockAccessToken = vi.hoisted(() => vi.fn<() => string | null>(() => null));
+const mockRunSessionRestore = vi.hoisted(() => vi.fn());
 const mockIsAuthenticated = vi.hoisted(() => vi.fn(() => false as boolean));
+const mockGetSession = vi.hoisted(() => vi.fn());
 const mockNavigateTo = vi.hoisted(() => vi.fn((path: string): string => path));
-
-/**
- * Builds an unsigned JWT-like token for middleware authorization tests.
- *
- * @param payload JWT payload claims.
- * @returns Token-shaped string.
- */
-const tokenWithPayload = (payload: Record<string, unknown>): string => {
-  const encodedPayload = Buffer.from(JSON.stringify(payload), "utf8")
-    .toString("base64url");
-  return `header.${encodedPayload}.signature`;
-};
 
 vi.mock("~/stores/session", () => ({
   useSessionStore: (): {
-    restore: typeof mockRestore;
-    accessToken: string | null;
-    isAuthenticated: boolean;
+    readonly isAuthenticated: boolean;
+    readonly runSessionRestore: typeof mockRunSessionRestore;
   } => ({
-    restore: mockRestore,
-    get accessToken(): string | null {
-      return mockAccessToken();
-    },
     get isAuthenticated(): boolean {
       return mockIsAuthenticated();
     },
+    runSessionRestore: mockRunSessionRestore,
   }),
 }));
 
+vi.mock("~/features/admin/users/services/admin-users.client", () => ({
+  useAdminUsersClient: (): { getSession: typeof mockGetSession } => ({
+    getSession: mockGetSession,
+  }),
+}));
+
+vi.mock("~/composables/useHttp/useHttp", () => ({ refreshAccessToken: vi.fn() }));
+
 vi.mock("#app", () => ({
   navigateTo: mockNavigateTo,
+  useRuntimeConfig: (): { public: { apiBase: string } } => ({
+    public: { apiBase: "http://api.test" },
+  }),
   defineNuxtRouteMiddleware: (
     fn: (to: { path: string }) => unknown,
   ): ((to: { path: string }) => unknown) => fn,
@@ -42,40 +37,39 @@ vi.mock("#app", () => ({
 
 describe("admin middleware", () => {
   beforeEach(() => {
-    vi.resetModules();
-    mockRestore.mockClear();
-    mockNavigateTo.mockClear();
-    mockAccessToken.mockReturnValue(null);
+    vi.clearAllMocks();
     mockIsAuthenticated.mockReturnValue(false);
+    mockRunSessionRestore.mockResolvedValue(false);
+    mockGetSession.mockResolvedValue({ isAdmin: true });
   });
 
-  it("redirects guests to login", async () => {
-    const middleware = await import("./admin");
-    const result = (middleware.default as (to: { path: string }) => unknown)({ path: "/admin" });
+  it("restores the session before redirecting a guest", async () => {
+    const middleware = (await import("./admin")).default;
+    const result = await middleware({ path: "/admin" } as never, {} as never);
 
-    expect(mockRestore).toHaveBeenCalledOnce();
+    expect(mockRunSessionRestore).toHaveBeenCalledOnce();
     expect(mockNavigateTo).toHaveBeenCalledWith("/login");
     expect(result).toBe("/login");
   });
 
-  it("redirects authenticated non-admin users to the admin forbidden page", async () => {
+  it("rejects an authenticated user when the backend session is forbidden", async () => {
     mockIsAuthenticated.mockReturnValue(true);
-    mockAccessToken.mockReturnValue(tokenWithPayload({ roles: ["user"] }));
+    mockGetSession.mockRejectedValue(new Error("forbidden"));
+    const middleware = (await import("./admin")).default;
 
-    const middleware = await import("./admin");
-    const result = (middleware.default as (to: { path: string }) => unknown)({ path: "/admin" });
+    const result = await middleware({ path: "/admin" } as never, {} as never);
 
     expect(mockNavigateTo).toHaveBeenCalledWith("/admin/forbidden", { replace: true });
     expect(result).toBe("/admin/forbidden");
   });
 
-  it("allows users with admin claims", async () => {
+  it("allows an operator validated by GET /v2/admin/session", async () => {
     mockIsAuthenticated.mockReturnValue(true);
-    mockAccessToken.mockReturnValue(tokenWithPayload({ roles: ["admin"] }));
+    const middleware = (await import("./admin")).default;
 
-    const middleware = await import("./admin");
-    const result = (middleware.default as (to: { path: string }) => unknown)({ path: "/admin" });
+    const result = await middleware({ path: "/admin" } as never, {} as never);
 
+    expect(mockGetSession).toHaveBeenCalledOnce();
     expect(mockNavigateTo).not.toHaveBeenCalled();
     expect(result).toBeUndefined();
   });
