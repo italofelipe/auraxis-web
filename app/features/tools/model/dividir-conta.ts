@@ -142,7 +142,7 @@ export function calculateDividirConta(form: DividirContaFormState): DividirConta
   const totalWithFees = round2(total + totalFees);
   const perPersonEqual = round2(totalWithFees / form.people);
 
-  let perPersonIndividual: number[] = [];
+  let perPersonIndividual: number[];
 
   if (form.mode === "individual") {
     const amounts = form.individualAmounts.slice(0, form.people);
