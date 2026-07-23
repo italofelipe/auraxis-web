@@ -97,7 +97,9 @@ const mapIdentity = (identity: AdminIdentityDto): AdminUserIdentity => ({
  * @returns Earliest non-null ISO timestamp.
  */
 const earliest = (values: Array<string | null | undefined>): string | null =>
-  values.filter((value): value is string => Boolean(value)).sort()[0] ?? null;
+  values
+    .filter((value): value is string => Boolean(value))
+    .sort((a, b) => a.localeCompare(b))[0] ?? null;
 
 /**
  * @param values Candidate timestamps.
@@ -106,7 +108,7 @@ const earliest = (values: Array<string | null | undefined>): string | null =>
 const latest = (values: Array<string | null | undefined>): string | null =>
   values
     .filter((value): value is string => Boolean(value))
-    .sort()
+    .sort((a, b) => a.localeCompare(b))
     .at(-1) ?? null;
 
 /**
