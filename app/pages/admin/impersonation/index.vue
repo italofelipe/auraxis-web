@@ -15,6 +15,7 @@ import {
   useAdminImpersonationSession,
 } from "~/features/admin/impersonation/composables/use-admin-impersonation-session";
 import { useAdminImpersonationSearchQuery } from "~/features/admin/impersonation/queries/use-admin-impersonation-query";
+import { useFeatureFlag } from "~/shared/feature-flags/use-feature-flag";
 import {
   useEndAdminImpersonationMutation,
   useStartAdminImpersonationMutation,
@@ -27,6 +28,13 @@ definePageMeta({
   pageTitle: "Impersonação read-only",
   pageSubtitle: "Visualize a experiência do usuário sem permitir mutações e com trilha de auditoria.",
 });
+
+// Surface deferred (api-v2#46): the impersonation backend does not exist on
+// the v2 control plane and the v1 endpoints were never implemented (#1156).
+const surfaceEnabled = useFeatureFlag("web.admin.impersonation");
+if (!surfaceEnabled.value) {
+  await navigateTo("/admin", { replace: true });
+}
 
 useHead({ title: "Admin Impersonação | Auraxis" });
 

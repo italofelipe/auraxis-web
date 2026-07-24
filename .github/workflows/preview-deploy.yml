@@ -103,6 +103,7 @@ jobs:
           NUXT_APP_BASE_URL: ${{ steps.paths.outputs.base_url }}
           NUXT_PUBLIC_APP_ENV: preview
           NUXT_PUBLIC_API_BASE: https://api.auraxis.com.br
+          NUXT_PUBLIC_API_V2_BASE: https://v2.auraxis.com.br
           NUXT_PUBLIC_SITE_URL: ${{ steps.paths.outputs.preview_url }}
           NUXT_PUBLIC_BUILD_ID: "pr-${{ github.event.pull_request.number }}-${{ github.sha }}"
           NUXT_PUBLIC_SENTRY_DSN: ${{ secrets.NUXT_PUBLIC_SENTRY_DSN }}

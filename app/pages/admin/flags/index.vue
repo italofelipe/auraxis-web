@@ -29,6 +29,14 @@ definePageMeta({
   pageSubtitle: "Controle operacional de flags existentes, saúde do sistema e ponte segura para observabilidade.",
 });
 
+// Surface gated until the v2 control plane exposes feature-flags and
+// operations/summary — the v1 endpoints this page targets are unreachable
+// in production (#1156).
+const surfaceEnabled = useFeatureFlag("web.admin.operations");
+if (!surfaceEnabled.value) {
+  await navigateTo("/admin", { replace: true });
+}
+
 useHead({ title: "Admin Feature Flags | Auraxis" });
 
 interface PendingFlagUpdate {
