@@ -79,6 +79,11 @@ jobs:
         env:
           NODE_ENV: production
           NUXT_PUBLIC_API_BASE: ${{ env.DEPLOY_API_BASE_URL }}
+          # Backoffice control plane (#1156): the admin users surface and the
+          # /v2/admin/session guard talk to the FastAPI v2. Without this env
+          # the static build bakes the localhost default and /admin dies in
+          # production with the CSP blocking the fallback.
+          NUXT_PUBLIC_API_V2_BASE: https://v2.auraxis.com.br
           NUXT_PUBLIC_SENTRY_DSN: ${{ secrets.NUXT_PUBLIC_SENTRY_DSN }}
           NUXT_PUBLIC_APP_ENV: ${{ env.DEPLOY_ENVIRONMENT }}
           NUXT_PUBLIC_SITE_URL: https://${{ env.WEB_OFFICIAL_HOSTNAME }}

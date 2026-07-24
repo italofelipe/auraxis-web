@@ -501,6 +501,36 @@
       "repositories": ["auraxis-web"]
     },
     {
+      "key": "web.admin.insights",
+      "owner": "platform",
+      "createdAt": "2026-07-24",
+      "removeBy": "2027-07-24",
+      "type": "release",
+      "status": "enabled-dev",
+      "description": "Exibe a superfície de Insights IA do backoffice; ligar quando o control plane v2 expuser /v2/admin/insights (re-escopo api-v2#43).",
+      "repositories": ["auraxis-web", "auraxis-api-v2"]
+    },
+    {
+      "key": "web.admin.operations",
+      "owner": "platform",
+      "createdAt": "2026-07-24",
+      "removeBy": "2027-07-24",
+      "type": "release",
+      "status": "enabled-dev",
+      "description": "Exibe a superfície de Feature flags e operações do backoffice; ligar quando o control plane v2 expuser feature-flags e operations/summary (api-v2#86 e re-escopo #45).",
+      "repositories": ["auraxis-web", "auraxis-api-v2"]
+    },
+    {
+      "key": "web.admin.impersonation",
+      "owner": "platform",
+      "createdAt": "2026-07-24",
+      "removeBy": "2027-07-24",
+      "type": "release",
+      "status": "enabled-dev",
+      "description": "Exibe a superfície de impersonação read-only do backoffice; adiada até o backend existir (api-v2#46).",
+      "repositories": ["auraxis-web", "auraxis-api-v2"]
+    },
+    {
       "key": "web.dashboard.new-layout",
       "owner": "growth",
       "createdAt": "2026-04-21",

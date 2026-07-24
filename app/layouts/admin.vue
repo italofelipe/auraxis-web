@@ -13,7 +13,9 @@ import {
 } from "lucide-vue-next";
 import { useLogout } from "~/composables/useLogout";
 import AdminImpersonationBanner from "~/features/admin/impersonation/components/AdminImpersonationBanner.vue";
+import { visibleAdminNavKeys } from "~/features/admin/model/admin-nav";
 import { useUserProfileQuery } from "~/features/profile/composables/use-user-profile-query";
+import { useFeatureFlag } from "~/shared/feature-flags/use-feature-flag";
 import { useSessionStore } from "~/stores/session";
 import { useUserStore } from "~/stores/user";
 
@@ -24,13 +26,28 @@ const { logout } = useLogout();
 
 useUserProfileQuery();
 
-const navItems = [
+const insightsEnabled = useFeatureFlag("web.admin.insights");
+const operationsEnabled = useFeatureFlag("web.admin.operations");
+const impersonationEnabled = useFeatureFlag("web.admin.impersonation");
+
+const allNavItems = [
   { key: "overview", label: "Visão geral", to: "/admin", icon: Activity, disabled: false },
   { key: "users", label: "Usuários", to: "/admin/users", icon: Users, disabled: false },
   { key: "insights", label: "Insights IA", to: "/admin/insights", icon: Sparkles, disabled: false },
   { key: "flags", label: "Feature flags", to: "/admin/flags", icon: Flag, disabled: false },
   { key: "impersonation", label: "Impersonação", to: "/admin/impersonation", icon: Eye, disabled: false },
 ] as const;
+
+const navItems = computed(() => {
+  const visible = new Set<string>(
+    visibleAdminNavKeys({
+      insights: insightsEnabled.value,
+      operations: operationsEnabled.value,
+      impersonation: impersonationEnabled.value,
+    }),
+  );
+  return allNavItems.filter((item) => visible.has(item.key));
+});
 
 const adminName = computed(() => userStore.profile?.name || sessionStore.userEmail || "Admin");
 const adminEmail = computed(() => userStore.profile?.email || sessionStore.userEmail || "Sessão admin");
