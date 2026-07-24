@@ -803,7 +803,7 @@ test.describe("Admin — shell and guard", () => {
       page.locator(".admin-forbidden").getByRole("heading", { name: "Acesso restrito" }),
     ).toBeVisible();
     await expect(page.getByText(/não possui permissões administrativas/i)).toBeVisible();
-    await expect(page.getByText("Console administrativo")).toBeHidden();
+    await expect(page.getByRole("heading", { name: "Visão geral" })).toBeHidden();
   });
 
   test("shows the admin route and shell for users with admin claims", async ({ page }) => {
@@ -814,7 +814,7 @@ test.describe("Admin — shell and guard", () => {
     await page.goto("/admin");
 
     await expect(page).toHaveURL(/\/admin/, { timeout: 10_000 });
-    await expect(page.getByRole("heading", { name: "Console administrativo" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Visão geral" })).toBeVisible();
     const adminNavigation = page.getByRole("navigation", { name: "Navegação administrativa" });
     await expect(adminNavigation).toBeVisible();
     await expect(adminNavigation.getByRole("link", { name: /Insights IA/ })).toBeVisible();
