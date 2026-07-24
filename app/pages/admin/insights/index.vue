@@ -17,6 +17,7 @@ import {
 } from "~/features/admin/insights/model/admin-insight";
 import { useAdminInsightQuery } from "~/features/admin/insights/queries/use-admin-insight-query";
 import { useAdminInsightsQuery } from "~/features/admin/insights/queries/use-admin-insights-query";
+import { useFeatureFlag } from "~/shared/feature-flags/use-feature-flag";
 
 definePageMeta({
   layout: "admin",
@@ -24,6 +25,13 @@ definePageMeta({
   pageTitle: "Insights IA e auditoria",
   pageSubtitle: "Histórico, custos, consentimento e evidências redigidas dos insights.",
 });
+
+// Surface gated until the v2 control plane exposes /v2/admin/insights —
+// today this page targets a v1 endpoint that was never implemented (#1156).
+const surfaceEnabled = useFeatureFlag("web.admin.insights");
+if (!surfaceEnabled.value) {
+  await navigateTo("/admin", { replace: true });
+}
 
 useHead({ title: "Admin Insights IA | Auraxis" });
 

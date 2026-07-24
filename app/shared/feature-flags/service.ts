@@ -1,3 +1,5 @@
+import { useRuntimeConfig } from "nuxt/app";
+
 import featureFlagsCatalogJson from "../../../config/feature-flags.json";
 
 import type {
@@ -20,14 +22,41 @@ const alwaysEnabledStatuses = new Set<string>([
 ]);
 
 /**
+ * Reads the environment tier from the hydrated Nuxt runtime config.
+ *
+ * Client bundles shim `process.env` to `{}` (unenv), so the build-time env
+ * never reaches the browser — before this existed, every `enabled-dev` /
+ * `enabled-staging` flag resolved as enabled after hydration in production
+ * (#1156). The runtime config is serialized into the payload and is the only
+ * trustworthy source on the client. Outside a Nuxt app context (pure unit
+ * tests, node scripts) `useRuntimeConfig` throws — callers fall back to
+ * `process.env`.
+ *
+ * @returns The configured appEnv string, or undefined without a Nuxt app.
+ */
+const readAppEnvFromRuntimeConfig = (): string | undefined => {
+  try {
+    const publicConfig = useRuntimeConfig().public as { appEnv?: unknown };
+    if (typeof publicConfig.appEnv === "string" && publicConfig.appEnv.length > 0) {
+      return publicConfig.appEnv;
+    }
+  } catch {
+    // No Nuxt app context — fall through to process.env.
+  }
+  return undefined;
+};
+
+/**
  * Returns the current runtime environment tier.
- * Checked via NUXT_PUBLIC_APP_ENV or AURAXIS_RUNTIME_ENV.
- * Defaults to "development" when unset (safe fallback for local runs).
+ * Checked via runtimeConfig.public.appEnv, then NUXT_PUBLIC_APP_ENV or
+ * AURAXIS_RUNTIME_ENV. Defaults to "development" when unset (safe fallback
+ * for local runs).
  *
  * @returns The resolved environment tier.
  */
 export const getRuntimeEnv = (): "development" | "staging" | "production" => {
   const raw = (
+    readAppEnvFromRuntimeConfig() ??
     process.env.NUXT_PUBLIC_APP_ENV ??
     process.env.AURAXIS_RUNTIME_ENV ??
     "development"

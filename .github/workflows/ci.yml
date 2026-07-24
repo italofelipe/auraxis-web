@@ -521,6 +521,12 @@ jobs:
         run: pnpm build
         env:
           NODE_ENV: production
+          # E2E exercises the dev-flag superset (admin surfaces behind
+          # enabled-dev stay visible). Without this, runtimeConfig.appEnv
+          # falls back to NODE_ENV=production (nuxt.config) and — now that
+          # the client honours the hydrated appEnv (#1156) — the gated
+          # surfaces disappear from the build under test.
+          NUXT_PUBLIC_APP_ENV: development
       - name: Run Playwright tests
         run: pnpm test:e2e
         env:
