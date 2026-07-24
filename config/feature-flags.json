@@ -549,6 +549,16 @@
       "status": "enabled-staging",
       "description": "Login social (Google + Facebook) via api-v2 OAuth (ADR-0005).",
       "repositories": ["auraxis-web"]
+    },
+    {
+      "key": "web.admin.dashboard",
+      "owner": "platform",
+      "createdAt": "2026-07-24",
+      "removeBy": "2027-07-24",
+      "type": "release",
+      "status": "enabled-dev",
+      "description": "Dashboard de métricas de produto no /admin (usuários, premium, uso de IA, atividade) consumindo /v2/admin/metrics/*. Com a flag OFF a página mantém o conteúdo estático anterior.",
+      "repositories": ["auraxis-web", "auraxis-api-v2"]
     }
   ]
 }
