@@ -45,11 +45,8 @@ vi.mock("~/features/profile/composables/use-user-profile-query", () => ({
   useUserProfileQuery: vi.fn(() => ({ data: null, isLoading: false })),
 }));
 
-vi.mock("~/features/admin/model/admin-access", () => ({
-  useAdminAccess: vi.fn(() => ({
-    isAdmin: mockIsAdmin,
-    claims: ref({ isAdmin: mockIsAdmin.value, roles: [], permissions: [] }),
-  })),
+vi.mock("~/features/admin/queries/use-admin-access-query", () => ({
+  useAdminAccessQuery: vi.fn(() => ({ data: mockIsAdmin })),
 }));
 
 /**
@@ -142,7 +139,7 @@ describe("DefaultLayout", () => {
     expect(wrapper.text()).not.toContain("Admin");
   });
 
-  it("adds the admin route to the sidebar only for users with admin claims", () => {
+  it("adds the admin route to the sidebar only when the backend session confirms an admin", () => {
     setActivePinia(createPinia());
     mockIsAdmin.value = true;
 

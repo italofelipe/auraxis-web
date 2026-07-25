@@ -26,7 +26,7 @@ import { useUserStore } from "~/stores/user";
 import { useLogout } from "~/composables/useLogout";
 import { isFeatureEnabled } from "~/shared/feature-flags";
 import { useOnboarding } from "~/features/onboarding/composables/useOnboarding";
-import { useAdminAccess } from "~/features/admin/model/admin-access";
+import { useAdminAccessQuery } from "~/features/admin/queries/use-admin-access-query";
 import AdminImpersonationBanner from "~/features/admin/impersonation/components/AdminImpersonationBanner.vue";
 import EmailVerificationGate from "~/features/auth/components/EmailVerificationGate.vue";
 import OnboardingWizard from "~/features/onboarding/components/OnboardingWizard.vue";
@@ -39,7 +39,11 @@ const route = useRoute();
 const sessionStore = useSessionStore();
 const userStore = useUserStore();
 const { logout } = useLogout();
-const { isAdmin } = useAdminAccess();
+// Backend-verified admin flag (#1163): the v1 JWT never carries admin
+// claims — the control-plane allowlist (GET /v2/admin/session) is the only
+// truthful source for showing the Admin entry.
+const { data: adminAccess } = useAdminAccessQuery();
+const isAdmin = computed(() => adminAccess.value === true);
 
 useUserProfileQuery();
 

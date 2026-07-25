@@ -4,6 +4,13 @@ const mockRunSessionRestore = vi.hoisted(() => vi.fn());
 const mockIsAuthenticated = vi.hoisted(() => vi.fn(() => false as boolean));
 const mockGetSession = vi.hoisted(() => vi.fn());
 const mockNavigateTo = vi.hoisted(() => vi.fn((path: string): string => path));
+const mockSaveRedirect = vi.hoisted(() => vi.fn());
+
+vi.mock("~/composables/useAuthRedirectContext/useAuthRedirectContext", () => ({
+  useAuthRedirectContext: (): { saveRedirect: typeof mockSaveRedirect } => ({
+    saveRedirect: mockSaveRedirect,
+  }),
+}));
 
 vi.mock("~/stores/session", () => ({
   useSessionStore: (): {
@@ -45,11 +52,29 @@ describe("admin middleware", () => {
 
   it("restores the session before redirecting a guest", async () => {
     const middleware = (await import("./admin")).default;
-    const result = await middleware({ path: "/admin" } as never, {} as never);
+    const result = await middleware({ path: "/admin", fullPath: "/admin" } as never, {} as never);
 
     expect(mockRunSessionRestore).toHaveBeenCalledOnce();
     expect(mockNavigateTo).toHaveBeenCalledWith("/login");
     expect(result).toBe("/login");
+  });
+
+  it("saves the intended destination before sending a guest to login", async () => {
+    const middleware = (await import("./admin")).default;
+    await middleware({ path: "/admin/users", fullPath: "/admin/users?premium=with" } as never, {} as never);
+
+    expect(mockSaveRedirect).toHaveBeenCalledWith("/admin/users?premium=with");
+    const saveOrder = mockSaveRedirect.mock.invocationCallOrder[0] ?? 0;
+    const navigateOrder = mockNavigateTo.mock.invocationCallOrder[0] ?? 0;
+    expect(saveOrder).toBeLessThan(navigateOrder);
+  });
+
+  it("does not save a redirect for an already authenticated operator", async () => {
+    mockIsAuthenticated.mockReturnValue(true);
+    const middleware = (await import("./admin")).default;
+    await middleware({ path: "/admin", fullPath: "/admin" } as never, {} as never);
+
+    expect(mockSaveRedirect).not.toHaveBeenCalled();
   });
 
   it("rejects an authenticated user when the backend session is forbidden", async () => {

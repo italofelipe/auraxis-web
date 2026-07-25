@@ -1,4 +1,5 @@
 import { defineNuxtRouteMiddleware, navigateTo, useRuntimeConfig } from "#app";
+import { useAuthRedirectContext } from "~/composables/useAuthRedirectContext/useAuthRedirectContext";
 import { refreshAccessToken } from "~/composables/useHttp/useHttp";
 import { useAdminUsersClient } from "~/features/admin/users/services/admin-users.client";
 import { useSessionStore } from "~/stores/session";
@@ -19,6 +20,10 @@ export default defineNuxtRouteMiddleware(async (to) => {
     );
   }
   if (!sessionStore.isAuthenticated) {
+    // Preserve the intended destination so /login brings the operator back
+    // here after authenticating (#1163) — same mechanism the login page
+    // already consumes via consumeRedirect().
+    useAuthRedirectContext().saveRedirect(to.fullPath);
     return navigateTo("/login");
   }
   if (to.path === "/admin/forbidden") {
