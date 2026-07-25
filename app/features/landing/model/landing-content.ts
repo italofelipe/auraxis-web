@@ -30,6 +30,12 @@ export const LANDING_REGISTER_URL = buildAppUrl("/register");
 /** Discreet secondary action — login on the product app. */
 export const LANDING_LOGIN_URL = buildAppUrl("/login");
 
+/**
+ * Subscription-flow destination on the product app. Unauthenticated visitors
+ * are routed through login/register and returned here afterwards (web#1172).
+ */
+export const LANDING_SUBSCRIBE_URL = buildAppUrl("/subscription");
+
 /** Identifier keys for the four v1 product features, in display order. */
 export type LandingFeatureKey = "transactions" | "goals" | "budgets" | "wallet";
 
@@ -51,6 +57,17 @@ export interface LandingAiHighlight {
 export interface LandingFooterLink {
   readonly label: string;
   readonly href: string;
+}
+
+/** A Premium plan card shown in the pricing section. */
+export interface LandingPlan {
+  readonly key: "monthly" | "annual";
+  readonly name: string;
+  readonly price: string;
+  readonly period: string;
+  readonly note: string;
+  /** The recommended plan gets the highlighted treatment. */
+  readonly featured: boolean;
 }
 
 /** Pain points that open the problem → solution narrative. */
@@ -107,6 +124,29 @@ export const LANDING_AI_HIGHLIGHTS: readonly LandingAiHighlight[] = [
     title: "Briefing semanal",
     description:
       "Um resumo editorial do que aconteceu com o seu dinheiro — direto, sem jargão e com o que merece atenção.",
+  },
+] as const;
+
+/**
+ * Premium plans shown in the pricing section — canonical pricing from ADR
+ * platform#669 (R$29,90/mês · R$287,04/ano). Both include a 7-day free trial.
+ */
+export const LANDING_PLANS: readonly LandingPlan[] = [
+  {
+    key: "monthly",
+    name: "Premium mensal",
+    price: "R$ 29,90",
+    period: "por mês",
+    note: "Flexível — cancele quando quiser.",
+    featured: false,
+  },
+  {
+    key: "annual",
+    name: "Premium anual",
+    price: "R$ 287,04",
+    period: "por ano",
+    note: "R$ 23,92/mês, 20% de desconto.",
+    featured: true,
   },
 ] as const;
 
