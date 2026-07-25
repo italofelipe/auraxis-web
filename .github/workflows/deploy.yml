@@ -221,7 +221,42 @@ jobs:
           aws s3 sync .output/public/ "s3://${{ env.S3_BUCKET }}/" \
             --region "${{ env.AWS_REGION }}" \
             --exclude "*.html" \
+            --exclude "sw.js" \
+            --exclude "workbox-*.js" \
+            --exclude "manifest.webmanifest" \
+            --exclude "_nuxt/builds/*" \
             --cache-control "public, max-age=31536000, immutable"
+
+      # Mutable runtime files must NEVER be immutable (#1173): the browser
+      # revalidates the service-worker script (24h cap) and Nuxt polls
+      # _nuxt/builds/latest.json to detect new deploys — an immutable header on
+      # any of them pins clients to a stale app shell for up to a day after
+      # every deploy (root cause of the /admin fix appearing "not deployed").
+      - name: Upload mutable runtime files (no-cache)
+        run: |
+          BUCKET="s3://${{ env.S3_BUCKET }}"
+          NO_CACHE="no-cache, no-store, must-revalidate"
+          aws s3 cp .output/public/ "$BUCKET/" \
+            --region "${{ env.AWS_REGION }}" \
+            --recursive \
+            --exclude "*" \
+            --include "sw.js" \
+            --include "workbox-*.js" \
+            --cache-control "$NO_CACHE" \
+            --content-type "application/javascript"
+          if [ -f .output/public/manifest.webmanifest ]; then
+            aws s3 cp .output/public/manifest.webmanifest "$BUCKET/manifest.webmanifest" \
+              --region "${{ env.AWS_REGION }}" \
+              --cache-control "$NO_CACHE" \
+              --content-type "application/manifest+json"
+          fi
+          if [ -d .output/public/_nuxt/builds ]; then
+            aws s3 cp .output/public/_nuxt/builds/ "$BUCKET/_nuxt/builds/" \
+              --region "${{ env.AWS_REGION }}" \
+              --recursive \
+              --cache-control "$NO_CACHE" \
+              --content-type "application/json"
+          fi
 
       - name: Invalidate CloudFront cache
         run: |
