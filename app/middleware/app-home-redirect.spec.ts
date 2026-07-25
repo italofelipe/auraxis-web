@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mockRestore = vi.hoisted(() => vi.fn());
 const mockIsAuthenticated = vi.hoisted(() => vi.fn(() => false as boolean));
 const mockNavigateTo = vi.hoisted(() => vi.fn((path: string): string => path));
-const mockSurface = vi.hoisted(() => vi.fn(() => "app" as "app" | "marketing"));
+const mockSurface = vi.hoisted(() => vi.fn(() => "app" as "app" | "marketing" | "landing"));
 
 vi.mock("~/stores/session", () => ({
   useSessionStore: (): { restore: typeof mockRestore; isAuthenticated: boolean } => ({
@@ -17,7 +17,7 @@ vi.mock("~/stores/session", () => ({
 vi.mock("#app", () => ({
   navigateTo: mockNavigateTo,
   defineNuxtRouteMiddleware: (fn: () => unknown): (() => unknown) => fn,
-  useRuntimeConfig: (): { public: { siteSurface: "app" | "marketing" } } => ({
+  useRuntimeConfig: (): { public: { siteSurface: "app" | "marketing" | "landing" } } => ({
     public: { siteSurface: mockSurface() },
   }),
 }));
@@ -32,6 +32,16 @@ describe("app-home-redirect middleware", () => {
 
   it("does nothing on the marketing surface", async () => {
     mockSurface.mockReturnValue("marketing");
+    mockIsAuthenticated.mockReturnValue(true);
+    const middleware = await import("./app-home-redirect");
+    const result = (middleware.default as () => unknown)();
+    expect(mockRestore).not.toHaveBeenCalled();
+    expect(mockNavigateTo).not.toHaveBeenCalled();
+    expect(result).toBeUndefined();
+  });
+
+  it("does nothing on the landing surface", async () => {
+    mockSurface.mockReturnValue("landing");
     mockIsAuthenticated.mockReturnValue(true);
     const middleware = await import("./app-home-redirect");
     const result = (middleware.default as () => unknown)();
