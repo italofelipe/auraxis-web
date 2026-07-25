@@ -380,6 +380,60 @@
   --fluida-seguir-grad: linear-gradient(135deg, #0e6376, #0a4f5f);
 }
 
+/* ──────────────────────────────────────────────────────────────────────────
+   Landing surface (#1165) — public capture page at auraxis.com.br
+
+   The landing commits to the Auraxis dark identity as a fixed theme (it does
+   not follow the app theme toggle — it is a standalone marketing artifact).
+   Tokens live here because the frontend-governance scanner forbids literal
+   font sizes/weights/radii inside app/** components. Landing components only
+   consume var(--landing-*) plus the global spacing/motion tokens.
+
+   Type system: Newsreader (already loaded for the Insights "Fluida" reading)
+   carries the display voice; Inter stays on body; IBM Plex Mono marks kickers
+   and data accents — the same editorial trio the product already owns.
+   ────────────────────────────────────────────────────────────────────────── */
+.landing {
+  /* Fixed dark palette (mirrors the app dark theme identity) */
+  --landing-bg: #05070d;
+  --landing-bg-raised: #0b1120;
+  --landing-surface: #101a2c;
+  --landing-ink: #f1f5ff;
+  --landing-body: #c6d2ea;
+  --landing-muted: #8b9bb8;
+  --landing-line: rgba(255, 255, 255, 0.1);
+  --landing-line-soft: rgba(255, 255, 255, 0.06);
+  --landing-cyan: #44d4ff;
+  --landing-green: #42e8a9;
+  --landing-cyan-ink: #051220;
+  --landing-grad: linear-gradient(135deg, #44d4ff, #42e8a9);
+  --landing-glow-cyan: rgba(68, 212, 255, 0.16);
+  --landing-glow-green: rgba(66, 232, 169, 0.12);
+  --landing-grid-line: rgba(241, 245, 255, 0.035);
+
+  /* Display type — Newsreader serif for headlines */
+  --landing-font-display: "Newsreader", Georgia, "Times New Roman", serif;
+  --landing-size-display: clamp(2.9rem, 6.4vw, 5rem);
+  --landing-size-h2: clamp(2rem, 4vw, 3rem);
+  --landing-size-h3: 1.1875rem;
+  --landing-size-lead: clamp(1.0625rem, 1.6vw, 1.25rem);
+  --landing-size-body: 1rem;
+  --landing-size-sm: 0.9375rem;
+  --landing-size-kicker: 0.8125rem;
+  --landing-size-fine: 0.8125rem;
+  --landing-leading-display: 1.04;
+  --landing-leading-h2: 1.1;
+  --landing-leading-body: 1.65;
+  --landing-tracking-kicker: 0.18em;
+
+  /* Shape */
+  --landing-radius-frame: 18px;
+  --landing-radius-card: 16px;
+  --landing-radius-pill: 9999px;
+  --landing-shadow-frame: 0 40px 120px rgba(0, 0, 0, 0.55);
+  --landing-shadow-cta: 0 16px 44px rgba(68, 212, 255, 0.28);
+}
+
 /* Reset and base */
 *,
 *::before,

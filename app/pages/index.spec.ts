@@ -23,3 +23,20 @@ describe("app home page — product-first login copy", () => {
     expect(source).toContain("Dados protegidos");
   });
 });
+
+describe("landing surface integration (#1165)", () => {
+  it("renders the capture landing when the build surface is landing", () => {
+    expect(source).toContain("config.public.siteSurface === \"landing\"");
+    expect(source).toContain("v-else-if=\"isLandingSurface\"");
+    expect(source).toContain("features/landing/components/LandingRoot.vue");
+  });
+
+  it("keeps the app surface strict so landing never inherits noindex robots", () => {
+    expect(source).toContain("!isMarketingSurface.value && !isLandingSurface.value");
+  });
+
+  it("lazy-loads the landing bundle instead of importing it statically", () => {
+    expect(source).toContain("defineAsyncComponent");
+    expect(source).not.toContain("import LandingRoot from");
+  });
+});

@@ -21,10 +21,22 @@ import type { LoginSchema } from "~/schemas/auth";
 
 definePageMeta({ layout: "public", middleware: ["app-home-redirect"] });
 
+// Landing surface (#1165): the capture landing for the apex auraxis.com.br is
+// loaded lazily so the app/marketing bundles never pay for its code.
+const LandingRoot = defineAsyncComponent(
+  () => import("~/features/landing/components/LandingRoot.vue"),
+);
+
 const config = useRuntimeConfig();
 const isMarketingSurface = computed((): boolean => config.public.siteSurface === "marketing");
-const isAppSurface = computed((): boolean => !isMarketingSurface.value);
+const isLandingSurface = computed((): boolean => config.public.siteSurface === "landing");
+const isAppSurface = computed(
+  (): boolean => !isMarketingSurface.value && !isLandingSurface.value,
+);
 
+// SEO for the app and marketing surfaces. The landing surface owns its SEO
+// inside LandingRoot (apex canonical, OG card, capture copy) — the component
+// registers after this page-level entry, so its tags win on that surface.
 useSeoMeta({
   title: () => isMarketingSurface.value
     ? "Auraxis | Controle financeiro com clareza"
@@ -250,6 +262,8 @@ async function onLoginSubmit(values: LoginSchema): Promise<void> {
       </aside>
     </section>
   </div>
+
+  <LandingRoot v-else-if="isLandingSurface" />
 
   <div v-else class="marketing-home">
     <section class="marketing-hero" aria-labelledby="marketing-title">
