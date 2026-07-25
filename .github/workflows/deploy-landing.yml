@@ -70,6 +70,16 @@ jobs:
           NUXT_PUBLIC_API_BASE: https://api.auraxis.com.br
           NUXT_PUBLIC_API_V2_BASE: https://v2.auraxis.com.br
           NUXT_PUBLIC_BUILD_ID: "${{ github.run_id }}-${{ github.sha }}"
+          # Error monitoring on the apex landing. Active as soon as this ships:
+          # the DSN secret already exists and Sentry is not consent-gated.
+          NUXT_PUBLIC_SENTRY_DSN: ${{ secrets.NUXT_PUBLIC_SENTRY_DSN }}
+          # PostHog product analytics — mirrors deploy.yml (#1125). Wired so the
+          # landing is ready, but it stays a no-op on this surface until BOTH:
+          #   1. the shared NUXT_PUBLIC_POSTHOG_API_KEY secret exists (#1125), and
+          #   2. a consent path exists for the landing — today app.vue hides the
+          #      CookieConsentBanner when surface === "landing" and analytics
+          #      consent defaults to opt-out, so the plugin never initializes.
+          NUXT_PUBLIC_POSTHOG_API_KEY: ${{ secrets.NUXT_PUBLIC_POSTHOG_API_KEY }}
         run: pnpm generate
 
       - name: Validate output
