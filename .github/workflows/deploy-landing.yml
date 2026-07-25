@@ -1,0 +1,181 @@
+name: Deploy Landing (auraxis.com.br)
+
+# Public capture landing (issue #1165) — dedicated static build of the
+# `landing` surface, shipped to its own S3 bucket + CloudFront distribution
+# on the apex domain. Infra (bucket, distribution, OIDC role) is provisioned
+# separately (platform#911); until the repository vars below exist, the deploy
+# job self-skips with a ::notice (same capability-check pattern as the
+# auraxis-api-v2 deploy-dev job):
+#
+#   vars.AWS_ROLE_ARN_LANDING             — OIDC role for the landing deploy
+#   vars.AURAXIS_LANDING_BUCKET           — S3 bucket for auraxis.com.br
+#   vars.AURAXIS_LANDING_DISTRIBUTION_ID  — CloudFront distribution to invalidate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "app/features/landing/**"
+      - "app/pages/index.vue"
+      - "app/layouts/public.vue"
+      - "app/app.vue"
+      - "app/assets/css/main.css"
+      - "public/landing/**"
+      - "nuxt.config.ts"
+      - ".github/workflows/deploy-landing.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: landing-prod
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: "25"
+  PNPM_VERSION: "10.30.1"
+  AWS_REGION: "us-east-1"
+
+jobs:
+  # ── 1. Generate the landing static artifact + e2e gate ─────────────────────
+  build:
+    name: Generate landing static site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate landing static site
+        env:
+          NODE_ENV: production
+          NUXT_PUBLIC_SITE_SURFACE: landing
+          NUXT_PUBLIC_SITE_URL: https://auraxis.com.br
+          NUXT_PUBLIC_APP_ENV: production
+          NUXT_PUBLIC_API_BASE: https://api.auraxis.com.br
+          NUXT_PUBLIC_API_V2_BASE: https://v2.auraxis.com.br
+          NUXT_PUBLIC_BUILD_ID: "${{ github.run_id }}-${{ github.sha }}"
+        run: pnpm generate
+
+      - name: Validate output
+        run: |
+          test -d .output/public || (echo "ERROR: .output/public not found"; exit 1)
+          test -f .output/public/index.html || (echo "ERROR: index.html not found"; exit 1)
+          grep -q "landing-hero" .output/public/index.html \
+            || (echo "ERROR: landing hero markup missing from index.html — wrong surface built?"; exit 1)
+          echo "✓ Landing static output validated"
+          echo "  Files: $(find .output/public -type f | wc -l)"
+          echo "  Size:  $(du -sh .output/public | cut -f1)"
+
+      - name: Install Playwright (chromium)
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: E2E gate — landing surface
+        env:
+          LANDING_E2E: "1"
+        run: pnpm test:e2e e2e/landing.spec.ts --project=chromium
+
+      - name: Package static output
+        # .output is in .gitignore — package as tarball so upload-artifact
+        # does not skip it via gitignore-aware globbing.
+        run: tar -czf landing-build.tar.gz .output/public
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: landing-static
+          path: landing-build.tar.gz
+          retention-days: 7
+          if-no-files-found: error
+
+  # ── 2. Deploy to S3 + invalidate CloudFront (self-skips until infra) ───────
+  deploy:
+    name: Deploy to S3 + CloudFront
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Check deploy capability
+        id: cap
+        env:
+          AWS_ROLE_ARN_LANDING: ${{ vars.AWS_ROLE_ARN_LANDING }}
+          LANDING_BUCKET: ${{ vars.AURAXIS_LANDING_BUCKET }}
+          LANDING_DISTRIBUTION_ID: ${{ vars.AURAXIS_LANDING_DISTRIBUTION_ID }}
+        run: |
+          missing=""
+          [ -n "${AWS_ROLE_ARN_LANDING:-}" ] || missing="${missing} AWS_ROLE_ARN_LANDING"
+          [ -n "${LANDING_BUCKET:-}" ] || missing="${missing} AURAXIS_LANDING_BUCKET"
+          [ -n "${LANDING_DISTRIBUTION_ID:-}" ] || missing="${missing} AURAXIS_LANDING_DISTRIBUTION_ID"
+          if [ -n "${missing}" ]; then
+            echo "::notice::Landing deploy skipped — missing repository vars:${missing} (infra pending, platform#911)"
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download build artifact
+        if: steps.cap.outputs.enabled == 'true'
+        uses: actions/download-artifact@v8
+        with:
+          name: landing-static
+          path: .
+
+      - name: Extract static output
+        if: steps.cap.outputs.enabled == 'true'
+        run: tar -xzf landing-build.tar.gz
+
+      - name: Configure AWS credentials (OIDC)
+        if: steps.cap.outputs.enabled == 'true'
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN_LANDING }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # HTML first with no-cache (aws s3 sync skips ETag-identical files which
+      # can strand stale HTML — cp always overwrites), hashed assets after with
+      # immutable cache, then a full sync --delete to drop obsolete chunks.
+      - name: Upload HTML files (no-cache, force)
+        if: steps.cap.outputs.enabled == 'true'
+        run: |
+          aws s3 cp .output/public/ "s3://${{ vars.AURAXIS_LANDING_BUCKET }}/" \
+            --region "${{ env.AWS_REGION }}" \
+            --recursive \
+            --exclude "*" \
+            --include "*.html" \
+            --cache-control "no-cache, no-store, must-revalidate" \
+            --content-type "text/html; charset=utf-8"
+
+      - name: Sync remaining assets (immutable cache + delete stale)
+        if: steps.cap.outputs.enabled == 'true'
+        run: |
+          aws s3 sync .output/public/ "s3://${{ vars.AURAXIS_LANDING_BUCKET }}/" \
+            --region "${{ env.AWS_REGION }}" \
+            --delete \
+            --exclude "*.html" \
+            --cache-control "public, max-age=31536000, immutable"
+
+      - name: Invalidate CloudFront cache
+        if: steps.cap.outputs.enabled == 'true'
+        run: |
+          DIST_ID="${{ vars.AURAXIS_LANDING_DISTRIBUTION_ID }}"
+          echo "Invalidating CloudFront distribution: $DIST_ID"
+          INVALIDATION_ID=$(aws cloudfront create-invalidation \
+            --distribution-id "$DIST_ID" \
+            --paths "/*" \
+            --query 'Invalidation.Id' \
+            --output text)
+          echo "✓ Invalidation created: $INVALIDATION_ID"

@@ -20,11 +20,26 @@ const shouldEnableContent =
   (hasContentDirectory || process.env.NUXT_ENABLE_CONTENT === "1");
 const requireFromConfig = createRequire(import.meta.url);
 const requireFromVite = createRequire(requireFromConfig.resolve("vite/package.json"));
-const siteSurface = process.env.NUXT_PUBLIC_SITE_SURFACE === "marketing" ? "marketing" : "app";
+// Build surfaces:
+//   app       → operational app at app.auraxis.com.br (default)
+//   marketing → marketing home served at the app hostname root (#1121)
+//   landing   → public capture landing at the apex auraxis.com.br (#1165).
+//               Same codebase, dedicated static build: `/` renders the landing
+//               page, sitemap collapses to the root URL and robots stay
+//               indexable. Deployed by .github/workflows/deploy-landing.yml.
+const SITE_SURFACES = ["app", "marketing", "landing"] as const;
+type SiteSurface = (typeof SITE_SURFACES)[number];
+const SURFACE_DEFAULT_SITE_URLS: Record<SiteSurface, string> = {
+  app: "https://app.auraxis.com.br",
+  marketing: "https://www.auraxis.com.br",
+  landing: "https://auraxis.com.br",
+};
+const requestedSurface = process.env.NUXT_PUBLIC_SITE_SURFACE as SiteSurface | undefined;
+const siteSurface: SiteSurface =
+  requestedSurface && SITE_SURFACES.includes(requestedSurface) ? requestedSurface : "app";
 const isMarketingSurface = siteSurface === "marketing";
-const siteUrl =
-  process.env.NUXT_PUBLIC_SITE_URL ??
-  (isMarketingSurface ? "https://www.auraxis.com.br" : "https://app.auraxis.com.br");
+const isLandingSurface = siteSurface === "landing";
+const siteUrl = process.env.NUXT_PUBLIC_SITE_URL ?? SURFACE_DEFAULT_SITE_URLS[siteSurface];
 const webmasterVerificationMeta = [
   process.env.NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION
     ? {
@@ -214,7 +229,8 @@ export default defineNuxtConfig({
       "Planner financeiro inteligente para gerenciar carteira de investimentos, " +
       "metas financeiras e finanças pessoais.",
     defaultLocale: "pt-BR",
-    indexable: process.env.NUXT_PUBLIC_APP_ENV !== "preview" && isMarketingSurface,
+    indexable:
+      process.env.NUXT_PUBLIC_APP_ENV !== "preview" && (isMarketingSurface || isLandingSurface),
   },
 
   // ── Módulos ──────────────────────────────────────────────────────────
@@ -387,6 +403,13 @@ export default defineNuxtConfig({
     enabled: false,
   },
 
+  // ── Robots (@nuxtjs/robots, bundled in @nuxtjs/seo) ──────────────────────
+  // Landing surface (#1165): public/_robots.txt carries app-host Disallow rules
+  // and a hardcoded `Sitemap: https://app.auraxis.com.br/sitemap.xml` line.
+  // Skipping the merge keeps the apex robots.txt clean — the module still emits
+  // the default allow-all group plus the correct auraxis.com.br sitemap link.
+  robots: isLandingSurface ? { mergeWithRobotsTxtPath: false } : {},
+
   // ── Sitemap (@nuxtjs/sitemap, bundled in @nuxtjs/seo) ────────────────────
   // Generated as a static file at build time (prerendered via nitro below).
   // Only public SSG routes are included — private SPA routes are excluded.
@@ -396,10 +419,21 @@ export default defineNuxtConfig({
     // this avoids a transitive @nuxtjs/seo mismatch where sitemap v7 imports a
     // nuxt-site-config v3 server composable while og-image pulls v4.
     xsl: false,
+    // Landing surface (#1165): the capture landing owns a single public URL.
+    // App sources (pages, route rules, prerender crawl) are excluded and the
+    // i18n auto-split is disabled so the build emits one sitemap.xml whose
+    // only entry is the apex root.
+    ...(isLandingSurface
+      ? { autoI18n: false, excludeAppSources: true as const, urls: ["/"] }
+      : {}),
     // Explicitly exclude private SPA routes (ssr: false in routeRules).
     // @nuxtjs/sitemap normally skips them, but listing is belt-and-suspenders.
     exclude: [
-      ...(isMarketingSurface ? [] : ["/", "/en", ...seoLandingSitemapExclusions]),
+      // App surface: the root serves the login home — keep it (and the SEO
+      // landings) out of the sitemap. Marketing and landing surfaces index "/".
+      ...(isMarketingSurface || isLandingSurface
+        ? []
+        : ["/", "/en", ...seoLandingSitemapExclusions]),
       ...localizedBlogSitemapExclusions,
       ...(isMarketingSurface ? [] : blogSitemapExclusions),
       "/dashboard",
@@ -460,6 +494,9 @@ export default defineNuxtConfig({
   // The manifest is managed by the webmanifest file in /public/.
   //
   pwa: {
+    // Landing surface (#1165): no service worker on the apex marketing domain —
+    // a SW there would add stale-cache risk for zero benefit (single page).
+    disable: isLandingSurface,
     strategies: "generateSW",
     registerType: "autoUpdate",
     // Disable PWA's own manifest injection — we manage /public/manifest.webmanifest
@@ -548,7 +585,11 @@ export default defineNuxtConfig({
   // ensures zero user/financial data is ever pre-rendered into static files
   // that could be cached or indexed by crawlers.
   //
-  routeRules: {
+  // Landing surface (#1165): the apex artifact prerenders ONLY the root —
+  // shipping the whole app/marketing route map to auraxis.com.br would create
+  // an unlinked duplicate of every public page (duplicate-content risk) and
+  // slow the deploy for no benefit.
+  routeRules: isLandingSurface ? { "/": { prerender: true } } : {
     // ── Public — SSG (indexed, shareable) ─────────────────────────────
     "/": { prerender: true },
     "/plans": { prerender: true },
@@ -685,8 +726,10 @@ export default defineNuxtConfig({
     prerender: {
       // Seed routes for the crawler. Public pages + auth pages.
       // The crawler will follow internal links and generate locale variants.
-      crawlLinks: true,
-      routes: [
+      // Landing surface (#1165): no crawling, single seeded root — the landing
+      // links only to absolute app.auraxis.com.br URLs.
+      crawlLinks: !isLandingSurface,
+      routes: isLandingSurface ? ["/"] : [
         // ── Static public pages ────────────────────────────────────────
         "/",
         "/plans",

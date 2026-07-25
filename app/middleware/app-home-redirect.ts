@@ -4,14 +4,15 @@ import { useSessionStore } from "~/stores/session";
 /**
  * Redirects authenticated users away from the operational app home.
  *
- * The same `/` route also serves the marketing landing when the build surface
- * is `marketing`, so this middleware only acts on the app surface.
+ * The same `/` route also serves the marketing home (surface `marketing`) and
+ * the public capture landing (surface `landing`), so this middleware only acts
+ * on the app surface.
  */
 export default defineNuxtRouteMiddleware(() => {
   const config = useRuntimeConfig();
   const surface = (config.public as Record<string, unknown>).siteSurface;
 
-  if (surface === "marketing") {
+  if (surface !== "app") {
     return undefined;
   }
 

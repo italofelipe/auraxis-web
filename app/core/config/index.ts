@@ -8,9 +8,22 @@ export interface AuraxisPublicConfig {
   apiBase: string;
   mockData: string;
   sentryDsn: string;
-  siteSurface: "app" | "marketing";
+  siteSurface: "app" | "marketing" | "landing";
   siteUrl: string;
 }
+
+/**
+ * Narrows an arbitrary runtime value to a known site surface.
+ * Unknown values fall back to the operational app surface.
+ * @param value Raw `siteSurface` value from the public runtime config.
+ * @returns One of the supported build surfaces.
+ */
+const resolveSiteSurface = (value: unknown): AuraxisPublicConfig["siteSurface"] => {
+  if (value === "marketing" || value === "landing") {
+    return value;
+  }
+  return "app";
+};
 
 /**
  * Returns the typed public runtime config.
@@ -24,7 +37,7 @@ export const useAuraxisConfig = (): AuraxisPublicConfig => {
     apiBase: (pub.apiBase as string) ?? "",
     mockData: (pub.mockData as string) ?? "false",
     sentryDsn: (pub.sentryDsn as string) ?? "",
-    siteSurface: pub.siteSurface === "marketing" ? "marketing" : "app",
+    siteSurface: resolveSiteSurface(pub.siteSurface),
     siteUrl: (pub.siteUrl as string) ?? "",
   };
 };
