@@ -71,6 +71,23 @@ test.describe("Landing de captação — auraxis.com.br", () => {
     await expect(aiSection.getByRole("heading", { name: "Briefing semanal" })).toBeVisible();
   });
 
+  test("renders the pricing section with plans and the subscribe CTA", async ({ page }) => {
+    const pricing = page.getByTestId("landing-pricing");
+    await pricing.scrollIntoViewIfNeeded();
+    await expect(pricing).toBeVisible();
+    await expect(pricing.getByRole("heading", { name: "Premium mensal" })).toBeVisible();
+    await expect(pricing.getByRole("heading", { name: "Premium anual" })).toBeVisible();
+    await expect(pricing.getByText("R$ 29,90")).toBeVisible();
+    await expect(pricing.getByText("R$ 287,04")).toBeVisible();
+
+    const subscribe = page.getByTestId("landing-pricing-subscribe");
+    await expect(subscribe).toBeVisible();
+    await expect(subscribe).toHaveAttribute(
+      "href",
+      "https://app.auraxis.com.br/subscription",
+    );
+  });
+
   test("shows the landing footer with legal links on the app origin", async ({ page }) => {
     const footer = page.getByTestId("landing-footer");
     await footer.scrollIntoViewIfNeeded();

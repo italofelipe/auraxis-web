@@ -7,7 +7,9 @@ import {
   LANDING_FOOTER_LINKS,
   LANDING_LOGIN_URL,
   LANDING_PAIN_POINTS,
+  LANDING_PLANS,
   LANDING_REGISTER_URL,
+  LANDING_SUBSCRIBE_URL,
 } from "./landing-content";
 
 describe("buildAppUrl", () => {
@@ -31,6 +33,10 @@ describe("landing CTA urls", () => {
 
   it("points the discreet login link at the app login page", () => {
     expect(LANDING_LOGIN_URL).toBe("https://app.auraxis.com.br/login");
+  });
+
+  it("points the subscribe CTA at the app subscription flow", () => {
+    expect(LANDING_SUBSCRIBE_URL).toBe("https://app.auraxis.com.br/subscription");
   });
 });
 
@@ -57,6 +63,16 @@ describe("landing content catalog", () => {
       "chat",
       "briefing",
     ]);
+  });
+
+  it("exposes the monthly and annual Premium plans with canonical pricing", () => {
+    expect(LANDING_PLANS.map((plan) => plan.key)).toEqual(["monthly", "annual"]);
+    const monthly = LANDING_PLANS.find((plan) => plan.key === "monthly");
+    const annual = LANDING_PLANS.find((plan) => plan.key === "annual");
+    expect(monthly?.price).toBe("R$ 29,90");
+    expect(annual?.price).toBe("R$ 287,04");
+    expect(monthly?.featured).toBe(false);
+    expect(annual?.featured).toBe(true);
   });
 
   it("lists three concrete pain points for the problem section", () => {

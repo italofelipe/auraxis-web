@@ -4,6 +4,7 @@ import LandingCta from "./LandingCta.vue";
 import LandingFooter from "./LandingFooter.vue";
 import LandingHeader from "./LandingHeader.vue";
 import LandingHero from "./LandingHero.vue";
+import LandingPricing from "./LandingPricing.vue";
 import LandingShowcase from "./LandingShowcase.vue";
 
 /**
@@ -48,6 +49,7 @@ useSeoMeta({
     <LandingHero />
     <LandingShowcase />
     <LandingAi />
+    <LandingPricing />
     <LandingCta />
     <LandingFooter />
   </div>
