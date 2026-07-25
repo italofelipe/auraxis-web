@@ -23,6 +23,13 @@ const allowedIds = new Set([
   //   - ADR:   auraxis-platform/.context/adr/lodash_es_high_strategy.md
   //   - Cron:  auraxis-platform/.github/workflows/lodash-es-upstream-check.yml
   "GHSA-r5fr-rjxr-66jc",
+  // brace-expansion — DoS/OOM (2026-07-24): vulnerable <=5.0.7, patched only
+  // on the new major (>=5.0.8), no backport for the 1.x/2.x lines required by
+  // minimatch@3/glob across build tooling (eslint, graphql-codegen, i18n).
+  // Build-time only — never ships in the bundle nor runs on the prod server,
+  // and glob patterns are repo-controlled. Tracked via:
+  //   - Issue: italofelipe/auraxis-platform#910
+  "GHSA-mh99-v99m-4gvg",
 ]);
 const isBlockingSeverity = (severity) => severity === "high" || severity === "critical";
 const isAllowlisted = (ghsa, source) => allowedIds.has(ghsa) || allowedIds.has(source);
