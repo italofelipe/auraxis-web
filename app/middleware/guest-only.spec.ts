@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mockRestore = vi.hoisted(() => vi.fn());
 const mockIsAuthenticated = vi.hoisted(() => vi.fn(() => false as boolean));
 const mockNavigateTo = vi.hoisted(() => vi.fn((path: string): string => path));
+const mockConsumeRedirect = vi.hoisted(() => vi.fn((): string => "/dashboard"));
 
 vi.mock("~/stores/session", () => ({
   useSessionStore: (): { restore: typeof mockRestore; isAuthenticated: boolean } => ({
@@ -10,6 +11,12 @@ vi.mock("~/stores/session", () => ({
     get isAuthenticated(): boolean {
       return mockIsAuthenticated();
     },
+  }),
+}));
+
+vi.mock("~/composables/useAuthRedirectContext/useAuthRedirectContext", () => ({
+  useAuthRedirectContext: (): { consumeRedirect: typeof mockConsumeRedirect } => ({
+    consumeRedirect: mockConsumeRedirect,
   }),
 }));
 
@@ -23,6 +30,8 @@ describe("guest-only middleware", () => {
     mockRestore.mockClear();
     mockIsAuthenticated.mockClear();
     mockNavigateTo.mockClear();
+    mockConsumeRedirect.mockClear();
+    mockConsumeRedirect.mockReturnValue("/dashboard");
   });
 
   it("restores session from cookie when in-memory state is empty", async () => {
@@ -48,6 +57,21 @@ describe("guest-only middleware", () => {
     const result = (middleware.default as () => unknown)();
     expect(mockNavigateTo).toHaveBeenCalledWith("/dashboard");
     expect(result).toBe("/dashboard");
+  });
+
+  it("honors a pending auth redirect instead of forcing /dashboard (#1171)", async () => {
+    // Prod symptom: the admin middleware bounces an operator to /login after
+    // saving "/admin" as the destination. When the session turns out to be
+    // valid on the login page, guest-only must send the operator to the saved
+    // destination — discarding it strands the operator on the dashboard and
+    // leaves a stale redirect in sessionStorage.
+    mockIsAuthenticated.mockReturnValue(true);
+    mockConsumeRedirect.mockReturnValue("/admin");
+    const middleware = await import("./guest-only");
+    const result = (middleware.default as () => unknown)();
+    expect(mockConsumeRedirect).toHaveBeenCalledOnce();
+    expect(mockNavigateTo).toHaveBeenCalledWith("/admin");
+    expect(result).toBe("/admin");
   });
 
   it("does not redirect when not authenticated", async () => {
