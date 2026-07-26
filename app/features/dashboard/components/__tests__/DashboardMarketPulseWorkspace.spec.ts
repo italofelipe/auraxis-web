@@ -119,6 +119,26 @@ describe("DashboardMarketPulseWorkspace", () => {
     expect(wrapper.text()).not.toContain("Ainda não há movimentações");
   });
 
+  it("renders the cashflow chart as three clean trend lines (no stacked bars)", () => {
+    const wrapper = mountWorkspace();
+
+    const charts = wrapper.findAllComponents(UiChartStub);
+    const cashflow = charts.find((chart) => {
+      const option = chart.props("option") as { series?: Array<{ name?: string }> };
+      return Array.isArray(option?.series) && option.series.some((serie) => serie.name === "Saldo");
+    });
+    expect(cashflow).toBeTruthy();
+
+    const series = (
+      cashflow!.props("option") as { series: Array<{ type?: string; name?: string }> }
+    ).series;
+    expect(series).toHaveLength(3);
+    expect(series.map((serie) => serie.name)).toEqual(["Receitas", "Despesas", "Saldo"]);
+    for (const serie of series) {
+      expect(serie.type).toBe("line");
+    }
+  });
+
   it("surfaces category drilldown from dashboard data", () => {
     const wrapper = mountWorkspace();
 
