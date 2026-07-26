@@ -85,6 +85,7 @@ const recentTransactionFilters = computed(() => ({
   end_date: endDate.value,
 }));
 
+// eslint-disable-next-line no-restricted-syntax -- goal detail shows a "recent transactions" preview widget; page-1 is the intended scope, not an aggregation (#1104)
 const transactionsQuery = useListTransactionsQuery(recentTransactionFilters);
 
 const selectedGoal = computed<GoalDto | null>(() => {

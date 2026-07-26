@@ -220,6 +220,7 @@ const {
   data: transactionPreview,
   isError: isTransactionPreviewError,
   isLoading: isTransactionPreviewLoading,
+  // eslint-disable-next-line no-restricted-syntax -- budget detail preview: filters to committed expenses then slices to 5; page-1 is intentional, not a full aggregation (#1104)
 } = useListTransactionsQuery(selectedTransactionFilters);
 
 const previewTransactions = computed<TransactionDto[]>(() => {

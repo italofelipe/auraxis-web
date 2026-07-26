@@ -41,6 +41,7 @@ const showExportModal = ref(false);
 
 // ── Query ─────────────────────────────────────────────────────────────────────
 
+// eslint-disable-next-line no-restricted-syntax -- transactions list page: page-1 pagination is the intended UX (paginated list UI), not an aggregation (#1104)
 const { data, isLoading, isError, refetch } = useListTransactionsQuery(filters);
 
 // ── Actions ───────────────────────────────────────────────────────────────────
