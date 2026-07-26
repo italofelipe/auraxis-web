@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.2.0](https://github.com/italofelipe/auraxis-web/compare/v1.1.0...v1.2.0) (2026-07-26)
+
+
+### Features
+
+* **dashboard:** fluxo de caixa como três linhas de tendência (design Apple) ([#1183](https://github.com/italofelipe/auraxis-web/issues/1183)) ([7c9de41](https://github.com/italofelipe/auraxis-web/commit/7c9de41ae53d0096bceadb0dac180f17076c65aa)), closes [#1182](https://github.com/italofelipe/auraxis-web/issues/1182)
+* **landing:** add pricing section with subscription CTA ([#1180](https://github.com/italofelipe/auraxis-web/issues/1180)) ([8eb2034](https://github.com/italofelipe/auraxis-web/commit/8eb20340c07b3dc5a1e82b7fb56c403a56ab3ed4))
+* **landing:** add the landing build surface for the apex domain ([d7ffee9](https://github.com/italofelipe/auraxis-web/commit/d7ffee99c603d7235de4616db4cb4f84416920d2))
+* **landing:** build the capture landing with real product screenshots ([2773e9a](https://github.com/italofelipe/auraxis-web/commit/2773e9a9ab11d39aefeb79be91cca1c38553ab9b))
+* **landing:** landing de captação auraxis.com.br — surface dedicada, página raiz e pipeline de deploy ([a8306af](https://github.com/italofelipe/auraxis-web/commit/a8306afc652aa8852b69342759523d78baa7b304))
+* **landing:** pricing section with subscription CTA [[#1180](https://github.com/italofelipe/auraxis-web/issues/1180)] ([6cb54be](https://github.com/italofelipe/auraxis-web/commit/6cb54be3ed03f0c8bba009ba510ebbe60f4a0f5d))
+* **lint:** guard de paginação segura em agregações + fix truncamento do calendário ([#1104](https://github.com/italofelipe/auraxis-web/issues/1104)) ([#1184](https://github.com/italofelipe/auraxis-web/issues/1184)) ([abefaec](https://github.com/italofelipe/auraxis-web/commit/abefaecec52afc915ad6f4ab9cb527d4e01c7e69))
+
+
+### Bug Fixes
+
+* **admin:** entry flow resiliente + e2e dos fluxos principais do admin ([191605b](https://github.com/italofelipe/auraxis-web/commit/191605b56c99deba044546829163611c3dec6900))
+* **admin:** honor saved auth redirect in guest-only middleware ([e389413](https://github.com/italofelipe/auraxis-web/commit/e389413ccfaa1c846b3e80744547f0f1f2f14d1c)), closes [#1171](https://github.com/italofelipe/auraxis-web/issues/1171)
+* **deploy:** stop serving sw.js and app-update manifests as immutable ([507a04e](https://github.com/italofelipe/auraxis-web/commit/507a04eac98d1ce88a07876acf1e032b2c8b4f8f)), closes [#1173](https://github.com/italofelipe/auraxis-web/issues/1173)
+* **deploy:** sw.js e manifests de update sem cache immutable ([e75151d](https://github.com/italofelipe/auraxis-web/commit/e75151d9e06ca80d5fdff22ba0d753f91a5077cc))
+
 ## [1.1.0](https://github.com/italofelipe/auraxis-web/compare/v1.0.0...v1.1.0) (2026-07-25)
 
 
