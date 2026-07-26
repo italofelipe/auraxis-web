@@ -418,50 +418,66 @@ function buildCashflowYAxis(tokens: ChartThemeTokens): EChartsOption["yAxis"] {
  * @returns ECharts series option.
  */
 function buildCashflowSeries(points: CashflowPoint[], tokens: ChartThemeTokens): EChartsOption["series"] {
+  // Sober, Apple-like reading: three thin trend lines instead of stacked bars —
+  // the bars collapsed into a single block whenever only one period was present.
+  // Subtle point markers when the series is sparse (monthly view) so a lone
+  // point is still visible; hidden on dense series to keep the line clean.
+  const sparse = points.length <= 12;
+  const symbolSize = sparse ? 4 : 0;
+  const baseLine = {
+    type: "line" as const,
+    smooth: 0.3,
+    symbol: "circle" as const,
+    symbolSize,
+    showSymbol: sparse,
+    emphasis: { focus: "series" as const },
+  };
   return [
     {
+      ...baseLine,
       name: "Receitas",
-      type: "bar",
-      stack: "cashflow",
-      barMaxWidth: 34,
       data: points.map((point) => point.income),
-      itemStyle: {
-        color: tokens.income,
-        borderRadius: [6, 6, 0, 0],
-        opacity: 0.86,
-      },
+      lineStyle: { color: tokens.income, width: 2 },
+      itemStyle: { color: tokens.income },
     },
     {
+      ...baseLine,
       name: "Despesas",
-      type: "bar",
-      stack: "cashflow",
-      barMaxWidth: 34,
-      data: points.map((point) => -point.expense),
-      itemStyle: {
-        color: tokens.expense,
-        borderRadius: [0, 0, 6, 6],
-        opacity: 0.86,
-      },
+      data: points.map((point) => point.expense),
+      lineStyle: { color: tokens.expense, width: 2 },
+      itemStyle: { color: tokens.expense },
     },
     {
+      ...baseLine,
       name: "Saldo",
-      type: "line",
       data: points.map((point) => point.balance),
-      smooth: true,
-      symbol: "circle",
-      symbolSize: 7,
-      lineStyle: {
-        color: tokens.balance,
-        width: 3,
-      },
-      itemStyle: {
-        color: tokens.balance,
-      },
-      areaStyle: {
-        color: withAlpha(tokens.balance, 0.12),
-      },
+      z: 3,
+      lineStyle: { color: tokens.balance, width: 2.5 },
+      itemStyle: { color: tokens.balance },
+      areaStyle: { color: withAlpha(tokens.balance, 0.05) },
     },
   ];
+}
+
+/**
+ * Formats a multi-series axis tooltip as a compact currency list.
+ *
+ * @param params ECharts axis-trigger params (one entry per series).
+ * @returns HTML string with the period label and one currency row per series.
+ */
+function formatCashflowTooltip(params: unknown): string {
+  const items = Array.isArray(params) ? params : [params];
+  if (items.length === 0) {
+    return "";
+  }
+  const rows = items
+    .map((entry) => {
+      const point = entry as { marker?: string; seriesName?: string; value?: number };
+      return `${point.marker ?? ""} ${point.seriesName ?? ""}: ${formatCurrency(Number(point.value ?? 0))}`;
+    })
+    .join("<br/>");
+  const header = (items[0] as { axisValueLabel?: string }).axisValueLabel ?? "";
+  return header ? `<strong>${header}</strong><br/>${rows}` : rows;
 }
 
 /**
@@ -469,7 +485,7 @@ function buildCashflowSeries(points: CashflowPoint[], tokens: ChartThemeTokens):
  *
  * @param points Normalized cashflow points.
  * @param tokens Theme-aware chart tokens.
- * @returns ECharts option for bars and accumulated balance line.
+ * @returns ECharts option for the three-line cashflow trend.
  */
 function buildCashflowOption(points: CashflowPoint[], tokens: ChartThemeTokens): EChartsOption {
   return {
@@ -477,9 +493,16 @@ function buildCashflowOption(points: CashflowPoint[], tokens: ChartThemeTokens):
     color: [tokens.income, tokens.expense, tokens.balance],
     tooltip: {
       trigger: "axis",
+      axisPointer: {
+        type: "line",
+        lineStyle: { color: tokens.grid, width: 1, type: "dashed" },
+      },
       backgroundColor: tokens.tooltipBackground,
       borderColor: tokens.tooltipBorder,
-      textStyle: { color: tokens.tooltipText },
+      borderWidth: 1,
+      padding: [8, 12],
+      textStyle: { color: tokens.tooltipText, fontSize: 12 },
+      formatter: formatCashflowTooltip,
     },
     legend: {
       show: false,
