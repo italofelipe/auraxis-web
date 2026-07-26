@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax -- Definitional test for the paginated `useListTransactionsQuery` hook: it exercises the hook under test (and mocks useQuery), so the PAGE-SAFE aggregation guard does not apply here (#1104). */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useListTransactionsQuery } from "./use-list-transactions-query";

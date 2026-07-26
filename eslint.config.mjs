@@ -160,6 +160,14 @@ export default withNuxt(
           message:
             "Vue Query calls must set an explicit `staleTime` — import `STALE_TIME` from `~/core/query` (PERF-7).",
         },
+        // PAGE-SAFE (#1104): aggregations must never rely on the paginated
+        // page-1 query — it silently truncates once a range holds more than one
+        // page. Charts, summaries, calendars and exports must load every page.
+        {
+          selector: "CallExpression[callee.name='useListTransactionsQuery']",
+          message:
+            "Aggregations (charts, summaries, calendars, exports) must load ALL pages — use `useListAllTransactionsQuery` from `~/features/transactions/queries/use-list-all-transactions-query`. The paginated `useListTransactionsQuery` returns only page 1 and silently truncates. If page-1 pagination is genuinely intended (a paginated list UI or a small preview), add `// eslint-disable-next-line no-restricted-syntax -- <reason>` at the call site (PAGE-SAFE / #1104).",
+        },
       ],
     },
   },
