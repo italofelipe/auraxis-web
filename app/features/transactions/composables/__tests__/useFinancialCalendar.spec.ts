@@ -45,8 +45,8 @@ function makeTx(overrides: Partial<TransactionDto> = {}): TransactionDto {
 }
 
 /**
- * Builds a stub TransactionsClient that resolves listTransactions with the
- * provided array.
+ * Builds a stub TransactionsClient that resolves both the paginated and the
+ * full-range listing with the provided array.
  *
  * @param txs - Array of TransactionDto to return.
  * @returns Partial TransactionsClient stub.
@@ -54,6 +54,7 @@ function makeTx(overrides: Partial<TransactionDto> = {}): TransactionDto {
 function makeStubClient(txs: TransactionDto[]): TransactionsClient {
   return {
     listTransactions: vi.fn().mockResolvedValue(txs),
+    listAllTransactions: vi.fn().mockResolvedValue(txs),
   } as unknown as TransactionsClient;
 }
 
@@ -191,6 +192,24 @@ describe("useFinancialCalendar", () => {
     const { result } = mountComposable(makeStubClient([]));
     const todaySlot = result.calendarDays.value.find((d) => d.isToday);
     expect(todaySlot).toBeDefined();
+  });
+
+  // Regression (#1104): the calendar aggregates every transaction of the month
+  // across day cells, so it MUST fetch the complete result set. Using the
+  // page-1 paginated query silently dropped transactions once a month held more
+  // than one page — days beyond the first 10 records rendered empty.
+  it("loads the COMPLETE month via listAllTransactions, never the paginated page-1 query", async () => {
+    const listPaginated = vi.fn().mockResolvedValue([]);
+    const listAll = vi.fn().mockResolvedValue([]);
+    const client = {
+      listTransactions: listPaginated,
+      listAllTransactions: listAll,
+    } as unknown as TransactionsClient;
+
+    mountComposable(client);
+
+    await vi.waitFor(() => expect(listAll).toHaveBeenCalled());
+    expect(listPaginated).not.toHaveBeenCalled();
   });
 });
 

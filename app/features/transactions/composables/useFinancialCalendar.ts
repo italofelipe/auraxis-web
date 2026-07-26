@@ -1,7 +1,7 @@
 import { computed, type ComputedRef, ref, type Ref } from "vue";
 import type { TransactionDto } from "~/features/transactions/contracts/transaction.dto";
 import type { TransactionsClient } from "~/features/transactions/services/transactions.client";
-import { useListTransactionsQuery } from "~/features/transactions/queries/use-list-transactions-query";
+import { useListAllTransactionsQuery } from "~/features/transactions/queries/use-list-all-transactions-query";
 import { parseCurrencyAmount } from "~/utils/currencyInput";
 import type { CalendarDay } from "~/components/financial-calendar/FinancialCalendar/FinancialCalendar.types";
 
@@ -269,7 +269,10 @@ export function useFinancialCalendar(
     end_date: endDate.value,
   }));
 
-  const { data: transactions, isLoading, isError } = useListTransactionsQuery(
+  // #1104: the calendar distributes EVERY transaction of the month across day
+  // cells, so it must follow pagination to the end — the page-1 query would
+  // silently drop records past the first page.
+  const { data: transactions, isLoading, isError } = useListAllTransactionsQuery(
     filters,
     providedClient,
   );
