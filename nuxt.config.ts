@@ -589,7 +589,15 @@ export default defineNuxtConfig({
   // shipping the whole app/marketing route map to auraxis.com.br would create
   // an unlinked duplicate of every public page (duplicate-content risk) and
   // slow the deploy for no benefit.
-  routeRules: isLandingSurface ? { "/": { prerender: true } } : {
+  // Landing surface also ships its own checkout (#1187): the purchase happens
+  // on the apex, so these three routes are the only additions to the otherwise
+  // root-only map. They are noindex (see useSeoMeta on each page).
+  routeRules: isLandingSurface ? {
+    "/": { prerender: true },
+    "/checkout": { prerender: true },
+    "/checkout/sucesso": { prerender: true },
+    "/checkout/cancelado": { prerender: true },
+  } : {
     // ── Public — SSG (indexed, shareable) ─────────────────────────────
     "/": { prerender: true },
     "/plans": { prerender: true },
@@ -729,7 +737,14 @@ export default defineNuxtConfig({
       // Landing surface (#1165): no crawling, single seeded root — the landing
       // links only to absolute app.auraxis.com.br URLs.
       crawlLinks: !isLandingSurface,
-      routes: isLandingSurface ? ["/"] : [
+      routes: isLandingSurface ? [
+        "/",
+        // Checkout of the landing itself (#1187) — seeded explicitly because
+        // crawling is off on this surface.
+        "/checkout",
+        "/checkout/sucesso",
+        "/checkout/cancelado",
+      ] : [
         // ── Static public pages ────────────────────────────────────────
         "/",
         "/plans",
