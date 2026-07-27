@@ -9,6 +9,7 @@ import {
   LANDING_CHECKOUT_GENERIC_ERROR,
   LANDING_CHECKOUT_PLANS,
   resolveLandingCheckoutPlan,
+  resolveLandingCheckoutPlanFromSources,
   startLandingCheckout,
   type LandingCheckoutPlanKey,
 } from "~/features/landing/model/landing-checkout";
@@ -52,7 +53,13 @@ const selectedPlan = ref<LandingCheckoutPlanKey>(
   resolveLandingCheckoutPlan(route.query["plano"]),
 );
 onMounted((): void => {
-  selectedPlan.value = resolveLandingCheckoutPlan(route.query["plano"]);
+  // `route.query` can hydrate empty on the prerendered page, and an unmatched
+  // value falls back to the annual plan — so a ?plano=mensal link used to open
+  // the annual charge (#1203). The browser's own query string is the tiebreak.
+  selectedPlan.value = resolveLandingCheckoutPlanFromSources(
+    route.query["plano"],
+    window.location.search,
+  );
   if (!isLandingSurface.value) {
     void navigateTo("/subscription");
   }
