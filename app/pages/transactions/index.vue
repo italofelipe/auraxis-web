@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, watch } from "vue";
 import { NButton, NDataTable, NModal } from "naive-ui";
 import { ChevronLeft, ChevronRight, GripVertical, TrendingDown, TrendingUp, WalletCards } from "lucide-vue-next";
 import { useListTransactionsQuery } from "~/features/transactions/queries/use-list-transactions-query";
@@ -86,6 +86,32 @@ const {
 });
 
 const totalBalance = computed(() => totalIncome.value - totalExpense.value);
+
+// ── Deep link (?open=<id>) ──────────────────────────────────────────────────────
+// Lets the "Ver transação" CTA in the due-soon reminder email open the exact
+// transaction. When the list loads and contains the requested id, open its
+// detail/edit surface once.
+const route = useRoute();
+const requestedOpenId = computed<string | undefined>(() => {
+  const open = route.query.open;
+  const value = Array.isArray(open) ? open[0] : open;
+  return value ?? undefined;
+});
+let hasOpenedFromQuery = false;
+watch(
+  () => data.value,
+  (rows) => {
+    if (hasOpenedFromQuery || !requestedOpenId.value || !rows) {
+      return;
+    }
+    const match = rows.find((transaction) => transaction.id === requestedOpenId.value);
+    if (match) {
+      hasOpenedFromQuery = true;
+      handleEdit(match);
+    }
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
