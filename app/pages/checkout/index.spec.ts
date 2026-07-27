@@ -209,7 +209,13 @@ describe("landing checkout page", () => {
     expect(postMock).toHaveBeenCalledWith(
       "/subscriptions/checkout",
       { plan_slug: "premium_annual", return_surface: "landing" },
-      { headers: { Authorization: "Bearer jwt-token" } },
+      {
+        headers: {
+          Authorization: "Bearer jwt-token",
+          // The API answers 400 without it (#1200).
+          "Idempotency-Key": expect.stringMatching(/^landing-checkout-/),
+        },
+      },
     );
   });
 

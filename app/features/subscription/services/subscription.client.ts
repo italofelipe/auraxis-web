@@ -1,6 +1,7 @@
 import type { AxiosInstance } from "axios";
 
 import { useHttp } from "~/composables/useHttp";
+import { idempotencyHeaders } from "~/core/http/idempotency";
 import type {
   BillingCycle,
   CheckoutResponseDto,
@@ -110,10 +111,17 @@ export class SubscriptionClient {
    * @returns Checkout URL to redirect the user to.
    */
   async createCheckout(planSlug: string, billingCycle: BillingCycle = "monthly"): Promise<string> {
-    const response = await this.#http.post<CheckoutResponseBodyDto>("/subscriptions/checkout", {
-      plan_slug: planSlug,
-      billing_cycle: billingCycle,
-    });
+    const response = await this.#http.post<CheckoutResponseBodyDto>(
+      "/subscriptions/checkout",
+      {
+        plan_slug: planSlug,
+        billing_cycle: billingCycle,
+      },
+      // The API requires this header on checkout/cancel and answers 400
+      // without it (#1200). One key per user intent — the automatic retries
+      // reuse it, so a retried checkout settles as a single charge.
+      { headers: idempotencyHeaders("web-checkout") },
+    );
     return unwrapCheckout(response.data).checkout_url;
   }
 
@@ -123,7 +131,9 @@ export class SubscriptionClient {
    * @returns Void on success.
    */
   async cancelSubscription(): Promise<void> {
-    await this.#http.post("/subscriptions/cancel");
+    await this.#http.post("/subscriptions/cancel", undefined, {
+      headers: idempotencyHeaders("web-cancel"),
+    });
   }
 }
 

@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-vue-next";
 
 import { useHttp } from "~/composables/useHttp";
 import { createAuthApi } from "~/composables/useAuth";
+import { idempotencyHeaders } from "~/core/http/idempotency";
 import {
   buildLandingCheckoutPath,
   LANDING_CHECKOUT_GENERIC_ERROR,
@@ -137,7 +138,14 @@ const submit = async (): Promise<void> => {
           }>(
             "/subscriptions/checkout",
             { plan_slug: planSlug, return_surface: "landing" },
-            { headers: { Authorization: `Bearer ${token}` } },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                // Required by the API on this endpoint — without it the
+                // purchase dies on a 400 (#1200).
+                ...idempotencyHeaders("landing-checkout"),
+              },
+            },
           );
           const body = response.data;
           return {
