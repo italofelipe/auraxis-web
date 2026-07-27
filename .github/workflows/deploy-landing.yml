@@ -14,15 +14,29 @@ name: Deploy Landing (auraxis.com.br)
 on:
   push:
     branches: [main]
-    paths:
-      - "app/features/landing/**"
-      - "app/pages/index.vue"
-      - "app/layouts/public.vue"
-      - "app/app.vue"
-      - "app/assets/css/main.css"
-      - "public/landing/**"
-      - "nuxt.config.ts"
-      - ".github/workflows/deploy-landing.yml"
+    # Lista de EXCLUSÃO, não de inclusão (#1197).
+    #
+    # A allowlist anterior tentava enumerar o que a landing embarca e, na
+    # prática, sempre ficava desatualizada: quando o checkout próprio entrou
+    # (#1187), `app/pages/checkout/**` ficou de fora e o fix de pagamento do
+    # #1200 foi para a main sem nunca chegar em produção — silenciosamente,
+    # sem erro nenhum. Três deploys deste dia dependeram de dispatch manual.
+    #
+    # O grafo real de imports da landing passa por `core/http`, `composables/*`,
+    # `features/subscription`, `schemas/*` e cresce a cada feature; manter isso
+    # sincronizado à mão é garantia de repetir o bug. Invertendo, o pior caso
+    # vira um deploy à toa em vez de uma mudança que não sobe.
+    #
+    # Custo do pior caso: repositório público → minutos de Actions ilimitados;
+    # a invalidação usa `--paths "/*"`, que conta como 1 path, contra 1.000
+    # gratuitos por mês na AWS. No ritmo atual (unidades de push por dia) fica
+    # dentro do free tier com folga.
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+      - ".context/**"
+      - ".vscode/**"
+      - ".idea/**"
   workflow_dispatch:
 
 permissions:
