@@ -4,6 +4,7 @@ import {
   buildLandingCheckoutPath,
   LANDING_CHECKOUT_PLANS,
   resolveLandingCheckoutPlan,
+  resolveLandingCheckoutPlanFromSources,
   startLandingCheckout,
   type LandingCheckoutDeps,
 } from "./landing-checkout";
@@ -30,6 +31,41 @@ describe("resolveLandingCheckoutPlan", () => {
     "falls back to the recommended plan for %p",
     (raw) => {
       expect(resolveLandingCheckoutPlan(raw)).toBe("annual");
+    },
+  );
+});
+
+describe("resolveLandingCheckoutPlanFromSources", () => {
+  it("reads the browser query string when the hydrated route comes back empty", () => {
+    // The prerendered page hydrates with no query, and the silent fallback to
+    // the recommended plan charged the annual price on a monthly link (#1203).
+    expect(resolveLandingCheckoutPlanFromSources(undefined, "?plano=mensal")).toBe(
+      "monthly",
+    );
+  });
+
+  it("accepts a query string without the leading question mark", () => {
+    expect(resolveLandingCheckoutPlanFromSources(undefined, "plano=mensal")).toBe(
+      "monthly",
+    );
+  });
+
+  it("prefers the route value over the browser query string", () => {
+    expect(resolveLandingCheckoutPlanFromSources("anual", "?plano=mensal")).toBe(
+      "annual",
+    );
+  });
+
+  it("ignores the browser query string when it carries no known plan", () => {
+    expect(
+      resolveLandingCheckoutPlanFromSources(undefined, "?utm_source=x&plano=premium"),
+    ).toBe("annual");
+  });
+
+  it.each([undefined, null, ""])(
+    "falls back to the recommended plan when both sources are %p",
+    (search) => {
+      expect(resolveLandingCheckoutPlanFromSources(undefined, search)).toBe("annual");
     },
   );
 });

@@ -94,10 +94,11 @@ vi.mock("lucide-vue-next", () => ({
  * Replaces `window.location` with a plain object so the redirect assignment is
  * observable instead of triggering a real navigation in happy-dom.
  *
+ * @param search Query string the page should read on mount, e.g. `?plano=mensal`.
  * @returns The stub whose `href` the page writes to.
  */
-function stubLocation(): { href: string } {
-  const stub = { href: "" };
+function stubLocation(search = ""): { href: string; search: string } {
+  const stub = { href: "", search };
   Object.defineProperty(window, "location", {
     configurable: true,
     writable: true,
@@ -256,6 +257,23 @@ describe("landing checkout page", () => {
 
     expect(wrapper.text()).not.toContain("Preparando…");
     expect(wrapper.find("[data-testid='landing-checkout-error']").exists()).toBe(true);
+  });
+
+  it("honours ?plano=mensal from the browser URL when the hydrated route is empty", async () => {
+    // The page is prerendered: `route.query` hydrates empty and the silent
+    // fallback used to send the annual plan on a monthly link (#1203).
+    stubLocation("?plano=mensal");
+    startLandingCheckoutMock.mockResolvedValue({
+      status: "account-exists",
+    } satisfies LandingCheckoutOutcome);
+
+    const wrapper = await mountFilledPage();
+    await flushPromises();
+    await submitForm(wrapper);
+
+    expect(startLandingCheckoutMock.mock.calls[0]?.[0]).toMatchObject({
+      plan: "monthly",
+    });
   });
 
   it("hands the app surface over to the in-app subscription screen", async () => {
