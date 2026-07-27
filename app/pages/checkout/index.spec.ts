@@ -106,6 +106,11 @@ function stubLocation(): { href: string } {
   return stub;
 }
 
+/** Form values used by every submission case — dummy data, not credentials. */
+const FORM_NAME = "Italo";
+const FORM_EMAIL = "italo@auraxis.com.br";
+const FORM_SECRET = "senha-forte-123"; // gitleaks:allow
+
 /**
  * Mounts the checkout page with a filled, submittable form.
  *
@@ -113,13 +118,13 @@ function stubLocation(): { href: string } {
  */
 async function mountFilledPage(): Promise<ReturnType<typeof mount>> {
   const wrapper = mount(CheckoutPage);
-  await wrapper.find("[data-testid='landing-checkout-name']").setValue("Italo");
+  await wrapper.find("[data-testid='landing-checkout-name']").setValue(FORM_NAME);
   await wrapper
     .find("[data-testid='landing-checkout-email']")
-    .setValue("italo@auraxis.com.br");
+    .setValue(FORM_EMAIL);
   await wrapper
     .find("[data-testid='landing-checkout-password']")
-    .setValue("senha-forte-123");
+    .setValue(FORM_SECRET);
   await wrapper.find("[data-testid='landing-checkout-terms']").setValue(true);
   return wrapper;
 }
@@ -188,14 +193,14 @@ describe("landing checkout page", () => {
 
     const deps = startLandingCheckoutMock.mock.calls[0]?.[1] as LandingCheckoutDeps;
     await deps.register({
-      name: "Italo",
-      email: "italo@auraxis.com.br",
-      password: "senha-forte-123",
+      name: FORM_NAME,
+      email: FORM_EMAIL,
+      password: FORM_SECRET,
     });
     expect(registerMock).toHaveBeenCalledTimes(1);
 
     await expect(
-      deps.login({ email: "italo@auraxis.com.br", password: "senha-forte-123" }),
+      deps.login({ email: FORM_EMAIL, password: FORM_SECRET }),
     ).resolves.toEqual({ token: "jwt-token" });
 
     await expect(
