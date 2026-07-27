@@ -25,7 +25,13 @@ export const normalizeBaseUrl = (rawUrl: string): string => {
 };
 
 /**
- * Creates an authorization interceptor that injects a bearer token when available.
+ * Creates an authorization interceptor that injects the session bearer token
+ * into requests that do not already carry one.
+ *
+ * A caller that sets `Authorization` itself always wins: the public checkout
+ * signs a brand-new account in and pays with *that* token, while the browser
+ * may still hold a restored session for a different user. Overwriting the
+ * explicit header there billed the wrong account (#1202).
  *
  * @param getAccessToken Lazy token resolver.
  * @returns Axios request interceptor.
@@ -34,6 +40,10 @@ const createAuthInterceptor = (
   getAccessToken: () => string | null,
 ): ((config: InternalAxiosRequestConfig) => InternalAxiosRequestConfig) => {
   return (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
+    if (config.headers.Authorization) {
+      return config;
+    }
+
     const token = getAccessToken();
 
     if (token) {

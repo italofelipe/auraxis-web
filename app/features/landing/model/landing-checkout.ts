@@ -50,6 +50,28 @@ export const LANDING_CHECKOUT_PLANS: Readonly<
 } as const;
 
 /**
+ * Matches a raw `?plano=` value against the sellable plans.
+ *
+ * @param raw Raw value — a string, an array (repeated param), or absent.
+ * @returns The plan key, or null when nothing matches.
+ */
+const matchLandingCheckoutPlan = (
+  raw: unknown,
+): LandingCheckoutPlanKey | null => {
+  const candidate = Array.isArray(raw) ? raw[0] : raw;
+  if (typeof candidate !== "string") {
+    return null;
+  }
+  const normalized = candidate.trim().toLowerCase();
+  for (const plan of Object.values(LANDING_CHECKOUT_PLANS)) {
+    if (normalized === plan.querySlug || normalized === plan.key) {
+      return plan.key;
+    }
+  }
+  return null;
+};
+
+/**
  * Resolves the plan a visitor asked for in the URL.
  *
  * Anything unrecognised falls back to the recommended plan instead of erroring:
@@ -60,18 +82,40 @@ export const LANDING_CHECKOUT_PLANS: Readonly<
  */
 export const resolveLandingCheckoutPlan = (
   raw: unknown,
+): LandingCheckoutPlanKey =>
+  matchLandingCheckoutPlan(raw) ?? DEFAULT_LANDING_CHECKOUT_PLAN;
+
+/**
+ * Resolves the plan from the Nuxt route, falling back to the query string the
+ * browser itself holds.
+ *
+ * The checkout page is prerendered, and on that path the hydrated `route.query`
+ * can come back empty. Since an unrecognised value silently falls back to the
+ * recommended plan, a `?plano=mensal` link opened — and charged — the annual
+ * plan (#1203). Same hydration gap already handled in `pages/confirm-email.vue`.
+ *
+ * @param routeValue Value read from the Nuxt route query.
+ * @param browserSearch `window.location.search`, with or without the leading `?`.
+ * @returns The resolved plan key.
+ */
+export const resolveLandingCheckoutPlanFromSources = (
+  routeValue: unknown,
+  browserSearch: string | null | undefined,
 ): LandingCheckoutPlanKey => {
-  const candidate = Array.isArray(raw) ? raw[0] : raw;
-  if (typeof candidate !== "string") {
+  const fromRoute = matchLandingCheckoutPlan(routeValue);
+  if (fromRoute) {
+    return fromRoute;
+  }
+  if (!browserSearch) {
     return DEFAULT_LANDING_CHECKOUT_PLAN;
   }
-  const normalized = candidate.trim().toLowerCase();
-  for (const plan of Object.values(LANDING_CHECKOUT_PLANS)) {
-    if (normalized === plan.querySlug || normalized === plan.key) {
-      return plan.key;
-    }
-  }
-  return DEFAULT_LANDING_CHECKOUT_PLAN;
+  const search = browserSearch.startsWith("?")
+    ? browserSearch
+    : `?${browserSearch}`;
+  return (
+    matchLandingCheckoutPlan(new URLSearchParams(search).get("plano")) ??
+    DEFAULT_LANDING_CHECKOUT_PLAN
+  );
 };
 
 /**
