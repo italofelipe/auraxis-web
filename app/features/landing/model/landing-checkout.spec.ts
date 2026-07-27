@@ -44,6 +44,34 @@ describe("resolveLandingCheckoutPlanFromSources", () => {
     );
   });
 
+  it("falls through to the navigation URL when route and search are both empty", () => {
+    // Measured in production: at `onMounted` both are empty because Nuxt
+    // strips the query while normalising the route (#1203).
+    expect(
+      resolveLandingCheckoutPlanFromSources(
+        undefined,
+        "",
+        "https://auraxis.com.br/checkout?plano=mensal",
+      ),
+    ).toBe("monthly");
+  });
+
+  it("takes the first source that names a known plan", () => {
+    expect(
+      resolveLandingCheckoutPlanFromSources(
+        undefined,
+        "?plano=mensal",
+        "https://auraxis.com.br/checkout?plano=anual",
+      ),
+    ).toBe("monthly");
+  });
+
+  it("survives a malformed URL source", () => {
+    expect(
+      resolveLandingCheckoutPlanFromSources(undefined, "://quebrado", "?plano=mensal"),
+    ).toBe("monthly");
+  });
+
   it("accepts a query string without the leading question mark", () => {
     expect(resolveLandingCheckoutPlanFromSources(undefined, "plano=mensal")).toBe(
       "monthly",

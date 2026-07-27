@@ -276,6 +276,33 @@ describe("landing checkout page", () => {
     });
   });
 
+  it("falls back to the navigation URL when Nuxt has stripped the query entirely", async () => {
+    // What actually happens in production: at `onMounted` the route query AND
+    // `location.search` are both empty, and only the navigation entry still
+    // carries the plan the visitor clicked (#1203).
+    stubLocation("");
+    const navigationSpy = vi
+      .spyOn(window.performance, "getEntriesByType")
+      .mockReturnValue([
+        { name: "https://auraxis.com.br/checkout?plano=mensal" } as PerformanceNavigationTiming,
+      ]);
+    startLandingCheckoutMock.mockResolvedValue({
+      status: "account-exists",
+    } satisfies LandingCheckoutOutcome);
+
+    try {
+      const wrapper = await mountFilledPage();
+      await flushPromises();
+      await submitForm(wrapper);
+
+      expect(startLandingCheckoutMock.mock.calls[0]?.[0]).toMatchObject({
+        plan: "monthly",
+      });
+    } finally {
+      navigationSpy.mockRestore();
+    }
+  });
+
   it("hands the app surface over to the in-app subscription screen", async () => {
     siteSurface.current = "app";
 
