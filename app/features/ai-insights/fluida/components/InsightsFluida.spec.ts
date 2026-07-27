@@ -3,6 +3,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { ref } from "vue";
 
 import InsightsFluida from "./InsightsFluida.vue";
+// Asserting against the mock instead of hardcoded copy: the demo content is
+// rewritten whenever the landing screenshots are regenerated (#1188), and the
+// test cares that the reading renders — not which sentence it carries.
+import { FLUIDA_MOCK_SOURCE } from "../model/insight-fluida-mock";
+import { resolveFluidaSeverity } from "../model/insight-fluida";
 import type { GeneratedAIInsight } from "~/features/ai-insights/model/ai-insight";
 
 // useTheme is a Nuxt auto-import resolved via the ~/composables alias; provide a
@@ -48,9 +53,12 @@ describe("InsightsFluida", () => {
     expect(wrapper.text()).toContain("Semanal");
 
     // lead headline (general daily) + opening summary
-    expect(wrapper.text()).toContain("Ontem em foco: muita saída, nenhuma entrada");
-    expect(wrapper.text()).toContain("Atenção");
-    expect(wrapper.text()).toContain("15 min de leitura");
+    expect(wrapper.text()).toContain(FLUIDA_MOCK_SOURCE.general.daily.title);
+    // severity chip of whatever the demo reading currently carries ("ok" → "Tudo certo")
+    expect(wrapper.text()).toContain(
+      resolveFluidaSeverity(FLUIDA_MOCK_SOURCE.general.daily.severity).label,
+    );
+    expect(wrapper.text()).toContain(`${FLUIDA_MOCK_SOURCE.general.daily.readMin} min de leitura`);
 
     // comparison cards from retro
     expect(wrapper.text()).toContain("Ontem · 20 jun");
@@ -87,7 +95,9 @@ describe("InsightsFluida", () => {
 
     // theme lead kicker + a highlight tile value, no comparison cards
     expect(wrapper.text()).toContain("Cartões");
-    expect(wrapper.text()).toContain("Fatura em atraso");
+    expect(wrapper.text()).toContain(
+      FLUIDA_MOCK_SOURCE.themes.credit_cards!.daily.highlights![0]!.label,
+    );
     expect(wrapper.text()).not.toContain("Ontem · 20 jun");
   });
 
@@ -99,8 +109,8 @@ describe("InsightsFluida", () => {
       .find((button) => button.text() === "Semanal");
     await weeklyButton!.trigger("click");
 
-    expect(wrapper.text()).toContain("30 min de leitura");
-    expect(wrapper.text()).toContain("A semana de 15 a 21: o mês inteiro decidido em dois dias");
+    expect(wrapper.text()).toContain(`${FLUIDA_MOCK_SOURCE.general.weekly.readMin} min de leitura`);
+    expect(wrapper.text()).toContain(FLUIDA_MOCK_SOURCE.general.weekly.title);
   });
 
   it("renders the real AI body while keeping the mock editorial lead", () => {
@@ -135,15 +145,13 @@ describe("InsightsFluida", () => {
     expect(wrapper.text()).toContain("Ontem (real)");
     // the real paragraphs replace the mock prose on the overlaid node
     expect(wrapper.text()).not.toContain(
-      "A leitura de ontem precisa ser feita no contexto da semana",
+      FLUIDA_MOCK_SOURCE.general.daily.paragraphs[0]!,
     );
     // …while the editorial lead (title, reading time, next step) stays from the
     // mock — the backend sends none of those (parity with the mobile mapper).
-    expect(wrapper.text()).toContain("Ontem em foco: muita saída, nenhuma entrada");
-    expect(wrapper.text()).toContain("15 min de leitura");
-    expect(wrapper.text()).toContain(
-      "Priorize quitar ou renegociar a Fatura Maio",
-    );
+    expect(wrapper.text()).toContain(FLUIDA_MOCK_SOURCE.general.daily.title);
+    expect(wrapper.text()).toContain(`${FLUIDA_MOCK_SOURCE.general.daily.readMin} min de leitura`);
+    expect(wrapper.text()).toContain(FLUIDA_MOCK_SOURCE.general.daily.nextStep);
     expect(wrapper.text()).not.toContain("Próximo passo real.");
   });
 });
