@@ -19,8 +19,8 @@ import {
         Um preço justo para ter o controle de volta.
       </h2>
       <p class="landing-pricing__lead">
-        Comece com 7 dias grátis. Depois, escolha o plano que cabe no seu mês —
-        IA, metas, orçamentos e carteira, tudo incluído.
+        Assine com 7 dias grátis e cancele quando quiser — IA, metas,
+        orçamentos e carteira, tudo incluído.
       </p>
 
       <ul class="landing-pricing__plans" role="list">
@@ -52,8 +52,8 @@ import {
           <ArrowRight :size="17" aria-hidden="true" />
         </a>
         <p class="landing-pricing__free">
-          7 dias grátis para experimentar.
-          <a :href="LANDING_REGISTER_URL">Começar grátis</a>
+          Prefere olhar antes de assinar?
+          <a :href="LANDING_REGISTER_URL">Criar conta gratuita</a>
         </p>
       </div>
     </div>

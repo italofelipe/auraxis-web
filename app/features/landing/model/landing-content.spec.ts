@@ -35,8 +35,10 @@ describe("landing CTA urls", () => {
     expect(LANDING_LOGIN_URL).toBe("https://app.auraxis.com.br/login");
   });
 
-  it("points the subscribe CTA at the app subscription flow", () => {
-    expect(LANDING_SUBSCRIBE_URL).toBe("https://app.auraxis.com.br/subscription");
+  it("keeps the subscribe CTA on the landing's own checkout (#1187)", () => {
+    // Buying must not bounce the visitor to another domain first.
+    expect(LANDING_SUBSCRIBE_URL).toBe("/checkout?plano=anual");
+    expect(LANDING_SUBSCRIBE_URL).not.toContain("app.auraxis.com.br");
   });
 });
 

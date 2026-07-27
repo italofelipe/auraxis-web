@@ -31,10 +31,13 @@ export const LANDING_REGISTER_URL = buildAppUrl("/register");
 export const LANDING_LOGIN_URL = buildAppUrl("/login");
 
 /**
- * Subscription-flow destination on the product app. Unauthenticated visitors
- * are routed through login/register and returned here afterwards (web#1172).
+ * Purchase destination — the landing's own checkout (#1187).
+ *
+ * Deliberately a relative path: the whole point is that buying happens on
+ * auraxis.com.br, where the visitor creates the account and goes straight to
+ * the payment provider, instead of being handed to the product app first.
  */
-export const LANDING_SUBSCRIBE_URL = buildAppUrl("/subscription");
+export const LANDING_SUBSCRIBE_URL = "/checkout?plano=anual";
 
 /** Identifier keys for the four v1 product features, in display order. */
 export type LandingFeatureKey = "transactions" | "goals" | "budgets" | "wallet";
