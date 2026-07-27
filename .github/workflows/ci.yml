@@ -370,6 +370,11 @@ jobs:
           # local pre-commit hook, which does read it, passed. That mismatch
           # failed PR #1199 on a dummy password in a page test.
           GITLEAKS_CONFIG: ${{ github.workspace }}/.gitleaks.toml
+          # Pinned to the version the local hook runs. The action defaults to
+          # 8.24.3, which does not apply top-level `[[allowlists]]` to rules
+          # inherited via `[extend] useDefault` — same config, different
+          # verdict from the same repo. Bump alongside the local toolchain.
+          GITLEAKS_VERSION: 8.30.1
 
   # ── 7. Secret Scan (TruffleHog) ────────────────────────────────────────
   # TruffleHog complementa Gitleaks: analisa entropia + valida secrets ativos
