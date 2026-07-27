@@ -5,6 +5,7 @@ import { useHttp } from "~/composables/useHttp";
 import { createAuthApi } from "~/composables/useAuth";
 import {
   buildLandingCheckoutPath,
+  LANDING_CHECKOUT_GENERIC_ERROR,
   LANDING_CHECKOUT_PLANS,
   resolveLandingCheckoutPlan,
   startLandingCheckout,
@@ -34,6 +35,14 @@ const isLandingSurface = computed(
   (): boolean => config.public.siteSurface === "landing",
 );
 
+// Resolved here, in the setup scope, and NOT inside `submit()`: `useHttp()`
+// pulls in `useRuntimeConfig`, the session store, `useToast`, `useDialog` and
+// `useI18n`, all of which need an active setup context. Called from a click
+// handler it threw before any request left the browser and the button froze
+// on "Preparando…" (#1198).
+const http = useHttp();
+const authApi = createAuthApi(http);
+
 const route = useRoute();
 
 // Prerendered HTML has no query string; the plan is resolved again on the
@@ -55,8 +64,19 @@ const email = ref("");
 const password = ref("");
 const acceptedTerms = ref(false);
 const isSubmitting = ref(false);
+/**
+ * Set once the provider checkout URL is known: the browser is about to leave
+ * the page, so the button must stay busy instead of flickering back to its
+ * idle label while the navigation happens.
+ */
+const isRedirecting = ref(false);
 const errorMessage = ref("");
 const accountExists = ref(false);
+
+/** Whether the form is working — submitting or handing over to the provider. */
+const isBusy = computed(
+  (): boolean => isSubmitting.value || isRedirecting.value,
+);
 
 const canSubmit = computed(
   (): boolean =>
@@ -64,7 +84,7 @@ const canSubmit = computed(
     email.value.trim().includes("@") &&
     password.value.length >= 8 &&
     acceptedTerms.value &&
-    !isSubmitting.value,
+    !isBusy.value,
 );
 
 /**
@@ -82,7 +102,9 @@ const selectPlan = (key: LandingCheckoutPlanKey): void => {
  * Creates the account and hands the visitor over to the payment provider.
  *
  * Wires the page to the pure orchestration in `landing-checkout`, which never
- * throws — every failure comes back as an outcome to render.
+ * throws — every failure comes back as an outcome to render. The `catch` is
+ * there for everything else: a broken wiring or a runtime error must show a
+ * message, never leave the button stuck on "Preparando…" (#1198).
  *
  * @returns Resolves once the outcome has been applied to the page state.
  */
@@ -94,51 +116,55 @@ const submit = async (): Promise<void> => {
   errorMessage.value = "";
   accountExists.value = false;
 
-  const http = useHttp();
-  const authApi = createAuthApi(http);
-
-  const outcome = await startLandingCheckout(
-    {
-      name: name.value,
-      email: email.value,
-      password: password.value,
-      plan: selectedPlan.value,
-    },
-    {
-      register: (input) => authApi.register(input),
-      login: async (input) => {
-        const session = await authApi.login(input);
-        return { token: session.accessToken };
+  try {
+    const outcome = await startLandingCheckout(
+      {
+        name: name.value,
+        email: email.value,
+        password: password.value,
+        plan: selectedPlan.value,
       },
-      createCheckoutSession: async ({ token, planSlug }) => {
-        const response = await http.post<{
-          data?: { checkout_url?: string };
-          checkout_url?: string;
-        }>(
-          "/subscriptions/checkout",
-          { plan_slug: planSlug, return_surface: "landing" },
-          { headers: { Authorization: `Bearer ${token}` } },
-        );
-        const body = response.data;
-        return {
-          checkoutUrl: body.data?.checkout_url ?? body.checkout_url ?? "",
-        };
+      {
+        register: (input) => authApi.register(input),
+        login: async (input) => {
+          const session = await authApi.login(input);
+          return { token: session.accessToken };
+        },
+        createCheckoutSession: async ({ token, planSlug }) => {
+          const response = await http.post<{
+            data?: { checkout_url?: string };
+            checkout_url?: string;
+          }>(
+            "/subscriptions/checkout",
+            { plan_slug: planSlug, return_surface: "landing" },
+            { headers: { Authorization: `Bearer ${token}` } },
+          );
+          const body = response.data;
+          return {
+            checkoutUrl: body.data?.checkout_url ?? body.checkout_url ?? "",
+          };
+        },
       },
-    },
-  );
+    );
 
-  if (outcome.status === "redirect") {
-    // Full navigation: the provider checkout lives on another origin.
-    window.location.href = outcome.url;
-    return;
-  }
+    if (outcome.status === "redirect") {
+      // Full navigation: the provider checkout lives on another origin. The
+      // button stays busy through `isRedirecting` until the browser leaves.
+      isRedirecting.value = true;
+      window.location.href = outcome.url;
+      return;
+    }
 
-  isSubmitting.value = false;
-  if (outcome.status === "account-exists") {
-    accountExists.value = true;
-    return;
+    if (outcome.status === "account-exists") {
+      accountExists.value = true;
+      return;
+    }
+    errorMessage.value = outcome.message;
+  } catch {
+    errorMessage.value = LANDING_CHECKOUT_GENERIC_ERROR;
+  } finally {
+    isSubmitting.value = false;
   }
-  errorMessage.value = outcome.message;
 };
 
 useSeoMeta({
@@ -269,8 +295,8 @@ useSeoMeta({
               :disabled="!canSubmit"
               data-testid="landing-checkout-submit"
             >
-              {{ isSubmitting ? "Preparando…" : "Ir para o pagamento" }}
-              <ArrowRight v-if="!isSubmitting" :size="17" aria-hidden="true" />
+              {{ isBusy ? "Preparando…" : "Ir para o pagamento" }}
+              <ArrowRight v-if="!isBusy" :size="17" aria-hidden="true" />
             </button>
 
             <p class="checkout__secondary">

@@ -123,8 +123,15 @@ export type LandingCheckoutOutcome =
 
 const ACCOUNT_EXISTS_STATUSES = new Set([409]);
 
-const GENERIC_ERROR =
+/**
+ * Copy shown whenever the purchase cannot start for a reason the visitor can
+ * do nothing about. Exported so the page reuses the exact same sentence for
+ * failures that never reach the orchestration (#1198).
+ */
+export const LANDING_CHECKOUT_GENERIC_ERROR =
   "Não conseguimos iniciar o pagamento agora. Tente de novo em instantes.";
+
+const GENERIC_ERROR = LANDING_CHECKOUT_GENERIC_ERROR;
 
 /**
  * Reads an HTTP status from an unknown rejection without assuming Axios.
