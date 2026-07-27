@@ -93,9 +93,24 @@ describe("SubscriptionClient", () => {
     await expect(client.createCheckout("premium", "annual")).resolves.toBe(
       "https://billing.example/checkout",
     );
-    expect(post).toHaveBeenCalledWith("/subscriptions/checkout", {
-      plan_slug: "premium",
-      billing_cycle: "annual",
+    expect(post).toHaveBeenCalledWith(
+      "/subscriptions/checkout",
+      {
+        plan_slug: "premium",
+        billing_cycle: "annual",
+      },
+      { headers: { "Idempotency-Key": expect.stringMatching(/^web-checkout-/) } },
+    );
+  });
+
+  it("sends an idempotency key when cancelling, which the API also requires", async () => {
+    const { client, post } = makeClient();
+    post.mockResolvedValue({ data: { success: true } });
+
+    await client.cancelSubscription();
+
+    expect(post).toHaveBeenCalledWith("/subscriptions/cancel", undefined, {
+      headers: { "Idempotency-Key": expect.stringMatching(/^web-cancel-/) },
     });
   });
 });
