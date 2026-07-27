@@ -86,36 +86,57 @@ export const resolveLandingCheckoutPlan = (
   matchLandingCheckoutPlan(raw) ?? DEFAULT_LANDING_CHECKOUT_PLAN;
 
 /**
- * Resolves the plan from the Nuxt route, falling back to the query string the
- * browser itself holds.
+ * Reads the `plano` param out of a query string or a full URL.
  *
- * The checkout page is prerendered, and on that path the hydrated `route.query`
- * can come back empty. Since an unrecognised value silently falls back to the
- * recommended plan, a `?plano=mensal` link opened — and charged — the annual
- * plan (#1203). Same hydration gap already handled in `pages/confirm-email.vue`.
+ * @param source `?plano=mensal`, `plano=mensal`, or `https://…/checkout?plano=mensal`.
+ * @returns The raw param value, or null when absent or unparseable.
+ */
+const readPlanParam = (source: string | null | undefined): string | null => {
+  if (!source) {
+    return null;
+  }
+  try {
+    if (source.includes("://")) {
+      return new URL(source).searchParams.get("plano");
+    }
+    const search = source.startsWith("?") ? source : `?${source}`;
+    return new URLSearchParams(search).get("plano");
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Resolves the plan from the Nuxt route, falling back to URL sources owned by
+ * the browser.
+ *
+ * The checkout page is prerendered and, measured in a production build, at the
+ * moment `onMounted` runs BOTH `route.query` and `window.location.search` are
+ * empty — Nuxt strips the query while it normalises the route during hydration.
+ * Since an unrecognised value silently falls back to the recommended plan, a
+ * `?plano=mensal` link opened — and charged — the annual plan (#1203). The
+ * navigation entry keeps the original URL and survives that window, which is
+ * the same reason `pages/confirm-email.vue` reads it.
  *
  * @param routeValue Value read from the Nuxt route query.
- * @param browserSearch `window.location.search`, with or without the leading `?`.
+ * @param urlSources URL-ish fallbacks, in priority order.
  * @returns The resolved plan key.
  */
 export const resolveLandingCheckoutPlanFromSources = (
   routeValue: unknown,
-  browserSearch: string | null | undefined,
+  ...urlSources: (string | null | undefined)[]
 ): LandingCheckoutPlanKey => {
   const fromRoute = matchLandingCheckoutPlan(routeValue);
   if (fromRoute) {
     return fromRoute;
   }
-  if (!browserSearch) {
-    return DEFAULT_LANDING_CHECKOUT_PLAN;
+  for (const source of urlSources) {
+    const fromUrl = matchLandingCheckoutPlan(readPlanParam(source));
+    if (fromUrl) {
+      return fromUrl;
+    }
   }
-  const search = browserSearch.startsWith("?")
-    ? browserSearch
-    : `?${browserSearch}`;
-  return (
-    matchLandingCheckoutPlan(new URLSearchParams(search).get("plano")) ??
-    DEFAULT_LANDING_CHECKOUT_PLAN
-  );
+  return DEFAULT_LANDING_CHECKOUT_PLAN;
 };
 
 /**

@@ -52,13 +52,26 @@ const route = useRoute();
 const selectedPlan = ref<LandingCheckoutPlanKey>(
   resolveLandingCheckoutPlan(route.query["plano"]),
 );
+/**
+ * URL the browser actually navigated to.
+ *
+ * Measured on a production build: when `onMounted` runs, `route.query` AND
+ * `window.location.search` are both empty because Nuxt strips the query while
+ * normalising the route during hydration. This entry keeps the original URL
+ * (#1203) — same reason `pages/confirm-email.vue` reads it.
+ *
+ * @returns The navigation URL, or null when unavailable.
+ */
+const readNavigationUrl = (): string | null => {
+  const entry = performance.getEntriesByType("navigation")[0];
+  return entry && "name" in entry ? entry.name : null;
+};
+
 onMounted((): void => {
-  // `route.query` can hydrate empty on the prerendered page, and an unmatched
-  // value falls back to the annual plan — so a ?plano=mensal link used to open
-  // the annual charge (#1203). The browser's own query string is the tiebreak.
   selectedPlan.value = resolveLandingCheckoutPlanFromSources(
     route.query["plano"],
     window.location.search,
+    readNavigationUrl(),
   );
   if (!isLandingSurface.value) {
     void navigateTo("/subscription");
