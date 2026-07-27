@@ -1066,6 +1066,7 @@ export type MutationCreateBudgetArgs = {
 export type MutationCreateCheckoutSessionArgs = {
   billingCycle?: InputMaybe<BillingCycle>;
   planSlug: Scalars['String']['input'];
+  returnSurface?: InputMaybe<Scalars['String']['input']>;
 };
 
 
