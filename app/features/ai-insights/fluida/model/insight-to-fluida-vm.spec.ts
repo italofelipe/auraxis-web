@@ -33,8 +33,8 @@ const generalDailyDto: InsightFluidaFieldsDTO = {
     weekly: [100, 200, 300, 400, 500, 600],
   },
   highlights: [
-    { label: "Maior gasto do mês", value: 11000, sub: "Fatura Maio" },
-    { label: "Único crédito", value: 27675.37, sub: "Salário gringo" },
+    { label: "Maior gasto do mês", value: 2400, sub: "Aluguel" },
+    { label: "Único crédito", value: 8400, sub: "Salário" },
   ],
 };
 
@@ -134,7 +134,7 @@ describe("insightToFluidaVM — theme overlay", () => {
     paragraphs: ["Tema real 1.", "Tema real 2."],
     highlights: [
       { label: "Saídas da semana", value: 13650, sub: "4 lançamentos" },
-      { label: "Maior gasto", value: 11000, sub: "Fatura" },
+      { label: "Maior gasto", value: 2400, sub: "Aluguel" },
     ],
     series: { daily: [1, 2, 3, 4, 5, 6, 7], weekly: [1, 2, 3, 4, 5, 6] },
   };

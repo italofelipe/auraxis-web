@@ -1,7 +1,7 @@
 import { formatFluidaCurrency, type FluidaInsightSource } from "./insight-fluida";
 
 /**
- * Mock source for the Fluida reading, content-anchored to June/2026 data.
+ * Mock source for the Fluida reading.
  *
  * Shape mirrors the additive `/ai/insights` response (`paragraphs` / `retro` /
  * `series` / `highlights`) and the mobile `InsightFluidaVM`. It exists only so
@@ -9,6 +9,14 @@ import { formatFluidaCurrency, type FluidaInsightSource } from "./insight-fluida
  * (auraxis-api PR #1502) is not yet deployed. Once the DTO ships, a mapper in
  * `api/` produces the same {@link FluidaInsightSource} from the real payload and
  * this constant is dropped.
+ *
+ * The content is a **fictional demo persona** — a single salary of R$ 8.400, a
+ * month that closes in the black, and one actionable finding (subscriptions
+ * creeping up). It must stay that way: this mock also feeds the product
+ * screenshots on the public landing, and a previous version carried real
+ * account data — a person's name, a pet's name, an actual salary and an
+ * overdue invoice — into a public repository and onto auraxis.com.br (#1188).
+ * Never paste a real reading here.
  */
 export const FLUIDA_MOCK_SOURCE: FluidaInsightSource = {
   meta: {
@@ -20,96 +28,94 @@ export const FLUIDA_MOCK_SOURCE: FluidaInsightSource = {
   },
   series: {
     daily: {
-      values: [1200, 0, 250, 0, 2650, 0, 11950],
+      values: [180, 96, 312, 240, 84, 0, 128],
       labels: ["14", "15", "16", "17", "18", "19", "20"],
     },
     weekly: {
-      values: [4200, 980, 3100, 1400, 9800, 13650],
+      values: [1580, 1210, 1740, 1320, 1490, 1040],
       labels: ["S-5", "S-4", "S-3", "S-2", "S-1", "Atual"],
     },
   },
   general: {
     daily: {
-      severity: "atencao",
-      readMin: 15,
-      title: "Ontem em foco: muita saída, nenhuma entrada",
+      severity: "ok",
+      readMin: 4,
+      title: "O mês fecha com R$ 2.220 de sobra",
       summary:
-        "No dia 20/06 você teve uma única transação — Mousepad bullpad, R$ 156,30 — mas ela chega num mês já tensionado: as despesas somam R$ 19.906,30 contra R$ 27.675,37 de receita, e a maior parte do gasto está concentrada em poucos dias.",
+        "As entradas somam R$ 8.400 e as saídas R$ 6.180 — uma sobra de R$ 2.220, a maior dos últimos seis meses. O único ponto que merece sua atenção são as assinaturas, que subiram para R$ 312 por mês.",
       retro: [
         {
           when: "Ontem · 20 jun",
-          value: -156.3,
-          text: "Apenas 1 lançamento (Mousepad bullpad). Dia leve, mas dentro de uma sequência de saídas altas.",
+          value: -128,
+          text: "Mercado e transporte. Dia dentro do ritmo da semana.",
         },
         {
           when: "Anteontem · 19 jun",
-          value: -11950,
-          text: "O dia mais pesado do mês: Fatura Maio (R$ 11.000) atrasada + Pagamento Ikaro (R$ 950).",
+          value: 0,
+          text: "Nenhum lançamento — o terceiro dia sem gasto no mês.",
         },
         {
           when: "vs. semana passada",
-          value: 9800,
-          text: "A semana atual gastou ~40% a mais que a anterior, puxada pela fatura em atraso.",
+          value: 450,
+          text: "Você gastou R$ 450 a menos que na semana anterior.",
         },
       ],
       paragraphs: [
-        "A leitura de ontem precisa ser feita no contexto da semana. Isoladamente, o dia 20 foi tranquilo: um único gasto de R$ 156,30 em eletrônicos, sem impacto relevante sobre o saldo. O ponto de atenção não é o que aconteceu ontem, e sim o que ainda está pendente.",
-        "A \"Fatura Maio\", de R$ 11.000,00, segue marcada como atrasada e responde sozinha por 55% de todas as despesas do mês. Enquanto ela não for quitada, qualquer leitura de saldo positivo é otimista demais — o resultado de R$ 7.769,07 já considera essa saída como ocorrida.",
-        "Do lado das entradas, o mês depende de um único evento: o Salário gringo, de R$ 27.675,37, previsto para 30/06. Até lá, o caixa opera no vermelho corrente em vários dias. Essa dependência de uma entrada única, no fim do mês, é o fator estrutural mais importante a observar.",
+        "Junho está sendo o mês mais equilibrado do semestre. As despesas somam R$ 6.180 contra R$ 8.400 de entradas, e a sobra de R$ 2.220 já supera em 12% a média dos últimos seis meses. Nenhuma categoria estourou o limite definido.",
+        "O gasto se distribuiu bem ao longo dos dias, sem picos: o maior lançamento isolado do mês foi o aluguel, de R$ 2.400, e nenhum outro passou de R$ 400. Essa regularidade é o que torna o fluxo previsível — dá para saber quanto sobra antes do fim do mês.",
+        "O detalhe que vale corrigir está nas assinaturas. São sete serviços ativos que somam R$ 312 por mês, e três deles renovaram no mesmo dia 19. Dois têm cobrança sobreposta — mesmo tipo de serviço, contratos diferentes.",
       ],
       pullStat: {
-        label: "Peso da Fatura Maio",
-        value: "55%",
-        caption: "de todas as despesas do mês",
+        label: "Sobra do mês",
+        value: formatFluidaCurrency(2220),
+        caption: "12% acima da sua média",
       },
       alerts: [
-        { severity: "alta", text: "Fatura Maio (R$ 11.000) em atraso — concentra 55% das despesas." },
-        { severity: "media", text: "Receita do mês depende de um único crédito (30/06)." },
+        { severity: "media", text: "7 assinaturas ativas somam R$ 312/mês — duas se sobrepõem." },
+        { severity: "media", text: "Reserva de emergência cobre 2,3 meses; a meta é 6." },
       ],
       nextStep:
-        "Priorize quitar ou renegociar a Fatura Maio antes do crédito do salário; ela distorce todos os indicadores. Como hábito, distribua os vencimentos ao longo do mês para não concentrar saídas em 1–2 dias.",
+        "Revise as duas assinaturas sobrepostas e direcione a diferença para a Reserva de emergência. São R$ 84 por mês que hoje saem sem contrapartida.",
     },
     weekly: {
-      severity: "alerta",
-      readMin: 30,
-      title: "A semana de 15 a 21: o mês inteiro decidido em dois dias",
+      severity: "ok",
+      readMin: 6,
+      title: "A semana mais barata do mês, e não foi por acaso",
       summary:
-        "Em sete dias, R$ 13.650,00 saíram do caixa sem nenhuma entrada — e dois lançamentos (Fatura Maio e Parcela de financiamento) explicam quase tudo. A conta entrou em estado de alerta não por volume de transações, mas por concentração.",
+        "R$ 1.040 em sete dias, contra R$ 1.490 na semana anterior. A queda veio de mercado e delivery — as duas categorias que você passou a registrar no mesmo dia da compra.",
       retro: [
         {
           when: "Esta semana · 15–21 jun",
-          value: -13650,
-          text: "4 saídas, 0 entradas. Saldo da semana fortemente negativo.",
+          value: -1040,
+          text: "9 lançamentos, nenhum acima de R$ 320.",
         },
         {
           when: "Semana anterior · 8–14 jun",
-          value: -1450,
-          text: "Internet + Visita Pedro. Ritmo de gasto saudável.",
+          value: -1490,
+          text: "Semana do aluguel e das renovações anuais.",
         },
         {
           when: "Tendência (6 semanas)",
-          value: 13650,
-          text: "Clara escalada nas últimas duas semanas, acima da média móvel.",
+          value: -450,
+          text: "Terceira semana consecutiva abaixo da média móvel.",
         },
       ],
       paragraphs: [
-        "A retrospectiva semanal mostra um padrão que não aparece no dia a dia: a conta passa semanas em ritmo controlado e, então, concentra obrigações grandes num intervalo curto. De 15 a 21 de junho, quatro lançamentos somaram R$ 13.650,00, contra R$ 1.450,00 da semana anterior — um salto de mais de 9x.",
-        "Dois itens dominam a semana. A Parcela de financiamento (R$ 2.650, recorrente) é previsível e saudável — entra todo mês. Já a Fatura Maio (R$ 11.000, atrasada) é o evento anômalo: não é recorrente, está em atraso e desequilibra a comparação com qualquer semana típica.",
-        "Sem nenhuma receita na semana, o saldo semanal ficou em -R$ 13.650,00. Isso não significa que o mês fechará negativo — o salário de 30/06 reverte o número — mas evidencia uma fragilidade de fluxo: a conta vive de um único crédito mensal e precisa atravessar três semanas de saídas antes dele.",
-        "Olhando as últimas seis semanas, a média móvel de saídas estava perto de R$ 4.000. As duas últimas romperam esse teto com folga. Mesmo descontando a fatura atrasada como evento único, a tendência recente é de aceleração de gastos fixos.",
+        "Sete dias, R$ 1.040, nenhum lançamento acima de R$ 320. Essa é a semana mais barata de junho, e a terceira consecutiva abaixo da média móvel de R$ 1.397 — o que caracteriza tendência, não sorte.",
+        "A diferença veio de duas categorias. Mercado caiu de R$ 420 para R$ 268 e delivery, de R$ 210 para R$ 96. Ambas são justamente as que você passou a registrar no mesmo dia da compra a partir de 8 de junho: quando o gasto fica visível na hora, ele encolhe sozinho.",
+        "Moradia e transporte ficaram estáveis, como esperado de despesa fixa. Não há nada em atraso e nenhuma categoria passou de 80% do limite — o orçamento está sendo cumprido sem esforço aparente.",
+        "Se o ritmo desta semana se mantiver, julho fecha com sobra perto de R$ 2.600, o suficiente para levar a Reserva de emergência de 2,3 para 2,7 meses de despesas cobertas.",
       ],
       pullStat: {
-        label: "Saldo da semana",
-        value: formatFluidaCurrency(-13650),
-        caption: "sem nenhuma entrada registrada",
+        label: "Saídas da semana",
+        value: formatFluidaCurrency(1040),
+        caption: "R$ 450 abaixo da semana anterior",
       },
       alerts: [
-        { severity: "alta", text: "Saldo semanal -R$ 13.650,00, sem nenhuma entrada." },
-        { severity: "alta", text: "Fatura Maio em atraso há mais de 20 dias." },
-        { severity: "media", text: "Saídas das 2 últimas semanas acima da média móvel." },
+        { severity: "media", text: "Assinaturas renovam dia 19 — R$ 312 concentrados num dia só." },
       ],
       nextStep:
-        "Construa um colchão que cubra ao menos 3 semanas de despesas fixas, para deixar de depender do timing do salário. No curto prazo, trate a Fatura Maio como prioridade absoluta e evite novas parcelas até o crédito de 30/06.",
+        "Mantenha o registro no mesmo dia da compra: foi o que derrubou mercado e delivery em três semanas. Vale replicar o hábito para lazer, a categoria que ainda oscila.",
     },
   },
   themes: {
@@ -119,39 +125,39 @@ export const FLUIDA_MOCK_SOURCE: FluidaInsightSource = {
       daily: {
         severity: "ok",
         readMin: 3,
-        title: "Dia leve, mas dentro de um mês concentrado",
+        title: "Nove lançamentos, nenhuma surpresa",
         summary:
-          "Ontem houve só Mousepad bullpad (R$ 156,30, Eletrônicos). No mês, 9 despesas e 1 receita; 70% do valor está em 2 lançamentos.",
+          "Ontem entraram mercado (R$ 84,30) e transporte (R$ 43,70). No mês são 24 despesas e 2 receitas, com 61% do valor concentrado em moradia e mercado.",
         highlights: [
-          { label: "Maior gasto do mês", value: formatFluidaCurrency(11000), caption: "Fatura Maio · Cartão" },
-          { label: "Único crédito", value: formatFluidaCurrency(27675.37), caption: "Salário gringo · 30/06" },
-          { label: "Gasto de ontem", value: formatFluidaCurrency(156.3), caption: "Eletrônicos" },
+          { label: "Maior gasto do mês", value: formatFluidaCurrency(2400), caption: "Aluguel · dia 5" },
+          { label: "Entradas do mês", value: formatFluidaCurrency(8400), caption: "Salário · dia 5" },
+          { label: "Gasto de ontem", value: formatFluidaCurrency(128), caption: "Mercado e transporte" },
         ],
         paragraphs: [
-          "O lançamento de ontem é pequeno e pontual — um mousepad em Eletrônicos. Não altera categorias nem orçamento de forma material; entra como consumo discricionário isolado.",
-          "O retrato do mês, porém, é de concentração: das nove despesas, Fatura Maio (R$ 11.000) e Parcela de financiamento (R$ 2.650) somam 69% do total. As outras sete dividem o restante em valores pequenos a médios.",
+          "Os dois lançamentos de ontem são rotineiros e cabem no ritmo da semana. Nenhum deles muda a leitura de categorias nem se aproxima de algum limite.",
+          "No mês, 61% do valor está em moradia (R$ 2.400) e mercado (R$ 1.360). As outras 22 despesas se dividem em valores pequenos, o que mantém a previsibilidade alta e facilita projetar o fechamento.",
         ],
         nextStep:
-          "Categorize a Fatura Maio (hoje em \"Cartão\") para que ela não distorça a leitura de despesas correntes. Vale separar o que é dívida pontual do que é gasto do mês.",
+          "Todos os lançamentos do mês estão categorizados — é o que permite a leitura por área funcionar. Vale manter o hábito de classificar no momento do registro.",
       },
       weekly: {
-        severity: "atencao",
+        severity: "ok",
         readMin: 5,
-        title: "Onde o dinheiro foi: 4 saídas, nenhuma entrada",
+        title: "Onde o dinheiro foi: mercado, transporte e assinaturas",
         summary:
-          "Na semana, R$ 13.650,00 distribuídos entre Cartão (R$ 11.000), Financiamento (R$ 2.650) e itens menores. Categorias fixas dominam; nenhuma receita registrada.",
+          "R$ 1.040 na semana, distribuídos entre mercado (R$ 268), assinaturas (R$ 312), transporte (R$ 164) e lazer (R$ 296). Nenhum lançamento atrasado.",
         highlights: [
-          { label: "Saídas da semana", value: formatFluidaCurrency(13650), caption: "4 lançamentos" },
-          { label: "Em despesas fixas", value: "81%", caption: "Financiamento + recorrentes" },
-          { label: "Atrasados", value: "3 itens", caption: "Fatura, Condomínio, Banho" },
+          { label: "Saídas da semana", value: formatFluidaCurrency(1040), caption: "9 lançamentos" },
+          { label: "Em despesas fixas", value: "30%", caption: "assinaturas e transporte" },
+          { label: "Atrasados", value: "0 itens", caption: "tudo em dia" },
         ],
         paragraphs: [
-          "A semana é quase inteiramente composta por compromissos fixos e dívidas. A Fatura Maio responde por 81% do valor; a Parcela de financiamento, recorrente, por mais 19%. Não há gasto variável relevante — sinal de que o problema é de calendário e dívida, não de consumo impulsivo.",
-          "Três itens aparecem como atrasados no mês (Fatura Maio, Condomínio, Banho do Caramelo), somando R$ 12.700. Mesmo os dois menores, juntos, indicam que vencimentos do início do mês passaram sem baixa — vale checar se foram pagos fora do app.",
-          "Pelas descrições, parte das saídas tem natureza combinada e previsível (\"Pagamento Ikaro — 3x na semana\", \"Banho do Caramelo — 2 banhos ao mês\"). Transformar esses combinados em recorrências ajuda a antecipá-los no fluxo.",
+          "A semana tem uma composição saudável: 70% do valor em gasto variável que você controla (mercado, lazer) e 30% em fixo. Não há nada vencido, e nenhuma categoria passou do limite.",
+          "As assinaturas concentram R$ 312 num único dia, o 19. Três serviços renovaram juntos, o que cria um pico artificial na leitura diária e some no acumulado da semana.",
+          "Lazer foi a única categoria acima da média (R$ 296 contra R$ 210). Foi um único programa de fim de semana, não um padrão novo — vale acompanhar sem agir por enquanto.",
         ],
         nextStep:
-          "Revise os 3 itens em atraso e dê baixa no que já foi pago. Depois, converta os gastos \"combinados\" recorrentes (Ikaro, Caramelo) em lançamentos automáticos para o mês prever melhor o caixa.",
+          "Distribua as renovações de assinatura ao longo do mês. Concentrar R$ 312 num dia só atrapalha a leitura de fluxo e cria falsos picos.",
       },
     },
     goals: {
@@ -160,39 +166,39 @@ export const FLUIDA_MOCK_SOURCE: FluidaInsightSource = {
       daily: {
         severity: "ok",
         readMin: 3,
-        title: "Metas paradas aguardando o crédito do mês",
+        title: "Reserva avança pelo quarto mês seguido",
         summary:
-          "Nenhum aporte ontem. \"Viagem dos sonhos\" segue em 56% (R$ 8.450 / R$ 15.000) e a Reserva de emergência em 67%.",
+          "O aporte automático de R$ 600 entrou dia 5. A Reserva de emergência chegou a 72% (R$ 14.400 de R$ 20.000) e a Viagem, a 45%.",
         highlights: [
-          { label: "Viagem dos sonhos", value: "56%", caption: "R$ 8.450 / R$ 15.000" },
-          { label: "Reserva de emergência", value: "67%", caption: "R$ 13.423 / R$ 20.000" },
-          { label: "Aporte de ontem", value: formatFluidaCurrency(0), caption: "sem movimento" },
+          { label: "Reserva de emergência", value: "72%", caption: "R$ 14.400 / R$ 20.000" },
+          { label: "Viagem", value: "45%", caption: "R$ 5.400 / R$ 12.000" },
+          { label: "Aporte do mês", value: formatFluidaCurrency(600), caption: "automático · dia 5" },
         ],
         paragraphs: [
-          "As metas não tiveram movimentação ontem — comportamento esperado num mês em que o caixa está comprometido com a fatura em atraso. O progresso permanece o mesmo do dia anterior.",
-          "A Reserva de emergência, em 67%, é o ponto positivo: cobre boa parte de um mês de despesas. Avançá-la antes da Viagem reduz a dependência do salário único que aparece na leitura geral.",
+          "O aporte automático continua entrando sem depender de decisão mensal — é o quarto mês seguido de avanço na Reserva, que passou de 58% para 72% no período.",
+          "No ritmo atual, a Reserva chega aos R$ 20.000 em setembro. A Viagem, com aporte menor, alcança a meta em janeiro — dentro do prazo que você definiu.",
         ],
         nextStep:
-          "Assim que o salário entrar (30/06), direcione um aporte automático pequeno e fixo para a Reserva antes de qualquer gasto discricionário — ela é a meta que mais reduz seu risco hoje.",
+          "Com a sobra de R$ 2.220 deste mês, um aporte extra de R$ 400 na Reserva antecipa a conclusão para agosto sem apertar o orçamento.",
       },
       weekly: {
-        severity: "atencao",
-        readMin: 5,
-        title: "Sem aportes na semana — ritmo abaixo do necessário",
+        severity: "ok",
+        readMin: 4,
+        title: "Metas no prazo, sem esforço adicional",
         summary:
-          "Semana sem contribuições para metas. No ritmo atual, a Viagem dos sonhos atrasa frente ao prazo; a Reserva avança devagar.",
+          "As duas metas avançaram no mês via aporte automático. Nenhuma delas depende de decisão semanal, o que explica a consistência.",
         highlights: [
-          { label: "Aportes na semana", value: formatFluidaCurrency(0), caption: "0 de 2 metas" },
-          { label: "Falta p/ Viagem", value: formatFluidaCurrency(6550), caption: "44% restante" },
-          { label: "Falta p/ Reserva", value: formatFluidaCurrency(6577), caption: "33% restante" },
+          { label: "Aportes no mês", value: formatFluidaCurrency(600), caption: "2 de 2 metas" },
+          { label: "Falta p/ Reserva", value: formatFluidaCurrency(5600), caption: "28% restante" },
+          { label: "Falta p/ Viagem", value: formatFluidaCurrency(6600), caption: "55% restante" },
         ],
         paragraphs: [
-          "A semana não registrou aportes — coerente com o aperto de caixa, mas que cobra um custo: as duas metas ficaram estacionadas enquanto o tempo até os prazos diminui. Metas sem aporte semanal tendem a derrapar silenciosamente.",
-          "A Viagem dos sonhos precisa de mais R$ 6.550. Mantido um aporte mensal modesto, o prazo escorrega alguns meses. A Reserva, mais perto do alvo (faltam R$ 6.577 para R$ 20.000), responde melhor a aportes pequenos e constantes.",
-          "A recomendação estrutural da leitura geral se aplica aqui: enquanto a conta depender de um único crédito mensal, as metas competem diretamente com as dívidas pelo mesmo dinheiro — e perdem.",
+          "Metas com aporte automático avançam mesmo em meses agitados, e é exatamente o que se vê aqui: nenhuma semana sem progresso desde março.",
+          "A Reserva cobre hoje 2,3 meses de despesas. O alvo saudável para o seu padrão de gasto é 6 meses — o que significa R$ 37.000, acima da meta atual de R$ 20.000.",
+          "Vale revisar o alvo da Reserva depois que ela fechar. Uma meta batida que ficou pequena dá falsa sensação de segurança.",
         ],
         nextStep:
-          "Defina aportes automáticos por porcentagem do salário (ex.: 5% Reserva, 5% Viagem) que saem no dia do crédito. Automatizar tira a meta da disputa mês a mês e protege o progresso.",
+          "Ao concluir a Reserva em setembro, redefina o alvo para 6 meses de despesa (R$ 37.000) e mantenha o mesmo aporte automático.",
       },
     },
     budgets: {
@@ -201,80 +207,80 @@ export const FLUIDA_MOCK_SOURCE: FluidaInsightSource = {
       daily: {
         severity: "ok",
         readMin: 3,
-        title: "Eletrônicos consumiu um pouco do limite livre",
+        title: "Nenhuma categoria passou de 80% do limite",
         summary:
-          "O gasto de ontem (R$ 156,30) cai em Eletrônicos, fora dos orçamentos fixos. Categorias fixas seguem dentro do previsto.",
+          "Faltando dez dias para o fim do mês, mercado está em 68% do teto e lazer em 74%. Moradia, fixa, já consumiu 100% como esperado.",
         highlights: [
-          { label: "Despesa fixa", value: "50% do total", caption: formatFluidaCurrency(15550) },
-          { label: "Sem categoria", value: formatFluidaCurrency(15325.08), caption: "a classificar" },
-          { label: "Livre usado ontem", value: formatFluidaCurrency(156.3), caption: "Eletrônicos" },
+          { label: "Mercado", value: "68%", caption: "R$ 1.360 de R$ 2.000" },
+          { label: "Lazer", value: "74%", caption: "R$ 592 de R$ 800" },
+          { label: "Sem categoria", value: formatFluidaCurrency(0), caption: "tudo classificado" },
         ],
         paragraphs: [
-          "O lançamento de ontem é discricionário e pequeno, sem estourar nenhum teto. O alerta de orçamento não está no consumo do dia, e sim na qualidade da classificação: quase metade das saídas do mês está como \"Sem categoria\".",
-          "Com tanto valor não classificado, qualquer orçamento por categoria fica cego. Antes de apertar limites, o passo mais útil é categorizar — sobretudo a Fatura Maio, que infla \"Cartão/Sem categoria\".",
+          "O orçamento está sendo cumprido com folga em todas as categorias variáveis. Mercado, historicamente a mais difícil, está em 68% com dez dias pela frente — o ritmo atual leva a fechar em torno de R$ 1.800.",
+          "Nenhum lançamento ficou sem categoria neste mês, o que é o que permite os limites significarem alguma coisa. Orçamento por área só funciona quando cada real tem destino nomeado.",
         ],
         nextStep:
-          "Classifique os lançamentos sem categoria do mês (R$ 15.325). Só depois os limites por categoria passam a refletir a realidade e os alertas ficam confiáveis.",
+          "Lazer é a categoria com menos margem (74%). Se houver programa no fim de semana, vale antecipar a decisão de remanejar R$ 100 de mercado, que está sobrando.",
       },
       weekly: {
-        severity: "atencao",
-        readMin: 5,
-        title: "Metade do mês sem categoria — orçamento às cegas",
+        severity: "ok",
+        readMin: 4,
+        title: "Três semanas seguidas dentro do teto",
         summary:
-          "Despesa fixa concentra 50% (R$ 15.550). \"Sem categoria\" tem outros R$ 15.325, o que impede orçamentos confiáveis por área.",
+          "Todas as categorias variáveis terminaram a semana abaixo do limite proporcional. Mercado e delivery puxaram a economia.",
         highlights: [
-          { label: "Despesa fixa", value: formatFluidaCurrency(15550), caption: "50% do total" },
-          { label: "Sem categoria", value: formatFluidaCurrency(15325.08), caption: "49% do total" },
-          { label: "Demais", value: formatFluidaCurrency(175), caption: "Cartão" },
+          { label: "Dentro do limite", value: "6 de 6", caption: "categorias variáveis" },
+          { label: "Maior folga", value: formatFluidaCurrency(640), caption: "mercado" },
+          { label: "Menor folga", value: formatFluidaCurrency(208), caption: "lazer" },
         ],
         paragraphs: [
-          "A foto da semana confirma o diagnóstico do dia: o orçamento está dominado por dois blocos enormes — Despesa fixa (R$ 15.550) e Sem categoria (R$ 15.325). Juntos, são 99% das saídas, o que esvazia qualquer planejamento por categoria.",
-          "O bloco \"Sem categoria\" é grande porque a Fatura Maio entra nele. Classificar essa fatura e distribuí-la entre as áreas que a originaram (moradia, lazer, assinaturas) revelaria o consumo real por trás do número.",
-          "Despesa fixa em 50% é alto, mas não anômalo para quem tem financiamento e contas recorrentes. O problema é não enxergar a outra metade. Orçamento só vira ferramenta quando cada real tem um destino nomeado.",
+          "As seis categorias variáveis fecharam a semana dentro do limite proporcional. É a terceira semana consecutiva assim, o que sugere que os tetos definidos estão calibrados para a sua realidade — nem apertados demais, nem frouxos.",
+          "Mercado acumula a maior folga (R$ 640). Se o padrão se repetir, o teto pode ser reduzido em R$ 200 e a diferença ir para a Reserva, sem mudança de comportamento.",
+          "Lazer é a categoria com menor folga e a mais volátil do mês. Não é problema — é a natureza da categoria —, mas é a que mais se beneficia de acompanhamento semanal.",
         ],
         nextStep:
-          "Crie a regra: nenhuma transação fica sem categoria por mais de 48h. Comece pela Fatura Maio, quebrando-a nas categorias de origem — o orçamento por área passa a fazer sentido na hora.",
+          "Reduza o teto de mercado de R$ 2.000 para R$ 1.800 e realoque a diferença para a Reserva. O histórico das últimas seis semanas sustenta o corte.",
       },
     },
     credit_cards: {
       label: "Cartões",
       color: "#9B5DE5",
       daily: {
-        severity: "atencao",
+        severity: "ok",
         readMin: 3,
-        title: "A fatura em atraso domina a leitura de cartão",
+        title: "Fatura fechando 18% abaixo do mês passado",
         summary:
-          "Nenhuma compra no crédito ontem. O destaque é a Fatura Maio (R$ 11.000) ainda em aberto — pressão direta sobre limite e juros.",
+          "A fatura em aberto está em R$ 1.840, contra R$ 2.240 no mesmo ponto do mês anterior. O limite usado é de 12%, e não há parcelamento ativo.",
         highlights: [
-          { label: "Fatura em atraso", value: formatFluidaCurrency(11000), caption: "Maio · Inter" },
-          { label: "Limite usado (Inter)", value: "44%", caption: "R$ 11.000 / R$ 25.000" },
-          { label: "Compras ontem", value: formatFluidaCurrency(0), caption: "sem uso do crédito" },
+          { label: "Fatura em aberto", value: formatFluidaCurrency(1840), caption: "fecha dia 28" },
+          { label: "Limite usado", value: "12%", caption: "R$ 1.840 / R$ 15.000" },
+          { label: "Compras ontem", value: formatFluidaCurrency(84.3), caption: "mercado" },
         ],
         paragraphs: [
-          "Não houve uso de cartão ontem, o que é positivo. A leitura de cartões hoje gira inteiramente em torno de uma fatura vencida: a de maio, R$ 11.000, que mantém 44% do limite do Inter ocupado e tende a gerar encargos a cada dia de atraso.",
-          "Enquanto essa fatura não baixa, o cartão opera com folga de limite reduzida e custo crescente. É o item de maior alavancagem negativa da conta inteira neste momento.",
+          "A fatura que fecha dia 28 está em R$ 1.840 — 18% abaixo do mesmo ponto do mês passado. O uso de limite, em 12%, mantém folga confortável para qualquer imprevisto.",
+          "Não há compras parceladas em aberto, o que significa que a fatura do mês que vem começa do zero. É a situação mais saudável possível para o crédito: ele funciona como meio de pagamento, não como dívida.",
         ],
         nextStep:
-          "Quite ou parcele a Fatura Maio com a IA antes do próximo fechamento. Cada dia de atraso converte dívida barata em cara — é o melhor \"retorno\" disponível hoje.",
+          "Nada a corrigir aqui. Vale manter o débito automático da fatura para eliminar o risco de esquecimento no vencimento.",
       },
       weekly: {
-        severity: "alerta",
-        readMin: 5,
-        title: "Cartão: dívida parada custando dinheiro",
+        severity: "ok",
+        readMin: 4,
+        title: "Cartão usado como meio de pagamento, não como crédito",
         summary:
-          "Na semana, o cartão não foi usado para novas compras, mas a Fatura Maio (R$ 11.000) seguiu em atraso — o maior fator de risco da conta.",
+          "R$ 496 em compras na semana, todas à vista no crédito. Nenhum parcelamento, nenhum juro, fatura integralmente coberta pela sobra do mês.",
         highlights: [
-          { label: "Fatura Maio", value: formatFluidaCurrency(11000), caption: "em atraso" },
-          { label: "% das despesas do mês", value: "55%", caption: "um único item" },
-          { label: "Novas compras", value: formatFluidaCurrency(0), caption: "na semana" },
+          { label: "Compras na semana", value: formatFluidaCurrency(496), caption: "6 lançamentos" },
+          { label: "Parcelamentos", value: "0", caption: "nenhum ativo" },
+          { label: "Cobertura da fatura", value: "121%", caption: "sobra do mês / fatura" },
         ],
         paragraphs: [
-          "A boa notícia da semana: você não adicionou novas compras ao crédito. A má: a dívida existente não andou. A Fatura Maio, sozinha, é 55% de todas as despesas do mês e mantém o limite do Inter comprometido.",
-          "Sem novas compras, o problema deixa de ser comportamental e passa a ser financeiro puro — é uma questão de liquidez e timing. O salário de 30/06 cobre a fatura com folga; a decisão é se vale esperar (acumulando juros) ou antecipar com a reserva.",
-          "Os outros cartões (Mercado Pago, Nubank, Unique) estão zerados no mês, então não há fragmentação de dívida — o foco é único e claro, o que facilita o plano.",
+          "As seis compras da semana somam R$ 496 e foram todas à vista no crédito. Sem parcelamento, a fatura reflete exatamente o consumo do período — sem arrastar meses anteriores.",
+          "A sobra do mês (R$ 2.220) cobre a fatura em aberto (R$ 1.840) com folga de 21%. Quitá-la integralmente no vencimento não compromete a Reserva nem os aportes das metas.",
+          "Com 12% de limite usado, há espaço de sobra para uma emergência — que é a função do limite disponível, e não um convite a gastar.",
         ],
         nextStep:
-          "Compare o custo de atraso da fatura com o rendimento da Reserva. Se o juro do atraso superar o rendimento (quase sempre supera), antecipe a quitação parcial agora e recomponha a reserva com o salário.",
+          "Continue quitando a fatura integral no vencimento. É o que mantém o crédito barato e o limite disponível para o que ele existe: imprevisto.",
       },
     },
   },

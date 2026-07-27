@@ -46,7 +46,7 @@ const sampleSource: FluidaInsightSource = {
         { when: "vs. semana passada", value: 9800, text: "Gastou mais." },
       ],
       alerts: [{ severity: "alta", text: "Fatura em atraso." }],
-      pullStat: { label: "Peso da Fatura Maio", value: "55%", caption: "de todas as despesas do mês" },
+      pullStat: { label: "Peso da moradia", value: "30%", caption: "de todas as despesas do mês" },
     },
     weekly: {
       severity: "alerta",
@@ -57,7 +57,7 @@ const sampleSource: FluidaInsightSource = {
       nextStep: "Construa um colchão.",
       retro: [],
       alerts: [],
-      pullStat: { label: "Peso da Fatura Maio", value: "55%", caption: "do mês" },
+      pullStat: { label: "Peso da moradia", value: "30%", caption: "do mês" },
     },
   },
   themes: {
@@ -72,8 +72,8 @@ const sampleSource: FluidaInsightSource = {
         paragraphs: ["T1.", "T2."],
         nextStep: "Categorize.",
         highlights: [
-          { label: "Maior gasto", value: "R$ 11.000,00", caption: "Fatura Maio" },
-          { label: "Único crédito", value: "R$ 27.675,37", caption: "Salário" },
+          { label: "Maior gasto", value: "R$ 2.400,00", caption: "Aluguel" },
+          { label: "Único crédito", value: "R$ 8.400,00", caption: "Salário" },
           { label: "Gasto de ontem", value: "R$ 156,30", caption: "Eletrônicos" },
         ],
       },
@@ -199,7 +199,7 @@ describe("resolveFluidaThemeMeta", () => {
 
 describe("formatFluidaCurrency", () => {
   it("formats a value as pt-BR BRL", () => {
-    expect(normalizeSpaces(formatFluidaCurrency(11000))).toBe("R$ 11.000,00");
+    expect(normalizeSpaces(formatFluidaCurrency(2400))).toBe("R$ 2.400,00");
   });
 
   it("formats the absolute value, dropping the sign", () => {
@@ -243,7 +243,7 @@ describe("deriveFluidaView", () => {
     // paragraphs flow through unchanged
     expect(view.paragraphs).toEqual(["P1.", "P2.", "P3."]);
     expect(view.nextStep).toBe("Siga em frente.");
-    expect(view.pullStat?.value).toBe("55%");
+    expect(view.pullStat?.value).toBe("30%");
   });
 
   it("derives a theme view with highlight tiles instead of compare cards", () => {
@@ -255,7 +255,7 @@ describe("deriveFluidaView", () => {
     expect(view.compare).toBeUndefined();
     expect(view.alerts).toBeUndefined();
     expect(view.highlights).toHaveLength(3);
-    expect(view.highlights?.[0]?.value).toBe("R$ 11.000,00");
+    expect(view.highlights?.[0]?.value).toBe("R$ 2.400,00");
     // the chart is still derived so the beat list can render it generically
     expect(view.chart.values).toHaveLength(7);
   });

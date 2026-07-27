@@ -31,7 +31,9 @@ describe("useInsightsFluida — backward-compatible source override", () => {
     expect(fluida.cadence.value).toBe("daily");
     expect(fluida.theme.value).toBe("general");
     expect(fluida.view.value.isGeneral).toBe(true);
-    expect(fluida.view.value.lead.readMinutes).toBe(15);
+    expect(fluida.view.value.lead.readMinutes).toBe(
+      FLUIDA_MOCK_SOURCE.general.daily.readMin,
+    );
     expect(fluida.usingRealData.value).toBe(false);
   });
 
