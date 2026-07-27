@@ -80,12 +80,11 @@ test.describe("Landing de captação — auraxis.com.br", () => {
     await expect(pricing.getByText("R$ 29,90")).toBeVisible();
     await expect(pricing.getByText("R$ 287,04")).toBeVisible();
 
+    // #1187: buying happens on the landing itself — the CTA must NOT hand the
+    // visitor to another origin before they can pay.
     const subscribe = page.getByTestId("landing-pricing-subscribe");
     await expect(subscribe).toBeVisible();
-    await expect(subscribe).toHaveAttribute(
-      "href",
-      "https://app.auraxis.com.br/subscription",
-    );
+    await expect(subscribe).toHaveAttribute("href", "/checkout?plano=anual");
   });
 
   test("shows the landing footer with legal links on the app origin", async ({ page }) => {
