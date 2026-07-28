@@ -1,4 +1,12 @@
-import posthog from "posthog-js";
+// The `no-external` build never injects remote <script> tags — the default
+// build loads remote config (config.js) and lazy extensions from
+// *-assets.i.posthog.com, which both production CSPs block in `script-src`
+// (landing: infra/landing/main.tf; app: PRODUCTION_CSP in csp.ts). With the
+// loader stubbed, config/flags fall back to fetch on the ingest host, which
+// `connect-src` already allows (#1209 — root cause of zero web ingestion).
+// web-vitals.client.ts MUST import the same path: two entrypoints would
+// create two disconnected PostHog singletons.
+import posthog from "posthog-js/dist/module.no-external";
 import {
   canUseAnalyticsCookies,
   subscribeToCookieConsentChanges,
@@ -164,6 +172,13 @@ export function createConsentAwareAnalyticsClient(
     if (!initialized) {
       client = initPostHog(apiKey, apiHost);
       initialized = true;
+      // Surveys extension, bundled (#1209): with the no-external build the
+      // CDN fallback does not exist, so the extension ships as a local lazy
+      // chunk from our own origin — loaded only for consented sessions, and
+      // long before the popover delay of the abandonment survey on
+      // /checkout/cancelado. Optional by design: a failed load must never
+      // take analytics down with it.
+      void import("posthog-js/dist/surveys").catch(() => { /* optional */ });
     }
 
     posthog.opt_in_capturing?.();

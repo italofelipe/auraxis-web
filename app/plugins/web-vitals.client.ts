@@ -1,5 +1,8 @@
 import { onCLS, onFCP, onINP, onLCP, onTTFB, type Metric } from "web-vitals";
-import posthog from "posthog-js";
+// Same entrypoint as posthog.client.ts — the no-external build is a distinct
+// module instance; importing plain "posthog-js" here would report vitals into
+// a second, never-initialized singleton (#1209).
+import posthog from "posthog-js/dist/module.no-external";
 import * as Sentry from "@sentry/nuxt";
 import {
   canUseAnalyticsCookies,
