@@ -32,7 +32,7 @@ import {
 // `public` layout keeps the app chrome (sidebar, authenticated data fetching)
 // out of a page that anonymous visitors reach; on the landing surface that
 // layout renders nothing but the slot.
-definePageMeta({ layout: "public" });
+definePageMeta({ layout: "public", publicChrome: false });
 
 const config = useRuntimeConfig();
 const isLandingSurface = computed(
