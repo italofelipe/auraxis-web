@@ -2,9 +2,10 @@
 import type { Component } from "vue";
 import { BarChart3, Target, ShieldCheck, Zap, Sparkles, ArrowRight } from "lucide-vue-next";
 import { NButton } from "naive-ui";
-import { useRouter } from "#app";
+import { navigateTo } from "#app";
 import { useI18n } from "vue-i18n";
 import { useToolCta } from "~/features/tools/composables/useToolCta";
+import { usePublicNav } from "~/shared/navigation/public-links";
 
 /**
  * A feature highlight shown inside the guest CTA panel.
@@ -30,17 +31,30 @@ const CTA_FEATURES: readonly CtaFeature[] = [
 ] as const;
 
 const { showCta } = useToolCta();
-const router = useRouter();
+const { productHref } = usePublicNav();
 const { t } = useI18n();
+
+// No apex a conta vive em outro host — a navegação precisa ser external.
+const registerHref = productHref("/register");
+const loginHref = productHref("/login");
+
+/**
+ * Navigates to a product destination, crossing hosts when the href is absolute.
+ *
+ * @param target - Href already resolved for the active surface.
+ */
+const goToProduct = (target: string): void => {
+  void navigateTo(target, target.startsWith("http") ? { external: true } : undefined);
+};
 
 /** Navigates the visitor to the registration page. */
 const goToRegister = (): void => {
-  void router.push("/auth/register");
+  goToProduct(registerHref);
 };
 
 /** Navigates the visitor to the login page. */
 const goToLogin = (): void => {
-  void router.push("/auth/login");
+  goToProduct(loginHref);
 };
 </script>
 

@@ -1,6 +1,10 @@
 <script setup lang="ts">
-import { tryUseNuxtApp } from "#app";
 import { useSessionStore } from "~/stores/session";
+import {
+  resolveProductHref,
+  resolveSiteSurface,
+  type PublicSurface,
+} from "~/shared/navigation/public-links";
 import type { UiPublicHeaderProps } from "./UiPublicHeader.types";
 
 const props = withDefaults(defineProps<UiPublicHeaderProps>(), {
@@ -10,18 +14,45 @@ const props = withDefaults(defineProps<UiPublicHeaderProps>(), {
 
 const { t } = useI18n();
 const sessionStore = useSessionStore();
-const nuxtApp = tryUseNuxtApp();
+const runtimeSurface = resolveSiteSurface();
 
 /** Whether the current visitor has an active session. */
 const isAuthenticated = computed<boolean>(() =>
   props.authenticated !== undefined ? props.authenticated : sessionStore.isAuthenticated,
 );
-const runtimeSurface = computed(
-  (): unknown => (nuxtApp?.$config.public as Record<string, unknown> | undefined)?.siteSurface,
+const surface = computed<PublicSurface>(() => props.surface ?? runtimeSurface);
+const showNav = computed<boolean>(() => surface.value !== "app");
+
+interface PublicNavLink {
+  label: string;
+  to: string;
+}
+
+/**
+ * Marketing navega a home por âncoras próprias; a landing (apex) navega o
+ * conteúdo real que ela mesma serve — as âncoras de marketing não existem lá.
+ */
+const navLinks = computed<readonly PublicNavLink[]>(() =>
+  surface.value === "landing"
+    ? [
+        { label: "Ferramentas", to: "/tools" },
+        { label: "Soluções", to: "/controle-financeiro" },
+        { label: "Planos", to: "/#planos" },
+        { label: "Blog", to: "/blog" },
+      ]
+    : [
+        { label: "Produto", to: "/#produto" },
+        { label: "Soluções", to: "/controle-financeiro" },
+        { label: "Analytics", to: "/#analytics" },
+        { label: "Planos", to: "/#planos" },
+        { label: "FAQ", to: "/#faq" },
+        { label: "Blog", to: "/blog" },
+      ],
 );
-const isMarketingSurface = computed<boolean>(() =>
-  props.surface !== undefined ? props.surface === "marketing" : runtimeSurface.value !== "app",
-);
+
+const loginHref = computed<string>(() => resolveProductHref(surface.value, "/login"));
+const registerHref = computed<string>(() => resolveProductHref(surface.value, "/register"));
+const dashboardHref = computed<string>(() => resolveProductHref(surface.value, "/dashboard"));
 
 const menuOpen = ref(false);
 
@@ -52,66 +83,33 @@ const closeMenu = (): void => {
 
       <!-- Desktop navigation -->
       <nav
-        v-if="isMarketingSurface"
+        v-if="showNav"
         class="ui-public-header__nav"
         :aria-label="t('components.publicHeader.navAriaLabel')"
       >
         <NuxtLink
-          to="/#produto"
+          v-for="link in navLinks"
+          :key="link.to"
+          :to="link.to"
           class="ui-public-header__nav-link"
           active-class="ui-public-header__nav-link--active"
         >
-          Produto
-        </NuxtLink>
-        <NuxtLink
-          to="/controle-financeiro"
-          class="ui-public-header__nav-link"
-          active-class="ui-public-header__nav-link--active"
-        >
-          Soluções
-        </NuxtLink>
-        <NuxtLink
-          to="/#analytics"
-          class="ui-public-header__nav-link"
-          active-class="ui-public-header__nav-link--active"
-        >
-          Analytics
-        </NuxtLink>
-        <NuxtLink
-          to="/#planos"
-          class="ui-public-header__nav-link"
-          active-class="ui-public-header__nav-link--active"
-        >
-          Planos
-        </NuxtLink>
-        <NuxtLink
-          to="/#faq"
-          class="ui-public-header__nav-link"
-          active-class="ui-public-header__nav-link--active"
-        >
-          FAQ
-        </NuxtLink>
-        <NuxtLink
-          to="/blog"
-          class="ui-public-header__nav-link"
-          active-class="ui-public-header__nav-link--active"
-        >
-          Blog
+          {{ link.label }}
         </NuxtLink>
       </nav>
 
       <!-- Desktop CTAs -->
       <div class="ui-public-header__actions">
         <template v-if="isAuthenticated">
-          <NuxtLink to="/dashboard" class="ui-public-header__btn ui-public-header__btn--ghost">
+          <NuxtLink :to="dashboardHref" class="ui-public-header__btn ui-public-header__btn--ghost">
             {{ t("components.publicHeader.cta.dashboard") }}
           </NuxtLink>
         </template>
         <template v-else>
-          <NuxtLink to="/login" class="ui-public-header__btn ui-public-header__btn--ghost">
+          <NuxtLink :to="loginHref" class="ui-public-header__btn ui-public-header__btn--ghost">
             {{ t("components.publicHeader.cta.login") }}
           </NuxtLink>
-          <NuxtLink to="/register" class="ui-public-header__btn ui-public-header__btn--primary">
+          <NuxtLink :to="registerHref" class="ui-public-header__btn ui-public-header__btn--primary">
             {{ t("components.publicHeader.cta.register") }}
           </NuxtLink>
         </template>
@@ -143,64 +141,26 @@ const closeMenu = (): void => {
       :aria-label="t('components.publicHeader.mobileMenuAriaLabel')"
     >
       <nav
-        v-if="isMarketingSurface"
+        v-if="showNav"
         class="ui-public-header__mobile-nav"
         :aria-label="t('components.publicHeader.navAriaLabel')"
       >
         <NuxtLink
-          to="/#produto"
+          v-for="link in navLinks"
+          :key="link.to"
+          :to="link.to"
           class="ui-public-header__mobile-link"
           active-class="ui-public-header__mobile-link--active"
           @click="closeMenu"
         >
-          Produto
-        </NuxtLink>
-        <NuxtLink
-          to="/controle-financeiro"
-          class="ui-public-header__mobile-link"
-          active-class="ui-public-header__mobile-link--active"
-          @click="closeMenu"
-        >
-          Soluções
-        </NuxtLink>
-        <NuxtLink
-          to="/#analytics"
-          class="ui-public-header__mobile-link"
-          active-class="ui-public-header__mobile-link--active"
-          @click="closeMenu"
-        >
-          Analytics
-        </NuxtLink>
-        <NuxtLink
-          to="/#planos"
-          class="ui-public-header__mobile-link"
-          active-class="ui-public-header__mobile-link--active"
-          @click="closeMenu"
-        >
-          Planos
-        </NuxtLink>
-        <NuxtLink
-          to="/#faq"
-          class="ui-public-header__mobile-link"
-          active-class="ui-public-header__mobile-link--active"
-          @click="closeMenu"
-        >
-          FAQ
-        </NuxtLink>
-        <NuxtLink
-          to="/blog"
-          class="ui-public-header__mobile-link"
-          active-class="ui-public-header__mobile-link--active"
-          @click="closeMenu"
-        >
-          Blog
+          {{ link.label }}
         </NuxtLink>
       </nav>
 
       <div class="ui-public-header__mobile-actions">
         <template v-if="isAuthenticated">
           <NuxtLink
-            to="/dashboard"
+            :to="dashboardHref"
             class="ui-public-header__btn ui-public-header__btn--primary ui-public-header__btn--full"
             @click="closeMenu"
           >
@@ -209,14 +169,14 @@ const closeMenu = (): void => {
         </template>
         <template v-else>
           <NuxtLink
-            to="/login"
+            :to="loginHref"
             class="ui-public-header__btn ui-public-header__btn--ghost ui-public-header__btn--full"
             @click="closeMenu"
           >
             {{ t("components.publicHeader.cta.login") }}
           </NuxtLink>
           <NuxtLink
-            to="/register"
+            :to="registerHref"
             class="ui-public-header__btn ui-public-header__btn--primary ui-public-header__btn--full"
             @click="closeMenu"
           >

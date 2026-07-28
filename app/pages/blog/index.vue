@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ArrowRight, CheckCircle2, Sparkles } from "lucide-vue-next";
 import { BLOG_POSTS, resolveBlogRobots } from "~/data/blogPosts";
+import { usePublicNav } from "~/shared/navigation/public-links";
 
 definePageMeta({ layout: "public" });
 
 const config = useRuntimeConfig();
+const { productHref } = usePublicNav();
 const route = useRoute();
 const siteUrl = String(config.public.siteUrl ?? "https://www.auraxis.com.br").replace(/\/$/, "");
 const isMarketingSurface = config.public.siteSurface === "marketing";
@@ -69,7 +71,7 @@ useHead({
             financeira, planejamento, metas e insights com contexto.
           </p>
           <div class="blog-actions">
-            <NuxtLink to="/register" class="blog-button blog-button--primary">
+            <NuxtLink :to="productHref('/register')" class="blog-button blog-button--primary">
               Criar conta gratuita
               <ArrowRight :size="16" aria-hidden="true" />
             </NuxtLink>

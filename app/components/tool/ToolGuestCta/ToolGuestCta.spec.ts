@@ -5,8 +5,9 @@ import ToolGuestCta from "./ToolGuestCta.vue";
 
 /* ── Module mocks ──────────────────────────────────────────────────────────── */
 
-const pushMock = vi.fn();
+const navigateToMock = vi.fn();
 const showCtaRef = ref(true);
+let mockedSurface: string | undefined;
 
 vi.mock("~/features/tools/composables/useToolCta", () => ({
   useToolCta: (): { showCta: Ref<boolean> } => ({
@@ -15,7 +16,8 @@ vi.mock("~/features/tools/composables/useToolCta", () => ({
 }));
 
 vi.mock("#app", () => ({
-  useRouter: (): { push: typeof pushMock } => ({ push: pushMock }),
+  navigateTo: (...args: unknown[]): unknown => navigateToMock(...args),
+  tryUseNuxtApp: (): unknown => ({ $config: { public: { siteSurface: mockedSurface } } }),
 }));
 
 vi.mock("vue-i18n", () => ({
@@ -47,6 +49,7 @@ const stubs = {
 
 beforeEach(() => {
   showCtaRef.value = true;
+  mockedSurface = "marketing";
   vi.clearAllMocks();
 });
 
@@ -90,26 +93,44 @@ describe("ToolGuestCta", () => {
     expect(wrapper.findAll(".n-button")).toHaveLength(2);
   });
 
-  it("navigates to /auth/register when primary CTA is clicked", async () => {
-    pushMock.mockResolvedValue(undefined);
+  it("navigates to /register when primary CTA is clicked", async () => {
+    navigateToMock.mockResolvedValue(undefined);
 
     const wrapper = mount(ToolGuestCta, { global: { stubs } });
 
     const buttons = wrapper.findAll(".n-button");
     await buttons[0]!.trigger("click");
 
-    expect(pushMock).toHaveBeenCalledWith("/auth/register");
+    expect(navigateToMock).toHaveBeenCalledWith("/register", undefined);
   });
 
-  it("navigates to /auth/login when secondary CTA is clicked", async () => {
-    pushMock.mockResolvedValue(undefined);
+  it("navigates to /login when secondary CTA is clicked", async () => {
+    navigateToMock.mockResolvedValue(undefined);
 
     const wrapper = mount(ToolGuestCta, { global: { stubs } });
 
     const buttons = wrapper.findAll(".n-button");
     await buttons[1]!.trigger("click");
 
-    expect(pushMock).toHaveBeenCalledWith("/auth/login");
+    expect(navigateToMock).toHaveBeenCalledWith("/login", undefined);
+  });
+
+  it("crosses to the app host with an external navigation on the landing surface", async () => {
+    mockedSurface = "landing";
+    navigateToMock.mockResolvedValue(undefined);
+
+    const wrapper = mount(ToolGuestCta, { global: { stubs } });
+
+    const buttons = wrapper.findAll(".n-button");
+    await buttons[0]!.trigger("click");
+    expect(navigateToMock).toHaveBeenCalledWith("https://app.auraxis.com.br/register", {
+      external: true,
+    });
+
+    await buttons[1]!.trigger("click");
+    expect(navigateToMock).toHaveBeenCalledWith("https://app.auraxis.com.br/login", {
+      external: true,
+    });
   });
 
   it("renders all four color variant icon wrappers", () => {

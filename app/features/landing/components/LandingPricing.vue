@@ -12,6 +12,7 @@ const { trackCta } = useLandingCtaTracking();
 
 <template>
   <section
+    id="planos"
     class="landing-pricing"
     aria-labelledby="landing-pricing-title"
     data-testid="landing-pricing"

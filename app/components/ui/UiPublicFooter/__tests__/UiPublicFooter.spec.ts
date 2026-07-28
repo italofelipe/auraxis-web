@@ -79,4 +79,41 @@ describe("UiPublicFooter", () => {
 
     expect(wrapper.find("nav").attributes("aria-label")).toBe("Legal");
   });
+
+  describe("landing surface", () => {
+    it("points product/institutional links at the app host", () => {
+      const wrapper = renderWithProviders(UiPublicFooter, {
+        props: { surface: "landing" },
+        global: { stubs },
+      });
+
+      expect(wrapper.find("a[href=\"https://app.auraxis.com.br/about-us\"]").exists()).toBe(true);
+      expect(wrapper.find("a[href=\"https://app.auraxis.com.br/support\"]").exists()).toBe(true);
+      expect(wrapper.find("a[href=\"/about-us\"]").exists()).toBe(false);
+      expect(wrapper.find("a[href=\"/support\"]").exists()).toBe(false);
+    });
+
+    it("keeps content and legal links relative to the apex", () => {
+      const wrapper = renderWithProviders(UiPublicFooter, {
+        props: { surface: "landing" },
+        global: { stubs },
+      });
+
+      expect(wrapper.find("a[href=\"/blog\"]").exists()).toBe(true);
+      expect(wrapper.find("a[href=\"/privacy\"]").exists()).toBe(true);
+      expect(wrapper.find("a[href=\"/terms\"]").exists()).toBe(true);
+      expect(wrapper.find("a[href=\"/cookies\"]").exists()).toBe(true);
+    });
+  });
+
+  it("keeps every link relative on the marketing surface", () => {
+    const wrapper = renderWithProviders(UiPublicFooter, {
+      props: { surface: "marketing" },
+      global: { stubs },
+    });
+
+    expect(wrapper.find("a[href=\"/about-us\"]").exists()).toBe(true);
+    expect(wrapper.find("a[href=\"/support\"]").exists()).toBe(true);
+    expect(wrapper.find("a[href^=\"https://app.auraxis.com.br\"]").exists()).toBe(false);
+  });
 });

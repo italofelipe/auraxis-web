@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ArrowLeft, ArrowRight, BookOpen, CalendarDays, Clock3 } from "lucide-vue-next";
 import { getBlogPost, getRelatedBlogPosts, resolveBlogRobots } from "~/data/blogPosts";
+import { usePublicNav } from "~/shared/navigation/public-links";
 
 definePageMeta({ layout: "public" });
 
 const route = useRoute();
 const config = useRuntimeConfig();
+const { publicHref } = usePublicNav();
 const slugParam = Array.isArray(route.params.slug) ? route.params.slug[0] : route.params.slug;
 const slug = typeof slugParam === "string" ? slugParam : "";
 const post = getBlogPost(slug);
@@ -141,7 +143,7 @@ useHead({
             <h2 id="blog-post-links-title">Próximos passos úteis</h2>
           </div>
           <nav aria-label="Links relacionados ao artigo">
-            <NuxtLink v-for="link in post.relatedLinks" :key="link.to" :to="link.to">
+            <NuxtLink v-for="link in post.relatedLinks" :key="link.to" :to="publicHref(link.to)">
               {{ link.label }}
               <ArrowRight :size="14" aria-hidden="true" />
             </NuxtLink>
