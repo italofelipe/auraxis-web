@@ -6,12 +6,19 @@
  *   app/features/tools/installment-vs-cash/page.vue
  */
 import InstallmentVsCashPage from "~/features/tools/installment-vs-cash/page.vue";
+import { useToolPageStructuredData } from "~/features/tools/composables/useToolPageStructuredData";
 
 definePageMeta({
   layout: false,
 });
 
 const { t } = useI18n();
+
+useToolPageStructuredData({
+  slug: "installment-vs-cash",
+  name: t("pages.installmentVsCash.seo.title"),
+  description: t("pages.installmentVsCash.seo.description"),
+});
 
 useSeoMeta({
   title: t("pages.installmentVsCash.seo.title"),

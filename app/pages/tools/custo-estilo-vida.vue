@@ -39,6 +39,7 @@ import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
 import UiGlassPanel from "~/components/ui/UiGlassPanel/UiGlassPanel.vue";
 import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
 import UiChart from "~/components/ui/UiChart.vue";
+import { useToolPageStructuredData } from "~/features/tools/composables/useToolPageStructuredData";
 
 definePageMeta({ layout: false });
 
@@ -46,6 +47,12 @@ const { t, n } = useI18n();
 const toast = useMessage();
 const { getErrorMessage } = useApiError();
 const sessionStore = useSessionStore();
+
+useToolPageStructuredData({
+  slug: "custo-estilo-vida",
+  name: t("custoEstiloVida.seo.title"),
+  description: t("custoEstiloVida.seo.description"),
+});
 
 useSeoMeta({
   title: t("custoEstiloVida.seo.title"),

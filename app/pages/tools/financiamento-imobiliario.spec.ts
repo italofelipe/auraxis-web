@@ -168,6 +168,10 @@ vi.mock("~/features/paywall/queries/use-entitlement-query", () => ({
   }),
 }));
 
+vi.mock("~/features/tools/composables/useToolPageStructuredData", () => ({
+  useToolPageStructuredData: vi.fn(),
+}));
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const mockScheduleRow = { month: 1, payment: 3800, amortization: 1111, interest: 2689, balance: 398889 };
