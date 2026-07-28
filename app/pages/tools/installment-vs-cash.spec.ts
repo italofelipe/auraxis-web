@@ -182,6 +182,10 @@ vi.mock("~/features/tools/queries/use-create-planned-expense-from-installment-vs
   }),
 }));
 
+vi.mock("~/features/tools/composables/useToolPageStructuredData", () => ({
+  useToolPageStructuredData: vi.fn(),
+}));
+
 const globalStubs = {
   NuxtLayout: {
     props: ["name"],

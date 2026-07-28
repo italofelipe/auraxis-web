@@ -29,10 +29,17 @@ import UiStickySummaryCard from "~/components/ui/UiStickySummaryCard/UiStickySum
 import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
 import UiGlassPanel from "~/components/ui/UiGlassPanel/UiGlassPanel.vue";
 import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
+import { useToolPageStructuredData } from "~/features/tools/composables/useToolPageStructuredData";
 
 definePageMeta({ layout: false });
 
 const { t } = useI18n();
+
+useToolPageStructuredData({
+  slug: "fii",
+  name: t("fii.seo.title"),
+  description: t("fii.seo.description"),
+});
 
 useSeoMeta({
   title: t("fii.seo.title"),
