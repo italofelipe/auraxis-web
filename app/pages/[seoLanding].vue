@@ -9,11 +9,13 @@ import {
   WalletCards,
 } from "lucide-vue-next";
 import { getSeoLanding } from "~/data/seoLandings";
+import { usePublicNav } from "~/shared/navigation/public-links";
 
 definePageMeta({ layout: "public" });
 
 const route = useRoute();
 const config = useRuntimeConfig();
+const { productHref, publicHref } = usePublicNav();
 
 const slugParam = Array.isArray(route.params.seoLanding)
   ? route.params.seoLanding[0]
@@ -107,7 +109,7 @@ useHead({
           <p class="seo-hero__lead">{{ landing.lead }}</p>
 
           <div class="seo-hero__actions">
-            <NuxtLink to="/register" class="seo-button seo-button--primary">
+            <NuxtLink :to="productHref('/register')" class="seo-button seo-button--primary">
               Começar gratuitamente
               <ArrowRight :size="16" aria-hidden="true" />
             </NuxtLink>
@@ -203,7 +205,7 @@ useHead({
           <h2 id="seo-links-title">Outras formas de organizar suas finanças</h2>
         </div>
         <nav class="seo-links__nav" aria-label="Páginas relacionadas">
-          <NuxtLink v-for="link in landing.relatedLinks" :key="link.to" :to="link.to">
+          <NuxtLink v-for="link in landing.relatedLinks" :key="link.to" :to="publicHref(link.to)">
             {{ link.label }}
             <ArrowRight :size="14" aria-hidden="true" />
           </NuxtLink>
@@ -235,7 +237,7 @@ useHead({
           Crie sua conta gratuita e use o Auraxis para transformar movimentações em uma rotina
           financeira mais clara.
         </p>
-        <NuxtLink to="/register" class="seo-button seo-button--primary">
+        <NuxtLink :to="productHref('/register')" class="seo-button seo-button--primary">
           Criar conta gratuita
           <ArrowRight :size="16" aria-hidden="true" />
         </NuxtLink>
