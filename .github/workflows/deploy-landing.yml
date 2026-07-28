@@ -102,6 +102,18 @@ jobs:
           test -f .output/public/index.html || (echo "ERROR: index.html not found"; exit 1)
           grep -q "landing-hero" .output/public/index.html \
             || (echo "ERROR: landing hero markup missing from index.html — wrong surface built?"; exit 1)
+          # Conteúdo público migrado (#1211) — sem estes arquivos os 301 do app
+          # (platform#934) apontariam para o vazio.
+          test -f .output/public/tools/index.html \
+            || (echo "ERROR: /tools index missing — content expansion not built"; exit 1)
+          test -f .output/public/tools/juros-compostos/index.html \
+            || (echo "ERROR: sample tool page missing"; exit 1)
+          test -f .output/public/controle-financeiro/index.html \
+            || (echo "ERROR: sample SEO landing missing"; exit 1)
+          test -f .output/public/blog/index.html \
+            || (echo "ERROR: blog index missing"; exit 1)
+          grep -q "tools/juros-compostos" .output/public/sitemap.xml \
+            || (echo "ERROR: sitemap.xml does not list tool routes"; exit 1)
           echo "✓ Landing static output validated"
           echo "  Files: $(find .output/public -type f | wc -l)"
           echo "  Size:  $(du -sh .output/public | cut -f1)"
