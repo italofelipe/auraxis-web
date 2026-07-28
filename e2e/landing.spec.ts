@@ -123,6 +123,68 @@ test.describe("Landing de captação — auraxis.com.br", () => {
   });
 });
 
+test.describe("Landing — conteúdo público no apex (#1211)", () => {
+  // reason: same LANDING_E2E gate as the suite above — needs the landing build
+  // in .output; on the app-surface artifact these routes render the app shell.
+  test.skip(
+    !isLandingBuildServed,
+    "Requires a landing-surface build in .output (set LANDING_E2E=1) — see header comment.",
+  );
+
+  test("serves a tool page with the public chrome and app-host auth CTAs", async ({ page }) => {
+    await page.goto("/tools/juros-compostos");
+
+    const header = page.locator(".ui-public-header");
+    await expect(header).toHaveCount(1);
+    await expect(page.locator(".ui-public-footer")).toHaveCount(1);
+    // Auth atravessa para o host do app (link-map por surface, #1176)…
+    await expect(header.getByRole("link", { name: "Entrar" })).toHaveAttribute(
+      "href",
+      "https://app.auraxis.com.br/login",
+    );
+    // …e o nav navega o conteúdo local do apex.
+    await expect(header.getByRole("link", { name: "Ferramentas" })).toHaveAttribute(
+      "href",
+      "/tools",
+    );
+  });
+
+  test("serves the tools catalog with the public chrome for guests", async ({ page }) => {
+    await page.goto("/tools");
+
+    await expect(page.locator(".tools-page__h1")).toBeVisible();
+    await expect(page.locator(".ui-public-header")).toHaveCount(1);
+  });
+
+  test("serves an indexable SEO landing with the public chrome", async ({ page }) => {
+    await page.goto("/controle-financeiro");
+
+    await expect(page.locator("meta[name='robots']")).toHaveAttribute(
+      "content",
+      "index, follow",
+    );
+    await expect(page.locator(".ui-public-header")).toHaveCount(1);
+  });
+
+  test("serves the blog index with indexable posts", async ({ page }) => {
+    await page.goto("/blog");
+
+    await expect(page.locator("meta[name='robots']")).toHaveAttribute(
+      "content",
+      "index, follow",
+    );
+    await expect(page.locator("a[href^='/blog/']").first()).toBeVisible();
+  });
+
+  test("keeps the checkout standalone (no shared chrome)", async ({ page }) => {
+    await page.goto("/checkout?plano=anual");
+
+    await expect(page.getByTestId("landing-checkout")).toBeVisible();
+    await expect(page.locator(".ui-public-header")).toHaveCount(0);
+    await expect(page.locator(".ui-public-footer")).toHaveCount(0);
+  });
+});
+
 test.describe("Landing de captação — visita sem cookies", () => {
   // reason: same LANDING_E2E gate as the suite above — needs the landing build
   // in .output; assertions fail by design against the app-surface artifact.
