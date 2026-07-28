@@ -97,10 +97,11 @@ jobs:
           NUXT_PUBLIC_BUILD_ID: "${{ github.run_id }}-${{ github.sha }}"
           # PostHog product analytics (#1125): with an empty key the client
           # plugin installs a no-op $analytics — the funnel (signup →
-          # onboarding → paywall → upgrade, platform#524) stays dark. The env
-          # is wired here so analytics turn on automatically on the first
-          # deploy after the NUXT_PUBLIC_POSTHOG_API_KEY secret is created.
+          # onboarding → paywall → upgrade, platform#524) stays dark. The
+          # secret exists since 2026-07-27; the project lives in PostHog
+          # Cloud US, so the ingest host overrides the EU default (#1177).
           NUXT_PUBLIC_POSTHOG_API_KEY: ${{ secrets.NUXT_PUBLIC_POSTHOG_API_KEY }}
+          NUXT_PUBLIC_POSTHOG_API_HOST: https://us.i.posthog.com
           # Brapi public market-data API key (wallet quotes, FII dividends,
           # currency conversion). Without it brapi.dev replies 401 and the
           # wallet + tools pages log Unauthorized errors in the browser.
