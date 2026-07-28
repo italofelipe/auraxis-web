@@ -5,21 +5,70 @@
  * and injects them into the HTML <head> to prevent flash of unstyled content
  * (FOUC) and avoid hydration mismatches.
  *
+ * WHY `app:rendered` AND NOT `ssrContext.renderMeta` (#1226): under Nitro's
+ * prerender the `renderMeta` hook never reached the emitted HTML, so every
+ * prerendered page shipped unstyled Naive components. The browser laid out an
+ * input at ~594px tall until hydration injected the rules at ~2.7s, collapsing
+ * the page by ~2600px — CLS 0.78 on the calculators. `app:rendered` fires
+ * after the app renders (so `collect()` already has every rule) and pushes
+ * into the same head unhead serialises for SSR *and* prerender.
+ *
  * @see https://www.naiveui.com/en-US/os-theme/docs/ssr
  */
 import { setup } from "@css-render/vue3-ssr";
 
-export default defineNuxtPlugin((nuxtApp) => {
-  if (import.meta.server && nuxtApp.ssrContext) {
-    const { collect } = setup(nuxtApp.vueApp);
-    const originalRenderMeta = nuxtApp.ssrContext.renderMeta;
-    nuxtApp.ssrContext.renderMeta = async (): Promise<Record<string, string>> => {
-      const originalMeta =
-        typeof originalRenderMeta === "function" ? await originalRenderMeta() : {};
-      return {
-        ...(originalMeta as Record<string, string>),
-        headTags: ((originalMeta as Record<string, string>).headTags ?? "") + collect(),
-      };
-    };
+interface CollectedStyle {
+  id: string;
+  css: string;
+}
+
+/**
+ * Extracts the `<style …>…</style>` blocks that css-render returns as raw HTML.
+ *
+ * @param html - Markup returned by `collect()`.
+ * @returns One entry per non-empty style block, keyed by its cssr id.
+ */
+const parseCollectedStyles = (html: string): CollectedStyle[] => {
+  const blocks: CollectedStyle[] = [];
+  const re = /<style\b([^>]*)>([\s\S]*?)<\/style>/g;
+  let match: RegExpExecArray | null = re.exec(html);
+  let index = 0;
+  while (match !== null) {
+    const attrs = match[1] ?? "";
+    const css = (match[2] ?? "").trim();
+    if (css.length > 0) {
+      const idMatch = /cssr-id="([^"]+)"/.exec(attrs);
+      blocks.push({ id: idMatch?.[1] ?? `naive-${index}`, css });
+      index += 1;
+    }
+    match = re.exec(html);
   }
+  return blocks;
+};
+
+export default defineNuxtPlugin((nuxtApp) => {
+  if (!import.meta.server) {
+    return;
+  }
+
+  const { collect } = setup(nuxtApp.vueApp);
+
+  nuxtApp.hook("app:rendered", () => {
+    const head = nuxtApp.ssrContext?.head;
+    if (!head) {
+      return;
+    }
+    const blocks = parseCollectedStyles(collect());
+    if (blocks.length === 0) {
+      return;
+    }
+    head.push({
+      style: blocks.map((block) => ({
+        "innerHTML": block.css,
+        "data-cssr-id": block.id,
+      })),
+    });
+  });
 });
+
+export { parseCollectedStyles };
