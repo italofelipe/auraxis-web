@@ -3,14 +3,20 @@ import {
   getEnabledToolsByCategory,
   TOOL_CATEGORY_ORDER,
 } from "~/features/tools/model/tools-catalog";
+import { useSessionStore } from "~/stores/session";
 
+// #1211: visitante vê o chrome público (tools-public), autenticado vê o app
+// shell — mesmo padrão das tool pages individuais.
 definePageMeta({
+  layout: false,
   pageTitle: "Ferramentas",
   pageSubtitle: "Calculadoras e utilitários financeiros",
 });
 
 const { t, locale } = useI18n();
 const siteConfig = useSiteConfig();
+const sessionStore = useSessionStore();
+const isAuthenticated = computed<boolean>(() => sessionStore.isAuthenticated);
 
 const canonicalUrl = computed(() => {
   const base = siteConfig.url ?? "https://app.auraxis.com.br";
@@ -42,39 +48,41 @@ void TOOL_CATEGORY_ORDER;
 </script>
 
 <template>
-  <div class="tools-page">
-    <header class="tools-page__header">
-      <h1 class="tools-page__h1">{{ t("pages.tools.meta.h1") }}</h1>
-      <p class="tools-page__lead">{{ t("pages.tools.meta.lead") }}</p>
-    </header>
+  <NuxtLayout :name="isAuthenticated ? 'default' : 'tools-public'">
+    <div class="tools-page">
+      <header class="tools-page__header">
+        <h1 class="tools-page__h1">{{ t("pages.tools.meta.h1") }}</h1>
+        <p class="tools-page__lead">{{ t("pages.tools.meta.lead") }}</p>
+      </header>
 
-    <template v-if="hasTools">
-      <section
-        v-for="group in groupedTools"
-        :key="group.category"
-        class="tools-page__section"
-        :aria-labelledby="`tools-category-${group.category}`"
-      >
-        <h2
-          :id="`tools-category-${group.category}`"
-          class="tools-page__category-title"
+      <template v-if="hasTools">
+        <section
+          v-for="group in groupedTools"
+          :key="group.category"
+          class="tools-page__section"
+          :aria-labelledby="`tools-category-${group.category}`"
         >
-          {{ t(`pages.tools.categories.${group.category}`) }}
-        </h2>
-        <div class="tools-page__grid">
-          <ToolCatalogCard
-            v-for="tool in group.tools"
-            :key="tool.id"
-            :tool="tool"
-          />
-        </div>
-      </section>
-    </template>
-    <UiEmptyState
-      v-else
-      :title="t('pages.tools.empty')"
-    />
-  </div>
+          <h2
+            :id="`tools-category-${group.category}`"
+            class="tools-page__category-title"
+          >
+            {{ t(`pages.tools.categories.${group.category}`) }}
+          </h2>
+          <div class="tools-page__grid">
+            <ToolCatalogCard
+              v-for="tool in group.tools"
+              :key="tool.id"
+              :tool="tool"
+            />
+          </div>
+        </section>
+      </template>
+      <UiEmptyState
+        v-else
+        :title="t('pages.tools.empty')"
+      />
+    </div>
+  </NuxtLayout>
 </template>
 
 <style scoped>

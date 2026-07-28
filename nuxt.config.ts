@@ -172,7 +172,14 @@ export default defineNuxtConfig({
             "Acompanhe investimentos, simule cenários e tome decisões financeiras com inteligência.",
         },
         { property: "og:locale", content: "pt_BR" },
+        // Fallback global de og:image (#1211) — páginas com useSeoMeta próprio
+        // sobrescrevem (unhead deduplica por property). nuxt-og-image segue
+        // OFF (conflito site-config v3/v4), então o default é um asset estático.
+        { property: "og:image", content: `${siteUrl}/landing/og.png` },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
         { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:image", content: `${siteUrl}/landing/og.png` },
         {
           name: "twitter:title",
           content: "Auraxis – Planner Financeiro Inteligente",
@@ -419,12 +426,25 @@ export default defineNuxtConfig({
     // this avoids a transitive @nuxtjs/seo mismatch where sitemap v7 imports a
     // nuxt-site-config v3 server composable while og-image pulls v4.
     xsl: false,
-    // Landing surface (#1165): the capture landing owns a single public URL.
-    // App sources (pages, route rules, prerender crawl) are excluded and the
-    // i18n auto-split is disabled so the build emits one sitemap.xml whose
-    // only entry is the apex root.
+    // Landing surface (#1211): o apex agora serve o conteúdo público inteiro.
+    // App sources continuam excluídas e o auto-split i18n desligado — a lista
+    // é explícita, espelha o prerender e deixa o checkout de fora (noindex).
     ...(isLandingSurface
-      ? { autoI18n: false, excludeAppSources: true as const, urls: ["/"] }
+      ? {
+          autoI18n: false,
+          excludeAppSources: true as const,
+          urls: [
+            "/",
+            "/tools",
+            "/en/tools",
+            ...toolPrerenderRoutes,
+            ...seoLandingPrerenderRoutes,
+            ...blogPrerenderRoutes,
+            "/privacy",
+            "/terms",
+            "/cookies",
+          ],
+        }
       : {}),
     // Explicitly exclude private SPA routes (ssr: false in routeRules).
     // @nuxtjs/sitemap normally skips them, but listing is belt-and-suspenders.
@@ -435,7 +455,8 @@ export default defineNuxtConfig({
         ? []
         : ["/", "/en", ...seoLandingSitemapExclusions]),
       ...localizedBlogSitemapExclusions,
-      ...(isMarketingSurface ? [] : blogSitemapExclusions),
+      // Blog indexa no marketing e no apex (#1211); só o host-app puro exclui.
+      ...(isMarketingSurface || isLandingSurface ? [] : blogSitemapExclusions),
       "/dashboard",
       "/portfolio",
       "/goals",
@@ -597,6 +618,18 @@ export default defineNuxtConfig({
     "/checkout": { prerender: true },
     "/checkout/sucesso": { prerender: true },
     "/checkout/cancelado": { prerender: true },
+    // ── Conteúdo público migrado do host do app (#1211) ────────────────
+    // Tools, SEO landings e blog agora vivem no apex; o host do app passa
+    // a responder 301 para cá (platform#934). Mesmos spreads do marketing.
+    "/tools": { prerender: true },
+    ...toolRouteRules,
+    ...seoLandingRouteRules,
+    "/blog": { prerender: true },
+    ...blogPostRouteRules,
+    ...legacySeoRedirectRouteRules,
+    "/privacy": { prerender: true },
+    "/terms": { prerender: true },
+    "/cookies": { prerender: true },
   } : {
     // ── Public — SSG (indexed, shareable) ─────────────────────────────
     "/": { prerender: true },
@@ -744,6 +777,18 @@ export default defineNuxtConfig({
         "/checkout",
         "/checkout/sucesso",
         "/checkout/cancelado",
+        // ── Conteúdo público migrado do host do app (#1211) ────────────
+        // Crawling continua OFF na landing: a lista é explícita e vem dos
+        // mesmos geradores do marketing (app/data/*).
+        "/tools",
+        "/en/tools",
+        ...toolPrerenderRoutes,
+        ...seoLandingPrerenderRoutes,
+        ...blogPrerenderRoutes,
+        "/privacy",
+        "/terms",
+        "/cookies",
+        "/sitemap.xml",
       ] : [
         // ── Static public pages ────────────────────────────────────────
         "/",

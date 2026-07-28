@@ -12,7 +12,7 @@ import { LANDING_LOGIN_URL } from "~/features/landing/model/landing-content";
  * to the app to sign in. The webhook remains the source of truth for the
  * entitlement; nothing here grants access.
  */
-definePageMeta({ layout: "public" });
+definePageMeta({ layout: "public", publicChrome: false });
 
 const analytics = useAnalytics();
 

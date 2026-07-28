@@ -21,8 +21,10 @@ if (!post) {
 
 const siteUrl = String(config.public.siteUrl ?? "https://www.auraxis.com.br").replace(/\/$/, "");
 const canonicalUrl = `${siteUrl}/blog/${post.slug}`;
-const isMarketingSurface = config.public.siteSurface === "marketing";
-const robots = resolveBlogRobots({ isMarketingSurface, routePath: route.path });
+const isIndexableSurface = ["marketing", "landing"].includes(
+  String(config.public.siteSurface),
+);
+const robots = resolveBlogRobots({ isIndexableSurface, routePath: route.path });
 const relatedPosts = getRelatedBlogPosts(post.slug);
 
 useSeoMeta({

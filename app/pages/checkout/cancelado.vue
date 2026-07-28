@@ -9,7 +9,7 @@ import { LANDING_LOGIN_URL } from "~/features/landing/model/landing-content";
  * The account was already created before the redirect, so the way back in is
  * signing in — not registering again.
  */
-definePageMeta({ layout: "public" });
+definePageMeta({ layout: "public", publicChrome: false });
 
 const analytics = useAnalytics();
 

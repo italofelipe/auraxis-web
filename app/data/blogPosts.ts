@@ -230,15 +230,15 @@ export function getRelatedBlogPosts(currentSlug: BlogPostSlug): readonly BlogPos
  * out of search because the article content is intentionally authored only in Portuguese.
  *
  * @param input - Current surface and route path.
- * @param input.isMarketingSurface - Whether the deployment is the public marketing surface.
+ * @param input.isIndexableSurface - Whether the deployment serves indexable public content (marketing or landing/apex — #1211).
  * @param input.routePath - Current route path being rendered by Nuxt/i18n.
  * @returns Robots directive for the current rendered route.
  */
 export function resolveBlogRobots(input: {
-  readonly isMarketingSurface: boolean;
+  readonly isIndexableSurface: boolean;
   readonly routePath: string;
 }): BlogRobots {
-  return input.isMarketingSurface && !input.routePath.startsWith("/en/")
+  return input.isIndexableSurface && !input.routePath.startsWith("/en/")
     ? "index, follow"
     : "noindex, nofollow";
 }
