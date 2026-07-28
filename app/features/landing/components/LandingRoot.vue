@@ -27,10 +27,18 @@ useHead({
     { rel: "canonical", href: "https://auraxis.com.br/" },
     // A imagem do hero é o elemento LCP: pré-carregar tira ~1 round-trip da
     // descoberta (o browser só a acharia ao parsear o <img>). #1225
+    // O imagesrcset/imagesizes precisa espelhar o <img> do frame — sem isso o
+    // preload baixaria a variante de 1920w e o <img> outra, dobrando bytes. #1232
     {
       rel: "preload",
       as: "image",
       href: "/landing/dashboard-light.webp",
+      imagesrcset:
+        "/landing/dashboard-light-640w.webp 640w, " +
+        "/landing/dashboard-light-960w.webp 960w, " +
+        "/landing/dashboard-light-1440w.webp 1440w, " +
+        "/landing/dashboard-light.webp 1920w",
+      imagesizes: "(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 980px",
       type: "image/webp",
       fetchpriority: "high",
     },

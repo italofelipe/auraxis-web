@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from "vue";
+
 interface Props {
   /** Address-bar text shown above the screenshot (product URL). */
   url: string;
@@ -12,9 +14,20 @@ interface Props {
   fetchpriority?: "auto" | "high" | "low";
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   loading: "lazy",
   fetchpriority: "auto",
+});
+
+// Variantes responsivas (#1232): as capturas existem em 640/960/1440/1920w e
+// no mobile o browser passa a baixar ~35KB no lugar de 93KB. O `sizes` reflete
+// o CSS real do frame — sem ele o browser assume 100vw e pega a maior.
+const srcset = computed((): string => {
+  const base = props.src.replace(/\.webp$/, "");
+  return [640, 960, 1440]
+    .map((w) => `${base}-${w}w.webp ${w}w`)
+    .concat(`${props.src} 1920w`)
+    .join(", ");
 });
 </script>
 
@@ -26,6 +39,8 @@ withDefaults(defineProps<Props>(), {
     </figcaption>
     <UiImage
       :src="src"
+      :srcset="srcset"
+      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 980px"
       :alt="alt"
       width="1440"
       height="900"
