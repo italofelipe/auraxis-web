@@ -1,5 +1,17 @@
 <script setup lang="ts">
+import { computed } from "vue";
+import { useRoute } from "#app";
+
 // ToolsSidebar and UiPublicHeader/Footer are auto-imported from app/components/.
+
+// #1224: o slug sai da própria rota, então o bloco de links relacionados vale
+// para as 27 calculadoras sem tocar em 27 páginas. Só o índice /tools fica de
+// fora (ele já é a lista completa).
+const route = useRoute();
+const toolId = computed((): string => {
+  const match = /^\/(?:en\/)?tools\/([\w-]+)\/?$/.exec(route.path);
+  return match?.[1] ?? "";
+});
 </script>
 
 <template>
@@ -16,6 +28,7 @@
         tabindex="-1"
       >
         <slot />
+        <ToolRelatedLinks v-if="toolId" :tool-id="toolId" />
       </main>
     </div>
 
