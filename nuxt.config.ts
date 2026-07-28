@@ -797,7 +797,10 @@ export default defineNuxtConfig({
         "/privacy",
         "/terms",
         "/cookies",
-        "/sitemap.xml",
+        // NÃO prerenderizar "/sitemap.xml": o módulo @nuxtjs/sitemap já
+        // emite o arquivo XML, e o prerender materializa a mesma rota como
+        // diretório com um redirect HTML dentro — os dois competem pelo
+        // mesmo caminho e o vencedor varia por build (#1227).
       ] : [
         // ── Static public pages ────────────────────────────────────────
         "/",
