@@ -42,7 +42,7 @@ const highlightIcons: Record<LandingAiHighlightKey, Component> = {
 
         <LandingBrowserFrame
           url="app.auraxis.com.br/insights"
-          src="/landing/insights-light.png"
+          src="/landing/insights-light.webp"
           alt="Leitura editorial de insights do Auraxis com análise do mês gerada por IA, comparações de gastos e destaques de atenção"
         />
       </div>

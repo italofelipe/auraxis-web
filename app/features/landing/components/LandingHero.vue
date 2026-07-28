@@ -41,7 +41,7 @@ const { trackCta } = useLandingCtaTracking();
       <div class="landing-hero__frame" data-testid="landing-hero-shot">
         <LandingBrowserFrame
           url="app.auraxis.com.br/dashboard"
-          src="/landing/dashboard-light.png"
+          src="/landing/dashboard-light.webp"
           alt="Painel do Auraxis com resumo do mês: saldo, receitas e despesas, gráfico de fluxo de caixa, gastos por categoria e metas em progresso"
           loading="eager"
           fetchpriority="high"
