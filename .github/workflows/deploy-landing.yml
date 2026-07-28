@@ -87,13 +87,13 @@ jobs:
           # Error monitoring on the apex landing. Active as soon as this ships:
           # the DSN secret already exists and Sentry is not consent-gated.
           NUXT_PUBLIC_SENTRY_DSN: ${{ secrets.NUXT_PUBLIC_SENTRY_DSN }}
-          # PostHog product analytics — mirrors deploy.yml (#1125). Wired so the
-          # landing is ready, but it stays a no-op on this surface until BOTH:
-          #   1. the shared NUXT_PUBLIC_POSTHOG_API_KEY secret exists (#1125), and
-          #   2. a consent path exists for the landing — today app.vue hides the
-          #      CookieConsentBanner when surface === "landing" and analytics
-          #      consent defaults to opt-out, so the plugin never initializes.
+          # PostHog product analytics — mirrors deploy.yml (#1125). Both
+          # prerequisites are met since #1177: the shared secret exists and the
+          # LGPD banner renders on the landing (analytics is opt-in). The
+          # project lives in PostHog Cloud US, so the ingest host must override
+          # the EU default baked into nuxt.config runtimeConfig.
           NUXT_PUBLIC_POSTHOG_API_KEY: ${{ secrets.NUXT_PUBLIC_POSTHOG_API_KEY }}
+          NUXT_PUBLIC_POSTHOG_API_HOST: https://us.i.posthog.com
         run: pnpm generate
 
       - name: Validate output
@@ -112,6 +112,9 @@ jobs:
       - name: E2E gate — landing surface
         env:
           LANDING_E2E: "1"
+          # Lets the spec assert real ingestion after consent (#1177): the
+          # assertion only runs when the build was baked with a key.
+          NUXT_PUBLIC_POSTHOG_API_KEY: ${{ secrets.NUXT_PUBLIC_POSTHOG_API_KEY }}
         run: pnpm test:e2e e2e/landing.spec.ts --project=chromium
 
       - name: Package static output

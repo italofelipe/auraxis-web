@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { tryUseNuxtApp } from "#app";
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from "vue";
 
 import {
@@ -9,6 +10,16 @@ import {
   subscribeToCookieConsentChanges,
   type CookieConsentPreferences,
 } from "~/shared/privacy/cookie-consent";
+
+// #1177: on the landing the banner must coexist with the centered hero CTA —
+// the full-width card (920px) would sit on top of it. The compact variant is
+// a 420px column anchored to the bottom-right corner, clear of the CTA.
+// tryUseNuxtApp keeps the component mountable in bare unit tests.
+const isCompact = computed(
+  (): boolean =>
+    (tryUseNuxtApp()?.$config.public as Record<string, unknown> | undefined)?.siteSurface ===
+    "landing",
+);
 
 const isReady = ref(false);
 const savedPreferences = ref<CookieConsentPreferences | null>(null);
@@ -69,6 +80,7 @@ onBeforeUnmount(() => {
   <section
     v-if="isVisible"
     class="cookie-consent"
+    :class="{ 'cookie-consent--compact': isCompact }"
     role="region"
     aria-label="Preferências de cookies"
   >
@@ -188,8 +200,14 @@ onBeforeUnmount(() => {
   text-transform: uppercase;
 }
 
+/* The card background is a fixed dark navy, but the inner text used to
+   inherit theme tokens — dark ink in the app light theme and on the landing
+   (which pins dark headings globally), making title/buttons unreadable
+   (#1177). Colors are pinned to light literals so the banner is
+   self-contained on every surface. */
 .cookie-consent__title {
   margin: 0;
+  color: #eef2f8;
   font-size: var(--font-size-2xl);
   line-height: 1.2;
 }
@@ -197,7 +215,7 @@ onBeforeUnmount(() => {
 .cookie-consent__text {
   max-width: 620px;
   margin: 8px 0 0;
-  color: var(--color-text-secondary);
+  color: #a9b7cd;
   font-size: var(--font-size-sm);
   line-height: var(--line-height-body-md);
 }
@@ -226,7 +244,7 @@ onBeforeUnmount(() => {
   border: 1px solid var(--color-outline-subtle);
   border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.03);
-  color: var(--color-text-primary);
+  color: #e6ecf5;
 }
 
 .cookie-consent__option input {
@@ -247,7 +265,7 @@ onBeforeUnmount(() => {
 
 .cookie-consent__option small {
   margin-top: 4px;
-  color: var(--color-text-muted);
+  color: #8fa0b8;
   font-size: var(--font-size-xs);
   line-height: 1.4;
 }
@@ -275,15 +293,15 @@ onBeforeUnmount(() => {
 }
 
 .cookie-consent__button--ghost {
-  border-color: var(--color-outline-subtle);
+  border-color: rgba(255, 255, 255, 0.22);
   background: transparent;
-  color: var(--color-text-secondary);
+  color: #c4d0e2;
 }
 
 .cookie-consent__button--secondary {
-  border-color: var(--color-outline-soft);
+  border-color: rgba(255, 255, 255, 0.28);
   background: rgba(255, 255, 255, 0.06);
-  color: var(--color-text-primary);
+  color: #eef2f8;
 }
 
 .cookie-consent__button--primary {
@@ -293,6 +311,27 @@ onBeforeUnmount(() => {
 
 .cookie-consent__button:hover {
   border-color: var(--color-brand-400);
+}
+
+/* #1177 — landing variant: single column, narrow, corner-anchored so the
+   centered hero CTA stays fully clickable while the banner waits. */
+.cookie-consent--compact {
+  grid-template-columns: 1fr;
+  gap: 14px;
+  width: min(420px, calc(100vw - 32px));
+  padding: 18px;
+}
+
+.cookie-consent--compact .cookie-consent__title {
+  font-size: var(--font-size-lg);
+}
+
+.cookie-consent--compact .cookie-consent__preferences {
+  grid-template-columns: 1fr;
+}
+
+.cookie-consent--compact .cookie-consent__actions {
+  justify-content: flex-start;
 }
 
 @media (max-width: 760px) {
