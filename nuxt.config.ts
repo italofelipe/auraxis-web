@@ -449,14 +449,23 @@ export default defineNuxtConfig({
     // Explicitly exclude private SPA routes (ssr: false in routeRules).
     // @nuxtjs/sitemap normally skips them, but listing is belt-and-suspenders.
     exclude: [
-      // App surface: the root serves the login home — keep it (and the SEO
-      // landings) out of the sitemap. Marketing and landing surfaces index "/".
-      ...(isMarketingSurface || isLandingSurface
+      // App surface: the root serves the login home — keep it out of the
+      // sitemap. Marketing and landing surfaces index "/".
+      ...(isMarketingSurface || isLandingSurface ? [] : ["/", "/en"]),
+      // #1212: conteúdo público migrado para o apex — fora da landing essas
+      // rotas respondem 301 (platform#934); listá-las viraria "Page with
+      // redirect" no GSC. Só o apex as anuncia (via urls explícitas acima).
+      ...(isLandingSurface
         ? []
-        : ["/", "/en", ...seoLandingSitemapExclusions]),
+        : [
+            "/tools",
+            "/tools/**",
+            "/en/tools",
+            "/en/tools/**",
+            ...seoLandingSitemapExclusions,
+            ...blogSitemapExclusions,
+          ]),
       ...localizedBlogSitemapExclusions,
-      // Blog indexa no marketing e no apex (#1211); só o host-app puro exclui.
-      ...(isMarketingSurface || isLandingSurface ? [] : blogSitemapExclusions),
       "/dashboard",
       "/portfolio",
       "/goals",

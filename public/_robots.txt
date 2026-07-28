@@ -30,4 +30,3 @@ Disallow: /en/investor-profile
 Disallow: /en/settings/
 Disallow: /en/checkout/success
 
-Sitemap: https://app.auraxis.com.br/sitemap.xml
