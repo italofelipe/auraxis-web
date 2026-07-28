@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useLandingCtaTracking } from "../composables/useLandingCtaTracking";
 import { LANDING_LOGIN_URL, LANDING_REGISTER_URL } from "../model/landing-content";
+
+const { trackCta } = useLandingCtaTracking();
 </script>
 
 <template>
@@ -18,6 +21,7 @@ import { LANDING_LOGIN_URL, LANDING_REGISTER_URL } from "../model/landing-conten
           :href="LANDING_REGISTER_URL"
           class="landing-header__cta"
           data-testid="landing-header-register"
+          @click="trackCta('header-register', LANDING_REGISTER_URL)"
         >
           Criar conta
         </a>

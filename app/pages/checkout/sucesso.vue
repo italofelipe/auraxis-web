@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { CheckCircle2 } from "lucide-vue-next";
 
+import { useAnalytics } from "~/composables/useAnalytics/useAnalytics";
 import { LANDING_LOGIN_URL } from "~/features/landing/model/landing-content";
 
 /**
@@ -12,6 +13,14 @@ import { LANDING_LOGIN_URL } from "~/features/landing/model/landing-content";
  * entitlement; nothing here grants access.
  */
 definePageMeta({ layout: "public" });
+
+const analytics = useAnalytics();
+
+onMounted((): void => {
+  // Mirrors app/pages/checkout/success.vue: the paid conversion that happens
+  // on the apex finally emits the #524 contract event (#1208).
+  analytics.capture("upgrade_completed", { source: "landing-checkout-success" });
+});
 
 useSeoMeta({
   title: "Pagamento confirmado — Auraxis",

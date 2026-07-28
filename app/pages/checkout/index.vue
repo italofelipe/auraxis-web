@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ArrowRight } from "lucide-vue-next";
 
+import { useAnalytics } from "~/composables/useAnalytics/useAnalytics";
 import { useHttp } from "~/composables/useHttp";
 import { createAuthApi } from "~/composables/useAuth";
 import { idempotencyHeaders } from "~/core/http/idempotency";
@@ -11,6 +12,7 @@ import {
   resolveLandingCheckoutPlan,
   resolveLandingCheckoutPlanFromSources,
   startLandingCheckout,
+  type LandingCheckoutOutcome,
   type LandingCheckoutPlanKey,
 } from "~/features/landing/model/landing-checkout";
 import {
@@ -44,6 +46,9 @@ const isLandingSurface = computed(
 // on "Preparando…" (#1198).
 const http = useHttp();
 const authApi = createAuthApi(http);
+// Same setup-scope rule as useHttp (#1198): useAnalytics resolves the Nuxt
+// context and must never be called inside the click handler.
+const analytics = useAnalytics();
 
 const route = useRoute();
 
@@ -120,6 +125,44 @@ const selectPlan = (key: LandingCheckoutPlanKey): void => {
 };
 
 /**
+ * Arms the busy state, clears previous feedback and emits the funnel intent
+ * pair — captured before any await so a slow network never loses the click
+ * (#1208, wiki MVP-1-PostHog-Conversion-Funnel).
+ */
+const beginSubmit = (): void => {
+  isSubmitting.value = true;
+  errorMessage.value = "";
+  accountExists.value = false;
+  analytics.capture("checkout_form_submitted", { plan_slug: selectedPlan.value });
+  analytics.capture("upgrade_clicked", {
+    source: "landing-checkout",
+    plan_slug: selectedPlan.value,
+  });
+};
+
+/**
+ * Emits the funnel event matching a checkout outcome (#1208). The redirect
+ * event fires before `window.location` is written — after that assignment no
+ * JavaScript is guaranteed to run on this document.
+ *
+ * @param outcome Result returned by the checkout orchestration.
+ */
+const captureOutcome = (outcome: LandingCheckoutOutcome): void => {
+  if (outcome.status === "redirect") {
+    analytics.capture("checkout_provider_redirected", { plan_slug: selectedPlan.value });
+    return;
+  }
+  if (outcome.status === "account-exists") {
+    analytics.capture("checkout_account_exists", { plan_slug: selectedPlan.value });
+    return;
+  }
+  analytics.capture("checkout_failed", {
+    plan_slug: selectedPlan.value,
+    reason: "outcome",
+  });
+};
+
+/**
  * Creates the account and hands the visitor over to the payment provider.
  *
  * Wires the page to the pure orchestration in `landing-checkout`, which never
@@ -133,9 +176,7 @@ const submit = async (): Promise<void> => {
   if (!canSubmit.value) {
     return;
   }
-  isSubmitting.value = true;
-  errorMessage.value = "";
-  accountExists.value = false;
+  beginSubmit();
 
   try {
     const outcome = await startLandingCheckout(
@@ -175,6 +216,8 @@ const submit = async (): Promise<void> => {
       },
     );
 
+    captureOutcome(outcome);
+
     if (outcome.status === "redirect") {
       // Full navigation: the provider checkout lives on another origin. The
       // button stays busy through `isRedirecting` until the browser leaves.
@@ -189,6 +232,10 @@ const submit = async (): Promise<void> => {
     }
     errorMessage.value = outcome.message;
   } catch {
+    analytics.capture("checkout_failed", {
+      plan_slug: selectedPlan.value,
+      reason: "exception",
+    });
     errorMessage.value = LANDING_CHECKOUT_GENERIC_ERROR;
   } finally {
     isSubmitting.value = false;

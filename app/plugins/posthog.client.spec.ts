@@ -56,7 +56,6 @@ describe("PostHog consent gateway", () => {
 
     client.capture("dashboard_viewed");
     client.identify("user-123");
-    client.capturePageView();
 
     expect(posthogMock.init).not.toHaveBeenCalled();
     expect(posthogMock.capture).not.toHaveBeenCalled();
@@ -70,12 +69,17 @@ describe("PostHog consent gateway", () => {
     gateway.setAllowed(true);
     client.capture("dashboard_viewed", { source: "test" });
     client.identify("user-123");
-    client.capturePageView();
 
     expect(posthogMock.init).toHaveBeenCalledTimes(1);
+    // Pageviews are SDK-native (#1208): "history_change" covers the initial
+    // full-page load AND SPA navigations — the manual page:finish hook never
+    // fired on full-page loads, so the SSG landing captured zero pageviews.
+    expect(posthogMock.init).toHaveBeenCalledWith(
+      "ph_test",
+      expect.objectContaining({ capture_pageview: "history_change" }),
+    );
     expect(posthogMock.capture).toHaveBeenCalledWith("dashboard_viewed", { source: "test" });
     expect(posthogMock.identify).toHaveBeenCalledWith("user-123");
-    expect(posthogMock.capture).toHaveBeenCalledWith("$pageview");
   });
 
   it("stops future analytics events when consent is revoked", () => {

@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { ArrowRight } from "lucide-vue-next";
+import { useLandingCtaTracking } from "../composables/useLandingCtaTracking";
 import {
   LANDING_PLANS,
   LANDING_REGISTER_URL,
   LANDING_SUBSCRIBE_URL,
 } from "../model/landing-content";
+
+const { trackCta } = useLandingCtaTracking();
 </script>
 
 <template>
@@ -47,13 +50,17 @@ import {
           :href="LANDING_SUBSCRIBE_URL"
           class="landing-pricing__button"
           data-testid="landing-pricing-subscribe"
+          @click="trackCta('pricing-subscribe', LANDING_SUBSCRIBE_URL)"
         >
           Assinar Premium
           <ArrowRight :size="17" aria-hidden="true" />
         </a>
         <p class="landing-pricing__free">
           Prefere olhar antes de assinar?
-          <a :href="LANDING_REGISTER_URL">Criar conta gratuita</a>
+          <a
+            :href="LANDING_REGISTER_URL"
+            @click="trackCta('pricing-register', LANDING_REGISTER_URL)"
+          >Criar conta gratuita</a>
         </p>
       </div>
     </div>
