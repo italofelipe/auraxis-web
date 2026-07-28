@@ -131,15 +131,59 @@ test.describe("Landing de captação — visita sem cookies", () => {
     "Requires a landing-surface build in .output (set LANDING_E2E=1) — see header comment.",
   );
 
-  // Drop the globally-seeded consent cookie: the landing sets no analytics or
-  // marketing cookies, so the LGPD banner must not render even on first visit.
+  // Drop the globally-seeded consent cookie: with the PostHog key baked into
+  // the apex build, the LGPD banner must now render on first visit (#1177) so
+  // analytics stays opt-in — while never blocking the hero CTA.
   test.use({ storageState: { cookies: [], origins: [] } });
 
-  test("does not show the app cookie banner over the hero", async ({ page }) => {
+  test("shows the cookie banner without covering the hero CTA", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByTestId("landing-hero")).toBeVisible();
-    await expect(
-      page.getByRole("region", { name: /preferências de cookies/i }),
-    ).toHaveCount(0);
+
+    const banner = page.getByRole("region", { name: /preferências de cookies/i });
+    await expect(banner).toBeVisible();
+
+    const heroCta = page.getByTestId("landing-cta-register");
+    await expect(heroCta).toBeVisible();
+    const ctaBox = await heroCta.boundingBox();
+    const bannerBox = await banner.boundingBox();
+    expect(ctaBox).not.toBeNull();
+    expect(bannerBox).not.toBeNull();
+    // Compact corner-anchored banner (#1177): its box must not intersect the
+    // hero CTA box at all, so the primary conversion path stays clickable
+    // while consent is still pending.
+    const overlapsHorizontally =
+      ctaBox!.x < bannerBox!.x + bannerBox!.width && bannerBox!.x < ctaBox!.x + ctaBox!.width;
+    const overlapsVertically =
+      ctaBox!.y < bannerBox!.y + bannerBox!.height && bannerBox!.y < ctaBox!.y + ctaBox!.height;
+    expect(overlapsHorizontally && overlapsVertically).toBe(false);
+  });
+
+  test("blocks analytics before consent and persists the opt-in choice", async ({ page }) => {
+    const analyticsRequests: string[] = [];
+    await page.route(/posthog/i, (route) => {
+      analyticsRequests.push(route.request().url());
+      return route.fulfill({ status: 204, body: "" });
+    });
+
+    await page.goto("/");
+    const banner = page.getByRole("region", { name: /preferências de cookies/i });
+    await expect(banner).toBeVisible();
+    expect(analyticsRequests).toHaveLength(0);
+
+    await page.getByRole("button", { name: /aceitar todos/i }).click();
+    await expect(banner).toBeHidden();
+
+    const cookies = await page.evaluate(() => decodeURIComponent(document.cookie));
+    expect(cookies).toContain("\"analytics\":true");
+
+    // Ingestion only fires when the build carries a real key. The deploy gate
+    // exports the secret to this step, so the assertion is live exactly where
+    // it matters and inert on key-less local/CI builds.
+    if (process.env.NUXT_PUBLIC_POSTHOG_API_KEY) {
+      await expect
+        .poll(() => analyticsRequests.length, { timeout: 5_000 })
+        .toBeGreaterThan(0);
+    }
   });
 });
