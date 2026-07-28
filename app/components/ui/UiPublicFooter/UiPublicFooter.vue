@@ -1,15 +1,28 @@
 <script setup lang="ts">
+import {
+  resolveProductHref,
+  resolveSiteSurface,
+  type PublicSurface,
+} from "~/shared/navigation/public-links";
 import type { UiPublicFooterProps } from "./UiPublicFooter.types";
 
 const props = withDefaults(defineProps<UiPublicFooterProps>(), {
   year: undefined,
+  surface: undefined,
 });
 
 const { t } = useI18n();
+const runtimeSurface = resolveSiteSurface();
 
 const copyrightYear = computed<number>(() =>
   props.year !== undefined ? props.year : new Date().getFullYear(),
 );
+const surface = computed<PublicSurface>(() => props.surface ?? runtimeSurface);
+
+// Institucionais vivem no host do app; conteúdo e legais são servidos pela
+// própria surface (o apex passa a servi-los na expansão da landing, #1211).
+const aboutHref = computed<string>(() => resolveProductHref(surface.value, "/about-us"));
+const supportHref = computed<string>(() => resolveProductHref(surface.value, "/support"));
 </script>
 
 <template>
@@ -23,8 +36,8 @@ const copyrightYear = computed<number>(() =>
         class="ui-public-footer__links"
         :aria-label="t('components.publicFooter.columns.legal.title')"
       >
-        <NuxtLink to="/about-us" class="ui-public-footer__link"> Sobre nós </NuxtLink>
-        <NuxtLink to="/support" class="ui-public-footer__link"> Suporte </NuxtLink>
+        <NuxtLink :to="aboutHref" class="ui-public-footer__link"> Sobre nós </NuxtLink>
+        <NuxtLink :to="supportHref" class="ui-public-footer__link"> Suporte </NuxtLink>
         <NuxtLink to="/blog" class="ui-public-footer__link"> Blog </NuxtLink>
         <NuxtLink to="/privacy" class="ui-public-footer__link">
           {{ t("components.publicFooter.columns.legal.links.privacy") }}

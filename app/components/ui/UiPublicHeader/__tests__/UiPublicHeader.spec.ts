@@ -56,9 +56,9 @@ describe("UiPublicHeader", () => {
     expect(wrapper.text()).toContain("Auraxis");
   });
 
-  it("renders landing navigation links", () => {
+  it("renders marketing navigation links on the marketing surface", () => {
     const wrapper = renderWithProviders(UiPublicHeader, {
-      props: { authenticated: false },
+      props: { authenticated: false, surface: "marketing" },
       global: { stubs },
     });
 
@@ -80,6 +80,71 @@ describe("UiPublicHeader", () => {
     expect(wrapper.text()).not.toContain("Blog");
     expect(wrapper.text()).toContain("Entrar");
     expect(wrapper.text()).toContain("Criar conta");
+  });
+
+  it("keeps auth CTAs relative on the marketing surface", () => {
+    const wrapper = renderWithProviders(UiPublicHeader, {
+      props: { authenticated: false, surface: "marketing" },
+      global: { stubs },
+    });
+
+    const hrefs = wrapper.findAll("a").map((a) => a.attributes("href"));
+    expect(hrefs).toContain("/login");
+    expect(hrefs).toContain("/register");
+    expect(hrefs).not.toContain("https://app.auraxis.com.br/login");
+  });
+
+  describe("landing surface", () => {
+    it("shows content navigation instead of marketing anchors", () => {
+      const wrapper = renderWithProviders(UiPublicHeader, {
+        props: { authenticated: false, surface: "landing" },
+        global: { stubs },
+      });
+
+      expect(wrapper.text()).toContain("Ferramentas");
+      expect(wrapper.text()).toContain("Soluções");
+      expect(wrapper.text()).toContain("Planos");
+      expect(wrapper.text()).toContain("Blog");
+      expect(wrapper.text()).not.toContain("Produto");
+      expect(wrapper.text()).not.toContain("Analytics");
+      expect(wrapper.text()).not.toContain("FAQ");
+    });
+
+    it("keeps content navigation relative to the apex", () => {
+      const wrapper = renderWithProviders(UiPublicHeader, {
+        props: { authenticated: false, surface: "landing" },
+        global: { stubs },
+      });
+
+      const hrefs = wrapper.findAll("a").map((a) => a.attributes("href"));
+      expect(hrefs).toContain("/tools");
+      expect(hrefs).toContain("/controle-financeiro");
+      expect(hrefs).toContain("/#planos");
+      expect(hrefs).toContain("/blog");
+    });
+
+    it("points auth CTAs at the app host", () => {
+      const wrapper = renderWithProviders(UiPublicHeader, {
+        props: { authenticated: false, surface: "landing" },
+        global: { stubs },
+      });
+
+      const hrefs = wrapper.findAll("a").map((a) => a.attributes("href"));
+      expect(hrefs).toContain("https://app.auraxis.com.br/login");
+      expect(hrefs).toContain("https://app.auraxis.com.br/register");
+      expect(hrefs).not.toContain("/login");
+      expect(hrefs).not.toContain("/register");
+    });
+
+    it("points the dashboard CTA at the app host when authenticated", () => {
+      const wrapper = renderWithProviders(UiPublicHeader, {
+        props: { authenticated: true, surface: "landing" },
+        global: { stubs },
+      });
+
+      const hrefs = wrapper.findAll("a").map((a) => a.attributes("href"));
+      expect(hrefs).toContain("https://app.auraxis.com.br/dashboard");
+    });
   });
 
   it("shows login and register when not authenticated", () => {
@@ -142,7 +207,7 @@ describe("UiPublicHeader", () => {
 
   it("closes mobile menu when a mobile nav link is clicked", async () => {
     const wrapper = renderWithProviders(UiPublicHeader, {
-      props: { authenticated: false },
+      props: { authenticated: false, surface: "marketing" },
       global: { stubs },
     });
 
