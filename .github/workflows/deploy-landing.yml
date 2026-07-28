@@ -218,3 +218,56 @@ jobs:
             --query 'Invalidation.Id' \
             --output text)
           echo "✓ Invalidation created: $INVALIDATION_ID"
+
+      # Avisa Bing e parceiros (Seznam, Naver, Yandex) que as URLs mudaram —
+      # protocolo aberto, sem conta nem credencial: a posse do domínio é
+      # provada pelo arquivo public/<key>.txt. O Google não usa IndexNow.
+      # Best-effort: falha aqui não reprova o deploy, que já subiu. (#1227)
+      - name: Ping IndexNow (Bing e parceiros)
+        if: steps.cap.outputs.enabled == 'true'
+        continue-on-error: true
+        env:
+          SITE_HOST: auraxis.com.br
+        run: |
+          # A chave do IndexNow é o próprio nome do arquivo publicado em
+          # public/<key>.txt — derivar dali evita duplicá-la aqui (e um valor
+          # de alta entropia no YAML dispara o secret scanner, embora esta
+          # chave seja pública por definição do protocolo).
+          KEY_FILE=$(find .output/public -maxdepth 1 -name '*.txt' ! -name 'robots.txt' | head -1)
+          if [ -z "${KEY_FILE}" ]; then
+            echo "::warning::arquivo de chave IndexNow ausente — ping não enviado"
+            exit 0
+          fi
+          INDEXNOW_KEY=$(basename "${KEY_FILE}" .txt)
+          # Coleta os <loc> de todo urlset do artefato (o índice de sitemaps
+          # fica de fora — seus <loc> apontam para sitemaps, não para páginas)
+          # e mantém apenas URLs do próprio host, para nenhum resíduo de outra
+          # surface escapar para o ping.
+          URLS=$(find .output/public -name '*.xml' -type f -exec grep -l '<urlset' {} + \
+            | xargs grep -ohE '<loc>[^<]+</loc>' \
+            | sed -e 's|<loc>||' -e 's|</loc>||' \
+            | grep -E "^https://${SITE_HOST}/" \
+            | sort -u \
+            | head -c 100000 \
+            | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          COUNT=$(echo "${URLS}" | jq 'length')
+          if [ "${COUNT}" = "0" ]; then
+            echo "::warning::sitemap.xml sem URLs — IndexNow não foi chamado"
+            exit 0
+          fi
+          PAYLOAD=$(jq -n \
+            --arg host "${SITE_HOST}" \
+            --arg key "${INDEXNOW_KEY}" \
+            --arg keyLocation "https://${SITE_HOST}/${INDEXNOW_KEY}.txt" \
+            --argjson urlList "${URLS}" \
+            '{host: $host, key: $key, keyLocation: $keyLocation, urlList: $urlList}')
+          STATUS=$(curl -sS -o /tmp/indexnow-response.txt -w '%{http_code}' \
+            -X POST "https://api.indexnow.org/indexnow" \
+            -H "Content-Type: application/json; charset=utf-8" \
+            -d "${PAYLOAD}")
+          echo "IndexNow: HTTP ${STATUS} para ${COUNT} URLs"
+          cat /tmp/indexnow-response.txt || true
+          case "${STATUS}" in
+            200|202) echo "✓ URLs enviadas ao IndexNow" ;;
+            *) echo "::warning::IndexNow respondeu ${STATUS} — deploy segue válido" ;;
+          esac
