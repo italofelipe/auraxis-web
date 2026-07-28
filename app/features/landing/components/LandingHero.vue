@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ShieldCheck } from "lucide-vue-next";
+import { useLandingCtaTracking } from "../composables/useLandingCtaTracking";
 import { LANDING_REGISTER_URL } from "../model/landing-content";
 import LandingBrowserFrame from "./LandingBrowserFrame.vue";
+
+const { trackCta } = useLandingCtaTracking();
 </script>
 
 <template>
@@ -25,6 +28,7 @@ import LandingBrowserFrame from "./LandingBrowserFrame.vue";
           :href="LANDING_REGISTER_URL"
           class="landing-hero__cta"
           data-testid="landing-cta-register"
+          @click="trackCta('hero-register', LANDING_REGISTER_URL)"
         >
           Criar conta gratuita
         </a>

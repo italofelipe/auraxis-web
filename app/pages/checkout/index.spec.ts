@@ -30,6 +30,7 @@ const createAuthApiMock = vi.hoisted(() =>
 );
 const startLandingCheckoutMock = vi.hoisted(() => vi.fn());
 const navigateToMock = vi.hoisted(() => vi.fn());
+const captureMock = vi.hoisted(() => vi.fn());
 const siteSurface = vi.hoisted(() => ({ current: "landing" as string }));
 
 /** Nuxt auto-imports the page relies on, shared by every module alias below. */
@@ -78,6 +79,18 @@ vi.mock("#app/composables/head", () => ({
 }));
 
 vi.mock("~/composables/useHttp", () => ({ useHttp: useHttpMock }));
+
+vi.mock("~/composables/useAnalytics/useAnalytics", () => ({
+  useAnalytics: (): {
+    capture: typeof captureMock;
+    identify: ReturnType<typeof vi.fn>;
+    reset: ReturnType<typeof vi.fn>;
+  } => ({
+    capture: captureMock,
+    identify: vi.fn(),
+    reset: vi.fn(),
+  }),
+}));
 
 vi.mock("~/composables/useAuth", () => ({ createAuthApi: createAuthApiMock }));
 
@@ -301,6 +314,58 @@ describe("landing checkout page", () => {
     } finally {
       navigationSpy.mockRestore();
     }
+  });
+
+  it("emite o funil na ordem submit → upgrade_clicked → provider_redirected (#1208)", async () => {
+    const location = stubLocation();
+    startLandingCheckoutMock.mockResolvedValue({
+      status: "redirect",
+      url: "https://pay.abacatepay.com/sess-1",
+    } satisfies LandingCheckoutOutcome);
+
+    const wrapper = await mountFilledPage();
+    await submitForm(wrapper);
+
+    expect(location.href).toBe("https://pay.abacatepay.com/sess-1");
+    expect(captureMock.mock.calls.map((call) => call[0])).toEqual([
+      "checkout_form_submitted",
+      "upgrade_clicked",
+      "checkout_provider_redirected",
+    ]);
+    expect(captureMock).toHaveBeenNthCalledWith(2, "upgrade_clicked", {
+      source: "landing-checkout",
+      plan_slug: "annual",
+    });
+  });
+
+  it("registra checkout_account_exists no conceal de conta duplicada (#1208)", async () => {
+    startLandingCheckoutMock.mockResolvedValue({
+      status: "account-exists",
+    } satisfies LandingCheckoutOutcome);
+
+    const wrapper = await mountFilledPage();
+    await submitForm(wrapper);
+
+    expect(captureMock).toHaveBeenCalledWith("checkout_account_exists", {
+      plan_slug: "annual",
+    });
+  });
+
+  it("registra checkout_failed distinguindo outcome de exceção (#1208)", async () => {
+    const wrapper = await mountFilledPage();
+    await submitForm(wrapper);
+    expect(captureMock).toHaveBeenCalledWith("checkout_failed", {
+      plan_slug: "annual",
+      reason: "outcome",
+    });
+
+    captureMock.mockClear();
+    startLandingCheckoutMock.mockRejectedValue(new Error("boom"));
+    await submitForm(wrapper);
+    expect(captureMock).toHaveBeenCalledWith("checkout_failed", {
+      plan_slug: "annual",
+      reason: "exception",
+    });
   });
 
   it("hands the app surface over to the in-app subscription screen", async () => {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useAnalytics } from "~/composables/useAnalytics/useAnalytics";
 import { buildLandingCheckoutPath } from "~/features/landing/model/landing-checkout";
 import { LANDING_LOGIN_URL } from "~/features/landing/model/landing-content";
 
@@ -9,6 +10,14 @@ import { LANDING_LOGIN_URL } from "~/features/landing/model/landing-content";
  * signing in — not registering again.
  */
 definePageMeta({ layout: "public" });
+
+const analytics = useAnalytics();
+
+onMounted((): void => {
+  // Feeds the abandonment survey targeting (#1209) and the funnel drop-off
+  // breakdown (#1208).
+  analytics.capture("checkout_abandoned");
+});
 
 useSeoMeta({
   title: "Pagamento não concluído — Auraxis",

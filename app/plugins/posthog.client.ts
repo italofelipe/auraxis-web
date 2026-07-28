@@ -34,7 +34,17 @@ export type AuraxisEvent =
   // ── Freemium simulador (#566) ─────────────────────────────────────────
   | "free_simulation_used"
   // ── Aceite de termos no signup (#1118) ────────────────────────────────
-  | "signup_consent_record_failed";
+  | "signup_consent_record_failed"
+  // ── Funil da landing/apex (#1208) ─────────────────────────────────────
+  // Feeds the apex acquisition funnel (pageview → CTA → checkout →
+  // provider → upgrade_completed). The paid steps reuse upgrade_clicked /
+  // upgrade_completed from the #524 contract with a `source` property.
+  | "landing_cta_clicked"
+  | "checkout_form_submitted"
+  | "checkout_provider_redirected"
+  | "checkout_account_exists"
+  | "checkout_failed"
+  | "checkout_abandoned";
 
 /** Typed analytics client exposed as `$analytics` in the Nuxt app. */
 export interface AnalyticsClient {

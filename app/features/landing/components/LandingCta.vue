@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ArrowRight } from "lucide-vue-next";
+import { useLandingCtaTracking } from "../composables/useLandingCtaTracking";
 import { LANDING_LOGIN_URL, LANDING_REGISTER_URL } from "../model/landing-content";
+
+const { trackCta } = useLandingCtaTracking();
 </script>
 
 <template>
@@ -13,7 +16,12 @@ import { LANDING_LOGIN_URL, LANDING_REGISTER_URL } from "../model/landing-conten
         Crie sua conta em menos de dois minutos, registre os primeiros lançamentos e veja o seu mês
         inteiro em contexto.
       </p>
-      <a :href="LANDING_REGISTER_URL" class="landing-cta__button" data-testid="landing-cta-final">
+      <a
+        :href="LANDING_REGISTER_URL"
+        class="landing-cta__button"
+        data-testid="landing-cta-final"
+        @click="trackCta('final-cta', LANDING_REGISTER_URL)"
+      >
         Criar conta gratuita
         <ArrowRight :size="17" aria-hidden="true" />
       </a>
