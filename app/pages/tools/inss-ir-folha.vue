@@ -31,6 +31,7 @@ import UiStickySummaryCard from "~/components/ui/UiStickySummaryCard/UiStickySum
 import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
 import UiGlassPanel from "~/components/ui/UiGlassPanel/UiGlassPanel.vue";
 import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
+import { useToolPageStructuredData } from "~/features/tools/composables/useToolPageStructuredData";
 import TaxBracketTable, {
   type TaxBracketRow,
 } from "~/components/tool/TaxBracketTable/TaxBracketTable.vue";
@@ -38,6 +39,12 @@ import TaxBracketTable, {
 definePageMeta({ layout: false });
 
 const { t, n } = useI18n();
+
+useToolPageStructuredData({
+  slug: "inss-ir-folha",
+  name: t("inssIrFolha.seo.title"),
+  description: t("inssIrFolha.seo.description"),
+});
 
 useSeoMeta({
   title: t("inssIrFolha.seo.title"),

@@ -36,12 +36,19 @@ import UiGlassPanel from "~/components/ui/UiGlassPanel/UiGlassPanel.vue";
 import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
 import UiStickySummaryCard from "~/components/ui/UiStickySummaryCard/UiStickySummaryCard.vue";
 import UiChart from "~/components/ui/UiChart.vue";
+import { useToolPageStructuredData } from "~/features/tools/composables/useToolPageStructuredData";
 
 definePageMeta({ layout: false });
 
 const { t, n } = useI18n();
 const toast = useMessage();
 const sessionStore = useSessionStore();
+
+useToolPageStructuredData({
+  slug: "custo-de-vida-regional",
+  name: t("custoVidaRegional.seo.title"),
+  description: t("custoVidaRegional.seo.description"),
+});
 
 useSeoMeta({
   title: () => t("custoVidaRegional.seo.title"),

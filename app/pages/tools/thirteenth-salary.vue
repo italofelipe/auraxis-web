@@ -6,8 +6,15 @@
  *   app/features/tools/thirteenth-salary/page.vue
  */
 import ThirteenthSalaryPage from "~/features/tools/thirteenth-salary/page.vue";
+import { useToolPageStructuredData } from "~/features/tools/composables/useToolPageStructuredData";
 
 definePageMeta({ layout: false });
+
+useToolPageStructuredData({
+  slug: "thirteenth-salary",
+  name: useI18n().t("thirteenthSalary.seo.title"),
+  description: useI18n().t("thirteenthSalary.seo.description"),
+});
 
 useSeoMeta({
   title: useI18n().t("thirteenthSalary.seo.title"),

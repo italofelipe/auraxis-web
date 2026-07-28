@@ -60,6 +60,10 @@ vi.mock("~/features/tools/model/custo-de-vida-regional", () => ({
   calculateRegionalCost: mockCalculate,
 }));
 
+vi.mock("~/features/tools/composables/useToolPageStructuredData", () => ({
+  useToolPageStructuredData: vi.fn(),
+}));
+
 const mockResult: RegionalCostResult = {
   totalMonthlyCost: 6000,
   totalAnnualCost: 72000,

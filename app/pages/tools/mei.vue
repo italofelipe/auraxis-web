@@ -29,6 +29,7 @@ import UiStickySummaryCard from "~/components/ui/UiStickySummaryCard/UiStickySum
 import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
 import UiGlassPanel from "~/components/ui/UiGlassPanel/UiGlassPanel.vue";
 import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
+import { useToolPageStructuredData } from "~/features/tools/composables/useToolPageStructuredData";
 
 definePageMeta({ layout: false });
 
@@ -52,6 +53,12 @@ const {
     name: t("mei.simulation.goalName"),
     target_amount: result.annualRevenueProjection,
   }),
+});
+
+useToolPageStructuredData({
+  slug: "mei",
+  name: t("mei.seo.title"),
+  description: t("mei.seo.description"),
 });
 
 useSeoMeta({

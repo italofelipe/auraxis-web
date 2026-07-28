@@ -28,6 +28,7 @@ import UiStickySummaryCard from "~/components/ui/UiStickySummaryCard/UiStickySum
 import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
 import UiGlassPanel from "~/components/ui/UiGlassPanel/UiGlassPanel.vue";
 import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
+import { useToolPageStructuredData } from "~/features/tools/composables/useToolPageStructuredData";
 
 definePageMeta({ layout: false });
 
@@ -76,6 +77,12 @@ const {
       result.poupanca.netAmount,
     ),
   }),
+});
+
+useToolPageStructuredData({
+  slug: "cdb-lci-lca",
+  name: t("cdbLciLca.seo.title"),
+  description: t("cdbLciLca.seo.description"),
 });
 
 useSeoMeta({

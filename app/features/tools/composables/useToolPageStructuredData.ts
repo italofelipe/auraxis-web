@@ -1,6 +1,34 @@
 import { useToolStructuredData } from "./useToolStructuredData";
 import type { ToolFaqEntry } from "~/features/tools/model/structured-data.types";
 
+interface ToolAlternateLink {
+  rel: "alternate";
+  hreflang: string;
+  href: string;
+}
+
+/**
+ * Monta os alternates hreflang de uma tool (PT-BR ↔ EN, x-default = PT-BR,
+ * o idioma primário do produto). Puro para ser testável (#1222).
+ *
+ * @param baseUrl - Origin da surface ativa (ex.: `https://auraxis.com.br`).
+ * @param slug - Slug da tool sob /tools/.
+ * @returns Links prontos para o `useHead`.
+ */
+export const buildToolAlternateLinks = (
+  baseUrl: string,
+  slug: string,
+): ToolAlternateLink[] => {
+  const base = baseUrl.replace(/\/$/, "");
+  const ptUrl = `${base}/tools/${slug}`;
+  const enUrl = `${base}/en/tools/${slug}`;
+  return [
+    { rel: "alternate", hreflang: "pt-BR", href: ptUrl },
+    { rel: "alternate", hreflang: "en", href: enUrl },
+    { rel: "alternate", hreflang: "x-default", href: ptUrl },
+  ];
+};
+
 export interface UseToolPageStructuredDataInput {
   /** Tool slug, matching the URL segment under /tools/ (e.g. "juros-compostos"). */
   slug: string;
@@ -31,6 +59,10 @@ export const useToolPageStructuredData = (
   const localePrefix = locale.value === "en" ? "/en" : "";
   const toolsUrl = `${base}${localePrefix}/tools`;
   const toolUrl = `${toolsUrl}/${input.slug}`;
+
+  // hreflang recíproco PT↔EN + x-default (#1222) — as tools existem nos dois
+  // idiomas e sem os alternates o Google as trata como duplicatas sem relação.
+  useHead({ link: buildToolAlternateLinks(base, input.slug) });
 
   useToolStructuredData({
     name: input.name,

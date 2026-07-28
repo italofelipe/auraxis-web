@@ -28,6 +28,7 @@ import UiPageHeader from "~/components/ui/UiPageHeader/UiPageHeader.vue";
 import UiGlassPanel from "~/components/ui/UiGlassPanel/UiGlassPanel.vue";
 import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
 import UiChart from "~/components/ui/UiChart.vue";
+import { useToolPageStructuredData } from "~/features/tools/composables/useToolPageStructuredData";
 
 definePageMeta({ layout: false });
 
@@ -60,6 +61,12 @@ const {
     name: t("aluguelVsCompra.simulation.goalName"),
     target_amount: result.propertyValueAtEnd,
   }),
+});
+
+useToolPageStructuredData({
+  slug: "aluguel-vs-compra",
+  name: t("aluguelVsCompra.seo.title"),
+  description: t("aluguelVsCompra.seo.description"),
 });
 
 useSeoMeta({

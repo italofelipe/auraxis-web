@@ -718,7 +718,7 @@
     },
     "installmentVsCash": {
       "seo": {
-        "title": "Parcelamento vs À Vista — Calculadora Financeira",
+        "title": "Parcelar ou Pagar à Vista? Calculadora Financeira",
         "description": "Descubra se vale a pena parcelar ou pagar à vista. Calcule o custo de oportunidade e tome a melhor decisão financeira.",
         "ogTitle": "Parcelamento vs À Vista — Auraxis",
         "ogDescription": "Calculadora gratuita para comparar parcelamento e pagamento à vista."
@@ -2215,7 +2215,7 @@
   "inssIrFolha": {
     "seo": {
       "title": "Calculadora de INSS e IR na Folha — Desconto Real por Faixa",
-      "description": "Calcule exatamente quanto o INSS e o Imposto de Renda descontam do seu salário, faixa a faixa. Inclui deduções de dependentes, pensão alimentícia e previdência privada.",
+      "description": "Calcule quanto o INSS e o IR descontam do seu salário, faixa a faixa, com dependentes, pensão e previdência privada.",
       "ogTitle": "INSS + IR na Folha — Auraxis",
       "ogDescription": "Calculadora gratuita de INSS e IR progressivo com deduções de dependentes e previdência privada."
     },
@@ -2538,7 +2538,7 @@
   },
   "dividirConta": {
     "seo": {
-      "title": "Dividir Conta — Auraxis",
+      "title": "Calculadora de Dividir Conta — Rateio com Taxa e Gorjeta",
       "description": "Calcule quanto cada pessoa deve pagar na conta do restaurante, com taxa da casa, gorjeta e consumo individual.",
       "ogTitle": "Dividir Conta | Auraxis",
       "ogDescription": "Divida contas de restaurante com facilidade — taxa de serviço, gorjeta e modo individual."
@@ -2606,7 +2606,7 @@
   },
   "descontoMarkup": {
     "seo": {
-      "title": "Desconto, Markup e Margem — Auraxis",
+      "title": "Calculadora de Desconto, Markup e Margem de Lucro",
       "description": "Calcule descontos, markup de preço e margem de lucro em 4 modos: desconto, markup, margem e reverso.",
       "ogTitle": "Desconto, Markup e Margem | Auraxis",
       "ogDescription": "Calcule descontos, markup e margem de lucro com facilidade."
@@ -2663,7 +2663,7 @@
   },
   "jurosCompostos": {
     "seo": {
-      "title": "Juros Compostos e Taxa Real — Auraxis",
+      "title": "Calculadora de Juros Compostos com Taxa Real",
       "description": "Simule o crescimento do seu capital com aportes mensais e veja a taxa real descontada a inflação (fórmula de Fisher).",
       "ogTitle": "Juros Compostos e Taxa Real | Auraxis",
       "ogDescription": "Simule juros compostos com aportes mensais e calcule a taxa real via fórmula de Fisher."
@@ -2725,9 +2725,9 @@
   },
   "fgts": {
     "seo": {
-      "title": "Simulador de FGTS — Auraxis",
+      "title": "Simulador de FGTS — Saldo, Multa e Projeção",
       "description": "Calcule seu saldo projetado de FGTS, multa rescisória e valor a sacar conforme o tipo de desligamento.",
-      "ogTitle": "Simulador de FGTS — Auraxis",
+      "ogTitle": "Simulador de FGTS — Saldo, Multa e Projeção",
       "ogDescription": "Projete seu FGTS, veja a multa e o valor líquido disponível para saque."
     },
     "header": {
@@ -2795,9 +2795,9 @@
   },
   "cltVsPj": {
     "seo": {
-      "title": "CLT vs PJ — Comparativo de Renda — Auraxis",
+      "title": "CLT ou PJ? Calculadora de Comparação de Renda Líquida",
       "description": "Compare CLT e PJ considerando INSS, IR, benefícios e regime tributário. Descubra qual compensa mais.",
-      "ogTitle": "CLT vs PJ — Comparativo de Renda — Auraxis",
+      "ogTitle": "CLT ou PJ? Calculadora de Comparação de Renda Líquida",
       "ogDescription": "Simule CLT e PJ lado a lado e veja qual regime é mais vantajoso para o seu perfil."
     },
     "header": {
@@ -2870,7 +2870,7 @@
   },
   "mei": {
     "seo": {
-      "title": "Calculadora MEI — DAS e Benefícios — Auraxis",
+      "title": "Calculadora MEI — DAS, Limite e Benefícios",
       "description": "Calcule o DAS mensal do MEI por atividade, veja os benefícios previdenciários e compare com o PF autônomo.",
       "ogTitle": "Calculadora MEI — Auraxis",
       "ogDescription": "Simule o custo mensal do MEI, seus benefícios e compare com o regime PF autônomo."
@@ -2950,7 +2950,7 @@
   },
   "cdbLciLca": {
     "seo": {
-      "title": "CDB / LCI / LCA vs Poupança — Auraxis",
+      "title": "CDB, LCI e LCA ou Poupança? Calculadora de Rendimento",
       "description": "Compare a rentabilidade líquida real de CDB, LCI/LCA e Poupança com IR regressivo e ranking automático.",
       "ogTitle": "CDB / LCI / LCA vs Poupança",
       "ogDescription": "Veja qual renda fixa rende mais no seu prazo e valor."
@@ -3024,7 +3024,7 @@
   },
   "tesouroDireto": {
     "seo": {
-      "title": "Tesouro Direto — Auraxis",
+      "title": "Simulador Tesouro Direto — Selic, IPCA+ e Prefixado",
       "description": "Simule títulos Tesouro Selic, IPCA+ e Prefixado com taxa de custódia B3 e IR regressivo.",
       "ogTitle": "Simulador Tesouro Direto",
       "ogDescription": "Calcule o retorno líquido dos títulos públicos no seu prazo."
@@ -3099,7 +3099,7 @@
   },
   "aposentadoria": {
     "seo": {
-      "title": "Simulador de Aposentadoria — Auraxis",
+      "title": "Simulador de Aposentadoria — Quanto Poupar por Mês",
       "description": "Descubra quanto poupar por mês para se aposentar com a renda desejada usando a Regra dos 25x.",
       "ogTitle": "Simulador de Aposentadoria",
       "ogDescription": "Calcule seu patrimônio necessário e aporte mensal para a aposentadoria."
@@ -3171,7 +3171,7 @@
   },
   "fire": {
     "seo": {
-      "title": "Calculadora FIRE — Auraxis",
+      "title": "Calculadora FIRE — Independência Financeira",
       "description": "Planeje sua independência financeira com as variantes FIRE, Lean FIRE, Fat FIRE e Coast FIRE.",
       "ogTitle": "Calculadora FIRE",
       "ogDescription": "Descubra seu número FIRE e quanto investir por mês para se aposentar cedo."
@@ -3245,9 +3245,9 @@
   },
   "financiamentoImobiliario": {
     "seo": {
-      "title": "Financiamento Imobiliário — SAC vs PRICE | Auraxis",
+      "title": "Simulador de Financiamento Imobiliário — SAC vs PRICE",
       "description": "Compare SAC e PRICE lado a lado: primeira e última parcela, total de juros e CET estimado para o seu financiamento.",
-      "ogTitle": "Financiamento Imobiliário — SAC vs PRICE | Auraxis",
+      "ogTitle": "Simulador de Financiamento Imobiliário — SAC vs PRICE",
       "ogDescription": "Calcule e compare os sistemas SAC e PRICE para o seu financiamento imobiliário."
     },
     "hero": {
@@ -3315,7 +3315,7 @@
   },
   "aluguelVsCompra": {
     "seo": {
-      "title": "Aluguel vs Compra — Análise Patrimonial | Auraxis",
+      "title": "Alugar ou Comprar Imóvel? Calculadora Patrimonial",
       "description": "Compare o custo total de alugar ou comprar um imóvel com custo de oportunidade e projeção patrimonial.",
       "ogTitle": "Aluguel vs Compra | Auraxis",
       "ogDescription": "Descubra se vale mais a pena alugar ou comprar com projeção patrimonial e break-even."
@@ -3394,7 +3394,7 @@
   },
   "conversorMoeda": {
     "seo": {
-      "title": "Conversor de Moeda com Cotação em Tempo Real | Auraxis",
+      "title": "Conversor de Moedas — Cotação em Tempo Real",
       "description": "Converta entre Real e moedas estrangeiras com cotação ao vivo via BRAPI.",
       "ogTitle": "Conversor de Moeda — Auraxis",
       "ogDescription": "Cotação em tempo real para USD, EUR, GBP, BTC e mais."
@@ -3456,7 +3456,7 @@
   },
   "fii": {
     "seo": {
-      "title": "Calculadora de FII — Dividend Yield e Renda Passiva | Auraxis",
+      "title": "Calculadora de FII — Dividend Yield e Renda Passiva",
       "description": "Calcule o Dividend Yield, Yield on Cost e renda passiva de Fundos Imobiliários com dados reais via BRAPI.",
       "ogTitle": "Calculadora de FII — Auraxis",
       "ogDescription": "DY, YoC e renda mensal de FIIs com cotação ao vivo."
@@ -3726,7 +3726,7 @@
   },
   "salarioLiquido": {
     "seo": {
-      "title": "Calculadora de Salário Líquido CLT 2026 | Auraxis",
+      "title": "Calculadora de Salário Líquido CLT 2026",
       "description": "Calcule seu salário líquido CLT com todos os descontos: INSS, IR, VT, VA/VR, plano de saúde e custo do empregador.",
       "ogTitle": "Calculadora de Salário Líquido CLT | Auraxis",
       "ogDescription": "Descubra quanto você realmente recebe e quanto o empregador paga."
@@ -3772,9 +3772,9 @@
   },
   "reservaEmergencia": {
     "seo": {
-      "title": "Calculadora de Reserva de Emergência | Auraxis",
+      "title": "Calculadora de Reserva de Emergência",
       "description": "Calcule sua meta de reserva de emergência por perfil profissional e veja em quanto tempo você atinge o objetivo.",
-      "ogTitle": "Calculadora de Reserva de Emergência | Auraxis",
+      "ogTitle": "Calculadora de Reserva de Emergência",
       "ogDescription": "Descubra sua meta de reserva de emergência e compare investimentos."
     },
     "hero": {
@@ -3821,7 +3821,7 @@
   },
   "orcamento5030": {
     "seo": {
-      "title": "Orçamento 50/30/20 — Auraxis",
+      "title": "Calculadora de Orçamento 50/30/20 — Divida sua Renda",
       "description": "Distribua sua renda em necessidades, desejos e investimentos com a regra 50/30/20.",
       "ogTitle": "Orçamento 50/30/20 | Auraxis",
       "ogDescription": "Organize suas finanças com a regra 50/30/20."
@@ -3867,7 +3867,7 @@
   },
   "cet": {
     "seo": {
-      "title": "CET — Custo Efetivo Total — Auraxis",
+      "title": "Calculadora de CET — Custo Efetivo Total de Empréstimos",
       "description": "Descubra o custo real de um financiamento calculando o CET com IOF, TAC, seguro e todos os encargos.",
       "ogTitle": "CET — Custo Efetivo Total | Auraxis",
       "ogDescription": "Compare a taxa nominal com o CET real e saiba quanto você vai pagar."
@@ -3920,9 +3920,9 @@
   },
   "quitacaoDividas": {
     "seo": {
-      "title": "Simulador de Quitação de Dívidas | Auraxis",
+      "title": "Simulador de Quitação de Dívidas — Snowball e Avalanche",
       "description": "Compare Snowball e Avalanche para quitar suas dívidas mais rápido e pagar menos juros. Simulação gratuita, sem cadastro.",
-      "ogTitle": "Simulador de Quitação de Dívidas | Auraxis",
+      "ogTitle": "Simulador de Quitação de Dívidas — Snowball e Avalanche",
       "ogDescription": "Descubra a melhor estratégia para quitar suas dívidas e economize em juros."
     },
     "hero": {
@@ -4017,9 +4017,9 @@
   },
   "custoEstiloVida": {
     "seo": {
-      "title": "Quanto Seu Cafezinho Custa em 20 Anos? | Auraxis",
+      "title": "Quanto seu Cafezinho Custa em 20 Anos? Calculadora",
       "description": "Descubra o custo de oportunidade dos seus gastos recorrentes se investidos ao longo do tempo. Calcule grátis.",
-      "ogTitle": "Quanto Seu Cafezinho Custa em 20 Anos? | Auraxis",
+      "ogTitle": "Quanto seu Cafezinho Custa em 20 Anos? Calculadora",
       "ogDescription": "Veja quanto seus gastos recorrentes custariam se fossem investidos. Compartilhe o resultado."
     },
     "hero": {
@@ -4147,7 +4147,7 @@
   },
   "custoVidaRegional": {
     "seo": {
-      "title": "Calculadora de Custo de Vida por Estado | Auraxis",
+      "title": "Calculadora de Custo de Vida por Estado",
       "description": "Descubra quanto do seu salário o seu estilo de vida consome, compare com a média do seu estado e veja em quantos anos você poderia se aposentar.",
       "ogTitle": "Quanto Custa o Seu Estilo de Vida? | Auraxis",
       "ogDescription": "Compare o custo do seu estilo de vida com a média regional e descubra seu score de sustentabilidade financeira."

@@ -194,6 +194,10 @@ vi.mock("~/features/paywall/queries/use-entitlement-query", () => ({
   }),
 }));
 
+vi.mock("~/features/tools/composables/useToolPageStructuredData", () => ({
+  useToolPageStructuredData: vi.fn(),
+}));
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const mockResult: AluguelVsCompraResult = {

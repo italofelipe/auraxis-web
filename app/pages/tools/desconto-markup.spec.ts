@@ -169,6 +169,10 @@ vi.mock("~/features/goals/queries/use-create-goal-mutation", () => ({
   }),
 }));
 
+vi.mock("~/features/tools/composables/useToolPageStructuredData", () => ({
+  useToolPageStructuredData: vi.fn(),
+}));
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const mockResultDesconto: DescontoMarkupResult = {

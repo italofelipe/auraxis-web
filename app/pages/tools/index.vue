@@ -36,8 +36,18 @@ useSeoMeta({
   twitterDescription: t("pages.tools.meta.description"),
 });
 
+// hreflang recíproco do índice (#1222) — o catálogo existe em PT e EN.
+const alternateLinks = computed(() => {
+  const base = (siteConfig.url ?? "https://app.auraxis.com.br").replace(/\/$/, "");
+  return [
+    { rel: "alternate", hreflang: "pt-BR", href: `${base}/tools` },
+    { rel: "alternate", hreflang: "en", href: `${base}/en/tools` },
+    { rel: "alternate", hreflang: "x-default", href: `${base}/tools` },
+  ];
+});
+
 useHead({
-  link: [{ rel: "canonical", href: canonicalUrl.value }],
+  link: [{ rel: "canonical", href: canonicalUrl.value }, ...alternateLinks.value],
   htmlAttrs: { lang: locale.value },
 });
 
