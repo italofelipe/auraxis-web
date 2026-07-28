@@ -1,20 +1,9 @@
 <script setup lang="ts">
-import { tryUseNuxtApp } from "#app";
 import { NConfigProvider, NMessageProvider, NDialogProvider } from "naive-ui";
 import CookieConsentBanner from "~/components/privacy/CookieConsentBanner.vue";
 import { useNaiveTheme } from "~/composables/useNaiveTheme";
 
 const { theme, themeOverrides } = useNaiveTheme();
-
-// Landing surface (#1165): the apex capture page sets no analytics or
-// marketing cookies (PostHog key is not baked into that build), so the LGPD
-// consent banner has nothing to gate — and it would cover the hero CTA.
-// tryUseNuxtApp keeps the component mountable in bare unit tests (app.spec.ts).
-const nuxtApp = tryUseNuxtApp();
-const isLandingSurface = computed(
-  (): boolean =>
-    (nuxtApp?.$config.public as Record<string, unknown> | undefined)?.siteSurface === "landing",
-);
 </script>
 
 <template>
@@ -42,7 +31,9 @@ const isLandingSurface = computed(
         <NuxtLayout>
           <NuxtPage />
         </NuxtLayout>
-        <CookieConsentBanner v-if="!isLandingSurface" />
+        <!-- #1177: renders on every surface — the landing bakes the PostHog
+             key since #1175, so the apex needs the same LGPD opt-in gate. -->
+        <CookieConsentBanner />
       </NDialogProvider>
     </NMessageProvider>
   </NConfigProvider>
