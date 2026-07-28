@@ -9,9 +9,11 @@ const config = useRuntimeConfig();
 const { productHref } = usePublicNav();
 const route = useRoute();
 const siteUrl = String(config.public.siteUrl ?? "https://www.auraxis.com.br").replace(/\/$/, "");
-const isMarketingSurface = config.public.siteSurface === "marketing";
+const isIndexableSurface = ["marketing", "landing"].includes(
+  String(config.public.siteSurface),
+);
 const canonicalUrl = `${siteUrl}/blog`;
-const robots = resolveBlogRobots({ isMarketingSurface, routePath: route.path });
+const robots = resolveBlogRobots({ isIndexableSurface, routePath: route.path });
 
 useSeoMeta({
   title: "Blog de finanças pessoais",

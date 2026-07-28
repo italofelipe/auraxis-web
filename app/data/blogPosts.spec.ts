@@ -42,14 +42,14 @@ describe("SEO blog posts", () => {
     expect(getBlogPost("post-inexistente")).toBeUndefined();
   });
 
-  it("indexes only canonical Portuguese marketing routes", () => {
-    expect(resolveBlogRobots({ isMarketingSurface: true, routePath: "/blog" })).toBe(
+  it("indexes canonical Portuguese routes only on indexable surfaces", () => {
+    expect(resolveBlogRobots({ isIndexableSurface: true, routePath: "/blog" })).toBe(
       "index, follow",
     );
-    expect(resolveBlogRobots({ isMarketingSurface: true, routePath: "/en/blog" })).toBe(
+    expect(resolveBlogRobots({ isIndexableSurface: true, routePath: "/en/blog" })).toBe(
       "noindex, nofollow",
     );
-    expect(resolveBlogRobots({ isMarketingSurface: false, routePath: "/blog" })).toBe(
+    expect(resolveBlogRobots({ isIndexableSurface: false, routePath: "/blog" })).toBe(
       "noindex, nofollow",
     );
   });

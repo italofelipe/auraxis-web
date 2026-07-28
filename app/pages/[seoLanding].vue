@@ -32,8 +32,11 @@ if (!landing) {
 
 const siteUrl = String(config.public.siteUrl).replace(/\/$/, "");
 const canonicalUrl = `${siteUrl}/${landing.slug}`;
-const isMarketingSurface = config.public.siteSurface === "marketing";
-const robots = isMarketingSurface ? "index, follow" : "noindex, nofollow";
+// Marketing e landing (apex, #1211) indexam; o host do app fica noindex.
+const isIndexableSurface = ["marketing", "landing"].includes(
+  String(config.public.siteSurface),
+);
+const robots = isIndexableSurface ? "index, follow" : "noindex, nofollow";
 
 const highlightIcons = [WalletCards, BarChart3, Target] as const;
 const workflowIcons = [Sparkles, LineChart, CheckCircle2] as const;
