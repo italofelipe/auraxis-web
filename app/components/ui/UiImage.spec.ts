@@ -77,4 +77,31 @@ describe("UiImage", () => {
 
     expect(wrapper.find("img").attributes("alt")).toBe("profile photo");
   });
+
+  it("forwards srcset and sizes when provided", () => {
+    const wrapper = mount(UiImage, {
+      props: {
+        src: "/a-1920w.webp",
+        alt: "a",
+        width: 1440,
+        height: 900,
+        srcset: "/a-640w.webp 640w, /a-960w.webp 960w",
+        sizes: "(max-width: 640px) 100vw, 980px",
+      },
+    });
+
+    const img = wrapper.find("img");
+    expect(img.attributes("srcset")).toBe("/a-640w.webp 640w, /a-960w.webp 960w");
+    expect(img.attributes("sizes")).toBe("(max-width: 640px) 100vw, 980px");
+  });
+
+  it("omits srcset and sizes when not provided", () => {
+    const wrapper = mount(UiImage, {
+      props: { src: "/a.png", alt: "a", width: 10, height: 10 },
+    });
+
+    const img = wrapper.find("img");
+    expect(img.attributes("srcset")).toBeUndefined();
+    expect(img.attributes("sizes")).toBeUndefined();
+  });
 });

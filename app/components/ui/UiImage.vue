@@ -35,12 +35,18 @@ interface Props {
   decoding?: Decoding;
   /** Fetch priority hint. Defaults to `"auto"`. Use `"high"` for LCP hero. */
   fetchpriority?: FetchPriority;
+  /** Candidatos por largura (`"/a-640w.webp 640w, …"`) — deixa o browser baixar só o necessário. */
+  srcset?: string;
+  /** Largura de exibição por breakpoint; sem isso o browser assume 100vw e escolhe grande demais. */
+  sizes?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   loading: "lazy",
   decoding: "async",
   fetchpriority: "auto",
+  srcset: undefined,
+  sizes: undefined,
 });
 
 const hasSrc = computed<boolean>((): boolean => Boolean(props.src));
@@ -50,6 +56,8 @@ const hasSrc = computed<boolean>((): boolean => Boolean(props.src));
   <img
     v-if="hasSrc"
     :src="src ?? ''"
+    :srcset="srcset"
+    :sizes="sizes"
     :alt="alt"
     :width="width"
     :height="height"
