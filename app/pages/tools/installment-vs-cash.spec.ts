@@ -30,6 +30,8 @@ vi.mock("#imports", () => ({
   useSeoMeta: vi.fn(),
   useI18n: (): { t: (key: string) => string } => ({ t: (key: string) => key }),
   useRouter: (): { push: typeof mockPush } => ({ push: mockPush }),
+  navigateTo: (...args: unknown[]): unknown => mockPush(args[0]),
+  tryUseNuxtApp: (): unknown => ({ $config: { public: { siteSurface: "marketing" } } }),
 }));
 
 vi.mock("naive-ui", () => ({
@@ -112,6 +114,8 @@ vi.mock("~/stores/session", () => ({
 
 vi.mock("#app", () => ({
   useRouter: (): { push: typeof mockPush } => ({ push: mockPush }),
+  navigateTo: (...args: unknown[]): unknown => mockPush(args[0]),
+  tryUseNuxtApp: (): unknown => ({ $config: { public: { siteSurface: "marketing" } } }),
 }));
 
 vi.mock("~/features/tools/composables/useToolCta", () => ({

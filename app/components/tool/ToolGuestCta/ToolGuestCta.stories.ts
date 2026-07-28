@@ -58,7 +58,7 @@ const meta: Meta<typeof ToolGuestCta> = {
 - Rendered only when the user has **no active session** (via \`useToolCta()\`)
 - Invisible to authenticated users of any plan
 - Replaces the inline CTAs previously hardcoded in each tool page
-- Routes to \`/auth/register\` and \`/auth/login\`
+- Routes to \`/register\` and \`/login\` (absolutos para o app na surface landing)
 
 **Usage:**
 \`\`\`vue
