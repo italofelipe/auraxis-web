@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { useRoute, useRuntimeConfig } from "#app";
 
 // #1211: com o link-map por surface (#1176) o chrome compartilhado funciona
 // no apex — os links de produto atravessam para o host do app. Quem decide
@@ -9,9 +10,16 @@ import { computed } from "vue";
 // compartilhado duplicaria o header.
 const config = useRuntimeConfig();
 const route = useRoute();
-const isLandingHome = computed(
-  (): boolean => config.public.siteSurface === "landing" && route.path === "/",
-);
+// O i18n browser-detect leva quem tem browser em inglês para /en, então a home
+// da landing também responde sob o prefixo de locale (#1228) — comparar o path
+// cru deixava os dois headers na tela.
+const isLandingHome = computed((): boolean => {
+  if (config.public.siteSurface !== "landing") {
+    return false;
+  }
+  const path = route.path.replace(/^\/en(?=\/|$)/, "") || "/";
+  return path === "/" || path === "";
+});
 const showChrome = computed(
   (): boolean => route.meta.publicChrome !== false && !isLandingHome.value,
 );
