@@ -23,7 +23,18 @@ const LANDING_DESCRIPTION =
 
 useHead({
   titleTemplate: null,
-  link: [{ rel: "canonical", href: "https://auraxis.com.br/" }],
+  link: [
+    { rel: "canonical", href: "https://auraxis.com.br/" },
+    // A imagem do hero é o elemento LCP: pré-carregar tira ~1 round-trip da
+    // descoberta (o browser só a acharia ao parsear o <img>). #1225
+    {
+      rel: "preload",
+      as: "image",
+      href: "/landing/dashboard-light.webp",
+      type: "image/webp",
+      fetchpriority: "high",
+    },
+  ],
 });
 
 useSeoMeta({

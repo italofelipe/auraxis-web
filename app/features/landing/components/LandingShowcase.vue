@@ -65,7 +65,7 @@ const formatOrdinal = (index: number): string => String(index + 1).padStart(2, "
       <LandingBrowserFrame
         class="landing-showcase__frame"
         url="app.auraxis.com.br/goals"
-        src="/landing/goals-light.png"
+        src="/landing/goals-light.webp"
         alt="Tela de metas do Auraxis com três objetivos ativos, valores guardados, percentuais de progresso e aporte mensal sugerido"
       />
     </div>
