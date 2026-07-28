@@ -5,7 +5,7 @@ const posthogMock = vi.hoisted(() => ({
   isFeatureEnabled: vi.fn<(flagKey: string) => boolean | undefined>(),
 }));
 
-vi.mock("posthog-js", () => ({
+vi.mock("posthog-js/dist/module.no-external", () => ({
   default: posthogMock,
 }));
 

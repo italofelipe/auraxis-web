@@ -5,7 +5,7 @@ const mockCapture = vi.hoisted(() => vi.fn());
 const mockSetMeasurement = vi.hoisted(() => vi.fn());
 const mockSetTag = vi.hoisted(() => vi.fn());
 
-vi.mock("posthog-js", () => ({
+vi.mock("posthog-js/dist/module.no-external", () => ({
   default: { capture: mockCapture },
 }));
 

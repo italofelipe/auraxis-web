@@ -10,7 +10,7 @@ const sentryMock = vi.hoisted(() => ({
   setTag: vi.fn(),
 }));
 
-vi.mock("posthog-js", () => ({
+vi.mock("posthog-js/dist/module.no-external", () => ({
   default: posthogMock,
 }));
 

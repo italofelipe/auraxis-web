@@ -10,7 +10,7 @@ const posthogMock = vi.hoisted(() => ({
   reset: vi.fn(),
 }));
 
-vi.mock("posthog-js", () => ({
+vi.mock("posthog-js/dist/module.no-external", () => ({
   default: posthogMock,
 }));
 

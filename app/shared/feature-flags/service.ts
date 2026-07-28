@@ -279,7 +279,9 @@ export const fetchUnleashSnapshot = async (): Promise<Record<string, boolean>> =
  * SSR ou flag ainda não resolvida pelo primeiro fetch).
  *
  * Import dinâmico intencional: mantém `posthog-js` fora do bundle SSR e
- * permite fallback silencioso quando o módulo falha ao carregar.
+ * permite fallback silencioso quando o módulo falha ao carregar. O caminho
+ * `dist/module.no-external` é o MESMO entrypoint do plugin (#1209) — módulos
+ * diferentes seriam singletons desconectados e a flag nunca resolveria.
  * @param flagKey Chave lógica da flag.
  * @returns Valor booleano da flag ou `undefined` quando indisponível.
  */
@@ -287,7 +289,7 @@ export const resolvePostHogDecision = async (
   flagKey: string,
 ): Promise<boolean | undefined> => {
   try {
-    const posthogModule = (await import("posthog-js")) as {
+    const posthogModule = (await import("posthog-js/dist/module.no-external")) as {
       default?: { __loaded?: boolean; isFeatureEnabled?: (k: string) => boolean | undefined };
     };
     const posthog = posthogModule.default;
