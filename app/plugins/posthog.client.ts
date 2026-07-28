@@ -75,9 +75,6 @@ export interface AnalyticsClient {
 }
 
 export interface ConsentAwareAnalyticsClient extends AnalyticsClient {
-  /** Captures the synthetic page-view event emitted after Nuxt navigation. */
-  capturePageView(): void;
-
   /** Tears down cookie-consent listeners. Used by tests and hot reload. */
   dispose(): void;
 }
@@ -124,7 +121,12 @@ const createDefaultConsentGateway = (): AnalyticsConsentGateway => ({
 export function initPostHog(apiKey: string, apiHost: string): AnalyticsClient {
   posthog.init(apiKey, {
     api_host: apiHost,
-    capture_pageview: false,
+    // "history_change": the SDK captures the initial load AND history-API
+    // navigations. The previous manual page:finish hook never fired on
+    // full-page loads, so the SSG landing (plain <a> navigations) emitted
+    // ZERO $pageview — and the pageview of the page where consent is granted
+    // was lost too, because init happens after page:finish (#1208).
+    capture_pageview: "history_change",
     capture_pageleave: true,
     autocapture: false,
     persistence: "localStorage",
@@ -211,11 +213,6 @@ export function createConsentAwareAnalyticsClient(
         client?.reset();
       }
     },
-    capturePageView: (): void => {
-      if (ensureInitialized()) {
-        posthog.capture("$pageview");
-      }
-    },
     dispose: unsubscribe,
   };
 }
@@ -228,7 +225,7 @@ export function createConsentAwareAnalyticsClient(
  * Provides `$analytics` (AnalyticsClient) for manual event capture.
  */
 /* v8 ignore start */
-export default defineNuxtPlugin((nuxtApp) => {
+export default defineNuxtPlugin(() => {
   const config = useRuntimeConfig();
   const apiKey = String(config.public.posthogApiKey ?? "").trim();
 
@@ -238,10 +235,6 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   const apiHost = String(config.public.posthogApiHost ?? "https://eu.i.posthog.com").trim();
   const client = createConsentAwareAnalyticsClient(apiKey, apiHost);
-
-  nuxtApp.hook("page:finish", (): void => {
-    client.capturePageView();
-  });
 
   return { provide: { analytics: client } };
 });
