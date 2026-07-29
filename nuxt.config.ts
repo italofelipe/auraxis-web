@@ -319,12 +319,19 @@ export default defineNuxtConfig({
   },
 
   googleFonts: {
+    // Faixas (e não pesos avulsos) baixam a fonte VARIÁVEL: um arquivo cobre
+    // todo o intervalo. A Inter variável ocupa o mesmo que um único peso
+    // estático e substitui quatro — e passa a ter de fato o 800 que o CSS usa
+    // em 40 lugares e o browser vinha falsificando. Mesma história no
+    // Newsreader, cujos títulos pedem 700/800 sem que existissem (#1237).
     families: {
-      Inter: [400, 500, 600, 700],
+      Inter: "400..800",
+      // IBM Plex Mono não tem versão variável no Google Fonts; segue estático
+      // nos pesos que o CSS realmente usa.
       "IBM Plex Mono": [400, 500, 600],
       // Newsreader: serif headline for the Insights "Fluida" editorial reading
       // (feature web.insights.fluida). Used only on the headline; body stays Inter.
-      Newsreader: [500, 600],
+      Newsreader: "500..800",
     },
     subsets: ["latin", "latin-ext"],
     display: "swap",
