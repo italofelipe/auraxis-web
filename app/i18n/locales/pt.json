@@ -1109,6 +1109,7 @@
     "login": {
       "title": "Entrar",
       "subtitle": "Acesse sua área privada e continue sua rotina financeira.",
+      "existingAccountNotice": "Ei, você já tem cadastro no Auraxis! Entre com seu email e senha para continuar.",
       "divider": "ou",
       "emailLabel": "E-mail",
       "emailPlaceholder": "voce{'@'}exemplo.com",

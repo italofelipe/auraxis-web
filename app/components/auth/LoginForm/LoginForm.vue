@@ -9,6 +9,7 @@ const social = useSocialLogin();
 
 const props = withDefaults(defineProps<LoginFormProps>(), {
   loading: false,
+  notice: "",
 });
 
 const emit = defineEmits<LoginFormEmits>();
@@ -28,6 +29,15 @@ const isPending = computed(() => props.loading || isSubmitting.value);
   <div class="auth-card glass">
     <h1 class="auth-card__title">{{ t('auth.login.title') }}</h1>
     <p class="auth-card__subtitle">{{ t('auth.login.subtitle') }}</p>
+
+    <p
+      v-if="notice"
+      class="auth-card__notice"
+      role="status"
+      data-testid="login-entry-notice"
+    >
+      {{ notice }}
+    </p>
 
     <form class="auth-card__form" novalidate @submit.prevent="onSubmit">
       <UiFormField
@@ -124,6 +134,19 @@ const isPending = computed(() => props.loading || isSubmitting.value);
   font-size: var(--font-size-md);
   color: var(--color-text-secondary);
   margin: 0 0 var(--space-5) 0;
+}
+
+/* Aviso de boas-vindas — informativo, não erro: usa o verde da marca em vez
+   das cores de alerta. */
+.auth-card__notice {
+  margin: 0 0 var(--space-5) 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-brand-500);
+  border-radius: var(--radius-sm);
+  background: var(--color-brand-hover-surface);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  color: var(--color-text-primary);
 }
 
 .auth-card__form {

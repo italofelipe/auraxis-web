@@ -8,6 +8,7 @@ import { idempotencyHeaders } from "~/core/http/idempotency";
 import {
   buildLandingCheckoutPath,
   LANDING_CHECKOUT_GENERIC_ERROR,
+  buildExistingAccountLoginUrl,
   checkLandingPassword,
   LANDING_PASSWORD_MIN_LENGTH,
   LANDING_CHECKOUT_PLANS,
@@ -18,7 +19,6 @@ import {
   type LandingCheckoutPlanKey,
 } from "~/features/landing/model/landing-checkout";
 import {
-  LANDING_LOGIN_URL,
   LANDING_REGISTER_URL,
   buildAppUrl,
 } from "~/features/landing/model/landing-content";
@@ -101,6 +101,9 @@ const isRedirecting = ref(false);
 const errorMessage = ref("");
 const accountExists = ref(false);
 
+/** Tempo de leitura do aviso antes de levar para o login (#1243). */
+const EXISTING_ACCOUNT_REDIRECT_DELAY_MS = 2500;
+
 /** Whether the form is working — submitting or handing over to the provider. */
 const isBusy = computed(
   (): boolean => isSubmitting.value || isRedirecting.value,
@@ -175,6 +178,23 @@ const captureOutcome = (outcome: LandingCheckoutOutcome): void => {
 };
 
 /**
+ * Avisa que a conta já existe e leva a pessoa para o login do app.
+ *
+ * Quem já tem cadastro não deveria recomeçar do zero (#1243). O login reconhece
+ * a vinda pelo `?motivo` e retoma o plano depois da autenticação. O intervalo
+ * curto existe para a pessoa ler o que aconteceu — sair da tela sem explicação
+ * passa sensação de erro.
+ */
+const handleExistingAccount = (): void => {
+  accountExists.value = true;
+  isRedirecting.value = true;
+  const destination = buildExistingAccountLoginUrl(selectedPlan.value);
+  window.setTimeout(() => {
+    window.location.href = destination;
+  }, EXISTING_ACCOUNT_REDIRECT_DELAY_MS);
+};
+
+/**
  * Creates the account and hands the visitor over to the payment provider.
  *
  * Wires the page to the pure orchestration in `landing-checkout`, which never
@@ -239,7 +259,7 @@ const submit = async (): Promise<void> => {
     }
 
     if (outcome.status === "account-exists") {
-      accountExists.value = true;
+      handleExistingAccount();
       return;
     }
     errorMessage.value = outcome.message;
@@ -365,9 +385,9 @@ useSeoMeta({
               role="alert"
               data-testid="landing-checkout-account-exists"
             >
-              Já existe uma conta com esse email.
-              <a :href="LANDING_LOGIN_URL">Entre na sua conta</a>
-              para assinar.
+              Você já tem cadastro no Auraxis. Estamos levando você para o login —
+              é só entrar com seu email e senha para concluir a assinatura.
+              <a :href="buildExistingAccountLoginUrl(selectedPlan)">Ir agora</a>.
             </p>
 
             <p

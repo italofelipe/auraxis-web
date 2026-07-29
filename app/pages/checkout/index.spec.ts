@@ -233,18 +233,31 @@ describe("landing checkout page", () => {
     );
   });
 
-  it("points an existing account to login and frees the button", async () => {
+  it("avisa e leva quem já tem conta para o login, preservando o plano", async () => {
+    vi.useFakeTimers();
     startLandingCheckoutMock.mockResolvedValue({
       status: "account-exists",
     } satisfies LandingCheckoutOutcome);
 
+    const location = stubLocation();
     const wrapper = await mountFilledPage();
     await submitForm(wrapper);
 
+    // O aviso aparece antes de qualquer navegação: sair da tela sem explicar
+    // passa sensação de erro.
     expect(
       wrapper.find("[data-testid='landing-checkout-account-exists']").exists(),
     ).toBe(true);
-    expect(wrapper.text()).toContain("Ir para o pagamento");
+    expect(location.href).toBe("");
+
+    await vi.advanceTimersByTimeAsync(3000);
+
+    expect(location.href).toContain("app.auraxis.com.br/login");
+    expect(location.href).toContain("motivo=conta-existente");
+    expect(location.href).toContain("plano=anual");
+    // Nenhum dado pessoal atravessa na URL.
+    expect(location.href).not.toContain("@");
+    vi.useRealTimers();
   });
 
   it("shows the outcome message when the API refuses the purchase", async () => {
