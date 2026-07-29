@@ -1,5 +1,6 @@
-import { computed, ref } from "vue";
+import { computed, ref, type VNode } from "vue";
 import { describe, expect, it, vi } from "vitest";
+import { NEllipsis } from "naive-ui";
 import type { TransactionDto } from "~/features/transactions/contracts/transaction.dto";
 import {
   darkenHex,
@@ -9,10 +10,22 @@ import {
   isTransactionOverdue,
   renderNotes,
   renderTagBadge,
+  renderTitle,
   resolveSwipeGestureAction,
   useTransactionTable,
 } from "../useTransactionTable";
 import type { TagLookup } from "../useTransactionFilters";
+
+/**
+ * Reads the text a VNode passes through its default slot.
+ *
+ * @param vnode - VNode whose children are slot functions.
+ * @returns The rendered default-slot content.
+ */
+function readDefaultSlot(vnode: VNode): unknown {
+  const slots = vnode.children as { default?: () => unknown } | null;
+  return slots?.default?.();
+}
 
 vi.mock("vue-i18n", () => ({
   useI18n: (): { t: (key: string, ctx?: Record<string, unknown>) => string } => ({
@@ -159,19 +172,84 @@ describe("renderNotes", () => {
     expect(renderNotes(buildTx("   "))).toBe("—");
   });
 
-  it("returns a truncating VNode carrying the full text as tooltip", () => {
+  it("clamps the note to two lines and defers the full text to a tooltip", () => {
     const text = "Pagar antes do dia 10 — combinado com o financeiro";
-    const result = renderNotes(buildTx(text));
-    expect(typeof result).toBe("object");
-    // VNode renders the observation text...
-    expect(JSON.stringify(result)).toContain(text);
-    // ...and exposes the full text via the title attribute for hover tooltip.
-    expect((result as { props?: Record<string, unknown> }).props?.title).toBe(text);
+    const result = renderNotes(buildTx(text)) as VNode;
+
+    expect(result.type).toBe(NEllipsis);
+    expect(result.props?.lineClamp).toBe(2);
+    expect(result.props?.tooltip).toBe(true);
+    expect(readDefaultSlot(result)).toBe(text);
   });
 
   it("trims surrounding whitespace before rendering", () => {
-    const result = renderNotes(buildTx("  nota com espaços  "));
-    expect((result as { props?: Record<string, unknown> }).props?.title).toBe("nota com espaços");
+    const result = renderNotes(buildTx("  nota com espaços  ")) as VNode;
+
+    expect(readDefaultSlot(result)).toBe("nota com espaços");
+  });
+});
+
+describe("renderTitle", () => {
+  /**
+   * Identity translator so assertions can match on raw i18n keys.
+   *
+   * @param key - Translation key.
+   * @returns The key itself.
+   */
+  const t = (key: string): string => key;
+  const billCtx = { selectedMonth: null, periodMode: "month" as const };
+
+  /**
+   * Builds a minimal transaction fixture for title-cell tests.
+   *
+   * @param overrides - Transaction fields to override.
+   * @returns A TransactionDto with the given overrides.
+   */
+  function buildTx(overrides: Partial<TransactionDto> = {}): TransactionDto {
+    return {
+      id: "tx-1",
+      title: "Fatura do cartão Nubank Ultravioleta",
+      amount: "10.00",
+      type: "expense",
+      status: "pending",
+      due_date: "2026-01-01",
+      description: null,
+      ...overrides,
+    } as unknown as TransactionDto;
+  }
+
+  /**
+   * Walks a VNode tree collecting every node of the given component type.
+   *
+   * @param node - Root VNode to search.
+   * @param type - Component definition to match against.
+   * @returns Every matching descendant, in traversal order.
+   */
+  function findAll(node: unknown, type: unknown): VNode[] {
+    if (!node || typeof node !== "object") { return []; }
+    if (Array.isArray(node)) { return node.flatMap((child) => findAll(child, type)); }
+
+    const vnode = node as VNode;
+    const here = vnode.type === type ? [vnode] : [];
+    return [...here, ...findAll(vnode.children, type)];
+  }
+
+  it("wraps the transaction name so it truncates and shows a tooltip", () => {
+    const [name] = findAll(renderTitle(buildTx(), t, billCtx), NEllipsis);
+
+    expect(name).toBeDefined();
+    expect(name?.props?.tooltip).toBe(true);
+    expect(readDefaultSlot(name as VNode)).toBe("Fatura do cartão Nubank Ultravioleta");
+  });
+
+  it("keeps the recurring badge outside the truncated name", () => {
+    const cell = renderTitle(buildTx({ is_recurring: true } as Partial<TransactionDto>), t, billCtx);
+    const [name] = findAll(cell, NEllipsis);
+
+    // The badge must not be swallowed by the ellipsis, or it would count as
+    // overflow and force a tooltip on names that fit perfectly well.
+    expect(readDefaultSlot(name as VNode)).toBe("Fatura do cartão Nubank Ultravioleta");
+    expect(JSON.stringify(cell)).toContain("transactions.recurring");
   });
 });
 
@@ -283,5 +361,40 @@ describe("useTransactionTable", () => {
     expect(table.totalExpense.value).toBeCloseTo(234.56);
     expect(Number.isFinite(table.totalIncome.value)).toBe(true);
     expect(Number.isFinite(table.totalExpense.value)).toBe(true);
+  });
+
+  it("gives the description column a width floor and no column-level ellipsis", () => {
+    const table = useTransactionTable({
+      data: ref<TransactionDto[]>([buildTx()]),
+      tagMap: computed(() => new Map()),
+      tagDetailMap: computed(() => new Map()),
+      accountMap: computed(() => new Map()),
+      filterType: ref("all"),
+      filterStatus: ref("all"),
+      filterStartDate: ref(null),
+      filterEndDate: ref(null),
+      filterTagId: ref("all"),
+      periodMode: computed(() => "month" as const),
+      deleteMutation: { isPending: ref(false) },
+      markPaidMutation: { isPending: ref(false) },
+      duplicateMutation: { isPending: ref(false) },
+      deleteTarget: ref(null),
+      onEdit: vi.fn(),
+      onMarkPaid: vi.fn(),
+      onDelete: vi.fn(),
+      onDuplicate: vi.fn(),
+    });
+
+    const description = table.columns.value.find(
+      (column) => (column as { key?: string }).key === "title",
+    ) as { minWidth?: number; width?: number; ellipsis?: unknown } | undefined;
+
+    // It is the only column without a fixed width, so it absorbs the leftover
+    // space — which collapses to ~60px and clips the header to "D…" unless a
+    // floor holds it open.
+    expect(description?.minWidth).toBeGreaterThanOrEqual(200);
+    // Column-level ellipsis wraps the header too, and cannot measure the
+    // cell's block-level content anyway — the tooltip lives on the name instead.
+    expect(description?.ellipsis).toBeUndefined();
   });
 });
