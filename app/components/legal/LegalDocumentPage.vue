@@ -34,7 +34,7 @@ defineProps<{
             <a :href="`mailto:${document.contactEmail}`" class="contact-link">{{ document.contactEmail }}</a>
           </p>
           <p class="article-notice">
-            Documento operacional publicado para transparência regulatória e evolução de MVP2. A versão final pode
+            Documento publicado para transparência sobre como tratamos seus dados. O texto pode
             receber ajustes após revisão jurídica.
           </p>
         </header>
