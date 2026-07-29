@@ -7,15 +7,18 @@ import {
   Mail,
   MapPin,
   Pencil,
+  RotateCcw,
   ShieldCheck,
   Target,
   TrendingUp,
   UserRound,
   Wallet,
 } from "lucide-vue-next";
+import { NButton } from "naive-ui";
 
 import { useUserStore } from "~/stores/user";
 import { useUserProfileQuery } from "~/features/profile/composables/use-user-profile-query";
+import { useOnboarding } from "~/features/onboarding/composables/useOnboarding";
 import { formatCurrency } from "~/utils/currency";
 
 const { t } = useI18n();
@@ -29,6 +32,20 @@ definePageMeta({
 useHead({ title: "Dados Pessoais | Auraxis" });
 
 useUserProfileQuery();
+
+const onboarding = useOnboarding();
+
+/**
+ * Reabre o tour de boas-vindas desde o primeiro passo.
+ *
+ * O overlay vive no layout autenticado, que esta página usa — daí bastar
+ * alterar o estado. `reset()` antes de `start()` porque quem procura o tour em
+ * configurações quer revê-lo inteiro, não retomar de onde parou.
+ */
+function onReplayOnboarding(): void {
+  onboarding.reset();
+  onboarding.start();
+}
 
 const userStore = useUserStore();
 
@@ -240,6 +257,31 @@ const preferenceItems = computed(() => [
                 <span class="profile-page__field-value">{{ item.value }}</span>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section class="profile-page__section profile-page__section--wide">
+          <div class="profile-page__section-heading">
+            <span>Onboarding guiado</span>
+            <small>A apresentação que você viu ao criar a conta, disponível quando quiser.</small>
+          </div>
+          <div class="profile-page__onboarding">
+            <div>
+              <span class="profile-page__field-label">Rever tour de boas-vindas</span>
+              <span class="profile-page__field-value">
+                Recomeça do primeiro passo e não altera nenhum dado da sua conta.
+              </span>
+            </div>
+            <NButton
+              secondary
+              data-testid="replay-onboarding"
+              @click="onReplayOnboarding"
+            >
+              <template #icon>
+                <RotateCcw :size="16" />
+              </template>
+              Rever tour
+            </NButton>
           </div>
         </section>
       </div>
@@ -496,6 +538,26 @@ const preferenceItems = computed(() => [
   border-radius: var(--radius-lg);
   background: var(--color-bg-surface);
   padding: var(--space-4);
+}
+
+/* Ocupa a linha inteira: sozinha numa das colunas, a seção ficaria com um vazio
+   do lado que só chama atenção para a ausência. */
+.profile-page__section--wide {
+  grid-column: 1 / -1;
+}
+
+.profile-page__onboarding {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.profile-page__onboarding > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
 }
 
 .profile-page__section--accent {
