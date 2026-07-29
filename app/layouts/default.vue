@@ -30,7 +30,6 @@ import { useAdminAccessQuery } from "~/features/admin/queries/use-admin-access-q
 import AdminImpersonationBanner from "~/features/admin/impersonation/components/AdminImpersonationBanner.vue";
 import EmailVerificationGate from "~/features/auth/components/EmailVerificationGate.vue";
 import OnboardingWizard from "~/features/onboarding/components/OnboardingWizard.vue";
-import OnboardingTriggerButton from "~/features/onboarding/components/OnboardingTriggerButton.vue";
 import PaymentAssistantModal from "~/features/payments-assistant/components/PaymentAssistantModal/PaymentAssistantModal.vue";
 import AiChatWidget from "~/features/ai-chat/components/AiChatWidget.vue";
 
@@ -184,7 +183,6 @@ function onReplayOnboarding(): void {
     />
   </UiAppShell>
   <OnboardingWizard />
-  <OnboardingTriggerButton />
   <PaymentAssistantModal :hold="paymentsAssistantHold" />
   <AiChatWidget />
   </div>

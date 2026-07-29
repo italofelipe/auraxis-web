@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
 import { LayoutDashboard } from "lucide-vue-next";
+import { NTooltip } from "naive-ui";
 import UiSidebarNavItem from "../UiSidebarNavItem.vue";
 
 const NuxtLinkStub = {
@@ -91,5 +92,66 @@ describe("UiSidebarNavItem", () => {
       global: globalConfig,
     });
     expect(wrapper.find("a").attributes("data-prefetch")).toBe("false");
+  });
+
+  describe("modo recolhido", () => {
+    it("dá ao link um nome acessível, já que o rótulo visível some", () => {
+      const wrapper = mount(UiSidebarNavItem, {
+        props: { label: "Lançamentos Compartilhados", to: "/shared-entries", collapsed: true },
+        global: globalConfig,
+      });
+
+      // Sem isto o link fica anônimo: o rótulo é removido e o ícone é
+      // aria-hidden, então leitor de tela anunciaria apenas "link".
+      expect(wrapper.find("a").attributes("aria-label")).toBe("Lançamentos Compartilhados");
+    });
+
+    it("não repete o nome acessível quando o rótulo já está visível", () => {
+      const wrapper = mount(UiSidebarNavItem, {
+        props: { label: "Dashboard", to: "/dashboard" },
+        global: globalConfig,
+      });
+
+      expect(wrapper.find("a").attributes("aria-label")).toBeUndefined();
+    });
+
+    it("liga o tooltip apenas quando recolhido", () => {
+      const collapsed = mount(UiSidebarNavItem, {
+        props: { label: "Metas", to: "/goals", collapsed: true },
+        global: globalConfig,
+      });
+      const expanded = mount(UiSidebarNavItem, {
+        props: { label: "Metas", to: "/goals" },
+        global: globalConfig,
+      });
+
+      /**
+       * Reads whether the tooltip wrapping a mounted item is disabled.
+       *
+       * @param wrapper - Mounted UiSidebarNavItem.
+       * @returns The tooltip's `disabled` prop.
+       */
+      const tooltipOf = (wrapper: ReturnType<typeof mount>): unknown =>
+        wrapper.findComponent(NTooltip).props("disabled");
+
+      expect(tooltipOf(collapsed)).toBe(false);
+      // Expandido o nome já está na tela; um tooltip repetindo o texto visível
+      // seria só ruído.
+      expect(tooltipOf(expanded)).toBe(true);
+    });
+
+    it("anuncia o destino no conteúdo do tooltip", () => {
+      const wrapper = mount(UiSidebarNavItem, {
+        props: { label: "Orçamentos", to: "/budgets", collapsed: true },
+        global: globalConfig,
+      });
+
+      // O popover só entra no DOM quando abre, então a asserção é sobre o slot
+      // que o alimenta — é ali que o rótulo precisa chegar.
+      const content = wrapper.findComponent(NTooltip).vm.$slots.default?.() ?? [];
+      const text = content.map((node) => String(node.children ?? "")).join("");
+
+      expect(text).toContain("Orçamentos");
+    });
   });
 });
