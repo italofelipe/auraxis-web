@@ -415,4 +415,64 @@ describe("registerResponseInterceptors — refresh stampede dedup", () => {
     // once the previous one has settled, even though it returned null.
     expect(onUnauthorized).toHaveBeenCalledTimes(2);
   });
+  // -------------------------------------------------------------------------
+  // 401 em endpoints de autenticação (#1239)
+  // -------------------------------------------------------------------------
+
+  describe("401 vindo de endpoint de autenticação", () => {
+    /**
+     * Creates a 401 error attributed to a given request URL.
+     *
+     * @param url Request URL that produced the 401.
+     * @returns Axios-shaped error ready for the interceptor.
+     */
+    const make401For = (url: string): Error =>
+      Object.assign(new Error("Invalid credentials"), {
+        isAxiosError: true,
+        response: { status: 401, data: { message: "Invalid credentials" } },
+        config: { url, headers: {}, _retry: false },
+      });
+
+    it.each([
+      "/auth/login",
+      "/auth/register",
+      "/auth/refresh",
+      "https://api.auraxis.com.br/auth/login",
+      "/auth/login?next=%2Fdashboard",
+    ])("não tenta refresh quando o 401 veio de %s", async (url) => {
+      const onUnauthorized = vi.fn(async () => "novo-token");
+      const c = axios.create({ baseURL: "http://localhost" });
+      registerResponseInterceptors(c, { onUnauthorized });
+
+      const err = await getRejectedHandler(c)(make401For(url)).catch((e: unknown) => e);
+
+      // Credencial inválida é resposta de negócio: quem chamou precisa vê-la,
+      // e a sessão do visitante não deve ser considerada expirada.
+      expect(onUnauthorized).not.toHaveBeenCalled();
+      expect(err).toBeInstanceOf(ApiError);
+      expect((err as ApiError).status).toBe(401);
+    });
+
+    it("continua tentando refresh quando o 401 vem de uma rota comum", async () => {
+      const onUnauthorized = vi.fn(async () => null);
+      const c = axios.create({ baseURL: "http://localhost" });
+      registerResponseInterceptors(c, { onUnauthorized });
+
+      await getRejectedHandler(c)(make401For("/transactions")).catch(() => undefined);
+
+      expect(onUnauthorized).toHaveBeenCalledTimes(1);
+    });
+
+    it("não confunde rota de negócio que apenas contém o termo auth", async () => {
+      const onUnauthorized = vi.fn(async () => null);
+      const c = axios.create({ baseURL: "http://localhost" });
+      registerResponseInterceptors(c, { onUnauthorized });
+
+      await getRejectedHandler(c)(make401For("/settings/authorized-devices")).catch(
+        () => undefined,
+      );
+
+      expect(onUnauthorized).toHaveBeenCalledTimes(1);
+    });
+  });
 });
