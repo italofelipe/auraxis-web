@@ -95,4 +95,22 @@ describe("LoginForm", () => {
     });
     expect(wrapper.find("button[type='submit']").attributes("disabled")).toBeDefined();
   });
+  it("exibe o aviso de boas-vindas quando recebe um", () => {
+    const wrapper = mount(LoginForm, {
+      props: { notice: "Ei, você já tem cadastro no Auraxis!" },
+      global: globalConfig,
+    });
+
+    const notice = wrapper.find("[data-testid='login-entry-notice']");
+    expect(notice.exists()).toBe(true);
+    expect(notice.text()).toContain("já tem cadastro");
+    // `role=status` anuncia sem interromper quem usa leitor de tela.
+    expect(notice.attributes("role")).toBe("status");
+  });
+
+  it("não reserva espaço para aviso quando não há", () => {
+    const wrapper = mount(LoginForm, { global: globalConfig });
+
+    expect(wrapper.find("[data-testid='login-entry-notice']").exists()).toBe(false);
+  });
 });
