@@ -6,7 +6,7 @@
  * coordinate queries, custom ranges and future saved views without hidden state.
  */
 
-import { Bell, CalendarDays } from "lucide-vue-next";
+import { CalendarDays } from "lucide-vue-next";
 import type { DashboardPeriodPreset } from "~/features/dashboard/model/dashboard-overview";
 
 type DashboardViewMode = "analytical" | "essential";
@@ -16,11 +16,8 @@ const props = withDefaults(defineProps<{
   period: DashboardPeriodPreset;
   /** Active dashboard reading mode. */
   mode?: DashboardViewMode;
-  /** Whether the user has unread notifications. */
-  hasNotifications?: boolean;
 }>(), {
   mode: "analytical",
-  hasNotifications: false,
 });
 
 const emit = defineEmits<{
@@ -28,8 +25,6 @@ const emit = defineEmits<{
   "update:period": [value: DashboardPeriodPreset];
   /** Emitted when the user switches between analytical and essential modes. */
   "update:mode": [value: DashboardViewMode];
-  /** Emitted when the notification icon is clicked. */
-  "open-notifications": [];
 }>();
 
 interface PeriodChip {
@@ -89,20 +84,6 @@ const PERIOD_CHIPS: ReadonlyArray<PeriodChip> = [
         Modo Essencial
       </button>
     </div>
-
-    <button
-      type="button"
-      class="dcb__notification"
-      :aria-label="$t('dashboard.controlBar.notificationsAriaLabel', 'Notificações')"
-      @click="emit('open-notifications')"
-    >
-      <Bell :size="16" aria-hidden="true" />
-      <span
-        v-if="props.hasNotifications"
-        class="dcb__notification-dot"
-        aria-hidden="true"
-      />
-    </button>
   </div>
 </template>
 
@@ -184,37 +165,6 @@ const PERIOD_CHIPS: ReadonlyArray<PeriodChip> = [
   border-color: var(--color-outline-soft);
   background: var(--color-bg-surface);
   color: var(--color-text-primary);
-}
-
-.dcb__notification {
-  position: relative;
-  width: var(--space-6);
-  height: var(--space-6);
-  border-radius: var(--radius-full);
-  border: var(--space-px) solid var(--color-outline-soft);
-  background: var(--color-bg-elevated);
-  color: var(--color-text-muted);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: color var(--motion-fast), background var(--motion-fast);
-  flex-shrink: 0;
-}
-
-.dcb__notification:hover {
-  color: var(--color-text-primary);
-  background: var(--color-bg-surface);
-}
-
-.dcb__notification-dot {
-  position: absolute;
-  inset-block-start: var(--space-1);
-  inset-inline-end: var(--space-1);
-  width: var(--space-2);
-  height: var(--space-2);
-  border-radius: var(--radius-full);
-  background: var(--color-negative);
 }
 
 @media (max-width: 640px) {

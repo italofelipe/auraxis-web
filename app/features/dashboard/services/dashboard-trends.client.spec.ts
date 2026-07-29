@@ -81,6 +81,55 @@ describe("DashboardTrendsApiClient", () => {
     expect(result.series).toEqual([]);
   });
 
+  it("lê a série dentro do envelope do contrato v2", async () => {
+    const http = createHttpMock();
+    // É esta a resposta real: o cliente HTTP manda `X-API-Contract: v2` em toda
+    // requisição, e a API responde embrulhado. Lendo `series` no topo, o
+    // resultado era sempre vazio — o gráfico de fluxo de caixa caía no ponto
+    // sintético de fallback e desenhava bolinhas soltas em vez de linhas.
+    http.get.mockResolvedValue({
+      data: {
+        success: true,
+        message: "Tendências calculadas com sucesso",
+        data: {
+          months: 3,
+          series: [
+            { month: "2026-05", income: 4000, expenses: 2800, balance: 1200 },
+            { month: "2026-06", income: 5200, expenses: 3100, balance: 2100 },
+            { month: "2026-07", income: 4800, expenses: 3000, balance: 1800 },
+          ],
+        },
+      },
+    });
+
+    const client = new DashboardTrendsApiClient(http as never);
+    const result = await client.getTrends(3);
+
+    expect(result.months).toBe(3);
+    expect(result.series).toHaveLength(3);
+    expect(result.series[0]).toEqual({
+      month: "2026-05",
+      income: 4000,
+      expenses: 2800,
+      balance: 1200,
+    });
+  });
+
+  it("continua lendo a resposta plana do contrato legado", async () => {
+    const http = createHttpMock();
+    http.get.mockResolvedValue({
+      data: {
+        months: 1,
+        series: [{ month: "2026-07", income: 100, expenses: 40, balance: 60 }],
+      },
+    });
+
+    const client = new DashboardTrendsApiClient(http as never);
+    const result = await client.getTrends(1);
+
+    expect(result.series).toHaveLength(1);
+  });
+
   it("propagates HTTP errors without masking them", async () => {
     const http = createHttpMock();
     http.get.mockRejectedValue(new Error("network failure"));
