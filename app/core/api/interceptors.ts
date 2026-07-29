@@ -149,6 +149,34 @@ const createSharedRefresh = (
  * @param options Optional side-effect callbacks for 401, 403 and 5xx responses.
  */
 /**
+ * Endpoints where a 401 is the answer itself, not an expired session.
+ *
+ * Errar a senha no login devolve 401; tratá-lo como sessão expirada faz o
+ * cliente disparar um refresh (que também falha, porque não há sessão) e abrir
+ * o modal de "sessão expirada" por cima da mensagem real. No checkout público
+ * isso sequestrava o comprador para a tela de login em vez de dizer que o
+ * email já tinha conta (#1239).
+ */
+const AUTH_ENDPOINT_PATHS = ["/auth/login", "/auth/register", "/auth/refresh"];
+
+/**
+ * Tells whether the failed request was an authentication call.
+ *
+ * @param url Request URL (absolute or relative, possibly with query string).
+ * @returns `true` when a 401 there means "credentials rejected".
+ */
+const isAuthEndpoint = (url: string | undefined): boolean => {
+  if (!url) {
+    return false;
+  }
+  let path = url.split("?")[0] ?? "";
+  while (path.endsWith("/")) {
+    path = path.slice(0, -1);
+  }
+  return AUTH_ENDPOINT_PATHS.some((endpoint) => path.endsWith(endpoint));
+};
+
+/**
  * Attempts to recover from a 401 by refreshing the access token and retrying
  * the original request. Returns the resolved client promise when the retry
  * succeeds, or null when no refresh handler is available / refresh failed.
@@ -166,7 +194,7 @@ const tryRefreshAndRetry = async (
   const config = axios.isAxiosError(error)
     ? (error.config as RetryableConfig | undefined)
     : undefined;
-  if (!config || config._retry) {
+  if (!config || config._retry || isAuthEndpoint(config.url)) {
     return null;
   }
   config._retry = true;
