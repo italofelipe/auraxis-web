@@ -1,6 +1,7 @@
 import { computed, h, reactive, ref, watch, type ComputedRef, type Ref } from "vue";
 import {
   NButton,
+  NEllipsis,
   NSpace,
   type DataTableColumns,
   type DataTableRowKey,
@@ -29,6 +30,18 @@ import { parseCurrencyAmount } from "~/utils/currencyInput";
 const SWIPE_THRESHOLD = 72;
 const SWIPE_VERTICAL_SLOP = 32;
 const SWIPE_HORIZONTAL_DOMINANCE = 1.5;
+
+/** Lines shown before the observation cell clamps and defers to the tooltip. */
+const NOTES_LINE_CLAMP = 2;
+
+/**
+ * Floor for the description column.
+ *
+ * It is the only flexible column, so without a floor it absorbs whatever is left
+ * after the fixed ones — which at the table's minimum width is roughly 60px, and
+ * clips even the header down to "D…".
+ */
+const DESCRIPTION_MIN_WIDTH = 220;
 
 export type SwipeGestureAction = "delete" | "mark-paid" | null;
 
@@ -307,7 +320,7 @@ interface TitleBillContext {
  * @param billCtx Selected month and period mode driving the bill chip.
  * @returns VNode for the title cell.
  */
-function renderTitle(
+export function renderTitle(
   row: TransactionDto,
   t: (key: string, ctx?: Record<string, unknown>) => string,
   billCtx: TitleBillContext,
@@ -321,7 +334,10 @@ function renderTitle(
   });
   return h("div", { class: "tx-title-cell" }, [
     h("span", { class: "tx-title-cell__heading" }, [
-      h("span", { class: "tx-title-cell__name" }, row.title),
+      // NEllipsis mede o texto e só abre o tooltip quando ele realmente não cabe.
+      // A medição exige um filho inline: envolver a célula inteira (que é um flex
+      // column) faria a largura interna igualar a externa e o tooltip nunca abriria.
+      h(NEllipsis, { class: "tx-title-cell__name", tooltip: true }, { default: () => row.title }),
       paidFeedback
         ? h("span", { class: "tx-paid-chip", title: paidFeedback.title }, paidFeedback.label)
         : null,
@@ -416,9 +432,9 @@ export function renderTagBadge(
 
 /**
  * Renders the "Observações" (notes) cell with the transaction's free-text
- * observation, truncated to two lines and exposing the full text as a hover
- * tooltip. Empty observations fall back to the same em-dash placeholder used by
- * the category/account columns.
+ * observation, clamped to two lines and exposing the full text as a hover
+ * tooltip when it does not fit. Empty observations fall back to the same em-dash
+ * placeholder used by the category/account columns.
  *
  * @param row - Transaction row data (observation lives in `description`).
  * @returns VNode with the truncated note, or the em-dash placeholder string.
@@ -426,7 +442,11 @@ export function renderTagBadge(
 export function renderNotes(row: TransactionDto): ReturnType<typeof h> | string {
   const note = row.description?.trim();
   if (!note) { return "—"; }
-  return h("span", { class: "tx-notes-cell", title: note }, note);
+  return h(
+    NEllipsis,
+    { class: "tx-notes-cell", lineClamp: NOTES_LINE_CLAMP, tooltip: true },
+    { default: () => note },
+  );
 }
 
 /**
@@ -493,7 +513,7 @@ export function useTransactionTable(opts: UseTransactionTableOptions): UseTransa
       ...(drag.reorderMode.value ? [{ key: "__drag" as DataTableRowKey, title: "", width: 36, render: (): ReturnType<typeof h> => h("span", { class: "tx-drag-handle", "aria-hidden": "true" }, [h(GripVertical, { size: 14 })]) }] : []),
       { key: "status" as DataTableRowKey, title: t("transactions.table.status"), width: 64, render: (row: TransactionDto) => renderStatusIcon(row, t) },
       { key: "due_date" as DataTableRowKey, title: t("transactions.table.date"), width: 108, defaultSortOrder: "descend" as const, sorter: withSort ? (a: TransactionDto, b: TransactionDto): number => a.due_date.localeCompare(b.due_date) : undefined, render: (row: TransactionDto): string => formatTransactionDate(row.due_date) },
-      { key: "title" as DataTableRowKey, title: t("transactions.table.description"), ellipsis: { tooltip: true }, sorter: withSort ? (a: TransactionDto, b: TransactionDto): number => a.title.localeCompare(b.title, "pt-BR") : undefined, render: (row: TransactionDto) => renderTitle(row, t, billCtx) },
+      { key: "title" as DataTableRowKey, title: t("transactions.table.description"), minWidth: DESCRIPTION_MIN_WIDTH, sorter: withSort ? (a: TransactionDto, b: TransactionDto): number => a.title.localeCompare(b.title, "pt-BR") : undefined, render: (row: TransactionDto) => renderTitle(row, t, billCtx) },
       { key: "description" as DataTableRowKey, title: t("transactions.table.notes"), width: 180, render: (row: TransactionDto) => renderNotes(row) },
       { key: "tag_id" as DataTableRowKey, title: t("transactions.table.category"), width: 150, ellipsis: { tooltip: true }, render: (row: TransactionDto) => renderTagBadge(row, opts.tagDetailMap) },
       { key: "account_id" as DataTableRowKey, title: t("transactions.table.account"), width: 120, ellipsis: { tooltip: true }, render: (row: TransactionDto): string => opts.accountMap.value.get(row.account_id ?? "") ?? "—" },
