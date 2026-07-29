@@ -689,11 +689,23 @@ watch(
 </template>
 
 <style scoped>
+/*
+ * A página responde à largura que ela realmente recebe, não à da janela.
+ * Media query de viewport erra por construção aqui: a sidebar consome uma
+ * fatia variável (256px expandida, 72px recolhida, 0 no drawer mobile), então
+ * a mesma janela de 1400px produz áreas úteis bem diferentes. Container query
+ * mede o espaço disponível de verdade.
+ */
 .goals-hub {
+  container-type: inline-size;
+  container-name: goals-hub;
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  padding: var(--space-4);
+  /* Fluido em vez de um degrau numa largura específica. Um elemento não
+     consulta o próprio container, então esta é a única medida da página que
+     não pode vir de container query. */
+  padding: clamp(var(--space-3), 1.6vw, var(--space-4));
 }
 
 .goals-hub__command {
@@ -754,9 +766,11 @@ watch(
     color-mix(in srgb, var(--color-bg-surface) 84%, transparent);
 }
 
+/* auto-fit vai de 4 para 3, 2 e 1 coluna sozinho, em qualquer largura.
+   O min() evita transbordo quando o container é menor que o piso da coluna. */
 .goals-hub__metrics {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
   gap: var(--space-3);
 }
 
@@ -790,7 +804,9 @@ watch(
   color: var(--color-text-primary);
   font-family: var(--font-mono);
   font-size: var(--font-size-xl);
-  line-height: 1.15;
+  /* A caixa de glifo da mono passa de 1.15em; com o valor antigo as bordas
+     superior e inferior encostavam no limite da linha. */
+  line-height: 1.3;
 }
 
 .goals-hub__metric--danger strong {
@@ -847,15 +863,30 @@ watch(
   max-width: 100%;
 }
 
+/*
+ * Uma coluna por padrão; a segunda só entra quando há espaço para as duas.
+ * Antes o piso de 380px do painel somado ao mínimo da lista pedia ~1092px, mas
+ * o único ponto de quebra estava em 1180px de *viewport* — que com a sidebar
+ * deixa só ~1079px de área útil. Nessa faixa o painel não cabia e, sem
+ * min-width: 0, passava por cima da lista em vez de empilhar.
+ */
 .goals-hub__review-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.38fr) minmax(380px, 0.92fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-4);
   align-items: start;
 }
 
+@container goals-hub (min-width: 1000px) {
+  .goals-hub__review-grid {
+    grid-template-columns: minmax(0, 1.38fr) minmax(0, 0.92fr);
+  }
+}
+
 .goals-hub__goal-list,
 .goals-hub__detail-panel {
+  /* Sem isto o conteúdo define o piso da coluna e o grid transborda. */
+  min-width: 0;
   border: 1px solid var(--color-outline-soft);
   border-radius: var(--radius-lg);
   background: var(--color-bg-surface);
@@ -863,6 +894,8 @@ watch(
 }
 
 .goals-hub__goal-list {
+  container-type: inline-size;
+  container-name: goal-list;
   display: grid;
   gap: var(--space-2);
   padding: var(--space-3);
@@ -929,9 +962,15 @@ watch(
   text-align: center;
 }
 
+/*
+ * Empilhada por padrão, em cinco colunas quando a lista comporta. Os pisos
+ * antigos (180+190+140+110 mais gaps) exigiam ~696px da linha; abaixo disso ela
+ * simplesmente vazava, porque o único ponto de quebra estava a 760px de
+ * viewport — largura que a lista nunca tem, já que divide a área com o painel.
+ */
 .goal-row {
   display: grid;
-  grid-template-columns: 4px minmax(180px, 1.3fr) minmax(190px, 0.9fr) minmax(140px, 0.7fr) minmax(110px, 0.45fr);
+  grid-template-columns: 4px minmax(0, 1fr);
   align-items: center;
   gap: var(--space-3);
   width: 100%;
@@ -992,6 +1031,31 @@ watch(
   min-width: 0;
 }
 
+.goal-row__numbers,
+.goal-row__progress,
+.goal-row__remaining {
+  grid-column: 2;
+  justify-self: stretch;
+}
+
+@container goal-list (min-width: 545px) {
+  .goal-row {
+    grid-template-columns:
+      4px minmax(0, 1.3fr) minmax(0, 0.9fr) minmax(0, 0.7fr) minmax(0, 0.45fr);
+  }
+
+  .goal-row__numbers,
+  .goal-row__progress {
+    grid-column: auto;
+    justify-self: auto;
+  }
+
+  .goal-row__remaining {
+    grid-column: auto;
+    justify-self: end;
+  }
+}
+
 .goal-row__name {
   overflow: hidden;
   color: var(--color-text-primary);
@@ -1028,28 +1092,45 @@ watch(
   font-weight: var(--font-weight-bold);
 }
 
+/* O alinhamento à direita vale só na forma de cinco colunas; quando a linha
+   empilha, o valor acompanha a borda esquerda como os demais blocos. */
 .goal-row__remaining {
-  justify-self: end;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
 }
 
 .goals-hub__detail-panel {
-  position: sticky;
-  top: var(--space-4);
   display: grid;
   gap: var(--space-3);
   padding: var(--space-4);
 }
 
+/* Grudar no topo só faz sentido ao lado da lista; empilhado, o painel é apenas
+   a próxima seção da página. */
+@container goals-hub (min-width: 1000px) {
+  .goals-hub__detail-panel {
+    position: sticky;
+    top: var(--space-4);
+  }
+}
+
 .detail-panel__header,
 .detail-panel__hero,
-.detail-panel__actions,
 .detail-panel__ai-head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-3);
+}
+
+/*
+ * Os botões estavam nesta lista acima, o que sobrescrevia o `flex-end` da regra
+ * agrupada com `space-between`. Combinado com `white-space: nowrap` do NButton
+ * e sem base flexível, os cinco botões não encolhiam e vazavam do painel.
+ */
+.detail-panel__actions :deep(.n-button) {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .detail-panel__header h2 {
@@ -1117,9 +1198,12 @@ watch(
   background: var(--color-warning-bg);
 }
 
+/* Três colunas fixas davam ~94px de conteúdo dentro do painel, largura em que
+   nem "APORTE SUGERIDO" nem uma data por extenso cabem. Com auto-fit a grade
+   cai para duas ou uma coluna antes de espremer. */
 .detail-panel__facts {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 148px), 1fr));
   gap: var(--space-2);
 }
 
@@ -1137,8 +1221,11 @@ watch(
   color: var(--color-brand-500);
 }
 
+/* `anywhere` quebrava no caractere, produzindo "R$ 1.720,00/mê" + "s".
+   `break-word` só parte uma palavra que sozinha não caberia — e com a grade
+   acima já sobrando espaço, isso deixa de acontecer. */
 .detail-panel__facts strong {
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   font-size: var(--font-size-sm);
 }
 
@@ -1251,25 +1338,13 @@ watch(
   }
 }
 
-@media (max-width: 1180px) {
-  .goals-hub__metrics {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .goals-hub__review-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .goals-hub__detail-panel {
-    position: static;
-  }
-}
-
-@media (max-width: 760px) {
-  .goals-hub {
-    padding: var(--space-3);
-  }
-
+/*
+ * O que sobrou de ponto de quebra: só o empilhamento dos cabeçalhos, que
+ * dependem do texto e não de uma grade. Metrics, facts, linha da meta, painel e
+ * botões passaram a se resolver sozinhos por auto-fit, container query ou base
+ * flexível — não têm mais uma largura em que quebram.
+ */
+@container goals-hub (max-width: 720px) {
   .goals-hub__command,
   .goals-hub__command-actions,
   .detail-panel__header,
@@ -1285,30 +1360,6 @@ watch(
 
   .goals-hub__command-actions :deep(.n-button) {
     width: 100%;
-  }
-
-  .goals-hub__metrics,
-  .detail-panel__facts {
-    grid-template-columns: 1fr;
-  }
-
-  .goal-row {
-    grid-template-columns: 4px minmax(0, 1fr);
-  }
-
-  .goal-row__numbers,
-  .goal-row__progress,
-  .goal-row__remaining {
-    grid-column: 2;
-    justify-self: stretch;
-  }
-
-  .detail-panel__actions {
-    justify-content: stretch;
-  }
-
-  .detail-panel__actions :deep(.n-button) {
-    flex: 1 1 100%;
   }
 }
 </style>
