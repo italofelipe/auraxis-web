@@ -215,3 +215,90 @@ test.describe("Goals — MSW-backed flows", () => {
 		).toBeVisible({ timeout: 8_000 });
 	});
 });
+
+/**
+ * Widths that used to break the hub, plus the usual device sizes.
+ *
+ * The old layout had a single breakpoint at 1180px of *viewport*, but the
+ * sidebar eats ~290px, so between roughly 800px and 1520px the detail panel
+ * overlapped the goal list instead of stacking below it.
+ */
+const RESPONSIVE_WIDTHS = [360, 768, 1024, 1280, 1400, 1520, 1920];
+
+test.describe("Goals — layout responsivo", () => {
+	test("não transborda nem sobrepõe em nenhuma largura", async ({ page }) => {
+		// Login, navegação e uma medição por largura não cabem no timeout padrão.
+		test.slow();
+		await mockAuthAndGoals(page);
+		await loginAndGoToGoals(page);
+		await expect(page.getByLabel("Lista de metas")).toBeVisible({ timeout: 10_000 });
+
+		for (const width of RESPONSIVE_WIDTHS) {
+			await page.setViewportSize({ width, height: 900 });
+			// Dá tempo de o container query reavaliar antes de medir.
+			await page.waitForTimeout(200);
+
+			const issues = await page.evaluate(() => {
+				const found: string[] = [];
+				const TOLERANCE = 1; // arredondamento de subpixel
+
+				// Conteúdo mais largo que a própria caixa. É o sintoma real: a
+				// linha da meta cabe em si mesma, mas a LISTA não a comporta, e o
+				// excedente termina debaixo do painel.
+				const containers: Array<[string, string]> = [
+					[".goals-hub__goal-list", "lista de metas"],
+					[".goals-hub__detail-panel", "painel de detalhe"],
+					[".goals-hub__review-grid", "grade lista+painel"],
+					[".goals-hub__metrics", "faixa de KPIs"],
+					[".detail-panel__facts", "grade de fatos"],
+					[".detail-panel__actions", "barra de ações"],
+					[".goal-row", "linha da meta"],
+				];
+
+				for (const [selector, label] of containers) {
+					document.querySelectorAll(selector).forEach((element) => {
+						if (element.scrollWidth > element.clientWidth + TOLERANCE) {
+							found.push(`${label} transborda ${element.scrollWidth - element.clientWidth}px`);
+						}
+					});
+				}
+
+				/**
+				 * Registra filhos que ultrapassam a borda do pai.
+				 *
+				 * @param parentSel - Seletor do contêiner.
+				 * @param childSel - Seletor dos filhos avaliados.
+				 * @param label - Nome legível usado na mensagem de falha.
+				 */
+				const escapes = (parentSel: string, childSel: string, label: string): void => {
+					document.querySelectorAll(parentSel).forEach((parent) => {
+						const parentBox = parent.getBoundingClientRect();
+						parent.querySelectorAll(childSel).forEach((child) => {
+							const childBox = child.getBoundingClientRect();
+							if (childBox.width === 0) { return; }
+							if (
+								childBox.right > parentBox.right + TOLERANCE
+								|| childBox.left < parentBox.left - TOLERANCE
+							) {
+								found.push(`${label} vaza da caixa do pai`);
+							}
+						});
+					});
+				};
+
+				escapes(".goals-hub__goal-list", ".goal-row", "linha da meta");
+				escapes(".goals-hub__detail-panel", ".detail-panel__actions .n-button", "botão do painel");
+				escapes(".goals-hub__detail-panel", ".detail-panel__facts > article", "card de fato");
+				escapes(".goals-hub__metrics", ".goals-hub__metric", "card de KPI");
+
+				if (document.documentElement.scrollWidth > window.innerWidth + TOLERANCE) {
+					found.push("a página rola horizontalmente");
+				}
+
+				return [...new Set(found)];
+			});
+
+			expect(issues, `quebras em ${width}px`).toEqual([]);
+		}
+	});
+});
