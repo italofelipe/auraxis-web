@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  checkLandingPassword,
   buildLandingCheckoutPath,
   LANDING_CHECKOUT_PLANS,
   resolveLandingCheckoutPlan,
@@ -222,5 +223,36 @@ describe("startLandingCheckout", () => {
       "status",
       "error",
     );
+  });
+});
+
+describe("checkLandingPassword", () => {
+  it("aceita a senha que a API aceita (10+, maiúscula, número, símbolo)", () => {
+    // Combinação confirmada contra a API de produção (#1241).
+    expect(checkLandingPassword("Ab1!cdefgh")).toEqual({ valid: true, missing: [] });
+  });
+
+  it.each([
+    ["Ab1!cdefg", "pelo menos 10 caracteres"],
+    ["ab1!cdefgh", "uma letra maiúscula"],
+    ["Abc!defghi", "um número"],
+    ["Ab1cdefghi", "um símbolo (por exemplo ! ? @ #)"],
+  ])("aponta o que falta em %s", (password, expected) => {
+    const result = checkLandingPassword(password);
+
+    expect(result.valid).toBe(false);
+    expect(result.missing).toContain(expected);
+  });
+
+  it("lista todos os requisitos ausentes de uma vez", () => {
+    const result = checkLandingPassword("abc");
+
+    expect(result.valid).toBe(false);
+    expect(result.missing).toHaveLength(4);
+  });
+
+  it("recusa a senha de 8 caracteres que o formulário antes permitia", () => {
+    // Era exatamente esse caso que virava 400 genérico no servidor.
+    expect(checkLandingPassword("Ab1!cdef").valid).toBe(false);
   });
 });

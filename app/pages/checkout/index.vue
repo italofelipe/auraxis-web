@@ -8,6 +8,8 @@ import { idempotencyHeaders } from "~/core/http/idempotency";
 import {
   buildLandingCheckoutPath,
   LANDING_CHECKOUT_GENERIC_ERROR,
+  checkLandingPassword,
+  LANDING_PASSWORD_MIN_LENGTH,
   LANDING_CHECKOUT_PLANS,
   resolveLandingCheckoutPlan,
   resolveLandingCheckoutPlanFromSources,
@@ -104,11 +106,21 @@ const isBusy = computed(
   (): boolean => isSubmitting.value || isRedirecting.value,
 );
 
+// A API recusa senha fora da política com um 400 sem detalhes (#1241), então o
+// formulário precisa cobrar os requisitos aqui — senão a pessoa só descobre o
+// problema como "erro ao processar" depois de submeter.
+const passwordCheck = computed(() => checkLandingPassword(password.value));
+const passwordHint = computed((): string =>
+  passwordCheck.value.valid || password.value.length === 0
+    ? `Use ${LANDING_PASSWORD_MIN_LENGTH} caracteres ou mais, com maiúscula, número e símbolo.`
+    : `Falta: ${passwordCheck.value.missing.join(", ")}.`,
+);
+
 const canSubmit = computed(
   (): boolean =>
     name.value.trim().length > 1 &&
     email.value.trim().includes("@") &&
-    password.value.length >= 8 &&
+    passwordCheck.value.valid &&
     acceptedTerms.value &&
     !isBusy.value,
 );
@@ -323,7 +335,10 @@ useSeoMeta({
                 required
                 data-testid="landing-checkout-password"
               >
-              <small>Mínimo de 8 caracteres.</small>
+              <small
+                :class="{ 'checkout__hint--missing': !passwordCheck.valid && password.length > 0 }"
+                data-testid="landing-checkout-password-hint"
+              >{{ passwordHint }}</small>
             </label>
 
             <label class="checkout__terms">
@@ -558,6 +573,12 @@ useSeoMeta({
   color: var(--landing-cyan);
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+/* Requisitos ainda não atendidos: destaque sem alarmar — o campo está sendo
+   preenchido, não errado. */
+.checkout__hint--missing {
+  color: #f5c451;
 }
 
 .checkout__alert {

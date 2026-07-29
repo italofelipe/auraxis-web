@@ -123,7 +123,7 @@ function stubLocation(search = ""): { href: string; search: string } {
 /** Form values used by every submission case — dummy data, not credentials. */
 const FORM_NAME = "Italo";
 const FORM_EMAIL = "italo@auraxis.com.br";
-const FORM_SECRET = "senha-forte-123"; // gitleaks:allow
+const FORM_SECRET = "Senha!Forte-123"; // gitleaks:allow — atende a política real da API (#1241)
 
 /**
  * Mounts the checkout page with a filled, submittable form.

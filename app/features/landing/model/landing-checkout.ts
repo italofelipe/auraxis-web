@@ -274,3 +274,44 @@ export const startLandingCheckout = async (
     return { status: "error", message: GENERIC_ERROR };
   }
 };
+
+/**
+ * Requisitos de senha aceitos por `POST /auth/register` — confirmados contra a
+ * API em produção (#1241): 10 caracteres, uma maiúscula, um número e um
+ * símbolo. O formulário do checkout pedia apenas 8 caracteres, então quem
+ * escolhia uma senha simples só descobria o problema como um erro genérico
+ * depois de submeter: a API responde 400 com `details.errors.json` VAZIO,
+ * sem dizer o que faltou.
+ */
+export const LANDING_PASSWORD_MIN_LENGTH = 10;
+
+export interface LandingPasswordCheck {
+  /** Todos os requisitos atendidos. */
+  valid: boolean;
+  /** Requisitos que ainda faltam, na ordem em que são exibidos. */
+  missing: readonly string[];
+}
+
+/**
+ * Avalia a senha contra a política real da API.
+ *
+ * @param password - Valor digitado.
+ * @returns Se está válida e o que falta, para o formulário orientar em vez de
+ *   deixar a pessoa descobrir no erro do servidor.
+ */
+export const checkLandingPassword = (password: string): LandingPasswordCheck => {
+  const missing: string[] = [];
+  if (password.length < LANDING_PASSWORD_MIN_LENGTH) {
+    missing.push(`pelo menos ${LANDING_PASSWORD_MIN_LENGTH} caracteres`);
+  }
+  if (!/[A-Z]/.test(password)) {
+    missing.push("uma letra maiúscula");
+  }
+  if (!/\d/.test(password)) {
+    missing.push("um número");
+  }
+  if (!/[^A-Za-z0-9]/.test(password)) {
+    missing.push("um símbolo (por exemplo ! ? @ #)");
+  }
+  return { valid: missing.length === 0, missing };
+};
