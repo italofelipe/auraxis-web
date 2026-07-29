@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { NTooltip } from "naive-ui";
 import type { UiSidebarNavItemProps } from "./UiSidebarNavItem.types";
 
 const props = withDefaults(defineProps<UiSidebarNavItemProps>(), {
@@ -9,32 +10,43 @@ const props = withDefaults(defineProps<UiSidebarNavItemProps>(), {
 </script>
 
 <template>
-  <NuxtLink
-    :to="props.to"
-    :prefetch="false"
-    class="ui-sidebar-nav-item"
-    :class="{
-      'ui-sidebar-nav-item--active': props.active,
-      'ui-sidebar-nav-item--collapsed': props.collapsed,
-    }"
-    :aria-current="props.active ? 'page' : undefined"
-  >
-    <component
-      :is="props.icon"
-      v-if="props.icon"
-      :size="20"
-      class="ui-sidebar-nav-item__icon"
-      aria-hidden="true"
-    />
-    <span v-if="!props.collapsed" class="ui-sidebar-nav-item__label">{{ props.label }}</span>
-  </NuxtLink>
+  <!--
+    O tooltip envolve o item sempre e é desligado no modo expandido, em vez de
+    duplicar a marcação do link nos dois ramos — assim não há como as duas
+    versões divergirem com o tempo.
+  -->
+  <NTooltip placement="right" :disabled="!props.collapsed" :delay="120">
+    <template #trigger>
+      <NuxtLink
+        :to="props.to"
+        :prefetch="false"
+        class="ui-sidebar-nav-item"
+        :class="{
+          'ui-sidebar-nav-item--active': props.active,
+          'ui-sidebar-nav-item--collapsed': props.collapsed,
+        }"
+        :aria-current="props.active ? 'page' : undefined"
+        :aria-label="props.collapsed ? props.label : undefined"
+      >
+        <component
+          :is="props.icon"
+          v-if="props.icon"
+          :size="20"
+          class="ui-sidebar-nav-item__icon"
+          aria-hidden="true"
+        />
+        <span v-if="!props.collapsed" class="ui-sidebar-nav-item__label">{{ props.label }}</span>
+      </NuxtLink>
+    </template>
+    {{ props.label }}
+  </NTooltip>
 </template>
 
 <style scoped>
 .ui-sidebar-nav-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
   padding: 10px 16px;
   border-radius: 0 var(--radius-md) var(--radius-md) 0;
   border-left: 4px solid transparent;
@@ -42,15 +54,34 @@ const props = withDefaults(defineProps<UiSidebarNavItemProps>(), {
   text-decoration: none;
   font-weight: var(--font-weight-medium);
   font-size: var(--font-size-sm);
+  /* Os tokens de movimento zeram sozinhos sob prefers-reduced-motion
+     (main.css), então usá-los já entrega o respeito à preferência. */
   transition:
-    background 0.15s ease,
-    color 0.15s ease,
-    border-color 0.15s ease;
+    background var(--motion-fast),
+    color var(--motion-fast),
+    border-color var(--motion-fast),
+    transform var(--motion-fast);
 }
 
 .ui-sidebar-nav-item:hover:not(.ui-sidebar-nav-item--active) {
   color: var(--color-text-primary);
   background: var(--color-outline-ghost);
+}
+
+/* O deslocamento é sutil de propósito: sinaliza que o item responde sem
+   deslocar a leitura da lista. */
+.ui-sidebar-nav-item:hover .ui-sidebar-nav-item__icon {
+  transform: translateX(2px);
+}
+
+.ui-sidebar-nav-item--collapsed:hover .ui-sidebar-nav-item__icon {
+  transform: scale(var(--motion-scale-hover, 1.012));
+}
+
+.ui-sidebar-nav-item:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: -2px;
+  color: var(--color-text-primary);
 }
 
 .ui-sidebar-nav-item--active {
@@ -74,6 +105,7 @@ const props = withDefaults(defineProps<UiSidebarNavItemProps>(), {
 
 .ui-sidebar-nav-item__icon {
   flex-shrink: 0;
+  transition: transform var(--motion-fast);
 }
 
 .ui-sidebar-nav-item__label {
