@@ -28,6 +28,7 @@ const toolId = computed((): string => {
         tabindex="-1"
       >
         <slot />
+        <ToolFaq v-if="toolId" :tool-id="toolId" />
         <ToolRelatedLinks v-if="toolId" :tool-id="toolId" />
       </main>
     </div>
