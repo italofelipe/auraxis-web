@@ -7,7 +7,10 @@
  * of register → login → checkout session, both testable without Vue.
  */
 
+import { buildAppUrl } from "./landing-content";
+
 /** Plans the landing can sell, matching the pricing section. */
+
 export type LandingCheckoutPlanKey = "monthly" | "annual";
 
 export interface LandingCheckoutPlanSummary {
@@ -314,4 +317,31 @@ export const checkLandingPassword = (password: string): LandingPasswordCheck => 
     missing.push("um símbolo (por exemplo ! ? @ #)");
   }
   return { valid: missing.length === 0, missing };
+};
+
+/**
+ * Motivo que o login exibe ao receber alguém vindo do checkout (#1243).
+ *
+ * Vai por query string porque o checkout (apex) e o login (app) são origens
+ * diferentes — `sessionStorage` não atravessa. É um valor fechado, e não texto
+ * livre: assim um link forjado não consegue escrever mensagem na tela de login.
+ */
+export const EXISTING_ACCOUNT_REASON = "conta-existente";
+
+/**
+ * Monta o destino de login para quem tentou assinar com uma conta que já existe.
+ *
+ * O email **não** entra na URL de propósito: dado pessoal em query string sobra
+ * em log de servidor, histórico do navegador e cabeçalho `Referer`. Só viajam o
+ * motivo e o plano, para a compra continuar de onde parou depois do login.
+ *
+ * @param plan - Plano que a pessoa estava comprando.
+ * @returns URL absoluta do login no host do app.
+ */
+export const buildExistingAccountLoginUrl = (plan: LandingCheckoutPlanKey): string => {
+  const query = new URLSearchParams({
+    motivo: EXISTING_ACCOUNT_REASON,
+    plano: LANDING_CHECKOUT_PLANS[plan].querySlug,
+  });
+  return buildAppUrl(`/login?${query.toString()}`);
 };

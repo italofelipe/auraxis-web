@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  buildExistingAccountLoginUrl,
+  EXISTING_ACCOUNT_REASON,
   checkLandingPassword,
   buildLandingCheckoutPath,
   LANDING_CHECKOUT_PLANS,
@@ -254,5 +256,30 @@ describe("checkLandingPassword", () => {
   it("recusa a senha de 8 caracteres que o formulário antes permitia", () => {
     // Era exatamente esse caso que virava 400 genérico no servidor.
     expect(checkLandingPassword("Ab1!cdef").valid).toBe(false);
+  });
+});
+
+describe("buildExistingAccountLoginUrl", () => {
+  it("aponta para o login do app levando motivo e plano", () => {
+    const url = new URL(buildExistingAccountLoginUrl("annual"));
+
+    expect(url.origin).toBe("https://app.auraxis.com.br");
+    expect(url.pathname).toBe("/login");
+    expect(url.searchParams.get("motivo")).toBe(EXISTING_ACCOUNT_REASON);
+    expect(url.searchParams.get("plano")).toBe("anual");
+  });
+
+  it("preserva o plano mensal", () => {
+    const url = new URL(buildExistingAccountLoginUrl("monthly"));
+
+    expect(url.searchParams.get("plano")).toBe("mensal");
+  });
+
+  it("não leva nenhum dado pessoal na URL", () => {
+    // Query string sobra em log de servidor, histórico e Referer: só podem
+    // viajar o motivo e o plano.
+    const url = new URL(buildExistingAccountLoginUrl("annual"));
+
+    expect([...url.searchParams.keys()].sort()).toEqual(["motivo", "plano"]);
   });
 });
