@@ -91,7 +91,7 @@ const timeline = [
   },
   {
     year: "2026",
-    title: "MVP2 readiness",
+    title: "Preparação para escala",
     description: "Privacidade, rastreabilidade de dados e SEO público como fundação de escala.",
   },
 ] as const;
@@ -323,7 +323,7 @@ const governance = [
           <h2>Governança e Segurança Institucional</h2>
           <span>
             Proteção de dados não é uma feature: é a fundação da nossa
-            arquitetura e do plano LGPD para MVP2.
+            arquitetura e do nosso programa de adequação à LGPD.
           </span>
         </div>
         <div class="about-us-page__security-grid">
