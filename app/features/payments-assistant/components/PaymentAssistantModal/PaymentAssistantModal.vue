@@ -11,6 +11,7 @@
  * not move real money.
  */
 import { computed, watch } from "vue";
+import { NButton, NModal, NPopconfirm, NTag } from "naive-ui";
 
 import { useToast } from "~/composables/useToast";
 import { usePaymentAssistant } from "~/features/payments-assistant/composables/use-payment-assistant";
