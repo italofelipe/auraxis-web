@@ -77,7 +77,7 @@ export const Collapsed: Story = {
       return { args };
     },
     template: `
-      <div style="width: 64px; background: var(--color-surface-elevated, #1a1a2e); padding: 8px 0;">
+      <div style="width: 72px; background: var(--color-surface-elevated, #1a1a2e); padding: 8px 0;">
         <UiSidebarNav v-bind="args" />
       </div>
     `,

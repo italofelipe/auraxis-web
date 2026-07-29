@@ -11,6 +11,13 @@ vi.mock("vue-router", () => ({
   useRoute: (): { path: string } => routeMock,
 }));
 
+// Refs compartilhados: a versão anterior criava um ref e um toggle novos a cada
+// chamada, então não havia como inspecionar o efeito do clique.
+const isCollapsedRef = ref(false);
+const toggleMock = vi.fn(() => {
+  isCollapsedRef.value = !isCollapsedRef.value;
+});
+
 vi.mock("~/composables/useSidebarState", () => ({
   useSidebarState: (): {
     isCollapsed: Ref<boolean>;
@@ -18,8 +25,8 @@ vi.mock("~/composables/useSidebarState", () => ({
     collapse: () => void;
     expand: () => void;
   } => ({
-    isCollapsed: ref(false),
-    toggle: vi.fn(),
+    isCollapsed: isCollapsedRef,
+    toggle: toggleMock,
     collapse: vi.fn(),
     expand: vi.fn(),
   }),
@@ -117,6 +124,8 @@ describe("UiAppShell", () => {
     routeMock.path = "/dashboard";
     isMobileRef.value = false;
     isDrawerOpenRef.value = false;
+    isCollapsedRef.value = false;
+    toggleMock.mockClear();
     closeDrawerMock.mockClear();
     openDrawerMock.mockClear();
   });
@@ -213,5 +222,58 @@ describe("UiAppShell", () => {
       global: globalConfig,
     });
     expect(wrapper.html()).toMatchSnapshot();
+  });
+
+  describe("recolher a sidebar", () => {
+    it("expõe um controle que alterna o estado e anuncia o destino", async () => {
+      const wrapper = mount(UiAppShell, { props: defaultProps, global: globalConfig });
+      const toggleButton = wrapper.find(".ui-app-shell__toggle");
+
+      expect(toggleButton.exists()).toBe(true);
+      expect(toggleButton.attributes("aria-label")).toBe("Recolher menu lateral");
+      expect(toggleButton.attributes("aria-expanded")).toBe("true");
+
+      await toggleButton.trigger("click");
+
+      expect(toggleMock).toHaveBeenCalledTimes(1);
+      expect(wrapper.find(".ui-app-shell__toggle").attributes("aria-label"))
+        .toBe("Expandir menu lateral");
+      expect(wrapper.find(".ui-app-shell__toggle").attributes("aria-expanded"))
+        .toBe("false");
+    });
+
+    it("aponta para a navegação que o controle governa", () => {
+      const wrapper = mount(UiAppShell, { props: defaultProps, global: globalConfig });
+
+      const controls = wrapper.find(".ui-app-shell__toggle").attributes("aria-controls");
+      expect(controls).toBe("ui-app-shell-nav");
+      expect(wrapper.find(`#${controls}`).exists()).toBe(true);
+    });
+
+    it("encolhe a sidebar e esconde o nome da marca quando recolhida", async () => {
+      const wrapper = mount(UiAppShell, { props: defaultProps, global: globalConfig });
+
+      expect(wrapper.find(".ui-app-shell__logo-text").exists()).toBe(true);
+
+      isCollapsedRef.value = true;
+      await nextTick();
+
+      expect(wrapper.find(".ui-app-shell__sidebar--collapsed").exists()).toBe(true);
+      expect(wrapper.find(".ui-app-shell__logo-text").exists()).toBe(false);
+    });
+
+    it("ignora o estado recolhido no mobile, onde a sidebar é drawer", async () => {
+      isCollapsedRef.value = true;
+      isMobileRef.value = true;
+      isDrawerOpenRef.value = true;
+      const wrapper = mount(UiAppShell, { props: defaultProps, global: globalConfig });
+      await nextTick();
+
+      // Recolher para 72px dentro de um drawer deixaria uma faixa de ícones
+      // flutuando sobre a página — o drawer já é o modo compacto no mobile.
+      expect(wrapper.find(".ui-app-shell__sidebar--collapsed").exists()).toBe(false);
+      expect(wrapper.find(".ui-app-shell__toggle").attributes("aria-label"))
+        .toBe("Fechar menu");
+    });
   });
 });
