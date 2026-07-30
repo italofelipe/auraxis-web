@@ -1,8 +1,11 @@
+import { nextTick, ref } from "vue";
 import { mount } from "@vue/test-utils";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import NetWorthTimeline from "./NetWorthTimeline.vue";
 import type { GoalDto } from "~/features/goals/contracts/goal.dto";
+import type { ResolvedTheme } from "~/theme/tokens/semantic";
+import { buildChartThemeTokens } from "~/utils/chart-theme";
 
 vi.mock("~/components/ui/UiChart.vue", () => ({
   default: {
@@ -10,6 +13,12 @@ vi.mock("~/components/ui/UiChart.vue", () => ({
     props: ["option", "height", "updateKey"],
     template: "<div class=\"stub-ui-chart\" />",
   },
+}));
+
+const resolvedTheme = ref<ResolvedTheme>("light");
+
+vi.mock("~/composables/useTheme", () => ({
+  useTheme: (): { resolvedTheme: typeof resolvedTheme } => ({ resolvedTheme }),
 }));
 
 const goals: GoalDto[] = [
@@ -41,6 +50,10 @@ const mountTimeline = (): ReturnType<typeof mount> =>
   });
 
 describe("NetWorthTimeline", () => {
+  beforeEach(() => {
+    resolvedTheme.value = "light";
+  });
+
   it("renders horizon toggles for 12, 24 and 60 months", () => {
     const wrapper = mountTimeline();
 
@@ -67,5 +80,45 @@ describe("NetWorthTimeline", () => {
 
     expect(wrapper.get("button[data-horizon='60']").classes()).toContain("is-active");
     expect(wrapper.getComponent({ name: "UiChart" }).props("updateKey")).toBe("60");
+  });
+
+  it("paints the chart with the light palette when the app is in light mode", () => {
+    const tokens = buildChartThemeTokens("light");
+    const wrapper = mountTimeline();
+    const option = wrapper.getComponent({ name: "UiChart" }).props("option") as {
+      color: string[];
+      tooltip: { backgroundColor: string };
+      series: Array<{ name: string; itemStyle?: { color?: string } }>;
+    };
+
+    expect(option.color).toEqual([
+      tokens.axis,
+      tokens.income,
+      tokens.balance,
+      tokens.debt,
+    ]);
+    expect(option.tooltip.backgroundColor).toBe(tokens.tooltipBackground);
+    expect(option.series.find((serie) => serie.name === "Cenário base")?.itemStyle?.color)
+      .toBe(tokens.balance);
+  });
+
+  it("repaints when the theme switches to dark", async () => {
+    const wrapper = mountTimeline();
+    const chart = wrapper.getComponent({ name: "UiChart" });
+    const lightColors = (chart.props("option") as { color: string[] }).color;
+
+    resolvedTheme.value = "dark";
+    await nextTick();
+
+    const darkTokens = buildChartThemeTokens("dark");
+    const darkColors = (chart.props("option") as { color: string[] }).color;
+
+    expect(darkColors).toEqual([
+      darkTokens.axis,
+      darkTokens.income,
+      darkTokens.balance,
+      darkTokens.debt,
+    ]);
+    expect(darkColors).not.toEqual(lightColors);
   });
 });
