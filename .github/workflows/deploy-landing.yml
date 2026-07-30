@@ -218,6 +218,103 @@ jobs:
             --query 'Invalidation.Id' \
             --output text)
           echo "✓ Invalidation created: $INVALIDATION_ID"
+          echo "INVALIDATION_ID=$INVALIDATION_ID" >> "$GITHUB_ENV"
+
+      - name: Wait for invalidation to complete
+        if: steps.cap.outputs.enabled == 'true'
+        run: |
+          echo "Waiting for CloudFront invalidation ${{ env.INVALIDATION_ID }}..."
+          aws cloudfront wait invalidation-completed \
+            --distribution-id "${{ vars.AURAXIS_LANDING_DISTRIBUTION_ID }}" \
+            --id "${{ env.INVALIDATION_ID }}"
+          echo "✓ CloudFront cache invalidated"
+
+      # ── Smoke test ──────────────────────────────────────────────────────────
+      # Portado do deploy.yml do app (#1213). Duas fases, porque a primeira
+      # sozinha não prova nada aqui: o CloudFront devolve 200 de fallback, então
+      # status HTTP responde "o CDN está de pé", não "o meu build está no ar".
+      # Já houve deploy silenciosamente ausente (#1197).
+      #
+      # A fase 2 compara o `x-build-id` gravado neste build com o servido. Ele é
+      # embutido em toda página via <meta name="x-build-id"> (NUXT_PUBLIC_BUILD_ID).
+      - name: Smoke test (HTTP + build id)
+        if: steps.cap.outputs.enabled == 'true'
+        env:
+          SITE_HOST: auraxis.com.br
+        run: |
+          EXPECTED_BUILD_ID="${{ github.run_id }}-${{ github.sha }}"
+          echo "Smoke test → https://${SITE_HOST}/"
+          echo "Expected buildId: $EXPECTED_BUILD_ID"
+
+          # Fase 1 — a home responde 200 com corpo
+          HTTP_CODE=""
+          for i in $(seq 1 10); do
+            HTTP_CODE=$(curl --silent --output /tmp/smoke.html \
+              --write-out "%{http_code}" --location "https://${SITE_HOST}/")
+            if [ "$HTTP_CODE" = "200" ] && [ -s /tmp/smoke.html ]; then
+              echo "✓ Fase 1 — HTTP $HTTP_CODE ($(wc -c < /tmp/smoke.html) bytes)"
+              break
+            fi
+            echo "  Tentativa $i/10 — HTTP $HTTP_CODE — nova tentativa em 3s..."
+            sleep 3
+          done
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "✗ Fase 1 falhou — home inacessível após 10 tentativas"
+            exit 1
+          fi
+
+          # Fase 2 — o conteúdo servido é ESTE build.
+          # O HTML vem minificado (todas as <meta> numa linha), então a âncora
+          # inclui name="x-build-id" — casar só por content="..." pegaria o
+          # atributo de qualquer outra meta da mesma linha.
+          for i in $(seq 1 15); do
+            SERVED_BUILD_ID=$(curl --silent "https://${SITE_HOST}/" \
+              | grep -o 'name="x-build-id" content="[^"]*"' \
+              | cut -d'"' -f4)
+            if [ "$SERVED_BUILD_ID" = "$EXPECTED_BUILD_ID" ]; then
+              echo "✓ Fase 2 — buildId confirmado: $SERVED_BUILD_ID"
+              exit 0
+            fi
+            echo "  Tentativa $i/15 — servido=$SERVED_BUILD_ID esperado=$EXPECTED_BUILD_ID — 5s..."
+            sleep 5
+          done
+          echo "✗ Fase 2 falhou — CloudFront ainda serve build antigo após 75s"
+          echo "  servido:   $SERVED_BUILD_ID"
+          echo "  esperado:  $EXPECTED_BUILD_ID"
+          exit 1
+
+      # O sitemap é o que sustenta a indexação do apex (72 URLs hoje). Ele já
+      # teve DOIS donos disputando o mesmo caminho — o `nitro.prerender` servia
+      # um diretório com redirect HTML enquanto o @nuxtjs/sitemap servia o XML,
+      # e o vencedor variava por build (#1233). Um deploy que devolva HTML aqui
+      # é regressão de SEO invisível: o Search Console só reclama dias depois.
+      - name: Validate published sitemap
+        if: steps.cap.outputs.enabled == 'true'
+        env:
+          SITE_HOST: auraxis.com.br
+          MIN_URLS: 60
+        run: |
+          CONTENT_TYPE=$(curl --silent --output /tmp/sitemap.xml \
+            --write-out "%{content_type}" "https://${SITE_HOST}/sitemap.xml")
+          echo "content-type: $CONTENT_TYPE"
+
+          case "$CONTENT_TYPE" in
+            *xml*) echo "✓ content-type é XML" ;;
+            *)
+              echo "✗ /sitemap.xml devolveu '$CONTENT_TYPE' — esperado XML."
+              echo "  Sintoma clássico do fallback SPA servindo HTML no lugar do sitemap."
+              head -c 300 /tmp/sitemap.xml
+              exit 1
+              ;;
+          esac
+
+          LOC_COUNT=$(grep -o '<loc>' /tmp/sitemap.xml | wc -l | tr -d ' ')
+          echo "URLs no sitemap: $LOC_COUNT (mínimo $MIN_URLS)"
+          if [ "$LOC_COUNT" -lt "$MIN_URLS" ]; then
+            echo "✗ Sitemap encolheu — provável regressão de exclusão de rotas por surface."
+            exit 1
+          fi
+          echo "✓ Sitemap validado"
 
       # Avisa Bing e parceiros (Seznam, Naver, Yandex) que as URLs mudaram —
       # protocolo aberto, sem conta nem credencial: a posse do domínio é
