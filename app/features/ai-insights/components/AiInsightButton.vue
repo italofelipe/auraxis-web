@@ -290,13 +290,8 @@ const handleConsentAccept = async (): Promise<void> => {
   font-size: var(--font-size-xs);
 }
 
-.ai-insight-button__paywall {
-  max-width: 440px;
-}
-
-.ai-insight-button__consent {
-  max-width: 520px;
-}
+/* Largura dos dois modais fica no atributo `style` do NModal — o card é
+   teleportado e não recebe o escopo deste componente (#1262). */
 
 .ai-insight-consent {
   display: grid;
