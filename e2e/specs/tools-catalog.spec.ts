@@ -105,6 +105,13 @@ const loginAndGoToTools = async (page: Page): Promise<void> => {
 	});
 	await page.waitForURL("**/tools", { timeout: 10_000 });
 	await waitForHydration(page);
+
+	// `waitForHydration` não diz nada aqui: o app já hidratou no /login, então
+	// `__vue_app__` existe desde antes deste push. Quem ainda está a caminho é
+	// o chunk da rota /tools, e sem esperar o primeiro card os locators dos
+	// testes corriam contra esse carregamento — em runner lento, os 10s deles
+	// estouravam com "element(s) not found" (#1277).
+	await page.waitForSelector(".tool-catalog-card", { timeout: 30_000 });
 };
 
 test.describe("Tools — Catalog page", () => {
