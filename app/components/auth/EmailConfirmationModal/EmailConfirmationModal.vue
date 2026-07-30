@@ -209,13 +209,9 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.email-confirmation-modal {
-  width: min(480px, calc(100vw - 32px));
-}
-
-:deep(.email-confirmation-modal.n-card) {
-  width: min(480px, calc(100vw - 32px));
-}
+/* Quem dimensiona é o `style` do NModal no template. As duas regras que viviam
+   aqui (a scoped e a `:deep(.n-card)`) nunca casavam: o card é teleportado para
+   o body e não carrega o atributo de escopo — nem como descendente. #1262 */
 
 .email-confirmation-modal__body {
   display: grid;

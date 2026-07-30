@@ -43,7 +43,13 @@ const expenseShow = computed({
 
 <template>
   <div class="installment-vs-cash-bridge-modals">
-    <NModal v-model:show="goalShow" preset="card" :title="t('pages.installmentVsCash.goalModal.title')" class="installment-vs-cash-bridge-modals__modal">
+    <NModal
+      v-model:show="goalShow"
+      preset="card"
+      :title="t('pages.installmentVsCash.goalModal.title')"
+      class="installment-vs-cash-bridge-modals__modal"
+      style="width: min(720px, calc(100vw - 32px))"
+    >
       <NForm label-placement="top">
         <NFormItem :label="t('pages.installmentVsCash.goalModal.titleLabel')">
           <NInput v-model:value="goalForm.title" />
@@ -66,7 +72,13 @@ const expenseShow = computed({
       </NForm>
     </NModal>
 
-    <NModal v-model:show="expenseShow" preset="card" :title="t('pages.installmentVsCash.expenseModal.title')" class="installment-vs-cash-bridge-modals__modal">
+    <NModal
+      v-model:show="expenseShow"
+      preset="card"
+      :title="t('pages.installmentVsCash.expenseModal.title')"
+      class="installment-vs-cash-bridge-modals__modal"
+      style="width: min(720px, calc(100vw - 32px))"
+    >
       <NForm label-placement="top">
         <NFormItem :label="t('pages.installmentVsCash.expenseModal.titleLabel')">
           <NInput v-model:value="expenseForm.title" />
@@ -113,7 +125,6 @@ const expenseShow = computed({
 </template>
 
 <style scoped>
-:deep(.installment-vs-cash-bridge-modals__modal) {
-  width: min(720px, calc(100vw - 32px));
-}
+/* Largura no `style` dos NModal acima: o card é teleportado e regra scoped
+   não o alcança, nem com :deep(). #1262 */
 </style>

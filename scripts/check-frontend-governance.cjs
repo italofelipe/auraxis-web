@@ -149,6 +149,110 @@ function checkDisallowedStyleLiterals(errors, rootDirectory) {
   }
 }
 
+/**
+ * Extracts the concatenated content of every `<style scoped>` block in a SFC.
+ *
+ * @param {string} fileContent Raw .vue source.
+ * @returns {string} Scoped CSS, or an empty string when there is none.
+ */
+function extractScopedStyleContent(fileContent) {
+  const blocks = fileContent.match(/<style[^>]*\bscoped\b[^>]*>[\s\S]*?<\/style>/gi);
+
+  if (!blocks) {
+    return "";
+  }
+
+  return blocks.join("\n");
+}
+
+/**
+ * Lists the static classes applied to every `<NModal>` in a template.
+ *
+ * @param {string} fileContent Raw .vue source.
+ * @returns {string[]} Unique class names.
+ */
+function collectModalClassNames(fileContent) {
+  const classNames = new Set();
+  const modalTagPattern = /<n-?modal\b[^>]*?\sclass="([^"]+)"/gis;
+  let match = modalTagPattern.exec(fileContent);
+
+  while (match !== null) {
+    for (const className of match[1].split(/\s+/)) {
+      if (className.length > 0) {
+        classNames.add(className);
+      }
+    }
+
+    match = modalTagPattern.exec(fileContent);
+  }
+
+  return [...classNames];
+}
+
+/**
+ * Flags NModal width rules written in `<style scoped>`.
+ *
+ * Naive UI teleports the modal card to `document.body`, so it carries neither
+ * the component's scope attribute nor any ancestor that has it. Both
+ * `.my-modal { width }` and `:deep(.my-modal.n-card) { width }` are therefore
+ * dead code — measured in #1262: the card rendered at the full 1440px viewport
+ * with the scoped rules in place, and at the intended 420px once the width
+ * moved to the modal's `style` attribute, which does reach the card as a
+ * fallthrough attr.
+ *
+ * @param {string[]} errors Accumulator for governance errors.
+ * @param {string} rootDirectory Repository root.
+ */
+function checkModalWidthScoping(errors, rootDirectory) {
+  const files = walkDirectoryRecursively(path.resolve(rootDirectory, "app"));
+
+  for (const absoluteFilePath of files) {
+    const relativePath = toUnixRelativePath(absoluteFilePath, rootDirectory);
+
+    if (path.extname(relativePath) !== ".vue") {
+      continue;
+    }
+
+    const fileContent = fs.readFileSync(absoluteFilePath, "utf8");
+    const scopedStyle = extractScopedStyleContent(fileContent);
+
+    if (scopedStyle.length === 0) {
+      continue;
+    }
+
+    const modalClassNames = collectModalClassNames(fileContent);
+
+    if (modalClassNames.length === 0) {
+      continue;
+    }
+
+    const rulePattern = /([^{}]+)\{([^}]*)\}/g;
+    let rule = rulePattern.exec(scopedStyle);
+
+    while (rule !== null) {
+      const selector = rule[1];
+      const declarations = rule[2];
+      const sizesSomething = /(?:max-|min-)?(?:width|height)\s*:/.test(declarations);
+      const escapesScope = selector.includes(":global(");
+
+      if (sizesSomething && !escapesScope) {
+        for (const className of modalClassNames) {
+          const escapedClassName = className.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+          if (new RegExp(`\\.${escapedClassName}(?![\\w-])`).test(selector)) {
+            errors.push(
+              `modal sizing for .${className} never reaches the teleported card`
+              + ` — use the NModal \`style\` attribute or :global() (#1262): ${relativePath}`,
+            );
+          }
+        }
+      }
+
+      rule = rulePattern.exec(scopedStyle);
+    }
+  }
+}
+
 function main() {
   const rootDirectory = process.cwd();
   const errors = [];
@@ -156,6 +260,7 @@ function main() {
   assertRequiredSharedDirectoriesExist(errors, rootDirectory);
   checkDisallowedSourceExtensions(errors, rootDirectory);
   checkDisallowedStyleLiterals(errors, rootDirectory);
+  checkModalWidthScoping(errors, rootDirectory);
 
   if (errors.length > 0) {
     process.stderr.write("[frontend-governance] FAILED\n");
