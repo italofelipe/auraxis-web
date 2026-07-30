@@ -164,4 +164,13 @@ export async function loginAndVisit(page: Page, path: string): Promise<void> {
   }
 
   await page.waitForLoadState("networkidle");
+
+  // A URL muda antes de a rota terminar de montar, e auditar meia tela produz
+  // baseline de mentira (skeleton não tem heading, ícone ainda não tem alt).
+  // Espera o skeleton sair de cena antes de devolver o controle.
+  await page
+    .waitForFunction(() => document.querySelectorAll(".base-skeleton").length === 0, null, {
+      timeout: 15_000,
+    })
+    .catch(() => undefined);
 }
