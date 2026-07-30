@@ -211,6 +211,9 @@ const onDelete = (id: string): void => {
 </template>
 
 <style scoped>
+/* Sem padding próprio: o UiAppShell já aplica var(--space-3) var(--space-4)
+   ao container de conteúdo. Ter o dobro aqui era o que desalinhava esta página
+   do Dashboard e da Carteira (#1264). */
 .simulations-page {
   display: flex;
   flex-direction: column;
@@ -218,7 +221,6 @@ const onDelete = (id: string): void => {
   min-width: 0;
   max-width: 100%;
   overflow-x: clip;
-  padding: var(--space-4);
 }
 
 .simulations-page__header {
@@ -241,7 +243,7 @@ const onDelete = (id: string): void => {
   align-items: stretch;
   min-width: 0;
   max-width: 100%;
-  border: 1px solid var(--color-outline-soft);
+  border: var(--space-px) solid var(--color-outline-soft);
   border-radius: var(--radius-lg);
   background:
     radial-gradient(circle at 100% 0%, var(--color-brand-glow-2xs), transparent 34%),
@@ -263,7 +265,7 @@ const onDelete = (id: string): void => {
   gap: var(--space-1);
   width: fit-content;
   border-radius: var(--radius-full);
-  padding: 6px 10px;
+  padding: var(--space-1) var(--space-3);
   background: var(--color-brand-hover-surface);
   color: var(--color-brand-500);
   font-size: var(--font-size-xs);
@@ -303,9 +305,9 @@ const onDelete = (id: string): void => {
   gap: var(--space-3);
   align-items: flex-start;
   min-width: 0;
-  border: 1px solid var(--color-outline-soft);
+  border: var(--space-px) solid var(--color-outline-soft);
   border-radius: var(--radius-md);
-  padding: var(--space-3);
+  padding: var(--space-4);
   background: var(--color-bg-elevated);
 }
 
@@ -313,15 +315,15 @@ const onDelete = (id: string): void => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: var(--space-7);
+  height: var(--space-7);
   border-radius: var(--radius-full);
   background: var(--color-brand-hover-surface);
   color: var(--color-brand-500);
 }
 
 .simulations-page__intro-steps h3 {
-  margin: 0 0 4px;
+  margin: 0 0 var(--space-1);
   color: var(--color-text-primary);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
@@ -351,7 +353,7 @@ const onDelete = (id: string): void => {
 }
 
 .simulations-page__empty-state {
-  padding: var(--space-4) 0;
+  padding: var(--space-6) 0;
   text-align: center;
 }
 
@@ -363,24 +365,20 @@ const onDelete = (id: string): void => {
 .simulations-page__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
-  gap: var(--space-3);
+  gap: var(--space-4);
   min-width: 0;
 }
 
 .simulations-page__paywall-card {
   display: grid;
   gap: var(--space-3);
-  border: 1px solid var(--color-border);
+  border: var(--space-px) solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-bg-elevated);
-  padding: var(--space-3);
+  padding: var(--space-4);
 }
 
 @media (max-width: 480px) {
-  .simulations-page {
-    padding: var(--space-3);
-  }
-
   .simulations-page__intro {
     grid-template-columns: 1fr;
   }
