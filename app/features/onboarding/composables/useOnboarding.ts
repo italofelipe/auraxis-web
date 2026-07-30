@@ -44,6 +44,12 @@ export interface OnboardingFormData {
 export interface OnboardingState {
   done: boolean;
   skipped: boolean;
+  /**
+   * Whether the user closed the "retomar tutorial" banner. Separate from
+   * `skipped` on purpose: skipping the wizard is what makes the banner
+   * eligible, dismissing it is what silences the banner for good (#1261).
+   */
+  nudgeDismissed: boolean;
   currentStep: OnboardingStepNumber;
   formData: OnboardingFormData;
 }
@@ -51,6 +57,7 @@ export interface OnboardingState {
 const DEFAULT_STATE: Readonly<OnboardingState> = {
   done: false,
   skipped: false,
+  nudgeDismissed: false,
   currentStep: 1,
   formData: {},
 };
@@ -89,6 +96,7 @@ function _hydrateState(raw: unknown): OnboardingState {
   return {
     done: parsed.done === true,
     skipped: parsed.skipped === true,
+    nudgeDismissed: parsed.nudgeDismissed === true,
     currentStep: validStep,
     formData: parsed.formData && typeof parsed.formData === "object" ? { ...parsed.formData } : {},
   };
@@ -98,6 +106,7 @@ interface OnboardingActions {
   start: () => void;
   complete: () => void;
   skip: () => void;
+  dismissNudge: () => void;
   reset: () => void;
   setCurrentStep: (step: OnboardingStepNumber) => void;
   setStepData: <K extends keyof OnboardingFormData>(step: K, data: OnboardingFormData[K]) => void;
@@ -119,7 +128,13 @@ function _buildActions(persist: () => void): OnboardingActions {
       _openedManually.value = true;
     },
     complete: (): void => {
-      _state.value = { ...DEFAULT_STATE, done: true, skipped: false, formData: _state.value.formData, currentStep: 1 };
+      _state.value = {
+        ...DEFAULT_STATE,
+        done: true,
+        skipped: false,
+        formData: _state.value.formData,
+        currentStep: 1,
+      };
       _openedManually.value = false;
       persist();
       _syncServerCompletion();
@@ -128,6 +143,7 @@ function _buildActions(persist: () => void): OnboardingActions {
       _state.value = {
         done: false,
         skipped: true,
+        nudgeDismissed: _state.value.nudgeDismissed,
         currentStep: _state.value.currentStep,
         formData: _state.value.formData,
       };
@@ -136,6 +152,10 @@ function _buildActions(persist: () => void): OnboardingActions {
       // Skipping also means "don't prompt me again" — persist server-side so
       // the wizard stays dismissed across devices.
       _syncServerCompletion();
+    },
+    dismissNudge: (): void => {
+      _state.value = { ..._state.value, nudgeDismissed: true };
+      persist();
     },
     reset: (): void => {
       _state.value = { ...DEFAULT_STATE, formData: {} };
@@ -173,6 +193,7 @@ function _buildActions(persist: () => void): OnboardingActions {
 export function useOnboarding(): {
   shouldShow: ComputedRef<boolean>;
   isSkipped: ComputedRef<boolean>;
+  isNudgeDismissed: ComputedRef<boolean>;
   isDone: ComputedRef<boolean>;
   currentStep: ComputedRef<OnboardingStepNumber>;
   formData: Ref<OnboardingFormData>;
@@ -234,6 +255,7 @@ export function useOnboarding(): {
   });
 
   const isSkipped = computed((): boolean => _state.value.skipped);
+  const isNudgeDismissed = computed((): boolean => _state.value.nudgeDismissed);
   const isDone = computed((): boolean => _state.value.done);
   const currentStep = computed((): OnboardingStepNumber => _state.value.currentStep);
   const actions = _buildActions(_persist);
@@ -241,6 +263,7 @@ export function useOnboarding(): {
   return {
     shouldShow,
     isSkipped,
+    isNudgeDismissed,
     isDone,
     currentStep,
     formData: computed((): OnboardingFormData => _state.value.formData) as unknown as Ref<OnboardingFormData>,
