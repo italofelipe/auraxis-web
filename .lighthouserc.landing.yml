@@ -1,0 +1,84 @@
+# Lighthouse CI — surface LANDING (auraxis.com.br)
+#
+# Por que um arquivo separado do `.lighthouserc.yml`: aquele audita a surface
+# default (app), cuja home é a tela de **login**. A landing — a página que
+# vende — nunca tinha sido medida no CI (#1214). São páginas com orçamento de
+# performance diferente: a landing carrega imagens de showcase e é SSG pura.
+#
+# Rodar local:
+#   rm -rf .output
+#   NUXT_PUBLIC_SITE_SURFACE=landing pnpm generate
+#   pnpm dlx @lhci/cli autorun --config=.lighthouserc.landing.yml
+#
+# ⚠️ O `rm -rf .output` não é zelo: `pnpm quality-check` termina com um build da
+# surface **app** e sobrescreve o `.output`. Medir logo depois compara a landing
+# contra a home de login e o número não quer dizer nada.
+
+ci:
+  collect:
+    # `generate` já rodou no job; o preview só serve o `.output` estático.
+    startServerCommand: NUXT_PUBLIC_SITE_SURFACE=landing NITRO_HOST=0.0.0.0 NITRO_PORT=3000 pnpm preview
+    startServerReadyPattern: 'Listening on'
+    startServerReadyTimeout: 120000
+    url:
+      - http://localhost:3000/
+      - http://localhost:3000/checkout
+      - http://localhost:3000/tools/juros-compostos
+    numberOfRuns: 3
+
+  assert:
+    preset: lighthouse:no-pwa
+    assertions:
+      # ── Warn-only enquanto a baseline não está registrada (#1214) ──────────
+      # Promover para `error` depois que houver histórico: subir com `error`
+      # agora reprovaria PRs por um patamar que ninguém mediu ainda, e o
+      # resultado seria desligar o job em vez de consertar a página.
+      'categories:performance':
+        - warn
+        - minScore: 0.9
+      'categories:accessibility':
+        - warn
+        - minScore: 0.95
+      'categories:best-practices':
+        - warn
+        - minScore: 0.9
+      'categories:seo':
+        - warn
+        - minScore: 0.9
+
+      # ── Artefatos de localhost — validados em outra camada ─────────────────
+      # Idênticos ao `.lighthouserc.yml`: HTTPS, compressão, cache e redirects
+      # são política do CloudFront, não desta medição.
+      uses-https:                          { severity: off }
+      no-vulnerable-libraries:             { severity: off }
+      valid-source-maps:                   { severity: off }
+      uses-text-compression:               { severity: off }
+      uses-long-cache-ttl:                 { severity: off }
+      redirects-http:                      { severity: off }
+      bf-cache:                            { severity: off }
+      unused-css-rules:                    { severity: off }
+
+      # `unused-javascript` fica LIGADO aqui (no perfil do app está off): é
+      # exatamente o sinal que motivou #1246/#1257 na home da landing, e
+      # desligá-lo cegaria o CI para a regressão que acabamos de corrigir.
+      unused-javascript:
+        - warn
+        - maxLength: 1
+
+      largest-contentful-paint:
+        - warn
+        - maxNumericValue: 4000
+
+      total-blocking-time:
+        - warn
+        - maxNumericValue: 1200
+
+      cumulative-layout-shift:
+        - warn
+        - maxNumericValue: 0.1
+
+      first-contentful-paint:              { severity: off }
+      speed-index:                         { severity: off }
+
+  upload:
+    target: temporary-public-storage

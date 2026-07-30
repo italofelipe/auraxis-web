@@ -505,6 +505,48 @@ jobs:
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
 
+  # ── 10b. Lighthouse CI — surface LANDING ───────────────────────────────
+  # O job acima audita a surface default (app), cuja home é a tela de login.
+  # A landing — a página que vende — nunca tinha sido medida (#1214).
+  # Warn-only por enquanto: subir com `error` sem baseline reprovaria PRs por
+  # um patamar que ninguém mediu, e o desfecho previsível seria desligar o job.
+  lighthouse-landing:
+    name: Lighthouse CI (surface landing)
+    runs-on: ubuntu-latest
+    needs: [build]
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v6
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      # `rm -rf .output` antes: o runner é limpo, mas manter o passo aqui
+      # documenta a armadilha que morde localmente — resíduo de um build de
+      # outra surface no `.output` faz a medição comparar a página errada.
+      - name: Generate landing surface
+        run: |
+          rm -rf .output
+          pnpm generate
+        env:
+          NODE_ENV: production
+          NUXT_PUBLIC_SITE_SURFACE: landing
+
+      - name: Run Lighthouse CI (landing)
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: .lighthouserc.landing.yml
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
   # ── 11. E2E Tests (Playwright) ─────────────────────────────────────────
   # Mandatory — runs on every PR. Uses MSW mock-first (no real backend needed).
   # Builds Nuxt locally and serves with `pnpm preview`
