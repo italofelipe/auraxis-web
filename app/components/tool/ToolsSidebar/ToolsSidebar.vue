@@ -8,6 +8,7 @@ import {
   ChevronDown,
 } from "lucide-vue-next";
 import { TOOLS_CATALOG } from "~/features/tools/model/tools-catalog";
+import { useOverlayKeyboard } from "~/composables/useOverlayKeyboard/useOverlayKeyboard";
 
 const { t } = useI18n();
 const route = useRoute();
@@ -93,6 +94,13 @@ const toggleMobile = (): void => {
 const closeMobile = (): void => {
   isMobileOpen.value = false;
 };
+
+// A gaveta mobile só fechava clicando no backdrop — que é aria-hidden e não
+// recebe foco. Esc é a saída equivalente pelo teclado (#1266).
+useOverlayKeyboard({
+  isOpen: isMobileOpen,
+  onClose: closeMobile,
+});
 
 /** Which groups are expanded on mobile (all open by default). */
 const expandedGroups = ref<Set<string>>(

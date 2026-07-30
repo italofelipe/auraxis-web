@@ -4,6 +4,7 @@ import { PanelLeftClose, PanelLeftOpen, PieChart, X } from "lucide-vue-next";
 import { useRoute } from "vue-router";
 import { useSidebarState } from "~/composables/useSidebarState";
 import { useResponsiveShell } from "~/composables/useResponsiveShell";
+import { useOverlayKeyboard } from "~/composables/useOverlayKeyboard/useOverlayKeyboard";
 import UiSidebarNav from "../UiSidebarNav/UiSidebarNav.vue";
 import UiTopbar from "../UiTopbar/UiTopbar.vue";
 import type { UiAppShellProps, UiAppShellEmits } from "./UiAppShell.types";
@@ -28,6 +29,13 @@ const isRailCollapsed = computed(() => isCollapsed.value && !isMobile.value);
 const toggleLabel = computed(() =>
   isRailCollapsed.value ? "Expandir menu lateral" : "Recolher menu lateral",
 );
+
+// O drawer mobile fechava só por clique no overlay — inalcançável por teclado.
+// Esc agora fecha; o backdrop segue aria-hidden, porque backdrop não é botão.
+useOverlayKeyboard({
+  isOpen: (): boolean => isMobile.value && isDrawerOpen.value,
+  onClose: closeDrawer,
+});
 
 // Close the mobile navigation drawer whenever the route changes so that
 // selecting a destination from the hamburger menu dismisses the drawer.
