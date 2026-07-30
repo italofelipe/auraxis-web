@@ -10,6 +10,8 @@ import {
   useNetWorthProjection,
 } from "~/features/portfolio/composables/useNetWorthProjection";
 import { formatCurrency } from "~/utils/currency";
+import { useTheme } from "~/composables/useTheme";
+import { buildChartThemeTokens, withAlpha } from "~/utils/chart-theme";
 
 interface Props {
   readonly currentNetWorth: number;
@@ -48,45 +50,93 @@ const projectionInput = computed<NetWorthProjectionInput>(() => ({
 
 const projection = useNetWorthProjection(projectionInput);
 
-const scenarioColors: Record<NetWorthScenarioId, string> = {
-  optimistic: "#42e8a9",
-  base: "#44d4ff",
-  pessimistic: "#ffb45c",
-};
+const { resolvedTheme } = useTheme();
+
+const chartTokens = computed(() => buildChartThemeTokens(resolvedTheme.value));
+
+/** Cenários herdam a paleta de gráficos do tema ativo. */
+const scenarioColors = computed<Record<NetWorthScenarioId, string>>(() => ({
+  optimistic: chartTokens.value.income,
+  base: chartTokens.value.balance,
+  pessimistic: chartTokens.value.debt,
+}));
+
+/** Marcadores de meta desenhados sobre a linha do cenário base. */
+const goalMarkPoints = computed(() => projection.value.goalMarkers.map((marker) => ({
+  name: marker.label,
+  coord: [marker.monthOffset, marker.value],
+  value: marker.label,
+})));
+
+const chartSeries = computed(() => {
+  const tokens = chartTokens.value;
+  const scenarios = scenarioColors.value;
+  const markPointData = goalMarkPoints.value;
+
+  return [
+    {
+      name: "Patrimônio real",
+      type: "line",
+      smooth: true,
+      symbol: "none",
+      lineStyle: { width: 3, type: "solid" },
+      areaStyle: { color: withAlpha(tokens.axis, 0.08) },
+      data: projection.value.actualSeries.map((point) => [point.monthOffset, point.value]),
+    },
+    ...NET_WORTH_SCENARIOS.map((scenario) => ({
+      name: `Cenário ${scenario.label.toLowerCase()}`,
+      type: "line",
+      smooth: true,
+      symbol: "none",
+      lineStyle: { width: scenario.id === "base" ? 3 : 2, type: "dashed" },
+      itemStyle: { color: scenarios[scenario.id] },
+      data: projection.value.projectedSeries[scenario.id].map((point) => [point.monthOffset, point.value]),
+      markPoint: scenario.id === "base" && markPointData.length > 0
+        ? {
+            symbol: "pin",
+            symbolSize: 42,
+            // pieBorder é a superfície do tema: contrasta com o pin nos dois.
+            label: { color: tokens.pieBorder, formatter: "Meta" },
+            itemStyle: { color: scenarios.base },
+            data: markPointData,
+          }
+        : undefined,
+    })),
+  ];
+});
 
 const chartOption = computed<EChartsOption>(() => {
-  const markPointData = projection.value.goalMarkers.map((marker) => ({
-    name: marker.label,
-    coord: [marker.monthOffset, marker.value],
-    value: marker.label,
-  }));
+  const tokens = chartTokens.value;
+  const scenarios = scenarioColors.value;
 
   return {
-    backgroundColor: "transparent",
-    color: ["#8da2bf", scenarioColors.optimistic, scenarioColors.base, scenarioColors.pessimistic],
-    grid: { top: 36, right: 20, bottom: 34, left: 64 },
+    backgroundColor: tokens.background,
+    color: [tokens.axis, scenarios.optimistic, scenarios.base, scenarios.pessimistic],
+    // A legenda tem 4 itens e quebra em duas linhas em telas estreitas; sem essa
+    // folga no topo ela cobre o primeiro rótulo do eixo Y.
+    grid: { top: 64, right: 20, bottom: 34, left: 64 },
     tooltip: {
       trigger: "axis",
-      backgroundColor: "rgba(11, 18, 32, 0.96)",
-      borderColor: "rgba(68, 212, 255, 0.24)",
-      textStyle: { color: "#f8fbff" },
+      backgroundColor: tokens.tooltipBackground,
+      borderColor: tokens.tooltipBorder,
+      textStyle: { color: tokens.tooltipText },
       valueFormatter: (value): string => typeof value === "number" ? formatCurrency(value) : "-",
     },
     legend: {
       top: 0,
-      right: 0,
+      left: "center",
       itemGap: 12,
-      textStyle: { color: "#8da2bf" },
+      textStyle: { color: tokens.mutedText },
     },
     xAxis: {
       type: "value",
       min: -12,
       max: horizonMonths.value,
       boundaryGap: [0, 0],
-      axisLine: { lineStyle: { color: "rgba(141, 162, 191, 0.22)" } },
+      axisLine: { lineStyle: { color: tokens.border } },
       axisTick: { show: false },
       axisLabel: {
-        color: "#8da2bf",
+        color: tokens.mutedText,
         formatter: (value: number): string => {
           if (value === 0) {
             return "Hoje";
@@ -98,41 +148,13 @@ const chartOption = computed<EChartsOption>(() => {
     },
     yAxis: {
       type: "value",
-      splitLine: { lineStyle: { color: "rgba(141, 162, 191, 0.12)" } },
+      splitLine: { lineStyle: { color: tokens.grid } },
       axisLabel: {
-        color: "#8da2bf",
+        color: tokens.mutedText,
         formatter: (value: number): string => `${Math.round(value / 1000)}k`,
       },
     },
-    series: [
-      {
-        name: "Patrimônio real",
-        type: "line",
-        smooth: true,
-        symbol: "none",
-        lineStyle: { width: 3, type: "solid" },
-        areaStyle: { color: "rgba(141, 162, 191, 0.08)" },
-        data: projection.value.actualSeries.map((point) => [point.monthOffset, point.value]),
-      },
-      ...NET_WORTH_SCENARIOS.map((scenario) => ({
-        name: `Cenário ${scenario.label.toLowerCase()}`,
-        type: "line",
-        smooth: true,
-        symbol: "none",
-        lineStyle: { width: scenario.id === "base" ? 3 : 2, type: "dashed" },
-        itemStyle: { color: scenarioColors[scenario.id] },
-        data: projection.value.projectedSeries[scenario.id].map((point) => [point.monthOffset, point.value]),
-        markPoint: scenario.id === "base" && markPointData.length > 0
-          ? {
-              symbol: "pin",
-              symbolSize: 42,
-              label: { color: "#07101b", formatter: "Meta" },
-              itemStyle: { color: "#44d4ff" },
-              data: markPointData,
-            }
-          : undefined,
-      })),
-    ],
+    series: chartSeries.value,
   } as EChartsOption;
 });
 
@@ -191,11 +213,11 @@ const nearestGoal = computed(() => projection.value.goalMarkers[0] ?? null);
 
 <style scoped>
 .net-worth-timeline {
-  border: 1px solid rgba(130, 157, 198, 0.22);
+  border: var(--space-px) solid var(--color-outline-soft);
   border-radius: var(--radius-lg);
-  padding: 24px;
-  background: #151f31;
-  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.22);
+  padding: var(--space-5);
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-card);
 }
 
 .net-worth-timeline__header,
@@ -203,18 +225,18 @@ const nearestGoal = computed(() => projection.value.goalMarkers[0] ?? null);
 .net-worth-timeline__horizons,
 .net-worth-timeline__aside {
   display: flex;
-  gap: 18px;
+  gap: var(--space-4);
 }
 
 .net-worth-timeline__header {
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 22px;
+  margin-bottom: var(--space-5);
 }
 
 .net-worth-timeline__eyebrow {
-  margin: 0 0 8px;
-  color: #44d4ff;
+  margin: 0 0 var(--space-2);
+  color: var(--color-brand-500);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-extrabold);
   letter-spacing: 0.08em;
@@ -223,7 +245,7 @@ const nearestGoal = computed(() => projection.value.goalMarkers[0] ?? null);
 
 .net-worth-timeline h2 {
   margin: 0;
-  color: #f7fbff;
+  color: var(--color-text-primary);
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
   letter-spacing: 0;
@@ -231,26 +253,26 @@ const nearestGoal = computed(() => projection.value.goalMarkers[0] ?? null);
 
 .net-worth-timeline__header span {
   display: block;
-  margin-top: 6px;
-  color: #8da2bf;
+  margin-top: var(--space-1);
+  color: var(--color-text-muted);
   font-size: var(--font-size-sm);
 }
 
 .net-worth-timeline__horizons {
   align-items: center;
-  border: 1px solid rgba(130, 157, 198, 0.22);
+  border: var(--space-px) solid var(--color-outline-soft);
   border-radius: var(--radius-xs);
-  padding: 4px;
-  background: rgba(10, 16, 29, 0.44);
+  padding: var(--space-1);
+  background: var(--color-bg-elevated);
 }
 
 .net-worth-timeline__horizons button {
   min-height: 30px;
   border: 0;
   border-radius: var(--radius-xs);
-  padding: 0 12px;
+  padding: 0 var(--space-3);
   background: transparent;
-  color: #8da2bf;
+  color: var(--color-text-muted);
   font: inherit;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-extrabold);
@@ -258,8 +280,8 @@ const nearestGoal = computed(() => projection.value.goalMarkers[0] ?? null);
 }
 
 .net-worth-timeline__horizons button.is-active {
-  background: rgba(68, 212, 255, 0.12);
-  color: #44d4ff;
+  background: color-mix(in srgb, var(--color-brand-500) 12%, transparent);
+  color: var(--color-brand-500);
 }
 
 .net-worth-timeline__body {
@@ -277,29 +299,29 @@ const nearestGoal = computed(() => projection.value.goalMarkers[0] ?? null);
 }
 
 .net-worth-timeline__aside div {
-  border: 1px solid rgba(130, 157, 198, 0.18);
+  border: var(--space-px) solid var(--color-outline-soft);
   border-radius: var(--radius-xs);
-  padding: 14px;
-  background: rgba(10, 16, 29, 0.34);
+  padding: var(--space-4);
+  background: var(--color-bg-elevated);
 }
 
 .net-worth-timeline__aside span {
   display: block;
-  color: #8da2bf;
+  color: var(--color-text-muted);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
 }
 
 .net-worth-timeline__aside strong {
   display: block;
-  margin-top: 6px;
-  color: #f7fbff;
-  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  margin-top: var(--space-1);
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
   font-size: var(--font-size-lg);
 }
 
 .net-worth-timeline__aside .is-positive {
-  color: #42e8a9;
+  color: var(--color-positive);
 }
 
 @media (max-width: 900px) {
@@ -317,7 +339,7 @@ const nearestGoal = computed(() => projection.value.goalMarkers[0] ?? null);
 
 @media (max-width: 640px) {
   .net-worth-timeline {
-    padding: 18px;
+    padding: var(--space-4);
   }
 
   .net-worth-timeline__horizons {

@@ -4,6 +4,7 @@ import { PieChart, Menu, X } from "lucide-vue-next";
 import { useRoute } from "vue-router";
 import { useSidebarState } from "~/composables/useSidebarState";
 import { useResponsiveShell } from "~/composables/useResponsiveShell";
+import { useOverlayKeyboard } from "~/composables/useOverlayKeyboard/useOverlayKeyboard";
 import UiSidebarNav from "../UiSidebarNav/UiSidebarNav.vue";
 import type { UiToolsShellProps } from "./UiToolsShell.types";
 
@@ -30,6 +31,12 @@ const { isMobile, isDrawerOpen, openDrawer, closeDrawer } = useResponsiveShell()
 
 /** The active route path for highlighting the current nav item. */
 const currentRoute = computed(() => route.path);
+
+// O drawer mobile só fechava por clique no overlay; Esc dá a saída por teclado.
+useOverlayKeyboard({
+  isOpen: (): boolean => isMobile.value && isDrawerOpen.value,
+  onClose: closeDrawer,
+});
 </script>
 
 <template>

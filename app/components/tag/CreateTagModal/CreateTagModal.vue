@@ -74,6 +74,7 @@ async function onSubmit(): Promise<void> {
     preset="card"
     :title="t('transactions.tagModal.title')"
     class="create-tag-modal"
+    style="width: min(420px, 95vw)"
     :mask-closable="true"
     @update:show="(v) => emit('update:visible', v)"
   >
@@ -137,9 +138,9 @@ async function onSubmit(): Promise<void> {
 </template>
 
 <style scoped>
-.create-tag-modal {
-  width: min(420px, 95vw);
-}
+/* A largura vive no atributo `style` do NModal (ver template): o card é
+   teleportado para fora deste componente, então nenhuma regra daqui — nem
+   com :deep() — alcança ele. Detalhes em #1262. */
 
 .create-tag-modal__color-section {
   display: flex;

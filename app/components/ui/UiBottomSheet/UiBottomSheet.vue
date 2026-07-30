@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, ref, watch } from "vue";
+import { computed, ref } from "vue";
 
+import { useOverlayKeyboard } from "~/composables/useOverlayKeyboard/useOverlayKeyboard";
 import type { UiBottomSheetProps } from "./UiBottomSheet.types";
 
 const props = withDefaults(defineProps<UiBottomSheetProps>(), {
@@ -13,10 +14,6 @@ const props = withDefaults(defineProps<UiBottomSheetProps>(), {
 const emit = defineEmits<{ "update:modelValue": [value: boolean] }>();
 
 const panelRef = ref<HTMLElement | null>(null);
-const previouslyFocused = ref<HTMLElement | null>(null);
-
-const FOCUSABLE =
-  "a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex='-1'])";
 
 /** Solicita o fechamento do sheet. */
 const close = (): void => {
@@ -30,70 +27,15 @@ const onScrimClick = (): void => {
   }
 };
 
-/**
- * Mantém o foco preso ao painel ao tabular nas bordas.
- *
- * @param event Evento de teclado.
- */
-const trapTab = (event: KeyboardEvent): void => {
-  const panel = panelRef.value;
-  if (!panel) {
-    return;
-  }
-  const focusables = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE));
-  if (focusables.length === 0) {
-    return;
-  }
-  const first = focusables[0]!;
-  const last = focusables[focusables.length - 1]!;
-  const active = document.activeElement;
-  if (event.shiftKey && active === first) {
-    event.preventDefault();
-    last.focus();
-  } else if (!event.shiftKey && active === last) {
-    event.preventDefault();
-    first.focus();
-  }
-};
-
-/**
- * Trata Esc (fechar) e Tab (focus trap).
- *
- * @param event Evento de teclado.
- */
-const onKeydown = (event: KeyboardEvent): void => {
-  if (event.key === "Escape") {
-    close();
-    return;
-  }
-  if (event.key === "Tab") {
-    trapTab(event);
-  }
-};
-
-watch(
-  () => props.modelValue,
-  async (open) => {
-    if (typeof document === "undefined") {
-      return;
-    }
-    if (open) {
-      previouslyFocused.value = document.activeElement as HTMLElement | null;
-      document.body.style.overflow = "hidden";
-      await nextTick();
-      panelRef.value?.focus();
-    } else {
-      document.body.style.overflow = "";
-      previouslyFocused.value?.focus?.();
-    }
-  },
-);
-
-onBeforeUnmount(() => {
-  if (typeof document !== "undefined") {
-    document.body.style.overflow = "";
-  }
+// Esc, focus trap e travamento de scroll saíram daqui para um composable
+// compartilhado — os drawers e o wizard precisavam do mesmo comportamento (#1266).
+const { onKeydown } = useOverlayKeyboard({
+  isOpen: computed((): boolean => props.modelValue),
+  onClose: close,
+  panel: panelRef,
+  lockScroll: true,
 });
+
 </script>
 
 <template>
