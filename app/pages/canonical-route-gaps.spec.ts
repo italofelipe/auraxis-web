@@ -27,15 +27,11 @@ describe("canonical route gaps", () => {
     expect(source).toContain("Inteligência que Transforma Patrimônio");
   });
 
-  it("adds the canonical detailed-quarter-result route from the blue dashboard design", () => {
-    const path = "app/pages/tools/detailed-quarter-result.vue";
-
-    expect(existsSync(resolve(root, path))).toBe(true);
-
-    const source = readProjectFile(path);
-    expect(source).toContain("detailed-quarter-page");
-    expect(source).toContain("Resultado Trimestral Detalhado");
-    expect(source).toContain("Insights Automáticos");
+  it("keeps the orphan detailed-quarter-result route out of the app", () => {
+    // A página existia desde o desenho do dashboard azul, mas nunca foi ligada
+    // a nada: 404 no apex, 301 no app, nenhum link apontando — e ainda assim
+    // declarava useSeoMeta e carregava 7 botões sem ação. Removida em #1267.
+    expect(existsSync(resolve(root, "app/pages/tools/detailed-quarter-result.vue"))).toBe(false);
   });
 
   it("documents misnamed prototype files instead of wiring incorrect routes", () => {
