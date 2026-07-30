@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import {
   CalendarClock,
   ChevronLeft,
   ChevronRight,
   HeartPulse,
+  Pause,
+  Play,
   Target,
   TrendingDown,
 } from "lucide-vue-next";
@@ -67,9 +69,45 @@ const slides = [
   { key: "health", title: "Saúde financeira" },
 ] as const;
 
+/** How long each slide stays on screen before the carousel advances. */
+const SLIDE_DURATION_MS = 12_000;
+/** Resolution of the stories-style progress bar. */
+const PROGRESS_TICK_MS = 120;
+const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+
 const activeIndex = ref<number>(0);
 
 const activeSlide = computed(() => slides[activeIndex.value] ?? slides[0]);
+
+const elapsedMs = ref<number>(0);
+const pausedByUser = ref<boolean>(false);
+const pointerInside = ref<boolean>(false);
+const focusInside = ref<boolean>(false);
+const prefersReducedMotion = ref<boolean>(false);
+
+/** Autoplay is only offered when motion is welcome and there is more than one slide. */
+const autoplayAvailable = computed(
+  () => !prefersReducedMotion.value && slides.length > 1,
+);
+
+/** Whether the timer should currently be running. */
+const isPlaying = computed(
+  () =>
+    autoplayAvailable.value
+    && !pausedByUser.value
+    && !pointerInside.value
+    && !focusInside.value,
+);
+
+/** Fraction of the current slide already elapsed, in the 0–1 range. */
+const progress = computed(() => Math.min(elapsedMs.value / SLIDE_DURATION_MS, 1));
+
+const autoplayToggleLabel = computed(() =>
+  pausedByUser.value ? "Retomar rotação automática" : "Pausar rotação automática",
+);
+
+let timerId: ReturnType<typeof setInterval> | null = null;
+let motionQuery: MediaQueryList | null = null;
 
 /**
  * Advances the carousel, wrapping around at the ends.
@@ -79,6 +117,7 @@ const activeSlide = computed(() => slides[activeIndex.value] ?? slides[0]);
 function go(step: number): void {
   const count = slides.length;
   activeIndex.value = (activeIndex.value + step + count) % count;
+  elapsedMs.value = 0;
 }
 
 /**
@@ -88,7 +127,72 @@ function go(step: number): void {
  */
 function goTo(index: number): void {
   activeIndex.value = index;
+  elapsedMs.value = 0;
 }
+
+/** Clears the running interval, if any. */
+function stopTimer(): void {
+  if (timerId !== null) {
+    clearInterval(timerId);
+    timerId = null;
+  }
+}
+
+/** Accumulates elapsed time and hands over to the next slide when the dwell ends. */
+function tick(): void {
+  elapsedMs.value += PROGRESS_TICK_MS;
+  if (elapsedMs.value >= SLIDE_DURATION_MS) {
+    go(1);
+  }
+}
+
+/** (Re)starts the progress interval from a clean slate. */
+function startTimer(): void {
+  stopTimer();
+  timerId = setInterval(tick, PROGRESS_TICK_MS);
+}
+
+/** Flips autoplay off/on from the explicit control (WCAG 2.2.2). */
+function toggleAutoplay(): void {
+  pausedByUser.value = !pausedByUser.value;
+  if (!pausedByUser.value) {
+    elapsedMs.value = 0;
+  }
+}
+
+/**
+ * Keeps the reduced-motion preference in sync with the OS setting.
+ *
+ * @param event Media query change event.
+ */
+function handleMotionChange(event: MediaQueryListEvent): void {
+  prefersReducedMotion.value = event.matches;
+}
+
+watch(isPlaying, (playing) => {
+  if (playing) {
+    startTimer();
+  } else {
+    stopTimer();
+  }
+});
+
+onMounted(() => {
+  if (typeof window.matchMedia === "function") {
+    motionQuery = window.matchMedia(REDUCED_MOTION_QUERY);
+    prefersReducedMotion.value = motionQuery.matches;
+    motionQuery.addEventListener("change", handleMotionChange);
+  }
+  if (isPlaying.value) {
+    startTimer();
+  }
+});
+
+onBeforeUnmount(() => {
+  stopTimer();
+  motionQuery?.removeEventListener("change", handleMotionChange);
+  motionQuery = null;
+});
 
 /**
  * Formats an ISO date as a compact PT-BR day/month label.
@@ -124,13 +228,48 @@ function dueLabel(due: CarouselDue): string {
 </script>
 
 <template>
-  <UiSurfaceCard class="insight-carousel" padding="none" data-testid="dashboard-insight-carousel">
+  <UiSurfaceCard
+    class="insight-carousel"
+    padding="none"
+    data-testid="dashboard-insight-carousel"
+    @mouseenter="pointerInside = true"
+    @mouseleave="pointerInside = false"
+    @focusin="focusInside = true"
+    @focusout="focusInside = false"
+  >
+    <div
+      v-if="autoplayAvailable"
+      class="insight-carousel__progress"
+      data-testid="insight-carousel-progress"
+      aria-hidden="true"
+    >
+      <span
+        class="insight-carousel__progress-fill"
+        data-testid="insight-carousel-progress-fill"
+        :style="{ transform: `scaleX(${progress})` }"
+      />
+    </div>
+
     <header class="insight-carousel__header">
       <div class="insight-carousel__heading">
         <h2>{{ activeSlide.title }}</h2>
         <p>Destaques acionáveis do seu mês</p>
       </div>
       <div class="insight-carousel__nav">
+        <NButton
+          v-if="autoplayAvailable"
+          quaternary
+          circle
+          size="small"
+          :aria-label="autoplayToggleLabel"
+          data-testid="insight-carousel-autoplay-toggle"
+          @click="toggleAutoplay"
+        >
+          <template #icon>
+            <Play v-if="pausedByUser" :size="16" aria-hidden="true" />
+            <Pause v-else :size="16" aria-hidden="true" />
+          </template>
+        </NButton>
         <NButton
           quaternary
           circle
@@ -250,6 +389,30 @@ function dueLabel(due: CarouselDue): string {
   min-height: calc(var(--space-9) * 3);
 }
 
+/* Barra estilo stories: fina, discreta, colada no topo do card. */
+.insight-carousel__progress {
+  height: 3px;
+  margin-bottom: calc(var(--space-3) * -1);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: var(--color-outline-soft);
+  overflow: hidden;
+}
+
+.insight-carousel__progress-fill {
+  display: block;
+  height: 100%;
+  background: var(--color-positive);
+  transform-origin: left center;
+  transition: transform 120ms linear;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .insight-carousel__progress-fill {
+    transition: none;
+  }
+}
+
 .insight-carousel__header {
   display: flex;
   align-items: center;
@@ -275,6 +438,19 @@ function dueLabel(due: CarouselDue): string {
   display: flex;
   gap: var(--space-1);
   flex-shrink: 0;
+}
+
+/* Em telas estreitas o trio de controles rouba largura do título: empilha. */
+@media (max-width: 480px) {
+  .insight-carousel__header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+
+  .insight-carousel__nav {
+    justify-content: flex-end;
+  }
 }
 
 .insight-carousel__body {

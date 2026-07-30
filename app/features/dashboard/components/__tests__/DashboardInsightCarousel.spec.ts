@@ -1,6 +1,6 @@
-import { defineComponent } from "vue";
+import { defineComponent, nextTick } from "vue";
 import { mount } from "@vue/test-utils";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import DashboardInsightCarousel, {
   type CarouselDue,
@@ -31,7 +31,34 @@ const stubs = {
   Target: IconStub,
   TrendingDown: IconStub,
   HeartPulse: IconStub,
+  Pause: IconStub,
+  Play: IconStub,
 };
+
+/** Autoplay dwell per slide, mirrored from the component constant. */
+const SLIDE_DURATION_MS = 12_000;
+
+/**
+ * Replaces `window.matchMedia` with a stub answering a fixed reduced-motion preference.
+ *
+ * @param reduced Whether `(prefers-reduced-motion: reduce)` should match.
+ */
+function stubReducedMotion(reduced: boolean): void {
+  Object.defineProperty(window, "matchMedia", {
+    configurable: true,
+    writable: true,
+    value: (query: string) => ({
+      matches: reduced && query.includes("prefers-reduced-motion"),
+      media: query,
+      onchange: null,
+      addEventListener: (): void => {},
+      removeEventListener: (): void => {},
+      addListener: (): void => {},
+      removeListener: (): void => {},
+      dispatchEvent: (): boolean => false,
+    }),
+  });
+}
 
 const DUES: CarouselDue[] = [
   { id: "d1", title: "Financiamento carro", amount: 1200, dueDate: "2026-07-05", daysLeft: 3, overdue: false },
@@ -117,5 +144,122 @@ describe("DashboardInsightCarousel", () => {
       upcomingDues: [{ ...DUES[0]!, overdue: true, daysLeft: 0 }],
     });
     expect(w.text()).toContain("vencida");
+  });
+
+  describe("autoplay", () => {
+    afterEach(() => {
+      vi.useRealTimers();
+      Reflect.deleteProperty(window, "matchMedia");
+    });
+
+    it("advances on its own after the slide duration", async () => {
+      stubReducedMotion(false);
+      vi.useFakeTimers();
+      const w = mountCarousel();
+
+      expect(w.text()).toContain("Próximos vencimentos");
+
+      vi.advanceTimersByTime(SLIDE_DURATION_MS);
+      await nextTick();
+
+      expect(w.text()).toContain("Progresso de metas");
+    });
+
+    it("fills the progress bar from left to right while a slide is on screen", async () => {
+      stubReducedMotion(false);
+      vi.useFakeTimers();
+      const w = mountCarousel();
+      const bar = w.find("[data-testid='insight-carousel-progress-fill']");
+
+      expect(bar.exists()).toBe(true);
+      expect(bar.attributes("style")).toContain("scaleX(0)");
+
+      vi.advanceTimersByTime(SLIDE_DURATION_MS / 2);
+      await nextTick();
+
+      const midpoint = Number(
+        /scaleX\(([\d.]+)\)/.exec(
+          w.find("[data-testid='insight-carousel-progress-fill']").attributes("style") ?? "",
+        )?.[1] ?? "0",
+      );
+      expect(midpoint).toBeGreaterThan(0.4);
+      expect(midpoint).toBeLessThan(0.6);
+    });
+
+    it("pauses while the pointer hovers the card and resumes when it leaves", async () => {
+      stubReducedMotion(false);
+      vi.useFakeTimers();
+      const w = mountCarousel();
+
+      await w.trigger("mouseenter");
+      vi.advanceTimersByTime(SLIDE_DURATION_MS * 2);
+      await nextTick();
+      expect(w.text()).toContain("Próximos vencimentos");
+
+      await w.trigger("mouseleave");
+      vi.advanceTimersByTime(SLIDE_DURATION_MS);
+      await nextTick();
+      expect(w.text()).toContain("Progresso de metas");
+    });
+
+    it("pauses while focus is inside the card", async () => {
+      stubReducedMotion(false);
+      vi.useFakeTimers();
+      const w = mountCarousel();
+
+      await w.trigger("focusin");
+      vi.advanceTimersByTime(SLIDE_DURATION_MS * 2);
+      await nextTick();
+
+      expect(w.text()).toContain("Próximos vencimentos");
+    });
+
+    it("lets the user stop and restart autoplay from a dedicated control", async () => {
+      stubReducedMotion(false);
+      vi.useFakeTimers();
+      const w = mountCarousel();
+      const toggle = w.find("[data-testid='insight-carousel-autoplay-toggle']");
+
+      expect(toggle.attributes("aria-label")).toContain("Pausar");
+
+      await toggle.trigger("click");
+      vi.advanceTimersByTime(SLIDE_DURATION_MS * 2);
+      await nextTick();
+      expect(w.text()).toContain("Próximos vencimentos");
+      expect(
+        w.find("[data-testid='insight-carousel-autoplay-toggle']").attributes("aria-label"),
+      ).toContain("Retomar");
+
+      await w.find("[data-testid='insight-carousel-autoplay-toggle']").trigger("click");
+      vi.advanceTimersByTime(SLIDE_DURATION_MS);
+      await nextTick();
+      expect(w.text()).toContain("Progresso de metas");
+    });
+
+    it("never moves on its own when the user prefers reduced motion", async () => {
+      stubReducedMotion(true);
+      vi.useFakeTimers();
+      const w = mountCarousel();
+
+      vi.advanceTimersByTime(SLIDE_DURATION_MS * 3);
+      await nextTick();
+
+      expect(w.text()).toContain("Próximos vencimentos");
+      expect(w.find("[data-testid='insight-carousel-progress']").exists()).toBe(false);
+      expect(w.find("[data-testid='insight-carousel-autoplay-toggle']").exists()).toBe(false);
+    });
+
+    it("stops its timer once the component is unmounted", () => {
+      stubReducedMotion(false);
+      vi.useFakeTimers();
+      const clearSpy = vi.spyOn(globalThis, "clearInterval");
+      const w = mountCarousel();
+
+      w.unmount();
+
+      expect(clearSpy).toHaveBeenCalled();
+      expect(() => vi.advanceTimersByTime(SLIDE_DURATION_MS * 2)).not.toThrow();
+      clearSpy.mockRestore();
+    });
   });
 });
