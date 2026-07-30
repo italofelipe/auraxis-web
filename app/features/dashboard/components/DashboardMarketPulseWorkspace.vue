@@ -5,15 +5,12 @@ import {
   ArrowDownRight,
   ArrowUpRight,
   CalendarClock,
-  ChevronLeft,
-  Download,
   LineChart,
   PieChart,
   Scale,
   Sparkles,
   Wallet,
 } from "lucide-vue-next";
-import { NButton } from "naive-ui";
 
 import UiSurfaceCard from "~/components/ui/UiSurfaceCard/UiSurfaceCard.vue";
 import { formatCurrency } from "~/utils/currency";
@@ -189,22 +186,30 @@ function buildCashflowPoints(
   timeseries: DashboardTimeseriesPoint[],
   trends: DashboardTrendsMonthEntry[],
 ): CashflowPoint[] {
+  // Ordena por data ASCENDENTE: linha do tempo se lê da esquerda para a
+  // direita, então o mês corrente é a extremidade direita (#1260). Ordenar em
+  // vez de `reverse()` porque a ordem da API não é contrato — inverter às cegas
+  // deixaria o gráfico errado no dia em que ela mudar.
   if (trends.length > 0) {
-    return trends.map((point) => ({
-      label: formatMonth(point.month),
-      income: point.income,
-      expense: point.expenses,
-      balance: point.balance,
-    }));
+    return [...trends]
+      .sort((a, b) => a.month.localeCompare(b.month))
+      .map((point) => ({
+        label: formatMonth(point.month),
+        income: point.income,
+        expense: point.expenses,
+        balance: point.balance,
+      }));
   }
 
   if (timeseries.length > 0) {
-    return timeseries.map((point) => ({
-      label: formatShortDate(point.date),
-      income: point.income,
-      expense: point.expense,
-      balance: point.balance,
-    }));
+    return [...timeseries]
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .map((point) => ({
+        label: formatShortDate(point.date),
+        income: point.income,
+        expense: point.expense,
+        balance: point.balance,
+      }));
   }
 
   if (summary) {
@@ -642,19 +647,9 @@ const chartUpdateKey = computed((): string =>
               <h2>Gastos por Categoria</h2>
               <p>Principais concentrações de saída</p>
             </div>
-            <NButton quaternary circle size="small" aria-label="Exportar categorias">
-              <template #icon>
-                <Download :size="15" aria-hidden="true" />
-              </template>
-            </NButton>
           </header>
 
           <div v-if="activeCategory" class="category-focus">
-            <NButton quaternary circle size="tiny" aria-label="Voltar categoria">
-              <template #icon>
-                <ChevronLeft :size="14" aria-hidden="true" />
-              </template>
-            </NButton>
             <div class="category-focus__copy">
               <span>{{ activeCategory.category }}</span>
               <strong>{{ formatCurrency(activeCategory.amount) }}</strong>
