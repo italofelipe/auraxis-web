@@ -1,12 +1,12 @@
-// The `no-external` build never injects remote <script> tags — the default
-// build loads remote config (config.js) and lazy extensions from
-// *-assets.i.posthog.com, which both production CSPs block in `script-src`
-// (landing: infra/landing/main.tf; app: PRODUCTION_CSP in csp.ts). With the
-// loader stubbed, config/flags fall back to fetch on the ingest host, which
-// `connect-src` already allows (#1209 — root cause of zero web ingestion).
-// web-vitals.client.ts MUST import the same path: two entrypoints would
-// create two disconnected PostHog singletons.
-import posthog from "posthog-js/dist/module.no-external";
+// O SDK entra por `~/shared/analytics/posthog-loader`, que faz o `import()`
+// dinâmico do build `no-external` — o único entrypoint válido (#1209) e agora
+// o único lugar do código que o nomeia. Import estático aqui colocava a
+// biblioteca no chunk de entrada de todo mundo, inclusive de quem recusa
+// cookies (#1246).
+import {
+  isPostHogSdkRequested,
+  loadPostHogSdk,
+} from "~/shared/analytics/posthog-loader";
 import {
   canUseAnalyticsCookies,
   subscribeToCookieConsentChanges,
@@ -118,7 +118,12 @@ const createDefaultConsentGateway = (): AnalyticsConsentGateway => ({
  * @param apiHost PostHog ingest host URL.
  * @returns Typed AnalyticsClient backed by PostHog.
  */
-export function initPostHog(apiKey: string, apiHost: string): AnalyticsClient {
+export async function initPostHog(
+  apiKey: string,
+  apiHost: string,
+): Promise<AnalyticsClient> {
+  const posthog = await loadPostHogSdk();
+
   posthog.init(apiKey, {
     api_host: apiHost,
     // "history_change": the SDK captures the initial load AND history-API
@@ -158,22 +163,24 @@ export function createConsentAwareAnalyticsClient(
   apiHost: string,
   gateway: AnalyticsConsentGateway = createDefaultConsentGateway(),
 ): ConsentAwareAnalyticsClient {
-  let client: AnalyticsClient | null = null;
-  let initialized = false;
+  let clientPromise: Promise<AnalyticsClient> | null = null;
 
   /**
    * Lazily initializes PostHog only when analytics consent is currently allowed.
    *
-   * @returns Initialized analytics client or null when consent is missing.
+   * Devolve a MESMA promise em toda chamada, então as continuações rodam na
+   * ordem em que foram encadeadas: um `capture` disparado no instante do aceite
+   * chega antes do seguinte, e nenhum evento se perde na janela entre o
+   * consentimento e o módulo carregar (#1208).
+   *
+   * @returns Promise do cliente inicializado, ou null quando falta consentimento.
    */
-  const ensureInitialized = (): AnalyticsClient | null => {
+  const ensureInitialized = (): Promise<AnalyticsClient> | null => {
     if (!gateway.canUseAnalytics()) {
       return null;
     }
 
-    if (!initialized) {
-      client = initPostHog(apiKey, apiHost);
-      initialized = true;
+    clientPromise ??= initPostHog(apiKey, apiHost).then((initializedClient) => {
       // Surveys extension, bundled (#1209): with the no-external build the
       // CDN fallback does not exist, so the extension ships as a local lazy
       // chunk from our own origin — loaded only for consented sessions, and
@@ -181,10 +188,14 @@ export function createConsentAwareAnalyticsClient(
       // /checkout/cancelado. Optional by design: a failed load must never
       // take analytics down with it.
       void import("posthog-js/dist/surveys").catch(() => { /* optional */ });
-    }
+      return initializedClient;
+    });
 
-    posthog.opt_in_capturing?.();
-    return client;
+    void loadPostHogSdk().then((posthog) => {
+      posthog.opt_in_capturing?.();
+    });
+
+    return clientPromise;
   };
 
   const unsubscribe = gateway.onChange((allowed) => {
@@ -193,9 +204,13 @@ export function createConsentAwareAnalyticsClient(
       return;
     }
 
-    if (initialized) {
-      posthog.opt_out_capturing?.();
-      posthog.reset();
+    // Sem `isPostHogSdkRequested` esta linha baixaria o SDK só para desligá-lo
+    // — exatamente para quem recusou os cookies.
+    if (isPostHogSdkRequested()) {
+      void loadPostHogSdk().then((posthog) => {
+        posthog.opt_out_capturing?.();
+        posthog.reset();
+      });
     }
   });
 
@@ -203,15 +218,22 @@ export function createConsentAwareAnalyticsClient(
 
   return {
     capture: (event: AuraxisEvent, properties?: Record<string, unknown>): void => {
-      ensureInitialized()?.capture(event, properties);
+      void ensureInitialized()?.then((analytics) => {
+        analytics.capture(event, properties);
+      });
     },
     identify: (userId: string): void => {
-      ensureInitialized()?.identify(userId);
+      void ensureInitialized()?.then((analytics) => {
+        analytics.identify(userId);
+      });
     },
     reset: (): void => {
-      if (gateway.canUseAnalytics()) {
-        client?.reset();
+      if (!gateway.canUseAnalytics()) {
+        return;
       }
+      void clientPromise?.then((analytics) => {
+        analytics.reset();
+      });
     },
     dispose: unsubscribe,
   };

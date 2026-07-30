@@ -29,21 +29,36 @@ const metric: Metric = {
   entries: [],
 };
 
+/**
+ * Deixa as continuações do `import()` dinâmico do SDK rodarem.
+ *
+ * `reportToPostHog` passou a carregar o PostHog por promise (#1246), então o
+ * `capture` acontece depois da chamada. Drenar só microtask não basta:
+ * resolver um `import()` envolve o grafo de módulos.
+ */
+const flushSdkLoad = async (): Promise<void> => {
+  for (let index = 0; index < 3; index += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  }
+};
+
 describe("web-vitals consent gate", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("does not send metrics to PostHog or Sentry before analytics consent", () => {
+  it("does not send metrics to PostHog or Sentry before analytics consent", async () => {
     emit(metric, false);
+    await flushSdkLoad();
 
     expect(posthogMock.capture).not.toHaveBeenCalled();
     expect(sentryMock.setMeasurement).not.toHaveBeenCalled();
     expect(sentryMock.setTag).not.toHaveBeenCalled();
   });
 
-  it("sends metrics when analytics consent is granted", () => {
+  it("sends metrics when analytics consent is granted", async () => {
     emit(metric, true);
+    await flushSdkLoad();
 
     expect(posthogMock.capture).toHaveBeenCalledWith("web_vital", expect.objectContaining({
       name: "LCP",

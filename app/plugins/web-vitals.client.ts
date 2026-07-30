@@ -1,8 +1,9 @@
 import { onCLS, onFCP, onINP, onLCP, onTTFB, type Metric } from "web-vitals";
-// Same entrypoint as posthog.client.ts — the no-external build is a distinct
-// module instance; importing plain "posthog-js" here would report vitals into
-// a second, never-initialized singleton (#1209).
-import posthog from "posthog-js/dist/module.no-external";
+// Mesmo carregador do posthog.client.ts — o build `no-external` é uma instância
+// de módulo distinta, e um segundo entrypoint reportaria as vitals para um
+// singleton nunca inicializado (#1209). Import dinâmico via loader para não
+// arrastar o SDK de volta ao chunk de entrada (#1246).
+import { loadPostHogSdk } from "~/shared/analytics/posthog-loader";
 import * as Sentry from "@sentry/nuxt";
 import {
   canUseAnalyticsCookies,
@@ -81,13 +82,19 @@ export function toPayload(metric: Metric): WebVitalPayload {
  * Reports a Web Vital to PostHog as a `web_vital` event when the SDK is loaded.
  * No-op when PostHog was not initialized (missing key).
  *
+ * Só é chamada depois do gate de consentimento em `emit`, então carregar o SDK
+ * aqui não baixa nada para quem recusou cookies.
+ *
  * @param payload Normalized metric payload.
+ * @returns Promise resolvida quando o evento foi entregue (ou descartado).
  */
-export function reportToPostHog(payload: WebVitalPayload): void {
-  if (typeof posthog.capture !== "function") {
-    return;
-  }
-  posthog.capture("web_vital", payload as unknown as Record<string, unknown>);
+export function reportToPostHog(payload: WebVitalPayload): Promise<void> {
+  return loadPostHogSdk().then((posthog) => {
+    if (typeof posthog.capture !== "function") {
+      return;
+    }
+    posthog.capture("web_vital", payload as unknown as Record<string, unknown>);
+  });
 }
 
 /**
@@ -115,7 +122,7 @@ export function emit(metric: Metric, analyticsAllowed = canUseAnalyticsCookies()
   }
 
   const payload = toPayload(metric);
-  reportToPostHog(payload);
+  void reportToPostHog(payload);
   reportToSentry(payload);
 }
 

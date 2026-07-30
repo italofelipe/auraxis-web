@@ -36,6 +36,19 @@ const baseMetric = (overrides: Partial<Metric>): Metric =>
     ...overrides,
   }) as Metric;
 
+/**
+ * Deixa as continuações do `import()` dinâmico do SDK rodarem.
+ *
+ * `reportToPostHog` passou a carregar o PostHog por promise (#1246), então o
+ * `capture` acontece depois da chamada. Drenar só microtask não basta:
+ * resolver um `import()` envolve o grafo de módulos.
+ */
+const flushSdkLoad = async (): Promise<void> => {
+  for (let index = 0; index < 3; index += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  }
+};
+
 describe("isTrackedMetric", () => {
   it("accepts every Core Web Vital we track", async () => {
     const { isTrackedMetric } = await import("../../app/plugins/web-vitals.client");
@@ -80,7 +93,7 @@ describe("reportToPostHog", () => {
   it("emits a web_vital event with the payload", async () => {
     const { reportToPostHog, toPayload } = await import("../../app/plugins/web-vitals.client");
     const payload = toPayload(baseMetric({ name: "INP", value: 42 }));
-    reportToPostHog(payload);
+    await reportToPostHog(payload);
     expect(mockCapture).toHaveBeenCalledWith("web_vital", payload);
   });
 });
@@ -117,6 +130,7 @@ describe("emit", () => {
   it("forwards the metric to PostHog and Sentry when analytics consent is granted", async () => {
     const { emit } = await import("../../app/plugins/web-vitals.client");
     emit(baseMetric({ name: "FCP", value: 900 }), true);
+    await flushSdkLoad();
     expect(mockCapture).toHaveBeenCalledTimes(1);
     expect(mockSetMeasurement).toHaveBeenCalledTimes(1);
     expect(mockSetTag).toHaveBeenCalledTimes(1);
