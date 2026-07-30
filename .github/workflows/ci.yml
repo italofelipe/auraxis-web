@@ -645,6 +645,15 @@ jobs:
         run: pnpm exec playwright test e2e/a11y.spec.ts --project=chromium
         env:
           CI: true
+      # Telas logadas — o gate acima cobre 7 rotas públicas de 87 páginas, e é
+      # por isso que problemas de a11y no produto atravessavam o CI (#1268).
+      # warn-only até a baseline ser registrada: promover ligando
+      # A11Y_AUTH_STRICT=1 aqui.
+      - name: Run a11y tests (authenticated screens)
+        run: pnpm exec playwright test e2e/a11y-authenticated.spec.ts --project=chromium
+        continue-on-error: true
+        env:
+          CI: true
       - name: Upload a11y report
         uses: actions/upload-artifact@v4
         if: always()
