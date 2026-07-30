@@ -288,17 +288,8 @@ const onClose = (): void => {
 </template>
 
 <style scoped>
-.goal-form-modal {
-  width: min(560px, calc(100vw - 32px));
-  max-height: min(720px, calc(100vh - 48px));
-  overflow: auto;
-}
-
-:deep(.goal-form-modal.n-card) {
-  width: min(560px, calc(100vw - 32px));
-  max-height: min(720px, calc(100vh - 48px));
-  overflow: auto;
-}
+/* Dimensionamento fica no `style` do NModal no template — regra daqui não
+   alcança o card teleportado, com ou sem :deep(). #1262 */
 
 .goal-form__amount-grid {
   display: grid;

@@ -184,7 +184,6 @@ const entryCount = computed(() => props.entries.length);
             {{ entryCount }}
           </NTag>
         </div>
-        <NButton size="small" secondary>{{ $t('portfolio.table.addAsset') }}</NButton>
       </div>
     </template>
 

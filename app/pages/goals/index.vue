@@ -6,7 +6,6 @@ import {
   CalendarDays,
   CheckCircle2,
   CircleDollarSign,
-  Download,
   Flag,
   Minus,
   Plus,
@@ -353,12 +352,6 @@ watch(
         </div>
 
         <div class="goals-hub__command-actions">
-          <NButton secondary>
-            <template #icon>
-              <Download :size="18" />
-            </template>
-            Relatório
-          </NButton>
           <NButton
             secondary
             type="primary"

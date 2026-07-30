@@ -276,4 +276,43 @@ describe("UiAppShell", () => {
         .toBe("Fechar menu");
     });
   });
+
+  describe("saída por teclado do drawer mobile", () => {
+    it("fecha o drawer no Esc — o backdrop só respondia a clique", async () => {
+      isMobileRef.value = true;
+      isDrawerOpenRef.value = true;
+      const wrapper = mount(UiAppShell, { props: defaultProps, global: globalConfig });
+      await nextTick();
+
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+      await nextTick();
+
+      expect(closeDrawerMock).toHaveBeenCalled();
+      expect(wrapper.find(".ui-app-shell__overlay").exists()).toBe(false);
+    });
+
+    it("não reage ao Esc quando o drawer está fechado", async () => {
+      isMobileRef.value = true;
+      isDrawerOpenRef.value = false;
+      mount(UiAppShell, { props: defaultProps, global: globalConfig });
+      await nextTick();
+
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+      await nextTick();
+
+      expect(closeDrawerMock).not.toHaveBeenCalled();
+    });
+
+    it("não reage ao Esc no desktop, onde não há drawer", async () => {
+      isMobileRef.value = false;
+      isDrawerOpenRef.value = true;
+      mount(UiAppShell, { props: defaultProps, global: globalConfig });
+      await nextTick();
+
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+      await nextTick();
+
+      expect(closeDrawerMock).not.toHaveBeenCalled();
+    });
+  });
 });

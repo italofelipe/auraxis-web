@@ -79,6 +79,7 @@ onBeforeUnmount(stopRotation);
     :show="modelValue"
     preset="card"
     class="ai-insight-loading-modal"
+    style="width: min(440px, calc(100vw - 32px))"
     :closable="false"
     :mask-closable="false"
     @update:show="emit('update:modelValue', $event)"
@@ -96,9 +97,8 @@ onBeforeUnmount(stopRotation);
 </template>
 
 <style scoped>
-.ai-insight-loading-modal {
-  max-width: 440px;
-}
+/* Largura no atributo `style` do NModal — o card é teleportado e não recebe
+   o escopo deste componente (#1262). */
 
 .ai-insight-loading-modal__body {
   display: grid;

@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import { X } from "lucide-vue-next";
 import { useAnalytics } from "~/composables/useAnalytics/useAnalytics";
+import { useOverlayKeyboard } from "~/composables/useOverlayKeyboard/useOverlayKeyboard";
 import { useOnboarding, type OnboardingStepNumber } from "../composables/useOnboarding";
 import OnboardingStep1Welcome from "./OnboardingStep1Welcome.vue";
 import OnboardingStep2Transactions from "./OnboardingStep2Transactions.vue";
@@ -33,6 +35,18 @@ const tourSteps = computed(() => [
 ]);
 
 const tourStep = computed(() => currentStep.value <= 3 ? tourSteps.value[currentStep.value - 1] : null);
+
+const dialogRef = ref<HTMLElement | null>(null);
+
+// O diálogo se anunciava como aria-modal mas prendia o usuário de teclado:
+// sem Esc e sem trap, o Tab escapava para a página atrás do overlay (#1266).
+// Esc equivale ao clique no backdrop, que já pulava o tutorial.
+useOverlayKeyboard({
+  isOpen: shouldShow,
+  onClose: (): void => { skip(); },
+  panel: dialogRef,
+  lockScroll: true,
+});
 
 /** Advances the wizard to the next step when not on the last step. */
 function onNext(): void {
@@ -82,8 +96,8 @@ function onComplete(): void {
   <Teleport to="body">
     <Transition name="onboarding-fade">
       <div v-if="shouldShow" class="onboarding-overlay" role="dialog" aria-modal="true" :aria-label="t('onboarding.ariaLabel')">
-        <div class="onboarding-backdrop" @click.self="onSkip" />
-        <div class="onboarding-dialog">
+        <div class="onboarding-backdrop" aria-hidden="true" @click.self="onSkip" />
+        <div ref="dialogRef" class="onboarding-dialog" tabindex="-1">
           <!-- Header -->
           <div class="onboarding-dialog__header">
             <span class="onboarding-dialog__brand">Auraxis</span>
