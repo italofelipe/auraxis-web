@@ -3689,6 +3689,7 @@
       "dueDateLabel": "Data",
       "cta": "Criar transação e continuar",
       "ctaLoading": "Criando…",
+      "skipStep": "Pular esta etapa",
       "errorGeneric": "Não conseguimos registrar a transação agora. Tente novamente."
     },
     "step3": {
