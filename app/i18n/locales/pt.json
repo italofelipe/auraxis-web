@@ -4304,5 +4304,111 @@
       "validation": "Não entendi a pergunta. Reformule em até 1000 caracteres.",
       "server": "Não consegui responder agora. Tente novamente em instantes."
     }
+  },
+  "import": {
+    "dropzone": {
+      "title": "Arraste sua planilha aqui",
+      "hint": "Aceitamos CSV e XLSX de até 10 MB.",
+      "action": "Escolher arquivo",
+      "ariaLabel": "Selecionar planilha para importar",
+      "invalidType": "Formato não suportado. Envie um arquivo .csv ou .xlsx.",
+      "tooLarge": "Arquivo maior que 10 MB. Divida a planilha e tente de novo."
+    },
+    "select": {
+      "title": "Escolha a planilha",
+      "description": "O Auraxis detecta as colunas, mostra uma prévia e só grava o que você confirmar."
+    },
+    "mapping": {
+      "title": "Confirme as colunas",
+      "description": "Não conseguimos identificar estas colunas com segurança. Escolha qual é qual.",
+      "confidence": "{value}% de confiança",
+      "placeholder": "Selecione a coluna",
+      "samples": "Amostra da coluna escolhida",
+      "confirm": "Confirmar colunas",
+      "fields": {
+        "dateColumn": "Data",
+        "descriptionColumn": "Descrição",
+        "amountColumn": "Valor",
+        "typeColumn": "Tipo (receita ou despesa)"
+      }
+    },
+    "preview": {
+      "title": "Revise antes de importar",
+      "summary": "Importando {selected} de {total} lançamentos",
+      "duplicates": "nenhuma duplicata | {count} possível duplicata | {count} possíveis duplicatas",
+      "incompleteCount": "nada a conferir | {count} lançamento a conferir | {count} lançamentos a conferir",
+      "confirm": "Importar selecionados",
+      "startOver": "Começar de novo",
+      "duplicate": "Possível duplicata",
+      "incomplete": "Falta preencher",
+      "missingValue": "—",
+      "toggleRow": "Incluir ou excluir o lançamento {description}",
+      "columns": {
+        "include": "Incluir",
+        "date": "Data",
+        "description": "Descrição",
+        "amount": "Valor",
+        "status": "Situação"
+      }
+    },
+    "review": {
+      "modalTitle": "Antes de prosseguir, precisamos conferir se as informações estão corretas",
+      "modalDescription": "Alguns lançamentos vieram sem dados no arquivo. Complete cada um para concluir a importação.",
+      "progress": "{resolved} de {total} conferidos",
+      "pending": "tudo conferido | {count} pendente | {count} pendentes",
+      "cardCounter": "Transação {current} de {total}",
+      "income": "Receita",
+      "expense": "Despesa",
+      "askDescription": "Qual o título desta transação?",
+      "askAmount": "Qual o valor desta transação?",
+      "descriptionPlaceholder": "Ex.: Mercado do bairro",
+      "amountPlaceholder": "Ex.: 149,90",
+      "blockedHint": "Conclua o preenchimento das transações pendentes para liberar a importação.",
+      "finishNow": "Concluir importação",
+      "finishLater": "Terminar depois",
+      "resolved": "Preenchida",
+      "missing": "Falta preencher"
+    },
+    "finishLater": {
+      "title": "Caso queira terminar de cadastrar suas transações posteriormente nós vamos cadastrar os dados com informações genéricas que podem ser alteradas por você posteriormente",
+      "confirm": "Prosseguir",
+      "cancel": "Não, quero terminar de preencher meus dados"
+    },
+    "rejectedRows": {
+      "title": "nenhuma linha perdida | {count} linha não foi importada | {count} linhas não foram importadas",
+      "description": "O arquivo tinha linhas que não conseguimos ler. Corrija e importe de novo — elas não ficam marcadas como duplicadas.",
+      "lineLabel": "Linha {line}",
+      "expand": "Ver quais linhas"
+    },
+    "success": {
+      "title": "Importação concluída",
+      "description": "Seus lançamentos já estão na lista de transações.",
+      "goToTransactions": "Ver minhas transações",
+      "importAnother": "Importar outra planilha",
+      "imported": "Importados",
+      "skipped": "Ignorados",
+      "errorsTitle": "nenhum erro | {count} lançamento não pôde ser criado | {count} lançamentos não puderam ser criados",
+      "errorsDescription": "Essas linhas não foram gravadas e podem ser importadas de novo."
+    },
+    "errors": {
+      "genericTitle": "Não foi possível importar a planilha",
+      "genericDescription": "Revise o arquivo e tente novamente.",
+      "expiredTitle": "A prévia expirou",
+      "expiredDescription": "Envie a planilha de novo para gerar uma prévia atualizada.",
+      "restart": "Enviar novamente"
+    },
+    "upsell": {
+      "title": "Você usou as 3 importações gratuitas do mês",
+      "description": "No Premium a importação é ilimitada, com categorização automática.",
+      "action": "Conhecer o Premium"
+    },
+    "disabled": {
+      "title": "Importação indisponível",
+      "description": "Esta funcionalidade ainda não está liberada para a sua conta."
+    },
+    "entry": {
+      "action": "Importar planilha",
+      "emptyCta": "Importar de uma planilha"
+    }
   }
 }
