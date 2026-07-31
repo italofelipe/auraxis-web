@@ -3345,6 +3345,7 @@
       "dueDateLabel": "Date",
       "cta": "Create transaction and continue",
       "ctaLoading": "Creating…",
+      "skipStep": "Skip this step",
       "errorGeneric": "We couldn't record the transaction right now. Try again."
     },
     "step3": {

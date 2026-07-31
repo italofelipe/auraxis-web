@@ -268,4 +268,54 @@ describe("useOnboarding", () => {
     reset();
     expect(shouldShow.value).toBe(true);
   });
+
+  // reason: "skip" aqui é a ação do onboarding (pular o tutorial), não desabilitar teste.
+  describe("nudge dismissal", () => {
+    /** Signs in a confirmed user so onboarding state is live. */
+    function _signIn(): void {
+      const userStore = useUserStore();
+      const sessionStore = useSessionStore();
+      sessionStore.$patch({ emailConfirmed: true, userEmail: "user@test.com" });
+      userStore.$patch({ isLoaded: true, profile: _profile() });
+    }
+
+    it("starts undismissed", () => {
+      _signIn();
+      expect(useOnboarding().isNudgeDismissed.value).toBe(false);
+    });
+
+    it("survives a reload — the flag is written to localStorage", () => {
+      _signIn();
+      const { dismissNudge } = useOnboarding();
+
+      dismissNudge();
+
+      const persisted = JSON.parse(_store["auraxis:onboarding:u1"] ?? "{}") as {
+        nudgeDismissed?: boolean;
+      };
+      expect(persisted.nudgeDismissed).toBe(true);
+      expect(useOnboarding().isNudgeDismissed.value).toBe(true);
+    });
+
+    it("is independent from the skipped flag", () => {
+      _signIn();
+      const onboarding = useOnboarding();
+
+      onboarding.skip();
+      onboarding.dismissNudge();
+
+      expect(onboarding.isSkipped.value).toBe(true);
+      expect(onboarding.isNudgeDismissed.value).toBe(true);
+    });
+
+    it("clears on reset so a restarted tutorial can nudge again", () => {
+      _signIn();
+      const onboarding = useOnboarding();
+
+      onboarding.dismissNudge();
+      onboarding.reset();
+
+      expect(onboarding.isNudgeDismissed.value).toBe(false);
+    });
+  });
 });
