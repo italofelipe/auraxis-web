@@ -18,6 +18,14 @@ import { loginAndVisit, mockAuthenticatedSession } from "./helpers/mock-session"
 
 const STRICT = process.env.A11Y_AUTH_STRICT === "1";
 
+/**
+ * `pnpm test:e2e` roda todo `e2e/**\/*.spec.ts`, e o job E2E é bloqueante.
+ * Este gate é warn-only e mede telas logadas: sem esta porta ele entraria no
+ * job errado e reprovaria PR por dívida de a11y que ainda nem tem baseline.
+ * O job A11y Gate liga a env.
+ */
+const ENABLED = process.env.A11Y_AUTH_GATE === "1";
+
 const AUTHENTICATED_PAGES = [
   { path: "/dashboard", name: "Dashboard" },
   { path: "/transactions", name: "Transações" },
@@ -100,6 +108,9 @@ function report(name: string, audit: { blocking: Violation[]; warnings: Violatio
 }
 
 test.describe("A11y — telas autenticadas", () => {
+  // reason: porta de execução do gate, não teste desabilitado — ver ENABLED acima.
+  test.skip(!ENABLED, "gate de a11y autenticado roda só com A11Y_AUTH_GATE=1");
+
   test.beforeEach(async ({ page }) => {
     await mockAuthenticatedSession(page);
   });
