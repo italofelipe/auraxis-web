@@ -1,15 +1,13 @@
 <script setup lang="ts">
 import { X, Sparkles } from "lucide-vue-next";
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import { useOnboarding } from "../composables/useOnboarding";
 
 const { t } = useI18n();
-const { isSkipped, isDone, start, reset } = useOnboarding();
-
-const dismissed = ref<boolean>(false);
+const { isSkipped, isNudgeDismissed, isDone, start, reset, dismissNudge } = useOnboarding();
 
 const shouldShow = computed((): boolean => {
-  if (dismissed.value) { return false; }
+  if (isNudgeDismissed.value) { return false; }
   if (isDone.value) { return false; }
   return isSkipped.value;
 });
@@ -25,9 +23,13 @@ function onRestart(): void {
   start();
 }
 
-/** Hides the nudge for the current session without changing persisted state. */
+/**
+ * Silences the banner for good. Fica persistido: antes o estado morria no
+ * reload e o aviso voltava em todo login de quem tinha pulado o tutorial.
+ * O tutorial segue reabrível pelo menu do avatar.
+ */
 function onDismiss(): void {
-  dismissed.value = true;
+  dismissNudge();
 }
 </script>
 

@@ -29,6 +29,17 @@ const canSubmit = computed((): boolean => {
   );
 });
 
+/**
+ * Advances without creating anything. Cadastrar transação deixou de ser
+ * requisito para concluir o onboarding (#1261) — quem ainda não tem um
+ * lançamento à mão não fica preso aqui.
+ */
+function onSkipStep(): void {
+  if (mutation.isPending.value) { return; }
+  submitError.value = "";
+  emit("next");
+}
+
 /** Creates the user's first real transaction and moves to the next step. */
 async function onSubmit(): Promise<void> {
   if (!canSubmit.value) { return; }
@@ -129,6 +140,16 @@ async function onSubmit(): Promise<void> {
     >
       {{ mutation.isPending.value ? t("onboarding.step2.ctaLoading") : t("onboarding.step2.cta") }}
     </button>
+
+    <button
+      type="button"
+      class="onboarding-step__skip"
+      :disabled="mutation.isPending.value"
+      data-testid="step2-skip"
+      @click="onSkipStep"
+    >
+      {{ t("onboarding.step2.skipStep") }}
+    </button>
   </form>
 </template>
 
@@ -225,4 +246,21 @@ async function onSubmit(): Promise<void> {
 }
 .onboarding-step__cta:hover:enabled { background: var(--color-brand-500); }
 .onboarding-step__cta:disabled { opacity: 0.55; cursor: not-allowed; }
+.onboarding-step__skip {
+  align-self: center;
+  padding: var(--space-1) var(--space-2);
+  border: none;
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.onboarding-step__skip:hover:enabled { color: var(--color-text-secondary); }
+.onboarding-step__skip:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+}
+.onboarding-step__skip:disabled { opacity: 0.55; cursor: not-allowed; }
 </style>
