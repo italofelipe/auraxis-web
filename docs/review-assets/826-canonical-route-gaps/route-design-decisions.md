@@ -6,15 +6,15 @@ O canone visual para MVP1 continua sendo o conjunto azul/ciano Market Pulse. Arq
 
 ## Decisoes
 
-| Rota                             | Arquivo de design avaliado                   | Decisao                                          | Motivo                                                                                                                  |
-| -------------------------------- | -------------------------------------------- | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
-| `/about-us`                      | `about_us_page.html`                         | Implementada                                     | O HTML possui canone azul/ciano coerente para a pagina Sobre Nos.                                                       |
-| `/tools/detailed-quarter-result` | `tools_installment_vs_cash_page.html`        | Implementada como Resultado Trimestral Detalhado | O arquivo esta nomeado como parcelado vs a vista, mas seu conteudo real e o dashboard "Resultado Trimestral Detalhado". |
-| `/changelog`                     | `platform_changelog.html`                    | Fora de escopo por enquanto                      | O arquivo duplica a pagina Sobre Nos e esta sem design canonico proprio.                                                |
-| `/tools`                         | `tools_home_page.html`                       | Mantida pagina atual de catalogo                 | O arquivo contem "Metas Financeiras"; nao usar para `/tools` ate existir catalogo canonico azul/ciano.                  |
-| `/tools/dividir-conta`           | `tools_restaurant_bill_calculator_page.html` | Mantida pagina atual                             | O arquivo contem calculadora de salario; nao usar para `/tools/dividir-conta`.                                          |
-| `/tools/installment-vs-cash`     | `tools_installment_vs_cash_page.html`        | Mantida pagina atual                             | O arquivo contem "Resultado Trimestral Detalhado"; nao usar para `/tools/installment-vs-cash`.                          |
-| `/tools/fgts`                    | `tools_detailed_quarter_result_page.html`    | Mantida pagina atual                             | O arquivo contem "Calculadora de Evolucao FGTS"; nao usar para `/tools/detailed-quarter-result`.                        |
+| Rota                             | Arquivo de design avaliado                   | Decisao                          | Motivo                                                                                                               |
+| -------------------------------- | -------------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `/about-us`                      | `about_us_page.html`                         | Implementada                     | O HTML possui canone azul/ciano coerente para a pagina Sobre Nos.                                                    |
+| `/tools/detailed-quarter-result` | `tools_installment_vs_cash_page.html`        | **Removida em #1267**            | Foi implementada mas nunca ligada a nada: fora do catalogo, 404 no apex, 301 no app e sem link de origem. Ver #1267. |
+| `/changelog`                     | `platform_changelog.html`                    | Fora de escopo por enquanto      | O arquivo duplica a pagina Sobre Nos e esta sem design canonico proprio.                                             |
+| `/tools`                         | `tools_home_page.html`                       | Mantida pagina atual de catalogo | O arquivo contem "Metas Financeiras"; nao usar para `/tools` ate existir catalogo canonico azul/ciano.               |
+| `/tools/dividir-conta`           | `tools_restaurant_bill_calculator_page.html` | Mantida pagina atual             | O arquivo contem calculadora de salario; nao usar para `/tools/dividir-conta`.                                       |
+| `/tools/installment-vs-cash`     | `tools_installment_vs_cash_page.html`        | Mantida pagina atual             | O arquivo contem "Resultado Trimestral Detalhado"; nao usar para `/tools/installment-vs-cash`.                       |
+| `/tools/fgts`                    | `tools_detailed_quarter_result_page.html`    | Mantida pagina atual             | O arquivo contem "Calculadora de Evolucao FGTS"; nao usar para `/tools/detailed-quarter-result`.                     |
 
 ## Proximas tarefas derivadas
 
