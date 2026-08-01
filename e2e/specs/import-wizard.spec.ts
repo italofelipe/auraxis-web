@@ -161,7 +161,32 @@ test.describe("Import de planilha", () => {
     await confirmed;
   };
 
+  /**
+   * Entra no app pela UI, com retentativa.
+   *
+   * Este é o setup mais frágil da suíte e não é o que está sendo testado: o
+   * `waitForURL` do helper tem 20s fixos, e o dashboard sob a carga do CI
+   * passa disso de vez em quando. Como `loginAndVisit` começa navegando para
+   * `/login`, repetir é seguro — e sai mais barato que um vermelho por flake.
+   */
+  const signIn = async (): Promise<void> => {
+    const attempts = 3;
+
+    for (let attempt = 1; attempt <= attempts; attempt += 1) {
+      try {
+        await loginAndVisit(page, "/transactions/import");
+        return;
+      } catch (error) {
+        if (attempt === attempts) {
+          throw error;
+        }
+      }
+    }
+  };
+
   test.beforeAll(async ({ browser }) => {
+    // Login pela UI é caro; o default de 30s cobre um teste, não o setup.
+    test.setTimeout(120_000);
     page = await browser.newPage();
 
     // Catch-all antes do helper de propósito: no Playwright a rota registrada
@@ -191,7 +216,7 @@ test.describe("Import de planilha", () => {
       return route.fulfill(json(confirmResponse));
     });
 
-    await loginAndVisit(page, "/transactions/import");
+    await signIn();
   });
 
   test.afterAll(async () => {
