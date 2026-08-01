@@ -48,7 +48,11 @@ const { t } = useI18n();
       </ul>
     </NAlert>
 
-    <NButton quaternary @click="emit('import-another')">
+    <NButton
+      quaternary
+      data-testid="import-import-another"
+      @click="emit('import-another')"
+    >
       {{ t("import.success.importAnother") }}
     </NButton>
   </div>

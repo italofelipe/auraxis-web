@@ -77,110 +77,159 @@ const previewBody = (overrides: Record<string, unknown> = {}): unknown => ({
   },
 });
 
+const DEFAULT_CONFIRM = {
+  success: true,
+  data: { imported_count: 2, skipped_count: 1, errors: [] },
+};
+
 /**
- * Empacota um corpo como resposta JSON 200 para o Playwright.
+ * Empacota um corpo como resposta JSON para o Playwright.
  *
  * @param body Corpo da resposta.
+ * @param status Status HTTP.
  * @returns Descritor aceito por `route.fulfill`.
  */
-const json = (body: unknown): { status: number; contentType: string; body: string } => ({
-  status: 200,
+const json = (
+  body: unknown,
+  status = 200,
+): { status: number; contentType: string; body: string } => ({
+  status,
   contentType: "application/json",
   body: JSON.stringify(body),
 });
 
-/**
- * Deixa a página autenticada e com a API do import sob controle.
- *
- * O catch-all entra antes do helper de sessão de propósito: no Playwright a
- * rota registrada depois vence, e engolir `/auth/login` travaria o login.
- *
- * @param page Página do teste.
- * @param options Respostas de preview e confirm.
- * @param options.preview Corpo devolvido pelo preview.
- * @param options.confirm Corpo devolvido pelo confirm.
- * @param options.previewStatus Status HTTP do preview (para 429/422).
- */
-const setupImportApi = async (
-  page: Page,
-  options: {
-    preview?: unknown;
-    confirm?: unknown;
-    previewStatus?: number;
-  } = {},
-): Promise<void> => {
-  await page.route("**/localhost:5000/**", (route) => route.fulfill(json({ success: true, data: null })));
-  await page.route("**/localhost:8001/**", (route) => route.fulfill(json({ success: true, data: null })));
-
-  await mockAuthenticatedSession(page);
-
-  await page.route("**/v2/import/detect", (route) => route.fulfill(json(DETECT_BODY)));
-  await page.route("**/v2/import/preview", (route) => {
-    if (options.previewStatus && options.previewStatus !== 200) {
-      return route.fulfill({
-        status: options.previewStatus,
-        contentType: "application/json",
-        body: JSON.stringify({ detail: "erro" }),
-      });
-    }
-    return route.fulfill(json(options.preview ?? previewBody()));
-  });
-  await page.route("**/v2/import/confirm", (route) =>
-    route.fulfill(
-      json(
-        options.confirm ?? {
-          success: true,
-          data: { imported_count: 2, skipped_count: 1, errors: [] },
-        },
-      ),
-    ),
-  );
-};
-
-/**
- * Sobe o arquivo e espera a prévia aparecer.
- *
- * @param page Página do teste.
- */
-const uploadFixture = async (page: Page): Promise<void> => {
-  await page.setInputFiles("input[type=file]", FIXTURE);
-  await expect(page.getByTestId("import-preview-table")).toBeVisible();
-};
+// Um login por projeto, não por teste: `loginAndVisit` passa pelo formulário, e
+// repetir isso oito vezes em dois projetos torna a suíte lenta e frágil sob a
+// carga do CI. Os cenários mudam só o corpo das respostas, que vive em variável
+// lida pela rota registrada uma única vez.
+test.describe.configure({ mode: "serial" });
 
 test.describe("Import de planilha", () => {
-  test("importa um arquivo limpo do upload ao sucesso", async ({ page }) => {
-    await setupImportApi(page);
+  let page: Page;
+  let previewStatus = 200;
+  let previewResponse: unknown = previewBody();
+  let confirmResponse: unknown = DEFAULT_CONFIRM;
+  let lastConfirmBody: Record<string, unknown> = {};
+
+  /**
+   * Devolve o wizard ao passo inicial usando os próprios controles da tela.
+   *
+   * Nada de navegar para outra rota entre os testes: `/transactions` consome a
+   * query de tags, o mock devolve um envelope sem lista e a página estoura com
+   * `(tags.value ?? []).map is not a function` — o app fica degradado e o
+   * `change` do input nunca é processado.
+   */
+  const resetWizard = async (): Promise<void> => {
+    for (const testId of ["import-import-another", "import-start-over"]) {
+      const button = page.getByTestId(testId);
+      if ((await button.count()) > 0 && (await button.isVisible())) {
+        await button.click();
+        break;
+      }
+    }
+    await expect(page.getByTestId("import-pick-file")).toBeVisible();
+    await expect(page.getByTestId("import-file-input")).toHaveCount(1);
+  };
+
+  /**
+   * Sobe o arquivo e espera a prévia aparecer.
+   *
+   * Espera as duas respostas da API antes de olhar para a tela: o viewport
+   * mobile do CI leva mais que o timeout padrão de 5s do `expect` para
+   * encadear detect + preview, e a falha apareceria como "elemento não
+   * encontrado" em vez de apontar a chamada que ainda estava em curso.
+   */
+  const uploadFixture = async (): Promise<void> => {
+    const detected = page.waitForResponse("**/v2/import/detect");
+    const previewed = page.waitForResponse("**/v2/import/preview");
+    await page.getByTestId("import-file-input").setInputFiles(FIXTURE);
+    await detected;
+    await previewed;
+    await expect(page.getByTestId("import-preview-table")).toBeVisible({
+      timeout: 15_000,
+    });
+  };
+
+  /**
+   * Dispara a ação que confirma o import e espera a resposta da API.
+   *
+   * @param action Interação que chama o `confirm`.
+   */
+  const confirmAndWait = async (action: () => Promise<void>): Promise<void> => {
+    const confirmed = page.waitForResponse("**/v2/import/confirm");
+    await action();
+    await confirmed;
+  };
+
+  test.beforeAll(async ({ browser }) => {
+    page = await browser.newPage();
+
+    // Catch-all antes do helper de propósito: no Playwright a rota registrada
+    // depois vence, e engolir `/auth/login` travaria o login.
+    await page.route("**/localhost:5000/**", (route) =>
+      route.fulfill(json({ success: true, data: null })),
+    );
+    await page.route("**/localhost:8001/**", (route) =>
+      route.fulfill(json({ success: true, data: null })),
+    );
+
+    await mockAuthenticatedSession(page);
+
+    await page.route("**/v2/import/detect", (route) => route.fulfill(json(DETECT_BODY)));
+    await page.route("**/v2/import/preview", (route) =>
+      route.fulfill(
+        previewStatus === 200
+          ? json(previewResponse)
+          : json({ detail: "erro" }, previewStatus),
+      ),
+    );
+    await page.route("**/v2/import/confirm", (route) => {
+      lastConfirmBody = JSON.parse(route.request().postData() ?? "{}") as Record<
+        string,
+        unknown
+      >;
+      return route.fulfill(json(confirmResponse));
+    });
+
     await loginAndVisit(page, "/transactions/import");
-    await uploadFixture(page);
+  });
+
+  test.afterAll(async () => {
+    await page.close();
+  });
+
+  test.beforeEach(async () => {
+    previewStatus = 200;
+    previewResponse = previewBody();
+    confirmResponse = DEFAULT_CONFIRM;
+    lastConfirmBody = {};
+    await resetWizard();
+  });
+
+  test("importa um arquivo limpo do upload ao sucesso", async () => {
+    await uploadFixture();
 
     // Duplicata entra desmarcada: 2 de 3.
     await expect(page.getByTestId("import-preview-summary")).toContainText("2 de 3");
     await expect(page.getByTestId("import-rejected-rows")).toHaveCount(0);
     await expect(page.getByTestId("import-incomplete-tag")).toHaveCount(0);
 
-    const confirmRequest = page.waitForRequest("**/v2/import/confirm");
-    await page.getByTestId("import-confirm").click();
-    const body = JSON.parse((await confirmRequest).postData() ?? "{}") as {
-      exclude_ids: string[];
-      use_generic_placeholders: boolean;
-    };
+    await confirmAndWait(() => page.getByTestId("import-confirm").click());
+    await expect(page.getByTestId("import-result")).toBeVisible({ timeout: 15_000 });
 
-    expect(body.exclude_ids).toEqual(["d3"]);
-    expect(body.use_generic_placeholders).toBe(false);
-    await expect(page.getByTestId("import-result")).toBeVisible();
+    expect(lastConfirmBody.exclude_ids).toEqual(["d3"]);
+    expect(lastConfirmBody.use_generic_placeholders).toBe(false);
   });
 
-  test("mostra as linhas que o parser não conseguiu ler", async ({ page }) => {
-    await setupImportApi(page, {
-      preview: previewBody({
-        rejected_rows: [
-          { line_number: 7, reason: "Data inválida: 31/02/2026" },
-          { line_number: 14, reason: "Linha truncada" },
-        ],
-      }),
+  test("mostra as linhas que o parser não conseguiu ler", async () => {
+    previewResponse = previewBody({
+      rejected_rows: [
+        { line_number: 7, reason: "Data inválida: 31/02/2026" },
+        { line_number: 14, reason: "Linha truncada" },
+      ],
     });
-    await loginAndVisit(page, "/transactions/import");
-    await uploadFixture(page);
+
+    await uploadFixture();
 
     const panel = page.getByTestId("import-rejected-rows");
     await expect(panel).toBeVisible();
@@ -191,22 +240,18 @@ test.describe("Import de planilha", () => {
     await expect(panel).toContainText("Data inválida: 31/02/2026");
   });
 
-  test("conferência bloqueia a conclusão até o dado que falta ser preenchido", async ({ page }) => {
-    await setupImportApi(page, {
-      preview: previewBody({
-        duplicates_count: 0,
-        incomplete_count: 2,
-        transactions: [
-          draft({ id: "d1", description: "", missing_fields: ["description"] }),
-          draft({ id: "d2", description: "Farmácia", amount: "0", missing_fields: ["amount"] }),
-        ],
-      }),
+  test("conferência bloqueia a conclusão até o dado que falta ser preenchido", async () => {
+    previewResponse = previewBody({
+      duplicates_count: 0,
+      incomplete_count: 2,
+      transactions: [
+        draft({ id: "d1", description: "", missing_fields: ["description"] }),
+        draft({ id: "d2", description: "Farmácia", amount: "0", missing_fields: ["amount"] }),
+      ],
     });
-    await loginAndVisit(page, "/transactions/import");
-    await uploadFixture(page);
 
+    await uploadFixture();
     await expect(page.getByTestId("import-incomplete-tag")).toContainText("2");
-
     await page.getByTestId("import-confirm").click();
 
     const modal = page.getByTestId("import-review-modal");
@@ -226,31 +271,23 @@ test.describe("Import de planilha", () => {
     await expect(page.getByTestId("import-review-progress")).toContainText("2 de 2");
     await expect(page.getByTestId("import-review-submit")).toBeEnabled();
 
-    const confirmRequest = page.waitForRequest("**/v2/import/confirm");
-    await page.getByTestId("import-review-submit").click();
-    const body = JSON.parse((await confirmRequest).postData() ?? "{}") as {
-      completions: Record<string, Record<string, string>>;
-    };
+    await confirmAndWait(() => page.getByTestId("import-review-submit").click());
+    await expect(page.getByTestId("import-result")).toBeVisible({ timeout: 15_000 });
 
-    expect(body.completions).toEqual({
+    expect(lastConfirmBody.completions).toEqual({
       d1: { description: "Mercado do bairro" },
       d2: { amount: "149,90" },
     });
-    await expect(page.getByTestId("import-result")).toBeVisible();
   });
 
-  test("terminar depois grava genéricos e volta ao preenchimento quando o usuário recusa", async ({
-    page,
-  }) => {
-    await setupImportApi(page, {
-      preview: previewBody({
-        duplicates_count: 0,
-        incomplete_count: 1,
-        transactions: [draft({ id: "d1", description: "", missing_fields: ["description"] })],
-      }),
+  test("terminar depois grava genéricos e volta ao preenchimento quando o usuário recusa", async () => {
+    previewResponse = previewBody({
+      duplicates_count: 0,
+      incomplete_count: 1,
+      transactions: [draft({ id: "d1", description: "", missing_fields: ["description"] })],
     });
-    await loginAndVisit(page, "/transactions/import");
-    await uploadFixture(page);
+
+    await uploadFixture();
     await page.getByTestId("import-confirm").click();
     await page.getByTestId("import-review-finish-later").click();
 
@@ -266,72 +303,65 @@ test.describe("Import de planilha", () => {
     await expect(page.getByTestId("import-review-modal")).toBeVisible();
 
     await page.getByTestId("import-review-finish-later").click();
-    const confirmRequest = page.waitForRequest("**/v2/import/confirm");
-    await page.getByTestId("import-finish-later-confirm").click();
-    const body = JSON.parse((await confirmRequest).postData() ?? "{}") as {
-      use_generic_placeholders: boolean;
-    };
+    await confirmAndWait(() => page.getByTestId("import-finish-later-confirm").click());
+    await expect(page.getByTestId("import-result")).toBeVisible({ timeout: 15_000 });
 
-    expect(body.use_generic_placeholders).toBe(true);
-    await expect(page.getByTestId("import-result")).toBeVisible();
+    expect(lastConfirmBody.use_generic_placeholders).toBe(true);
   });
 
-  test("desmarcar a linha incompleta dispensa a conferência", async ({ page }) => {
-    await setupImportApi(page, {
-      preview: previewBody({
-        duplicates_count: 0,
-        incomplete_count: 1,
-        transactions: [
-          draft({ id: "d1", description: "", missing_fields: ["description"] }),
-          draft({ id: "d2", description: "Salário", transaction_type: "income" }),
-        ],
-      }),
+  test("desmarcar a linha incompleta dispensa a conferência", async () => {
+    previewResponse = previewBody({
+      duplicates_count: 0,
+      incomplete_count: 1,
+      transactions: [
+        draft({ id: "d1", description: "", missing_fields: ["description"] }),
+        draft({ id: "d2", description: "Salário", transaction_type: "income" }),
+      ],
     });
-    await loginAndVisit(page, "/transactions/import");
-    await uploadFixture(page);
 
+    await uploadFixture();
     await page.getByTestId("import-row-toggle-d1").click();
-    await page.getByTestId("import-confirm").click();
+    await confirmAndWait(() => page.getByTestId("import-confirm").click());
 
     // Desmarcar já é uma resposta válida para "não quero essa transação".
+    await expect(page.getByTestId("import-result")).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId("import-review-modal")).toHaveCount(0);
-    await expect(page.getByTestId("import-result")).toBeVisible();
   });
 
-  test("cota gratuita esgotada abre o convite ao Premium", async ({ page }) => {
-    await setupImportApi(page, { previewStatus: 429 });
-    await loginAndVisit(page, "/transactions/import");
-
-    await page.setInputFiles("input[type=file]", FIXTURE);
-
-    await expect(page.getByTestId("import-upsell")).toBeVisible();
-  });
-
-  test("prévia expirada oferece reenviar o arquivo", async ({ page }) => {
-    await setupImportApi(page, { previewStatus: 422 });
-    await loginAndVisit(page, "/transactions/import");
-
-    await page.setInputFiles("input[type=file]", FIXTURE);
-
-    await expect(page.getByTestId("import-expired")).toBeVisible();
-  });
-
-  test("erros por linha do confirm aparecem na tela de sucesso", async ({ page }) => {
-    await setupImportApi(page, {
-      confirm: {
-        success: true,
-        data: {
-          imported_count: 1,
-          skipped_count: 1,
-          errors: [{ draft_id: "d2", reason: "valor inválido" }],
-        },
+  test("erros por linha do confirm aparecem na tela de sucesso", async () => {
+    confirmResponse = {
+      success: true,
+      data: {
+        imported_count: 1,
+        skipped_count: 1,
+        errors: [{ draft_id: "d2", reason: "valor inválido" }],
       },
-    });
-    await loginAndVisit(page, "/transactions/import");
-    await uploadFixture(page);
-    await page.getByTestId("import-confirm").click();
+    };
 
-    await expect(page.getByTestId("import-result-errors")).toBeVisible();
+    await uploadFixture();
+    await confirmAndWait(() => page.getByTestId("import-confirm").click());
+
+    await expect(page.getByTestId("import-result-errors")).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId("import-result-errors")).toContainText("valor inválido");
+  });
+
+  test("cota gratuita esgotada abre o convite ao Premium", async () => {
+    previewStatus = 429;
+
+    const previewed = page.waitForResponse("**/v2/import/preview");
+    await page.getByTestId("import-file-input").setInputFiles(FIXTURE);
+    await previewed;
+
+    await expect(page.getByTestId("import-upsell")).toBeVisible({ timeout: 15_000 });
+  });
+
+  test("prévia expirada oferece reenviar o arquivo", async () => {
+    previewStatus = 422;
+
+    const previewed = page.waitForResponse("**/v2/import/preview");
+    await page.getByTestId("import-file-input").setInputFiles(FIXTURE);
+    await previewed;
+
+    await expect(page.getByTestId("import-expired")).toBeVisible({ timeout: 15_000 });
   });
 });

@@ -127,6 +127,7 @@ const onDrop = (event: DragEvent): void => {
       class="import-dropzone__input"
       :accept="accept"
       :aria-label="t('import.dropzone.ariaLabel')"
+      data-testid="import-file-input"
       @change="onInputChange"
     >
 

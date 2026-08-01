@@ -107,7 +107,7 @@ const goToUpgrade = (): void => {
           </div>
 
           <div class="import-page__actions">
-            <NButton quaternary @click="wizard.reset">
+            <NButton quaternary data-testid="import-start-over" @click="wizard.reset">
               {{ t("import.preview.startOver") }}
             </NButton>
             <NButton
