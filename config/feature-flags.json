@@ -589,6 +589,16 @@
       "status": "enabled-dev",
       "description": "Dashboard de métricas de produto no /admin (usuários, premium, uso de IA, atividade) consumindo /v2/admin/metrics/*. Com a flag OFF a página mantém o conteúdo estático anterior.",
       "repositories": ["auraxis-web", "auraxis-api-v2"]
+    },
+    {
+      "key": "web.import.csv-xlsx",
+      "owner": "platform",
+      "createdAt": "2026-07-31",
+      "removeBy": "2027-06-30",
+      "type": "release",
+      "status": "enabled-dev",
+      "description": "Wizard de importação de transações CSV/XLSX no web (detect → mapping → preview → conferência → confirm).",
+      "repositories": ["auraxis-web", "auraxis-api-v2"]
     }
   ]
 }

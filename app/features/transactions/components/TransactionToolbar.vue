@@ -15,9 +15,13 @@ import {
   Trash2,
   TrendingDown,
   TrendingUp,
+  Upload,
   XCircle,
   type LucideIcon,
 } from "lucide-vue-next";
+
+import { IMPORT_FEATURE_FLAG_KEY } from "~/features/import/model/import-config";
+import { useFeatureFlag } from "~/shared/feature-flags/use-feature-flag";
 
 defineProps<{
   filterType: string;
@@ -47,7 +51,10 @@ const emit = defineEmits<{
   "create-tag": [];
   "open-trash": [];
   "open-export": [];
+  "open-import": [];
 }>();
+
+const importEnabled = useFeatureFlag(IMPORT_FEATURE_FLAG_KEY);
 
 /**
  * Returns the icon used by a type or status option.
@@ -214,6 +221,17 @@ function renderStatusLabel(option: SelectOption): ReturnType<typeof h> {
       >
         <template #icon><Download :size="14" /></template>
         {{ $t('transactions.export.action') }}
+      </NButton>
+
+      <NButton
+        v-if="importEnabled"
+        size="small"
+        secondary
+        data-testid="transactions-import-button"
+        @click="emit('open-import')"
+      >
+        <template #icon><Upload :size="14" /></template>
+        {{ $t('import.entry.action') }}
       </NButton>
 
       <NButton size="small" @click="emit('add-income')">
