@@ -27,4 +27,12 @@ describe("feature flag service — runtime config source", () => {
   it("keeps always-on statuses enabled in production", () => {
     expect(isFeatureEnabled("web.admin.feature-flag-mutations")).toBe(true);
   });
+
+  it("exposes the spreadsheet import in production", () => {
+    // The wizard shipped in #1300 but sat behind enabled-dev, so it never
+    // reached a real user (#1309). This pins the go-live: flipping the catalog
+    // back to a dev-only status fails here instead of silently hiding the
+    // feature again.
+    expect(isFeatureEnabled("web.import.csv-xlsx")).toBe(true);
+  });
 });

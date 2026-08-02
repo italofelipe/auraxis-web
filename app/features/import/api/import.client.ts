@@ -29,6 +29,18 @@ const DETECT_PATH = "/v2/import/detect";
 const PREVIEW_PATH = "/v2/import/preview";
 const CONFIRM_PATH = "/v2/import/confirm";
 
+/**
+ * Timeout do confirm, em ms.
+ *
+ * O default do `createHttpClient` é 15 s, o que serve para uma chamada comum
+ * mas não para esta: o confirm é uma requisição só que, no backend, dispara
+ * até 1000 `POST /transactions` no v1 em lotes de 4 (`Semaphore(4)`), cada um
+ * com 30 s de timeout próprio. A 120 ms por lote, 1000 linhas levam ~30 s —
+ * o dobro do que o cliente esperava. O Axios abortava, o usuário via um erro
+ * genérico e o backend seguia gravando (#1309).
+ */
+const CONFIRM_TIMEOUT_MS = 180_000;
+
 let cachedImportClient: AxiosInstance | null = null;
 
 /**
@@ -153,12 +165,16 @@ export class ImportClient {
    * @returns Contagens e erros por linha devolvidos pelo backend.
    */
   async confirm(command: ImportConfirmCommand): Promise<ImportConfirmResult> {
-    const response = await this.#http.post<ConfirmResponseDto>(CONFIRM_PATH, {
-      preview_token: command.previewToken,
-      exclude_ids: command.excludeIds,
-      completions: command.completions ?? {},
-      use_generic_placeholders: command.useGenericPlaceholders ?? false,
-    });
+    const response = await this.#http.post<ConfirmResponseDto>(
+      CONFIRM_PATH,
+      {
+        preview_token: command.previewToken,
+        exclude_ids: command.excludeIds,
+        completions: command.completions ?? {},
+        use_generic_placeholders: command.useGenericPlaceholders ?? false,
+      },
+      { timeout: CONFIRM_TIMEOUT_MS },
+    );
     return mapConfirmResponse(unwrapEnvelope(response.data), command.excludeIds.length);
   }
 }
