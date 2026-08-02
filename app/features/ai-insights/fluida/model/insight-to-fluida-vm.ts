@@ -327,7 +327,9 @@ export const insightToFluidaVM = (
 
   if (themeDimension === null) {
     // General (or wallet → general): overlay the general node for this cadence.
-    const baseNode = FLUIDA_MOCK_SOURCE.general[cadence];
+    // The skeleton has no monthly node — the monthly reading is always real
+    // data overlaid on the weekly shape (see FluidaThemeSource.monthly).
+    const baseNode = FLUIDA_MOCK_SOURCE.general[cadence] ?? FLUIDA_MOCK_SOURCE.general.weekly;
     const overlaid = overlayGeneral(overlayCommon(baseNode, payload), payload);
     return {
       ...FLUIDA_MOCK_SOURCE,
@@ -340,7 +342,8 @@ export const insightToFluidaVM = (
   // theme's presentation metadata (label/color) and its other cadence node.
   const baseTheme: FluidaThemeSource =
     FLUIDA_MOCK_SOURCE.themes[themeDimension] ?? FLUIDA_MOCK_SOURCE.themes.transactions!;
-  const overlaidNode = overlayTheme(overlayCommon(baseTheme[cadence], payload), payload);
+  const baseThemeNode = baseTheme[cadence] ?? baseTheme.weekly;
+  const overlaidNode = overlayTheme(overlayCommon(baseThemeNode, payload), payload);
 
   return {
     ...FLUIDA_MOCK_SOURCE,

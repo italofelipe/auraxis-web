@@ -12,18 +12,32 @@ import FluidaSeguir from "./FluidaSeguir.vue";
 import FluidaStatTiles from "./FluidaStatTiles.vue";
 import FluidaTextBeat from "./FluidaTextBeat.vue";
 import { useInsightsFluida } from "../composables/use-insights-fluida";
+import type { FluidaCadence } from "../model/insight-fluida";
 import { useI18n } from "vue-i18n";
 import { useTheme } from "~/composables/useTheme";
 import { useAIInsights } from "~/features/ai-insights/composables/useAIInsights";
+import { useInsightReading } from "~/features/ai-insights/queries/use-insight-reading";
 
-// Real AI source: the shared generated insight carries the additive Fluida
-// fields (`paragraphs` / `retro` / `series` / `highlights`). When absent the
-// mapper falls back to the mock so the screen is never empty. The /insights hub
-// reads the cross-cutting `general` dimension.
+// Real AI source. Two origins, in priority order:
+//   1. `currentResult` — an insight generated in this very session, so the user
+//      sees what they just asked for without a round-trip;
+//   2. the persisted history for the selected cadence, fetched by id to get the
+//      enriched Fluida fields.
+//
+// Until #1302 only (1) existed, and it lives in a `useState` that resets on every
+// reload — so the screen silently fell back to the demo skeleton and showed a
+// fictional persona to real users in production. The reading now comes from real
+// data or shows an honest empty state; the mock is Storybook-only.
+const cadence = ref<FluidaCadence>("daily");
 const { currentResult } = useAIInsights();
-const insight = computed(() => currentResult.value?.fluida ?? null);
+const reading = useInsightReading(cadence);
 
-const fluida = useInsightsFluida({ insight, dimension: "general" });
+const sessionInsight = computed(() => currentResult.value?.fluida ?? null);
+const insight = computed(() => sessionInsight.value ?? reading.insight.value ?? null);
+const isLoadingReading = computed(() => reading.isLoading.value && sessionInsight.value === null);
+const hasNoReading = computed(() => reading.isEmpty.value && sessionInsight.value === null);
+
+const fluida = useInsightsFluida({ insight, dimension: "general", cadence });
 const { t } = useI18n();
 
 // Local editorial light/dark scope. Initialised from the global app theme, then
@@ -68,7 +82,18 @@ const sectionLabels = computed(() => ({
     />
 
     <div class="fluida__body">
-      <article class="fluida__wrap">
+      <!-- Loading and empty are explicit states. Falling through to the skeleton
+           would put demo numbers in front of a real user (#1302). -->
+      <article v-if="isLoadingReading" class="fluida__wrap fluida__status" data-testid="fluida-loading">
+        <p class="fluida__status-text">{{ t('insights.fluida.reading.loading') }}</p>
+      </article>
+
+      <article v-else-if="hasNoReading" class="fluida__wrap fluida__status" data-testid="fluida-empty">
+        <h2 class="fluida__status-title">{{ t(`insights.fluida.empty.${fluida.cadence.value}.title`) }}</h2>
+        <p class="fluida__status-text">{{ t(`insights.fluida.empty.${fluida.cadence.value}.body`) }}</p>
+      </article>
+
+      <article v-else class="fluida__wrap">
         <FluidaLead :lead="view.lead" />
 
         <!-- General reading: comparison cards + chart + alerts -->
@@ -163,6 +188,28 @@ const sectionLabels = computed(() => ({
   gap: var(--space-5);
   max-width: var(--fluida-max-width);
   margin: 0 auto;
+}
+
+.fluida__status {
+  align-items: center;
+  text-align: center;
+  padding: var(--space-8) var(--space-4);
+  gap: var(--space-2);
+}
+
+.fluida__status-title {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-heading-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.fluida__status-text {
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  max-width: 46ch;
+  margin: 0;
 }
 
 .fluida__beat {

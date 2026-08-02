@@ -1922,7 +1922,10 @@
         "daily": "Diário",
         "weekly": "Semanal",
         "dailyReading": "Leitura diária",
-        "weeklyReading": "Leitura semanal"
+        "weeklyReading": "Leitura semanal",
+        "monthly": "Mensal",
+        "monthlyReading": "Fechamento do mês",
+        "groupLabel": "Cadência da leitura"
       },
       "tabs": {
         "general": "Geral",
@@ -1956,6 +1959,23 @@
         "alerta": "Alerta",
         "alta": "Alta",
         "media": "Média"
+      },
+      "reading": {
+        "loading": "Carregando sua leitura…"
+      },
+      "empty": {
+        "daily": {
+          "title": "Ainda não há leitura de hoje",
+          "body": "Gere o insight do dia para ver como suas contas estão andando."
+        },
+        "weekly": {
+          "title": "Ainda não há leitura desta semana",
+          "body": "A leitura semanal é gerada automaticamente aos sábados."
+        },
+        "monthly": {
+          "title": "Ainda não há fechamento de mês",
+          "body": "O fechamento é gerado automaticamente no dia 1º, com o resultado do mês anterior."
+        }
       }
     }
   },

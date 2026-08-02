@@ -219,6 +219,24 @@ export class AIInsightsApiClient {
   }
 
   /**
+   * Fetches one persisted insight by id, with the enriched Fluida fields.
+   *
+   * This is a pure read: no Premium gate, no quota, no LLM call. The history
+   * endpoint only returns the bare insight, so the reading screen needs this to
+   * render anything other than the skeleton.
+   *
+   * @param insightId Insight uuid.
+   * @returns Enriched insight payload.
+   */
+  async fetchInsightById(insightId: string): Promise<GenerateInsightResponseDTO> {
+    const response = await this.#http.get<V2EnvelopeDTO<GenerateInsightResponseDTO>>(
+      `/ai/insights/${encodeURIComponent(insightId)}`,
+    );
+
+    return unwrap<GenerateInsightResponseDTO>(response.data);
+  }
+
+  /**
    * Fetches paginated generated insights for the authenticated user.
    *
    * @param page One-based page number.

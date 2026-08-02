@@ -12,7 +12,10 @@
  */
 
 /** Reading cadence selected in the masthead toggle. */
-export type FluidaCadence = "daily" | "weekly";
+export type FluidaCadence = "daily" | "weekly" | "monthly";
+
+/** Cadence order used to render the masthead toggle. */
+export const FLUIDA_CADENCE_ORDER: readonly FluidaCadence[] = ["daily", "weekly", "monthly"] as const;
 
 /** Severity vocabulary used by both section badges and per-alert chips. */
 export type FluidaSeverity = "ok" | "atencao" | "alerta" | "alta" | "media";
@@ -75,19 +78,35 @@ export interface FluidaMeta {
   readonly privacyNote: string;
 }
 
-/** A theme reading: presentation metadata + its two cadence nodes. */
+/** A theme reading: presentation metadata + its cadence nodes. */
 export interface FluidaThemeSource {
   readonly label: string;
   readonly color: string;
   readonly daily: FluidaNode;
   readonly weekly: FluidaNode;
+  /**
+   * Optional monthly node. The skeleton does not ship one — the monthly reading
+   * always comes from a real persisted insight overlaid onto the weekly shape,
+   * so inventing mock prose for it would only risk shipping fiction.
+   */
+  readonly monthly?: FluidaNode;
 }
 
 /** The full source object mapped into the view model. */
 export interface FluidaInsightSource {
   readonly meta: FluidaMeta;
-  readonly series: { readonly daily: FluidaSeriesData; readonly weekly: FluidaSeriesData };
-  readonly general: { readonly daily: FluidaNode; readonly weekly: FluidaNode };
+  readonly series: {
+    readonly daily: FluidaSeriesData;
+    readonly weekly: FluidaSeriesData;
+    /** Optional; falls back to the weekly series. */
+    readonly monthly?: FluidaSeriesData;
+  };
+  readonly general: {
+    readonly daily: FluidaNode;
+    readonly weekly: FluidaNode;
+    /** Optional; see {@link FluidaThemeSource.monthly}. */
+    readonly monthly?: FluidaNode;
+  };
   readonly themes: Partial<Record<Exclude<FluidaThemeId, "general">, FluidaThemeSource>>;
 }
 
@@ -180,6 +199,7 @@ const SEVERITY_PRESENTATION: Record<FluidaSeverity, FluidaSeverityPresentation> 
 const READ_MINUTES_DEFAULT = {
   daily: { theme: 3, general: 15 },
   weekly: { theme: 5, general: 30 },
+  monthly: { theme: 5, general: 30 },
 } as const;
 
 const brlFormatter = new Intl.NumberFormat("pt-BR", {
@@ -220,6 +240,32 @@ export const resolveFluidaReadMinutes = (
 };
 
 /**
+ * Reads a cadence slot, falling back to the weekly one when the monthly slot is
+ * absent.
+ *
+ * The skeleton only carries daily and weekly shapes. Monthly readings always
+ * come from a real persisted insight overlaid on top, so the weekly shape is the
+ * right structural fallback — and the alternative (mock monthly prose) would
+ * mean shipping invented numbers.
+ *
+ * @param slot Object holding the cadence keys.
+ * @param slot.daily Daily value.
+ * @param slot.weekly Weekly value.
+ * @param slot.monthly Optional monthly value.
+ * @param cadence Selected cadence.
+ * @returns The value for that cadence.
+ */
+const resolveCadenceSlot = <T>(
+  slot: { readonly daily: T; readonly weekly: T; readonly monthly?: T },
+  cadence: FluidaCadence,
+): T => {
+  if (cadence === "monthly") {
+    return slot.monthly ?? slot.weekly;
+  }
+  return slot[cadence];
+};
+
+/**
  * Builds the chart-ready series for the cadence, detecting the peak bar.
  *
  * @param source Insight source object.
@@ -230,7 +276,7 @@ export const buildFluidaSeries = (
   source: FluidaInsightSource,
   cadence: FluidaCadence,
 ): FluidaChart => {
-  const series = source.series[cadence];
+  const series = resolveCadenceSlot(source.series, cadence);
   const values = series.values;
 
   let peakIndex = 0;
@@ -302,15 +348,27 @@ const resolveActiveNode = (
   selection: FluidaSelection,
 ): { node: FluidaNode; themeId: FluidaThemeId; isGeneral: boolean } => {
   if (selection.theme === "general") {
-    return { node: source.general[selection.cadence], themeId: "general", isGeneral: true };
+    return {
+      node: resolveCadenceSlot(source.general, selection.cadence),
+      themeId: "general",
+      isGeneral: true,
+    };
   }
 
   const themeSource = source.themes[selection.theme];
   if (!themeSource) {
-    return { node: source.general[selection.cadence], themeId: "general", isGeneral: true };
+    return {
+      node: resolveCadenceSlot(source.general, selection.cadence),
+      themeId: "general",
+      isGeneral: true,
+    };
   }
 
-  return { node: themeSource[selection.cadence], themeId: selection.theme, isGeneral: false };
+  return {
+    node: resolveCadenceSlot(themeSource, selection.cadence),
+    themeId: selection.theme,
+    isGeneral: false,
+  };
 };
 
 /**

@@ -45,6 +45,12 @@ export interface UseInsightsFluidaOptions {
    * hub). Drives which node the real payload overlays onto.
    */
   readonly dimension?: MaybeRefOrGetter<InsightDimension>;
+  /**
+   * Externally-owned cadence ref. The screen needs to know the cadence *before*
+   * it can fetch the matching persisted insight, so it owns the ref and hands it
+   * in. Omitted in tests and Storybook, where the internal ref is enough.
+   */
+  readonly cadence?: Ref<FluidaCadence>;
 }
 
 export interface UseInsightsFluida {
@@ -74,7 +80,7 @@ export interface UseInsightsFluida {
 export function useInsightsFluida(
   options: UseInsightsFluidaOptions = {},
 ): UseInsightsFluida {
-  const cadence = ref<FluidaCadence>("daily");
+  const cadence = options.cadence ?? ref<FluidaCadence>("daily");
   const theme = ref<FluidaThemeId>("general");
 
   const insight = computed<InsightFluidaFieldsDTO | null | undefined>(() =>

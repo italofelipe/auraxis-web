@@ -18,15 +18,32 @@ vi.mock("~/composables/useTheme", () => ({
   }),
 }));
 
-// Shared generated-insight state is the real data source. Default: no insight
-// (currentResult null) → the screen falls back to the Fluida mock.
+// Shared generated-insight state — an insight produced in this session.
 const currentResult = ref<GeneratedAIInsight | null>(null);
 vi.mock("~/features/ai-insights/composables/useAIInsights", () => ({
   useAIInsights: (): { currentResult: typeof currentResult } => ({ currentResult }),
 }));
 
+// Persisted reading fetched from the history. Default: resolved with nothing —
+// these specs cover the rendering of a reading that already exists in state, so
+// the network path stays inert and the screen keeps its skeleton layout.
+const readingInsight = ref<unknown>(null);
+const readingIsLoading = ref(false);
+const readingIsEmpty = ref(false);
+vi.mock("~/features/ai-insights/queries/use-insight-reading", () => ({
+  useInsightReading: (): Record<string, unknown> => ({
+    insight: readingInsight,
+    isLoading: readingIsLoading,
+    isEmpty: readingIsEmpty,
+    history: ref(undefined),
+  }),
+}));
+
 afterEach(() => {
   currentResult.value = null;
+  readingInsight.value = null;
+  readingIsLoading.value = false;
+  readingIsEmpty.value = false;
 });
 
 const stubs = {
@@ -153,5 +170,44 @@ describe("InsightsFluida", () => {
     expect(wrapper.text()).toContain(`${FLUIDA_MOCK_SOURCE.general.daily.readMin} min de leitura`);
     expect(wrapper.text()).toContain(FLUIDA_MOCK_SOURCE.general.daily.nextStep);
     expect(wrapper.text()).not.toContain("Próximo passo real.");
+  });
+
+  it("shows an honest empty state instead of the demo persona when nothing is persisted", () => {
+    readingIsEmpty.value = true;
+
+    const wrapper = mountFluida();
+
+    expect(wrapper.find("[data-testid=\"fluida-empty\"]").exists()).toBe(true);
+    // The regression that shipped a fictional persona to real users (#1302):
+    // no mock prose may reach a logged-in reader.
+    expect(wrapper.text()).not.toContain(FLUIDA_MOCK_SOURCE.general.daily.paragraphs[0]!);
+    expect(wrapper.text()).not.toContain(FLUIDA_MOCK_SOURCE.general.daily.title);
+  });
+
+  it("shows a loading state while the persisted reading is in flight", () => {
+    readingIsLoading.value = true;
+
+    const wrapper = mountFluida();
+
+    expect(wrapper.find("[data-testid=\"fluida-loading\"]").exists()).toBe(true);
+    expect(wrapper.text()).not.toContain(FLUIDA_MOCK_SOURCE.general.daily.paragraphs[0]!);
+  });
+
+  it("renders the persisted reading when the session has not generated anything", () => {
+    readingInsight.value = {
+      paragraphs: ["Fechamento real de julho.", "Segundo parágrafo do fechamento."],
+      series: { daily: [1, 2, 3, 4, 5, 6, 7], weekly: [1, 2, 3, 4, 5, 6] },
+    };
+
+    const wrapper = mountFluida();
+
+    expect(wrapper.text()).toContain("Fechamento real de julho.");
+    expect(wrapper.text()).not.toContain(FLUIDA_MOCK_SOURCE.general.daily.paragraphs[0]!);
+  });
+
+  it("offers the monthly cadence in the toggle", () => {
+    const wrapper = mountFluida();
+
+    expect(wrapper.find("[data-testid=\"fluida-cadence-monthly\"]").exists()).toBe(true);
   });
 });
