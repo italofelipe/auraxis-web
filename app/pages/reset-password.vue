@@ -40,7 +40,7 @@ const onSubmit = handleSubmit(async (values) => {
   if (!token.value) { return; }
   serverError.value = null;
   try {
-    await resetMutation.mutateAsync({ token: token.value, password: values.password });
+    await resetMutation.mutateAsync({ token: token.value, newPassword: values.password });
     isSuccess.value = true;
     setTimeout(() => { navigateTo("/login"); }, 2000);
   } catch (err) {
