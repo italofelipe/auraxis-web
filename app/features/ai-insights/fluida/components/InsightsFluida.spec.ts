@@ -36,6 +36,7 @@ vi.mock("~/features/ai-insights/queries/use-insight-reading", () => ({
     isLoading: readingIsLoading,
     isEmpty: readingIsEmpty,
     history: ref(undefined),
+    entry: ref(null),
   }),
 }));
 

@@ -62,7 +62,63 @@ const LEAD_SEVERITY_TO_FLUIDA: Record<InsightLeadSeverity, FluidaSeverity> = {
 export interface FluidaMapContext {
   readonly dimension: InsightDimension;
   readonly cadence: FluidaCadence;
+  /**
+   * Provenance of the insight being read (model, generation time, period).
+   * Without it the footer keeps the skeleton's — which would credit a real
+   * reading to a date it has nothing to do with (#1302).
+   */
+  readonly provenance?: {
+    readonly model?: string;
+    readonly generatedAt?: string;
+    readonly periodLabel?: string;
+  };
 }
+
+/**
+ * Formats an ISO timestamp the way the provenance footer expects it.
+ *
+ * @param iso ISO timestamp, possibly absent or malformed.
+ * @returns Localised label, or null when the timestamp is unusable.
+ */
+const formatGeneratedAt = (iso: string | undefined): string | null => {
+  if (!iso) {
+    return null;
+  }
+  const parsed = new Date(iso);
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(parsed);
+};
+
+/**
+ * Builds the provenance footer from the real insight, falling back to the
+ * skeleton's only for the fields the caller could not supply.
+ *
+ * @param provenance Real insight provenance.
+ * @returns Footer metadata.
+ */
+const buildMeta = (provenance: FluidaMapContext["provenance"]): FluidaInsightSource["meta"] => {
+  if (!provenance) {
+    return FLUIDA_MOCK_SOURCE.meta;
+  }
+
+  const generatedAt = formatGeneratedAt(provenance.generatedAt);
+  return {
+    ...FLUIDA_MOCK_SOURCE.meta,
+    model: provenance.model ?? FLUIDA_MOCK_SOURCE.meta.model,
+    generatedAt: generatedAt ?? FLUIDA_MOCK_SOURCE.meta.generatedAt,
+    referenceLabel: provenance.periodLabel
+      ? `referente ao período ${provenance.periodLabel}`
+      : FLUIDA_MOCK_SOURCE.meta.referenceLabel,
+  };
+};
 
 /** Theme dimensions that have a dedicated Fluida tab (i.e. not `general`/`wallet`). */
 type FluidaThemeDimension = Exclude<FluidaThemeId, "general">;
@@ -255,10 +311,16 @@ const overlayCommon = (base: FluidaNode, dto: InsightFluidaFieldsDTO): FluidaNod
  * @param dto Real payload.
  * @returns Node with mapped retro entries when present.
  */
-const overlayGeneral = (node: FluidaNode, dto: InsightFluidaFieldsDTO): FluidaNode =>
-  Array.isArray(dto.retro) && dto.retro.length > 0
-    ? { ...node, retro: dto.retro.map(toRetroEntry) }
-    : node;
+const overlayGeneral = (node: FluidaNode, dto: InsightFluidaFieldsDTO): FluidaNode => ({
+  ...node,
+  retro:
+    Array.isArray(dto.retro) && dto.retro.length > 0 ? dto.retro.map(toRetroEntry) : undefined,
+  // The backend sends no alerts and no pull stat, so anything sitting here came
+  // from the demo skeleton. Carrying it over would print invented figures
+  // ("assinaturas renovam dia 19 — R$ 312") inside a real reading (#1302).
+  alerts: undefined,
+  pullStat: undefined,
+});
 
 /**
  * Overlays the per-theme extras (highlight tiles) onto a node.
@@ -267,10 +329,14 @@ const overlayGeneral = (node: FluidaNode, dto: InsightFluidaFieldsDTO): FluidaNo
  * @param dto Real payload.
  * @returns Node with mapped highlight tiles when present.
  */
-const overlayTheme = (node: FluidaNode, dto: InsightFluidaFieldsDTO): FluidaNode =>
-  Array.isArray(dto.highlights) && dto.highlights.length > 0
-    ? { ...node, highlights: dto.highlights.map(toHighlightStat) }
-    : node;
+const overlayTheme = (node: FluidaNode, dto: InsightFluidaFieldsDTO): FluidaNode => ({
+  ...node,
+  highlights:
+    Array.isArray(dto.highlights) && dto.highlights.length > 0
+      ? dto.highlights.map(toHighlightStat)
+      : undefined,
+  pullStat: undefined,
+});
 
 /**
  * Resolves the Fluida theme dimension addressed by the context, collapsing the
@@ -333,6 +399,7 @@ export const insightToFluidaVM = (
     const overlaid = overlayGeneral(overlayCommon(baseNode, payload), payload);
     return {
       ...FLUIDA_MOCK_SOURCE,
+      meta: buildMeta(context.provenance),
       series,
       general: { ...FLUIDA_MOCK_SOURCE.general, [cadence]: overlaid },
     };
@@ -347,6 +414,7 @@ export const insightToFluidaVM = (
 
   return {
     ...FLUIDA_MOCK_SOURCE,
+    meta: buildMeta(context.provenance),
     series,
     themes: {
       ...FLUIDA_MOCK_SOURCE.themes,

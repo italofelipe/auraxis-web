@@ -37,7 +37,22 @@ const insight = computed(() => sessionInsight.value ?? reading.insight.value ?? 
 const isLoadingReading = computed(() => reading.isLoading.value && sessionInsight.value === null);
 const hasNoReading = computed(() => reading.isEmpty.value && sessionInsight.value === null);
 
-const fluida = useInsightsFluida({ insight, dimension: "general", cadence });
+// Provenance follows whichever source won above, so the footer never credits a
+// reading to the skeleton's date.
+const provenance = computed(() => {
+  if (sessionInsight.value !== null && currentResult.value) {
+    return {
+      model: currentResult.value.model,
+      periodLabel: currentResult.value.periodLabel,
+    };
+  }
+  const entry = reading.entry.value;
+  return entry
+    ? { model: entry.model, generatedAt: entry.created_at, periodLabel: entry.period_label }
+    : null;
+});
+
+const fluida = useInsightsFluida({ insight, dimension: "general", cadence, provenance });
 const { t } = useI18n();
 
 // Local editorial light/dark scope. Initialised from the global app theme, then

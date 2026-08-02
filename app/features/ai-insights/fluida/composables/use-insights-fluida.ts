@@ -51,6 +51,12 @@ export interface UseInsightsFluidaOptions {
    * in. Omitted in tests and Storybook, where the internal ref is enough.
    */
   readonly cadence?: Ref<FluidaCadence>;
+  /** Provenance of the insight being read, for the footer. */
+  readonly provenance?: MaybeRefOrGetter<
+    { readonly model?: string; readonly generatedAt?: string; readonly periodLabel?: string }
+    | null
+    | undefined
+  >;
 }
 
 export interface UseInsightsFluida {
@@ -101,6 +107,8 @@ export function useInsightsFluida(
     return insightToFluidaVM(insight.value ?? undefined, {
       dimension: dimension.value,
       cadence: cadence.value,
+      provenance:
+        options.provenance !== undefined ? (toValue(options.provenance) ?? undefined) : undefined,
     });
   });
 

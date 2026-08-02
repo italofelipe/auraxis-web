@@ -1952,7 +1952,7 @@
         "ariaLabel": "Gráfico de barras das saídas recentes, com o pico destacado"
       },
       "nextStep": "Para onde seguir agora",
-      "provenance": "Gerado por {model} · {generatedAt} · referente à {reference}.",
+      "provenance": "Gerado por {model} · {generatedAt} · {reference}.",
       "severity": {
         "ok": "Tudo certo",
         "atencao": "Atenção",

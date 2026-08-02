@@ -3,6 +3,7 @@ import { computed, type ComputedRef, type MaybeRefOrGetter, toValue } from "vue"
 
 import { useAIInsightsApiClient } from "~/features/ai-insights/api/ai-insights-api";
 import type {
+  AIInsightDTO,
   AIInsightHistoryDTO,
   GenerateInsightResponseDTO,
 } from "~/features/ai-insights/contracts/ai-insight";
@@ -23,6 +24,8 @@ export interface UseInsightReadingResult {
   readonly isEmpty: ComputedRef<boolean>;
   /** The persisted history, exposed so callers can spot a monthly closing. */
   readonly history: ComputedRef<AIInsightHistoryDTO | undefined>;
+  /** The history entry backing the reading — carries model, date and period. */
+  readonly entry: ComputedRef<AIInsightDTO | null>;
 }
 
 /**
@@ -75,5 +78,6 @@ export const useInsightReading = (
       () => !historyQuery.isLoading.value && historyQuery.data.value !== undefined && selectedId.value === null,
     ),
     history: computed(() => historyQuery.data.value),
+    entry: selected,
   };
 };
