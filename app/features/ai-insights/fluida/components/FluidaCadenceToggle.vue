@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 
-import type { FluidaCadence } from "../model/insight-fluida";
+import { FLUIDA_CADENCE_ORDER, type FluidaCadence } from "../model/insight-fluida";
 
 defineProps<{
   cadence: FluidaCadence;
@@ -15,24 +15,18 @@ const { t } = useI18n();
 </script>
 
 <template>
-  <div class="fluida-cadence" role="group" :aria-label="t('insights.fluida.cadence.daily')">
+  <div class="fluida-cadence" role="group" :aria-label="t('insights.fluida.cadence.groupLabel')">
     <button
+      v-for="option in FLUIDA_CADENCE_ORDER"
+      :key="option"
       type="button"
       class="fluida-cadence__option"
-      :class="{ 'fluida-cadence__option--on': cadence === 'daily' }"
-      :aria-pressed="cadence === 'daily'"
-      @click="emit('update:cadence', 'daily')"
+      :class="{ 'fluida-cadence__option--on': cadence === option }"
+      :aria-pressed="cadence === option"
+      :data-testid="`fluida-cadence-${option}`"
+      @click="emit('update:cadence', option)"
     >
-      {{ t("insights.fluida.cadence.daily") }}
-    </button>
-    <button
-      type="button"
-      class="fluida-cadence__option"
-      :class="{ 'fluida-cadence__option--on': cadence === 'weekly' }"
-      :aria-pressed="cadence === 'weekly'"
-      @click="emit('update:cadence', 'weekly')"
-    >
-      {{ t("insights.fluida.cadence.weekly") }}
+      {{ t(`insights.fluida.cadence.${option}`) }}
     </button>
   </div>
 </template>
