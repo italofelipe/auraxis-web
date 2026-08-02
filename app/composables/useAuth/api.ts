@@ -8,8 +8,17 @@ import type {
   ResetPasswordRequest,
   ResetPasswordResponse,
 } from "~/types/contracts";
+import type { components } from "~/shared/types/generated/openapi";
 
 import type { AuthApi, HttpAdapter } from "./types";
+
+/**
+ * Wire payload for `POST /auth/password/reset`, taken straight from the
+ * generated OpenAPI schema so the field names can never drift from the backend
+ * unnoticed.
+ */
+type ResetPasswordWirePayload =
+  components["schemas"]["app_schemas_auth_schema_ResetPasswordSchema"];
 
 /** v2 envelope user object returned by auth endpoints. */
 type V2AuthUser = {
@@ -117,6 +126,26 @@ const normalizeForgotPasswordResponse = (
 };
 
 /**
+ * Translates the camelCase domain request into the snake_case body the API
+ * expects.
+ *
+ * Returning the generated OpenAPI type is the point: if the backend ever
+ * renames the field again, this fails `pnpm typecheck` instead of failing
+ * silently in production the way #1301 did.
+ *
+ * @param payload Domain-shaped reset-password request.
+ * @returns Wire payload for POST /auth/password/reset.
+ */
+const toResetPasswordWirePayload = (
+  payload: ResetPasswordRequest,
+): ResetPasswordWirePayload => {
+  return {
+    token: payload.token,
+    new_password: payload.newPassword,
+  };
+};
+
+/**
  * Creates the authentication API adapter from an HTTP client.
  *
  * @param http HTTP adapter with a post method.
@@ -149,7 +178,7 @@ export const createAuthApi = (http: HttpAdapter): AuthApi => {
     ): Promise<ResetPasswordResponse> => {
       const response = await http.post<ResetPasswordResponse>(
         "/auth/password/reset",
-        payload,
+        toResetPasswordWirePayload(payload),
       );
       return response.data;
     },
