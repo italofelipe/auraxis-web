@@ -138,6 +138,13 @@ export async function mockAuthenticatedSession(
  * memory, so a full `page.goto` would hit the server-side middleware and
  * bounce back to `/login`.
  *
+ * ⚠️ Driving the router from `page.evaluate` only works for routes that use a
+ * layout from `definePageMeta`. On a page that declares `layout: false` and
+ * renders its own `<NuxtLayout>` (e.g. `/tools`), the URL changes but
+ * `<NuxtPage>` keeps the previous page mounted forever — see the comment in
+ * `e2e/specs/tools-catalog.spec.ts` and #1277. For those routes, click the
+ * real link instead.
+ *
  * @param page Playwright page.
  * @param path Route to open after login.
  */
