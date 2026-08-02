@@ -1,5 +1,7 @@
 import type { Page } from "@playwright/test";
 
+import { fillLoginForm, waitForHydration } from "./auth";
+
 /** Payload returned by the mocked login endpoint. */
 const LOGIN_RESPONSE = {
   success: true,
@@ -145,18 +147,20 @@ export async function mockAuthenticatedSession(
  * `e2e/specs/tools-catalog.spec.ts` and #1277. For those routes, click the
  * real link instead.
  *
+ * O formulário é preenchido pelo `fillLoginForm`, não por `page.fill` cru: o
+ * bootstrap de sessão que roda depois da hidratação remonta o form e limpa o
+ * campo preenchido primeiro. Quando isso acontecia, a senha ficava e o e-mail
+ * sumia, o clique submetia um form inválido ("Informe um e-mail válido.") e o
+ * `waitForURL` abaixo esperava 20s por uma navegação que nunca ia sair (#1313).
+ *
  * @param page Playwright page.
  * @param path Route to open after login.
  */
 export async function loginAndVisit(page: Page, path: string): Promise<void> {
   await page.goto("/login");
-  await page.waitForFunction(() => {
-    const el = document.getElementById("__nuxt");
-    return el !== null && (el as Element & { __vue_app__?: unknown }).__vue_app__ !== undefined;
-  });
+  await waitForHydration(page);
 
-  await page.fill("input[type='email']", "test@auraxis.com");
-  await page.fill("input[type='password']", "ValidPassword1!");
+  await fillLoginForm(page, "test@auraxis.com", "ValidPassword1!");
   await page.getByRole("button", { name: /entrar/i }).click();
   await page.waitForURL("**/dashboard", { timeout: 20_000 });
 
