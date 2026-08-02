@@ -384,18 +384,27 @@ function dueLabel(due: CarouselDue): string {
 
 <style scoped>
 .insight-carousel {
+  position: relative;
+  /* Recorta a barra de progresso pela curva que o UiSurfaceCard já define —
+     esta classe é aplicada no elemento raiz do card, então o border-radius
+     dele é quem faz o clipe. */
+  overflow: hidden;
   display: grid;
   gap: var(--space-3);
   min-height: calc(var(--space-9) * 3);
 }
 
-/* Barra estilo stories: fina, discreta, colada no topo do card. */
+/* Barra estilo stories: fina, discreta, colada no topo do card.
+   Fica fora do fluxo do grid para não precisar cancelar o gap, e sem
+   border-radius próprio: uma faixa de 3px não consegue reproduzir a curva de
+   20px do card (o clamping do CSS reduz o raio ao fator 3/20), então quem
+   arredonda é o clipe do container. */
 .insight-carousel__progress {
+  position: absolute;
+  inset: 0 0 auto;
   height: 3px;
-  margin-bottom: calc(var(--space-3) * -1);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   background: var(--color-outline-soft);
-  overflow: hidden;
+  pointer-events: none;
 }
 
 .insight-carousel__progress-fill {
