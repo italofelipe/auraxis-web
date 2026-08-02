@@ -26,7 +26,9 @@ const statusToI18nKey = (status: number): string => {
   if (status === 401 || status === 403) { return "errors.UNAUTHORIZED"; }
   if (status === 404) { return "errors.NOT_FOUND"; }
   if (status >= 500) { return "errors.SERVER_ERROR"; }
-  if (status === 422) { return "errors.VALIDATION_ERROR"; }
+  // The v2 API answers a rejected payload with 400, not 422 — without this a
+  // validation failure showed the generic "algo deu errado" (#1307).
+  if (status === 422 || status === 400) { return "errors.VALIDATION_ERROR"; }
   return "errors.UNKNOWN";
 };
 
@@ -73,7 +75,13 @@ const resolveAxiosErrorKey = (error: unknown): string => {
   if (!axios.isAxiosError(error)) { return "errors.UNKNOWN"; }
 
   const status = error.response?.status ?? 0;
-  const code = (error.response?.data as { code?: string } | undefined)?.code;
+  // The v2 envelope nests the code under `error`; older responses put it at the
+  // root. Reading only the root meant no v2 code ever matched, so every 400 in
+  // the product fell through to "errors.UNKNOWN" (#1307).
+  const data = error.response?.data as
+    | { code?: string; error?: { code?: string } }
+    | undefined;
+  const code = data?.error?.code ?? data?.code;
 
   const mappedCode = code ? ERROR_CODE_MAP[code] : undefined;
   if (mappedCode) {

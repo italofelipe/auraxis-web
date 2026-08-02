@@ -13,13 +13,16 @@ import { useRoute } from "#app";
 const { t } = useI18n();
 const route = useRoute();
 
-type AuthVariant = "login" | "register" | "recover";
+type AuthVariant = "login" | "register" | "recover" | "reset";
 
 const variant = computed<AuthVariant>(() => {
   if (route.path.startsWith("/register")) {
     return "register";
   }
-  if (route.path.startsWith("/forgot-password") || route.path.startsWith("/reset-password")) {
+  if (route.path.startsWith("/reset-password")) {
+    return "reset";
+  }
+  if (route.path.startsWith("/forgot-password")) {
     return "recover";
   }
   return "login";
@@ -31,25 +34,22 @@ interface HeroCopy {
   readonly sub: string;
 }
 
+/** i18n namespace holding the hero copy for each variant. */
+const HERO_NAMESPACE: Record<AuthVariant, string> = {
+  login: "auth.login.hero",
+  register: "auth.register.hero",
+  // Two steps of the same flow, two different truths: on /forgot-password the
+  // link is about to be sent; on /reset-password it has already been used.
+  recover: "auth.forgotPassword.hero",
+  reset: "auth.resetPassword.hero",
+};
+
 const copy = computed<HeroCopy>(() => {
-  if (variant.value === "register") {
-    return {
-      badge: "Comece em minutos",
-      headline: "Crie sua conta e ligue seu painel financeiro.",
-      sub: "Cadastro curto, linguagem clara e uma experiência consistente com o painel principal.",
-    };
-  }
-  if (variant.value === "recover") {
-    return {
-      badge: "Recuperação segura",
-      headline: "Recupere o acesso com tranquilidade.",
-      sub: "Enviamos um link seguro para você voltar à sua conta em instantes, sem complicação.",
-    };
-  }
+  const ns = HERO_NAMESPACE[variant.value];
   return {
-    badge: t("auth.login.hero.badge"),
-    headline: t("auth.login.hero.headline"),
-    sub: t("auth.login.hero.subtitle"),
+    badge: t(`${ns}.badge`),
+    headline: t(`${ns}.headline`),
+    sub: t(`${ns}.subtitle`),
   };
 });
 
