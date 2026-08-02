@@ -55,7 +55,7 @@ vi.mock("~/composables/useAuth", () => ({
 
 vi.mock("~/composables/useApiError", () => ({
   useApiError: (): { getErrorMessage: (error: unknown) => string } => ({
-    getErrorMessage: (): string => "erro-da-api",
+    getErrorMessage: (): string => "erro-generico",
   }),
 }));
 
@@ -84,7 +84,8 @@ function nuxtContextPlugin(app: App): void {
 }
 
 /**
- * Mounts the reset-password page with stable Nuxt and i18n test doubles.
+ * Mounts the page with the form stubbed — the form carries its own spec, so
+ * this one covers orchestration: token handling, redirect and error mapping.
  *
  * @returns Mounted page wrapper.
  */
@@ -95,37 +96,40 @@ function mountPage(): ReturnType<typeof mount> {
       mocks: { $t: (key: string): string => key },
       stubs: {
         NuxtLink: { props: ["to"], template: "<a :href='to'><slot /></a>" },
-        UiFormField: { props: ["label", "fieldId", "error", "required"], template: "<div><slot /></div>" },
+        ResetPasswordForm: {
+          props: ["loading", "serverError"],
+          emits: ["submit"],
+          template: `<form data-testid="reset-form" @submit.prevent="$emit('submit', { password: '${VALID_PASSWORD}' })">
+            <span data-testid="server-error">{{ serverError }}</span>
+            <button type="submit">enviar</button>
+          </form>`,
+        },
       },
     },
   });
 }
 
 /**
- * Fills both password inputs and submits the form.
+ * Builds an Axios-shaped v2 validation error for a given field.
  *
- * @param wrapper Mounted page wrapper.
- * @param password Value typed into both fields.
+ * @param field Field name the backend rejected.
+ * @returns Error object shaped like the API envelope.
  */
-async function submitWith(
-  wrapper: ReturnType<typeof mount>,
-  password: string,
-): Promise<void> {
-  const inputs = wrapper.findAll("input");
-  await inputs[0]?.setValue(password);
-  await inputs[1]?.setValue(password);
-  await flushPromises();
-  await wrapper.find("form").trigger("submit");
-  // vee-validate settles validation across both microtasks and timer callbacks
-  // before the submit handler runs, so advancing fake timers is what actually
-  // lets the submission through.
-  await vi.advanceTimersByTimeAsync(50);
-  await flushPromises();
+function validationError(field: string): unknown {
+  return {
+    response: {
+      status: 400,
+      data: {
+        success: false,
+        message: "Validation error",
+        error: { code: "VALIDATION_ERROR", details: { errors: { json: { [field]: ["bad"] } } } },
+      },
+    },
+  };
 }
 
 describe("ResetPasswordPage", () => {
   beforeEach(() => {
-    vi.useFakeTimers();
     pushMock.mockReset();
     routeQuery.current = { token: "a".repeat(32) };
     mutationHarness.current = {
@@ -141,7 +145,8 @@ describe("ResetPasswordPage", () => {
   it("submits the token with the domain-shaped newPassword field", async () => {
     const wrapper = mountPage();
 
-    await submitWith(wrapper, VALID_PASSWORD);
+    await wrapper.find("[data-testid=\"reset-form\"]").trigger("submit");
+    await flushPromises();
 
     expect(mutationHarness.current?.mutateAsync).toHaveBeenCalledWith({
       token: "a".repeat(32),
@@ -152,7 +157,8 @@ describe("ResetPasswordPage", () => {
   it("never sends a bare `password` field to the mutation", async () => {
     const wrapper = mountPage();
 
-    await submitWith(wrapper, VALID_PASSWORD);
+    await wrapper.find("[data-testid=\"reset-form\"]").trigger("submit");
+    await flushPromises();
 
     const [payload] = mutationHarness.current?.mutateAsync.mock.calls[0] as [
       Record<string, unknown>,
@@ -167,40 +173,61 @@ describe("ResetPasswordPage", () => {
     await flushPromises();
 
     expect(wrapper.text()).toContain("auth.resetPassword.noToken");
-    expect(wrapper.find("form").exists()).toBe(false);
+    expect(wrapper.find("[data-testid=\"reset-form\"]").exists()).toBe(false);
     expect(mutationHarness.current?.mutateAsync).not.toHaveBeenCalled();
   });
 
   it("shows the success state and redirects to login", async () => {
+    vi.useFakeTimers();
     const wrapper = mountPage();
 
-    await submitWith(wrapper, VALID_PASSWORD);
+    await wrapper.find("[data-testid=\"reset-form\"]").trigger("submit");
+    await vi.advanceTimersByTimeAsync(0);
 
     expect(wrapper.text()).toContain("auth.resetPassword.success");
 
-    // The page waits 2s on the success screen before sending the user to login.
     await vi.advanceTimersByTimeAsync(2000);
-
     expect(pushMock).toHaveBeenCalledWith("/login");
   });
 
-  it("surfaces the API error message when the reset fails", async () => {
+  it("explains the password rules when the backend rejects new_password", async () => {
+    mutationHarness.current = {
+      isPending: ref(false),
+      mutateAsync: vi.fn().mockRejectedValue(validationError("new_password")),
+    };
+    const wrapper = mountPage();
+
+    await wrapper.find("[data-testid=\"reset-form\"]").trigger("submit");
+    await flushPromises();
+
+    expect(wrapper.find("[data-testid=\"server-error\"]").text()).toContain(
+      "mínimo de 10 caracteres",
+    );
+  });
+
+  it("says the link expired when the backend rejects the token", async () => {
+    mutationHarness.current = {
+      isPending: ref(false),
+      mutateAsync: vi.fn().mockRejectedValue(validationError("token")),
+    };
+    const wrapper = mountPage();
+
+    await wrapper.find("[data-testid=\"reset-form\"]").trigger("submit");
+    await flushPromises();
+
+    expect(wrapper.find("[data-testid=\"server-error\"]").text()).toContain("Este link expirou");
+  });
+
+  it("falls back to the generic handler for anything else", async () => {
     mutationHarness.current = {
       isPending: ref(false),
       mutateAsync: vi.fn().mockRejectedValue(new Error("boom")),
     };
     const wrapper = mountPage();
 
-    await submitWith(wrapper, VALID_PASSWORD);
+    await wrapper.find("[data-testid=\"reset-form\"]").trigger("submit");
+    await flushPromises();
 
-    expect(wrapper.text()).toContain("erro-da-api");
-  });
-
-  it("blocks submission client-side when the password breaks the backend rules", async () => {
-    const wrapper = mountPage();
-
-    await submitWith(wrapper, "curta1!");
-
-    expect(mutationHarness.current?.mutateAsync).not.toHaveBeenCalled();
+    expect(wrapper.find("[data-testid=\"server-error\"]").text()).toBe("erro-generico");
   });
 });
