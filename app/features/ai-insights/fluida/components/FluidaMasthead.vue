@@ -22,9 +22,7 @@ const emit = defineEmits<{
 const { t } = useI18n();
 
 const cadenceSubtitle = computed(() =>
-  props.cadence === "daily"
-    ? t("insights.fluida.cadence.dailyReading")
-    : t("insights.fluida.cadence.weeklyReading"),
+  t(`insights.fluida.cadence.${props.cadence}Reading`),
 );
 
 const schemeToggleLabel = computed(() =>

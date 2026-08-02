@@ -22,7 +22,7 @@ export const FLUIDA_MOCK_SOURCE: FluidaInsightSource = {
   meta: {
     model: "GPT-4o",
     generatedAt: "21 de junho de 2026, 06:00",
-    referenceLabel: "movimentação até 20 de junho",
+    referenceLabel: "referente à movimentação até 20 de junho",
     privacyNote:
       "Seus dados não treinam modelos. A IA lê apenas seus registros no Auraxis para preparar esta leitura.",
   },
