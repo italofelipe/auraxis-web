@@ -51,7 +51,7 @@ describe("AuthBrandPanel", () => {
     const wrapper = mount(AuthBrandPanel, { global: globalConfig });
 
     expect(wrapper.find(".auth-hero--register").exists()).toBe(true);
-    expect(wrapper.text()).toContain("Crie sua conta e ligue seu painel financeiro.");
+    expect(wrapper.text()).toContain("auth.register.hero.headline");
     expect(wrapper.findAll(".auth-hero__chip")).toHaveLength(0);
   });
 
@@ -61,6 +61,18 @@ describe("AuthBrandPanel", () => {
     const wrapper = mount(AuthBrandPanel, { global: globalConfig });
 
     expect(wrapper.find(".auth-hero--recover").exists()).toBe(true);
-    expect(wrapper.text()).toContain("Recupere o acesso com tranquilidade.");
+    expect(wrapper.text()).toContain("auth.forgotPassword.hero.headline");
+  });
+
+  it("renders a distinct hero on the reset step", () => {
+    // /forgot-password and /reset-password used to share one copy that said the
+    // link had just been sent — false on the screen where it has been used.
+    mockRoutePath.value = "/reset-password";
+
+    const wrapper = mount(AuthBrandPanel, { global: globalConfig });
+
+    expect(wrapper.find(".auth-hero--reset").exists()).toBe(true);
+    expect(wrapper.text()).toContain("auth.resetPassword.hero.headline");
+    expect(wrapper.text()).not.toContain("auth.forgotPassword.hero.headline");
   });
 });

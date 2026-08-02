@@ -52,7 +52,7 @@ test.describe("Auth — Forgot Password", () => {
     await page.getByRole("button", { name: /enviar link/i }).click();
 
     // Success screen should display after submission
-    await expect(page.getByText(/e-mail enviado/i)).toBeVisible({
+    await expect(page.getByText(/link enviado/i)).toBeVisible({
       timeout: 8_000,
     });
   });
@@ -75,7 +75,7 @@ test.describe("Auth — Forgot Password", () => {
 
     // The app intentionally shows success regardless of the API result
     // to prevent email enumeration attacks
-    await expect(page.getByText(/e-mail enviado/i)).toBeVisible({
+    await expect(page.getByText(/link enviado/i)).toBeVisible({
       timeout: 8_000,
     });
   });
@@ -94,7 +94,7 @@ test.describe("Auth — Forgot Password", () => {
     await fillInputAndVerify(page, "#forgot-email", "user@example.com");
     await page.getByRole("button", { name: /enviar link/i }).click();
 
-    await expect(page.getByText(/e-mail enviado/i)).toBeVisible({
+    await expect(page.getByText(/link enviado/i)).toBeVisible({
       timeout: 8_000,
     });
 
