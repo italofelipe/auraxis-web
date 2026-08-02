@@ -54,7 +54,15 @@ export interface ForgotPasswordResponse {
 
 export interface ResetPasswordRequest {
   readonly token: string;
-  readonly password: string;
+  /**
+   * The new password, in the camelCase domain shape used across this contract.
+   *
+   * The API expects `new_password` on the wire — `toResetPasswordWirePayload`
+   * in `composables/useAuth/api.ts` does that translation against the generated
+   * OpenAPI type, so a backend rename surfaces as a typecheck failure instead
+   * of a production incident (#1301).
+   */
+  readonly newPassword: string;
 }
 
 export interface ResetPasswordResponse {
