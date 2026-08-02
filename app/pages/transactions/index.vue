@@ -13,6 +13,8 @@ import TransactionPaymentModal from "~/features/transactions/components/Transact
 import AiInsightSurface from "~/features/ai-insights/components/AiInsightSurface.vue";
 import TransactionsInsightPanel from "~/features/ai-insights/components/TransactionsInsightPanel.vue";
 import { resolveInsightAnchorDate } from "~/features/ai-insights/model/ai-insight";
+import { IMPORT_FEATURE_FLAG_KEY } from "~/features/import/model/import-config";
+import { useFeatureFlag } from "~/shared/feature-flags/use-feature-flag";
 import { formatCurrency } from "~/utils/currency";
 
 definePageMeta({
@@ -22,6 +24,8 @@ definePageMeta({
 });
 
 useHead({ title: "Transações | Auraxis" });
+
+const importEnabled = useFeatureFlag(IMPORT_FEATURE_FLAG_KEY);
 
 // ── Filters / view state ───────────────────────────────────────────────────────
 
@@ -239,6 +243,7 @@ watch(
       @create-tag="showCreateTag = true"
       @open-trash="navigateTo('/transactions/trash')"
       @open-export="showExportModal = true"
+      @open-import="navigateTo('/transactions/import')"
     />
 
     <TransactionExportModal :visible="showExportModal" @update:visible="showExportModal = $event" />
@@ -260,6 +265,8 @@ watch(
       </template>
       <template #action>
         <NButton type="primary" size="small" data-testid="transactions-empty-cta" @click="showIncome = true">{{ $t('transactions.empty.action') }}</NButton>
+        <!-- Lista vazia é onde está quem tem o histórico só na planilha. -->
+        <NButton v-if="importEnabled" size="small" secondary data-testid="transactions-empty-import-cta" @click="navigateTo('/transactions/import')">{{ $t('import.entry.emptyCta') }}</NButton>
       </template>
     </UiEmptyState>
 

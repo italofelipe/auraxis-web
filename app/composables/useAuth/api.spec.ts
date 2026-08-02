@@ -185,7 +185,7 @@ describe("createAuthApi", () => {
     expect(response.message).toBe("Email not found");
   });
 
-  it("resetPassword calls POST /auth/password/reset and returns the response data", async () => {
+  it("resetPassword posts the wire payload the API expects (new_password, not password)", async () => {
     const post = vi.fn().mockResolvedValue({
       data: { message: "Password reset successfully" },
     });
@@ -193,13 +193,23 @@ describe("createAuthApi", () => {
 
     const response = await authApi.resetPassword({
       token: "reset-token-123",
-      password: "NewPassword@1",
+      newPassword: "NewPassword@1",
     });
 
     expect(post).toHaveBeenCalledWith("/auth/password/reset", {
       token: "reset-token-123",
-      password: "NewPassword@1",
+      new_password: "NewPassword@1",
     });
     expect(response.message).toBe("Password reset successfully");
+  });
+
+  it("resetPassword never sends the form-level `password` field", async () => {
+    const post = vi.fn().mockResolvedValue({ data: { message: "ok" } });
+    const authApi = createAuthApi({ post });
+
+    await authApi.resetPassword({ token: "reset-token-123", newPassword: "NewPassword@1" });
+
+    const [, body] = post.mock.calls[0] as [string, Record<string, unknown>];
+    expect(body).not.toHaveProperty("password");
   });
 });

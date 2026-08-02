@@ -18,6 +18,8 @@ import { useDashboardOverviewQuery } from "~/features/dashboard/queries/use-dash
 import { useDashboardTrendsQuery } from "~/features/dashboard/queries/use-dashboard-trends-query";
 import { useFinancialHealthScore } from "~/features/dashboard/composables/useFinancialHealthScore";
 import { useGoalsQuery } from "~/features/goals/queries/use-goals-query";
+import { IMPORT_FEATURE_FLAG_KEY } from "~/features/import/model/import-config";
+import { useFeatureFlag } from "~/shared/feature-flags/use-feature-flag";
 import { useDueRangeQuery } from "~/features/transactions/queries/use-due-range-query";
 import type {
   DashboardGoalSummary,
@@ -28,6 +30,7 @@ import type {
 type DashboardViewMode = "analytical" | "essential";
 
 const { t } = useI18n();
+const importEnabled = useFeatureFlag(IMPORT_FEATURE_FLAG_KEY);
 
 definePageMeta({
   middleware: ["authenticated"],
@@ -307,6 +310,15 @@ const closeFirstTransactionForm = (): void => {
       >
         <template #illustration>
           <IllustrationEmptyDashboard />
+        </template>
+        <template v-if="importEnabled" #action>
+          <NButton type="primary" size="small" @click="openFirstTransactionForm">
+            {{ $t('pages.dashboard.registerFirstTransaction') }}
+          </NButton>
+          <!-- Quem chega ao dashboard sem dado nenhum costuma ter a planilha. -->
+          <NButton size="small" secondary data-testid="dashboard-import-cta" @click="navigateTo('/transactions/import')">
+            {{ $t('import.entry.emptyCta') }}
+          </NButton>
         </template>
       </UiEmptyState>
     </template>

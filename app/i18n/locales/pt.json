@@ -1176,38 +1176,60 @@
       "hasAccount": "",
       "signIn": "Entrar",
       "successToast": "A conta foi criada",
-      "metaDescription": "Crie sua conta gratuita na Auraxis e comece a controlar seus investimentos."
+      "metaDescription": "Crie sua conta gratuita na Auraxis e comece a controlar seus investimentos.",
+      "hero": {
+        "badge": "Comece em minutos",
+        "headline": "Crie sua conta e ligue seu painel financeiro.",
+        "subtitle": "Cadastro curto, linguagem clara e uma experiência consistente com o painel principal."
+      }
     },
     "forgotPassword": {
-      "title": "Recupere seu acesso",
-      "subtitle": "Digite o endereço de e-mail associado à sua conta. Enviaremos um link seguro para redefinir sua senha.",
-      "emailLabel": "E-mail corporativo ou pessoal",
+      "title": "Recuperar acesso",
+      "subtitle": "Informe o e-mail da sua conta. O link de redefinição chega em seguida.",
+      "emailLabel": "E-mail da conta",
       "emailPlaceholder": "nome{'@'}exemplo.com",
       "submit": "Enviar instruções",
       "submitLoading": "Enviando...",
       "backToLogin": "Voltar ao login",
       "metaDescription": "Recupere o acesso à sua conta Auraxis com seu endereço de e-mail.",
-      "successTitle": "E-mail enviado",
-      "successMessage": "Se esse e-mail estiver cadastrado, você receberá um link de recuperação em instantes. Verifique também sua pasta de spam.",
+      "successTitle": "Link enviado",
+      "successMessage": "Se houver uma conta com esse e-mail, o link chega em instantes. Ele vale por tempo limitado — confira também o spam.",
       "rememberPassword": "Lembrou a senha?",
-      "sendLink": "Enviar link de recuperação",
-      "sending": "Enviando…"
+      "sendLink": "Enviar link",
+      "sending": "Enviando…",
+      "ctaHint": "Você volta para cá pelo link, para definir a nova senha.",
+      "createAccount": "Criar conta",
+      "hero": {
+        "badge": "Acesso protegido",
+        "headline": "Vamos te colocar de volta.",
+        "subtitle": "Enviamos um link de redefinição para o seu e-mail. Ele vale por tempo limitado e só funciona uma vez."
+      }
     },
     "resetPassword": {
-      "title": "Redefinir senha",
-      "subtitle": "Digite sua nova senha abaixo",
+      "title": "Criar nova senha",
+      "subtitle": "Escolha uma senha que só você saiba. Ela passa a valer em todos os seus dispositivos.",
       "newPassword": "Nova senha",
-      "confirmPassword": "Confirmar nova senha",
-      "submit": "Redefinir senha",
-      "submitting": "Redefinindo...",
-      "success": "Senha redefinida com sucesso!",
-      "successSubtitle": "Você será redirecionado para o login em instantes.",
-      "errorExpired": "Este link expirou. Solicite um novo link de recuperação.",
-      "errorInvalid": "Link inválido. Solicite um novo link de recuperação.",
-      "noToken": "Link de recuperação inválido ou expirado.",
-      "requestNew": "Solicitar novo link",
-      "backToLogin": "Voltar para o login",
-      "metaDescription": "Redefina sua senha da conta Auraxis."
+      "confirmPassword": "Repita a nova senha",
+      "submit": "Salvar nova senha",
+      "submitting": "Salvando…",
+      "success": "Senha alterada",
+      "successSubtitle": "Pronto. Estamos te levando para o login.",
+      "errorExpired": "Este link expirou. Peça um novo para continuar.",
+      "errorInvalid": "Este link não é mais válido. Peça um novo para continuar.",
+      "noToken": "Este link não é válido.",
+      "requestNew": "Pedir novo link",
+      "backToLogin": "Voltar ao login",
+      "metaDescription": "Redefina sua senha da conta Auraxis.",
+      "newPasswordPlaceholder": "Mín. 10 caracteres",
+      "confirmPasswordPlaceholder": "Digite a senha de novo",
+      "ctaHint": "Depois de salvar, levamos você para o login.",
+      "noTokenHint": "Links de redefinição expiram por segurança. Pedir um novo leva menos de um minuto.",
+      "errorPasswordRules": "Essa senha não atende às regras: mínimo de 10 caracteres, com maiúscula, número e símbolo.",
+      "hero": {
+        "badge": "Última etapa",
+        "headline": "Agora é só criar a nova senha.",
+        "subtitle": "Assim que você salvar, ela passa a valer em todos os seus dispositivos e o link antigo deixa de funcionar."
+      }
     },
     "emailBanner": {
       "message": "Confirme seu e-mail para garantir acesso completo à sua conta.",
@@ -1922,7 +1944,10 @@
         "daily": "Diário",
         "weekly": "Semanal",
         "dailyReading": "Leitura diária",
-        "weeklyReading": "Leitura semanal"
+        "weeklyReading": "Leitura semanal",
+        "monthly": "Mensal",
+        "monthlyReading": "Fechamento do mês",
+        "groupLabel": "Cadência da leitura"
       },
       "tabs": {
         "general": "Geral",
@@ -1949,13 +1974,30 @@
         "ariaLabel": "Gráfico de barras das saídas recentes, com o pico destacado"
       },
       "nextStep": "Para onde seguir agora",
-      "provenance": "Gerado por {model} · {generatedAt} · referente à {reference}.",
+      "provenance": "Gerado por {model} · {generatedAt} · {reference}.",
       "severity": {
         "ok": "Tudo certo",
         "atencao": "Atenção",
         "alerta": "Alerta",
         "alta": "Alta",
         "media": "Média"
+      },
+      "reading": {
+        "loading": "Carregando sua leitura…"
+      },
+      "empty": {
+        "daily": {
+          "title": "Ainda não há leitura de hoje",
+          "body": "Gere o insight do dia para ver como suas contas estão andando."
+        },
+        "weekly": {
+          "title": "Ainda não há leitura desta semana",
+          "body": "A leitura semanal é gerada automaticamente aos sábados."
+        },
+        "monthly": {
+          "title": "Ainda não há fechamento de mês",
+          "body": "O fechamento é gerado automaticamente no dia 1º, com o resultado do mês anterior."
+        }
       }
     }
   },
@@ -4303,6 +4345,112 @@
       "budget": "Você atingiu o limite diário de perguntas. Tente novamente amanhã.",
       "validation": "Não entendi a pergunta. Reformule em até 1000 caracteres.",
       "server": "Não consegui responder agora. Tente novamente em instantes."
+    }
+  },
+  "import": {
+    "dropzone": {
+      "title": "Arraste sua planilha aqui",
+      "hint": "Aceitamos CSV e XLSX de até 10 MB.",
+      "action": "Escolher arquivo",
+      "ariaLabel": "Selecionar planilha para importar",
+      "invalidType": "Formato não suportado. Envie um arquivo .csv ou .xlsx.",
+      "tooLarge": "Arquivo maior que 10 MB. Divida a planilha e tente de novo."
+    },
+    "select": {
+      "title": "Escolha a planilha",
+      "description": "O Auraxis detecta as colunas, mostra uma prévia e só grava o que você confirmar."
+    },
+    "mapping": {
+      "title": "Confirme as colunas",
+      "description": "Não conseguimos identificar estas colunas com segurança. Escolha qual é qual.",
+      "confidence": "{value}% de confiança",
+      "placeholder": "Selecione a coluna",
+      "samples": "Amostra da coluna escolhida",
+      "confirm": "Confirmar colunas",
+      "fields": {
+        "dateColumn": "Data",
+        "descriptionColumn": "Descrição",
+        "amountColumn": "Valor",
+        "typeColumn": "Tipo (receita ou despesa)"
+      }
+    },
+    "preview": {
+      "title": "Revise antes de importar",
+      "summary": "Importando {selected} de {total} lançamentos",
+      "duplicates": "nenhuma duplicata | {count} possível duplicata | {count} possíveis duplicatas",
+      "incompleteCount": "nada a conferir | {count} lançamento a conferir | {count} lançamentos a conferir",
+      "confirm": "Importar selecionados",
+      "startOver": "Começar de novo",
+      "duplicate": "Possível duplicata",
+      "incomplete": "Falta preencher",
+      "missingValue": "—",
+      "toggleRow": "Incluir ou excluir o lançamento {description}",
+      "columns": {
+        "include": "Incluir",
+        "date": "Data",
+        "description": "Descrição",
+        "amount": "Valor",
+        "status": "Situação"
+      }
+    },
+    "review": {
+      "modalTitle": "Antes de prosseguir, precisamos conferir se as informações estão corretas",
+      "modalDescription": "Alguns lançamentos vieram sem dados no arquivo. Complete cada um para concluir a importação.",
+      "progress": "{resolved} de {total} conferidos",
+      "pending": "tudo conferido | {count} pendente | {count} pendentes",
+      "cardCounter": "Transação {current} de {total}",
+      "income": "Receita",
+      "expense": "Despesa",
+      "askDescription": "Qual o título desta transação?",
+      "askAmount": "Qual o valor desta transação?",
+      "descriptionPlaceholder": "Ex.: Mercado do bairro",
+      "amountPlaceholder": "Ex.: 149,90",
+      "blockedHint": "Conclua o preenchimento das transações pendentes para liberar a importação.",
+      "finishNow": "Concluir importação",
+      "finishLater": "Terminar depois",
+      "resolved": "Preenchida",
+      "missing": "Falta preencher"
+    },
+    "finishLater": {
+      "title": "Caso queira terminar de cadastrar suas transações posteriormente nós vamos cadastrar os dados com informações genéricas que podem ser alteradas por você posteriormente",
+      "confirm": "Prosseguir",
+      "cancel": "Não, quero terminar de preencher meus dados"
+    },
+    "rejectedRows": {
+      "title": "nenhuma linha perdida | {count} linha não foi importada | {count} linhas não foram importadas",
+      "description": "O arquivo tinha linhas que não conseguimos ler. Corrija e importe de novo — elas não ficam marcadas como duplicadas.",
+      "lineLabel": "Linha {line}",
+      "expand": "Ver quais linhas"
+    },
+    "success": {
+      "title": "Importação concluída",
+      "description": "Seus lançamentos já estão na lista de transações.",
+      "goToTransactions": "Ver minhas transações",
+      "importAnother": "Importar outra planilha",
+      "imported": "Importados",
+      "skipped": "Ignorados",
+      "errorsTitle": "nenhum erro | {count} lançamento não pôde ser criado | {count} lançamentos não puderam ser criados",
+      "errorsDescription": "Essas linhas não foram gravadas e podem ser importadas de novo."
+    },
+    "errors": {
+      "genericTitle": "Não foi possível importar a planilha",
+      "genericDescription": "Revise o arquivo e tente novamente.",
+      "expiredTitle": "A prévia expirou",
+      "expiredDescription": "Envie a planilha de novo para gerar uma prévia atualizada.",
+      "restart": "Enviar novamente"
+    },
+    "upsell": {
+      "title": "Você usou as 3 importações gratuitas do mês",
+      "description": "No Premium a importação é ilimitada, com categorização automática.",
+      "action": "Conhecer o Premium"
+    },
+    "disabled": {
+      "title": "Importação indisponível",
+      "description": "Esta funcionalidade ainda não está liberada para a sua conta."
+    },
+    "entry": {
+      "action": "Importar planilha",
+      "emptyCta": "Importar de uma planilha"
     }
   }
 }
