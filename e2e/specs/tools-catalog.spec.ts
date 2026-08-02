@@ -8,6 +8,9 @@ import { fillLoginForm, waitForHydration } from "../helpers/auth";
  * Tool cards use ToolCatalogCard which renders NCard + NButton (not <a> links).
  */
 
+/** Mirrors `MOBILE_BREAKPOINT` in `app/composables/useResponsiveShell`. */
+const MOBILE_BREAKPOINT = 768;
+
 const MOCK_LOGIN_SUCCESS = {
 	success: true,
 	message: "Authenticated",
@@ -79,11 +82,24 @@ const mockAuthForTools = async (page: Page): Promise<void> => {
 };
 
 /**
- * Logs in via UI and navigates to /tools using client-side routing.
+ * Logs in via UI and reaches /tools the way a user does: by clicking the
+ * sidebar link.
  *
- * Clicks the sidebar NuxtLink instead of page.goto (which causes a full SSR
- * reload, wiping Pinia state and causing the authenticated middleware to
- * redirect back to /login).
+ * The navigation has to stay client-side — the session token only lives in
+ * Pinia memory, so a `page.goto` would boot a fresh app that renders the
+ * public chrome instead of the app shell.
+ *
+ * What it must NOT do is drive the router from `page.evaluate`. Calling
+ * `$router.push("/tools")` from outside the Nuxt app leaves the app wedged:
+ * the URL and the `<title>` change (the page's setup runs) but `<NuxtPage>`
+ * keeps the previous page mounted forever. `/tools` declares
+ * `layout: false` and renders its own `<NuxtLayout>`, and NuxtPage holds the
+ * old vnode while the mounted layout does not match the incoming route's
+ * layout. Driven from `page.evaluate` that hand-off never completes — the
+ * dashboard stays on screen with the URL already on `/tools`, which is
+ * exactly the "element(s) not found with the right URL" signature of #1277.
+ * A NuxtLink click goes through the same client-side navigation and renders
+ * the catalog every time.
  *
  * @param page - Playwright page instance.
  */
@@ -92,19 +108,31 @@ const loginAndGoToTools = async (page: Page): Promise<void> => {
 	await waitForHydration(page);
 	await fillLoginForm(page, "test@auraxis.com", "ValidPassword1!");
 	await page.getByRole("button", { name: /entrar/i }).click();
-	await expect(page).toHaveURL(/\/dashboard/, { timeout: 10_000 });
+	await expect(page).toHaveURL(/\/dashboard/, { timeout: 15_000 });
 
-	// Client-side navigation preserves the in-memory Pinia session token.
-	// A full page.goto would trigger SSR → server-side middleware → redirect,
-	// because the token only lives in Pinia memory (client-side).
-	// Access the Vue Router via the root Vue app instance and push client-side.
-	await page.evaluate(() => {
-		const root = document.getElementById("__nuxt");
-		const router = root?.__vue_app__?.config?.globalProperties?.$router;
-		router?.push("/tools");
-	});
-	await page.waitForURL("**/tools", { timeout: 10_000 });
-	await waitForHydration(page);
+	// Under 768px (`MOBILE_BREAKPOINT` in useResponsiveShell) the shell turns
+	// the sidebar into a drawer parked off-canvas at `left: -width`: the link
+	// is in the DOM and reported visible, but every click retries forever with
+	// "element is outside of the viewport". Open the drawer first. Deciding by
+	// viewport width instead of probing for the button keeps this deterministic
+	// — `isMobile` is only computed on mount, so a probe races the shell.
+	const viewportWidth = page.viewportSize()?.width ?? MOBILE_BREAKPOINT;
+	if (viewportWidth < MOBILE_BREAKPOINT) {
+		await page.getByRole("button", { name: /abrir menu/i }).click();
+	}
+
+	await page
+		.locator("#ui-app-shell-nav")
+		.getByRole("link", { name: /ferramentas/i })
+		.click();
+	await expect(page).toHaveURL(/\/tools/, { timeout: 15_000 });
+
+	// Espera conteúdo, não navegação: a URL muda antes de a rota montar, e
+	// `waitForHydration` não diz nada aqui — `#__nuxt` já tem `__vue_app__`
+	// desde o /login. O heading é o marcador de que a rota /tools renderizou;
+	// os cards ficam para os testes assertarem, para uma falha de renderização
+	// do catálogo continuar aparecendo onde ela é.
+	await expect(page.locator(".tools-page__h1")).toBeVisible({ timeout: 15_000 });
 };
 
 test.describe("Tools — Catalog page", () => {
