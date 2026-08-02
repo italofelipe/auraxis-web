@@ -1,6 +1,11 @@
 /* v8 ignore start */
 export { createAuthApi } from "./api";
-export { useForgotPasswordForm, useLoginForm, useRegisterForm } from "./forms";
+export {
+  useForgotPasswordForm,
+  useLoginForm,
+  useRegisterForm,
+  useResetPasswordForm,
+} from "./forms";
 export {
   useForgotPasswordMutation,
   useLoginMutation,

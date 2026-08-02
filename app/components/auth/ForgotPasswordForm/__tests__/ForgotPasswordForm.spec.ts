@@ -24,20 +24,20 @@ describe("ForgotPasswordForm", () => {
 
   it("shows title and instructions", () => {
     const wrapper = mount(ForgotPasswordForm, { global: globalConfig });
-    expect(wrapper.text()).toContain("Recupere seu acesso");
-    expect(wrapper.text()).toContain("Digite o endereço de e-mail associado à sua conta");
+    expect(wrapper.text()).toContain("Recuperar acesso");
+    expect(wrapper.text()).toContain("Informe o e-mail da sua conta");
   });
 
   it("matches the recovery prototype email field copy", () => {
     const wrapper = mount(ForgotPasswordForm, { global: globalConfig });
-    expect(wrapper.text()).toContain("E-mail corporativo ou pessoal");
+    expect(wrapper.text()).toContain("E-mail da conta");
     expect(wrapper.find("#forgot-email").attributes("placeholder")).toBe("nome@exemplo.com");
   });
 
   it("shows back-to-login link", () => {
     const wrapper = mount(ForgotPasswordForm, { global: globalConfig });
     expect(wrapper.text()).toContain("Voltar ao login");
-    expect(wrapper.text()).toContain("Criar nova conta");
+    expect(wrapper.text()).toContain("Criar conta");
   });
 
   it("disables submit when loading", () => {
@@ -63,7 +63,7 @@ describe("ForgotPasswordForm", () => {
     });
     expect(wrapper.find("input[type='email']").exists()).toBe(false);
     expect(wrapper.find("button[type='submit']").exists()).toBe(false);
-    expect(wrapper.text()).toContain("E-mail enviado");
+    expect(wrapper.text()).toContain("Link enviado");
   });
 
   it("shows spam instructions in success state", () => {

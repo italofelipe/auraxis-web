@@ -18,6 +18,8 @@ const PUBLIC_PAGES = [
   { path: "/login", name: "Login" },
   { path: "/register", name: "Register" },
   { path: "/forgot-password", name: "Forgot Password" },
+  // Needs a token in the query or the page renders the invalid-link state.
+  { path: `/reset-password?token=${"a".repeat(32)}`, name: "Reset Password" },
   { path: "/plans", name: "Plans" },
   { path: "/privacy", name: "Privacy Policy" },
   { path: "/terms", name: "Terms of Service" },

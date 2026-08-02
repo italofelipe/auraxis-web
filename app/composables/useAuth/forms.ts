@@ -5,9 +5,11 @@ import {
   createForgotPasswordSchema,
   createLoginSchema,
   createRegisterSchema,
+  createResetPasswordSchema,
   type ForgotPasswordSchema,
   type LoginSchema,
   type RegisterSchema,
+  type ResetPasswordSchema,
 } from "~/schemas/auth";
 
 /**
@@ -54,6 +56,27 @@ export const useForgotPasswordForm = (): ReturnType<
     validationSchema: toTypedSchema(createForgotPasswordSchema(t)),
     initialValues: {
       email: "",
+    },
+  });
+};
+
+/**
+ * Inicializa formulário tipado de redefinição de senha com mensagens i18n.
+ *
+ * A fábrica i18n substitui o export estático `resetPasswordSchema`, cujas
+ * mensagens de fallback estão sem acento ("maiuscula", "numero", "simbolo").
+ *
+ * @returns Instância de formulário de redefinição.
+ */
+export const useResetPasswordForm = (): ReturnType<
+  typeof useForm<ResetPasswordSchema>
+> => {
+  const { t } = useI18n();
+  return useForm<ResetPasswordSchema>({
+    validationSchema: toTypedSchema(createResetPasswordSchema(t)),
+    initialValues: {
+      password: "",
+      confirmPassword: "",
     },
   });
 };
