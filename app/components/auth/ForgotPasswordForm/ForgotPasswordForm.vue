@@ -83,6 +83,7 @@ const isPending = computed(() => props.loading || isSubmitting.value);
           {{ isPending ? $t('auth.forgotPassword.sending') : $t('auth.forgotPassword.sendLink') }}
           <ArrowRight v-if="!isPending" class="forgot-form__submit-icon" :size="17" aria-hidden="true" />
         </button>
+        <p class="forgot-form__cta-hint">{{ $t('auth.forgotPassword.ctaHint') }}</p>
       </form>
 
       <div class="forgot-form__links">
@@ -90,7 +91,7 @@ const isPending = computed(() => props.loading || isSubmitting.value);
           {{ $t('auth.forgotPassword.backToLogin') }}
         </NuxtLink>
         <NuxtLink to="/register" class="forgot-form__link forgot-form__link--accent">
-          Criar nova conta
+          {{ $t('auth.forgotPassword.createAccount') }}
         </NuxtLink>
       </div>
     </template>
@@ -237,6 +238,13 @@ const isPending = computed(() => props.loading || isSubmitting.value);
 .forgot-form__submit:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.forgot-form__cta-hint {
+  margin: 0;
+  text-align: center;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
 }
 
 .forgot-form__spinner {

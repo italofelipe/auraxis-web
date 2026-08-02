@@ -102,9 +102,11 @@ describe("useApiError", () => {
     expect(getErrorMessage(makeApiError(403))).toBe("errors.UNAUTHORIZED");
   });
 
-  it("maps ApiError 400 without code to UNKNOWN key", () => {
+  it("maps ApiError 400 without code to the validation key", () => {
     const { getErrorMessage } = useApiError();
-    expect(getErrorMessage(makeApiError(400))).toBe("errors.UNKNOWN");
+    // The v2 API answers rejected payloads with 400; treating it as UNKNOWN was
+    // what made every validation failure read "algo deu errado" (#1307).
+    expect(getErrorMessage(makeApiError(400))).toBe("errors.VALIDATION_ERROR");
   });
 
   it("maps ApiError 401 without code to UNAUTHORIZED key", () => {
