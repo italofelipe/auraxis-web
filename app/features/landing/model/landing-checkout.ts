@@ -1,7 +1,7 @@
 /**
  * Checkout model for the public landing (#1187).
  *
- * The buyer picks a plan on auraxis.com.br and goes straight to the AbacatePay
+ * The buyer picks a plan on auraxis.com.br and goes straight to the gateway's
  * hosted checkout — no detour through app.auraxis.com.br. This module holds the
  * pure pieces of that flow: plan resolution from the URL and the orchestration
  * of register → login → checkout session, both testable without Vue.
