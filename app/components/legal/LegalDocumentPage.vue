@@ -33,10 +33,6 @@ defineProps<{
             Contato:
             <a :href="`mailto:${document.contactEmail}`" class="contact-link">{{ document.contactEmail }}</a>
           </p>
-          <p class="article-notice">
-            Documento publicado para transparência sobre como tratamos seus dados. O texto pode
-            receber ajustes após revisão jurídica.
-          </p>
         </header>
 
         <section
@@ -204,15 +200,6 @@ defineProps<{
   font-size: clamp(2rem, 6vw, 3rem);
   line-height: 1.08;
   font-weight: var(--font-weight-bold);
-}
-
-.article-notice {
-  margin: var(--space-4) 0 0;
-  padding: var(--space-3);
-  border: 1px solid color-mix(in srgb, var(--color-brand-500, #0ea5e9) 24%, transparent);
-  border-radius: var(--radius-md, 12px);
-  background: color-mix(in srgb, var(--color-brand-100, #e0f2fe) 52%, transparent);
-  color: var(--color-text-secondary, #344054);
 }
 
 .legal-section {
