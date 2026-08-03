@@ -3732,7 +3732,10 @@
       "cta": "Criar transação e continuar",
       "ctaLoading": "Criando…",
       "skipStep": "Pular esta etapa",
-      "errorGeneric": "Não conseguimos registrar a transação agora. Tente novamente."
+      "errorGeneric": "Não conseguimos registrar a transação agora. Tente novamente.",
+      "importOr": "ou",
+      "importCta": "Importar planilha ou extrato",
+      "importHint": "Traga o histórico inteiro de uma vez, de um CSV, XLSX ou extrato do banco."
     },
     "step3": {
       "title": "Defina sua primeira meta",
@@ -4500,6 +4503,11 @@
         "genericTitle": "Não foi possível importar o extrato",
         "genericDescription": "Tente novamente em instantes. Se persistir, envie o extrato em outro formato."
       }
+    },
+    "onboarding": {
+      "title": "Você veio do tour do Auraxis",
+      "description": "Importe seus lançamentos aqui e volte para o tutorial quando quiser — ele retoma de onde parou.",
+      "resume": "Voltar ao tour"
     }
   }
 }
