@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/italofelipe/auraxis-web/compare/v1.3.0...v1.4.0) (2026-08-03)
+
+
+### Features
+
+* **import:** aba "Extrato bancário" consumindo o /v2/bank-import ([#1315](https://github.com/italofelipe/auraxis-web/issues/1315)) ([4c1ece2](https://github.com/italofelipe/auraxis-web/commit/4c1ece2d5ce223b886965559c324eb1b595943b8)), closes [#1286](https://github.com/italofelipe/auraxis-web/issues/1286)
+
 ## [1.3.0](https://github.com/italofelipe/auraxis-web/compare/v1.2.0...v1.3.0) (2026-08-02)
 
 
