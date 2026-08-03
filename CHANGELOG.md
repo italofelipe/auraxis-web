@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.1](https://github.com/italofelipe/auraxis-web/compare/v1.4.0...v1.4.1) (2026-08-03)
+
+
+### Bug Fixes
+
+* **ci:** gate de a11y logado passa a publicar as violações que encontra ([#1317](https://github.com/italofelipe/auraxis-web/issues/1317)) ([b7c0920](https://github.com/italofelipe/auraxis-web/commit/b7c0920eb74db85a16e05857a19c6062187286f5)), closes [#1284](https://github.com/italofelipe/auraxis-web/issues/1284)
+* **contracts:** regenerar os tipos GraphQL e destravar o CI de main ([#1323](https://github.com/italofelipe/auraxis-web/issues/1323)) ([d7d8ea2](https://github.com/italofelipe/auraxis-web/commit/d7d8ea2f6df2b4c0f1c6b3e1bc97bee8b8bc3825)), closes [#1321](https://github.com/italofelipe/auraxis-web/issues/1321)
+
 ## [1.4.0](https://github.com/italofelipe/auraxis-web/compare/v1.3.0...v1.4.0) (2026-08-03)
 
 
