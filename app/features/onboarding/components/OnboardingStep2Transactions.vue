@@ -1,14 +1,27 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { ArrowLeftRight } from "lucide-vue-next";
+import { ArrowLeftRight, FileSpreadsheet } from "lucide-vue-next";
 import { useOnboarding, type OnboardingStep2Data } from "../composables/useOnboarding";
 import { useCreateTransactionMutation } from "~/features/transactions/queries/use-create-transaction-mutation";
+import {
+  BANK_IMPORT_FEATURE_FLAG_KEY,
+  IMPORT_FEATURE_FLAG_KEY,
+} from "~/features/import/model/import-config";
+import { useFeatureFlag } from "~/shared/feature-flags/use-feature-flag";
 
-const emit = defineEmits<{ (e: "next"): void }>();
+const emit = defineEmits<{ (e: "next" | "import"): void }>();
 
 const { t } = useI18n();
 const { getStepData, setStepData } = useOnboarding();
 const mutation = useCreateTransactionMutation();
+
+// A porta só aparece se houver import atrás dela: com as duas flags desligadas
+// o caminho levaria a uma página que só sabe dizer "indisponível".
+const spreadsheetImportEnabled = useFeatureFlag(IMPORT_FEATURE_FLAG_KEY);
+const bankImportEnabled = useFeatureFlag(BANK_IMPORT_FEATURE_FLAG_KEY);
+const importEnabled = computed(
+  (): boolean => spreadsheetImportEnabled.value || bankImportEnabled.value,
+);
 
 const today = new Date().toISOString().slice(0, 10);
 const persisted = getStepData("step2");
@@ -38,6 +51,17 @@ function onSkipStep(): void {
   if (mutation.isPending.value) { return; }
   submitError.value = "";
   emit("next");
+}
+
+/**
+ * Caminho alternativo: em vez de digitar uma transação, o usuário traz o
+ * histórico inteiro de uma planilha ou de um extrato. Quem manda o wizard
+ * embora e navega é o pai — este passo só avisa qual porta foi escolhida.
+ */
+function onImportPath(): void {
+  if (mutation.isPending.value) { return; }
+  submitError.value = "";
+  emit("import");
 }
 
 /** Creates the user's first real transaction and moves to the next step. */
@@ -140,6 +164,21 @@ async function onSubmit(): Promise<void> {
     >
       {{ mutation.isPending.value ? t("onboarding.step2.ctaLoading") : t("onboarding.step2.cta") }}
     </button>
+
+    <div v-if="importEnabled" class="onboarding-step__alt">
+      <span class="onboarding-step__alt-divider">{{ t("onboarding.step2.importOr") }}</span>
+      <button
+        type="button"
+        class="onboarding-step__alt-btn"
+        :disabled="mutation.isPending.value"
+        data-testid="step2-import"
+        @click="onImportPath"
+      >
+        <FileSpreadsheet :size="16" aria-hidden="true" />
+        {{ t("onboarding.step2.importCta") }}
+      </button>
+      <span class="onboarding-step__alt-hint">{{ t("onboarding.step2.importHint") }}</span>
+    </div>
 
     <button
       type="button"
@@ -246,6 +285,46 @@ async function onSubmit(): Promise<void> {
 }
 .onboarding-step__cta:hover:enabled { background: var(--color-brand-500); }
 .onboarding-step__cta:disabled { opacity: 0.55; cursor: not-allowed; }
+.onboarding-step__alt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: var(--space-1);
+}
+.onboarding-step__alt-divider {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  text-transform: lowercase;
+}
+.onboarding-step__alt-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px var(--space-3);
+  border: 1px solid var(--color-brand-500);
+  border-radius: var(--radius-md);
+  background: var(--color-brand-glow-xs);
+  color: var(--color-brand-600);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.onboarding-step__alt-btn:hover:enabled {
+  background: var(--color-bg-elevated);
+  border-color: var(--color-brand-600);
+}
+.onboarding-step__alt-btn:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+}
+.onboarding-step__alt-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.onboarding-step__alt-hint {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  text-align: center;
+}
 .onboarding-step__skip {
   align-self: center;
   padding: var(--space-1) var(--space-2);
