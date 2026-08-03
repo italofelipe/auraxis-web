@@ -36,6 +36,9 @@ audit.json
 # Playwright / Vitest local artifacts
 playwright-report/
 test-results/
+# Baseline do gate de a11y logado — gerada por execução, publicada como
+# artefato pelo CI. Registrar no repo congelaria um retrato desatualizado.
+a11y-baseline/
 
 bundle-report.json
 stats.html

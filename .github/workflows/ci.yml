@@ -649,8 +649,13 @@ jobs:
       # por isso que problemas de a11y no produto atravessavam o CI (#1268).
       # warn-only até a baseline ser registrada: promover ligando
       # A11Y_AUTH_STRICT=1 aqui.
+      # `--reporter=list` por dois motivos: imprime as violações no log do job
+      # (o reporter default do CI não imprime nada recuperável) e não reescreve
+      # `playwright-report/`, que até então era sobrescrito pelo relatório do
+      # gate público que roda logo acima. A baseline estruturada sai no JSON
+      # abaixo (#1284).
       - name: Run a11y tests (authenticated screens)
-        run: pnpm exec playwright test e2e/a11y-authenticated.spec.ts --project=chromium
+        run: pnpm exec playwright test e2e/a11y-authenticated.spec.ts --project=chromium --reporter=list
         continue-on-error: true
         env:
           CI: true
@@ -660,7 +665,9 @@ jobs:
         if: always()
         with:
           name: a11y-report
-          path: playwright-report/
+          path: |
+            playwright-report/
+            a11y-baseline/
           retention-days: 14
 
   # ── 14. Storybook Test Runner ──────────────────────────────────────────────
