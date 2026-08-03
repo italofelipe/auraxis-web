@@ -92,7 +92,7 @@ describe("UiUserMenu", () => {
     });
     const trigger = wrapper.find(".ui-user-menu__trigger");
     expect(trigger.attributes("aria-label")).toBe(
-      "Abrir menu da conta de João Silva",
+      "Menu da conta de João Silva",
     );
   });
 
@@ -104,7 +104,7 @@ describe("UiUserMenu", () => {
     });
     expect(
       wrapper.find(".ui-user-menu__trigger").attributes("aria-label"),
-    ).toBe("Abrir menu da conta de João Silva");
+    ).toBe("Menu da conta de João Silva");
   });
 
   it("displays name initial when no avatarUrl provided", () => {

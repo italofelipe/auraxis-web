@@ -28,8 +28,13 @@ const initial = computed(() => props.name.charAt(0).toUpperCase());
  *
  * O rótulo é fixo em vez de depender do avatar: um nome acessível que muda
  * conforme o usuário subiu foto ou não é pior que um nome estável.
+ *
+ * E não começa com "Abrir menu" de propósito: o gatilho do UiToolsShell já usa
+ * exatamente esse nome, e dois botões com o mesmo prefixo ficam ambíguos para
+ * quem navega por leitor de tela — além de quebrarem busca por papel+nome no
+ * E2E, que foi como a colisão apareceu.
  */
-const triggerLabel = computed(() => `Abrir menu da conta de ${props.name}`);
+const triggerLabel = computed(() => `Menu da conta de ${props.name}`);
 
 /** Toggles the dropdown open/closed state. */
 function toggle(): void {
