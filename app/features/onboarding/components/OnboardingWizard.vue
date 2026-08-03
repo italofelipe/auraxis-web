@@ -15,6 +15,8 @@ const { shouldShow, complete, skip, currentStep, setCurrentStep } = onboarding;
 const analytics = useAnalytics();
 
 const TOTAL_STEPS = 6;
+const GOALS_STEP: OnboardingStepNumber = 6;
+const IMPORT_ROUTE = "/transactions/import?from=onboarding";
 const tourSections = ["welcome", "routine", "intelligence"] as const;
 const tourItemsBySection = {
   welcome: ["control", "plan", "review"],
@@ -62,6 +64,26 @@ function onNext(): void {
     });
     setCurrentStep((currentStep.value + 1) as OnboardingStepNumber);
   }
+}
+
+/**
+ * Leva o usuário ao import em vez de digitar a primeira transação.
+ *
+ * O passo conta como concluído (a retomada cai na etapa de metas) e o overlay
+ * sai de cena — senão o diálogo cobriria a própria página de import. Nada muda
+ * no shape persistido: `skip` preserva `currentStep` e `formData`, e é o mesmo
+ * caminho do botão "pular tutorial", então o banner de retomada continua
+ * valendo.
+ */
+function onImportPath(): void {
+  analytics.capture("onboarding_step_completed", {
+    step: currentStep.value,
+    total_steps: TOTAL_STEPS,
+    direction: "import",
+  });
+  setCurrentStep(GOALS_STEP);
+  skip();
+  void navigateTo(IMPORT_ROUTE);
 }
 
 /** Returns the wizard to the previous step when not on the first step. */
@@ -129,7 +151,12 @@ function onComplete(): void {
                 @next="onNext"
               />
               <OnboardingStep1Welcome v-else-if="currentStep === 4" key="step4" @next="onNext" />
-              <OnboardingStep2Transactions v-else-if="currentStep === 5" key="step5" @next="onNext" />
+              <OnboardingStep2Transactions
+                v-else-if="currentStep === 5"
+                key="step5"
+                @next="onNext"
+                @import="onImportPath"
+              />
               <OnboardingStep3GoalsVsBudgets v-else-if="currentStep === 6" key="step6" @complete="onComplete" />
             </Transition>
           </div>

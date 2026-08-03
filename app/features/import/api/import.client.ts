@@ -39,7 +39,7 @@ const CONFIRM_PATH = "/v2/import/confirm";
  * o dobro do que o cliente esperava. O Axios abortava, o usuário via um erro
  * genérico e o backend seguia gravando (#1309).
  */
-const CONFIRM_TIMEOUT_MS = 180_000;
+export const IMPORT_CONFIRM_TIMEOUT_MS = 180_000;
 
 let cachedImportClient: AxiosInstance | null = null;
 
@@ -51,7 +51,7 @@ let cachedImportClient: AxiosInstance | null = null;
  * @param payload Corpo cru da resposta.
  * @returns Conteúdo útil da resposta.
  */
-const unwrapEnvelope = <T>(payload: T | { readonly data?: T | null }): T => {
+export const unwrapEnvelope = <T>(payload: T | { readonly data?: T | null }): T => {
   if (
     payload !== null &&
     typeof payload === "object" &&
@@ -173,7 +173,7 @@ export class ImportClient {
         completions: command.completions ?? {},
         use_generic_placeholders: command.useGenericPlaceholders ?? false,
       },
-      { timeout: CONFIRM_TIMEOUT_MS },
+      { timeout: IMPORT_CONFIRM_TIMEOUT_MS },
     );
     return mapConfirmResponse(unwrapEnvelope(response.data), command.excludeIds.length);
   }

@@ -19,6 +19,11 @@ vi.mock("../composables/useOnboarding", () => ({
   }),
 }));
 
+const enabledFlags = vi.hoisted(() => new Set<string>());
+vi.mock("~/shared/feature-flags/use-feature-flag", () => ({
+  useFeatureFlag: (key: string): { value: boolean } => ({ value: enabledFlags.has(key) }),
+}));
+
 const mockMutateAsync = vi.fn(() => Promise.resolve());
 const isPending = ref<boolean>(false);
 
@@ -37,6 +42,8 @@ describe("OnboardingStep2Transactions", () => {
     mockMutateAsync.mockClear();
     mockSetStepData.mockClear();
     isPending.value = false;
+    enabledFlags.clear();
+    enabledFlags.add("web.import.csv-xlsx");
   });
 
   it("advances without creating a transaction when the step is skipped", async () => {
@@ -64,6 +71,46 @@ describe("OnboardingStep2Transactions", () => {
     const wrapper = mount(OnboardingStep2Transactions);
 
     expect(wrapper.find("[data-testid='step2-skip']").attributes("disabled")).toBeDefined();
+  });
+
+  it("emits the import path without creating a transaction", async () => {
+    const wrapper = mount(OnboardingStep2Transactions);
+
+    await wrapper.find("[data-testid='step2-import']").trigger("click");
+
+    expect(wrapper.emitted("import")).toHaveLength(1);
+    // Quem sai daqui não digitou nada: nada de mutation nem de step data.
+    expect(mockMutateAsync).not.toHaveBeenCalled();
+    expect(mockSetStepData).not.toHaveBeenCalled();
+    expect(wrapper.emitted("next")).toBeUndefined();
+  });
+
+  it("blocks the import path while a submission is in flight", async () => {
+    isPending.value = true;
+    const wrapper = mount(OnboardingStep2Transactions);
+
+    const button = wrapper.find("[data-testid='step2-import']");
+    expect(button.attributes("disabled")).toBeDefined();
+
+    await button.trigger("click");
+    expect(wrapper.emitted("import")).toBeUndefined();
+  });
+
+  it("shows the import path when only the bank statement flag is on", () => {
+    enabledFlags.clear();
+    enabledFlags.add("web.import.bank-statement");
+    const wrapper = mount(OnboardingStep2Transactions);
+
+    expect(wrapper.find("[data-testid='step2-import']").exists()).toBe(true);
+  });
+
+  it("hides the import path when no import flag is on", () => {
+    // Com as duas desligadas o caminho levaria a uma página que só sabe dizer
+    // "indisponível" — pior que não oferecer.
+    enabledFlags.clear();
+    const wrapper = mount(OnboardingStep2Transactions);
+
+    expect(wrapper.find("[data-testid='step2-import']").exists()).toBe(false);
   });
 
   it("still creates the transaction through the primary CTA", async () => {

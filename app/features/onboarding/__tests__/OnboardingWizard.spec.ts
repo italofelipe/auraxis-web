@@ -1,10 +1,14 @@
 import { describe, it, expect, vi } from "vitest";
 import { mount, type VueWrapper } from "@vue/test-utils";
+import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { computed, ref, type ComputedRef, type Ref } from "vue";
 import OnboardingWizard from "../components/OnboardingWizard.vue";
 import type { OnboardingStepNumber } from "../composables/useOnboarding";
 
 vi.mock("vue-i18n");
+
+const navigateToMock = vi.hoisted(() => vi.fn());
+mockNuxtImport("navigateTo", () => navigateToMock);
 
 const captureMock = vi.hoisted(() => vi.fn());
 vi.mock("~/composables/useAnalytics/useAnalytics", () => ({
@@ -53,6 +57,8 @@ function mountWizard(): VueWrapper {
   currentStepRef.value = 1;
   mockSkip.mockReset();
   mockComplete.mockReset();
+  navigateToMock.mockReset();
+  captureMock.mockReset();
   return mount(OnboardingWizard, {
     global: {
       stubs: {
@@ -71,8 +77,8 @@ function mountWizard(): VueWrapper {
         },
         OnboardingStep2Transactions: {
           name: "OnboardingStep2Transactions",
-          template: "<div data-testid='step2'><button class='stub-next' @click=\"$emit('next')\">next</button></div>",
-          emits: ["next"],
+          template: "<div data-testid='step2'><button class='stub-next' @click=\"$emit('next')\">next</button><button class='stub-import' @click=\"$emit('import')\">import</button></div>",
+          emits: ["next", "import"],
         },
         OnboardingStep3GoalsVsBudgets: {
           name: "OnboardingStep3GoalsVsBudgets",
@@ -152,5 +158,55 @@ describe("OnboardingWizard", () => {
     const wrapper = mountWizard();
     await wrapper.find(".onboarding-dialog__btn-skip").trigger("click");
     expect(mockSkip).toHaveBeenCalled();
+  });
+
+  describe("caminho de import no passo da primeira transação", () => {
+    /**
+     * Leva o wizard até o passo da primeira transação.
+     *
+     * @param wrapper Wizard já montado.
+     */
+    async function goToStep2(wrapper: VueWrapper): Promise<void> {
+      for (let i = 0; i < 3; i += 1) {
+        await wrapper.find("[data-testid='tour-step'] .stub-next").trigger("click");
+      }
+      await wrapper.find("[data-testid='step1'] .stub-next").trigger("click");
+    }
+
+    it("fecha o overlay e navega para o import marcando o passo como concluído", async () => {
+      const wrapper = mountWizard();
+      await goToStep2(wrapper);
+
+      await wrapper.find("[data-testid='step2'] .stub-import").trigger("click");
+
+      // O passo conta como concluído: a retomada cai na etapa de metas, não
+      // de volta no formulário que o usuário decidiu não preencher.
+      expect(currentStepRef.value).toBe(6);
+      // Sem fechar, o diálogo cobriria a própria página de import.
+      expect(mockSkip).toHaveBeenCalledTimes(1);
+      expect(navigateToMock).toHaveBeenCalledWith("/transactions/import?from=onboarding");
+    });
+
+    it("registra a escolha do caminho na analytics", async () => {
+      const wrapper = mountWizard();
+      await goToStep2(wrapper);
+
+      await wrapper.find("[data-testid='step2'] .stub-import").trigger("click");
+
+      expect(captureMock).toHaveBeenCalledWith("onboarding_step_completed", {
+        step: 5,
+        total_steps: 6,
+        direction: "import",
+      });
+    });
+
+    it("não conclui o onboarding — o tour continua retomável", async () => {
+      const wrapper = mountWizard();
+      await goToStep2(wrapper);
+
+      await wrapper.find("[data-testid='step2'] .stub-import").trigger("click");
+
+      expect(mockComplete).not.toHaveBeenCalled();
+    });
   });
 });

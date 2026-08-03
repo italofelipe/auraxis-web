@@ -599,6 +599,16 @@
       "status": "enabled-prod",
       "description": "Wizard de importação de transações CSV/XLSX no web (detect → mapping → preview → conferência → confirm).",
       "repositories": ["auraxis-web", "auraxis-api-v2"]
+    },
+    {
+      "key": "web.import.bank-statement",
+      "owner": "platform",
+      "createdAt": "2026-08-02",
+      "removeBy": "2027-06-30",
+      "type": "release",
+      "status": "enabled-dev",
+      "description": "Aba \"Extrato bancário\" em /transactions/import consumindo /v2/bank-import (OFX, QFX, FEBRABAN 240 e CSV por banco). Separada da flag do CSV/XLSX de propósito: desligar o extrato não pode derrubar o import de planilha.",
+      "repositories": ["auraxis-web", "auraxis-api-v2"]
     }
   ]
 }
