@@ -1,14 +1,28 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { NAlert, NButton, NStatistic, NText } from "naive-ui";
 
 import UiEmptyState from "~/components/ui/UiEmptyState/UiEmptyState.vue";
 import type { ImportConfirmResult } from "~/features/import/model/import";
 
-const props = defineProps<{ result: ImportConfirmResult }>();
+const props = defineProps<{
+  result: ImportConfirmResult;
+  /** Copy de apoio. Default: a da planilha. */
+  description?: string;
+  /** Rótulo do "importar outro". Default: o da planilha. */
+  importAnotherLabel?: string;
+}>();
 
 const emit = defineEmits<{ "go-to-transactions": []; "import-another": [] }>();
 
 const { t } = useI18n();
+
+const description = computed(
+  (): string => props.description ?? t("import.success.description"),
+);
+const importAnotherLabel = computed(
+  (): string => props.importAnotherLabel ?? t("import.success.importAnother"),
+);
 </script>
 
 <template>
@@ -16,9 +30,9 @@ const { t } = useI18n();
     <UiEmptyState
       icon="check"
       :title="t('import.success.title')"
-      :description="t('import.success.description')"
+      :description="description"
       :action-label="t('import.success.goToTransactions')"
-      :secondary-label="t('import.success.importAnother')"
+      :secondary-label="importAnotherLabel"
       @action="emit('go-to-transactions')"
       @secondary-action="emit('import-another')"
     />
@@ -53,7 +67,7 @@ const { t } = useI18n();
       data-testid="import-import-another"
       @click="emit('import-another')"
     >
-      {{ t("import.success.importAnother") }}
+      {{ importAnotherLabel }}
     </NButton>
   </div>
 </template>

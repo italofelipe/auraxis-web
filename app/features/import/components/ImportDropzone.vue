@@ -11,6 +11,16 @@ import {
 const props = defineProps<{
   /** Bloqueia a seleção enquanto uma chamada está em andamento. */
   disabled?: boolean;
+  /** Extensões aceitas. Default: as da planilha (`.csv`, `.xlsx`). */
+  extensions?: readonly string[];
+  /** Copy do título. Default: a da planilha. */
+  title?: string;
+  /** Copy da linha de apoio. Default: a da planilha. */
+  hint?: string;
+  /** Mensagem de extensão inválida. Default: a da planilha. */
+  invalidTypeMessage?: string;
+  /** Rótulo acessível do campo de arquivo. Default: o da planilha. */
+  ariaLabel?: string;
 }>();
 
 const emit = defineEmits<{ select: [file: File] }>();
@@ -20,7 +30,15 @@ const inputRef = ref<HTMLInputElement | null>(null);
 const isDragging = ref(false);
 const localError = ref<string | null>(null);
 
-const accept = computed((): string => IMPORT_ACCEPTED_EXTENSIONS.join(","));
+const extensions = computed(
+  (): readonly string[] => props.extensions ?? IMPORT_ACCEPTED_EXTENSIONS,
+);
+const accept = computed((): string => extensions.value.join(","));
+const title = computed((): string => props.title ?? t("import.dropzone.title"));
+const hint = computed((): string => props.hint ?? t("import.dropzone.hint"));
+const ariaLabel = computed(
+  (): string => props.ariaLabel ?? t("import.dropzone.ariaLabel"),
+);
 
 /**
  * Valida extensão e tamanho antes de subir. O backend responde 415/413 nesses
@@ -31,12 +49,12 @@ const accept = computed((): string => IMPORT_ACCEPTED_EXTENSIONS.join(","));
  */
 const validate = (file: File): string | null => {
   const name = file.name.toLowerCase();
-  const hasValidExtension = IMPORT_ACCEPTED_EXTENSIONS.some((extension) =>
+  const hasValidExtension = extensions.value.some((extension) =>
     name.endsWith(extension),
   );
 
   if (!hasValidExtension) {
-    return t("import.dropzone.invalidType");
+    return props.invalidTypeMessage ?? t("import.dropzone.invalidType");
   }
 
   if (file.size > IMPORT_MAX_FILE_BYTES) {
@@ -98,7 +116,7 @@ const onDrop = (event: DragEvent): void => {
       :class="{ 'import-dropzone__area--active': isDragging }"
       role="button"
       tabindex="0"
-      :aria-label="t('import.dropzone.ariaLabel')"
+      :aria-label="ariaLabel"
       :aria-disabled="props.disabled ? 'true' : 'false'"
       @click="openPicker"
       @keydown.enter.prevent="openPicker"
@@ -108,8 +126,8 @@ const onDrop = (event: DragEvent): void => {
       @drop.prevent="onDrop"
     >
       <UploadCloud :size="32" aria-hidden="true" />
-      <NText strong>{{ t("import.dropzone.title") }}</NText>
-      <NText depth="3">{{ t("import.dropzone.hint") }}</NText>
+      <NText strong>{{ title }}</NText>
+      <NText depth="3">{{ hint }}</NText>
       <NButton
         type="primary"
         :disabled="props.disabled"
@@ -126,7 +144,7 @@ const onDrop = (event: DragEvent): void => {
       type="file"
       class="import-dropzone__input"
       :accept="accept"
-      :aria-label="t('import.dropzone.ariaLabel')"
+      :aria-label="ariaLabel"
       data-testid="import-file-input"
       @change="onInputChange"
     >

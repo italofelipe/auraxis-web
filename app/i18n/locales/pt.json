@@ -4451,6 +4451,55 @@
     "entry": {
       "action": "Importar planilha",
       "emptyCta": "Importar de uma planilha"
+    },
+    "tabs": {
+      "spreadsheet": "Planilha",
+      "bank": "Extrato bancário"
+    },
+    "bank": {
+      "select": {
+        "title": "Escolha o extrato",
+        "description": "Baixe o extrato no site ou app do seu banco e envie aqui. O Auraxis mostra uma prévia e só grava o que você confirmar."
+      },
+      "dropzone": {
+        "title": "Arraste seu extrato aqui",
+        "hint": "Aceitamos OFX, QFX, CNAB 240 (.ret) e CSV de até 10 MB.",
+        "ariaLabel": "Selecionar extrato bancário para importar",
+        "invalidType": "Formato não suportado. Envie um arquivo .ofx, .qfx, .ret ou .csv."
+      },
+      "pick": {
+        "title": "De qual banco é este extrato?",
+        "description": "Cada banco exporta o CSV de um jeito. Escolher agora evita que a gente leia uma saída como entrada.",
+        "warning": "Só o CSV precisa dessa escolha — OFX, QFX e CNAB já dizem o formato no próprio arquivo.",
+        "confirm": "Enviar extrato",
+        "cancel": "Escolher outro arquivo"
+      },
+      "banks": {
+        "nubank": "Nubank",
+        "inter": "Banco Inter",
+        "c6": "C6 Bank",
+        "itau": "Itaú",
+        "xp": "XP"
+      },
+      "preview": {
+        "title": "Revise antes de importar"
+      },
+      "success": {
+        "description": "Os lançamentos do extrato já estão na lista de transações.",
+        "importAnother": "Importar outro extrato"
+      },
+      "errors": {
+        "unreadableTitle": "Não conseguimos ler este arquivo",
+        "unreadableDescription": "O conteúdo não bate com o formato esperado. Baixe o extrato de novo no seu banco e envie o arquivo original, sem editar.",
+        "pickAnother": "Escolher outro arquivo",
+        "expiredTitle": "A prévia expirou",
+        "expiredDescription": "A prévia vale por 10 minutos. Envie o extrato de novo para gerar uma atualizada.",
+        "restart": "Enviar novamente",
+        "alreadyConfirmedTitle": "Este extrato já foi importado",
+        "alreadyConfirmedDescription": "A confirmação já tinha sido feita — provavelmente em outra aba. Os lançamentos estão nas suas transações.",
+        "genericTitle": "Não foi possível importar o extrato",
+        "genericDescription": "Tente novamente em instantes. Se persistir, envie o extrato em outro formato."
+      }
     }
   }
 }
