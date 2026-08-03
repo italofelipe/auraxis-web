@@ -1,5 +1,73 @@
 # Changelog
 
+## [1.3.0](https://github.com/italofelipe/auraxis-web/compare/v1.2.0...v1.3.0) (2026-08-02)
+
+
+### Features
+
+* **analytics:** funil real da landing no PostHog (CTA → checkout → conversão) ([#1217](https://github.com/italofelipe/auraxis-web/issues/1217)) ([10740a6](https://github.com/italofelipe/auraxis-web/commit/10740a6d7957a0525f3a2a22f36c6ece66631e9d))
+* **auth:** redesenhar a redefinição de senha e reescrever a copy do fluxo ([#1308](https://github.com/italofelipe/auraxis-web/issues/1308)) ([bfff0de](https://github.com/italofelipe/auraxis-web/commit/bfff0deef5d3a178943d372ff0744dd799f4561f)), closes [#1307](https://github.com/italofelipe/auraxis-web/issues/1307)
+* **checkout:** quem já tem conta é recebido no login com uma mensagem ([#1244](https://github.com/italofelipe/auraxis-web/issues/1244)) ([7379fd6](https://github.com/italofelipe/auraxis-web/commit/7379fd65f92b5e4ba301b095bd3cfded5323c091))
+* **ci:** fazer o gate de a11y olhar as telas onde o produto acontece ([#1279](https://github.com/italofelipe/auraxis-web/issues/1279)) ([7ec0abc](https://github.com/italofelipe/auraxis-web/commit/7ec0abcdd8cab02a21d7ca7197cc7432f48a0728))
+* **import:** abrir o wizard de planilha para produção ([#1310](https://github.com/italofelipe/auraxis-web/issues/1310)) ([8e2ef41](https://github.com/italofelipe/auraxis-web/commit/8e2ef41e7096a517b1480d3d23278a329acb87b8)), closes [#1309](https://github.com/italofelipe/auraxis-web/issues/1309)
+* **import:** wizard de importação de planilha, com conferência das linhas incompletas ([#1300](https://github.com/italofelipe/auraxis-web/issues/1300)) ([df708da](https://github.com/italofelipe/auraxis-web/commit/df708dafd232ae9b3aa5d5c2d6aaceeb9fdc384d))
+* **landing:** apex serve tools, SEO landings e blog (expansão da surface) ([#1220](https://github.com/italofelipe/auraxis-web/issues/1220)) ([d65c71a](https://github.com/italofelipe/auraxis-web/commit/d65c71a6af93c6b9600a8dd5ca2e77e13a8707a4))
+* **landing:** checkout próprio em auraxis.com.br com cadastro embutido ([#1194](https://github.com/italofelipe/auraxis-web/issues/1194)) ([57f4046](https://github.com/italofelipe/auraxis-web/commit/57f404616199f41c3055c0b55acfc33526d65498)), closes [#1187](https://github.com/italofelipe/auraxis-web/issues/1187)
+* **navigation:** link-map público por surface — pré-requisito da migração para o apex ([#1219](https://github.com/italofelipe/auraxis-web/issues/1219)) ([d57b740](https://github.com/italofelipe/auraxis-web/commit/d57b7405bb020b0d18e73487b3b564dce394cee2))
+* **privacy:** banner de consentimento LGPD no apex com variante compacta ([#1215](https://github.com/italofelipe/auraxis-web/issues/1215)) ([7693b52](https://github.com/italofelipe/auraxis-web/commit/7693b52986a0f7f55892083afed5b64da37b1490))
+* **seo:** avisar o IndexNow a cada deploy da landing ([#1233](https://github.com/italofelipe/auraxis-web/issues/1233)) ([3077862](https://github.com/italofelipe/auraxis-web/commit/3077862b9ab6da4d6d16ca917e3538a8fa8880e8)), closes [#1227](https://github.com/italofelipe/auraxis-web/issues/1227)
+* **seo:** malha interna — cada calculadora aponta para irmãs e conteúdo do tema ([#1234](https://github.com/italofelipe/auraxis-web/issues/1234)) ([1d7453a](https://github.com/italofelipe/auraxis-web/commit/1d7453a47d9813b4fa6dd7d3b6d8c6778480a469))
+* **seo:** on-page das 27 calculadoras — titles de busca, hreflang e schema próprio ([#1229](https://github.com/italofelipe/auraxis-web/issues/1229)) ([2c12a7a](https://github.com/italofelipe/auraxis-web/commit/2c12a7a2beff00671795f63f8bac6fefc820c239))
+* **seo:** perguntas frequentes visíveis nas calculadoras + tirar jargão MVP2 do público ([#1238](https://github.com/italofelipe/auraxis-web/issues/1238)) ([143ad4b](https://github.com/italofelipe/auraxis-web/commit/143ad4b5660cf23a18acbeb3854c77519cd31c21))
+* **sidebar:** permitir recolher o menu e dar nome aos ícones ([#1254](https://github.com/italofelipe/auraxis-web/issues/1254)) ([23cfdf9](https://github.com/italofelipe/auraxis-web/commit/23cfdf91500b21a4f21b0ed221b05c3f1659e5f8)), closes [#1249](https://github.com/italofelipe/auraxis-web/issues/1249)
+* **transactions:** deep-link ?open={id} para abrir a transação (CTA do email de vencimento) ([#1185](https://github.com/italofelipe/auraxis-web/issues/1185)) ([2ec3518](https://github.com/italofelipe/auraxis-web/commit/2ec35180294ca9ba1da0c3c54a41ba04e1fca7e8))
+
+
+### Bug Fixes
+
+* **analytics:** posthog sem código remoto (CSP) + surveys bundlada ([#1218](https://github.com/italofelipe/auraxis-web/issues/1218)) ([cc616e4](https://github.com/italofelipe/auraxis-web/commit/cc616e44c92045c6bd03698f82a5d768cc5f8488)), closes [#1209](https://github.com/italofelipe/auraxis-web/issues/1209)
+* **auth:** credencial recusada não é sessão expirada — modal sequestrava o checkout ([#1240](https://github.com/italofelipe/auraxis-web/issues/1240)) ([18964f8](https://github.com/italofelipe/auraxis-web/commit/18964f8c0686086078b4ec498a40dfb6f5eabf68))
+* **auth:** redefinição de senha enviava o campo errado e quebrava em produção ([#1304](https://github.com/italofelipe/auraxis-web/issues/1304)) ([6bdc90e](https://github.com/italofelipe/auraxis-web/commit/6bdc90e35aeb5f4318a48bae0991ef19d683ce58)), closes [#1301](https://github.com/italofelipe/auraxis-web/issues/1301)
+* **billing:** enviar Idempotency-Key no checkout e no cancelamento ([7c346e8](https://github.com/italofelipe/auraxis-web/commit/7c346e8723026a87fa01ebec910825fd1e0d4350))
+* **billing:** enviar Idempotency-Key no checkout e no cancelamento ([aa13144](https://github.com/italofelipe/auraxis-web/commit/aa131447859dd5be55864401508f79a40c83ee0c)), closes [#1200](https://github.com/italofelipe/auraxis-web/issues/1200)
+* **checkout:** não liberar o pagamento com senha que a API vai recusar ([#1242](https://github.com/italofelipe/auraxis-web/issues/1242)) ([493da8e](https://github.com/italofelipe/auraxis-web/commit/493da8e87f196d28015a5f9a609675fd5e0cd3b9))
+* **checkout:** pagar com a conta certa e respeitar o plano do link ([75b9125](https://github.com/italofelipe/auraxis-web/commit/75b91259147fd8d495a164cfc80ad547e2315fbc))
+* **checkout:** pagar com a conta certa e respeitar o plano do link ([ef6c5a3](https://github.com/italofelipe/auraxis-web/commit/ef6c5a3f4e2beb52f4a6235c33a8c5210b066a30)), closes [#1202](https://github.com/italofelipe/auraxis-web/issues/1202) [#1203](https://github.com/italofelipe/auraxis-web/issues/1203)
+* **checkout:** resolver composables no setup e destravar o botão do checkout ([f711721](https://github.com/italofelipe/auraxis-web/commit/f711721156d9010663279ed7e09b4c08d7d67ead)), closes [#1198](https://github.com/italofelipe/auraxis-web/issues/1198)
+* **checkout:** resolver composables no setup e destravar o botão do checkout da landing ([deb289c](https://github.com/italofelipe/auraxis-web/commit/deb289c2656b77e2ad499f839db995b99b8a0a65))
+* **checkout:** resolver o plano pela URL de navegação, não só pela query ([21a32fc](https://github.com/italofelipe/auraxis-web/commit/21a32fcec1de0950022a8e30aeafc70c4bd71544))
+* **checkout:** resolver o plano pela URL de navegação, não só pela query ([b27c2c8](https://github.com/italofelipe/auraxis-web/commit/b27c2c8389050157049b4e4173d0be3fc1e1bae7)), closes [#1203](https://github.com/italofelipe/auraxis-web/issues/1203)
+* **dashboard:** barra de progresso do carrossel agora acompanha a curva do card ([#1305](https://github.com/italofelipe/auraxis-web/issues/1305)) ([443b125](https://github.com/italofelipe/auraxis-web/commit/443b125355d06fae657ee0f3ef20a55e45f716e6)), closes [#1303](https://github.com/italofelipe/auraxis-web/issues/1303)
+* **dashboard:** devolver as linhas ao fluxo de caixa e tirar o sino sem ação ([#1256](https://github.com/italofelipe/auraxis-web/issues/1256)) ([a6fb2bd](https://github.com/italofelipe/auraxis-web/commit/a6fb2bd16eb642af2b7230419455519ca36b1356)), closes [#1247](https://github.com/italofelipe/auraxis-web/issues/1247)
+* **dashboard:** mês corrente à direita, botões mortos fora e carrossel que anda sozinho ([#1269](https://github.com/italofelipe/auraxis-web/issues/1269)) ([7c712e8](https://github.com/italofelipe/auraxis-web/commit/7c712e820ff33a72e3f9863fecdcf7ecf90e139b))
+* **goals:** fazer o hub responder à largura que ele tem, não à da janela ([#1253](https://github.com/italofelipe/auraxis-web/issues/1253)) ([277d85e](https://github.com/italofelipe/auraxis-web/commit/277d85e583c25f0555bf6a74e81aa5dac2325b00)), closes [#1250](https://github.com/italofelipe/auraxis-web/issues/1250)
+* **insights:** tela mostrava persona demo para usuário real; agora lê o insight persistido e expõe o fechamento do mês ([#1306](https://github.com/italofelipe/auraxis-web/issues/1306)) ([ec647a7](https://github.com/italofelipe/auraxis-web/commit/ec647a7cd2828aec0ba71d60fa40852f0658e780)), closes [#1302](https://github.com/italofelipe/auraxis-web/issues/1302)
+* **landing:** alinhar o E2E do CTA de assinatura ao checkout próprio ([#1196](https://github.com/italofelipe/auraxis-web/issues/1196)) ([bd198a5](https://github.com/italofelipe/auraxis-web/commit/bd198a53abb5a3caa3dfe1fca338fce29ef86b10)), closes [#1195](https://github.com/italofelipe/auraxis-web/issues/1195)
+* **landing:** home do apex duplicava o header para browsers em inglês ([#1230](https://github.com/italofelipe/auraxis-web/issues/1230)) ([b33c69b](https://github.com/italofelipe/auraxis-web/commit/b33c69b11096af904fc15e4760b5f6030386536d))
+* **landing:** trocar a leitura de IA da página pública por dados fictícios ([8bfc4c7](https://github.com/italofelipe/auraxis-web/commit/8bfc4c77c815d99ef58bcf5edf6f8761ec6e8f1c))
+* **landing:** trocar a leitura de IA da página pública por dados fictícios ([bc069b5](https://github.com/italofelipe/auraxis-web/commit/bc069b502c6f5b016f63009cfc7c3716cfc77624)), closes [#1188](https://github.com/italofelipe/auraxis-web/issues/1188)
+* **layout:** consertar o modal do assistente e tirar o "?" do canto da tela ([#1255](https://github.com/italofelipe/auraxis-web/issues/1255)) ([46c9c32](https://github.com/italofelipe/auraxis-web/commit/46c9c3260ceeab1751e833058246c414fd531a67)), closes [#1248](https://github.com/italofelipe/auraxis-web/issues/1248)
+* **onboarding:** parar de reabrir o aviso que o usuário já fechou [en-freeze-bypass] ([#1274](https://github.com/italofelipe/auraxis-web/issues/1274)) ([b5ac75a](https://github.com/italofelipe/auraxis-web/commit/b5ac75a98c3dae7cadc94f2a7d30997698b62cc4))
+* **perf:** CLS das calculadoras de 0,79 para 0,00 — CSS do Naive UI faltava no prerender ([#1236](https://github.com/italofelipe/auraxis-web/issues/1236)) ([3f4f476](https://github.com/italofelipe/auraxis-web/commit/3f4f4766b665a514f68ad75db158c374b6cae49d))
+* **portfolio:** fazer a Projeção Patrimonial enxergar o tema ([#1271](https://github.com/italofelipe/auraxis-web/issues/1271)) ([a6968a7](https://github.com/italofelipe/auraxis-web/commit/a6968a7806b9491d8e64a21b8b2bfd6847d26714))
+* **seo:** app produto puro — sitemap e robots sem as rotas migradas ([#1221](https://github.com/italofelipe/auraxis-web/issues/1221)) ([f157da4](https://github.com/italofelipe/auraxis-web/commit/f157da44800d76a02e8b667a1f375c3cf8552e4a))
+* **seo:** corrigir o JSON-LD global com AggregateOffer de preços reais ([#1216](https://github.com/italofelipe/auraxis-web/issues/1216)) ([6252ad6](https://github.com/italofelipe/auraxis-web/commit/6252ad680276256defbb42a3ca72d4176d925aa5)), closes [#1210](https://github.com/italofelipe/auraxis-web/issues/1210)
+* **tests:** preencher o login pelo helper que confere se o valor ficou ([#1314](https://github.com/italofelipe/auraxis-web/issues/1314)) ([d9da353](https://github.com/italofelipe/auraxis-web/commit/d9da3532318ad43551d308474088ea4d0eabf935)), closes [#1313](https://github.com/italofelipe/auraxis-web/issues/1313)
+* **tools:** navegar para /tools clicando no link, não pelo router ([#1281](https://github.com/italofelipe/auraxis-web/issues/1281)) ([10b5cb7](https://github.com/italofelipe/auraxis-web/commit/10b5cb7638935bb72fcda04c75b7acffbe36d53c)), closes [#1282](https://github.com/italofelipe/auraxis-web/issues/1282) [#1277](https://github.com/italofelipe/auraxis-web/issues/1277)
+* **transactions:** mostrar o texto inteiro da célula cortada no hover ([#1252](https://github.com/italofelipe/auraxis-web/issues/1252)) ([11c11da](https://github.com/italofelipe/auraxis-web/commit/11c11daa60ca0490c0c0d23f96870fd77cddb6d0)), closes [#1251](https://github.com/italofelipe/auraxis-web/issues/1251)
+* **ui:** dar saída de teclado aos overlays que só fechavam no clique ([#1278](https://github.com/italofelipe/auraxis-web/issues/1278)) ([e79577b](https://github.com/italofelipe/auraxis-web/commit/e79577bf42622e2d23469ab53a256ea4bc9ca08f))
+* **ui:** devolver a página de simulações ao grid das outras telas ([#1276](https://github.com/italofelipe/auraxis-web/issues/1276)) ([3a4e117](https://github.com/italofelipe/auraxis-web/commit/3a4e1177ef1a9c88a60b69984ee5cafa24791e2d))
+* **ui:** dimensionar modal onde o CSS realmente chega ([#1270](https://github.com/italofelipe/auraxis-web/issues/1270)) ([68c1e6a](https://github.com/italofelipe/auraxis-web/commit/68c1e6a94de1bc548a246afa0194d67384e2c373))
+* **ui:** tirar dois botões que só fingiam ser clicáveis ([#1273](https://github.com/italofelipe/auraxis-web/issues/1273)) ([859b915](https://github.com/italofelipe/auraxis-web/commit/859b91528c598cbfe8f5eaa86bcb9c7040809713))
+
+
+### Performance Improvements
+
+* **fonts:** fontes variáveis — home perde 143 KB e ganha os pesos que faltavam ([#1245](https://github.com/italofelipe/auraxis-web/issues/1245)) ([a65be4a](https://github.com/italofelipe/auraxis-web/commit/a65be4af5d35dd08dea356e96cbbd7f9108110ea))
+* **landing:** entregar a captura no tamanho que cada tela usa (−62% no mobile) ([#1235](https://github.com/italofelipe/auraxis-web/issues/1235)) ([9e2dd19](https://github.com/italofelipe/auraxis-web/commit/9e2dd196464db6553b785f6f7280c1bd9933fa83)), closes [#1232](https://github.com/italofelipe/auraxis-web/issues/1232)
+* **landing:** imagens da home em WebP redimensionado — LCP 12,6s → 4,3s ([#1231](https://github.com/italofelipe/auraxis-web/issues/1231)) ([b596d8b](https://github.com/italofelipe/auraxis-web/commit/b596d8bf8f4f883469944b3fb83e282cea357c1a))
+* **landing:** tirar o SDK do PostHog do caminho crítico da home ([#1258](https://github.com/italofelipe/auraxis-web/issues/1258)) ([6ed2308](https://github.com/italofelipe/auraxis-web/commit/6ed2308bca0643f6a2969f746170958bd75145a0)), closes [#1246](https://github.com/italofelipe/auraxis-web/issues/1246)
+
 ## [1.2.0](https://github.com/italofelipe/auraxis-web/compare/v1.1.0...v1.2.0) (2026-07-26)
 
 
