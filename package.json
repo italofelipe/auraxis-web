@@ -57,7 +57,7 @@
     "@sentry/vue": "^10.69.0",
     "@tanstack/vue-query": "^5.101.4",
     "@vee-validate/zod": "^4.15.1",
-    "axios": "^1.18.1",
+    "axios": "^1.19.0",
     "axios-retry": "^4.5.0",
     "better-sqlite3": "^12.11.1",
     "css-render": "^0.15.14",
