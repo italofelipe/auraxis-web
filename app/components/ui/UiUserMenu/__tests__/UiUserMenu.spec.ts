@@ -83,6 +83,30 @@ describe("UiUserMenu", () => {
     expect(wrapper.find("[role=\"menu\"]").exists()).toBe(false);
   });
 
+  it("trigger has an accessible name without an avatar", () => {
+    // Sem avatar, a inicial e o chevron são ambos aria-hidden: sem rótulo, o
+    // botão fica mudo para leitor de tela. Como o menu vive no cabeçalho de
+    // toda tela autenticada, era 8 das 12 violações do baseline (#1324).
+    const wrapper = mount(UiUserMenu, {
+      props: { name: "João Silva" },
+    });
+    const trigger = wrapper.find(".ui-user-menu__trigger");
+    expect(trigger.attributes("aria-label")).toBe(
+      "Menu da conta de João Silva",
+    );
+  });
+
+  it("keeps the same accessible name when an avatar is present", () => {
+    // O rótulo não pode depender de o usuário ter subido foto — nome
+    // acessível que muda de forma é pior que nome estável.
+    const wrapper = mount(UiUserMenu, {
+      props: { name: "João Silva", avatarUrl: "https://example.test/a.png" },
+    });
+    expect(
+      wrapper.find(".ui-user-menu__trigger").attributes("aria-label"),
+    ).toBe("Menu da conta de João Silva");
+  });
+
   it("displays name initial when no avatarUrl provided", () => {
     const wrapper = mount(UiUserMenu, {
       props: { name: "João Silva" },
