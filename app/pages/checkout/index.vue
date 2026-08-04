@@ -27,7 +27,7 @@ import {
  * Public checkout for the capture landing (#1187).
  *
  * The visitor picks a plan, creates the account here and goes straight to the
- * AbacatePay hosted checkout — the purchase never bounces through the product
+ * gateway's hosted checkout — the purchase never bounces through the product
  * app first. On the app surface this route is not part of the journey, so it
  * hands over to the in-app subscription screen.
  */

@@ -132,7 +132,7 @@ describe("startLandingCheckout", () => {
     login: vi.fn().mockResolvedValue({ token: "tok_1" }),
     createCheckoutSession: vi
       .fn()
-      .mockResolvedValue({ checkoutUrl: "https://abacate/pay/1" }),
+      .mockResolvedValue({ checkoutUrl: "https://sandbox.asaas.com/c/chk_1" }),
   });
 
   it("registers, signs in and returns the provider URL", async () => {
@@ -141,7 +141,7 @@ describe("startLandingCheckout", () => {
 
     expect(outcome).toEqual({
       status: "redirect",
-      url: "https://abacate/pay/1",
+      url: "https://sandbox.asaas.com/c/chk_1",
     });
     expect(deps.register).toHaveBeenCalledWith({
       name: "Ana Souza",
