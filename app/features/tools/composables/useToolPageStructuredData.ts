@@ -1,11 +1,15 @@
 import { useToolStructuredData } from "./useToolStructuredData";
 import type { ToolFaqEntry } from "~/features/tools/model/structured-data.types";
 
-interface ToolAlternateLink {
+// type (não interface): o Link tipado do unhead ≥3.3 exige a index signature
+// implícita `data-${string}`, que interfaces não recebem.
+type ToolAlternateLink = {
   rel: "alternate";
+  /** unhead ≥3.3 exige `type` na variante rel="alternate" do Link tipado. */
+  type: "text/html";
   hreflang: string;
   href: string;
-}
+};
 
 /**
  * Monta os alternates hreflang de uma tool (PT-BR ↔ EN, x-default = PT-BR,
@@ -23,9 +27,9 @@ export const buildToolAlternateLinks = (
   const ptUrl = `${base}/tools/${slug}`;
   const enUrl = `${base}/en/tools/${slug}`;
   return [
-    { rel: "alternate", hreflang: "pt-BR", href: ptUrl },
-    { rel: "alternate", hreflang: "en", href: enUrl },
-    { rel: "alternate", hreflang: "x-default", href: ptUrl },
+    { rel: "alternate", type: "text/html", hreflang: "pt-BR", href: ptUrl },
+    { rel: "alternate", type: "text/html", hreflang: "en", href: enUrl },
+    { rel: "alternate", type: "text/html", hreflang: "x-default", href: ptUrl },
   ];
 };
 

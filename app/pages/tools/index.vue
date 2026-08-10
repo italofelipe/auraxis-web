@@ -40,10 +40,10 @@ useSeoMeta({
 const alternateLinks = computed(() => {
   const base = (siteConfig.url ?? "https://app.auraxis.com.br").replace(/\/$/, "");
   return [
-    { rel: "alternate", hreflang: "pt-BR", href: `${base}/tools` },
-    { rel: "alternate", hreflang: "en", href: `${base}/en/tools` },
-    { rel: "alternate", hreflang: "x-default", href: `${base}/tools` },
-  ];
+    { rel: "alternate", type: "text/html", hreflang: "pt-BR", href: `${base}/tools` },
+    { rel: "alternate", type: "text/html", hreflang: "en", href: `${base}/en/tools` },
+    { rel: "alternate", type: "text/html", hreflang: "x-default", href: `${base}/tools` },
+  ] as const;
 });
 
 useHead({
