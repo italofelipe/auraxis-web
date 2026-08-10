@@ -30,6 +30,14 @@ const allowedIds = new Set([
   // and glob patterns are repo-controlled. Tracked via:
   //   - Issue: italofelipe/auraxis-platform#910
   "GHSA-mh99-v99m-4gvg",
+  // image-size — path traversal/DoS (2026-08): every published release (≤2.0.2)
+  // is vulnerable; npm has no patched version at all. Transitive via
+  // @nuxtjs/seo→nuxt-seo-utils, which runs it at BUILD TIME against
+  // repo-controlled OG images — never ships in the bundle nor runs on the prod
+  // server, never sees user input. Remove when upstream ships a patch.
+  //   - Issue: italofelipe/auraxis-web#1343
+  "GHSA-w3rx-r6r6-pgpr",
+  "GHSA-5p2g-fcmc-qvqq",
 ]);
 const isBlockingSeverity = (severity) => severity === "high" || severity === "critical";
 const isAllowlisted = (ghsa, source) => allowedIds.has(ghsa) || allowedIds.has(source);

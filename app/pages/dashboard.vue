@@ -38,6 +38,10 @@ definePageMeta({
   pageSubtitle: "Visão consolidada do período",
 });
 
+// Título explícito como nas demais páginas logadas — o fallback inferido da
+// rota (nuxt-seo-utils) deixou de funcionar no nuxt ≥4.5.
+useHead({ title: "Dashboard financeiro | Auraxis" });
+
 const selectedPeriod = ref<DashboardPeriodPreset>("current_month");
 const selectedMode = ref<DashboardViewMode>("analytical");
 const customStartTs = ref<number | null>(null);
