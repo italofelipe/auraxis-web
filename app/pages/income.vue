@@ -20,6 +20,10 @@ definePageMeta({
   pageSubtitle: "Receitas e importação de extratos",
 });
 
+// Título explícito como nas demais páginas logadas — o fallback inferido da
+// rota (nuxt-seo-utils) deixou de funcionar no nuxt ≥4.5.
+useHead({ title: "Receitas | Auraxis" });
+
 const activeTab = ref<"import" | "list">("list");
 
 const summaryQuery = useRevenueSummaryQuery();
