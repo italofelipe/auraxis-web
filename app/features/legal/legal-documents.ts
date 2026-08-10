@@ -128,16 +128,16 @@ export const privacyPolicyDocument: LegalDocument = {
         "BRAPI — cotações e dados de mercado;",
         "PostHog Cloud — analytics de produto, eventos minimizados, sob consentimento;",
         "OpenAI — geração de insights financeiros com IA (apenas para usuários que utilizam o recurso, com dados minimizados);",
-        "AbacatePay (Abacatepay Tecnologia LTDA, CNPJ 58.271.413/0001-90) — processamento de cobrança recorrente do plano Premium (compartilhados: nome, email, CPF ou CNPJ, valor, plano contratado);",
+        "Asaas — processamento de cobrança recorrente do plano Premium (compartilhados: nome, email, CPF ou CNPJ, valor, plano contratado);",
         "Resend — envio de emails transacionais (cadastro, recibos, lembretes).",
       ],
     },
     {
       title: "7.1 Dados financeiros não armazenados pelo Auraxis",
       paragraphs: [
-        "O Auraxis NÃO armazena número de cartão de crédito, CVV, senha de cartão ou qualquer credencial bancária. O processamento desses dados ocorre exclusivamente no provedor de pagamento (AbacatePay) durante o checkout hospedado.",
+        "O Auraxis NÃO armazena número de cartão de crédito, CVV, senha de cartão ou qualquer credencial bancária. O processamento desses dados ocorre exclusivamente no provedor de pagamento (Asaas) durante o checkout hospedado.",
         "O Auraxis armazena apenas: identificador de assinatura, identificador de transação, status (active/canceled/past_due), histórico de cobranças com valor e data, plano vigente e período de validade.",
-        "O tratamento de dados pelo provedor de pagamento é regido pela política de privacidade da Abacatepay Tecnologia LTDA (CNPJ 58.271.413/0001-90), disponível em seu site.",
+        "Detalhes específicos do tratamento por Asaas: https://www.asaas.com/politica-de-privacidade.",
       ],
     },
     {
@@ -268,7 +268,7 @@ export const termsOfUseDocument: LegalDocument = {
     {
       title: "9.1 Processamento de pagamento",
       paragraphs: [
-        "O processamento de cobrança é realizado pela AbacatePay (Abacatepay Tecnologia LTDA, CNPJ 58.271.413/0001-90), provedor de pagamento brasileiro. O Auraxis não armazena dados de cartão de crédito. Tributos eventualmente aplicáveis seguem a legislação vigente.",
+        "O processamento de cobrança é realizado pela Asaas, provedor de pagamento brasileiro regulado. O Auraxis não armazena dados de cartão de crédito. Tributos eventualmente aplicáveis seguem a legislação vigente.",
         "Preços podem ser alterados mediante aviso prévio razoável e atualização desta seção. Renovações em andamento permanecem com o preço vigente no momento da contratação até o término do ciclo.",
       ],
     },
@@ -287,7 +287,7 @@ export const termsOfUseDocument: LegalDocument = {
         "Em caso de falha na cobrança automática (cartão expirado, saldo insuficiente, etc.), o provedor de pagamento pode tentar a cobrança novamente conforme regras próprias.",
         "Após confirmação de falha definitiva, o usuário será notificado por email e poderá atualizar o método de pagamento ou cancelar o plano. Durante o período de carência (3 dias), o acesso Premium continua ativo.",
         "Após a carência sem regularização, o plano é rebaixado para Free e funcionalidades Premium ficam indisponíveis. Os dados do usuário permanecem preservados.",
-        "Para disputas envolvendo cobranças, o usuário deve entrar em contato pelo canal oficial de suporte. O Auraxis colabora com a AbacatePay para investigação e resolução conforme normas do setor.",
+        "Para disputas envolvendo cobranças, o usuário deve entrar em contato pelo canal oficial de suporte. O Auraxis colabora com a Asaas para investigação e resolução conforme normas do setor.",
       ],
     },
     {

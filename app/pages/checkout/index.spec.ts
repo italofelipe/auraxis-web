@@ -187,13 +187,13 @@ describe("landing checkout page", () => {
     const location = stubLocation();
     startLandingCheckoutMock.mockResolvedValue({
       status: "redirect",
-      url: "https://pay.abacatepay.com/sess-1",
+      url: "https://sandbox.asaas.com/c/sess-1",
     } satisfies LandingCheckoutOutcome);
 
     const wrapper = await mountFilledPage();
     await submitForm(wrapper);
 
-    expect(location.href).toBe("https://pay.abacatepay.com/sess-1");
+    expect(location.href).toBe("https://sandbox.asaas.com/c/sess-1");
     // The button must stay busy while the browser leaves the page.
     expect(wrapper.text()).toContain("Preparando…");
   });
@@ -333,13 +333,13 @@ describe("landing checkout page", () => {
     const location = stubLocation();
     startLandingCheckoutMock.mockResolvedValue({
       status: "redirect",
-      url: "https://pay.abacatepay.com/sess-1",
+      url: "https://sandbox.asaas.com/c/sess-1",
     } satisfies LandingCheckoutOutcome);
 
     const wrapper = await mountFilledPage();
     await submitForm(wrapper);
 
-    expect(location.href).toBe("https://pay.abacatepay.com/sess-1");
+    expect(location.href).toBe("https://sandbox.asaas.com/c/sess-1");
     expect(captureMock.mock.calls.map((call) => call[0])).toEqual([
       "checkout_form_submitted",
       "upgrade_clicked",
