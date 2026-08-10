@@ -11,6 +11,10 @@ mockNuxtImport("useRuntimeConfig", () => (): { public: { apiV2Base: string } } =
   public: { apiV2Base: "http://v2.test/" },
 }));
 
+// nuxt ≥4.5 resolve `$fetch` como auto-import (binding de módulo), não mais
+// via globalThis — `vi.stubGlobal("$fetch")` deixou de interceptar.
+mockNuxtImport("$fetch", () => fetchMock);
+
 vi.mock("~/shared/feature-flags/use-feature-flag", () => ({
   useFeatureFlag: (): { value: boolean } => ({
     get value(): boolean {

@@ -6,16 +6,19 @@ describe("buildToolAlternateLinks", () => {
     expect(buildToolAlternateLinks("https://auraxis.com.br", "juros-compostos")).toEqual([
       {
         rel: "alternate",
+        type: "text/html",
         hreflang: "pt-BR",
         href: "https://auraxis.com.br/tools/juros-compostos",
       },
       {
         rel: "alternate",
+        type: "text/html",
         hreflang: "en",
         href: "https://auraxis.com.br/en/tools/juros-compostos",
       },
       {
         rel: "alternate",
+        type: "text/html",
         hreflang: "x-default",
         href: "https://auraxis.com.br/tools/juros-compostos",
       },
