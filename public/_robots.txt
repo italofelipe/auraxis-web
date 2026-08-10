@@ -14,6 +14,8 @@ Disallow: /budgets
 Disallow: /investor-profile
 Disallow: /settings/
 Disallow: /checkout/success
+Disallow: /admin
+Disallow: /auth
 
 # EN locale equivalents
 Disallow: /en/dashboard
@@ -29,4 +31,6 @@ Disallow: /en/budgets
 Disallow: /en/investor-profile
 Disallow: /en/settings/
 Disallow: /en/checkout/success
+Disallow: /en/admin
+Disallow: /en/auth
 

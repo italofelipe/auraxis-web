@@ -517,6 +517,14 @@ export default defineNuxtConfig({
       // Checkout cancel — transactional, not useful in search
       "/checkout/cancel",
       "/en/checkout/cancel",
+      // #1340: superfície administrativa e callbacks de auth NUNCA entram no
+      // sitemap — anunciá-las publica a superfície de ataque.
+      "/admin",
+      "/admin/**",
+      "/auth/**",
+      "/en/admin",
+      "/en/admin/**",
+      "/en/auth/**",
     ],
   },
 
