@@ -133,14 +133,14 @@
     "plans": {
       "meta": {
         "title": "Planos e Preços",
-        "description": "Conheça os planos da Auraxis. Comece gratuitamente ou assine o Pro com simulações avançadas, relatórios completos e suporte prioritário."
+        "description": "Conheça os planos da Auraxis. Comece gratuitamente ou assine o Premium com simulações avançadas, relatórios completos e suporte prioritário."
       },
       "eyebrow": "Planos e Preços",
       "title": "Invista na sua liberdade financeira",
       "subtitle": "Escolha o plano ideal e comece a controlar suas finanças com inteligência.",
       "mostPopular": "Mais popular",
       "checkoutError": "Erro ao iniciar o checkout. Tente novamente.",
-      "footnote": "Preços em BRL. Cancele a qualquer momento. Cobrança mensal a partir de R$27,90.",
+      "footnote": "Preços em BRL. Cancele a qualquer momento. Cobrança mensal de R$ 29,90 — 7 dias grátis.",
       "billing": {
         "monthly": "Mensal",
         "annual": "Anual",
@@ -152,10 +152,10 @@
         "free": {
           "name": "Gratuito",
           "features": {
-            "transactions": "Até 50 transações/mês",
-            "goals": "1 meta financeira",
-            "basicReports": "Relatórios básicos",
-            "simulations": "Simulações financeiras",
+            "transactions": "Transações e cartões ilimitados",
+            "goals": "Metas ilimitadas e 3 envelopes de orçamento",
+            "basicReports": "Relatórios básicos e exportação CSV",
+            "simulations": "Simulações avançadas ilimitadas",
             "sharedEntries": "Lançamentos compartilhados",
             "support": "Suporte prioritário"
           }
@@ -164,9 +164,9 @@
           "name": "Premium",
           "features": {
             "transactions": "Transações ilimitadas",
-            "goals": "Metas ilimitadas",
-            "advancedReports": "Relatórios avançados",
-            "simulations": "Simulações financeiras",
+            "goals": "Metas e orçamentos ilimitados",
+            "advancedReports": "Relatórios avançados e exportação em PDF",
+            "simulations": "Simulações avançadas ilimitadas",
             "sharedEntries": "Lançamentos compartilhados",
             "support": "Suporte prioritário"
           }
@@ -458,7 +458,7 @@
           "unlimitedGoals": "Metas ilimitadas",
           "basicReports": "Relatórios básicos",
           "advancedReports": "Relatórios avançados",
-          "simulations": "Simulações financeiras",
+          "simulations": "Simulações avançadas ilimitadas",
           "sharedEntries": "Lançamentos compartilhados",
           "prioritySupport": "Suporte prioritário"
         },
@@ -961,7 +961,7 @@
           },
           "pro": {
             "title": "Pro Analytics",
-            "price": "R$ 27,90",
+            "price": "R$ 29,90",
             "description": "Drill-down completo, comparações e insights avançados."
           },
           "enterprise": {
