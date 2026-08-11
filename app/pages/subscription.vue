@@ -45,8 +45,8 @@ const ALL_PLANS = computed((): PlanDto[] => [
     price_monthly: 0,
     price_annual: 0,
     features: [
-      { label: t("pages.subscription.plans.features.transactions50"), included: true },
-      { label: t("pages.subscription.plans.features.goals1"), included: true },
+      { label: t("pages.subscription.plans.features.unlimitedTransactions"), included: true },
+      { label: t("pages.subscription.plans.features.unlimitedGoals"), included: true },
       { label: t("pages.subscription.plans.features.basicReports"), included: true },
       { label: t("pages.subscription.plans.features.simulations"), included: false },
       { label: t("pages.subscription.plans.features.sharedEntries"), included: false },
