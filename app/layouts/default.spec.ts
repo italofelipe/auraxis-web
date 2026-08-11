@@ -3,6 +3,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { createPinia, setActivePinia } from "pinia";
 import { ref, type App } from "vue";
 import DefaultLayout from "./default.vue";
+import { useOnboarding } from "~/features/onboarding/composables/useOnboarding";
 
 vi.mock("vue-i18n");
 
@@ -166,6 +167,12 @@ describe("DefaultLayout", () => {
     setActivePinia(createPinia());
     mockIsLoaded.value = true;
     mockIsProfileComplete.value = false;
+    // reason: onboarding.skip() é a action do composable (usuário pulou o tour),
+    // não skip de teste. #1353 — o wizard abre já no primeiro login; o modal de
+    // perfil só entra quando o onboarding foi resolvido (fila de modais).
+    const onboarding = useOnboarding();
+    onboarding.reset();
+    onboarding.skip();
 
     const wrapper = mount(DefaultLayout, {
       global: { plugins: [{ install: nuxtContextPlugin }], stubs: globalStubs },
@@ -178,12 +185,30 @@ describe("DefaultLayout", () => {
     setActivePinia(createPinia());
     mockIsLoaded.value = true;
     mockIsProfileComplete.value = false;
+    // reason: onboarding.skip() é action do composable (ver teste acima), não skip de teste.
+    const onboarding = useOnboarding();
+    onboarding.reset();
+    onboarding.skip();
 
     const wrapper = mount(DefaultLayout, {
       global: { plugins: [{ install: nuxtContextPlugin }], stubs: globalStubs },
     });
 
     await wrapper.find("[data-testid='close-modal']").trigger("click");
+    expect(wrapper.find("[data-testid='profile-modal']").exists()).toBe(false);
+  });
+
+  it("holds ProfileCompletionModal while the first-login onboarding wizard is visible (#1353)", async () => {
+    setActivePinia(createPinia());
+    mockIsLoaded.value = true;
+    mockIsProfileComplete.value = false;
+    const onboarding = useOnboarding();
+    onboarding.reset();
+
+    const wrapper = mount(DefaultLayout, {
+      global: { plugins: [{ install: nuxtContextPlugin }], stubs: globalStubs },
+    });
+
     expect(wrapper.find("[data-testid='profile-modal']").exists()).toBe(false);
   });
 
