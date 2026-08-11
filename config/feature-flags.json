@@ -436,8 +436,8 @@
       "createdAt": "2026-04-21",
       "removeBy": "2027-12-31",
       "type": "experiment",
-      "status": "enabled-staging",
-      "description": "Kill-switch do paywall premium (PaywallGate/UiPaywallGate/simulador). Off: gates renderizam conteúdo aberto, sem lock, upsell nem consumo de quota. Promover a enabled-prod no go-live com billing ativo (platform#521); runtime override via PostHog/env (NUXT_PUBLIC_FLAG_WEB_PREMIUM_PAYWALL_ENABLED).",
+      "status": "enabled-prod",
+      "description": "Kill-switch do paywall premium (PaywallGate/UiPaywallGate/simulador). Off: gates renderizam conteúdo aberto, sem lock, upsell nem consumo de quota. Promovido a enabled-prod em 2026-08-11 (web#1351): billing ativo em prod desde 03/08 (platform#521 concluída). Rollback: runtime override via PostHog/env (NUXT_PUBLIC_FLAG_WEB_PREMIUM_PAYWALL_ENABLED=false) ou revert.",
       "repositories": ["auraxis-web"]
     },
     {
