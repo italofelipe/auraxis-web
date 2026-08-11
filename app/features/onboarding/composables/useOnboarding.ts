@@ -250,8 +250,10 @@ export function useOnboarding(): {
     // even after localStorage is cleared on a fresh browser/device.
     if (_serverCompleted.value) { return false; }
     if (_state.value.done || _state.value.skipped) { return false; }
-    if (!userStore.isLoaded) { return false; }
-    return sessionStore.emailConfirmed === true;
+    // #1353 — o tour não espera confirmação de e-mail: o registro auto-loga
+    // antes do clique no link, e o EmailVerificationGate (14 dias) já cobre o
+    // risco de conta não verificada.
+    return userStore.isLoaded;
   });
 
   const isSkipped = computed((): boolean => _state.value.skipped);

@@ -62,14 +62,14 @@ describe("useOnboarding", () => {
     expect(shouldShow.value).toBe(false);
   });
 
-  it("shouldShow is false when email is not confirmed", () => {
+  it("shouldShow is true even before email confirmation (first login sees the tour — #1353)", () => {
     const userStore = useUserStore();
     const sessionStore = useSessionStore();
     userStore.$patch({ isLoaded: true, profile: null });
-    sessionStore.$patch({ emailConfirmed: false });
+    sessionStore.$patch({ emailConfirmed: false, userEmail: "user@test.com" });
 
     const { shouldShow } = useOnboarding();
-    expect(shouldShow.value).toBe(false);
+    expect(shouldShow.value).toBe(true);
   });
 
   it("shouldShow is true when email confirmed and tour not yet seen", () => {
