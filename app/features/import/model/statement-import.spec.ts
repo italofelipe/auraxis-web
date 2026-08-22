@@ -9,6 +9,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   effectiveAction,
+  formatStatementAmount,
   matchesStatementFilter,
   type MatchStatus,
   type StatementEntry,
@@ -137,5 +138,24 @@ describe("matchesStatementFilter", () => {
     expect(
       matchesStatementFilter(entry({ financialNature: "income" }), "unclassified"),
     ).toBe(false);
+  });
+});
+
+
+describe("formatStatementAmount", () => {
+  it("formata no padrão brasileiro", () => {
+    // O backend manda "4800.00"; mostrar isso cru numa tela em pt-BR faz o
+    // usuário reler o número duas vezes para ter certeza da ordem de grandeza.
+    expect(formatStatementAmount("4800.00")).toContain("4.800,00");
+  });
+
+  it("preserva o sinal negativo", () => {
+    expect(formatStatementAmount("-45.90")).toContain("45,90");
+    expect(formatStatementAmount("-45.90")).toContain("-");
+  });
+
+  it("devolve o original quando não é número", () => {
+    // Melhor mostrar o que veio do que "R$ NaN".
+    expect(formatStatementAmount("n/a")).toBe("n/a");
   });
 });

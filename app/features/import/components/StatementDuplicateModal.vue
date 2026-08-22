@@ -10,9 +10,10 @@
 import { NAlert, NButton, NModal, NTag } from "naive-ui";
 import { computed } from "vue";
 
-import type {
-  StatementDecisionAction,
-  StatementEntry,
+import {
+  formatStatementAmount,
+  type StatementDecisionAction,
+  type StatementEntry,
 } from "~/features/import/model/statement-import";
 
 const properties = defineProps<{
@@ -70,7 +71,7 @@ const decide = (action: StatementDecisionAction): void => emit("decide", action)
           <dt>{{ $t("import.statement.duplicate.statementLine") }}</dt>
           <dd data-testid="statement-duplicate-line">
             {{ entry.postingDate }} · {{ entry.rawDescription }} ·
-            {{ entry.amount }}
+            {{ formatStatementAmount(entry.amount) }}
           </dd>
         </div>
         <div class="duplicate__row">
@@ -82,7 +83,7 @@ const decide = (action: StatementDecisionAction): void => emit("decide", action)
         <div v-if="dayLabel !== null" class="duplicate__row">
           <dt>{{ $t("import.statement.duplicate.dayDifference") }}</dt>
           <dd data-testid="statement-duplicate-days">
-            {{ $t("import.statement.duplicate.days", { count: dayLabel }) }}
+            {{ dayLabel === 1 ? $t("import.statement.duplicate.day") : $t("import.statement.duplicate.days", { count: dayLabel }) }}
           </dd>
         </div>
       </dl>

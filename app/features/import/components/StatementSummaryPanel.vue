@@ -10,7 +10,10 @@
 import { NAlert, NStatistic, NTag } from "naive-ui";
 import { computed } from "vue";
 
-import type { StatementSummary } from "~/features/import/model/statement-import";
+import {
+  formatStatementAmount,
+  type StatementSummary,
+} from "~/features/import/model/statement-import";
 
 const properties = defineProps<{
   summary: StatementSummary;
@@ -59,10 +62,10 @@ const hasTransfers = computed(() => properties.summary.transferTotal !== "0.00")
 
     <div class="statement-summary__totals">
       <NTag type="success" :bordered="false" data-testid="statement-summary-credits">
-        {{ $t("import.statement.summary.credits", { value: summary.creditTotal }) }}
+        {{ $t("import.statement.summary.credits", { value: formatStatementAmount(summary.creditTotal) }) }}
       </NTag>
       <NTag type="error" :bordered="false" data-testid="statement-summary-debits">
-        {{ $t("import.statement.summary.debits", { value: summary.debitTotal }) }}
+        {{ $t("import.statement.summary.debits", { value: formatStatementAmount(summary.debitTotal) }) }}
       </NTag>
       <NTag
         v-if="hasTransfers"
@@ -70,7 +73,7 @@ const hasTransfers = computed(() => properties.summary.transferTotal !== "0.00")
         :bordered="false"
         data-testid="statement-summary-transfers"
       >
-        {{ $t("import.statement.summary.transfers", { value: summary.transferTotal }) }}
+        {{ $t("import.statement.summary.transfers", { value: formatStatementAmount(summary.transferTotal) }) }}
       </NTag>
     </div>
 

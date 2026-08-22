@@ -15,9 +15,10 @@ import { NButton, NDataTable, NTag, NText } from "naive-ui";
 import { computed, h, type VNode } from "vue";
 import { useI18n } from "vue-i18n";
 
-import type {
-  StatementDecisionAction,
-  StatementEntry,
+import {
+  formatStatementAmount,
+  type StatementDecisionAction,
+  type StatementEntry,
 } from "~/features/import/model/statement-import";
 
 const properties = defineProps<{
@@ -32,6 +33,20 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+
+/**
+ * Estilo da linha secundária (data da compra, justificativa da classificação).
+ *
+ * Inline, e não via `<style scoped>`: o CSS com escopo aplica o atributo
+ * `data-v-*` durante a compilação do template, e estes nós nascem de `h()` no
+ * script — não recebem o atributo, a regra não casa, e a justificativa colava
+ * na descrição ("MERCADO CENTRALCompra em mercado").
+ */
+const SECONDARY_LINE = {
+  display: "block",
+  color: "var(--color-text-secondary)",
+  fontSize: "var(--font-size-xs)",
+} as const;
 
 /** Cores por status de duplicidade, do mais alarmante ao neutro. */
 const MATCH_TONE: Record<string, "error" | "warning" | "info" | "success" | "default"> = {
@@ -70,9 +85,9 @@ const columns = computed(() => [
         h("span", {}, row.postingDate),
         row.transactionDate && row.transactionDate !== row.postingDate
           ? h(
-              NText,
-              { depth: 3, class: "statement-table__subdate" },
-              { default: () => t("import.statement.columns.boughtOn", { date: row.transactionDate }) },
+              "small",
+              { style: SECONDARY_LINE },
+              t("import.statement.columns.boughtOn", { date: row.transactionDate }),
             )
           : null,
       ]),
@@ -87,14 +102,8 @@ const columns = computed(() => [
      */
     render: (row: StatementEntry): VNode =>
       h("div", { class: "statement-table__description" }, [
-        h("span", {}, row.rawDescription),
-        row.rationale
-          ? h(
-              NText,
-              { depth: 3, class: "statement-table__rationale" },
-              { default: () => row.rationale },
-            )
-          : null,
+        h("span", { class: "statement-table__raw" }, row.rawDescription),
+        row.rationale ? h("small", { style: SECONDARY_LINE }, row.rationale) : null,
       ]),
   },
   {
@@ -110,7 +119,7 @@ const columns = computed(() => [
       h(
         NText,
         { type: row.direction === "credit" ? "success" : "error" },
-        { default: () => row.amount },
+        { default: () => formatStatementAmount(row.amount) },
       ),
   },
   {
@@ -239,11 +248,15 @@ const rowKey = (row: StatementEntry): number => row.lineIndex;
   gap: var(--space-1);
 }
 
-.statement-table__subdate,
-.statement-table__rationale {
-  font-size: var(--font-size-xs);
+.statement-table__raw {
+  overflow-wrap: anywhere;
 }
 
+/*
+ * NText renderiza um <span> inline: sem `display: block` a justificativa cola
+ * na descrição ("PIX QRS MERCADO CENTRALCompra em mercado"), mesmo com o
+ * container em flex-column.
+ */
 .statement-table__tags {
   display: flex;
   flex-wrap: wrap;

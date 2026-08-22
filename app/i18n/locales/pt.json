@@ -4604,9 +4604,9 @@
         "linked": "Serão vinculados",
         "ignored": "Ignorados",
         "needsReview": "Pedem conferência",
-        "credits": "Entradas R$ {value}",
-        "debits": "Saídas R$ {value}",
-        "transfers": "Transferências R$ {value}",
+        "credits": "Entradas {value}",
+        "debits": "Saídas {value}",
+        "transfers": "Transferências {value}",
         "transferNotice": "Transferências entre suas contas e pagamentos de fatura não entram como receita nem despesa — o dinheiro só mudou de lugar, e a compra do cartão já foi lançada.",
         "balanceNotice": "{count} linhas de saldo do dia foram lidas para conferência e não viram lançamento.",
         "conflictNotice": "{count} lançamentos têm mais de uma correspondência possível. Decida cada um antes de confirmar.",
@@ -4624,7 +4624,8 @@
         "safety": "Nada que você já lançou será apagado ou sobrescrito. Ao usar a transação existente, ela continua como está e só recebe a referência do banco.",
         "useExisting": "Usar a existente",
         "importAnyway": "Importar mesmo assim",
-        "ignore": "Ignorar"
+        "ignore": "Ignorar",
+        "day": "1 dia"
       },
       "result": {
         "imported": "Criados",

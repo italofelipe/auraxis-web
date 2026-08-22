@@ -1,3 +1,5 @@
+import { CurrencyFormatter } from "~/shared/utils/formatters/CurrencyFormatter";
+
 /**
  * Domínio do import de extrato em PDF (`/v2/bank-import/statements/*`).
  *
@@ -298,4 +300,23 @@ export const effectiveAction = (
     return null;
   }
   return "import";
+};
+
+/**
+ * Formata um valor monetário do extrato para exibição.
+ *
+ * A conversão para `number` acontece **apenas aqui**, na borda da
+ * apresentação. O valor continua atravessando o sistema como string, que é a
+ * forma exata que o backend produziu; converter mais cedo reintroduziria o
+ * ponto flutuante que o `Decimal` do backend existe para evitar.
+ *
+ * @param raw Valor como o backend enviou, com sinal.
+ * @returns O valor em formato brasileiro, ou o original se não for numérico.
+ */
+export const formatStatementAmount = (raw: string): string => {
+  const parsed = Number(raw);
+  if (Number.isNaN(parsed)) {
+    return raw;
+  }
+  return CurrencyFormatter.format(parsed);
 };
