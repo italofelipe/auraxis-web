@@ -47,6 +47,10 @@ const AUTHENTICATED_PAGES = [
   { path: "/goals", name: "Metas" },
   { path: "/budgets", name: "Orçamentos" },
   { path: "/simulations", name: "Simulações" },
+  // Estava de fora desde que a página existe. Um wizard de várias etapas com
+  // tabela, modal e navegação por teclado é justamente o tipo de tela onde uma
+  // regressão de acessibilidade passa despercebida.
+  { path: "/transactions/import", name: "Importar" },
 ];
 
 interface Violation {
