@@ -17,6 +17,25 @@ const menuRef = ref<HTMLElement | null>(null);
 
 const initial = computed(() => props.name.charAt(0).toUpperCase());
 
+/**
+ * Nome acessível do gatilho.
+ *
+ * Sem isto o botão fica mudo quando o usuário não tem avatar — que é o caso
+ * padrão: a inicial e o chevron são ambos `aria-hidden`, e sobra "botão" sem
+ * mais nada para quem usa leitor de tela. Como o componente vive no cabeçalho
+ * de toda tela autenticada, essa única omissão respondia por 8 das 12
+ * violações do baseline de a11y (#1324).
+ *
+ * O rótulo é fixo em vez de depender do avatar: um nome acessível que muda
+ * conforme o usuário subiu foto ou não é pior que um nome estável.
+ *
+ * E não começa com "Abrir menu" de propósito: o gatilho do UiToolsShell já usa
+ * exatamente esse nome, e dois botões com o mesmo prefixo ficam ambíguos para
+ * quem navega por leitor de tela — além de quebrarem busca por papel+nome no
+ * E2E, que foi como a colisão apareceu.
+ */
+const triggerLabel = computed(() => `Menu da conta de ${props.name}`);
+
 /** Toggles the dropdown open/closed state. */
 function toggle(): void {
   isOpen.value = !isOpen.value;
@@ -45,6 +64,7 @@ onUnmounted(() => document.removeEventListener("mousedown", handleClickOutside))
   <div ref="menuRef" class="ui-user-menu">
     <button
       class="ui-user-menu__trigger"
+      :aria-label="triggerLabel"
       :aria-expanded="isOpen"
       aria-haspopup="menu"
       @click="toggle"
