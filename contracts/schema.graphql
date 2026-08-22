@@ -1,0 +1,1508 @@
+type Query {
+  receivables(
+    """Filter: pending | received | cancelled"""
+    status: String
+  ): ReceivableListType
+  receivablesSummary: ReceivableSummaryType
+  fiscalDocuments(
+    """
+    Filter by document type: service_invoice | product_invoice | receipt | debit_note | credit_note
+    """
+    type: String
+  ): FiscalDocumentListType
+  creditCards: CreditCardListType
+  creditCardBill(cardId: UUID!, month: String!): CreditCardBillType
+  creditCardUtilization(cardId: UUID!): CreditCardUtilizationType
+  aiInsightHistory(page: Int = 1, perPage: Int = 20, periodType: String, periodLabel: String): AIInsightHistoryResultType
+  aiInsightChangeStatus(periodType: String!, anchorDate: String): AIInsightChangeStatusType
+  spendingPatternsLatest: SpendingPatternsLatestType
+  accounts: AccountListType
+  account(accountId: UUID!): AccountType
+  tags: TagListType
+  tag(tagId: UUID!): TagType
+  notificationPreferences: NotificationPreferencesType
+  billingPlans: BillingPlanListPayloadType
+  mySubscription: SubscriptionType
+  budgets: BudgetListPayloadType
+  budget(budgetId: UUID!): BudgetType
+  budgetSummary: BudgetSummaryType
+  investmentOperations(investmentId: UUID!, page: Int = 1, perPage: Int = 10): InvestmentOperationListPayloadType
+  investmentOperationSummary(investmentId: UUID!): InvestmentOperationSummaryType
+  investmentPosition(investmentId: UUID!): InvestmentPositionType
+  investmentInvestedAmount(investmentId: UUID!, date: String!): InvestmentInvestedAmountType
+  investmentValuation(investmentId: UUID!): PortfolioValuationItemType
+  portfolioValuation: PortfolioValuationPayloadType
+  portfolioValuationHistory(startDate: String, finalDate: String): PortfolioHistoryPayloadType
+  walletEntries(page: Int = 1, perPage: Int = 10): WalletListPayloadType
+  walletHistory(investmentId: UUID!, page: Int = 1, perPage: Int = 5): WalletHistoryPayloadType
+  tickers(page: Int = 1, perPage: Int = 50): TickerListPayloadType
+  installmentVsCashCalculate(cashPrice: String!, installmentCount: Int!, installmentAmount: String, installmentTotal: String, firstPaymentDelayDays: Int = 30, opportunityRateType: String = "manual", opportunityRateAnnual: String, inflationRateAnnual: String!, feesEnabled: Boolean = false, feesUpfront: String = "0.00", scenarioLabel: String): InstallmentVsCashCalculationPayloadType
+  simulations(page: Int = 1, perPage: Int = 20, toolId: String): SimulationListPayloadType!
+  simulation(id: UUID!): SimulationType
+  simulationQuota: SimulationQuotaType!
+  goals(page: Int = 1, perPage: Int = 10, status: String): GoalListPayloadType
+  goal(goalId: UUID!): GoalTypeObject
+  goalPlan(goalId: UUID!): GoalPlanType
+  goalContributions(goalId: UUID!, page: Int = 1, perPage: Int = 10): GoalContributionListPayloadType
+  transactions(page: Int = 1, perPage: Int = 10, type: String, status: String, startDate: String, endDate: String, tagId: UUID, accountId: UUID, creditCardId: UUID): TransactionListPayloadType
+  transactionSummary(month: String!, page: Int = 1, perPage: Int = 10, pageSize: Int @deprecated(reason: "Use perPage.")): TransactionSummaryPayloadType
+  transactionDashboard(month: String!): TransactionDashboardPayloadType @deprecated(reason: "Use dashboardOverview.")
+  transactionDueRange(startDate: String, endDate: String, initialDate: String @deprecated(reason: "Use startDate."), finalDate: String @deprecated(reason: "Use endDate."), page: Int = 1, perPage: Int = 10, orderBy: String = "overdue_first"): TransactionDueRangePayloadType
+  transaction(transactionId: UUID!): TransactionTypeObject
+  dashboardOverview(month: String!): TransactionDashboardPayloadType
+  weeklySummary(period: String, startDate: String, endDate: String): WeeklySummaryPayloadType
+  me: UserType
+}
+
+type ReceivableListType {
+  receivables: [ReceivableEntryType!]!
+  total: Int!
+}
+
+"""
+IMPORTANT: expected_net_amount is advisory-only. Clients MUST display
+the ``disclaimer`` field alongside any monetary value derived from it.
+"""
+type ReceivableEntryType {
+  id: ID!
+  fiscalDocumentId: ID!
+  expectedNetAmount: DecimalScalar
+  receivedAmount: DecimalScalar
+  outstandingAmount: DecimalScalar
+  reconciliationStatus: String!
+  receivedAt: String
+  createdAt: String!
+  disclaimer: String!
+}
+
+"""
+Arbitrary-precision decimal serialised as a string.
+
+Output: always a string in fixed-point notation (no scientific exponent).
+Input: accepts string, int, float, or Decimal — coerced via ``Decimal(str(x))``.
+Null is preserved.
+"""
+scalar DecimalScalar
+
+"""
+IMPORTANT: all monetary values are advisory-only estimates.
+Always display the ``disclaimer`` field.
+"""
+type ReceivableSummaryType {
+  expectedTotal: String!
+  receivedTotal: String!
+  pendingTotal: String!
+  disclaimer: String!
+}
+
+type FiscalDocumentListType {
+  fiscalDocuments: [FiscalDocumentType!]!
+  total: Int!
+}
+
+type FiscalDocumentType {
+  id: ID!
+  externalId: String!
+  type: String!
+  status: String!
+  issuedAt: String!
+  counterparty: String!
+  grossAmount: DecimalScalar!
+  currency: String!
+  description: String
+  createdAt: String!
+}
+
+type CreditCardListType {
+  creditCards: [CreditCardType]
+  total: Int
+}
+
+type CreditCardType {
+  id: String!
+  name: String!
+  brand: String
+  limitAmount: DecimalScalar
+  closingDay: Int
+  dueDay: Int
+  bank: String
+  description: String
+  benefits: [String]
+  createdAt: String
+  updatedAt: String
+}
+
+type CreditCardBillType {
+  cycle: BillCycleType!
+  transactions: [BillTransactionType]
+  totalAmount: DecimalScalar!
+  paidAmount: DecimalScalar!
+  pendingAmount: DecimalScalar!
+}
+
+type BillCycleType {
+  startDate: String!
+  endDate: String!
+  dueDate: String!
+  status: String!
+}
+
+type BillTransactionType {
+  id: String!
+  title: String!
+  amount: DecimalScalar!
+  dueDate: String
+  status: String
+  type: String
+  impactPolicy: String
+}
+
+"""
+Leverages the internal Python implementation of UUID (uuid.UUID) to provide native UUID objects
+in fields, resolvers and input.
+"""
+scalar UUID
+
+type CreditCardUtilizationType {
+  cycle: BillCycleType!
+  committedAmount: DecimalScalar!
+  availableAmount: DecimalScalar
+  limitAmount: DecimalScalar
+  utilizationPct: Float
+}
+
+type AIInsightHistoryResultType {
+  items: [AIInsightType!]!
+  page: Int!
+  perPage: Int!
+  total: Int!
+}
+
+type AIInsightType {
+  id: ID!
+  content: String!
+  insightType: String!
+  periodLabel: String!
+  periodStart: String!
+  periodEnd: String!
+  model: String!
+  tokensUsed: Int!
+  costUsd: Float!
+  createdAt: String!
+}
+
+"""Whether the snapshot changed since the last insight (no LLM call)."""
+type AIInsightChangeStatusType {
+  periodType: String!
+  periodLabel: String!
+  changed: Boolean!
+  currentContextHash: String!
+  lastContextHash: String
+  lastGeneratedAt: String
+}
+
+"""
+Read-only cached Radar de Gastos (cron-generated, no quota).
+
+The individual ``patterns`` are forwarded from auraxis-api-v2 and their shape
+is intentionally not pinned here; they are exposed as a JSON string
+(``patterns_json``) so the schema stays stable as v2 evolves. ``generated_at``
+is null when no analysis has been cached yet.
+"""
+type SpendingPatternsLatestType {
+  patternsJson: String!
+  generatedAt: String
+  periodLabel: String
+  model: String!
+  costUsd: Float!
+  tokensUsed: Int!
+}
+
+type AccountListType {
+  accounts: [AccountType!]!
+  total: Int!
+}
+
+type AccountType {
+  id: ID!
+  name: String!
+  accountType: String!
+  institution: String
+  initialBalance: DecimalScalar
+}
+
+type TagListType {
+  tags: [TagType!]!
+  total: Int!
+}
+
+type TagType {
+  id: ID!
+  name: String!
+  color: String
+  icon: String
+}
+
+type NotificationPreferencesType {
+  preferences: [AlertPreferenceType]!
+}
+
+type AlertPreferenceType {
+  category: String!
+  enabled: Boolean!
+  globalOptOut: Boolean!
+}
+
+type BillingPlanListPayloadType {
+  plans: [BillingPlanType]!
+}
+
+type BillingPlanType {
+  slug: String!
+  planCode: String!
+  displayName: String!
+  description: String!
+  priceCents: Int!
+  currency: String!
+  billingCycle: String!
+  isActive: Boolean!
+  features: [String]!
+}
+
+type SubscriptionType {
+  id: ID!
+  planCode: String!
+  offerCode: String
+  status: String!
+  billingCycle: String
+  provider: String
+  providerSubscriptionId: String
+  trialEndsAt: String
+  currentPeriodStart: String
+  currentPeriodEnd: String
+  canceledAt: String
+  createdAt: String
+  updatedAt: String
+}
+
+type BudgetListPayloadType {
+  items: [BudgetType]!
+}
+
+type BudgetType {
+  id: ID!
+  name: String!
+  amount: String!
+  period: String!
+  tagId: String
+  tagName: String
+  tagColor: String
+  startDate: String
+  endDate: String
+  isActive: Boolean!
+  spent: String!
+  remaining: String!
+  percentageUsed: Float!
+  isOverBudget: Boolean!
+  createdAt: String
+  updatedAt: String
+}
+
+type BudgetSummaryType {
+  totalBudgeted: String!
+  totalSpent: String!
+  totalRemaining: String!
+  percentageUsed: Float!
+  budgetCount: Int!
+}
+
+type InvestmentOperationListPayloadType {
+  items: [InvestmentOperationType]!
+  pagination: PaginationType!
+}
+
+type InvestmentOperationType {
+  id: ID!
+  walletId: ID!
+  userId: ID!
+  operationType: String!
+  quantity: String!
+  unitPrice: String!
+  fees: String!
+  executedAt: String!
+  notes: String
+  createdAt: String
+  updatedAt: String
+}
+
+type PaginationType {
+  total: Int!
+  page: Int!
+  perPage: Int!
+  pages: Int
+}
+
+type InvestmentOperationSummaryType {
+  totalOperations: Int!
+  buyOperations: Int!
+  sellOperations: Int!
+  buyQuantity: String!
+  sellQuantity: String!
+  netQuantity: String!
+  grossBuyAmount: String!
+  grossSellAmount: String!
+  averageBuyPrice: String!
+  totalFees: String!
+}
+
+type InvestmentPositionType {
+  totalOperations: Int!
+  buyOperations: Int!
+  sellOperations: Int!
+  totalBuyQuantity: String!
+  totalSellQuantity: String!
+  currentQuantity: String!
+  currentCostBasis: String!
+  averageCost: String!
+}
+
+type InvestmentInvestedAmountType {
+  date: String!
+  totalOperations: Int!
+  buyOperations: Int!
+  sellOperations: Int!
+  buyAmount: String!
+  sellAmount: String!
+  netInvestedAmount: String!
+}
+
+type PortfolioValuationItemType {
+  investmentId: ID!
+  name: String!
+  assetClass: String!
+  annualRate: String
+  ticker: String
+  shouldBeOnWallet: Boolean!
+  quantity: String!
+  unitPrice: String!
+  investedAmount: String!
+  currentValue: String!
+  profitLossAmount: String!
+  profitLossPercent: String!
+  marketPrice: String
+  valuationSource: String!
+  usesOperationsQuantity: Boolean!
+}
+
+type PortfolioValuationPayloadType {
+  summary: PortfolioValuationSummaryType!
+  items: [PortfolioValuationItemType]!
+}
+
+type PortfolioValuationSummaryType {
+  totalInvestments: Int!
+  withMarketData: Int!
+  withoutMarketData: Int!
+  totalInvestedAmount: String!
+  totalCurrentValue: String!
+  totalProfitLoss: String!
+  totalProfitLossPercent: String!
+}
+
+type PortfolioHistoryPayloadType {
+  summary: PortfolioHistorySummaryType!
+  items: [PortfolioHistoryItemType]!
+}
+
+type PortfolioHistorySummaryType {
+  startDate: String!
+  endDate: String!
+  totalPoints: Int!
+  totalBuyAmount: String!
+  totalSellAmount: String!
+  totalNetInvestedAmount: String!
+  finalCumulativeNetInvested: String!
+  finalTotalCurrentValueEstimate: String!
+  finalTotalProfitLossEstimate: String!
+}
+
+type PortfolioHistoryItemType {
+  date: String!
+  totalOperations: Int!
+  buyOperations: Int!
+  sellOperations: Int!
+  buyAmount: String!
+  sellAmount: String!
+  netInvestedAmount: String!
+  cumulativeNetInvested: String!
+  totalCurrentValueEstimate: String!
+  totalProfitLossEstimate: String!
+}
+
+type WalletListPayloadType {
+  items: [WalletType]!
+  pagination: PaginationType!
+}
+
+type WalletType {
+  id: ID!
+  name: String!
+  value: DecimalScalar
+  estimatedValueOnCreateDate: DecimalScalar
+  ticker: String
+  quantity: Int
+  assetClass: String!
+  annualRate: DecimalScalar
+  registerDate: String!
+  targetWithdrawDate: String
+  shouldBeOnWallet: Boolean!
+}
+
+type WalletHistoryPayloadType {
+  items: [WalletHistoryItemType]!
+  pagination: PaginationType!
+}
+
+type WalletHistoryItemType {
+  originalQuantity: DecimalScalar
+  originalValue: DecimalScalar
+  changeType: String
+  changeDate: String
+}
+
+type TickerListPayloadType {
+  items: [TickerType]!
+  pagination: PaginationType!
+}
+
+type TickerType {
+  id: ID!
+  symbol: String!
+  quantity: Float!
+  type: String
+}
+
+type InstallmentVsCashCalculationPayloadType {
+  toolId: String!
+  ruleVersion: String!
+  input: InstallmentVsCashInputType!
+  result: InstallmentVsCashResultType!
+}
+
+type InstallmentVsCashInputType {
+  cashPrice: String!
+  installmentCount: Int!
+  installmentAmount: String!
+  installmentTotal: String!
+  firstPaymentDelayDays: Int!
+  opportunityRateType: String!
+  opportunityRateAnnual: String!
+  inflationRateAnnual: String!
+  feesUpfront: String!
+  scenarioLabel: String
+}
+
+type InstallmentVsCashResultType {
+  recommendedOption: String!
+  recommendationReason: String!
+  formulaExplainer: String!
+  comparison: InstallmentVsCashComparisonType!
+  options: InstallmentVsCashOptionsType!
+  neutralityBand: InstallmentVsCashNeutralityBandType!
+  assumptions: InstallmentVsCashAssumptionsType!
+  indicatorSnapshot: InstallmentVsCashIndicatorSnapshotType
+  schedule: [InstallmentVsCashScheduleItemType]!
+}
+
+type InstallmentVsCashComparisonType {
+  cashOptionTotal: String!
+  installmentOptionTotal: String!
+  installmentPresentValue: String!
+  installmentRealValueToday: String!
+  presentValueDeltaVsCash: String!
+  absoluteDeltaVsCash: String!
+  relativeDeltaVsCashPercent: String!
+  breakEvenDiscountPercent: String!
+  breakEvenOpportunityRateAnnual: String!
+}
+
+type InstallmentVsCashOptionsType {
+  cash: InstallmentVsCashCashOptionType!
+  installment: InstallmentVsCashInstallmentOptionType!
+}
+
+type InstallmentVsCashCashOptionType {
+  total: String!
+}
+
+type InstallmentVsCashInstallmentOptionType {
+  count: Int!
+  amounts: [String]!
+  installmentAmount: String!
+  nominalTotal: String!
+  upfrontFees: String!
+  firstPaymentDelayDays: Int!
+}
+
+type InstallmentVsCashNeutralityBandType {
+  absoluteBrl: String!
+  relativePercent: String!
+}
+
+type InstallmentVsCashAssumptionsType {
+  opportunityRateType: String!
+  opportunityRateAnnualPercent: String!
+  inflationRateAnnualPercent: String!
+  periodicity: String!
+  firstPaymentDelayDays: Int!
+  upfrontFeesApplyTo: String!
+  neutralityRule: String!
+}
+
+type InstallmentVsCashIndicatorSnapshotType {
+  presetType: String!
+  source: String!
+  annualRatePercent: String!
+  asOf: String!
+}
+
+type InstallmentVsCashScheduleItemType {
+  installmentNumber: Int!
+  dueInDays: Int!
+  amount: String!
+  presentValue: String!
+  realValueToday: String!
+  cumulativeNominal: String!
+  cumulativePresentValue: String!
+  cumulativeRealValueToday: String!
+  cashCumulative: String!
+}
+
+type SimulationListPayloadType {
+  items: [SimulationType]!
+  page: Int!
+  perPage: Int!
+  total: Int!
+  pages: Int!
+}
+
+"""Generic persisted simulation envelope (DEC-196 / #1128)."""
+type SimulationType {
+  id: UUID!
+  userId: UUID!
+  toolId: String!
+  ruleVersion: String!
+  inputs: JSONString!
+  result: JSONString!
+  metadata: JSONString
+  saved: Boolean!
+  createdAt: DateTime!
+}
+
+"""
+Allows use of a JSON String for input / output from the GraphQL schema.
+
+Use of this type is *not recommended* as you lose the benefits of having a defined, static
+schema (one of the key benefits of GraphQL).
+"""
+scalar JSONString
+
+"""
+The `DateTime` scalar type represents a DateTime
+value as specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar DateTime
+
+"""Snapshot da quota freemium do simulador (#1409)."""
+type SimulationQuotaType {
+  limit: Int!
+  used: Int!
+  remaining: Int
+  unlimited: Boolean!
+  allowed: Boolean!
+  resetAt: String!
+}
+
+type GoalListPayloadType {
+  items: [GoalTypeObject]!
+  pagination: PaginationType!
+}
+
+type GoalTypeObject {
+  id: ID!
+  title: String!
+  description: String
+  category: String
+  targetAmount: String!
+  currentAmount: String!
+  priority: Int!
+  targetDate: String
+  status: String!
+  createdAt: String
+  updatedAt: String
+}
+
+type GoalPlanType {
+  horizon: String!
+  remainingAmount: String!
+  capacityAmount: String!
+  projectedMonthlyContribution: String!
+  recommendedMonthlyContribution: String!
+  monthsToGoal: Int
+  monthsUntilTargetDate: Int
+  estimatedCompletionDate: String
+  targetDate: String
+  goalHealth: String!
+  recommendations: [GoalRecommendationType]!
+}
+
+type GoalRecommendationType {
+  priority: String!
+  title: String!
+  action: String!
+  estimatedDate: String
+}
+
+type GoalContributionListPayloadType {
+  items: [GoalContributionType]!
+  pagination: PaginationType!
+}
+
+type GoalContributionType {
+  id: ID!
+  goalId: ID!
+  amount: String!
+  note: String
+  occurredAt: String!
+  createdAt: String
+}
+
+type TransactionListPayloadType {
+  items: [TransactionTypeObject]!
+  pagination: PaginationType!
+}
+
+type TransactionTypeObject {
+  id: ID!
+  title: String!
+  amount: String!
+  type: String!
+  dueDate: String!
+  startDate: String
+  endDate: String
+  description: String
+  observation: String
+  isRecurring: Boolean!
+  isInstallment: Boolean!
+  installmentCount: Int
+  recurrenceInterval: Int
+  recurrenceUnit: String
+  category: String
+  tagId: String
+  accountId: String
+  creditCardId: String
+  impactPolicy: String!
+  autoSettle: Boolean
+  status: String!
+  currency: String!
+  source: String!
+  externalId: String
+  bankName: String
+  financialNature: String
+  installmentGroupId: String
+  paidAt: String
+  createdAt: String
+  updatedAt: String
+}
+
+type TransactionSummaryPayloadType {
+  month: String!
+  incomeTotal: DecimalScalar!
+  expenseTotal: DecimalScalar!
+  items: [TransactionTypeObject]!
+  pagination: PaginationType!
+}
+
+type TransactionDashboardPayloadType {
+  month: String!
+  totals: DashboardTotalsType!
+  counts: DashboardCountsType!
+  topCategories: DashboardCategoriesType!
+}
+
+type DashboardTotalsType {
+  incomeTotal: DecimalScalar!
+  expenseTotal: DecimalScalar!
+  balance: DecimalScalar!
+}
+
+type DashboardCountsType {
+  totalTransactions: Int!
+  incomeTransactions: Int!
+  expenseTransactions: Int!
+  status: DashboardStatusCountsType!
+}
+
+type DashboardStatusCountsType {
+  paid: Int!
+  pending: Int!
+  cancelled: Int!
+  postponed: Int!
+  overdue: Int!
+}
+
+type DashboardCategoriesType {
+  expense: [DashboardCategoryType]!
+  income: [DashboardCategoryType]!
+}
+
+type DashboardCategoryType {
+  tagId: String
+  categoryName: String!
+  totalAmount: DecimalScalar!
+  transactionsCount: Int!
+}
+
+type TransactionDueRangePayloadType {
+  items: [TransactionTypeObject]!
+  counts: TransactionDueCountsType!
+  pagination: PaginationType!
+}
+
+type TransactionDueCountsType {
+  totalTransactions: Int!
+  incomeTransactions: Int!
+  expenseTransactions: Int!
+}
+
+type WeeklySummaryPayloadType {
+  currentWeek: WeeklyPeriodTotalsType!
+  previousWeek: WeeklyPeriodTotalsType!
+  comparison: WeeklyComparisonType!
+  series: [WeeklySummarySeriesEntryType]!
+  period: String!
+  seriesStart: String!
+  seriesEnd: String!
+}
+
+type WeeklyPeriodTotalsType {
+  start: String!
+  end: String!
+  income: DecimalScalar!
+  expense: DecimalScalar!
+  balance: DecimalScalar!
+  transactionCount: Int!
+}
+
+type WeeklyComparisonType {
+  incomeDelta: DecimalScalar!
+  incomeDeltaPercent: Float
+  expenseDelta: DecimalScalar!
+  expenseDeltaPercent: Float
+  balanceDelta: DecimalScalar!
+  balanceDeltaPercent: Float
+}
+
+type WeeklySummarySeriesEntryType {
+  date: String!
+  income: DecimalScalar!
+  expense: DecimalScalar!
+  balance: DecimalScalar!
+}
+
+type UserType {
+  id: ID!
+  name: String!
+  email: String!
+  gender: String
+  birthDate: String
+  monthlyIncome: DecimalScalar
+  monthlyIncomeNet: DecimalScalar
+  netWorth: DecimalScalar
+  monthlyExpenses: DecimalScalar
+  initialInvestment: DecimalScalar
+  monthlyInvestment: DecimalScalar
+  investmentGoalDate: String
+  stateUf: String
+  occupation: String
+  investorProfile: String
+  financialObjectives: String
+  investorProfileSuggested: String
+  profileQuizScore: Int
+  taxonomyVersion: String
+  avatarUrl: String
+  onboardingCompletedAt: String
+  emailVerified: Boolean
+  emailVerificationDeadlineAt: String
+  emailVerificationRequiredNow: Boolean
+  daysUntilEmailRequired: Int
+}
+
+type Mutation {
+  registerUser(email: String!, investorProfile: String, name: String!, password: String!): AuthPayloadType
+  login(email: String!, password: String!): AuthPayloadType
+  logout: LogoutMutation
+  forgotPassword(email: String!): AuthPayloadType
+  resendConfirmationEmail(email: String!): AuthPayloadType
+  resetPassword(newPassword: String!, token: String!): AuthPayloadType
+  confirmEmail(token: String!): AuthPayloadType
+  updateUserProfile(birthDate: String, financialObjectives: String, gender: String, initialInvestment: DecimalScalar, investmentGoalDate: String, investorProfile: String, investorProfileSuggested: String, monthlyExpenses: DecimalScalar, monthlyIncome: DecimalScalar, monthlyIncomeNet: DecimalScalar, monthlyInvestment: DecimalScalar, netWorth: DecimalScalar, occupation: String, profileQuizScore: Int, stateUf: String, taxonomyVersion: String): UpdateUserProfileMutation
+  createTransaction(accountId: UUID, amount: String!, autoSettle: Boolean = false, category: String, creditCardId: UUID, currency: String = "BRL", description: String, dueDate: String!, endDate: String, impactPolicy: String = "full", installmentCount: Int, isInstallment: Boolean = false, isRecurring: Boolean = false, observation: String, recurrenceInterval: Int, recurrenceUnit: String, startDate: String, status: TransactionStatus, tagId: UUID, title: String!, type: TransactionType!): CreateTransactionMutation @deprecated(reason: "ADR-0002: use POST /transactions")
+  updateTransaction(accountId: UUID, amount: String, autoSettle: Boolean, category: String, creditCardId: UUID, currency: String, description: String, dueDate: String, endDate: String, impactPolicy: String, installmentCount: Int, isInstallment: Boolean, isRecurring: Boolean, observation: String, paidAt: String, startDate: String, status: TransactionStatus, tagId: UUID, title: String, transactionId: UUID!, type: TransactionType): UpdateTransactionMutation @deprecated(reason: "ADR-0002: use PATCH /transactions/{id}")
+  deleteTransaction(scope: String, transactionId: UUID!): DeleteTransactionMutation @deprecated(reason: "ADR-0002: use DELETE /transactions/{id}")
+  createGoal(category: String, currentAmount: String, description: String, priority: Int, status: GoalStatus, targetAmount: String!, targetDate: String, title: String!): CreateGoalMutation @deprecated(reason: "ADR-0002: use POST /goals")
+  updateGoal(category: String, currentAmount: String, description: String, goalId: UUID!, priority: Int, status: GoalStatus, targetAmount: String, targetDate: String, title: String): UpdateGoalMutation @deprecated(reason: "ADR-0002: use PATCH /goals/{id}")
+  deleteGoal(goalId: UUID!): DeleteGoalMutation @deprecated(reason: "ADR-0002: use DELETE /goals/{id}")
+  simulateGoalPlan(currentAmount: String, monthlyContribution: String, monthlyExpenses: String, monthlyIncome: String, targetAmount: String!, targetDate: String): SimulateGoalPlanMutation
+
+  """
+  Register a deposit (+) or withdrawal (-) against a goal.
+  
+  REST parity: ``POST /goals/{goal_id}/contributions``.
+  """
+  recordGoalContribution(amount: String!, goalId: UUID!, note: String, occurredAt: String): RecordGoalContributionMutation
+  saveInstallmentVsCashSimulation(cashPrice: String!, feesEnabled: Boolean = false, feesUpfront: String = "0.00", firstPaymentDelayDays: Int = 30, inflationRateAnnual: String!, installmentAmount: String, installmentCount: Int!, installmentTotal: String, opportunityRateAnnual: String, opportunityRateType: String = "manual", scenarioLabel: String): SaveInstallmentVsCashSimulationMutation
+  createGoalFromInstallmentVsCashSimulation(category: String = "planned_purchase", currentAmount: String = "0.00", description: String, priority: Int = 3, selectedOption: String!, simulationId: UUID!, targetDate: String, title: String!): CreateGoalFromInstallmentVsCashSimulationMutation
+  createPlannedExpenseFromInstallmentVsCashSimulation(accountId: UUID, creditCardId: UUID, currency: String = "BRL", description: String, dueDate: String, firstDueDate: String, observation: String, selectedOption: String!, simulationId: UUID!, status: String = "pending", tagId: UUID, title: String!, upfrontDueDate: String): CreatePlannedExpenseFromInstallmentVsCashSimulationMutation
+
+  """
+  Consome 1 simulação da quota freemium (#1409).
+  
+  Parity de ``POST /simulations/quota/consume``. Não falha em esgotamento:
+  retorna ``quota.allowed=False`` para o cliente exibir o paywall.
+  """
+  consumeSimulationQuota: ConsumeSimulationQuotaMutation
+  addWalletEntry(annualRate: DecimalScalar, assetClass: WalletAssetClass, name: String!, quantity: Int, registerDate: String, shouldBeOnWallet: Boolean!, targetWithdrawDate: String, ticker: String, value: DecimalScalar): AddWalletEntryMutation @deprecated(reason: "ADR-0002: use POST /wallet")
+  updateWalletEntry(annualRate: DecimalScalar, assetClass: WalletAssetClass, investmentId: UUID!, name: String, quantity: Int, registerDate: String, shouldBeOnWallet: Boolean, targetWithdrawDate: String, ticker: String, value: DecimalScalar): UpdateWalletEntryMutation @deprecated(reason: "ADR-0002: use PATCH /wallet/{id}")
+  deleteWalletEntry(investmentId: UUID!): DeleteWalletEntryMutation @deprecated(reason: "ADR-0002: use DELETE /wallet/{id}")
+  addInvestmentOperation(executedAt: String, fees: String, investmentId: UUID!, notes: String, operationType: String!, quantity: String!, unitPrice: String!): AddInvestmentOperationMutation @deprecated(reason: "ADR-0002: use POST /wallet/{id}/operations")
+  updateInvestmentOperation(executedAt: String, fees: String, investmentId: UUID!, notes: String, operationId: UUID!, operationType: String, quantity: String, unitPrice: String): UpdateInvestmentOperationMutation @deprecated(reason: "ADR-0002: use PATCH /wallet/{id}/operations/{op_id}")
+  deleteInvestmentOperation(investmentId: UUID!, operationId: UUID!): DeleteInvestmentOperationMutation @deprecated(reason: "ADR-0002: use DELETE /wallet/{id}/operations/{op_id}")
+  addTicker(quantity: Float!, symbol: String!, type: String): AddTickerPayload
+  deleteTicker(symbol: String!): DeleteTickerPayload
+  createTag(color: String, icon: String, name: String!): TagPayload
+  updateTag(color: String, icon: String, name: String!, tagId: UUID!): TagPayload
+  deleteTag(tagId: UUID!): TagPayload
+  createAccount(accountType: String, initialBalance: String, institution: String, name: String!): AccountPayload
+  updateAccount(accountId: UUID!, accountType: String, initialBalance: String, institution: String, name: String!): AccountPayload
+  deleteAccount(accountId: UUID!): AccountPayload
+  createBudget(amount: String!, endDate: String, isActive: Boolean, name: String!, period: String!, startDate: String, tagId: String): CreateBudgetMutation @deprecated(reason: "ADR-0002: use POST /budgets")
+  updateBudget(amount: String, budgetId: UUID!, endDate: String, isActive: Boolean, name: String, period: String, startDate: String, tagId: String): UpdateBudgetMutation @deprecated(reason: "ADR-0002: use PATCH /budgets/{id}")
+  deleteBudget(budgetId: UUID!): DeleteBudgetMutation @deprecated(reason: "ADR-0002: use DELETE /budgets/{id}")
+  createCheckoutSession(billingCycle: BillingCycle, planSlug: String!, returnSurface: String): CreateCheckoutSessionMutation @deprecated(reason: "ADR-0004: use POST /subscription/checkout")
+  cancelSubscription: CancelSubscriptionMutation @deprecated(reason: "ADR-0004: use POST /subscription/cancel")
+
+  """Swap plan without double-charging (#1597); mirrors REST /change-plan."""
+  changeSubscriptionPlan(billingCycle: BillingCycle, planSlug: String!): ChangeSubscriptionPlanMutation @deprecated(reason: "ADR-0004: use POST /subscription/change-plan")
+  updateNotificationPreferences(preferences: [PreferenceInput!]!): UpdateNotificationPreferencesPayload
+
+  """Revoke a specific session by ID (multi-device, #1028)."""
+  revokeSession(sessionId: String!): RevokeSessionMutation
+
+  """Revoke all active sessions — global logout (#1028)."""
+  revokeAllSessions: RevokeAllSessionsMutation
+
+  """
+  Parse a bank statement text and return a deduplication preview.
+  
+  The client submits the raw text content (CSV for Nubank, OFX for others)
+  together with a bank identifier.  No data is written to the database.
+  """
+  previewBankStatement(
+    """Bank identifier (e.g. 'nubank', 'itau')."""
+    bankName: String!
+
+    """Raw bank statement text (CSV or OFX)."""
+    content: String!
+  ): BankImportPreviewPayload
+
+  """
+  Persist a subset of bank statement entries as transactions.
+  
+  ``mode`` controls how existing data is handled:
+  
+  - ``selective``: skip duplicates, import only new entries.
+  - ``replace_month``: delete all existing bank-imported transactions for
+    the given month/bank before importing the selected set.
+  """
+  confirmBankImport(
+    bankName: String!
+
+    """'selective' or 'replace_month'."""
+    mode: String!
+
+    """Month in YYYY-MM format."""
+    month: String!
+    selectedEntries: [SelectedEntryInput!]!
+  ): BankImportConfirmationPayload
+  createReceivable(
+    amount: String!
+    category: String
+    description: String!
+
+    """YYYY-MM-DD"""
+    expectedDate: String!
+  ): ReceivablePayload @deprecated(reason: "ADR-0002: use POST /fiscal/receivables")
+  markReceivableReceived(
+    entryId: UUID!
+    receivedAmount: String
+
+    """YYYY-MM-DD"""
+    receivedDate: String!
+  ): ReceivablePayload @deprecated(reason: "ADR-0002: use PATCH /fiscal/receivables/{id}/receive")
+  cancelReceivable(entryId: UUID!): ReceivablePayload @deprecated(reason: "ADR-0002: use DELETE /fiscal/receivables/{id}")
+  createFiscalDocument(
+    amount: String!
+    counterpartName: String
+    externalId: String
+
+    """YYYY-MM-DD"""
+    issuedAt: String!
+
+    """service_invoice | product_invoice | receipt | debit_note | credit_note"""
+    type: String!
+  ): FiscalDocumentPayload @deprecated(reason: "ADR-0002: use POST /fiscal/fiscal-documents")
+
+  """
+  GraphQL parity for POST /ai/insights/generate.
+  
+  Reuses AIAdvisoryService — the daily quota (1/day, scoped), Premium
+  entitlement gate and LGPD consent are enforced INSIDE the service (#1546),
+  so REST and GraphQL share one enforcement point. GraphQL surface exposes
+  the same payload shape so the frontend hub can render either path
+  identically.
+  """
+  generateAiInsight(
+    anchorDate: String
+
+    """
+    Regenera mesmo que já exista insight para o período (confirmação explícita). Sujeito à quota diária.
+    """
+    forceRegenerate: Boolean
+    periodType: String!
+  ): GenerateAiInsightPayload
+
+  """GraphQL parity for POST /ai/insights/<id>/feedback (#1387)."""
+  submitAiInsightFeedback(comment: String, depth: Int!, insightId: String!, relevance: Int!, truthfulness: Int!, usefulness: Int!): AIInsightFeedbackPayload
+
+  """
+  GraphQL parity for POST /ai/chat (Ask anything).
+  
+  Snapshot-grounded finance chat. Entitlement, LGPD consent, per-user cost
+  budget and audit are enforced inside AIAdvisoryService.
+  """
+  askFinancialQuestion(question: String!): AskFinancialQuestionPayload
+
+  """
+  Mark the authenticated user's onboarding as completed (idempotent).
+  
+  REST parity: ``POST /user/onboarding/complete``.
+  """
+  completeOnboarding: CompleteOnboardingPayload
+}
+
+type AuthPayloadType {
+  token: String
+  user: UserType
+  message: String!
+}
+
+type LogoutMutation {
+  ok: Boolean!
+  message: String!
+}
+
+type UpdateUserProfileMutation {
+  user: UserType!
+}
+
+type CreateTransactionMutation {
+  items: [TransactionTypeObject]!
+  message: String!
+}
+
+"""An enumeration."""
+enum TransactionStatus {
+  PAID
+  PENDING
+  CANCELLED
+  POSTPONED
+  OVERDUE
+}
+
+"""An enumeration."""
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+type UpdateTransactionMutation {
+  transaction: TransactionTypeObject!
+  message: String!
+}
+
+type DeleteTransactionMutation {
+  ok: Boolean!
+  message: String!
+}
+
+type CreateGoalMutation {
+  message: String!
+  goal: GoalTypeObject!
+}
+
+"""An enumeration."""
+enum GoalStatus {
+  ACTIVE
+  COMPLETED
+  PAUSED
+  CANCELLED
+}
+
+type UpdateGoalMutation {
+  message: String!
+  goal: GoalTypeObject!
+}
+
+type DeleteGoalMutation {
+  ok: Boolean!
+  message: String!
+}
+
+type SimulateGoalPlanMutation {
+  message: String!
+  goalPlan: GoalPlanType!
+}
+
+"""
+Register a deposit (+) or withdrawal (-) against a goal.
+
+REST parity: ``POST /goals/{goal_id}/contributions``.
+"""
+type RecordGoalContributionMutation {
+  message: String!
+  goal: GoalTypeObject!
+  contribution: GoalContributionType!
+}
+
+type SaveInstallmentVsCashSimulationMutation {
+  message: String!
+  simulation: InstallmentVsCashSimulationType!
+  calculation: InstallmentVsCashCalculationPayloadType!
+}
+
+type InstallmentVsCashSimulationType {
+  id: ID!
+  userId: String
+  toolId: String!
+  ruleVersion: String!
+  input: InstallmentVsCashInputType!
+  result: InstallmentVsCashResultType!
+  saved: Boolean!
+  goalId: String
+  createdAt: String!
+}
+
+type CreateGoalFromInstallmentVsCashSimulationMutation {
+  message: String!
+  goal: GoalTypeObject!
+  simulation: InstallmentVsCashSimulationType!
+}
+
+type CreatePlannedExpenseFromInstallmentVsCashSimulationMutation {
+  message: String!
+  transactions: [TransactionTypeObject]!
+  simulation: InstallmentVsCashSimulationType!
+}
+
+"""
+Consome 1 simulação da quota freemium (#1409).
+
+Parity de ``POST /simulations/quota/consume``. Não falha em esgotamento:
+retorna ``quota.allowed=False`` para o cliente exibir o paywall.
+"""
+type ConsumeSimulationQuotaMutation {
+  quota: SimulationQuotaType!
+}
+
+type AddWalletEntryMutation {
+  item: WalletType!
+}
+
+"""An enumeration."""
+enum WalletAssetClass {
+  BDR
+  CDB
+  CDI
+  CRYPTO
+  CUSTOM
+  ETF
+  FII
+  FUND
+  LCA
+  LCI
+  STOCK
+  TESOURO
+}
+
+type UpdateWalletEntryMutation {
+  item: WalletType!
+}
+
+type DeleteWalletEntryMutation {
+  ok: Boolean!
+  message: String!
+}
+
+type AddInvestmentOperationMutation {
+  item: InvestmentOperationType!
+  message: String!
+}
+
+type UpdateInvestmentOperationMutation {
+  item: InvestmentOperationType!
+  message: String!
+}
+
+type DeleteInvestmentOperationMutation {
+  ok: Boolean!
+  message: String!
+}
+
+"""Canonical payload for addTicker mutation."""
+type AddTickerPayload {
+  """True when the mutation completed without errors."""
+  ok: Boolean!
+
+  """Human-readable status message."""
+  message: String!
+
+  """Field-level validation errors (empty on success)."""
+  errors: [ValidationError!]!
+
+  """The newly added ticker."""
+  data: TickerType
+}
+
+"""A single field-level validation failure inside a mutation payload."""
+type ValidationError {
+  """
+  The input field that failed validation, or null for document-level errors.
+  """
+  field: String
+
+  """Human-readable description of the failure."""
+  message: String!
+}
+
+"""Canonical payload for deleteTicker mutation."""
+type DeleteTickerPayload {
+  """True when the mutation completed without errors."""
+  ok: Boolean!
+
+  """Human-readable status message."""
+  message: String!
+
+  """Field-level validation errors (empty on success)."""
+  errors: [ValidationError!]!
+}
+
+type TagPayload {
+  """True when the mutation completed without errors."""
+  ok: Boolean!
+
+  """Human-readable status message."""
+  message: String!
+
+  """Field-level validation errors (empty on success)."""
+  errors: [ValidationError!]!
+  data: TagType
+}
+
+type AccountPayload {
+  """True when the mutation completed without errors."""
+  ok: Boolean!
+
+  """Human-readable status message."""
+  message: String!
+
+  """Field-level validation errors (empty on success)."""
+  errors: [ValidationError!]!
+  data: AccountType
+}
+
+type CreateBudgetMutation {
+  message: String!
+  budget: BudgetType!
+}
+
+type UpdateBudgetMutation {
+  message: String!
+  budget: BudgetType!
+}
+
+type DeleteBudgetMutation {
+  ok: Boolean!
+  message: String!
+}
+
+type CreateCheckoutSessionMutation {
+  message: String!
+  checkout: CheckoutSessionType!
+}
+
+type CheckoutSessionType {
+  checkoutUrl: String!
+  provider: String!
+  providerCustomerId: String
+  providerSubscriptionId: String
+}
+
+"""An enumeration."""
+enum BillingCycle {
+  MONTHLY
+  SEMIANNUAL
+  ANNUAL
+}
+
+type CancelSubscriptionMutation {
+  ok: Boolean!
+  message: String!
+  subscription: SubscriptionType!
+}
+
+"""Swap plan without double-charging (#1597); mirrors REST /change-plan."""
+type ChangeSubscriptionPlanMutation {
+  message: String!
+  checkout: CheckoutSessionType!
+}
+
+"""Canonical payload for updateNotificationPreferences mutation."""
+type UpdateNotificationPreferencesPayload {
+  """True when the mutation completed without errors."""
+  ok: Boolean!
+
+  """Human-readable status message."""
+  message: String!
+
+  """Field-level validation errors (empty on success)."""
+  errors: [ValidationError!]!
+
+  """The updated preference records."""
+  data: [AlertPreferenceType!]
+}
+
+input PreferenceInput {
+  category: String!
+  enabled: Boolean!
+  globalOptOut: Boolean
+}
+
+"""Revoke a specific session by ID (multi-device, #1028)."""
+type RevokeSessionMutation {
+  ok: Boolean!
+  message: String!
+}
+
+"""Revoke all active sessions — global logout (#1028)."""
+type RevokeAllSessionsMutation {
+  ok: Boolean!
+  revoked: Int!
+}
+
+type BankImportPreviewPayload {
+  """True when the mutation completed without errors."""
+  ok: Boolean!
+
+  """Human-readable status message."""
+  message: String!
+
+  """Field-level validation errors (empty on success)."""
+  errors: [ValidationError!]!
+  data: BankImportPreviewType
+}
+
+type BankImportPreviewType {
+  bankName: String!
+  entries: [BankImportPreviewEntryType!]!
+  totalEntries: Int!
+  duplicateEntries: Int!
+  newEntries: Int!
+}
+
+type BankImportPreviewEntryType {
+  externalId: String!
+  date: String!
+  description: String!
+  amount: String!
+  transactionType: String!
+  bankName: String!
+  isDuplicate: Boolean!
+  duplicateReason: String
+}
+
+type BankImportConfirmationPayload {
+  """True when the mutation completed without errors."""
+  ok: Boolean!
+
+  """Human-readable status message."""
+  message: String!
+
+  """Field-level validation errors (empty on success)."""
+  errors: [ValidationError!]!
+  bankName: String
+  month: String
+  importedCount: Int
+  skippedDuplicates: Int
+  replacedCount: Int
+  transactions: [ImportedTransactionType!]
+}
+
+type ImportedTransactionType {
+  id: ID!
+  title: String!
+  amount: String!
+  type: String!
+  dueDate: String!
+  bankName: String
+  externalId: String
+}
+
+input SelectedEntryInput {
+  externalId: String!
+  date: String!
+  description: String!
+  amount: String!
+  transactionType: String!
+  bankName: String!
+}
+
+type ReceivablePayload {
+  """True when the mutation completed without errors."""
+  ok: Boolean!
+
+  """Human-readable status message."""
+  message: String!
+
+  """Field-level validation errors (empty on success)."""
+  errors: [ValidationError!]!
+  data: ReceivableEntryType
+}
+
+type FiscalDocumentPayload {
+  """True when the mutation completed without errors."""
+  ok: Boolean!
+
+  """Human-readable status message."""
+  message: String!
+
+  """Field-level validation errors (empty on success)."""
+  errors: [ValidationError!]!
+  data: FiscalDocumentType
+}
+
+type GenerateAiInsightPayload {
+  ok: Boolean!
+  id: String
+  periodType: String
+  periodLabel: String
+  periodStart: String
+  periodEnd: String
+  summary: String
+  items: [AIInsightItemType]
+  contextVersion: String
+  cached: Boolean
+  model: String
+  tokensUsed: Int
+  costUsd: Float
+  forecast: Boolean
+  paragraphs: [String]
+  retro: [AIInsightRetroEntryType]
+  series: AIInsightSeriesType
+  highlights: [AIInsightHighlightType]
+  lead: AIInsightLeadType
+}
+
+"""A single LLM-produced insight item, tagged by dimension."""
+type AIInsightItemType {
+  type: String!
+  dimension: String!
+  title: String!
+  message: String!
+  evidence: [String]
+}
+
+"""One calculated retrospective metric for the Fluida screen (#1501)."""
+type AIInsightRetroEntryType {
+  key: String!
+  label: String!
+  value: Float!
+  caption: String!
+  sign: String!
+}
+
+"""Calculated outflow series: daily over 7 days, weekly over 6 weeks."""
+type AIInsightSeriesType {
+  daily: [Float]!
+  weekly: [Float]!
+}
+
+"""One calculated per-theme highlight for the Fluida screen (#1501)."""
+type AIInsightHighlightType {
+  label: String!
+  value: Float!
+  sub: String!
+}
+
+"""
+Editorial lead (masthead) for the Fluida screen (#1503).
+
+``severity`` is a deterministic heuristic over the calculated retro/highlights
+(``ok`` | ``attention`` | ``alert``); ``read_min`` is fixed by cadence;
+``title`` / ``lead`` / ``next_step`` are derived from the AI ``summary`` (no
+extra LLM call).
+"""
+type AIInsightLeadType {
+  severity: String!
+  readMin: Int!
+  title: String!
+  lead: String!
+  nextStep: String!
+}
+
+type AIInsightFeedbackPayload {
+  ok: Boolean!
+  id: String
+  insightId: String
+  relevance: Int
+  truthfulness: Int
+  depth: Int
+  usefulness: Int
+  comment: String
+}
+
+type AskFinancialQuestionPayload {
+  ok: Boolean!
+  answer: String
+  model: String
+  tokensUsed: Int
+  costUsd: Float
+  periodLabel: String
+  toolRounds: Int
+}
+
+"""Canonical payload for completeOnboarding mutation."""
+type CompleteOnboardingPayload {
+  """True when the mutation completed without errors."""
+  ok: Boolean!
+
+  """Human-readable status message."""
+  message: String!
+
+  """Field-level validation errors (empty on success)."""
+  errors: [ValidationError!]!
+
+  """ISO 8601 timestamp when onboarding was completed."""
+  onboardingCompletedAt: String
+}
