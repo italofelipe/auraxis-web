@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.5.0](https://github.com/italofelipe/auraxis-web/compare/v1.4.1...v1.5.0) (2026-08-22)
+
+
+### Features
+
+* **import:** tela de revisão de extrato em PDF com resolução de duplicidade ([#1361](https://github.com/italofelipe/auraxis-web/issues/1361)) ([3a242f5](https://github.com/italofelipe/auraxis-web/commit/3a242f52c89424507f7934cb34a90d2c3b3e76d5)), closes [#1360](https://github.com/italofelipe/auraxis-web/issues/1360)
+
+
+### Bug Fixes
+
+* **flags:** promote web.premium.paywall-enabled to enabled-prod ([#1354](https://github.com/italofelipe/auraxis-web/issues/1354)) ([d9708d2](https://github.com/italofelipe/auraxis-web/commit/d9708d2859dde1c606f7e46561a1d71fff2685c0))
+* **legal:** parar de declarar a AbacatePay como subprocessadora de dados ([#1337](https://github.com/italofelipe/auraxis-web/issues/1337)) ([c0c5209](https://github.com/italofelipe/auraxis-web/commit/c0c52092c6feed13548f01d4303a3da028d7db9c)), closes [#1334](https://github.com/italofelipe/auraxis-web/issues/1334)
+* **onboarding:** show first-login tour without waiting for email confirmation ([#1356](https://github.com/italofelipe/auraxis-web/issues/1356)) ([3766469](https://github.com/italofelipe/auraxis-web/commit/37664693187ec1f6c205191be0bf35a8e12e05ab))
+* **plans:** align pricing copy with canonical billing and real free-tier limits ([#1355](https://github.com/italofelipe/auraxis-web/issues/1355)) ([d8c443c](https://github.com/italofelipe/auraxis-web/commit/d8c443c5aeceefcb188b59de886abc00fecda26f))
+* **seo:** tirar /admin e /auth do sitemap e do robots do host do app ([#1346](https://github.com/italofelipe/auraxis-web/issues/1346)) ([072d4cb](https://github.com/italofelipe/auraxis-web/commit/072d4cb19602216dc37b9beb7b873588c37064f4))
+
 ## [1.4.1](https://github.com/italofelipe/auraxis-web/compare/v1.4.0...v1.4.1) (2026-08-03)
 
 
