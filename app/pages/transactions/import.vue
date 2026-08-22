@@ -4,9 +4,11 @@ import { NAlert, NButton, NTabPane, NTabs } from "naive-ui";
 
 import BankImportPanel from "~/features/import/components/BankImportPanel.vue";
 import SpreadsheetImportPanel from "~/features/import/components/SpreadsheetImportPanel.vue";
+import StatementImportPanel from "~/features/import/components/StatementImportPanel.vue";
 import {
   BANK_IMPORT_FEATURE_FLAG_KEY,
   IMPORT_FEATURE_FLAG_KEY,
+  STATEMENT_IMPORT_FEATURE_FLAG_KEY,
 } from "~/features/import/model/import-config";
 import { useOnboarding } from "~/features/onboarding/composables/useOnboarding";
 import { useFeatureFlag } from "~/shared/feature-flags/use-feature-flag";
@@ -25,16 +27,31 @@ const router = useRouter();
 const { start: startOnboarding } = useOnboarding();
 const isSpreadsheetEnabled = useFeatureFlag(IMPORT_FEATURE_FLAG_KEY);
 const isBankEnabled = useFeatureFlag(BANK_IMPORT_FEATURE_FLAG_KEY);
+const isStatementEnabled = useFeatureFlag(STATEMENT_IMPORT_FEATURE_FLAG_KEY);
 
-const isEnabled = computed(
-  (): boolean => isSpreadsheetEnabled.value || isBankEnabled.value,
-);
-// Duas abas só quando os dois caminhos existem — com um só, a aba seria um
-// enfeite em volta de um wizard único.
-const hasTabs = computed(
-  (): boolean => isSpreadsheetEnabled.value && isBankEnabled.value,
-);
-const activeTab = ref<"spreadsheet" | "bank">("spreadsheet");
+/** Um caminho de import. */
+type ImportTab = "spreadsheet" | "bank" | "statement";
+
+/** Caminhos de import ligados agora, na ordem em que aparecem. */
+const enabledTabs = computed((): ImportTab[] => {
+  const tabs: ImportTab[] = [];
+  if (isSpreadsheetEnabled.value) {
+    tabs.push("spreadsheet");
+  }
+  if (isStatementEnabled.value) {
+    tabs.push("statement");
+  }
+  if (isBankEnabled.value) {
+    tabs.push("bank");
+  }
+  return tabs;
+});
+
+const isEnabled = computed((): boolean => enabledTabs.value.length > 0);
+// Abas só quando há mais de um caminho — com um só, a aba seria um enfeite em
+// volta de um wizard único.
+const hasTabs = computed((): boolean => enabledTabs.value.length > 1);
+const activeTab = ref<ImportTab>("spreadsheet");
 
 // Quem chegou pelo onboarding perdeu o overlay do tour ao navegar para cá, e o
 // banner de retomada só existe no dashboard. Sem esta faixa, o caminho de
@@ -88,7 +105,7 @@ const goToUpgrade = (): void => {
       animated
       data-testid="import-tabs"
     >
-      <NTabPane name="spreadsheet" display-directive="if">
+      <NTabPane v-if="isSpreadsheetEnabled" name="spreadsheet" display-directive="if">
         <template #tab>
           <span data-testid="import-tab-spreadsheet">
             {{ t("import.tabs.spreadsheet") }}
@@ -99,7 +116,15 @@ const goToUpgrade = (): void => {
           @upgrade="goToUpgrade"
         />
       </NTabPane>
-      <NTabPane name="bank" display-directive="if">
+      <NTabPane v-if="isStatementEnabled" name="statement" display-directive="if">
+        <template #tab>
+          <span data-testid="import-tab-statement">
+            {{ t("import.statement.tab") }}
+          </span>
+        </template>
+        <StatementImportPanel />
+      </NTabPane>
+      <NTabPane v-if="isBankEnabled" name="bank" display-directive="if">
         <template #tab>
           <span data-testid="import-tab-bank">{{ t("import.tabs.bank") }}</span>
         </template>
@@ -115,6 +140,8 @@ const goToUpgrade = (): void => {
       @go-to-transactions="goToTransactions"
       @upgrade="goToUpgrade"
     />
+
+    <StatementImportPanel v-else-if="isStatementEnabled" />
 
     <BankImportPanel
       v-else

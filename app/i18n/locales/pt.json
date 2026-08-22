@@ -4508,6 +4508,143 @@
       "title": "Você veio do tour do Auraxis",
       "description": "Importe seus lançamentos aqui e volte para o tutorial quando quiser — ele retoma de onde parou.",
       "resume": "Voltar ao tour"
+    },
+    "statement": {
+      "tab": "Extrato em PDF",
+      "period": "Período {start} a {end}",
+      "pages": "{count} páginas",
+      "alreadyImported": "Este extrato já foi importado antes. Os lançamentos conhecidos aparecem marcados e não serão criados de novo.",
+      "restart": "Enviar outro extrato",
+      "confirm": "Confirmar importação de {count} lançamentos",
+      "account": {
+        "hint": "Escolha a conta onde esses lançamentos entram. O extrato é conferido contra o que já existe nela — por isso a conta vem antes do arquivo.",
+        "placeholder": "Conta de destino",
+        "continue": "Continuar",
+        "change": "Trocar de conta",
+        "empty": "Você ainda não tem uma conta cadastrada.",
+        "createCta": "Criar conta",
+        "loadError": "Não foi possível carregar suas contas. Tente novamente."
+      },
+      "dropzone": {
+        "title": "Envie o extrato em PDF",
+        "hint": "Baixe o extrato de conta corrente pelo internet banking. Hoje lemos o formato do Itaú; para outros bancos, use OFX, QFX ou CSV na outra aba.",
+        "invalidType": "Envie um arquivo .pdf."
+      },
+      "columns": {
+        "date": "Data",
+        "boughtOn": "compra em {date}",
+        "description": "Lançamento",
+        "amount": "Valor",
+        "nature": "Natureza",
+        "duplicate": "Duplicidade",
+        "action": "Ação"
+      },
+      "nature": {
+        "income": "Receita",
+        "expense": "Despesa",
+        "self_transfer": "Transferência própria",
+        "transfer": "Transferência",
+        "card_bill_payment": "Pagamento de fatura",
+        "liability_payment": "Quitação de dívida",
+        "investment_yield": "Rendimento",
+        "refund": "Reembolso",
+        "reversal": "Estorno",
+        "bank_fee": "Tarifa",
+        "interest": "Juros",
+        "tax": "Tributo",
+        "withdrawal": "Saque",
+        "unclassified_in": "Entrada a classificar",
+        "unclassified_out": "Saída a classificar"
+      },
+      "match": {
+        "exact": "Já importado",
+        "likely": "Provável duplicata",
+        "possible": "Talvez duplicata",
+        "conflict": "Precisa de decisão",
+        "unique": "Novo"
+      },
+      "field": {
+        "amount": "valor",
+        "direction": "tipo",
+        "date": "data",
+        "description": "descrição",
+        "counterparty": "contraparte",
+        "reference": "referência bancária",
+        "payment_method": "meio de pagamento",
+        "account": "conta",
+        "category": "categoria",
+        "fingerprint": "identidade do lançamento"
+      },
+      "badge": {
+        "recurring": "Parece recorrente",
+        "review": "Conferir"
+      },
+      "action": {
+        "import": "Importar",
+        "link_existing": "Usar a existente",
+        "ignore": "Ignorar",
+        "skip": "Deixar de fora",
+        "toggle": "Alternar a ação de {description}"
+      },
+      "filters": {
+        "label": "Filtrar lançamentos",
+        "all": "Todas",
+        "new": "Novas",
+        "exact": "Duplicadas exatas",
+        "likely": "Prováveis duplicatas",
+        "ambiguous": "Ambíguas",
+        "transfers": "Transferências",
+        "income": "Receitas",
+        "expense": "Despesas",
+        "unclassified": "Não classificadas"
+      },
+      "summary": {
+        "extracted": "Extraídos",
+        "selected": "Serão criados",
+        "linked": "Serão vinculados",
+        "ignored": "Ignorados",
+        "needsReview": "Pedem conferência",
+        "credits": "Entradas R$ {value}",
+        "debits": "Saídas R$ {value}",
+        "transfers": "Transferências R$ {value}",
+        "transferNotice": "Transferências entre suas contas e pagamentos de fatura não entram como receita nem despesa — o dinheiro só mudou de lugar, e a compra do cartão já foi lançada.",
+        "balanceNotice": "{count} linhas de saldo do dia foram lidas para conferência e não viram lançamento.",
+        "conflictNotice": "{count} lançamentos têm mais de uma correspondência possível. Decida cada um antes de confirmar.",
+        "rejectedNotice": "{count} linhas não puderam ser lidas e ficaram de fora."
+      },
+      "duplicate": {
+        "title": "Esse lançamento já está na sua conta?",
+        "inspect": "Ver a comparação de {description}",
+        "statementLine": "No extrato",
+        "confidence": "Confiança",
+        "dayDifference": "Diferença de datas",
+        "days": "{count} dias",
+        "agreed": "Coincidem:",
+        "diverged": "Divergem:",
+        "safety": "Nada que você já lançou será apagado ou sobrescrito. Ao usar a transação existente, ela continua como está e só recebe a referência do banco.",
+        "useExisting": "Usar a existente",
+        "importAnyway": "Importar mesmo assim",
+        "ignore": "Ignorar"
+      },
+      "result": {
+        "imported": "Criados",
+        "linked": "Vinculados",
+        "ignored": "Ignorados",
+        "partial": "{count} lançamentos não puderam ser criados e continuam disponíveis para uma nova tentativa:",
+        "again": "Importar outro extrato"
+      },
+      "errors": {
+        "none": "",
+        "no-account": "Escolha a conta de destino antes de enviar o arquivo.",
+        "file-too-large": "O arquivo passa de 10 MB. Exporte um período menor.",
+        "wrong-format": "Esta aba lê apenas PDF. Para OFX, QFX, CNAB ou CSV, use a aba de extrato bancário.",
+        "scanned": "Este PDF é uma imagem escaneada, sem texto selecionável. Baixe o extrato em PDF pelo internet banking, ou envie OFX ou CSV.",
+        "corrupt": "Não foi possível ler o PDF. Verifique se o arquivo está completo e sem senha.",
+        "unknown-bank": "Não reconhecemos o layout deste extrato. Hoje lemos o extrato de conta corrente do Itaú; para outros bancos, use OFX, QFX ou CSV.",
+        "expired": "A prévia expirou. Envie o extrato novamente.",
+        "conflicts": "Há lançamentos com mais de uma correspondência possível. Decida cada um antes de confirmar.",
+        "generic": "Não conseguimos concluir agora. Tente novamente em instantes."
+      }
     }
   }
 }
