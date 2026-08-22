@@ -18,6 +18,7 @@
     "i18n:check": "node scripts/check-i18n-parity.cjs",
     "contracts:sync": "node scripts/contracts-sync.cjs",
     "contracts:check": "node scripts/contracts-check.cjs",
+    "graphql:sync": "node scripts/graphql-schema-sync.cjs",
     "analyze": "ANALYZE=true pnpm build && node scripts/analyze-bundle.cjs",
     "analyze:report": "node scripts/analyze-bundle.cjs",
     "policy:check": "node scripts/check-frontend-governance.cjs",

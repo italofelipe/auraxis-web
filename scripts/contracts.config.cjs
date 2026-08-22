@@ -9,6 +9,15 @@ const PLATFORM_REF = process.env.AURAXIS_PLATFORM_REF ?? "master";
 const DEFAULT_CONTRACTS_API_URL = `https://api.github.com/repos/${PLATFORM_OWNER}/${PLATFORM_REPO}/contents/.context/feature_contracts?ref=${PLATFORM_REF}`;
 const DEFAULT_OPENAPI_SNAPSHOT_URL = `https://raw.githubusercontent.com/${PLATFORM_OWNER}/${PLATFORM_REPO}/${PLATFORM_REF}/.context/openapi/openapi.snapshot.json`;
 
+const API_OWNER = process.env.AURAXIS_API_OWNER ?? "italofelipe";
+const API_REPO = process.env.AURAXIS_API_REPO ?? "auraxis-api";
+const API_REF = process.env.AURAXIS_API_REF ?? "master";
+
+const DEFAULT_GRAPHQL_SCHEMA_URL = `https://raw.githubusercontent.com/${API_OWNER}/${API_REPO}/${API_REF}/schema.graphql`;
+
+const GRAPHQL_SCHEMA_URL =
+  process.env.AURAXIS_GRAPHQL_SCHEMA_URL ?? DEFAULT_GRAPHQL_SCHEMA_URL;
+
 const CONTRACTS_API_URL =
   process.env.AURAXIS_CONTRACTS_API_URL ?? DEFAULT_CONTRACTS_API_URL;
 const OPENAPI_SNAPSHOT_URL =
@@ -27,11 +36,17 @@ const GENERATED_TYPES_PATH = path.resolve(
   REPO_ROOT,
   "app/shared/types/generated/openapi.ts",
 );
+const GRAPHQL_SCHEMA_PATH = path.resolve(REPO_ROOT, "contracts/schema.graphql");
 
 module.exports = {
+  API_OWNER,
+  API_REF,
+  API_REPO,
   CONTRACTS_API_URL,
   CONTRACT_BASELINE_PATH,
   GENERATED_TYPES_PATH,
+  GRAPHQL_SCHEMA_PATH,
+  GRAPHQL_SCHEMA_URL,
   OPENAPI_SNAPSHOT_PATH,
   OPENAPI_SNAPSHOT_URL,
   PLATFORM_OWNER,

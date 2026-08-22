@@ -2029,6 +2029,7 @@ export type TransactionTypeObject = {
   dueDate: Scalars['String']['output'];
   endDate?: Maybe<Scalars['String']['output']>;
   externalId?: Maybe<Scalars['String']['output']>;
+  financialNature?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   impactPolicy: Scalars['String']['output'];
   installmentCount?: Maybe<Scalars['Int']['output']>;

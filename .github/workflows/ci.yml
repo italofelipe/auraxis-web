@@ -178,12 +178,44 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Roda contra o snapshot versionado em contracts/schema.graphql — sem rede.
+      # Buscar a master da auraxis-api em runtime deixava este gate vermelho
+      # sozinho a cada merge de schema na API, reprovando PRs sem relacao
+      # nenhuma com GraphQL e virando PRs ja verdes no vermelho (web#1326).
+      # Para subir o contrato: `pnpm graphql:sync`.
       - name: Check GraphQL types are in sync with schema
         run: pnpm codegen:check
-        env:
-          # Pulls schema from the committed schema.graphql in auraxis-api (master branch).
-          # Update this URL when migrating to a different branch or registry.
-          GRAPHQL_SCHEMA_PATH: https://raw.githubusercontent.com/italofelipe/auraxis-api/master/schema.graphql
+
+  # ── 4.3 GraphQL Schema Drift (advisory) ────────────────────────────────
+  # O snapshot pinado protege o CI, mas nada avisaria que ele envelheceu.
+  # Este job compara com a master da API e AVISA — nunca bloqueia.
+  graphql-schema-drift:
+    name: GraphQL Schema Drift (advisory)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compare committed snapshot with auraxis-api master
+        run: |
+          curl -fsSL -o /tmp/schema-upstream.graphql \
+            https://raw.githubusercontent.com/italofelipe/auraxis-api/master/schema.graphql
+          if diff -q contracts/schema.graphql /tmp/schema-upstream.graphql > /dev/null; then
+            echo "snapshot em dia com a master da auraxis-api"
+          else
+            {
+              echo "### GraphQL schema drift"
+              echo
+              echo "\`contracts/schema.graphql\` divergiu da master da auraxis-api."
+              echo "Rode \`pnpm graphql:sync\` e abra um PR com o diff do contrato."
+              echo
+              echo '```diff'
+              diff -u contracts/schema.graphql /tmp/schema-upstream.graphql | head -100
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::warning::schema drift — rode 'pnpm graphql:sync'"
+          fi
 
   # ── 5. Build check ─────────────────────────────────────────────────────
   build:
