@@ -606,8 +606,18 @@
       "createdAt": "2026-08-02",
       "removeBy": "2027-06-30",
       "type": "release",
-      "status": "enabled-dev",
+      "status": "enabled-staging",
       "description": "Aba \"Extrato bancário\" em /transactions/import consumindo /v2/bank-import (OFX, QFX, FEBRABAN 240 e CSV por banco). Separada da flag do CSV/XLSX de propósito: desligar o extrato não pode derrubar o import de planilha.",
+      "repositories": ["auraxis-web", "auraxis-api-v2"]
+    },
+    {
+      "key": "web.import.statement-pdf",
+      "owner": "platform",
+      "createdAt": "2026-08-21",
+      "removeBy": "2027-06-30",
+      "type": "release",
+      "status": "enabled-dev",
+      "description": "Aba de importação de extrato bancário em PDF (Itaú) com classificação de natureza financeira e revisão de duplicidade contra transações manuais. Depende de auraxis-api-v2#138 e auraxis-api#1694 em produção.",
       "repositories": ["auraxis-web", "auraxis-api-v2"]
     }
   ]

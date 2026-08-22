@@ -39,3 +39,29 @@
 ## Known Data Gap
 
 The bill endpoint does not yet expose structured category/tag labels. The current statement categories are enriched on the client from synchronized transactions and tags. Richer cross-card analytics should eventually be backed by API aggregates or a first-class `GET /transactions?credit_card_id=...` aggregate endpoint.
+
+## Statement Import (PDF)
+
+1. The user picks a destination account. This comes first because a statement
+   reconciles against one account, and the duplicate check compares each line
+   against what already exists in it.
+2. `POST /v2/bank-import/statements/upload` (multipart: file + `account_id`)
+   returns the full preview. Nothing is created.
+3. The preview is rendered as-is: totals with transfers reported apart from
+   income and expense, filters by duplicate status and nature, and one row per
+   line showing what the bank wrote, what the system concluded and why.
+4. Each row's action can be toggled, or resolved through the duplicate modal
+   (use the existing transaction, import anyway, ignore).
+5. Confirmation is disabled while any conflict is undecided.
+6. `POST /v2/bank-import/statements/{token}/confirm` sends one decision per
+   line. Lines with no action are omitted — silence is not consent.
+7. The result reports created, linked and ignored, plus any line the ledger
+   refused; those keep no fingerprint and stay re-importable.
+
+## Account Loading in the Import Flow
+
+`useAccountsQuery` is consumed directly from `features/accounts`, following
+the precedent already set by `credit-cards` and `transactions`. The picker
+guards the payload with `Array.isArray`: a `.map` over an unexpected shape
+throws and takes the whole screen with it, leaving the user with no picker, no
+upload and no explanation.

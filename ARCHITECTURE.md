@@ -43,3 +43,28 @@ Card launches send `impact_policy` through `CreateTransactionPayload`:
 - `planned_until_bill`: kept as a planning policy for bill-aware workflows.
 
 The web client supports `credit_card_id` in transaction list filters so card-specific dashboards can evolve toward richer analytics without changing the canonical transaction contract.
+
+## Statement Import (PDF)
+
+`app/features/import/` now serves three paths, each behind its own flag:
+spreadsheet (CSV/XLSX), bank file (OFX/QFX/CNAB/CSV) and **statement PDF**.
+
+The PDF path keeps its own domain module (`model/statement-import.ts`) rather
+than widening `bank-import.ts`. The two contracts genuinely differ: this one
+requires a destination account, and each line carries a financial nature,
+duplicate evidence and a decision. Merging them would produce a type whose
+fields are optional depending on a file extension.
+
+Money crosses as `string` from backend to screen. `Number` appears only inside
+`formatStatementAmount`, at the presentation edge — converting earlier
+reintroduces the floating point the backend uses `Decimal` to avoid.
+
+The default action per line is domain logic, not component logic: a transfer
+between the user's own accounts and a card-bill payment start **unselected**,
+because counting them as income or expense is the double count the feature
+exists to prevent. An exact duplicate is not re-offered, and a conflict has no
+default at all.
+
+Failures are classified by the backend's stable error code
+(`STATEMENT_PDF_SCANNED`, `STATEMENT_UNKNOWN_LAYOUT`, …), never by searching
+the message text — prose is translatable and gets rewritten.
