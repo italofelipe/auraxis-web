@@ -27,26 +27,39 @@ export interface LegalDocument {
 
 const supportEmail = "suporte@auraxis.com.br";
 
+/** Canal do titular exigido pelo art. 41 da LGPD. Criado em platform#872. */
+const privacyEmail = "privacidade@auraxis.com.br";
+
+/**
+ * Controlador dos dados na acepção do art. 5º, VI da LGPD.
+ * "Auraxis" é o nome do produto; a pessoa jurídica é a Sensorium (platform#1007).
+ */
+const controllerLegalName = "Sensorium";
+const controllerTaxId = "47.093.328/0001-63";
+
 /** Versão vigente da Política de Privacidade — gravada no aceite (#1118). */
-export const PRIVACY_POLICY_VERSION = "2.2.0";
+export const PRIVACY_POLICY_VERSION = "2.3.0";
 
 /** Versão vigente dos Termos de Uso — gravada no aceite (#1118). */
-export const TERMS_OF_USE_VERSION = "2.2.0";
+export const TERMS_OF_USE_VERSION = "2.3.0";
 
 export const privacyPolicyDocument: LegalDocument = {
   title: "Política de Privacidade",
   versionLabel: `Versão ${PRIVACY_POLICY_VERSION}`,
-  updatedAtLabel: "Atualizado em 2026-07-19",
-  contactEmail: supportEmail,
+  updatedAtLabel: "Atualizado em 2026-08-22",
+  contactEmail: privacyEmail,
   navLinks: [
     { label: "Termos de Uso", to: "/terms" },
     { label: "Política de Cookies", to: "/cookies" },
   ],
   sections: [
     {
-      title: "1. Objetivo",
+      title: "1. Objetivo e controlador",
       paragraphs: [
         "Esta Política explica como o Auraxis trata dados pessoais para operar uma plataforma de organização financeira pessoal, incluindo dashboards, transações, metas, carteira, simulações, notificações, suporte, segurança, cookies e insights com IA.",
+        `O controlador dos dados pessoais tratados no Auraxis, nos termos do art. 5º, VI da Lei nº 13.709/2018 (LGPD), é ${controllerLegalName}, inscrita no CNPJ sob o nº ${controllerTaxId}. "Auraxis" é o nome do produto; a pessoa jurídica responsável pelo tratamento e pela contratação é a ${controllerLegalName}.`,
+        `O canal do titular para exercício de direitos e demais assuntos de privacidade é ${privacyEmail}.`,
+        "O controlador é agente de tratamento de pequeno porte e, na forma do art. 11 da Resolução CD/ANPD nº 2, de 27 de janeiro de 2022, está dispensado da indicação de encarregado. O canal de comunicação indicado acima cumpre a função prevista no art. 41, § 4º da LGPD.",
       ],
     },
     {
@@ -157,7 +170,7 @@ export const privacyPolicyDocument: LegalDocument = {
       title: "10. Direitos do titular",
       paragraphs: [
         "O titular pode solicitar confirmação de tratamento, acesso, correção, portabilidade, anonimização, bloqueio ou eliminação, informações sobre compartilhamento, revisão de decisões automatizadas quando aplicável, revogação de consentimento e eliminação de dados tratados com base em consentimento, observadas exceções legais.",
-        "Pedidos devem ser encaminhados para suporte@auraxis.com.br ou pela central de privacidade quando disponível.",
+        `Pedidos devem ser encaminhados para ${privacyEmail} ou pela central de privacidade quando disponível. O prazo e a forma de resposta seguem o disposto na LGPD.`,
       ],
     },
     {
@@ -188,7 +201,7 @@ export const privacyPolicyDocument: LegalDocument = {
 export const termsOfUseDocument: LegalDocument = {
   title: "Termos de Uso",
   versionLabel: `Versão ${TERMS_OF_USE_VERSION}`,
-  updatedAtLabel: "Atualizado em 2026-07-19",
+  updatedAtLabel: "Atualizado em 2026-08-22",
   contactEmail: supportEmail,
   navLinks: [
     { label: "Política de Privacidade", to: "/privacy" },
@@ -196,8 +209,9 @@ export const termsOfUseDocument: LegalDocument = {
   ],
   sections: [
     {
-      title: "1. Quem pode usar",
+      title: "1. Partes e quem pode usar",
       paragraphs: [
+        `Estes Termos são celebrados entre o usuário e ${controllerLegalName}, inscrita no CNPJ sob o nº ${controllerTaxId}, doravante denominada Auraxis — nome do produto por ela operado. É a ${controllerLegalName} quem contrata, fatura e responde pelo serviço.`,
         "O Auraxis é destinado a pessoas maiores de 18 anos, com capacidade civil para contratar e operar seus próprios dados financeiros.",
       ],
     },

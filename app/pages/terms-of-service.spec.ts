@@ -2,6 +2,10 @@ import { mount, type VueWrapper } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 
 import TermsOfServicePage from "./terms-of-service.vue";
+import {
+  TERMS_OF_USE_VERSION,
+  termsOfUseDocument,
+} from "~/features/legal/legal-documents";
 import { nuxtAppContextPlugin } from "~/test-utils";
 
 const stubs = {
@@ -28,8 +32,8 @@ describe("TermsOfServicePage (/terms-of-service)", () => {
 
   it("displays document version and effective date", () => {
     const wrapper = mountPage();
-    expect(wrapper.text()).toContain("2.2.0");
-    expect(wrapper.text()).toContain("2026-07-19");
+    expect(wrapper.text()).toContain(TERMS_OF_USE_VERSION);
+    expect(wrapper.text()).toContain(termsOfUseDocument.updatedAtLabel);
   });
 
   it("displays the support email", () => {
@@ -41,6 +45,15 @@ describe("TermsOfServicePage (/terms-of-service)", () => {
     const wrapper = mountPage();
     const mailLinks = wrapper.findAll("a[href=\"mailto:suporte@auraxis.com.br\"]");
     expect(mailLinks.length).toBeGreaterThan(0);
+  });
+
+  // A parte contratante e a pessoa juridica, nao o nome do produto
+  // (platform#1007): cobranca emitida por uma empresa e termos assinados por
+  // outra e inconsistencia que aparece na primeira disputa.
+  it("identifies the contracting legal entity", () => {
+    const wrapper = mountPage();
+    expect(wrapper.text()).toContain("Sensorium");
+    expect(wrapper.text()).toContain("47.093.328/0001-63");
   });
 
   it("displays navigation link to Privacy Policy", () => {
@@ -63,7 +76,8 @@ describe("TermsOfServicePage (/terms-of-service)", () => {
 
   it("contains section about who can use the service", () => {
     const wrapper = mountPage();
-    expect(wrapper.text()).toContain("Quem pode usar");
+    expect(wrapper.text()).toContain("quem pode usar");
+    expect(wrapper.text()).toContain("maiores de 18 anos");
   });
 
   it("contains section about permitted use", () => {

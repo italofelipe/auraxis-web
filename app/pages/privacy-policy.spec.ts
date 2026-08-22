@@ -2,6 +2,10 @@ import { mount, type VueWrapper } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 
 import PrivacyPolicyPage from "./privacy-policy.vue";
+import {
+  PRIVACY_POLICY_VERSION,
+  privacyPolicyDocument,
+} from "~/features/legal/legal-documents";
 import { nuxtAppContextPlugin } from "~/test-utils";
 
 const stubs = {
@@ -26,21 +30,39 @@ describe("PrivacyPolicyPage (/privacy-policy)", () => {
     expect(wrapper.text()).toContain("Política de Privacidade");
   });
 
+  // Derivado das constantes de propósito: fixar "2.2.0" na unha fazia o teste
+  // reprovar a cada bump legítimo de versão, sem nada de errado no documento.
   it("displays document version and effective date", () => {
     const wrapper = mountPage();
-    expect(wrapper.text()).toContain("2.2.0");
-    expect(wrapper.text()).toContain("2026-07-19");
+    expect(wrapper.text()).toContain(PRIVACY_POLICY_VERSION);
+    expect(wrapper.text()).toContain(privacyPolicyDocument.updatedAtLabel);
   });
 
-  it("displays the support email", () => {
+  it("displays the data subject channel", () => {
     const wrapper = mountPage();
-    expect(wrapper.text()).toContain("suporte@auraxis.com.br");
+    expect(wrapper.text()).toContain(privacyPolicyDocument.contactEmail);
   });
 
-  it("contains a mailto link for the support email", () => {
+  it("contains a mailto link for the data subject channel", () => {
     const wrapper = mountPage();
-    const mailLinks = wrapper.findAll("a[href=\"mailto:suporte@auraxis.com.br\"]");
+    const mailLinks = wrapper.findAll(
+      `a[href="mailto:${privacyPolicyDocument.contactEmail}"]`,
+    );
     expect(mailLinks.length).toBeGreaterThan(0);
+  });
+
+  // Exigência do art. 9º, I da LGPD: o titular precisa saber quem é o
+  // controlador. Antes disto a página em produção não citava nem a razão
+  // social nem o CNPJ (web#1116, platform#1007).
+  it("identifies the data controller by legal name and tax id", () => {
+    const wrapper = mountPage();
+    expect(wrapper.text()).toContain("Sensorium");
+    expect(wrapper.text()).toContain("47.093.328/0001-63");
+  });
+
+  it("states the ANPD small-agent waiver for appointing a DPO", () => {
+    const wrapper = mountPage();
+    expect(wrapper.text()).toContain("Resolução CD/ANPD nº 2");
   });
 
   it("displays navigation link to Terms of Service", () => {
