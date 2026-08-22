@@ -82,8 +82,11 @@ export class StatementImportClient {
    * @returns A mesma prévia.
    */
   async preview(previewToken: string): Promise<StatementPreview> {
+    // `/preview` no fim, e não só o token: sem o sufixo a rota do backend
+    // captura "upload" como se fosse um token, e um GET no endpoint de upload
+    // responde 404 em vez de 405.
     const response = await this.#http.get<StatementPreviewDto>(
-      `${BASE_PATH}/${previewToken}`,
+      `${BASE_PATH}/${previewToken}/preview`,
     );
     return mapStatementPreview(unwrapEnvelope(response.data));
   }
